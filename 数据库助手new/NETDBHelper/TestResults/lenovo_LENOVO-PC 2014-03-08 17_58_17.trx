@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<TestRun id="306ac87b-64c4-48af-ae74-fbb29951bb9b" name="lenovo@LENOVO-PC 2014-03-08 17:58:17" runUser="lenovo-PC\lenovo" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <TestSettings name="本地" id="475ae35f-bb0b-4ecf-a4cb-475f14642e6d">
+    <Description>这些设置为本地测试运行的默认测试设置。</Description>
+    <Deployment enabled="false" runDeploymentRoot="lenovo_LENOVO-PC 2014-03-08 17_58_17">
+      <DeploymentItem filename="E:\程序\数据库助手\NETDBHelper\Biz\bin\Debug\Biz.dll" />
+      <DeploymentItem filename="E:\程序\数据库助手\NETDBHelper\Entity\bin\Debug\Entity.dll" />
+    </Deployment>
+    <Execution>
+      <TestTypeSpecific />
+      <AgentRule name="Execution Agents">
+      </AgentRule>
+    </Execution>
+  </TestSettings>
+  <Times creation="2014-03-08T17:58:17.4190975+08:00" queuing="2014-03-08T17:58:24.2484881+08:00" start="2014-03-08T17:58:24.6845131+08:00" finish="2014-03-08T17:59:59.4569337+08:00" />
+  <ResultSummary outcome="Error">
+    <Counters total="1" error="0" failed="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="1" disconnected="0" warning="0" passed="0" completed="0" inProgress="0" pending="0" />
+    <RunInfos>
+      <RunInfo computerName="LENOVO-PC" outcome="Error" timestamp="2014-03-08T17:59:59.3659285+08:00">
+        <Text>测试宿主进程意外退出。</Text>
+      </RunInfo>
+    </RunInfos>
+  </ResultSummary>
+  <TestDefinitions>
+    <UnitTest name="GetDBsTest" storage="e:\程序\数据库助手\netdbhelper\testproject1\bin\debug\testproject1.dll" id="2097a174-58f0-3054-98ed-acdbd04b8ceb">
+      <Execution id="49d5cb6d-f78c-4621-8e5e-c3c1c6d36edd" />
+      <TestMethod codeBase="E:/程序/数据库助手/NETDBHelper/TestProject1/bin/Debug/TestProject1.DLL" adapterTypeName="Microsoft.VisualStudio.TestTools.TestTypes.Unit.UnitTestAdapter, Microsoft.VisualStudio.QualityTools.Tips.UnitTest.Adapter, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" className="TestProject1.SQLHelperTest, TestProject1, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" name="GetDBsTest" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestLists>
+    <TestList name="列表中未列出的结果" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="所有已加载的结果" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <TestEntries>
+    <TestEntry testId="2097a174-58f0-3054-98ed-acdbd04b8ceb" executionId="49d5cb6d-f78c-4621-8e5e-c3c1c6d36edd" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <Results>
+    <UnitTestResult executionId="49d5cb6d-f78c-4621-8e5e-c3c1c6d36edd" testId="2097a174-58f0-3054-98ed-acdbd04b8ceb" testName="GetDBsTest" computerName="LENOVO-PC" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="NotExecuted" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="49d5cb6d-f78c-4621-8e5e-c3c1c6d36edd">
+    </UnitTestResult>
+  </Results>
+</TestRun>

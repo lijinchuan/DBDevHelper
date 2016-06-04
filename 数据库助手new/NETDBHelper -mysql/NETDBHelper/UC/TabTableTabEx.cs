@@ -1,0 +1,42 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Windows.Forms;
+
+namespace NETDBHelper.UC
+{
+    internal class TabTableTabEx
+    {
+        public RectangleF StripRect
+        {
+            get;
+            set;
+        }
+
+        public int TabIndex
+        {
+            get;
+            set;
+        }
+
+        public TabPage TabPage
+        {
+            get;
+            set;
+        }
+
+        public Rectangle CloseButtonBand
+        {
+            get;
+            set;
+        }
+
+        public TabTableTabEx(TabPage page, int tabindex)
+        {
+            this.TabPage = page;
+            this.TabIndex = tabindex;
+        }
+    }
+}

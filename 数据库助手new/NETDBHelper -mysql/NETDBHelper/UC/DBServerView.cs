@@ -1,0 +1,961 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Drawing;
+using System.Data;
+using System.Linq;
+using System.Text;
+using System.Windows.Forms;
+using Entity;
+using System.Text.RegularExpressions;
+using NETDBHelper.SubForm;
+using Biz.Common;
+using Biz.Common.Data;
+
+namespace NETDBHelper
+{
+    public partial class DBServerView : UserControl
+    {
+        public Action<string,string> OnCreateEntity;
+        public Action<DBSource,string, string> OnShowTableData;
+        public Action<DBSource,string> OnAddEntityTB;
+        public Action<DBSource, string, string, string,CreateProceEnum> OnCreatePorcSQL;
+        public Action<DBSource,string> OnAddSqlExecuter;
+        private DBSourceCollection _dbServers;
+        /// <summary>
+        /// 实体命名空间
+        /// </summary>
+        private static string DefaultEntityNamespace = "Nonamespace";
+        public DBSourceCollection DBServers
+        {
+            get
+            {
+                return _dbServers;
+            }
+        }
+        public DBServerView()
+        {
+            InitializeComponent();
+            ts_serchKey.Height = 20;
+            _dbServers = new DBSourceCollection();
+            tv_DBServers.ImageList = new ImageList();
+            tv_DBServers.ImageList.Images.Add(Resources.Resource1.DB1);
+            tv_DBServers.ImageList.Images.Add(Resources.Resource1.DB2);
+            tv_DBServers.ImageList.Images.Add(Resources.Resource1.DB3);
+            tv_DBServers.ImageList.Images.Add(Resources.Resource1.DB4);
+            tv_DBServers.ImageList.Images.Add(Resources.Resource1.DB5);
+            tv_DBServers.ImageList.Images.Add(Resources.Resource1.DB6);
+            tv_DBServers.Nodes.Add("0", "资源管理器", 0);
+            tv_DBServers.NodeMouseClick += new TreeNodeMouseClickEventHandler(tv_DBServers_NodeMouseClick);
+
+            this.DBServerviewContextMenuStrip.ItemClicked += new ToolStripItemClickedEventHandler(OnMenuStrip_ItemClicked);
+            this.CommMenuStrip.ItemClicked += new ToolStripItemClickedEventHandler(CommMenuStrip_ItemClicked);
+        }
+
+        void CommMenuStrip_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+            try
+            {
+                switch (e.ClickedItem.Text)
+                {
+                    case "刷新":
+                        ReLoadDBObj(tv_DBServers.SelectedNode);
+                        break;
+                    case "复制对象名":
+                        if (this.tv_DBServers.SelectedNode != null)
+                        {
+                            string s = tv_DBServers.SelectedNode.Text;
+                            if (s.IndexOf('(') > -1)
+                                Clipboard.SetText(s.Substring(0, s.IndexOf('(')));
+                            else
+                                Clipboard.SetText(s);
+                        }
+                        break;
+                    case "添加实体映射表":
+                        if (OnAddEntityTB != null)
+                        {
+                            var node = tv_DBServers.SelectedNode;
+                            if (node == null)
+                                return;
+                            OnAddEntityTB(GetDBSource(node), node.Text);
+                        }
+                        break;
+                    case "删除对象":
+                        if (MessageBox.Show("确认要删除数据库" + tv_DBServers.SelectedNode.Text + "吗？", "询问",
+                            MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+                        {
+                            var node = tv_DBServers.SelectedNode;
+                            Biz.Common.Data.MySQLHelper.DeleteDataBase(GetDBSource(node), node.Text);
+                            ReLoadDBObj(node.Parent);
+                        }
+                        break;
+                    case "新增对象":
+                        var selnode = tv_DBServers.SelectedNode;
+                        var dlg = new SubForm.InputStringDlg("请输入库名：");
+                        if (dlg.ShowDialog() == DialogResult.OK)
+                        {
+                            Biz.Common.Data.MySQLHelper.CreateDataBase(GetDBSource(selnode),selnode.FirstNode.Text, dlg.InputString);
+                            ReLoadDBObj(selnode);
+                        }
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "发生错误", MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
+            }
+        }
+
+        void ReLoadDBObj(TreeNode selNode)
+        {
+            //TreeNode selNode = tv_DBServers.SelectedNode;
+            if (selNode == null)
+                return;
+            if (selNode.Level == 1)
+            {
+                Biz.UILoadHelper.LoadDBsAnsy(this.ParentForm, selNode, GetDBSource(selNode));
+            }
+            else if (selNode.Level == 2)
+            {
+                Biz.UILoadHelper.LoadTBsAnsy(this.ParentForm, selNode, GetDBSource(selNode));
+            }
+            else if (selNode.Level == 3 && !selNode.Text.Equals("存储过程"))
+            {
+                Biz.UILoadHelper.LoadColumnsAnsy(this.ParentForm, selNode, GetDBSource(selNode));
+            }
+            else if (selNode.Level == 3 && selNode.Text.Equals("存储过程"))
+            {
+                Biz.UILoadHelper.LoadProcedureAnsy(this.ParentForm, selNode, GetDBSource(selNode));
+            }
+        }
+
+        void OnMenuStrip_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+            try
+            {
+                switch (e.ClickedItem.Text)
+                {
+                    case "生成实体类":
+                        CreateEntityClass();
+                        break;
+                    case "显示前100条数据":
+                        ShowTop100Data();
+                        break;
+                    case "复制对象名":
+                        if (this.tv_DBServers.SelectedNode != null)
+                        {
+                            Clipboard.SetText(tv_DBServers.SelectedNode.Text);
+                        }
+                        break;
+                    case "删除表":
+                        if (MessageBox.Show("确认要删除表" + tv_DBServers.SelectedNode.Text + "吗？", "询问",
+                            MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+                        {
+                            var node = tv_DBServers.SelectedNode;
+                            Biz.Common.Data.MySQLHelper.DeleteTable(GetDBSource(node), node.Parent.Text, node.Text);
+                            ReLoadDBObj(node.Parent);
+                        }
+                        break;
+                    case "刷新":
+                        ReLoadDBObj(tv_DBServers.SelectedNode);
+                        break;
+                    case "修改表名":
+                        var _node=tv_DBServers.SelectedNode;
+                        var oldname = _node.Text;
+                        var dlg=new SubForm.InputStringDlg("修改表名:", _node.Text);
+                        if ( dlg.ShowDialog()== DialogResult.OK)
+                        {
+                            if (string.Equals(dlg.InputString, oldname, StringComparison.OrdinalIgnoreCase))
+                            {
+                                return;
+                            }
+                            Biz.Common.Data.MySQLHelper.ReNameTableName(GetDBSource(_node), _node.Parent.Text,
+                                oldname, dlg.InputString);
+                            ReLoadDBObj(_node.Parent);
+                        }
+                        break;
+                    case "InsertOrUpdate":
+                        _node=tv_DBServers.SelectedNode;
+                        if (this.OnCreatePorcSQL != null)
+                        {
+                            this.OnCreatePorcSQL(GetDBSource(_node), _node.Parent.Text, _node.Name, _node.Text,CreateProceEnum.InsertOrUpdate);
+                        }
+                        break;
+                    case "Delete":
+
+                        break;
+                    case "Select":
+
+                        break;
+                    case "创建语句":
+                        MessageBox.Show("Create");
+                        break;
+                    default:
+                        _node = tv_DBServers.SelectedNode;
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "发生错误", MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
+            }
+        }
+
+        void ShowTop100Data()
+        {
+            if (tv_DBServers.SelectedNode != null && tv_DBServers.SelectedNode.Level == 3)
+            {
+                List<KeyValuePair<string, bool>> cols = new List<KeyValuePair<string, bool>>();
+                foreach (TreeNode node in tv_DBServers.SelectedNode.Nodes)
+                {
+                    cols.Add(new KeyValuePair<string, bool>(node.Text.Substring(0,node.Text.IndexOf('(')), (node.Tag as TBColumn).IsKey));
+                }
+                StringBuilder sb = new StringBuilder("SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED ;");
+                sb.AppendLine();
+                sb.AppendLine("select");
+                sb.Append(string.Join(",\r\n", cols.Select(p =>"["+p.Key+"]")));
+                sb.AppendLine("");
+                sb.Append(" from ");
+                sb.Append(tv_DBServers.SelectedNode.Text);
+                sb.Append(" limit 0,100;");
+                sb.AppendLine();
+                sb.AppendLine("SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ ;");
+                if (this.OnShowTableData != null)
+                {
+                    OnShowTableData(this.tv_DBServers.SelectedNode.Parent.Parent.Tag as DBSource,this.tv_DBServers.SelectedNode.Parent.Text, sb.ToString());
+                }
+            }
+        }
+
+        void CreateEntityClass()
+        {
+            if (tv_DBServers.SelectedNode != null && tv_DBServers.SelectedNode.Level == 3)
+            {
+                bool hasKey = false;
+                var tbDesc = Biz.Common.Data.MySQLHelper.GetTableColsDescription(GetDBSource(tv_DBServers.SelectedNode), tv_DBServers.SelectedNode.Parent.Text,
+                    tv_DBServers.SelectedNode.Text);
+
+                Regex rg = new Regex(@"(\w+)\s*\((\w+)\)");
+                string format = @"        {4}public {0} {1}
+        {{
+            get
+            {{
+                return {2};
+            }}
+            set
+            {{
+                {3}=value;
+            }}
+        }}";
+                //命名空间
+                SubForm.CreateEntityNavDlg dlg = new CreateEntityNavDlg("请输入实体命名空间", DefaultEntityNamespace);
+                if (dlg.ShowDialog() == DialogResult.OK)
+                {
+                    DefaultEntityNamespace = dlg.InputString;
+                }
+
+                StringBuilder sb = new StringBuilder(string.Format("namespace {0}\r\n", DefaultEntityNamespace));
+                sb.AppendLine("{");
+                sb.AppendLine("    [Serializable]");
+                if (dlg.SupportProtobuf)
+                    sb.AppendLine("    [ProtoContract]");
+                if (dlg.SupportDBMapperAttr)
+                    sb.AppendLine("    [DataBaseMapperAttr(TableName=\"" + tv_DBServers.SelectedNode.Text + "\")]");
+                sb.Append("    public class ");
+                sb.Append(Biz.Common.StringHelper.FirstToUpper(tv_DBServers.SelectedNode.Text));
+                sb.Append("Entity");
+                sb.Append("\r\n    {\r\n");
+                if (dlg.SupportDBMapperAttr)
+                {
+                    sb.AppendLine("        //表名");
+                    sb.AppendLine(string.Format("        public const string TbName=\"{0}.{1}\";", tv_DBServers.SelectedNode.Parent.Text, tv_DBServers.SelectedNode.Text));
+                }
+                sb.AppendLine();
+                sb.AppendLine(@"
+        //分表
+        public string SplitTbName
+        {
+            get
+            {
+                throw new NotImplementedException(); 
+            }
+        }");
+                sb.AppendLine();
+                TreeNode selNode = tv_DBServers.SelectedNode;
+                int idx = 1;
+                foreach (TreeNode node in selNode.Nodes)
+                {
+                    Match m = rg.Match(node.Text);
+                    if (m.Success)
+                    {
+                        var y = (from x in tbDesc.AsEnumerable()
+                                 where string.Equals((string)x["ColumnName"], m.Groups[1].Value, StringComparison.OrdinalIgnoreCase)
+                                 select x["Description"]).FirstOrDefault();
+
+                        string desc = y == DBNull.Value ? string.Empty : (string)y;
+
+                        string privateAttr = string.Concat("_" + Biz.Common.StringHelper.FirstToLower(m.Groups[1].Value));
+                        sb.AppendFormat("        private {0} {1};", Biz.Common.Data.Common.DbTypeToNetType(m.Groups[2].Value), privateAttr);
+                        sb.AppendLine();
+                        if (dlg.SupportProtobuf)
+                        {
+                            sb.AppendLine(string.Format("        [ProtoMember({0})]", idx++));
+                        }
+                        bool iskey = false;
+                        if (node.Tag != null && node.Tag is TBColumn)
+                        {
+                            iskey = (node.Tag as TBColumn).IsID||(node.Tag as TBColumn).IsKey;
+                        }
+
+                        if (dlg.SupportDBMapperAttr)
+                        {
+                            if (iskey)
+                            {
+                                sb.AppendLine("        [DataBaseMapperAttr(Column=\"" + m.Groups[1].Value + "\",isKey=true)]");
+                                hasKey = true;
+                            }
+                            else
+                            {
+                                sb.AppendLine("        [DataBaseMapperAttr(Column=\"" + m.Groups[1].Value + "\")]");
+                            }
+                        }
+
+
+                        if (dlg.SupportJsonproterty)
+                        {
+                            sb.AppendLine("        [JsonProperty(\"" + m.Groups[1].Value.ToLower() + "\")]");
+                            sb.AppendLine("        [PropertyDescriptionAttr(\"" + desc + "\")]");
+                        }
+
+                        sb.AppendFormat(format, Biz.Common.Data.Common.DbTypeToNetType(m.Groups[2].Value), Biz.Common.StringHelper.FirstToUpper(m.Groups[1].Value),
+                            privateAttr, privateAttr, dlg.SupportMvcDisplay ? string.Format("[Display(Name = \"{0}\")]\r\n        ", desc) : string.Empty);
+                        sb.AppendLine();
+                    }
+                    else
+                    {
+                        MessageBox.Show("生成实体类错误：" + node.Text);
+                        break;
+                    }
+                }
+                sb.AppendLine("    }");
+                sb.AppendLine("}");
+                if (OnCreateEntity != null)
+                {
+                    OnCreateEntity("实体类" + selNode.Text, sb.ToString());
+                }
+                Clipboard.SetText(sb.ToString());
+                MainFrm.SendMsg(string.Format("实体代码已经复制到剪贴板,{0}", hasKey ? "" : "警告：表没有自增主键。"));
+            }
+        }
+
+        private DBSource GetDBSource(TreeNode node)
+        {
+            if (node == null)
+                return null;
+            if (node.Level < 1)
+                return null;
+            if (node.Level == 1)
+                return DBServers.FirstOrDefault(p => p.ServerName.Equals(node.Text));
+            return GetDBSource(node.Parent);
+        }
+
+        void tv_DBServers_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
+        {
+            //throw new NotImplementedException();
+            if (e.Node.Level == 2)
+            {
+                if (e.Node.Nodes.Count > 0)
+                    return;
+                //var server=DBServers.FirstOrDefault(p=>p.ServerName.Equals(e.Node.Parent.Text));
+                //if (server == null)
+                //    return;
+                //DataTable tb= Biz.Common.Data.SQLHelper.GetTBs(server, e.Node.Text);
+                //for (int i = 0; i < tb.Rows.Count; i++)
+                //{
+                //    TreeNode newNode = new TreeNode(tb.Rows[i]["name"].ToString(),3, 3);
+                //    newNode.Name=tb.Rows[i]["id"].ToString();
+                //    e.Node.Nodes.Add(newNode);
+                //}
+                //e.Node.Expand();
+                Biz.UILoadHelper.LoadTBsAnsy(this.ParentForm, e.Node, GetDBSource(e.Node));
+            }
+            if (e.Node.Level == 3)
+            {
+                if (e.Node.Nodes.Count > 0)
+                    return;
+                //var server = DBServers.FirstOrDefault(p => p.ServerName.Equals(e.Node.Parent.Parent.Text));
+                //if (server == null)
+                //    return;
+                //foreach(TBColumn col in Biz.Common.Data.SQLHelper.GetColumns(server,e.Node.Parent.Text,e.Node.Name))
+                //{
+                //    int imgIdx = col.IsKey ? 4 : 5;
+                //    TreeNode newNode = new TreeNode(string.Concat(col.Name,"(",col.TypeName,")"),imgIdx, imgIdx);
+                //    newNode.Tag = col;
+                //    e.Node.Nodes.Add(newNode);
+                //}
+                //e.Node.Expand();
+
+                if (!e.Node.Text.Equals("存储过程"))
+                {
+                    Biz.UILoadHelper.LoadColumnsAnsy(this.ParentForm, e.Node, GetDBSource(e.Node));
+                }
+                else
+                {
+                    Biz.UILoadHelper.LoadProcedureAnsy(this.ParentForm, e.Node, GetDBSource(e.Node));
+                }
+            }
+
+        }
+        public void Bind()
+        {
+            if (DBServers == null)
+                return;
+            foreach (DBSource s in DBServers)
+            {
+                bool isAdd = false;
+                foreach (TreeNode n in tv_DBServers.Nodes[0].Nodes)
+                {
+                    if (n.Text.Equals(s.ServerName))
+                    {
+                        isAdd = true;
+                        break;
+                    }
+                }
+                if (isAdd)
+                    continue;
+                if (tv_DBServers.Nodes[0].Nodes.ContainsKey(s.ServerName))
+                    continue;
+               TreeNode node = new TreeNode(s.ServerName,1,1);
+               node.Tag = s;
+               tv_DBServers.Nodes[0].Nodes.Add(node);
+               DataTable table= Biz.Common.Data.MySQLHelper.GetDBs(s);
+               for (int i = 0; i < table.Rows.Count; i++)
+               {
+                   TreeNode tbNode = new TreeNode(table.Rows[i]["Name"].ToString(), 2, 2);
+                   node.Nodes.Add(tbNode);
+               }
+            }
+        }
+
+        private void DBServerView_Load(object sender, EventArgs e)
+        {
+            Bind();
+        }
+
+        public void DisConnectSelectDBServer()
+        {
+            if (this.tv_DBServers.SelectedNode==null||this.tv_DBServers.SelectedNode.Level != 1)
+                return;
+            DisConnectServer(this.tv_DBServers.SelectedNode.Text);
+        }
+
+        private void DisConnectServer(string serverName)
+        {
+            this.DBServers.Remove(this.DBServers.FirstOrDefault(p=>p.ServerName.Equals(serverName)));
+            foreach (TreeNode node in tv_DBServers.Nodes[0].Nodes)
+            {
+                if (node.Text.Equals(serverName))
+                {
+                    tv_DBServers.Nodes[0].Nodes.Remove(node);
+                    break;
+                }
+            }
+        }
+
+        private void tv_DBServers_MouseClick(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                var node=tv_DBServers.SelectedNode;
+                if ( node!= null)
+                {
+                    if ((tv_DBServers.SelectedNode.Level == 3 && !tv_DBServers.SelectedNode.Text.Equals("存储过程"))
+                        || (tv_DBServers.SelectedNode.Level == 4 && tv_DBServers.SelectedNode.Parent.Text.Equals("存储过程")))
+                    {
+                        this.tv_DBServers.ContextMenuStrip = this.DBServerviewContextMenuStrip;
+                        if (tv_DBServers.SelectedNode.Parent.Text.Equals("存储过程"))
+                        {
+                            foreach(ToolStripItem item in tv_DBServers.ContextMenuStrip.Items)
+                            {
+                                item.Visible = false;
+                            }
+
+                            导出ToolStripMenuItem.Visible = true;
+                            ExpdataToolStripMenuItem.Visible = false;
+                        }
+                        else
+                        {
+                            foreach (ToolStripItem item in tv_DBServers.ContextMenuStrip.Items)
+                            {
+                                item.Visible = true;
+                                ExpdataToolStripMenuItem.Visible = false;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        this.tv_DBServers.ContextMenuStrip = this.CommMenuStrip;
+                        subMenuItemAddEntityTB.Visible = node.Level == 2;
+                        CommSubMenuItem_Delete.Visible = node.Level == 2;
+                        CommSubMenuitem_add.Visible = node.Level == 1;
+                        CommSubMenuitem_ViewConnsql.Visible = node.Level == 2;
+                        性能分析工具ToolStripMenuItem.Visible = node.Level == 1;
+                        SqlExecuterToolStripMenuItem.Visible = node.Level == 2;
+                    }
+                }
+            }
+        }
+
+        private void toolStripDropDownButton1_Click(object sender, EventArgs e)
+        {
+            string serchkey = ts_serchKey.Text;
+            if (!ts_serchKey.Items.Contains(serchkey))
+            {
+                ts_serchKey.Items.Add(serchkey);
+            }
+            if (tv_DBServers.SelectedNode == null)
+            {
+                tv_DBServers.SelectedNode = tv_DBServers.Nodes[0];
+            }
+            bool boo = false;
+            if (tv_DBServers.SelectedNode.Nodes.Count > 0)
+                boo=SearchNode(tv_DBServers.SelectedNode.Nodes[0], serchkey);
+            else if (tv_DBServers.SelectedNode.NextNode != null)
+                boo=SearchNode(tv_DBServers.SelectedNode.NextNode, serchkey);
+            if (!boo)
+            {
+                tv_DBServers.SelectedNode = tv_DBServers.Nodes[0];
+            }
+        }
+
+        private bool SearchNode(TreeNode nodeStart, string txt)
+        {
+            if (nodeStart == null)
+            {
+                return false;
+            }
+            if (nodeStart.Text.IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1)
+            {
+                tv_DBServers.SelectedNode = nodeStart;
+                return true;
+            }
+            if (nodeStart.Nodes.Count > 0)
+            {
+                foreach (TreeNode node in nodeStart.Nodes)
+                {
+                    if (SearchNode(node, txt))
+                        return true;
+                }
+            }
+            if (nodeStart.NextNode != null)
+            {
+                return SearchNode(nodeStart.NextNode,txt);
+            }
+            if (nodeStart.Parent != null)
+            {
+                if (nodeStart.Parent.NextNode != null)
+                {
+                    return SearchNode(nodeStart.Parent.NextNode, txt);
+                }
+            }
+            if (tv_DBServers.Nodes.Count > 0)
+            {
+                tv_DBServers.SelectedNode=tv_DBServers.Nodes[0];
+            }
+            return true;
+        }
+
+        private void ts_serchKey_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (e.KeyChar == '\r')
+            {
+                tv_DBServers.Focus();
+                toolStripDropDownButton1_Click(null, null);
+            }
+        }
+
+        public TreeNode FindNode(string serverName, string dbName=null, string tbName=null)
+        {
+            foreach (TreeNode node in tv_DBServers.Nodes[0].Nodes)
+            {
+                if (node.Text.Equals(serverName, StringComparison.OrdinalIgnoreCase))
+                {
+                    if (string.IsNullOrWhiteSpace(dbName))
+                        return node;
+                    foreach (TreeNode subNode in node.Nodes)
+                    {
+                        if (subNode.Text.Equals(dbName, StringComparison.OrdinalIgnoreCase))
+                        {
+                            if (string.IsNullOrWhiteSpace(tbName))
+                                return subNode;
+                            foreach (TreeNode subSubNode in subNode.Nodes)
+                            {
+                                if (subSubNode.Text.Equals(tbName, StringComparison.OrdinalIgnoreCase))
+                                    return subSubNode;
+                            }
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+
+        private void SubMenuItem_Insert_Click(object sender, EventArgs e)
+        {
+            var _node = tv_DBServers.SelectedNode;
+            if (this.OnCreatePorcSQL != null)
+            {
+                this.OnCreatePorcSQL(GetDBSource(_node), _node.Parent.Text, _node.Name, _node.Text, CreateProceEnum.InsertOrUpdate);
+            }
+        }
+
+        private void 创建语句ToolStripMenuItem_Click(object sender, EventArgs e)
+        { 
+            var node = this.tv_DBServers.SelectedNode;
+            if (node != null && node.Level == 3)
+            {
+                StringBuilder sb = new StringBuilder(string.Format("CREATE TABLE `{0}`(", node.Text));
+                sb.AppendLine();
+                foreach (TBColumn col in Biz.Common.Data.MySQLHelper.GetColumns(GetDBSource(node), node.Parent.Text, node.Text))
+                {
+                    sb.AppendFormat("`{0}` {1} {2} {3},", col.Name, Biz.Common.Data.Common.GetDBType(col), (col.IsID || col.IsKey) ? "NOT NULL" : (col.IsNullAble ? "NOT NULL" : "NULL"), col.IsID ? "AUTO_INCREMENT" : "");
+                    if (col.IsID)
+                    {
+                        sb.AppendLine();
+                        sb.AppendFormat("PRIMARY KEY (`{0}`),", col.Name);
+                    }
+                    sb.AppendLine();
+                }
+                sb.AppendLine("`last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");
+                sb.AppendLine(")ENGINE=InnoDB AUTO_INCREMENT=201 DEFAULT CHARSET=utf8;");
+                sb.AppendLine("//注意：bit类型要手工改成TINYINT(1)。");
+                TextBoxWin win = new TextBoxWin("创建表" + node.Text, sb.ToString());
+                win.ShowDialog();
+            }
+            else if (node != null && node.Level == 4 && node.Parent.Text.Equals("存储过程"))
+            {
+                var body = Biz.Common.Data.MySQLHelper.GetProcedureBody(GetDBSource(node), node.Parent.Parent.Text, node.Text);
+                TextBoxWin win = new TextBoxWin("存储过程[" + node.Text + "]", "drop PROCEDURE if exists " + node.Text + ";\r\n\r\n" + body);
+                win.ShowDialog();
+            }
+        }
+
+        private void ExpdataToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var node = this.tv_DBServers.SelectedNode;
+            if (node == null || node.Level != 3)
+            {
+                return;
+            }
+            var cols = Biz.Common.Data.MySQLHelper.GetColumns(GetDBSource(node), node.Parent.Text, node.Text)
+                .Where(p => !p.IsID).ToList();
+            string sqltext = string.Format("select {0} from {1}", string.Join(",", cols.Select(p => string.Concat("[", p.Name, "]"))), string.Concat("[", node.Text, "]"));
+            var datas = Biz.Common.Data.MySQLHelper.ExecuteDBTable(GetDBSource(node), node.Parent.Text, sqltext, null);
+            StringBuilder sb = new StringBuilder(string.Format("Insert into {0} ({1}) values", string.Concat("`", node.Text, "`"), string.Join(",", cols.Select(p => string.Concat("`", p.Name, "`")))));
+            foreach (DataRow row in datas.Rows)
+            {
+                StringBuilder sb1 = new StringBuilder();
+                foreach (var column in cols)
+                {
+                    object data = row[column.Name];
+                    if (data == DBNull.Value)
+                    {
+                        sb1.Append("NULL,");
+                    }
+                    else
+                    {
+                        if (column.TypeName.IndexOf("int", StringComparison.OrdinalIgnoreCase) > -1
+                            || column.TypeName.IndexOf("decimal", StringComparison.OrdinalIgnoreCase) > -1
+                            || column.TypeName.IndexOf("float", StringComparison.OrdinalIgnoreCase) > -1
+                            || column.TypeName.Equals("bit", StringComparison.OrdinalIgnoreCase)
+                            || column.TypeName.Equals("real", StringComparison.OrdinalIgnoreCase)
+                            || column.TypeName.IndexOf("money", StringComparison.OrdinalIgnoreCase) > -1
+                            || column.TypeName.Equals("timestamp", StringComparison.OrdinalIgnoreCase)
+                            || column.TypeName.IndexOf("money", StringComparison.OrdinalIgnoreCase) > -1
+                        )
+                        {
+                            sb1.AppendFormat("{0},", data);
+                        }
+                        else if (column.TypeName.Equals("boolean", StringComparison.OrdinalIgnoreCase)
+                               || column.TypeName.Equals("bool", StringComparison.OrdinalIgnoreCase))
+                        {
+                            sb1.AppendFormat("{0},", data.Equals(true) ? 1 : 0);
+                        }
+                        else if (column.TypeName.Equals("datetime", StringComparison.OrdinalIgnoreCase))
+                        {
+                            sb1.AppendFormat("'{0}',", ((DateTime)data).ToString("yyyy-MM-dd HH:mm:ss"));
+                        }
+                        else
+                        {
+                            sb1.Append(string.Concat("'", data, "',"));
+                        }
+                    }
+                }
+                if (sb1.Length > 0)
+                    sb1.Remove(sb1.Length - 1, 1);
+                sb.AppendFormat("({0}),", sb1.ToString());
+            }
+            if (sb.Length > 0)
+                sb.Remove(sb.Length - 1, 1);
+            TextBoxWin win = new TextBoxWin("导出数据", sb.ToString());
+            win.ShowDialog();
+        }
+
+        private void SubMenuItem_Select_Click(object sender, EventArgs e)
+        {
+            var node = this.tv_DBServers.SelectedNode;
+            if (node == null || node.Level != 3)
+            {
+                return;
+            }
+            var cols = Biz.Common.Data.MySQLHelper.GetColumns(GetDBSource(node), node.Parent.Text, node.Text).ToList();
+
+            StringBuilder sb = new StringBuilder();
+            sb.AppendFormat("USE [{0}]", node.Parent.Text);
+            sb.AppendLine();
+            sb.AppendLine("SET ANSI_NULLS ON");
+            sb.AppendLine("GO");
+            sb.AppendLine();
+            sb.AppendLine("SET QUOTED_IDENTIFIER ON");
+            sb.AppendLine("GO");
+            sb.AppendLine();
+            sb.AppendFormat("create PROCEDURE [dbo].[{0}List] ",node.Text);
+            sb.AppendLine();
+            foreach (var col in cols)
+            {
+                sb.AppendFormat("@{0} {1}=NULL, --{2}",col.Name,col.TypeToString(),col.Description);
+                sb.AppendLine();
+            }
+            sb.AppendLine("@OrderBy varchar(200)=NULL,");
+            sb.AppendLine("@pageSize int=null,	--每页显示记录数");
+            sb.AppendLine("@pageIndex	int=null, --第几页");
+            sb.AppendLine("@recordCount    int output --记录总数");
+            sb.AppendLine("AS");
+            sb.AppendLine("BEGIN");
+            sb.AppendLine("	SET NOCOUNT ON;");
+            sb.AppendLine();
+            sb.AppendLine("	-- 拼接sql语句");
+            sb.AppendLine("	declare @sql nvarchar(4000)");
+            sb.AppendLine("	declare @where nvarchar(4000)");
+            sb.AppendLine("	set @where=' where 1=1 '");
+            sb.AppendLine();
+
+            string orderBy = string.Join(",", cols.Where(p => p.IsKey).Select(p => p.Name + " DESC"));
+            if (string.IsNullOrEmpty(orderBy))
+            {
+                orderBy = cols.Where(p => p.IsID).Select(p => p.Name + " DESC").FirstOrDefault();
+            }
+            sb.AppendLine("   if @OrderBy is null");
+            sb.AppendLine("   begin");
+            sb.AppendLine(string.Format("      set @OrderBy='{0}'",orderBy));
+            sb.AppendLine("   end");
+            foreach (var col in cols)
+            {
+                sb.AppendLine(string.Format("--{0}",col.Description));
+                sb.AppendLine(string.Format("	if @{0}  is not null ",col.Name));
+                sb.AppendLine("	begin");
+                sb.AppendLine();
+                if (col.IsString())
+                {
+                    sb.AppendLine(string.Format("		set @{0} ='%'+@{0} +'%'", col.Name));
+                    sb.AppendLine(string.Format("		set @where=@where+' and [{0}] like @{0}  '", col.Name));
+                }
+                else if (col.IsNumber()||col.IsBoolean())
+                {
+                    sb.AppendLine(string.Format("		set @where=@where+' and [{0}]=@{0}  '", col.Name));
+                }
+                else if (col.IsDateTime())
+                {
+                    sb.AppendLine(string.Format("		set @{0} ='%'+@{0} +'%'", col.Name));
+                    sb.AppendLine(string.Format("		set @where=@where+' and [{0}]=@{0}  '", col.Name));
+                }
+                sb.AppendLine(" end");
+                sb.AppendLine();
+            }
+
+            sb.AppendLine(string.Format("	set @sql='select @recordCount = count(1) From {0}(nolock) '+@where",node.Text));
+
+            sb.AppendLine("	exec sp_executesql @sql,");
+            sb.AppendLine();
+            sb.Append("N'");
+            foreach (var col in cols)
+            {
+                sb.AppendFormat("@{0} {1},",col.Name,col.TypeToString());
+            }
+            sb.Append("@OrderBy varchar(200),@recordCount int output");
+            sb.AppendLine("',");
+            sb.Append(string.Join(",",cols.Select(p=>"@"+p.Name)));
+            sb.Append(",@OrderBy,@recordCount output");
+            sb.AppendLine();
+            sb.AppendLine();
+            sb.AppendLine("	set @sql = '");
+            sb.AppendLine("	Select a.* From (");
+            sb.AppendLine("		Select row_number() over(order by @OrderBy) as rowID,");
+            sb.AppendLine("		"+string.Join(",",cols.Select(p=>"["+p.Name+"]")));
+            sb.AppendLine(string.Format("	FROM [{0}](nolock)  ' + @where",node.Text));
+            sb.AppendLine("    + ' ) a Where rowID > @pageSize*(@pageIndex-1) and rowID<=@pageSize*@pageIndex'  ");
+            sb.AppendLine();
+            sb.AppendLine("	exec sp_executesql @sql,");
+            sb.AppendLine(string.Format("		N'{0},@OrderBy varchar(200),@pageSize int,@pageIndex int',",
+                string.Join(",",cols.Select(p=>string.Format("@{0} {1}",p.Name,p.TypeToString())))));
+            sb.AppendLine(string.Format("		{0},@OrderBy,@pageSize,@pageIndex", string.Join(",", cols.Select(p => "@" + p.Name))));
+            sb.AppendLine("");
+            sb.AppendLine("");
+            sb.AppendLine("END");
+            sb.AppendLine("GO");
+            TextBoxWin win = new TextBoxWin("创建存储过程", sb.ToString());
+            win.ShowDialog();
+        }
+
+        private void CommSubMenuitem_ViewConnsql_Click(object sender, EventArgs e)
+        {
+            var node = tv_DBServers.SelectedNode;
+            if (node == null)
+                return;
+
+            string conndb = string.Empty;
+            if (node.Level < 2)
+                return;
+
+            if (node.Level == 2)
+            {
+                conndb = node.Text;
+            }
+            else
+            {
+                var pnode = node.Parent;
+                while (pnode.Level != 2)
+                {
+                    pnode = pnode.Parent;
+                }
+                conndb = pnode.Text;
+            }
+            
+            var connsql = MySQLHelper.GetConnstringFromDBSource(GetDBSource(node), conndb);
+            SubForm.WinWebBroswer web = new WinWebBroswer();
+            web.SetHtml(string.Format("<html><head><title>连接串_{1}</title></head><body><br/>&lt;add name=\"ConndbDB${1}\" connectionString=\"{0}\" providerName=\"MySql.Data.MySqlClient\"/&gt;</body></html>", connsql, conndb));
+            web.Show();
+        }
+
+        private void SqlExecuterToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+             var node = tv_DBServers.SelectedNode;
+            if (node == null)
+                return;
+            if (OnAddSqlExecuter != null)
+            {
+                OnAddSqlExecuter(GetDBSource(node),node.Text);
+            }
+        }
+
+        private void 生成数据字典ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var selnode = tv_DBServers.SelectedNode;
+            if (selnode != null && selnode.Level == 3)
+            {
+                //库名
+                string tbname = string.Format("[{0}].[{1}]", selnode.Parent.Text, selnode.Text);
+
+                var tbclumns = Biz.Common.Data.MySQLHelper.GetColumns(this.GetDBSource(selnode), selnode.Parent.Text, selnode.Text).ToList();
+
+                DataTable resulttb = new DataTable();
+                resulttb.Columns.AddRange(new string[][] { 
+                    new []{"line","行号"},
+                    new []{"name","列名"},
+                    new []{"iskey","是否主键"},
+                    new []{"type","类型"},
+                    new []{"len","长度"},
+                    new []{"desc","说明"} }.Select(s => new DataColumn
+                    {
+                        ColumnName = s[0],
+                        Caption = s[1],
+                    }).ToArray());
+
+                var tbDesc = Biz.Common.Data.MySQLHelper.GetTableColsDescription(GetDBSource(tv_DBServers.SelectedNode), tv_DBServers.SelectedNode.Parent.Text,
+                    tv_DBServers.SelectedNode.Text);
+
+                Regex rg = new Regex(@"(\w+)\s*\((\w+)\)");
+
+                TreeNode selNode = tv_DBServers.SelectedNode;
+                int idx = 1;
+                foreach (TreeNode node in selNode.Nodes)
+                {
+                    var newrow = resulttb.NewRow();
+                    newrow["line"] = idx++;
+                    Match m = rg.Match(node.Text);
+                    if (m.Success)
+                    {
+                        var y = (from x in tbDesc.AsEnumerable()
+                                 where string.Equals((string)x["ColumnName"], m.Groups[1].Value, StringComparison.OrdinalIgnoreCase)
+                                 select x["Description"]).FirstOrDefault();
+
+                        //字段描述
+                        string desc = y == DBNull.Value ? "&nbsp;" : (string)y;
+                        newrow["desc"] = string.IsNullOrEmpty(desc) ? "&nbsp;" : desc;
+                        newrow["name"] = m.Groups[1].Value;
+                        newrow["type"] = m.Groups[2].Value;
+
+                        bool iskey = false;
+                        if (node.Tag != null && node.Tag is TBColumn)
+                        {
+                            iskey = (node.Tag as TBColumn).IsKey;
+                        }
+                        newrow["iskey"] = iskey ? "是" : "否";
+
+                        var col = tbclumns.Find(p => p.Name.Equals(m.Groups[1].Value, StringComparison.OrdinalIgnoreCase));
+                        if (col != null)
+                        {
+                            newrow["len"] = col.prec != 0 ? col.prec.ToString() : (col.Length>0?col.Length.ToString():"&nbsp;");
+                        }
+
+                        resulttb.Rows.Add(newrow);
+                    }
+                    else
+                    {
+                        MessageBox.Show("生成数据字典错误：" + node.Text);
+                        break;
+                    }
+
+                }
+
+                //生成HTML
+                StringBuilder sb = new StringBuilder();
+                sb.AppendFormat(@"<html><head><title>数据字典-{0}</title></head><body><table cellpadding='1' cellspacing='0' border='1'>", tbname);
+                sb.Append("<tr>");
+                foreach (DataColumn col in resulttb.Columns)
+                {
+                    sb.AppendFormat("<th>{0}</th>", col.Caption);
+                }
+                sb.Append("</tr>");
+
+                foreach (DataRow row in resulttb.Rows)
+                {
+                    sb.Append("<tr>");
+                    foreach (DataColumn col in resulttb.Columns)
+                    {
+                        sb.AppendFormat("<td>{0}</td>", row[col.ColumnName]);
+                    }
+                    sb.Append("</tr>");
+                }
+
+                sb.Append("</table></body></html>");
+
+                SubForm.WinWebBroswer web = new WinWebBroswer();
+                web.SetHtml(sb.ToString());
+                web.ShowDialog();
+
+            }
+        }
+
+        private void 性能分析工具ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var selnode = this.tv_DBServers.SelectedNode;
+            if (selnode == null)
+                return;
+            var db = this.GetDBSource(selnode);
+            if (db == null)
+                return;
+            new SubForm.SubFrmPerformAnalysis(db).Show();
+        }
+    }
+}
