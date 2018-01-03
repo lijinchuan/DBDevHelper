@@ -50,13 +50,11 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="CalculateModel, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>bin\Debug\CalculateModel.dll</HintPath>
+    <Reference Include="CalculateModel">
+      <HintPath>..\..\Lib\CalculateModel.dll</HintPath>
     </Reference>
-    <Reference Include="LJC.FrameWork, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\Work\learn\LJC.FrameWork\LJC.FrameWork\bin\Release\LJC.FrameWork.dll</HintPath>
+    <Reference Include="LJC.FrameWork">
+      <HintPath>..\..\Lib\LJC.FrameWork.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.SqlServer.Smo, Version=10.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
