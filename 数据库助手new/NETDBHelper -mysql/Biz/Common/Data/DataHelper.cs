@@ -206,10 +206,11 @@ namespace Biz.Common.Data
         public static string GetInsertProcSql(DBSource dbSource, string dbName, string tbid, string tbName)
         {
             StringBuilder sb = new StringBuilder();
-            sb.AppendLine(string.Format("USE [{0}]",dbName));
-            //sb.AppendLine("SET ANSI_NULLS ON");
-            //sb.AppendLine("SET QUOTED_IDENTIFIER ON");
-            sb.AppendLine(string.Format("CREATE PROCEDURE  [{0}_sp_{1}_i]", dbName, tbName));
+            sb.AppendLine(string.Format("USE {0};", dbName));
+            sb.AppendLine(string.Format("drop PROCEDURE if exists {0}_sp_{1}_i;",dbName,tbName));
+            sb.AppendLine("DELIMITER $$");
+            
+            sb.Append(string.Format(" CREATE PROCEDURE {0}_sp_{1}_i(", dbName, tbName));
             var cols=MySQLHelper.GetColumns(dbSource, dbName, tbName);
             int i = 0;
             foreach (TBColumn x in cols)
@@ -217,21 +218,26 @@ namespace Biz.Common.Data
                 i++;
                 sb.AppendLine(string.Format("{0} {1} {2} {3}", (x.IsID ? "OUT" : ("IN")), x.Name, Common.GetDBType(x),i==cols.Count()?"":","));
             }
+            sb.Append(")");
+            sb.AppendLine();
+
             sb.AppendLine("BEGIN");
-            sb.AppendLine("DECLARE @retcode int, @rowcount int");
-            sb.AppendLine("SET LOCK_TIMEOUT 1000");
+
             sb.AppendLine(string.Format("INSERT INTO {0}({1})",tbName, string.Join(",", cols.Where(p => !p.IsID).Select(p => p.Name))));
-            sb.AppendLine(string.Format("VALUES({0})",string.Join(",",cols.Where(p=>!p.IsID).Select(p=>string.Concat("@",p.Name)))));
+            sb.AppendLine(string.Format("VALUES({0});",string.Join(",",cols.Where(p=>!p.IsID).Select(p=>p.Name))));
             var idCol = cols.FirstOrDefault(p => p.IsID);
             if (idCol != null)
-                sb.AppendLine(string.Format("SELECT @retcode = @@ERROR, @rowcount = @@ROWCOUNT,@{0}=@@IDENTITY", idCol.Name));
+            {
+                sb.AppendLine(string.Format("set {0}=@@IDENTITY;", idCol.Name));
+                sb.AppendLine(string.Format("select {0};", idCol.Name));
+            }
             else
-                sb.AppendLine("SELECT @retcode = @@ERROR, @rowcount = @@ROWCOUNT");
-            sb.AppendLine("IF @retcode = 0 AND @rowcount = 0");
-            sb.AppendLine("RETURN 100");
-            sb.AppendLine("ELSE");
-            sb.AppendLine("RETURN @retcode");
-            sb.AppendLine("END");
+            {
+                sb.AppendLine("select 0;");
+            }
+            sb.AppendLine("END$$");
+
+            sb.AppendLine("DELIMITER ;");
             return sb.ToString();
         }
 

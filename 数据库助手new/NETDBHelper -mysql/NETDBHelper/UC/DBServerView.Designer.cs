@@ -96,7 +96,7 @@
             this.SubMenuItem_Proc,
             this.导出ToolStripMenuItem});
             this.DBServerviewContextMenuStrip.Name = "DBServerviewContextMenuStrip";
-            this.DBServerviewContextMenuStrip.Size = new System.Drawing.Size(170, 202);
+            this.DBServerviewContextMenuStrip.Size = new System.Drawing.Size(170, 224);
             // 
             // 生成实体类ToolStripMenuItem
             // 
@@ -154,20 +154,20 @@
             // SubMenuItem_Insert
             // 
             this.SubMenuItem_Insert.Name = "SubMenuItem_Insert";
-            this.SubMenuItem_Insert.Size = new System.Drawing.Size(167, 22);
-            this.SubMenuItem_Insert.Text = "InsertOrUpdate";
+            this.SubMenuItem_Insert.Size = new System.Drawing.Size(152, 22);
+            this.SubMenuItem_Insert.Text = "Insert";
             this.SubMenuItem_Insert.Click += new System.EventHandler(this.SubMenuItem_Insert_Click);
             // 
             // SubMenuItem_Delete
             // 
             this.SubMenuItem_Delete.Name = "SubMenuItem_Delete";
-            this.SubMenuItem_Delete.Size = new System.Drawing.Size(167, 22);
+            this.SubMenuItem_Delete.Size = new System.Drawing.Size(152, 22);
             this.SubMenuItem_Delete.Text = "Delete";
             // 
             // SubMenuItem_Select
             // 
             this.SubMenuItem_Select.Name = "SubMenuItem_Select";
-            this.SubMenuItem_Select.Size = new System.Drawing.Size(167, 22);
+            this.SubMenuItem_Select.Size = new System.Drawing.Size(152, 22);
             this.SubMenuItem_Select.Text = "Select";
             this.SubMenuItem_Select.Click += new System.EventHandler(this.SubMenuItem_Select_Click);
             // 
@@ -236,7 +236,7 @@
             this.SqlExecuterToolStripMenuItem,
             this.性能分析工具ToolStripMenuItem});
             this.CommMenuStrip.Name = "CommMenuStrip";
-            this.CommMenuStrip.Size = new System.Drawing.Size(161, 202);
+            this.CommMenuStrip.Size = new System.Drawing.Size(161, 180);
             // 
             // ToolStripMenuItemReload
             // 
