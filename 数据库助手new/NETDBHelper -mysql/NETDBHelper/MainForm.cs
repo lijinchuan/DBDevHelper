@@ -44,6 +44,7 @@ namespace NETDBHelper
             TabControl.TabPages.Add(panel);
             TabControl.SelectedTab = panel;
             Clipboard.SetText(s);
+            
             this.SetMsg("代码已经复制到剪粘板。");
         }
 

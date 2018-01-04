@@ -29,15 +29,15 @@
         private void InitializeComponent()
         {
             this.GpOutPut = new System.Windows.Forms.GroupBox();
+            this.panOutput = new System.Windows.Forms.Panel();
             this.GpCondition = new System.Windows.Forms.GroupBox();
+            this.panCondition = new System.Windows.Forms.Panel();
             this.BtnOk = new System.Windows.Forms.Button();
             this.BtnCancel = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.TBEditer = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.TBAbout = new System.Windows.Forms.TextBox();
-            this.panCondition = new System.Windows.Forms.Panel();
-            this.panOutput = new System.Windows.Forms.Panel();
             this.GpOutPut.SuspendLayout();
             this.GpCondition.SuspendLayout();
             this.SuspendLayout();
@@ -52,6 +52,15 @@
             this.GpOutPut.TabStop = false;
             this.GpOutPut.Text = "输出字段";
             // 
+            // panOutput
+            // 
+            this.panOutput.AutoScroll = true;
+            this.panOutput.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panOutput.Location = new System.Drawing.Point(3, 17);
+            this.panOutput.Name = "panOutput";
+            this.panOutput.Size = new System.Drawing.Size(680, 111);
+            this.panOutput.TabIndex = 0;
+            // 
             // GpCondition
             // 
             this.GpCondition.Controls.Add(this.panCondition);
@@ -61,6 +70,15 @@
             this.GpCondition.TabIndex = 1;
             this.GpCondition.TabStop = false;
             this.GpCondition.Text = "条件字段";
+            // 
+            // panCondition
+            // 
+            this.panCondition.AutoScroll = true;
+            this.panCondition.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panCondition.Location = new System.Drawing.Point(3, 17);
+            this.panCondition.Name = "panCondition";
+            this.panCondition.Size = new System.Drawing.Size(680, 115);
+            this.panCondition.TabIndex = 0;
             // 
             // BtnOk
             // 
@@ -115,24 +133,7 @@
             this.TBAbout.Name = "TBAbout";
             this.TBAbout.Size = new System.Drawing.Size(595, 51);
             this.TBAbout.TabIndex = 7;
-            // 
-            // panCondition
-            // 
-            this.panCondition.AutoScroll = true;
-            this.panCondition.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panCondition.Location = new System.Drawing.Point(3, 17);
-            this.panCondition.Name = "panCondition";
-            this.panCondition.Size = new System.Drawing.Size(680, 115);
-            this.panCondition.TabIndex = 0;
-            // 
-            // panOutput
-            // 
-            this.panOutput.AutoScroll = true;
-            this.panOutput.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panOutput.Location = new System.Drawing.Point(3, 17);
-            this.panOutput.Name = "panOutput";
-            this.panOutput.Size = new System.Drawing.Size(680, 111);
-            this.panOutput.TabIndex = 0;
+            this.TBAbout.Text = "标准模板";
             // 
             // WinCreateSelectSpNav
             // 

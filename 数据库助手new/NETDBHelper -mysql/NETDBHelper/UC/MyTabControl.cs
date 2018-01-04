@@ -70,6 +70,7 @@ namespace NETDBHelper.UC
             if (e.Control is TabPage)
             {
                 tabExDic.Add(TabCount - 1, new TabTableTabEx((TabPage)e.Control, TabCount - 1));
+                this.SelectedTab = (e.Control as TabPage);
             }
 
             base.OnControlAdded(e);

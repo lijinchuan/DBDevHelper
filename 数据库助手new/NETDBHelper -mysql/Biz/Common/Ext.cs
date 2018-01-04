@@ -71,7 +71,8 @@ namespace Biz.Common
             return colEnum.Equals(MSSQLTypeEnum.Datetime)
                 || colEnum.Equals(MSSQLTypeEnum.Datetime2)
                 || colEnum.Equals(MSSQLTypeEnum.Smalldatetime)
-                || colEnum.Equals(MSSQLTypeEnum.Time);
+                || colEnum.Equals(MSSQLTypeEnum.Time)
+                || colEnum.Equals(MSSQLTypeEnum.Date);
         }
 
         public static string TypeToString(this TBColumn column)

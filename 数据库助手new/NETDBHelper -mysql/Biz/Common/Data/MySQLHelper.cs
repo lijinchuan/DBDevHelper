@@ -322,7 +322,7 @@ namespace Biz.Common.Data
                 }
                 else if (col.IsDateTime())
                 {
-                    sb.AppendLine(string.Format("       set @{0} =concat('%',{0} ,'%');", col.Name));
+                    //sb.AppendLine(string.Format("       set @{0} =concat(''',{0} ,''');", col.Name));
                     sb.AppendLine(string.Format("       set @where=concat(@where,' and `{0}`=?  ');", col.Name));
                 }
                 sb.AppendLine(" end;");
@@ -334,8 +334,8 @@ namespace Biz.Common.Data
                 sb.AppendLine(" end if;");
                 sb.AppendLine();
             }
-
-            sb.AppendLine(string.Format("   set @sql=concat('select @recordCount = count(1) From {0} ',@where);", tbname));
+            sb.AppendLine("set @recordCount=0;");
+            sb.AppendLine(string.Format("   set @sql=concat('select count(1) into @recordCount From {0} ',@where);", tbname));
 
             sb.AppendLine("prepare stmt from @sql;");
             sb.AppendLine(string.Format("execute stmt using {0};", string.Join(",", conditioncols.Select(p => "@" + p.Name))));
