@@ -328,20 +328,23 @@ namespace Biz.Common.Data
                 sb.AppendLine(" end;");
                 sb.AppendLine(" else");
                 sb.AppendLine(" begin");
+                sb.AppendLine(string.Format("       set @{0}=true;",col.Name));
                 sb.AppendLine("       set @where=concat(@where,' and ?');");
                 sb.AppendLine(" end;");
                 sb.AppendLine(" end if;");
                 sb.AppendLine();
             }
 
-            sb.AppendLine(string.Format("   set @sql=concat('select recordCount = count(1) From {0} ',@where);", tbname));
+            sb.AppendLine(string.Format("   set @sql=concat('select @recordCount = count(1) From {0} ',@where);", tbname));
 
             sb.AppendLine("prepare stmt from @sql;");
-            sb.AppendLine(string.Format("execute stmt using {0};", string.Join(",", conditioncols.Select(p => "ifnull(@" + p.Name+",true)"))));
+            sb.AppendLine(string.Format("execute stmt using {0};", string.Join(",", conditioncols.Select(p => "@" + p.Name))));
             //sb.AppendLine("OrderBy;");
             sb.AppendLine("DEALLOCATE PREPARE stmt;");
             sb.AppendLine();
             //foreach (var col in cols)
+
+            sb.AppendLine("set recordCount=ifnull(@recordCount,0);");
 
             sb.AppendLine();
             sb.AppendLine(" set @sql = '");
