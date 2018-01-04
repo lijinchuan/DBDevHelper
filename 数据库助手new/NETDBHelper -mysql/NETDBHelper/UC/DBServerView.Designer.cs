@@ -163,6 +163,7 @@
             this.SubMenuItem_Delete.Name = "SubMenuItem_Delete";
             this.SubMenuItem_Delete.Size = new System.Drawing.Size(152, 22);
             this.SubMenuItem_Delete.Text = "Delete";
+            this.SubMenuItem_Delete.Click += new System.EventHandler(this.SubMenuItem_Delete_Click);
             // 
             // SubMenuItem_Select
             // 

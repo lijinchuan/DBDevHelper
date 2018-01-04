@@ -56,8 +56,29 @@ namespace NETDBHelper.UC
 
         public void Create()
         {
-            this.editTextBox1.Text = Biz.Common.Data.DataHelper.GetInsertProcSql(dbSource, connDB, tableID, table);
-            this.editTextBox1.MarkKeyWords(true);
+            try
+            {
+                switch (proceType)
+                {
+                    case CreateProceEnum.InsertOrUpdate:
+                        {
+                            this.editTextBox1.Text = Biz.Common.Data.DataHelper.GetInsertProcSql(dbSource, connDB, tableID, table);
+                            this.editTextBox1.MarkKeyWords(true);
+                            break;
+                        }
+                    case CreateProceEnum.Delete:
+                        {
+                            this.editTextBox1.Text = Biz.Common.Data.DataHelper.GetDeleteProcSql(dbSource, connDB, tableID, table);
+                            this.editTextBox1.MarkKeyWords(true);
+                            break;
+                        }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+           
         }
     }
 }

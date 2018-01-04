@@ -241,6 +241,42 @@ namespace Biz.Common.Data
             return sb.ToString();
         }
 
+        public static string GetDeleteProcSql(DBSource dbSource, string dbName, string tbid, string tbName)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine(string.Format("USE {0};", dbName));
+            sb.AppendLine(string.Format("drop PROCEDURE if exists {0}_sp_{1}_d;", dbName, tbName));
+            sb.AppendLine("DELIMITER $$");
+
+            sb.Append(string.Format(" CREATE PROCEDURE {0}_sp_{1}_d(", dbName, tbName));
+            var cols = MySQLHelper.GetColumns(dbSource, dbName, tbName);
+
+            if (!cols.Any(p => p.IsKey))
+            {
+                throw new Exception("失败，没有指定主键");
+            }
+
+            cols = cols.Where(p => p.IsKey);
+            int i = 0;
+            foreach (TBColumn x in cols)
+            {
+                i++;
+                sb.AppendLine(string.Format("{0} {1} {2} {3}", "IN", x.Name, Common.GetDBType(x), i == cols.Count() ? "" : ","));
+            }
+            sb.Append(")");
+            sb.AppendLine();
+
+            sb.AppendLine("BEGIN");
+            sb.AppendLine("SET SQL_SAFE_UPDATES = 0;");
+            sb.AppendLine(string.Format("delete from {0} where {1};", tbName, string.Join(" and ",cols.Select(p => p.Name+"="+p.Name))));
+           
+            sb.AppendLine("select 0;");
+            sb.AppendLine("END$$");
+
+            sb.AppendLine("DELIMITER ;");
+            return sb.ToString();
+        }
+
         public static List<GlobalStatusInfo> GetMysqlGlobalStatus(DBSource dbSource)
         {
             List<GlobalStatusInfo> list = new List<GlobalStatusInfo>();

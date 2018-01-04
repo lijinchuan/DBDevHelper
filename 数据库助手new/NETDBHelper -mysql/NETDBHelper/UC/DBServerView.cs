@@ -49,6 +49,7 @@ namespace NETDBHelper
             tv_DBServers.NodeMouseClick += new TreeNodeMouseClickEventHandler(tv_DBServers_NodeMouseClick);
 
             this.DBServerviewContextMenuStrip.ItemClicked += new ToolStripItemClickedEventHandler(OnMenuStrip_ItemClicked);
+            
             this.CommMenuStrip.ItemClicked += new ToolStripItemClickedEventHandler(CommMenuStrip_ItemClicked);
         }
 
@@ -182,7 +183,11 @@ namespace NETDBHelper
                         }
                         break;
                     case "Delete":
-
+                        _node = tv_DBServers.SelectedNode;
+                        if (this.OnCreatePorcSQL != null)
+                        {
+                            this.OnCreatePorcSQL(GetDBSource(_node), _node.Parent.Text, _node.Name, _node.Text, CreateProceEnum.Delete);
+                        }
                         break;
                     case "Select":
 
@@ -956,6 +961,15 @@ namespace NETDBHelper
             if (db == null)
                 return;
             new SubForm.SubFrmPerformAnalysis(db).Show();
+        }
+
+        private void SubMenuItem_Delete_Click(object sender, EventArgs e)
+        {
+            var _node = tv_DBServers.SelectedNode;
+            if (this.OnCreatePorcSQL != null)
+            {
+                this.OnCreatePorcSQL(GetDBSource(_node), _node.Parent.Text, _node.Name, _node.Text, CreateProceEnum.Delete);
+            }
         }
     }
 }

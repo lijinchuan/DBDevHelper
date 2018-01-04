@@ -7,7 +7,7 @@ namespace Entity
 {
     public enum CreateProceEnum
     {
-        InsertOrUpdate
-
+        InsertOrUpdate,
+        Delete,
     }
 }
