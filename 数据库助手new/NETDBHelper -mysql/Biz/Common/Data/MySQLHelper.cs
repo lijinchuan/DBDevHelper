@@ -214,5 +214,43 @@ namespace Biz.Common.Data
             string delSql = "drop database "+database;
             ExecuteNoQuery(dBSource, database, delSql);
         }
+
+        public static DataTable GetKeys(DBSource dBSource, string dbname, string tbname)
+        {
+            var list = GetColumns(dBSource, dbname, tbname);
+
+            DataTable tb = new DataTable("tbkeys_" + dbname + "_" + tbname);
+
+            tb.Columns.AddRange(new DataColumn[] { new DataColumn("COLUMN_NAME") });
+
+            var key = list.FirstOrDefault(p => p.IsKey);
+            if (key != null)
+            {
+                var newrow=tb.NewRow();
+                newrow["COLUMN_NAME"] = key.Name;
+                tb.Rows.Add(newrow);
+            }
+            else
+            {
+                foreach (var item in list.Where(p => p.IsKey))
+                {
+                    var newrow = tb.NewRow();
+                    newrow["COLUMN_NAME"] = item.Name;
+                    tb.Rows.Add(newrow);
+                }
+            }
+
+            return tb;
+        }
+
+        public static bool DeleteItem(DBSource dbSource, string connDB, string tableName, List<KeyValuePair<string, object>> delKeys)
+        {
+            string delSql = string.Format("delete from {0} where ", tableName);
+            delSql += string.Join(" AND ", delKeys.Select(p => p.Key + "=@" + p.Key));
+            List<MySqlParameter> parameters = new List<MySqlParameter>();
+            parameters.AddRange(delKeys.Select(p => new MySqlParameter("@" + p.Key, p.Value)));
+            ExecuteNoQuery(dbSource, connDB, delSql, parameters.ToArray());
+            return true;
+        }
     }
 }

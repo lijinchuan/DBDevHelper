@@ -65,7 +65,7 @@ namespace NETDBHelper.UC
             set;
         }
 
-        private string TBName
+        public string TBName
         {
             get;
             set;
@@ -110,11 +110,18 @@ namespace NETDBHelper.UC
         {
             if (this.dv_Data.SelectedRows.Count == 0)
                 return;
+
+            if (this.TBName == null)
+            {
+                MessageBox.Show("删除失败，未接受表名");
+                return;
+            }
+
             if (MessageBox.Show("删除记录吗？", "询问", MessageBoxButtons.YesNo, MessageBoxIcon.Question,
                 MessageBoxDefaultButton.Button2) == DialogResult.No)
                 return;
             this.tb_Msg.Text = "";
-            DataTable tb = Biz.Common.Data.SQLHelper.GetKeys(this.DBSource, this.DBName, this.TBName);
+            var tb = Biz.Common.Data.MySQLHelper.GetKeys(this.DBSource, this.DBName, this.TBName);
             if (tb.Rows.Count == 0)
             {
                 //MessageBox.Show("查找不到主键，不能删除记录！");
@@ -136,7 +143,7 @@ namespace NETDBHelper.UC
                 }
                 try
                 {
-                    Biz.Common.Data.SQLHelper.DeleteItem(DBSource, DBName, TBName, kvs);
+                    Biz.Common.Data.MySQLHelper.DeleteItem(DBSource, DBName, TBName, kvs);
                 }
                 catch (Exception ex)
                 {

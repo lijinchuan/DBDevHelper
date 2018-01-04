@@ -77,7 +77,7 @@ namespace NETDBHelper
             Biz.UILoadHelper.LoadTBsAnsy(this, dbServerView1.FindNode(db.ServerName, dbName), db);
         }
 
-        public void ShowTableData(DBSource db,string dbName, string sql)
+        public void ShowTableData(DBSource db,string dbName,string tbName, string sql)
         {
             ViewTBData viewTb = new ViewTBData();
             viewTb.Text = string.Format("{0}-查询数据",dbName);
@@ -86,10 +86,11 @@ namespace NETDBHelper
             tsb_Excute.Enabled = true;
             viewTb.DBSource = db;
             viewTb.DBName = dbName;
+            viewTb.TBName = tbName;
             viewTb.SQLString = sql;
         }
 
-        public void AddSqlExecute(DBSource db,string dbName)
+        public void AddSqlExecute(DBSource db,string dbName,string tbname)
         {
             ViewTBData viewTb = new ViewTBData();
             viewTb.Text = string.Format("{0}-查询分析器",dbName );
@@ -98,6 +99,7 @@ namespace NETDBHelper
             tsb_Excute.Enabled = true;
             viewTb.DBSource = db;
             viewTb.DBName = dbName;
+            viewTb.TBName = tbname;
             viewTb.SQLString = string.Empty;
         }
 

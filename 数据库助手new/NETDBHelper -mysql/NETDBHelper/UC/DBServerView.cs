@@ -17,10 +17,10 @@ namespace NETDBHelper
     public partial class DBServerView : UserControl
     {
         public Action<string,string> OnCreateEntity;
-        public Action<DBSource,string, string> OnShowTableData;
+        public Action<DBSource,string,string, string> OnShowTableData;
         public Action<DBSource,string> OnAddEntityTB;
         public Action<DBSource, string, string, string,CreateProceEnum> OnCreatePorcSQL;
-        public Action<DBSource,string> OnAddSqlExecuter;
+        public Action<DBSource,string,string> OnAddSqlExecuter;
         private DBSourceCollection _dbServers;
         /// <summary>
         /// 实体命名空间
@@ -222,7 +222,7 @@ namespace NETDBHelper
                 sb.AppendLine("SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ ;");
                 if (this.OnShowTableData != null)
                 {
-                    OnShowTableData(this.tv_DBServers.SelectedNode.Parent.Parent.Tag as DBSource,this.tv_DBServers.SelectedNode.Parent.Text, sb.ToString());
+                    OnShowTableData(this.tv_DBServers.SelectedNode.Parent.Parent.Tag as DBSource,this.tv_DBServers.SelectedNode.Parent.Text,this.tv_DBServers.SelectedNode.Text, sb.ToString());
                 }
             }
         }
@@ -844,7 +844,7 @@ namespace NETDBHelper
                 return;
             if (OnAddSqlExecuter != null)
             {
-                OnAddSqlExecuter(GetDBSource(node),node.Text);
+                OnAddSqlExecuter(GetDBSource(node),node.Text,null);
             }
         }
 

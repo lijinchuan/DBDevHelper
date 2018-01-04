@@ -116,7 +116,7 @@
             // ToolStripMenuItem_callsp
             // 
             this.ToolStripMenuItem_callsp.Name = "ToolStripMenuItem_callsp";
-            this.ToolStripMenuItem_callsp.Size = new System.Drawing.Size(152, 22);
+            this.ToolStripMenuItem_callsp.Size = new System.Drawing.Size(148, 22);
             this.ToolStripMenuItem_callsp.Text = "存储过程调用";
             this.ToolStripMenuItem_callsp.Click += new System.EventHandler(this.ToolStripMenuItem_callsp_Click);
             // 
@@ -125,7 +125,7 @@
             this.实体建表ToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.SubItemModelCreateTableTool});
             this.实体建表ToolStripMenuItem.Name = "实体建表ToolStripMenuItem";
-            this.实体建表ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.实体建表ToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
             this.实体建表ToolStripMenuItem.Text = "建表工具";
             // 
             // SubItemModelCreateTableTool

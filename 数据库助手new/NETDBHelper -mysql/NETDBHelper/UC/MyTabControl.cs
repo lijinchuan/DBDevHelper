@@ -26,10 +26,14 @@ namespace NETDBHelper.UC
             InitializeComponent();
 
             this.DrawMode = TabDrawMode.OwnerDrawFixed;
+            
             this.DrawItem += new DrawItemEventHandler(MyTabControl_DrawItem);
             this.SizeMode = TabSizeMode.Fixed;
 
-            this.ItemSize = new Size { Width = 1, Height = 18 };
+            this.ItemSize = new Size { Width = 1, Height = 1 };
+
+  
+
         }
 
         protected override void OnParentChanged(EventArgs e)
