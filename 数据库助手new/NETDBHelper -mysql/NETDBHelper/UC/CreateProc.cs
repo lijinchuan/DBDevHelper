@@ -46,6 +46,7 @@ namespace NETDBHelper.UC
             :base()
         {
             InitializeComponent();
+            this.Text = string.Format("{0}-{1}",table,proceType);
             this.dbSource = dbSource;
             this.connDB = connDB;
             this.table = table;
