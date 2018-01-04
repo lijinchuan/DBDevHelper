@@ -19,6 +19,7 @@ namespace NETDBHelper
         public Action<string,string> OnCreateEntity;
         public Action<DBSource,string,string, string> OnShowTableData;
         public Action<DBSource,string> OnAddEntityTB;
+        public Action<string, string> OnCreateSelectSql;
         public Action<DBSource, string, string, string,CreateProceEnum> OnCreatePorcSQL;
         public Action<DBSource,string,string> OnAddSqlExecuter;
         private DBSourceCollection _dbServers;
@@ -713,103 +714,29 @@ namespace NETDBHelper
             {
                 return;
             }
-            var cols = Biz.Common.Data.MySQLHelper.GetColumns(GetDBSource(node), node.Parent.Text, node.Text).ToList();
 
-            StringBuilder sb = new StringBuilder();
-            sb.AppendFormat("USE [{0}]", node.Parent.Text);
-            sb.AppendLine();
-            sb.AppendLine("SET ANSI_NULLS ON");
-            sb.AppendLine("GO");
-            sb.AppendLine();
-            sb.AppendLine("SET QUOTED_IDENTIFIER ON");
-            sb.AppendLine("GO");
-            sb.AppendLine();
-            sb.AppendFormat("create PROCEDURE [dbo].[{0}List] ",node.Text);
-            sb.AppendLine();
-            foreach (var col in cols)
-            {
-                sb.AppendFormat("@{0} {1}=NULL, --{2}",col.Name,col.TypeToString(),col.Description);
-                sb.AppendLine();
-            }
-            sb.AppendLine("@OrderBy varchar(200)=NULL,");
-            sb.AppendLine("@pageSize int=null,	--每页显示记录数");
-            sb.AppendLine("@pageIndex	int=null, --第几页");
-            sb.AppendLine("@recordCount    int output --记录总数");
-            sb.AppendLine("AS");
-            sb.AppendLine("BEGIN");
-            sb.AppendLine("	SET NOCOUNT ON;");
-            sb.AppendLine();
-            sb.AppendLine("	-- 拼接sql语句");
-            sb.AppendLine("	declare @sql nvarchar(4000)");
-            sb.AppendLine("	declare @where nvarchar(4000)");
-            sb.AppendLine("	set @where=' where 1=1 '");
-            sb.AppendLine();
+            DBSource dbsource = GetDBSource(node);
+            string dbname = node.Parent.Text,
+                tbname = node.Text, tid = node.Name;
 
-            string orderBy = string.Join(",", cols.Where(p => p.IsKey).Select(p => p.Name + " DESC"));
-            if (string.IsNullOrEmpty(orderBy))
+            var cols = Biz.Common.Data.MySQLHelper.GetColumns(dbsource, dbname, tbname).ToList();
+
+            SubForm.WinCreateSelectSpNav nav = new WinCreateSelectSpNav(cols);
+
+            if (nav.ShowDialog() == DialogResult.Cancel)
             {
-                orderBy = cols.Where(p => p.IsID).Select(p => p.Name + " DESC").FirstOrDefault();
-            }
-            sb.AppendLine("   if @OrderBy is null");
-            sb.AppendLine("   begin");
-            sb.AppendLine(string.Format("      set @OrderBy='{0}'",orderBy));
-            sb.AppendLine("   end");
-            foreach (var col in cols)
-            {
-                sb.AppendLine(string.Format("--{0}",col.Description));
-                sb.AppendLine(string.Format("	if @{0}  is not null ",col.Name));
-                sb.AppendLine("	begin");
-                sb.AppendLine();
-                if (col.IsString())
-                {
-                    sb.AppendLine(string.Format("		set @{0} ='%'+@{0} +'%'", col.Name));
-                    sb.AppendLine(string.Format("		set @where=@where+' and [{0}] like @{0}  '", col.Name));
-                }
-                else if (col.IsNumber()||col.IsBoolean())
-                {
-                    sb.AppendLine(string.Format("		set @where=@where+' and [{0}]=@{0}  '", col.Name));
-                }
-                else if (col.IsDateTime())
-                {
-                    sb.AppendLine(string.Format("		set @{0} ='%'+@{0} +'%'", col.Name));
-                    sb.AppendLine(string.Format("		set @where=@where+' and [{0}]=@{0}  '", col.Name));
-                }
-                sb.AppendLine(" end");
-                sb.AppendLine();
+                return;
             }
 
-            sb.AppendLine(string.Format("	set @sql='select @recordCount = count(1) From {0}(nolock) '+@where",node.Text));
+            var conditioncols = nav.ConditionColumns;
+            var outputcols = nav.OutPutColumns;
 
-            sb.AppendLine("	exec sp_executesql @sql,");
-            sb.AppendLine();
-            sb.Append("N'");
-            foreach (var col in cols)
+            string codes = MySQLHelper.CreateSelectSql(dbname, tbname, nav.Editer, nav.SPAbout, cols, conditioncols, outputcols);
+
+            if (OnCreateSelectSql != null)
             {
-                sb.AppendFormat("@{0} {1},",col.Name,col.TypeToString());
+                OnCreateSelectSql(string.Format("查询[{0}.{1}]", dbname, tbname), codes);
             }
-            sb.Append("@OrderBy varchar(200),@recordCount int output");
-            sb.AppendLine("',");
-            sb.Append(string.Join(",",cols.Select(p=>"@"+p.Name)));
-            sb.Append(",@OrderBy,@recordCount output");
-            sb.AppendLine();
-            sb.AppendLine();
-            sb.AppendLine("	set @sql = '");
-            sb.AppendLine("	Select a.* From (");
-            sb.AppendLine("		Select row_number() over(order by @OrderBy) as rowID,");
-            sb.AppendLine("		"+string.Join(",",cols.Select(p=>"["+p.Name+"]")));
-            sb.AppendLine(string.Format("	FROM [{0}](nolock)  ' + @where",node.Text));
-            sb.AppendLine("    + ' ) a Where rowID > @pageSize*(@pageIndex-1) and rowID<=@pageSize*@pageIndex'  ");
-            sb.AppendLine();
-            sb.AppendLine("	exec sp_executesql @sql,");
-            sb.AppendLine(string.Format("		N'{0},@OrderBy varchar(200),@pageSize int,@pageIndex int',",
-                string.Join(",",cols.Select(p=>string.Format("@{0} {1}",p.Name,p.TypeToString())))));
-            sb.AppendLine(string.Format("		{0},@OrderBy,@pageSize,@pageIndex", string.Join(",", cols.Select(p => "@" + p.Name))));
-            sb.AppendLine("");
-            sb.AppendLine("");
-            sb.AppendLine("END");
-            sb.AppendLine("GO");
-            TextBoxWin win = new TextBoxWin("创建存储过程", sb.ToString());
-            win.ShowDialog();
         }
 
         private void CommSubMenuitem_ViewConnsql_Click(object sender, EventArgs e)

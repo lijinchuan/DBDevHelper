@@ -252,5 +252,116 @@ namespace Biz.Common.Data
             ExecuteNoQuery(dbSource, connDB, delSql, parameters.ToArray());
             return true;
         }
+
+        public static string CreateSelectSql(string dbname, string tbname, string editer, string spabout, List<TBColumn> cols, List<TBColumn> conditioncols, List<TBColumn> outputcols)
+        {
+            string spname = tbname + "_list"; ;
+            StringBuilder sb = new StringBuilder();
+            sb.AppendFormat("USE {0};", dbname);
+            sb.AppendLine();
+            sb.AppendLine(string.Format("drop PROCEDURE if exists {0};",spname));
+            sb.AppendLine();
+            sb.AppendLine();
+            sb.AppendLine("/* =============================================");
+            sb.AppendLine(string.Format("-- Author:	     {0}", editer));
+            sb.AppendLine(string.Format("-- Create date: {0}", DateTime.Now.ToString("yyyy年MM月dd日 HH:mm:ss")));
+            sb.AppendLine(string.Format("-- Description: {0}", spabout.Replace("\r\n", "\r\n--")));
+            sb.AppendLine("=============================================*/");
+            sb.AppendLine("DELIMITER $$");
+            sb.AppendFormat(string.Format("CREATE PROCEDURE {0}(", spname));
+            sb.AppendLine();
+            //foreach (var col in cols)
+            foreach (var col in conditioncols)
+            {
+                sb.AppendFormat("IN {0} {1}, {2}", col.Name, col.TypeToString(), string.IsNullOrEmpty(col.Description) ? "" : "/*" + col.Description + "*/");
+                sb.AppendLine();
+            }
+            sb.AppendLine("in OrderBy varchar(200),");
+            sb.AppendLine("in pageSize int,	/*每页显示记录数*/");
+            sb.AppendLine("in pageIndex	int, /*第几页*/");
+            sb.AppendLine("out recordCount int /*记录总数*/");
+            sb.AppendLine(")");
+            sb.AppendLine("BEGIN");
+            sb.AppendLine();
+
+            sb.Append("set @OrderBy=OrderBy,@pageSize=ifnull(pageSize,20),@pageIndex=ifnull(pageIndex,1),");
+            sb.Append(string.Join(",", conditioncols.Select(p => "@" + p.Name + "=" + p.Name)));
+            sb.AppendLine(";");
+
+            sb.AppendLine(" /*拼接sql语句*/");
+            //sb.AppendLine("	declare @sql nvarchar(4000)");
+            //sb.AppendLine("	declare @where nvarchar(4000)");
+            sb.AppendLine("	set @where=' where 1=1 ';");
+            sb.AppendLine();
+
+            string orderBy = string.Join(",", cols.Where(p => p.IsKey).Select(p => p.Name + " DESC"));
+            if (string.IsNullOrEmpty(orderBy))
+            {
+                orderBy = cols.Where(p => p.IsID).Select(p => p.Name + " DESC").FirstOrDefault();
+            }
+            sb.AppendLine("   if @OrderBy is null then");
+            sb.AppendLine("   begin");
+            sb.AppendLine(string.Format("      set @OrderBy='{0}';", orderBy));
+            sb.AppendLine("   end;");
+            sb.AppendLine("   end if;");
+            //foreach (var col in cols)
+            foreach (var col in conditioncols)
+            {
+                sb.AppendLine(string.Format("/*{0}*/",string.IsNullOrWhiteSpace(col.Description)?col.Name:col.Description));
+                sb.AppendLine(string.Format("	if @{0} is not null then", col.Name));
+                sb.AppendLine("	begin");
+                sb.AppendLine();
+                if (col.IsString())
+                {
+                    sb.AppendLine(string.Format("	    set @{0} =concat('%',{0},'%');", col.Name));
+                    sb.AppendLine(string.Format("	    set @where=concat(@where,' and `{0}` like ?  ');", col.Name));
+                }
+                else if (col.IsNumber() || col.IsBoolean())
+                {
+                    sb.AppendLine(string.Format("       set @where=concat(@where,' and `{0}`=?  ');", col.Name));
+                }
+                else if (col.IsDateTime())
+                {
+                    sb.AppendLine(string.Format("       set @{0} =concat('%',{0} ,'%');", col.Name));
+                    sb.AppendLine(string.Format("       set @where=concat(@where,' and `{0}`=?  ');", col.Name));
+                }
+                sb.AppendLine(" end;");
+                sb.AppendLine(" else");
+                sb.AppendLine(" begin");
+                sb.AppendLine("       set @where=concat(@where,' and ?');");
+                sb.AppendLine(" end;");
+                sb.AppendLine(" end if;");
+                sb.AppendLine();
+            }
+
+            sb.AppendLine(string.Format("   set @sql=concat('select recordCount = count(1) From {0} ',@where);", tbname));
+
+            sb.AppendLine("prepare stmt from @sql;");
+            sb.AppendLine(string.Format("execute stmt using {0};", string.Join(",", conditioncols.Select(p => "ifnull(@" + p.Name+",true)"))));
+            //sb.AppendLine("OrderBy;");
+            sb.AppendLine("DEALLOCATE PREPARE stmt;");
+            sb.AppendLine();
+            //foreach (var col in cols)
+
+            sb.AppendLine();
+            sb.AppendLine(" set @sql = '");
+            sb.AppendLine(string.Format("	Select {0} From (", string.Join(",", outputcols.Select(p => "[a].[" + p.Name + "]"))));
+            sb.AppendLine("     Select row_number() over(order by '+@OrderBy+') as rowID,");
+            sb.AppendLine("		" + string.Join(",", outputcols.Select(p => "[" + p.Name + "]")));
+            sb.AppendLine(string.Format("	FROM [{0}](nolock)  ' + @where", tbname));
+            sb.AppendLine("    + ' ) as a Where rowID > @pageSize*(@pageIndex-1) and rowID<=@pageSize*@pageIndex'  ");
+            sb.AppendLine();
+            sb.AppendLine(" exec sp_executesql @sql,");
+            sb.AppendLine(string.Format("		N'{0},@OrderBy varchar(200),@pageSize int,@pageIndex int',",
+                string.Join(",", conditioncols.Select(p => string.Format("@{0} {1}", p.Name, p.TypeToString())))));
+            sb.AppendLine(string.Format("		{0},@OrderBy,@pageSize,@pageIndex", string.Join(",", conditioncols.Select(p => "@" + p.Name))));
+            sb.AppendLine("");
+            sb.AppendLine("");
+
+            sb.AppendLine("END$$");
+            sb.AppendLine("DELIMITER ;");
+
+            return sb.ToString();
+        }
     }
 }

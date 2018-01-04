@@ -20,10 +20,31 @@ namespace NETDBHelper
             this.dbServerView1.OnCreateEntity += this.CreateEntity;
             this.dbServerView1.OnShowTableData += this.ShowTableData;
             this.dbServerView1.OnAddEntityTB += this.AddEntityDB;
+            this.dbServerView1.OnCreateSelectSql += this.CreateSelectSql;
             this.dbServerView1.OnCreatePorcSQL += this.CreateProcSql;
             this.dbServerView1.OnAddSqlExecuter += this.AddSqlExecute;
             this.TabControl.DrawMode = TabDrawMode.OwnerDrawFixed;
             this.TabControl.Selected += new TabControlEventHandler(TabControl_Selected);
+        }
+
+        protected void CreateSelectSql(string sqlname, string s)
+        {
+            foreach (TabPage page in TabControl.TabPages)
+            {
+                if (page.Text.Equals(sqlname) && page is UC.SqlProceCodePanel)
+                {
+                    (page as UC.SqlProceCodePanel).Text = s;
+                    TabControl.SelectedTab = page;
+                    return;
+                }
+            }
+            UC.SqlProceCodePanel panel = new UC.SqlProceCodePanel();
+            panel.Text = sqlname;
+            panel.Code = s;
+            TabControl.TabPages.Add(panel);
+            TabControl.SelectedTab = panel;
+            Clipboard.SetText(s);
+            this.SetMsg("代码已经复制到剪粘板。");
         }
 
         public MainFrm()

@@ -184,6 +184,9 @@
     <Compile Include="UC\SQLEditBox.Designer.cs">
       <DependentUpon>SQLEditBox.cs</DependentUpon>
     </Compile>
+    <Compile Include="UC\SqlProceCodePanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="UC\TabTableTabEx.cs" />
     <Compile Include="UC\UCAddTableByEntity.cs">
       <SubType>Component</SubType>
@@ -249,6 +252,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="UC\Scale.resx">
       <DependentUpon>Scale.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UC\SqlProceCodePanel.resx">
+      <DependentUpon>SqlProceCodePanel.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UC\UCAddTableByEntity.resx">
       <DependentUpon>UCAddTableByEntity.cs</DependentUpon>
