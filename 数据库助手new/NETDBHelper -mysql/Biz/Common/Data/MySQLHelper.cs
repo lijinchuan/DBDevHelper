@@ -347,17 +347,17 @@ namespace Biz.Common.Data
             sb.AppendLine("set recordCount=ifnull(@recordCount,0);");
 
             sb.AppendLine();
-            sb.AppendLine(" set @sql = '");
-            sb.AppendLine(string.Format("	Select {0} From (", string.Join(",", outputcols.Select(p => "[a].[" + p.Name + "]"))));
-            sb.AppendLine("     Select row_number() over(order by '+@OrderBy+') as rowID,");
-            sb.AppendLine("		" + string.Join(",", outputcols.Select(p => "[" + p.Name + "]")));
-            sb.AppendLine(string.Format("	FROM [{0}](nolock)  ' + @where", tbname));
-            sb.AppendLine("    + ' ) as a Where rowID > @pageSize*(@pageIndex-1) and rowID<=@pageSize*@pageIndex'  ");
+            sb.AppendLine("set @limit=(@pageIndex-1)*@pageSize;");
+            sb.Append(" set @sql = concat('");
+            sb.Append(string.Format("	Select {0} From ", string.Join(",", outputcols.Select(p => "a.`" + p.Name + "`"))));
+            sb.Append(string.Format("	`{0}` as a ',@where", tbname));
+            sb.AppendLine(", ' order by ? limit ?,?');");
             sb.AppendLine();
-            sb.AppendLine(" exec sp_executesql @sql,");
-            sb.AppendLine(string.Format("		N'{0},@OrderBy varchar(200),@pageSize int,@pageIndex int',",
-                string.Join(",", conditioncols.Select(p => string.Format("@{0} {1}", p.Name, p.TypeToString())))));
-            sb.AppendLine(string.Format("		{0},@OrderBy,@pageSize,@pageIndex", string.Join(",", conditioncols.Select(p => "@" + p.Name))));
+            sb.AppendLine("prepare stmt from @sql;");
+
+            sb.Append(string.Format("execute stmt using {0},", string.Join(",", conditioncols.Select(p => "@" + p.Name))));
+            sb.AppendLine("@OrderBy,@limit,@pageSize;");
+            sb.AppendLine("DEALLOCATE PREPARE stmt;");
             sb.AppendLine("");
             sb.AppendLine("");
 
