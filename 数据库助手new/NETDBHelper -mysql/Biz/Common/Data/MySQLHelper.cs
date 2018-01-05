@@ -325,6 +325,15 @@ namespace Biz.Common.Data
                     //sb.AppendLine(string.Format("       set @{0} =concat(''',{0} ,''');", col.Name));
                     sb.AppendLine(string.Format("       set @where=concat(@where,' and `{0}`=?  ');", col.Name));
                 }
+                else if (col.IsEnum())
+                {
+                    sb.AppendLine(string.Format("       set @where=concat(@where,' and `{0}`=?  ');", col.Name));
+                }
+                else
+                {
+                    sb.AppendLine("       /*add code*/");
+                }
+
                 sb.AppendLine(" end;");
                 sb.AppendLine(" else");
                 sb.AppendLine(" begin");

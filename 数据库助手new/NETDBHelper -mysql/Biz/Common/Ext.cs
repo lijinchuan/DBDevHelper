@@ -41,6 +41,14 @@ namespace Biz.Common
                    || colEnum.Equals(MSSQLTypeEnum.Varchar);
         }
 
+        public static bool IsEnum(this TBColumn column)
+        {
+            CheckIsSupport(column);
+            var colEnum = Enum.Parse(typeof(MSSQLTypeEnum), column.TypeName, true);
+
+            return colEnum.Equals(MSSQLTypeEnum.Enum);
+        }
+
         public static bool IsNumber(this TBColumn column)
         {
             CheckIsSupport(column);

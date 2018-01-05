@@ -35,5 +35,6 @@ namespace Entity
         Xml,
         Uniqueidentifier,
         timestamp,
+        Enum,
     }
 }
