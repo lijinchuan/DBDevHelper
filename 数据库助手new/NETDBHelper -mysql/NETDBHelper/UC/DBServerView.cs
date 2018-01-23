@@ -641,7 +641,7 @@ namespace NETDBHelper
             else if (node != null && node.Level == 4 && node.Parent.Text.Equals("存储过程"))
             {
                 var body = Biz.Common.Data.MySQLHelper.GetProcedureBody(GetDBSource(node), node.Parent.Parent.Text, node.Text);
-                TextBoxWin win = new TextBoxWin("存储过程[" + node.Text + "]", "drop PROCEDURE if exists " + node.Text + ";\r\n\r\n" + body);
+                TextBoxWin win = new TextBoxWin("存储过程[" + node.Text + "]", "drop PROCEDURE if exists " + node.Text + ";\r\n\r\n" + body.Replace("\n","\r\n"));
                 win.ShowDialog();
             }
         }

@@ -93,7 +93,23 @@ namespace Biz.Common.Data
             return y;
         }
 
-        public static string GetProcedureBody(DBSource dbSource, string dbName, string procedure)
+        public static string GetProcedureBody(DBSource dbSource,string dbName,string procedure)
+        {
+            //show create {procedure|function} sp_name
+            string sql = string.Format("show create procedure {0}", procedure);
+
+            var tb = ExecuteDBTable(dbSource, dbName, sql);
+
+            if (tb.Rows.Count > 0)
+            {
+                return (string)tb.Rows[0]["Create Procedure"];
+            }
+
+            return string.Empty;
+        }
+
+        [Obsolete("取不到参数")]
+        public static string GetProcedureBody2(DBSource dbSource, string dbName, string procedure)
         {
             string sql = string.Format("select body from mysql.proc where name='{0}';", procedure);
 
