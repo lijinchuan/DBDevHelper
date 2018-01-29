@@ -315,11 +315,17 @@ namespace Biz.Common.Data
             {
                 orderBy = cols.Where(p => p.IsID).Select(p => p.Name + " DESC").FirstOrDefault();
             }
-            sb.AppendLine("   if @OrderBy is null then");
-            sb.AppendLine("   begin");
-            sb.AppendLine(string.Format("      set @OrderBy='{0}';", orderBy));
-            sb.AppendLine("   end;");
-            sb.AppendLine("   end if;");
+            if (!string.IsNullOrWhiteSpace(orderBy))
+            {
+                sb.AppendLine("   if @OrderBy is null then");
+                sb.AppendLine("   begin");
+                sb.AppendLine(string.Format("      set @OrderBy=' order by {0}';", orderBy));
+                sb.AppendLine("   end;");
+                sb.AppendLine("else");
+                sb.AppendLine("set @OrderBy =concat(' order by ',@OrderBy);");
+                sb.AppendLine("   end if;");
+            }
+
             //foreach (var col in cols)
             foreach (var col in conditioncols)
             {
@@ -374,14 +380,14 @@ namespace Biz.Common.Data
             sb.AppendLine();
             sb.AppendLine("set @limit=(@pageIndex-1)*@pageSize;");
             sb.Append(" set @sql = concat('");
-            sb.Append(string.Format("	Select {0} From ", string.Join(",", outputcols.Select(p => "a.`" + p.Name + "`"))));
-            sb.Append(string.Format("	`{0}` as a ',@where", tbname));
-            sb.AppendLine(", ' order by ? limit ?,?');");
+            sb.Append(string.Format("	Select {0} From ", string.Join(",",outputcols.Select(p => "`" + p.Name + "`"))));
+            sb.Append(string.Format("	`{0}` ',@where", tbname));
+            sb.AppendLine(", @OrderBy,' limit ?,?');");
             sb.AppendLine();
             sb.AppendLine("prepare stmt from @sql;");
 
             sb.Append(string.Format("execute stmt using {0},", string.Join(",", conditioncols.Select(p => "@" + p.Name))));
-            sb.AppendLine("@OrderBy,@limit,@pageSize;");
+            sb.AppendLine("@limit,@pageSize;");
             sb.AppendLine("DEALLOCATE PREPARE stmt;");
             sb.AppendLine("");
             sb.AppendLine("");
