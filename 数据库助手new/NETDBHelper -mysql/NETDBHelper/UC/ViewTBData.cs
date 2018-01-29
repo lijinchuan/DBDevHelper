@@ -71,12 +71,31 @@ namespace NETDBHelper.UC
             set;
         }
 
+        private bool IsNoTable(string sql)
+        {
+
+            Regex rg = new Regex(@"create\s+(PROCEDURE|Table)\s",RegexOptions.IgnoreCase);
+            if (rg.IsMatch(sql))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
         public string SQLString
         {
             set
             {
+                if (string.IsNullOrWhiteSpace(value))
+                {
+                    return;
+                }
+
                 if (string.IsNullOrWhiteSpace(tb_sql.Text))
+                {
                     this.tb_sql.Text = value;
+                }
                 tb_sql.MarkKeyWords(true);
 
                 //string rgstr = @"select[\s\r\n]{1,}[\s\w\*\,\.\[\]]+[\s\r\n]{1,}from[\s\r\n]{1,}([\w]+)";
@@ -91,7 +110,18 @@ namespace NETDBHelper.UC
                 try
                 {
                     //this.Text = "数据查询[" + DBName + "]";
-                    this.dv_Data.DataSource = Biz.Common.Data.MySQLHelper.ExecuteDBTable(DBSource, DBName, value);
+                    DateTime now = DateTime.Now;
+                    if (IsNoTable(value))
+                    {
+                        Biz.Common.Data.MySQLHelper.ExecuteNoQuery(DBSource, DBName, value);
+                    }
+                    else
+                    {
+                        this.dv_Data.DataSource = Biz.Common.Data.MySQLHelper.ExecuteDBTable(DBSource, DBName, value);
+                    }
+
+                    this.tb_Msg.Text = "执行完成:" + DateTime.Now.Subtract(now).TotalMilliseconds.ToString("f4")+"ms";
+                    this.tabControl1.SelectedTab = tabPage1;
                 }
                 catch (Exception e)
                 {

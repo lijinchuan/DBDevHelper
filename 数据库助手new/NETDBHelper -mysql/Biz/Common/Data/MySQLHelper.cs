@@ -168,11 +168,11 @@ namespace Biz.Common.Data
 
         public static void ExecuteNoQuery(DBSource dbSource, string connDB, string sql, params MySqlParameter[] sqlParams)
         {
-            var conn = new MySqlConnection(GetConnstringFromDBSource(dbSource, connDB));
+            var conn = new MySqlConnection(GetConnstringFromDBSource(dbSource, connDB) + ";allowuservariables=True;");
             MySqlCommand cmd = conn.CreateCommand();
             cmd.CommandText = sql;
             cmd.CommandType = CommandType.Text;
-            if (sqlParams != null)
+            if (sqlParams != null && sqlParams.Count() > 0)
             {
                 cmd.Parameters.AddRange(sqlParams);
             }
