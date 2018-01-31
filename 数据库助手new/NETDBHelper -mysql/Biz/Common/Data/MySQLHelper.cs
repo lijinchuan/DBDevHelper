@@ -397,5 +397,41 @@ namespace Biz.Common.Data
 
             return sb.ToString();
         }
+
+        public static void CreateIndex(DBSource dbSource, string dbName, string tabname, string indexname,bool unique,bool primarykey, List<TBColumn> cols)
+        {
+            string sql = string.Empty;
+
+            if (primarykey)
+            {
+                sql = string.Format("ALTER TABLE `{0}`.`{1}` ADD PRIMARY KEY ({2}) ", dbName, tabname, string.Join(",", cols.Select(p => "`" + p.Name + "`")));
+            }
+            else if (unique)
+            {
+                sql = string.Format("ALTER TABLE `{0}`.`{1} ADD UNIQUE ({2})", dbName, tabname, string.Join(",", cols.Select(p => "`" + p.Name + "`")));
+            }
+            else
+            {
+                sql = string.Format("ALTER TABLE `{0}`.`{1}` ADD INDEX {2}({3}) ", dbName, tabname, indexname, string.Join(",", cols.Select(p => "`" + p.Name + "`")));
+            }
+            ExecuteNoQuery(dbSource, dbName, sql, null);
+        }
+
+        public static List<IndexEntry> GetIndexs(DBSource dbSource, string dbName, string tabname)
+        {
+            var indexs = new List<IndexEntry>();
+            string sql = string.Format("show index from `{0}`",tabname);
+
+            var tb= ExecuteDBTable(dbSource, dbName, sql);
+
+            var x = from row in tb.AsEnumerable() group row by row.Field<string>("Key_name") into pp
+                    select new IndexEntry
+                    {
+                        IndexName=pp.Key,
+                        Cols=pp.OrderBy(c=>c.Field<object>("Seq_in_index")).Select(c=>c.Field<string>("Column_name")).ToArray()
+                    };
+
+            return x.ToList();
+        }
     }
 }

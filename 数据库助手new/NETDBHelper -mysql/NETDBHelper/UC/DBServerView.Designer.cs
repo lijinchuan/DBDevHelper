@@ -58,6 +58,7 @@
             this.CommSubMenuitem_add = new System.Windows.Forms.ToolStripMenuItem();
             this.SqlExecuterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.性能分析工具ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.TSM_CreateIndex = new System.Windows.Forms.ToolStripMenuItem();
             this.DBServerviewContextMenuStrip.SuspendLayout();
             this.toolStrip1.SuspendLayout();
             this.CommMenuStrip.SuspendLayout();
@@ -94,9 +95,10 @@
             this.删除表ToolStripMenuItem,
             this.刷新ToolStripMenuItem,
             this.SubMenuItem_Proc,
-            this.导出ToolStripMenuItem});
+            this.导出ToolStripMenuItem,
+            this.TSM_CreateIndex});
             this.DBServerviewContextMenuStrip.Name = "DBServerviewContextMenuStrip";
-            this.DBServerviewContextMenuStrip.Size = new System.Drawing.Size(170, 224);
+            this.DBServerviewContextMenuStrip.Size = new System.Drawing.Size(170, 246);
             // 
             // 生成实体类ToolStripMenuItem
             // 
@@ -290,6 +292,12 @@
             this.性能分析工具ToolStripMenuItem.Text = "性能分析工具";
             this.性能分析工具ToolStripMenuItem.Click += new System.EventHandler(this.性能分析工具ToolStripMenuItem_Click);
             // 
+            // TSM_CreateIndex
+            // 
+            this.TSM_CreateIndex.Name = "TSM_CreateIndex";
+            this.TSM_CreateIndex.Size = new System.Drawing.Size(169, 22);
+            this.TSM_CreateIndex.Text = "创建索引";
+            // 
             // DBServerView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -342,6 +350,7 @@
         private System.Windows.Forms.ToolStripMenuItem SqlExecuterToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 生成数据字典ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 性能分析工具ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem TSM_CreateIndex;
 
     }
 }

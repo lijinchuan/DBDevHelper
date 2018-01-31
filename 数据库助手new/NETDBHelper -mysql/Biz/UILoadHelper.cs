@@ -78,6 +78,61 @@ namespace Biz
             new Action<Form, TreeNode, DBSource>(LoadProcedure).BeginInvoke(parent, procedureNode, server, null, null);
         }
 
+        public static void LoadIndexAnsy(Form parent, TreeNode tbNode, DBSource server)
+        {
+            new Action<Form, TreeNode, DBSource>(LoadIndexs).BeginInvoke(parent, tbNode, server, null, null);
+        }
+
+        private static void LoadIndexs(Form parent, TreeNode tbNode, DBSource server)
+        {
+            if (server == null)
+            {
+                return;
+            }
+
+            var list = Biz.Common.Data.MySQLHelper.GetIndexs(server, tbNode.Parent.Parent.Text, tbNode.Parent.Text);
+            List<TreeNode> treeNodes = new List<TreeNode>();
+
+            foreach (var item in list)
+            {
+                var imageindex = item.IndexName.Equals("primary", StringComparison.OrdinalIgnoreCase) ? 8 : 7;
+                TreeNode newNode = new TreeNode(item.IndexName, item.Cols.Select(p => new TreeNode
+                {
+                    Text = p,
+                    ImageIndex = imageindex,
+                    SelectedImageIndex = imageindex
+                }).ToArray());
+
+                newNode.ImageIndex = newNode.SelectedImageIndex = 6;
+
+                treeNodes.Add(newNode);
+            }
+
+            if (parent.InvokeRequired)
+            {
+                parent.Invoke(new Action(() => { tbNode.Nodes.Clear(); tbNode.Nodes.AddRange(treeNodes.ToArray()); tbNode.Expand(); }));
+            }
+            else
+            {
+                tbNode.Nodes.Clear();
+                tbNode.Nodes.AddRange(treeNodes.ToArray());
+                tbNode.Expand();
+            }
+        }
+
+        private static void InsertRange(TreeNode node, IEnumerable<TreeNode> nodes)
+        {
+            if (nodes.Count() == 0)
+            {
+                return;
+            }
+
+            for (int i = 0; i < nodes.Count(); i++)
+            {
+                node.Nodes.Insert(i, nodes.ElementAt(i));
+            }
+        }
+
         private static void LoadColumns(Form parent, TreeNode tbNode, DBSource server)
         {
             if (server == null)
@@ -92,12 +147,17 @@ namespace Biz
             }
             if (parent.InvokeRequired)
             {
-                parent.Invoke(new Action(() => { tbNode.Nodes.Clear(); tbNode.Nodes.AddRange(treeNodes.ToArray()); tbNode.Expand(); }));
+                parent.Invoke(new Action(() =>
+                {
+                    tbNode.Nodes.Clear(); InsertRange(tbNode, treeNodes.ToArray());
+                    tbNode.Nodes.Add("INDEXS", "索引", 1, 1); tbNode.Expand();
+                }));
             }
             else
             {
                 tbNode.Nodes.Clear();
                 tbNode.Nodes.AddRange(treeNodes.ToArray());
+                tbNode.Nodes.Add("INDEXS", "索引", 1, 1);
                 tbNode.Expand();
             }
         }
@@ -147,7 +207,7 @@ namespace Biz
             }
             if (parent.InvokeRequired)
             {
-                parent.Invoke(new Action(() => { serverNode.Nodes.Clear(); serverNode.Nodes.AddRange(treeNodes.ToArray()); serverNode.Nodes.Add("PROCEDURE", "存储过程", 1,1); serverNode.Expand(); }));
+                parent.Invoke(new Action(() => { serverNode.Nodes.Clear(); serverNode.Nodes.AddRange(treeNodes.ToArray()); serverNode.Nodes.Add("PROCEDURE", "存储过程", 1, 1); serverNode.Expand(); }));
             }
             else
             {

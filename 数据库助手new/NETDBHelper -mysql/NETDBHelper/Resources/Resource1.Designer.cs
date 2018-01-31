@@ -131,11 +131,51 @@ namespace NETDBHelper.Resources {
         }
         
         /// <summary>
+        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        /// </summary>
+        internal static System.Drawing.Bitmap DB7 {
+            get {
+                object obj = ResourceManager.GetObject("DB7", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        /// </summary>
+        internal static System.Drawing.Bitmap DB8 {
+            get {
+                object obj = ResourceManager.GetObject("DB8", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        /// </summary>
+        internal static System.Drawing.Bitmap DB9 {
+            get {
+                object obj = ResourceManager.GetObject("DB9", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 dbservers.xml 的本地化字符串。
         /// </summary>
         internal static string DbServersFile {
             get {
                 return ResourceManager.GetString("DbServersFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        /// </summary>
+        internal static System.Drawing.Bitmap Index {
+            get {
+                object obj = ResourceManager.GetObject("Index", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
             }
         }
         

@@ -46,6 +46,9 @@ namespace NETDBHelper
             tv_DBServers.ImageList.Images.Add(Resources.Resource1.DB4);
             tv_DBServers.ImageList.Images.Add(Resources.Resource1.DB5);
             tv_DBServers.ImageList.Images.Add(Resources.Resource1.DB6);
+            tv_DBServers.ImageList.Images.Add(Resources.Resource1.DB7);
+            tv_DBServers.ImageList.Images.Add(Resources.Resource1.DB8);
+            tv_DBServers.ImageList.Images.Add(Resources.Resource1.DB9);
             tv_DBServers.Nodes.Add("0", "资源管理器", 0);
             tv_DBServers.NodeMouseClick += new TreeNodeMouseClickEventHandler(tv_DBServers_NodeMouseClick);
 
@@ -129,6 +132,10 @@ namespace NETDBHelper
             {
                 Biz.UILoadHelper.LoadProcedureAnsy(this.ParentForm, selNode, GetDBSource(selNode));
             }
+            else if (selNode.Level == 4 && selNode.Text.Equals("索引"))
+            {
+                Biz.UILoadHelper.LoadIndexAnsy(this.ParentForm, selNode, GetDBSource(selNode));
+            }
         }
 
         void OnMenuStrip_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
@@ -195,6 +202,28 @@ namespace NETDBHelper
                         break;
                     case "创建语句":
                         MessageBox.Show("Create");
+                        break;
+                    case "创建索引":
+                        {
+                            _node = tv_DBServers.SelectedNode;
+                            var ds=GetDBSource(_node);
+                            var db=_node.Parent.Text;
+                            var tb=_node.Text;
+                            var cols = Biz.Common.Data.MySQLHelper.GetColumns(ds,db , tb).ToList();
+                            WinCreateIndex win = new WinCreateIndex(cols);
+                            if(win.ShowDialog()==DialogResult.OK&&MessageBox.Show("要创建索引吗？")==DialogResult.OK)
+                            {
+                                try
+                                {
+                                    Biz.Common.Data.MySQLHelper.CreateIndex(ds, db, tb, win.GetIndexName(),win.IsUnique(),win.IsPrimaryKey(), win.IndexColumns);
+                                    MessageBox.Show("创建索引成功");
+                                }
+                                catch (Exception ex)
+                                {
+                                    MessageBox.Show(ex.Message, "创建索引出错", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                }
+                            }
+                        }
                         break;
                     default:
                         _node = tv_DBServers.SelectedNode;
@@ -401,13 +430,24 @@ namespace NETDBHelper
                 //}
                 //e.Node.Expand();
 
-                if (!e.Node.Text.Equals("存储过程"))
+                if (e.Node.Text.Equals("存储过程"))
                 {
-                    Biz.UILoadHelper.LoadColumnsAnsy(this.ParentForm, e.Node, GetDBSource(e.Node));
+                    Biz.UILoadHelper.LoadProcedureAnsy(this.ParentForm, e.Node, GetDBSource(e.Node));
+
                 }
                 else
                 {
-                    Biz.UILoadHelper.LoadProcedureAnsy(this.ParentForm, e.Node, GetDBSource(e.Node));
+                    Biz.UILoadHelper.LoadColumnsAnsy(this.ParentForm, e.Node, GetDBSource(e.Node));
+                }
+            }
+            else if (e.Node.Level == 4)
+            {
+                if (e.Node.Nodes.Count > 0)
+                    return;
+               
+                if (e.Node.Text.Equals("索引"))
+                {
+                    Biz.UILoadHelper.LoadIndexAnsy(this.ParentForm, e.Node, GetDBSource(e.Node));
                 }
             }
 
