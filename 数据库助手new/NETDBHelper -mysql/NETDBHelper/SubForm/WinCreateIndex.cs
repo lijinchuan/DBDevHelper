@@ -35,7 +35,16 @@ namespace NETDBHelper.SubForm
             InitCheckBoxGroup(this.IndexColumns, this.panItmes);
         }
 
-        public string GetIndexName()
+        public string IndexName
+        {
+            get
+            {
+                return TBIndexName.Text.Trim();
+            }
+
+        }
+
+        private string GetIndexName()
         {
             if (IndexColumns.Count == 0)
             {
@@ -122,6 +131,12 @@ namespace NETDBHelper.SubForm
             if (IsPrimaryKey()&&IndexColumns.Count>0)
             {
                 MessageBox.Show("只能选择一列");
+                return;
+            }
+
+            if (string.IsNullOrEmpty(IndexName))
+            {
+                MessageBox.Show("索引名称不能为空");
                 return;
             }
 

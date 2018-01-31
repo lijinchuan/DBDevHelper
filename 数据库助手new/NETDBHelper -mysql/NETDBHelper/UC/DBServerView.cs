@@ -298,6 +298,10 @@ namespace NETDBHelper
                 int idx = 1;
                 foreach (TreeNode node in selNode.Nodes)
                 {
+                    if (node.Text == "索引" && node == selNode.LastNode)
+                    {
+                        continue;
+                    }
                     Match m = rg.Match(node.Text);
                     if (m.Success)
                     {
@@ -518,6 +522,8 @@ namespace NETDBHelper
                         }
                         TTSM_CreateIndex.Visible = node.Level == 3;
                         TTSM_DelIndex.Visible = node.Level == 5 && node.Parent.Text.Equals("索引");
+
+                        ExpdataToolStripMenuItem.Visible = node.Level == 3;
                     }
                     else
                     {
@@ -834,6 +840,10 @@ namespace NETDBHelper
                 int idx = 1;
                 foreach (TreeNode node in selNode.Nodes)
                 {
+                    if (node.Text.Equals("索引") && node == selnode.LastNode)
+                    {
+                        continue;
+                    }
                     var newrow = resulttb.NewRow();
                     newrow["line"] = idx++;
                     Match m = rg.Match(node.Text);
@@ -933,7 +943,7 @@ namespace NETDBHelper
             {
                 try
                 {
-                    Biz.Common.Data.MySQLHelper.CreateIndex(ds, db, tb, win.GetIndexName(), win.IsUnique(), win.IsPrimaryKey(), win.IndexColumns);
+                    Biz.Common.Data.MySQLHelper.CreateIndex(ds, db, tb, win.IndexName, win.IsUnique(), win.IsPrimaryKey(), win.IndexColumns);
                     MessageBox.Show("创建索引成功");
                 }
                 catch (Exception ex)
