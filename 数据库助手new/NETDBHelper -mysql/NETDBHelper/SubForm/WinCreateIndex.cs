@@ -128,7 +128,7 @@ namespace NETDBHelper.SubForm
                 return;
             }
 
-            if (IsPrimaryKey()&&IndexColumns.Count>0)
+            if (IsPrimaryKey() && IndexColumns.Count != 1)
             {
                 MessageBox.Show("只能选择一列");
                 return;

@@ -221,6 +221,10 @@ namespace NETDBHelper
                 List<KeyValuePair<string, bool>> cols = new List<KeyValuePair<string, bool>>();
                 foreach (TreeNode node in tv_DBServers.SelectedNode.Nodes)
                 {
+                    if (node.Text == "索引" && node == tv_DBServers.SelectedNode.LastNode)
+                    {
+                        continue;
+                    }
                     cols.Add(new KeyValuePair<string, bool>(node.Text.Substring(0,node.Text.IndexOf('(')), (node.Tag as TBColumn).IsKey));
                 }
                 StringBuilder sb = new StringBuilder("SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED ;");
@@ -510,7 +514,14 @@ namespace NETDBHelper
                             }
 
                             导出ToolStripMenuItem.Visible = true;
-                            ExpdataToolStripMenuItem.Visible = false;
+                        }
+                        else if (tv_DBServers.SelectedNode.Parent.Text.Equals("索引"))
+                        {
+                            foreach (ToolStripItem item in tv_DBServers.ContextMenuStrip.Items)
+                            {
+                                item.Visible = false;
+                            }
+                            TSM_ManIndex.Visible = true;
                         }
                         else
                         {
@@ -953,7 +964,7 @@ namespace NETDBHelper
             }
         }
 
-        private void TSMDelIndex_Click(object sender, EventArgs e)
+        private void TTSM_DelIndex_Click(object sender, EventArgs e)
         {
             var _node = tv_DBServers.SelectedNode;
             if (_node.Level == 5 && _node.Parent.Text.Equals("索引"))
