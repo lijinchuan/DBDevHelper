@@ -58,7 +58,9 @@
             this.CommSubMenuitem_add = new System.Windows.Forms.ToolStripMenuItem();
             this.SqlExecuterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.性能分析工具ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.TSM_CreateIndex = new System.Windows.Forms.ToolStripMenuItem();
+            this.TSM_ManIndex = new System.Windows.Forms.ToolStripMenuItem();
+            this.TTSM_CreateIndex = new System.Windows.Forms.ToolStripMenuItem();
+            this.TTSM_DelIndex = new System.Windows.Forms.ToolStripMenuItem();
             this.DBServerviewContextMenuStrip.SuspendLayout();
             this.toolStrip1.SuspendLayout();
             this.CommMenuStrip.SuspendLayout();
@@ -96,7 +98,7 @@
             this.刷新ToolStripMenuItem,
             this.SubMenuItem_Proc,
             this.导出ToolStripMenuItem,
-            this.TSM_CreateIndex});
+            this.TSM_ManIndex});
             this.DBServerviewContextMenuStrip.Name = "DBServerviewContextMenuStrip";
             this.DBServerviewContextMenuStrip.Size = new System.Drawing.Size(170, 246);
             // 
@@ -156,21 +158,21 @@
             // SubMenuItem_Insert
             // 
             this.SubMenuItem_Insert.Name = "SubMenuItem_Insert";
-            this.SubMenuItem_Insert.Size = new System.Drawing.Size(152, 22);
+            this.SubMenuItem_Insert.Size = new System.Drawing.Size(113, 22);
             this.SubMenuItem_Insert.Text = "Insert";
             this.SubMenuItem_Insert.Click += new System.EventHandler(this.SubMenuItem_Insert_Click);
             // 
             // SubMenuItem_Delete
             // 
             this.SubMenuItem_Delete.Name = "SubMenuItem_Delete";
-            this.SubMenuItem_Delete.Size = new System.Drawing.Size(152, 22);
+            this.SubMenuItem_Delete.Size = new System.Drawing.Size(113, 22);
             this.SubMenuItem_Delete.Text = "Delete";
             this.SubMenuItem_Delete.Click += new System.EventHandler(this.SubMenuItem_Delete_Click);
             // 
             // SubMenuItem_Select
             // 
             this.SubMenuItem_Select.Name = "SubMenuItem_Select";
-            this.SubMenuItem_Select.Size = new System.Drawing.Size(152, 22);
+            this.SubMenuItem_Select.Size = new System.Drawing.Size(113, 22);
             this.SubMenuItem_Select.Text = "Select";
             this.SubMenuItem_Select.Click += new System.EventHandler(this.SubMenuItem_Select_Click);
             // 
@@ -292,11 +294,27 @@
             this.性能分析工具ToolStripMenuItem.Text = "性能分析工具";
             this.性能分析工具ToolStripMenuItem.Click += new System.EventHandler(this.性能分析工具ToolStripMenuItem_Click);
             // 
-            // TSM_CreateIndex
+            // TSM_ManIndex
             // 
-            this.TSM_CreateIndex.Name = "TSM_CreateIndex";
-            this.TSM_CreateIndex.Size = new System.Drawing.Size(169, 22);
-            this.TSM_CreateIndex.Text = "创建索引";
+            this.TSM_ManIndex.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.TTSM_CreateIndex,
+            this.TTSM_DelIndex});
+            this.TSM_ManIndex.Name = "TSM_ManIndex";
+            this.TSM_ManIndex.Size = new System.Drawing.Size(169, 22);
+            this.TSM_ManIndex.Text = "索引管理";
+            // 
+            // TTSM_CreateIndex
+            // 
+            this.TTSM_CreateIndex.Name = "TTSM_CreateIndex";
+            this.TTSM_CreateIndex.Size = new System.Drawing.Size(152, 22);
+            this.TTSM_CreateIndex.Text = "创建索引";
+            this.TTSM_CreateIndex.Click += new System.EventHandler(this.TTSM_CreateIndex_Click);
+            // 
+            // TTSM_DelIndex
+            // 
+            this.TTSM_DelIndex.Name = "TTSM_DelIndex";
+            this.TTSM_DelIndex.Size = new System.Drawing.Size(152, 22);
+            this.TTSM_DelIndex.Text = "删除索引";
             // 
             // DBServerView
             // 
@@ -350,7 +368,9 @@
         private System.Windows.Forms.ToolStripMenuItem SqlExecuterToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 生成数据字典ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 性能分析工具ToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem TSM_CreateIndex;
+        private System.Windows.Forms.ToolStripMenuItem TSM_ManIndex;
+        private System.Windows.Forms.ToolStripMenuItem TTSM_CreateIndex;
+        private System.Windows.Forms.ToolStripMenuItem TTSM_DelIndex;
 
     }
 }

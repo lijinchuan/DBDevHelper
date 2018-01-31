@@ -433,5 +433,20 @@ namespace Biz.Common.Data
 
             return x.ToList();
         }
+
+        public static void DropIndex(DBSource dbSource, string dbName,string tbName,bool primarykey, string indexName)
+        {
+            string sql = null;
+            if (primarykey)
+            {
+                sql = string.Format("ALTER TABLE `{0}` DROP PRIMARY KEY", tbName);
+            }
+            else
+            {
+                sql = string.Format("ALTER TABLE `{0}` DROP INDEX {1}", tbName, indexName);
+            }
+
+            ExecuteNoQuery(dbSource, dbName, sql, null);
+        }
     }
 }

@@ -203,28 +203,6 @@ namespace NETDBHelper
                     case "创建语句":
                         MessageBox.Show("Create");
                         break;
-                    case "创建索引":
-                        {
-                            _node = tv_DBServers.SelectedNode;
-                            var ds=GetDBSource(_node);
-                            var db=_node.Parent.Text;
-                            var tb=_node.Text;
-                            var cols = Biz.Common.Data.MySQLHelper.GetColumns(ds,db , tb).ToList();
-                            WinCreateIndex win = new WinCreateIndex(cols);
-                            if(win.ShowDialog()==DialogResult.OK&&MessageBox.Show("要创建索引吗？")==DialogResult.OK)
-                            {
-                                try
-                                {
-                                    Biz.Common.Data.MySQLHelper.CreateIndex(ds, db, tb, win.GetIndexName(),win.IsUnique(),win.IsPrimaryKey(), win.IndexColumns);
-                                    MessageBox.Show("创建索引成功");
-                                }
-                                catch (Exception ex)
-                                {
-                                    MessageBox.Show(ex.Message, "创建索引出错", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                                }
-                            }
-                        }
-                        break;
                     default:
                         _node = tv_DBServers.SelectedNode;
                         break;
@@ -516,7 +494,8 @@ namespace NETDBHelper
                 if ( node!= null)
                 {
                     if ((tv_DBServers.SelectedNode.Level == 3 && !tv_DBServers.SelectedNode.Text.Equals("存储过程"))
-                        || (tv_DBServers.SelectedNode.Level == 4 && tv_DBServers.SelectedNode.Parent.Text.Equals("存储过程")))
+                        || (tv_DBServers.SelectedNode.Level == 4 && tv_DBServers.SelectedNode.Parent.Text.Equals("存储过程"))
+                        || (tv_DBServers.SelectedNode.Level == 5 && tv_DBServers.SelectedNode.Parent.Text.Equals("索引")))
                     {
                         this.tv_DBServers.ContextMenuStrip = this.DBServerviewContextMenuStrip;
                         if (tv_DBServers.SelectedNode.Parent.Text.Equals("存储过程"))
@@ -537,6 +516,8 @@ namespace NETDBHelper
                                 ExpdataToolStripMenuItem.Visible = false;
                             }
                         }
+                        TTSM_CreateIndex.Visible = node.Level == 3;
+                        TTSM_DelIndex.Visible = node.Level == 5 && node.Parent.Text.Equals("索引");
                     }
                     else
                     {
@@ -547,6 +528,7 @@ namespace NETDBHelper
                         CommSubMenuitem_ViewConnsql.Visible = node.Level == 2;
                         性能分析工具ToolStripMenuItem.Visible = node.Level == 1;
                         SqlExecuterToolStripMenuItem.Visible = node.Level == 2;
+                        
                     }
                 }
             }
@@ -936,6 +918,51 @@ namespace NETDBHelper
             if (this.OnCreatePorcSQL != null)
             {
                 this.OnCreatePorcSQL(GetDBSource(_node), _node.Parent.Text, _node.Name, _node.Text, CreateProceEnum.Delete);
+            }
+        }
+
+        private void TTSM_CreateIndex_Click(object sender, EventArgs e)
+        {
+            var _node = tv_DBServers.SelectedNode;
+            var ds = GetDBSource(_node);
+            var db = _node.Parent.Text;
+            var tb = _node.Text;
+            var cols = Biz.Common.Data.MySQLHelper.GetColumns(ds, db, tb).ToList();
+            WinCreateIndex win = new WinCreateIndex(cols);
+            if (win.ShowDialog() == DialogResult.OK && MessageBox.Show("要创建索引吗？") == DialogResult.OK)
+            {
+                try
+                {
+                    Biz.Common.Data.MySQLHelper.CreateIndex(ds, db, tb, win.GetIndexName(), win.IsUnique(), win.IsPrimaryKey(), win.IndexColumns);
+                    MessageBox.Show("创建索引成功");
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message, "创建索引出错", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+
+        private void TSMDelIndex_Click(object sender, EventArgs e)
+        {
+            var _node = tv_DBServers.SelectedNode;
+            if (_node.Level == 5 && _node.Parent.Text.Equals("索引"))
+            {
+                var indexname = _node.Text;
+                if (MessageBox.Show("要删除索引\"" + indexname + "\"吗?", "删除", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                {
+                    var ds = GetDBSource(_node);
+                    try
+                    {
+                        Biz.Common.Data.MySQLHelper.DropIndex(ds, _node.Parent.Parent.Parent.Text, _node.Parent.Parent.Text, indexname.Equals("primary", StringComparison.OrdinalIgnoreCase), indexname);
+                        MessageBox.Show("删除成功");
+                        ReLoadDBObj(_node.Parent);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(ex.Message, "删除索引失败", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
             }
         }
     }
