@@ -61,10 +61,11 @@ namespace NETDBHelper.UC
                 panel1.MouseLeave += panel1_MouseLeave;
                 this.panel1.Visible = false;
                 this.panel1.Width = comboBox1.Width;
+                this.panel1.BorderStyle = BorderStyle.FixedSingle;
                 this.panel1.AutoScroll = true;
                 this.panel1.BackColor = Color.White;
                 this.panel1.MouseDown += MultSelectCombox_MouseMove;
-                this.panel1.Location = new Point(this.comboBox1.Location.X, this.comboBox1.Height + 1);
+                this.panel1.Location = new Point(this.comboBox1.Location.X, this.comboBox1.Height + 2);
                 this.Controls.Add(panel1);
             }
 
@@ -166,11 +167,6 @@ namespace NETDBHelper.UC
 
         void comboBox1_DropDownClosed(object sender, EventArgs e)
         {
-            
-        }
-
-        void panel1_MouseLeave(object sender, EventArgs e)
-        {
             if (this.panel1 != null)
             {
                 var location = this.PointToScreen(this.panel1.Location);
@@ -183,12 +179,16 @@ namespace NETDBHelper.UC
             }
         }
 
+        void panel1_MouseLeave(object sender, EventArgs e)
+        {
+        }
+
         void comboBox1_DropDown(object sender, EventArgs e)
         {
             if (this.panel1 != null)
             {
                 panel1.Visible = true;
-                this.BringToFront();
+                this.BringToFront();;
             }
             
         }
