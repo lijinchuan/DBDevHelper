@@ -25,6 +25,18 @@ namespace NETDBHelper.UC
             set;
         }
 
+        public new string Text
+        {
+            get
+            {
+                return label1.Text;
+            }
+            set
+            {
+                label1.Text = value;
+            }
+        }
+
         public IEnumerable<object> DataSource
         {
             get
@@ -126,13 +138,14 @@ namespace NETDBHelper.UC
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
+            this.label1.Visible = false;
             this.panel1.Visible = false;
             this.panel1.AutoScroll = true;
             panel1.MouseLeave += panel1_MouseLeave;
             this.MouseMove += MultSelectCombox_MouseMove;
             this.panel1.MouseDown += MultSelectCombox_MouseMove;
             this.comboBox1.DropDownHeight = 1;
-            this.Width = this.comboBox1.Width;
+            this.Width = 3+this.comboBox1.Width;
             this.Height = this.comboBox1.Height;
             SelectedValues = new List<object>();
 
@@ -162,7 +175,10 @@ namespace NETDBHelper.UC
 
         void comboBox1_DropDown(object sender, EventArgs e)
         {
+            
             panel1.Visible = true;
+            this.BringToFront();
+            
         }
 
     }
