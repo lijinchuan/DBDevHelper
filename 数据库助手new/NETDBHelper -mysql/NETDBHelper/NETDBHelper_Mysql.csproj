@@ -110,6 +110,12 @@
     <Compile Include="SubForm\SubFrmPerformAnalysis.Designer.cs">
       <DependentUpon>SubFrmPerformAnalysis.cs</DependentUpon>
     </Compile>
+    <Compile Include="SubForm\TestForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SubForm\TestForm.Designer.cs">
+      <DependentUpon>TestForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="SubForm\TextBoxWin.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -171,6 +177,12 @@
     </Compile>
     <Compile Include="UC\LabCombox.Designer.cs">
       <DependentUpon>LabCombox.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UC\MultSelectCombox.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UC\MultSelectCombox.Designer.cs">
+      <DependentUpon>MultSelectCombox.cs</DependentUpon>
     </Compile>
     <Compile Include="UC\MyRichTextBox.cs">
       <SubType>Component</SubType>
@@ -238,6 +250,9 @@
     <EmbeddedResource Include="SubForm\SubFrmPerformAnalysis.resx">
       <DependentUpon>SubFrmPerformAnalysis.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="SubForm\TestForm.resx">
+      <DependentUpon>TestForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="SubForm\TextBoxWin.resx">
       <DependentUpon>TextBoxWin.cs</DependentUpon>
     </EmbeddedResource>
@@ -267,6 +282,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="UC\LabCombox.resx">
       <DependentUpon>LabCombox.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UC\MultSelectCombox.resx">
+      <DependentUpon>MultSelectCombox.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UC\Scale.resx">
       <DependentUpon>Scale.cs</DependentUpon>
