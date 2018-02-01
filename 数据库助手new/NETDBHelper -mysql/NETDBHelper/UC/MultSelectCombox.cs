@@ -12,6 +12,7 @@ namespace NETDBHelper.UC
     public partial class MultSelectCombox : UserControl
     {
         private Point mousePoint = new Point(0,0);
+        Panel panel1 = null;
 
         protected IEnumerable<object> Items
         {
@@ -27,14 +28,8 @@ namespace NETDBHelper.UC
 
         public new string Text
         {
-            get
-            {
-                return label1.Text;
-            }
-            set
-            {
-                label1.Text = value;
-            }
+            get;
+            set;
         }
 
         public IEnumerable<object> DataSource
@@ -58,6 +53,19 @@ namespace NETDBHelper.UC
             if (!this.IsHandleCreated)
             {
                 return;
+            }
+
+            if (panel1 == null)
+            {
+                this.panel1 = new Panel();
+                panel1.MouseLeave += panel1_MouseLeave;
+                this.panel1.Visible = false;
+                this.panel1.Width = comboBox1.Width;
+                this.panel1.AutoScroll = true;
+                this.panel1.BackColor = Color.White;
+                this.panel1.MouseDown += MultSelectCombox_MouseMove;
+                this.panel1.Location = new Point(this.comboBox1.Location.X, this.comboBox1.Height + 1);
+                this.Controls.Add(panel1);
             }
 
             this.panel1.Controls.Clear();
@@ -92,7 +100,7 @@ namespace NETDBHelper.UC
                     panel1.Height = 5 * (offsetY) / Items.Count();
                     
                 }
-
+                
                 comboBox1.DropDown += comboBox1_DropDown;
                 comboBox1.DropDownClosed += comboBox1_DropDownClosed;
             }
@@ -126,6 +134,9 @@ namespace NETDBHelper.UC
         public MultSelectCombox()
         {
             InitializeComponent();
+
+            this.Width = this.comboBox1.Width;
+            this.Height = this.comboBox1.Height;
             
         }
 
@@ -138,15 +149,11 @@ namespace NETDBHelper.UC
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
-            this.label1.Visible = false;
-            this.panel1.Visible = false;
-            this.panel1.AutoScroll = true;
-            panel1.MouseLeave += panel1_MouseLeave;
+            
             this.MouseMove += MultSelectCombox_MouseMove;
-            this.panel1.MouseDown += MultSelectCombox_MouseMove;
+            
             this.comboBox1.DropDownHeight = 1;
-            this.Width = 3+this.comboBox1.Width;
-            this.Height = this.comboBox1.Height;
+           
             SelectedValues = new List<object>();
 
             BindData();
@@ -164,20 +171,25 @@ namespace NETDBHelper.UC
 
         void panel1_MouseLeave(object sender, EventArgs e)
         {
-            var location =this.PointToScreen(this.panel1.Location);
-            var mouselocation =mousePoint;
-            if (location.X > mousePoint.X || location.Y > mouselocation.Y
-                || location.X + this.panel1.Width < mousePoint.X || location.Y + this.panel1.Height < mouselocation.Y)
+            if (this.panel1 != null)
             {
-                panel1.Visible = false;
+                var location = this.PointToScreen(this.panel1.Location);
+                var mouselocation = mousePoint;
+                if (location.X > mousePoint.X || location.Y > mouselocation.Y
+                    || location.X + this.panel1.Width < mousePoint.X || location.Y + this.panel1.Height < mouselocation.Y)
+                {
+                    panel1.Visible = false;
+                }
             }
         }
 
         void comboBox1_DropDown(object sender, EventArgs e)
         {
-            
-            panel1.Visible = true;
-            this.BringToFront();
+            if (this.panel1 != null)
+            {
+                panel1.Visible = true;
+                this.BringToFront();
+            }
             
         }
 

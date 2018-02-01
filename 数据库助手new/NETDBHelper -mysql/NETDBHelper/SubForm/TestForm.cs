@@ -15,7 +15,7 @@ namespace NETDBHelper.SubForm
         {
             InitializeComponent();
 
-            this.multSelectCombox1.DataSource = new List<string> { "男", "女","1000","2000","3000","4000" };
+            this.multSelectCombox1.DataSource = new List<string> { "男", "女", "1000", "2000", "3000", "4000" };
             this.multSelectCombox1.Text = "sfasdasfasdfasdf";
         }
 
