@@ -9,10 +9,16 @@ using System.Windows.Forms;
 
 namespace NETDBHelper.UC
 {
-    public partial class MultSelectCombox : UserControl
+    public partial class TableCombox : UserControl
     {
+        public TableCombox()
+        {
+            InitializeComponent();
+            this.BorderStyle = BorderStyle.None;
+        }
+
         private Point mousePoint = new Point(0,0);
-        Panel panel1 = null;
+        DataGridView gridview = null;
 
         protected IEnumerable<object> Items
         {
@@ -21,12 +27,6 @@ namespace NETDBHelper.UC
         }
 
         public List<object> SelectedValues
-        {
-            get;
-            set;
-        }
-
-        public new string Text
         {
             get;
             set;
@@ -55,53 +55,26 @@ namespace NETDBHelper.UC
                 return;
             }
 
-            if (panel1 == null)
+            if (gridview == null)
             {
-                this.panel1 = new Panel();
-                panel1.MouseLeave += panel1_MouseLeave;
-                this.panel1.Visible = false;
-                this.panel1.Width = comboBox1.Width;
-                this.panel1.BorderStyle = BorderStyle.FixedSingle;
-                this.panel1.AutoScroll = true;
-                this.panel1.BackColor = Color.White;
-                this.panel1.MouseDown += MultSelectCombox_MouseMove;
-                this.panel1.Location = new Point(this.comboBox1.Location.X, this.comboBox1.Height + 2);
-                this.Controls.Add(panel1);
-            }
-
-            this.panel1.Controls.Clear();
-            SelectedValues.Clear();
-
-            if (Items != null && Items.Count() > 0)
-            {
-                int y = 2;
-                int offsetX = 5;
-                int offsetY = y;
-                foreach (var item in Items)
-                {
-                    CheckBox cb = new CheckBox();
-                    cb.Text = item.ToString();
-                    cb.Tag = item;
-                    cb.MouseMove += MultSelectCombox_MouseMove;
-
-                    cb.Location = new Point(offsetX, offsetY);
-                    offsetY += cb.Height + y;
-
-                    cb.CheckedChanged += cb_CheckedChanged;
-
-                    panel1.Controls.Add(cb);
-                }
-
-                if (Items.Count() <= 5)
-                {
-                    panel1.Height = offsetY + y;
-                }
-                else
-                {
-                    panel1.Height = 5 * (offsetY) / Items.Count();
-                    
-                }
+                this.gridview = new DataGridView();
+                gridview.MouseLeave += panel1_MouseLeave;
+                this.gridview.Visible = false;
+                this.gridview.AutoSize = true;
+                //this.gridview.Width = comboBox1.Width;
+                this.gridview.BorderStyle = BorderStyle.None;
+                this.gridview.BackColor = Color.White;
+                this.gridview.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+                this.gridview.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.DisplayedCells;
+                this.gridview.AllowUserToAddRows = false;
+                this.gridview.AllowUserToDeleteRows = false;
+                this.gridview.MouseDown += MultSelectCombox_MouseMove;
                 
+                this.gridview.Location = new Point(this.comboBox1.Location.X, this.comboBox1.Height + 3);
+                this.Controls.Add(gridview);
+
+                this.gridview.DataSource = Items;
+
                 comboBox1.DropDown += comboBox1_DropDown;
                 comboBox1.DropDownClosed += comboBox1_DropDownClosed;
             }
@@ -132,16 +105,7 @@ namespace NETDBHelper.UC
             comboBox1.Text = vals;
         }
 
-        public MultSelectCombox()
-        {
-            InitializeComponent();
-
-            this.Width = this.comboBox1.Width;
-            this.Height = this.comboBox1.Height;
-            
-        }
-
-        public MultSelectCombox(List<object> items)
+        public TableCombox(List<object> items)
             : this()
         {
             Items = items;
@@ -167,41 +131,40 @@ namespace NETDBHelper.UC
 
         void comboBox1_DropDownClosed(object sender, EventArgs e)
         {
-            if (this.panel1 != null)
+            if (this.gridview != null)
             {
-                var location = this.PointToScreen(this.panel1.Location);
+                var location = this.PointToScreen(this.gridview.Location);
                 var mouselocation = mousePoint;
                 if (location.X > mousePoint.X || location.Y > mouselocation.Y
-                    || location.X + this.panel1.Width < mousePoint.X || location.Y + this.panel1.Height < mouselocation.Y)
+                    || location.X + this.gridview.Width < mousePoint.X || location.Y + this.gridview.Height < mouselocation.Y)
                 {
-                    panel1.Visible = false;
+                    gridview.Visible = false;
                 }
             }
         }
 
         void panel1_MouseLeave(object sender, EventArgs e)
         {
-            if (this.panel1 != null)
+            if (this.gridview != null)
             {
-                var location = this.PointToScreen(this.panel1.Location);
+                var location = this.PointToScreen(this.gridview.Location);
                 var mouselocation = mousePoint;
                 if (location.X > mousePoint.X || location.Y > mouselocation.Y
-                    || location.X + this.panel1.Width < mousePoint.X || location.Y + this.panel1.Height < mouselocation.Y)
+                    || location.X + this.gridview.Width < mousePoint.X || location.Y + this.gridview.Height < mouselocation.Y)
                 {
-                    panel1.Visible = false;
+                    gridview.Visible = false;
                 }
             }
         }
 
         void comboBox1_DropDown(object sender, EventArgs e)
         {
-            if (this.panel1 != null)
+            if (this.gridview != null)
             {
-                panel1.Visible = true;
-                this.BringToFront();;
+                gridview.Visible = true;
+                this.BringToFront();
             }
             
         }
-
     }
 }
