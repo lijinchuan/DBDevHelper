@@ -129,7 +129,14 @@ namespace NETDBHelper.UC
                     }
                     else
                     {
-                        this.dv_Data.DataSource = Biz.Common.Data.MySQLHelper.ExecuteDBTable(DBSource, DBName, value);
+                        var tb=Biz.Common.Data.MySQLHelper.ExecuteDBTable(DBSource, DBName, value);
+                        this.dv_Data.DataSource = tb;
+                        foreach(DataGridViewColumn col in this.dv_Data.Columns){
+                            if (col.ValueType == typeof(DateTime))
+                            {
+                                col.DefaultCellStyle.Format = "yyyy/MM/dd HH:mm:ss";
+                            }
+                        }
                     }
 
                     this.tb_Msg.Text = "执行完成:" + DateTime.Now.Subtract(now).TotalMilliseconds.ToString("f4")+"ms";
