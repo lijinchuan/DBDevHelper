@@ -46,6 +46,18 @@ namespace NETDBHelper.UC
             this.tb_sql.KeyWords.AddKeyWord("else", Color.Blue);
             this.tb_sql.KeyWords.AddKeyWord("end", Color.Blue);
             this.tb_sql.KeyWords.AddKeyWord("if", Color.Blue);
+
+            MenuItem1_CopValue.Click += MenuItem1_CopValue_Click;
+        }
+
+        void MenuItem1_CopValue_Click(object sender, EventArgs e)
+        {
+            var cell=dv_Data.CurrentCell;
+            if (cell != null)
+            {
+                var val = cell.Value == null ? "" : cell.Value.ToString();
+                Clipboard.SetText(val);
+            }
         }
 
         void dv_Data_DataError(object sender, DataGridViewDataErrorEventArgs e)
