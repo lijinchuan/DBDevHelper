@@ -55,6 +55,12 @@ namespace NETDBHelper
             Instance = this;
         }
 
+        protected override void OnLoad(EventArgs e)
+        {
+            base.OnLoad(e);
+            连接对象资源管理器ToolStripMenuItem_Click(null, null);
+        }
+
         void TabControl_Selected(object sender, TabControlEventArgs e)
         {
             tsb_Excute.Enabled = e.TabPage is UC.ViewTBData;

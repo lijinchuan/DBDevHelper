@@ -46,6 +46,8 @@ namespace NETDBHelper.UC
             this.tb_sql.KeyWords.AddKeyWord("else", Color.Blue);
             this.tb_sql.KeyWords.AddKeyWord("end", Color.Blue);
             this.tb_sql.KeyWords.AddKeyWord("if", Color.Blue);
+            this.tb_sql.KeyWords.AddKeyWord("asc", Color.Blue);
+            this.tb_sql.KeyWords.AddKeyWord("desc", Color.Blue);
 
             MenuItem1_CopValue.Click += MenuItem1_CopValue_Click;
         }
@@ -135,6 +137,7 @@ namespace NETDBHelper.UC
                             if (col.ValueType == typeof(DateTime))
                             {
                                 col.DefaultCellStyle.Format = "yyyy/MM/dd HH:mm:ss";
+                                col.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
                             }
                         }
                     }
