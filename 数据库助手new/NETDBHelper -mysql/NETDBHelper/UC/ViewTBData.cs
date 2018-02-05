@@ -49,7 +49,16 @@ namespace NETDBHelper.UC
             this.tb_sql.KeyWords.AddKeyWord("asc", Color.Blue);
             this.tb_sql.KeyWords.AddKeyWord("desc", Color.Blue);
 
-            MenuItem1_CopValue.Click += MenuItem1_CopValue_Click;
+            MenuItem_CopyValue.Click += MenuItem1_CopValue_Click;
+            MenuItem_CopyColumnName.Click += MenuItem_CopyColumnName_Click;
+        }
+
+        void MenuItem_CopyColumnName_Click(object sender, EventArgs e)
+        {
+            if (dv_Data.CurrentCell != null)
+            {
+               Clipboard.SetText(dv_Data.CurrentCell.OwningColumn.Name);
+            }
         }
 
         void MenuItem1_CopValue_Click(object sender, EventArgs e)
