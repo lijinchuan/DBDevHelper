@@ -63,20 +63,34 @@ namespace RedisHelperUI
             }
         }
 
-        public static void SearchKey(string connstr, string keypatten, Action<string, IEnumerable> keysplit, Action<Exception> err, int pagesize = 10, int offset = 0)
+        public static void SearchKey(string connstr, string keypatten, Action<Dictionary<string, List<string>>> keysplit, Action<Exception> err, int pagesize = 10, int offset = 0)
         {
             Conn(connstr, (conn) =>
                 {
+                    Dictionary<string, List<string>> keys = new Dictionary<string, List<string>>();
+                    List<Task> tasklist = new List<Task>();
                     foreach (var hp in GetHostAndPoint(connstr))
                     {
-                        var iserver = conn.GetServer(hp);
-                        if (iserver.IsSlave)
-                        {
-                            continue;
-                        }
+                        var task = Task.Factory.StartNew(() =>
+                            {
+                                var iserver = conn.GetServer(hp);
+                                
+                                if (iserver.IsSlave)
+                                {
+                                    return;
+                                }
+                                var v = iserver.Version;
+                                var li = iserver.Keys(0, keypatten, pagesize, pageOffset: offset).Select(p => p.ToString()).ToList();
+                                lock (keys)
+                                {
+                                    keys.Add(hp+","+v, li);
+                                }
+                            });
+                        tasklist.Add(task);
 
-                        keysplit(hp, iserver.Keys(0, keypatten, pagesize, pageOffset: offset));
                     }
+                    Task.WaitAll(tasklist.ToArray());
+                    keysplit(keys);
                 }, (ex) =>
                 {
                     if (err != null)

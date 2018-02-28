@@ -119,6 +119,7 @@ namespace RedisHelperUI.UC
             }
 
             this.gridview.DataSource = Items;
+            //this.gridview.Show();
             this.gridview.BringToFront();
         }
 
@@ -216,7 +217,7 @@ namespace RedisHelperUI.UC
 
         void comboBox1_DropDown(object sender, EventArgs e)
         {
-            if (this.gridview != null)
+            if (this.gridview != null && this.gridview.Rows.Count > 0)
             {
                 gridview.Visible = true;
                 this.BringToFront();

@@ -144,20 +144,32 @@ namespace RedisHelperUI.UC
                 return;
             }
             TBMsg.Text = "";
-            RedisUtil.SearchKey(RedisServer.ConnStr, "*"+key+"*", (c, l) =>
+
+            if (key != "*")
+            {
+                key = string.Format("{0}{1}{2}", key.StartsWith("*") ? "" : "*", key, key.EndsWith("*") ? "" : "*");
+            }
+            DateTime time = DateTime.Now;
+            RedisUtil.SearchKey(RedisServer.ConnStr, "*"+key+"*", (d) =>
                 {
                     tabControl1.SelectedTab = TabPageData;
                     DataTable dt = new DataTable();
                     dt.Columns.Add("server");
                     dt.Columns.Add("key");
-                    foreach (var s in l)
+                    foreach (var s in d)
                     {
-                        dt.Rows.Add(c, s.ToString());
+                        foreach (var ss in s.Value)
+                        {
+                            dt.Rows.Add(s.Key, ss);
+                        }
+                        
                     }
                     TCBSearchKey.DataSource = dt.AsEnumerable().Select(p=>new{
                         server = p["server"],
                         key=p["key"]
                     }).ToList();
+
+                    TBMsg.Text += string.Format("\r\n搜索用时{0}ms", DateTime.Now.Subtract(time).TotalMilliseconds);
 
                 }, (ex) =>
                     {
