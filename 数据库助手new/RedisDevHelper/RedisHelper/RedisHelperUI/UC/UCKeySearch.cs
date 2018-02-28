@@ -29,6 +29,7 @@ namespace RedisHelperUI.UC
         void TCBSearchKey_TextChanged(object obj)
         {
             var key = (string)LJC.FrameWork.Comm.ReflectionHelper.Eval(obj, "key");
+            this.TCBSearchKey.Text = key;
 
             if (RedisServer == null)
             {
@@ -151,7 +152,7 @@ namespace RedisHelperUI.UC
                 key = string.Format("{0}{1}{2}", "", key, key.EndsWith("*") ? "" : "*");
             }
             DateTime time = DateTime.Now;
-            RedisUtil.SearchKey(RedisServer.ConnStr, key, (d) =>
+            RedisUtil.SearchKey(RedisServer.ConnStr,RedisServer.IsPrd, key, (d) =>
                 {
                     tabControl1.SelectedTab = TabPageData;
                     DataTable dt = new DataTable();
@@ -170,7 +171,7 @@ namespace RedisHelperUI.UC
                     {
                         this.TBMsg.Text = ex.ToString();
                         tabControl1.SelectedTab = TabPageInfo;
-                    });
+                    },100);
         }
     }
 }

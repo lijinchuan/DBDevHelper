@@ -64,7 +64,8 @@ namespace RedisHelperUI
             this.NewServer=new RedisHelper.Model.RedisServerEntity
             {
                 ConnStr=TBConnstr.Text.Trim(),
-                ServerName=TBName.Text.Trim()
+                ServerName=TBName.Text.Trim(),
+                IsPrd=CBIsprd.Checked,
             };
             EntityTableEngine.LocalEngine.Upsert(Global.TBName_RedisServer, NewServer);
 

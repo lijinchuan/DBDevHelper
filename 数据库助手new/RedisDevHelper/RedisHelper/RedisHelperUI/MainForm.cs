@@ -147,6 +147,9 @@ namespace RedisHelperUI
                 this.PanelRight.Controls.Clear();
                 UC.UCSearch us = new UC.UCSearch();
                 us.RedisServer = (RedisHelper.Model.RedisServerEntity)node.Tag;
+
+                this.Text = string.Format("redis管理【查询 {0}】", us.RedisServer.ServerName);
+
                 this.PanelRight.Controls.Add(us);
             }
         }
@@ -160,6 +163,9 @@ namespace RedisHelperUI
                 UC.UCKeySearch us = new UC.UCKeySearch();
                 us.Dock = DockStyle.Fill;
                 us.RedisServer = (RedisHelper.Model.RedisServerEntity)node.Tag;
+
+                this.Text = string.Format("redis管理【key搜索 {0}】", us.RedisServer.ServerName);
+
                 this.PanelRight.Controls.Add(us);
             }
         }

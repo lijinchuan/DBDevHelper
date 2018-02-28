@@ -92,22 +92,24 @@ namespace RedisHelperUI.UC
                 gridview.MouseLeave += panel1_MouseLeave;
                 this.gridview.Visible = false;
                 this.gridview.AutoSize = false;
-                //this.gridview.Width = comboBox1.Width;
+                this.gridview.Width = comboBox1.Width;
                 this.gridview.BorderStyle = BorderStyle.None;
                 this.gridview.BackColor = Color.White;
                 this.gridview.BackgroundColor = Color.White;
-                this.gridview.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
+                this.gridview.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
                 this.gridview.Height = 300;
                 this.gridview.ScrollBars = ScrollBars.Vertical;
                 this.gridview.AllowUserToAddRows = false;
                 this.gridview.AllowUserToDeleteRows = false;
                 this.gridview.MultiSelect = false;
+                //this.gridview.RowHeadersVisible = false;
                 this.gridview.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
 
                 this.gridview.RowsAdded += gridview_RowsAdded;
                 this.gridview.DataBindingComplete += gridview_DataBindingComplete;
 
                 this.gridview.DoubleClick += gridview_DoubleClick;
+                this.gridview.MouseLeave += gridview_MouseLeave;
 
                 this.Parent.Controls.Add(gridview);
 
@@ -119,8 +121,13 @@ namespace RedisHelperUI.UC
             }
 
             this.gridview.DataSource = Items;
-            //this.gridview.Show();
+            this.gridview.Show();
             this.gridview.BringToFront();
+        }
+
+        void gridview_MouseLeave(object sender, EventArgs e)
+        {
+            gridview.Hide();
         }
 
         void gridview_DoubleClick(object sender, EventArgs e)

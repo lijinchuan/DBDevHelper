@@ -34,6 +34,7 @@
             this.TBConnstr = new System.Windows.Forms.TextBox();
             this.BtnAdd = new System.Windows.Forms.Button();
             this.CBTest = new System.Windows.Forms.CheckBox();
+            this.CBIsprd = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // label1
@@ -55,11 +56,11 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(43, 81);
+            this.label2.Location = new System.Drawing.Point(38, 81);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(41, 12);
+            this.label2.Size = new System.Drawing.Size(53, 12);
             this.label2.TabIndex = 2;
-            this.label2.Text = "连接串";
+            this.label2.Text = "连接配置";
             // 
             // TBConnstr
             // 
@@ -84,18 +85,31 @@
             this.CBTest.AutoSize = true;
             this.CBTest.Checked = true;
             this.CBTest.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.CBTest.Location = new System.Drawing.Point(99, 225);
+            this.CBTest.Location = new System.Drawing.Point(210, 229);
             this.CBTest.Name = "CBTest";
-            this.CBTest.Size = new System.Drawing.Size(48, 16);
+            this.CBTest.Size = new System.Drawing.Size(96, 16);
             this.CBTest.TabIndex = 5;
-            this.CBTest.Text = "测试";
+            this.CBTest.Text = "验证连接配置";
             this.CBTest.UseVisualStyleBackColor = true;
+            // 
+            // CBIsprd
+            // 
+            this.CBIsprd.AutoSize = true;
+            this.CBIsprd.Checked = true;
+            this.CBIsprd.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.CBIsprd.Location = new System.Drawing.Point(99, 229);
+            this.CBIsprd.Name = "CBIsprd";
+            this.CBIsprd.Size = new System.Drawing.Size(72, 16);
+            this.CBIsprd.TabIndex = 6;
+            this.CBIsprd.Text = "生产环境";
+            this.CBIsprd.UseVisualStyleBackColor = true;
             // 
             // AddRedisServerForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(589, 339);
+            this.Controls.Add(this.CBIsprd);
             this.Controls.Add(this.CBTest);
             this.Controls.Add(this.BtnAdd);
             this.Controls.Add(this.TBConnstr);
@@ -121,5 +135,6 @@
         private System.Windows.Forms.TextBox TBConnstr;
         private System.Windows.Forms.Button BtnAdd;
         private System.Windows.Forms.CheckBox CBTest;
+        private System.Windows.Forms.CheckBox CBIsprd;
     }
 }

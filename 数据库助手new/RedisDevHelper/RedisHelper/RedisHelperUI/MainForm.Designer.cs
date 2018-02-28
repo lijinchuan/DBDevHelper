@@ -34,10 +34,10 @@
             this.TSMDel = new System.Windows.Forms.ToolStripMenuItem();
             this.TSMEdit = new System.Windows.Forms.ToolStripMenuItem();
             this.TSMSearch = new System.Windows.Forms.ToolStripMenuItem();
+            this.TSMSearchKey = new System.Windows.Forms.ToolStripMenuItem();
             this.PanelLeft = new System.Windows.Forms.Panel();
             this.TVServerList = new System.Windows.Forms.TreeView();
             this.PanelRight = new System.Windows.Forms.Panel();
-            this.TSMSearchKey = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.PanelLeft.SuspendLayout();
             this.SuspendLayout();
@@ -89,9 +89,16 @@
             // TSMSearch
             // 
             this.TSMSearch.Name = "TSMSearch";
-            this.TSMSearch.Size = new System.Drawing.Size(152, 22);
+            this.TSMSearch.Size = new System.Drawing.Size(120, 22);
             this.TSMSearch.Text = "查询";
             this.TSMSearch.Click += new System.EventHandler(this.searchToolStripMenuItem_Click);
+            // 
+            // TSMSearchKey
+            // 
+            this.TSMSearchKey.Name = "TSMSearchKey";
+            this.TSMSearchKey.Size = new System.Drawing.Size(120, 22);
+            this.TSMSearchKey.Text = "搜索key";
+            this.TSMSearchKey.Click += new System.EventHandler(this.TSMSearchKey_Click);
             // 
             // PanelLeft
             // 
@@ -117,13 +124,6 @@
             this.PanelRight.Name = "PanelRight";
             this.PanelRight.Size = new System.Drawing.Size(699, 508);
             this.PanelRight.TabIndex = 2;
-            // 
-            // TSMSearchKey
-            // 
-            this.TSMSearchKey.Name = "TSMSearchKey";
-            this.TSMSearchKey.Size = new System.Drawing.Size(152, 22);
-            this.TSMSearchKey.Text = "搜索key";
-            this.TSMSearchKey.Click += new System.EventHandler(this.TSMSearchKey_Click);
             // 
             // MainForm
             // 

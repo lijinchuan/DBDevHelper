@@ -18,5 +18,18 @@ namespace RedisHelper.Model
             get;
             set;
         }
+
+        private bool _isprd = true;
+        public bool IsPrd
+        {
+            get
+            {
+                return _isprd;
+            }
+            set
+            {
+                _isprd = value;
+            }
+        }
     }
 }
