@@ -148,8 +148,8 @@ namespace RedisHelperUI.UC
 
             if (key != "*")
             {
-                //key = string.Format("{0}{1}{2}", key.StartsWith("*") ? "" : "*", key, key.EndsWith("*") ? "" : "*");
-                key = string.Format("{0}{1}{2}", "", key, key.EndsWith("*") ? "" : "*");
+                key = string.Format("{0}{1}{2}", key.StartsWith("*") ? "" : "*", key, key.EndsWith("*") ? "" : "*");
+                //key = string.Format("{0}{1}{2}", "", key, key.EndsWith("*") ? "" : "*");
             }
             DateTime time = DateTime.Now;
             RedisUtil.SearchKey(RedisServer.ConnStr,RedisServer.IsPrd, key, (d) =>

@@ -97,7 +97,7 @@
             this.TabPageInfo.Location = new System.Drawing.Point(4, 22);
             this.TabPageInfo.Name = "TabPageInfo";
             this.TabPageInfo.Padding = new System.Windows.Forms.Padding(3);
-            this.TabPageInfo.Size = new System.Drawing.Size(816, 367);
+            this.TabPageInfo.Size = new System.Drawing.Size(797, 367);
             this.TabPageInfo.TabIndex = 1;
             this.TabPageInfo.Text = "信息";
             this.TabPageInfo.UseVisualStyleBackColor = true;
@@ -111,17 +111,17 @@
             this.TBMsg.Multiline = true;
             this.TBMsg.Name = "TBMsg";
             this.TBMsg.ReadOnly = true;
-            this.TBMsg.Size = new System.Drawing.Size(810, 361);
+            this.TBMsg.Size = new System.Drawing.Size(791, 361);
             this.TBMsg.TabIndex = 0;
             // 
             // TCBSearchKey
             // 
             this.TCBSearchKey.AutoSize = true;
             this.TCBSearchKey.DataSource = null;
-            this.TCBSearchKey.Location = new System.Drawing.Point(26, 0);
+            this.TCBSearchKey.Location = new System.Drawing.Point(13, 0);
             this.TCBSearchKey.Name = "TCBSearchKey";
             this.TCBSearchKey.SelectedValues = ((System.Collections.Generic.List<object>)(resources.GetObject("TCBSearchKey.SelectedValues")));
-            this.TCBSearchKey.Size = new System.Drawing.Size(195, 26);
+            this.TCBSearchKey.Size = new System.Drawing.Size(208, 26);
             this.TCBSearchKey.TabIndex = 2;
             // 
             // UCKeySearch

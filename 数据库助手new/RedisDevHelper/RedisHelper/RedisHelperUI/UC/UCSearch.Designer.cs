@@ -29,34 +29,24 @@
         private void InitializeComponent()
         {
             this.TBSearchKey = new System.Windows.Forms.TextBox();
-            this.label1 = new System.Windows.Forms.Label();
             this.BtnSearch = new System.Windows.Forms.Button();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.TabPageData = new System.Windows.Forms.TabPage();
+            this.DGVData = new System.Windows.Forms.DataGridView();
             this.TabPageInfo = new System.Windows.Forms.TabPage();
             this.TBMsg = new System.Windows.Forms.TextBox();
-            this.DGVData = new System.Windows.Forms.DataGridView();
             this.tabControl1.SuspendLayout();
             this.TabPageData.SuspendLayout();
-            this.TabPageInfo.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.DGVData)).BeginInit();
+            this.TabPageInfo.SuspendLayout();
             this.SuspendLayout();
             // 
             // TBSearchKey
             // 
-            this.TBSearchKey.Location = new System.Drawing.Point(45, 9);
+            this.TBSearchKey.Location = new System.Drawing.Point(18, 9);
             this.TBSearchKey.Name = "TBSearchKey";
-            this.TBSearchKey.Size = new System.Drawing.Size(260, 21);
+            this.TBSearchKey.Size = new System.Drawing.Size(287, 21);
             this.TBSearchKey.TabIndex = 0;
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(16, 12);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(23, 12);
-            this.label1.TabIndex = 1;
-            this.label1.Text = "key";
             // 
             // BtnSearch
             // 
@@ -92,6 +82,21 @@
             this.TabPageData.Text = "数据";
             this.TabPageData.UseVisualStyleBackColor = true;
             // 
+            // DGVData
+            // 
+            this.DGVData.AllowUserToAddRows = false;
+            this.DGVData.AllowUserToDeleteRows = false;
+            this.DGVData.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.DisplayedCells;
+            this.DGVData.BackgroundColor = System.Drawing.SystemColors.Control;
+            this.DGVData.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.DGVData.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.DGVData.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.DGVData.Location = new System.Drawing.Point(3, 3);
+            this.DGVData.Name = "DGVData";
+            this.DGVData.RowTemplate.Height = 23;
+            this.DGVData.Size = new System.Drawing.Size(525, 222);
+            this.DGVData.TabIndex = 2;
+            // 
             // TabPageInfo
             // 
             this.TabPageInfo.Controls.Add(this.TBMsg);
@@ -115,36 +120,20 @@
             this.TBMsg.Size = new System.Drawing.Size(525, 222);
             this.TBMsg.TabIndex = 0;
             // 
-            // DGVData
-            // 
-            this.DGVData.AllowUserToAddRows = false;
-            this.DGVData.AllowUserToDeleteRows = false;
-            this.DGVData.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.DisplayedCells;
-            this.DGVData.BackgroundColor = System.Drawing.SystemColors.Control;
-            this.DGVData.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.DGVData.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.DGVData.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.DGVData.Location = new System.Drawing.Point(3, 3);
-            this.DGVData.Name = "DGVData";
-            this.DGVData.RowTemplate.Height = 23;
-            this.DGVData.Size = new System.Drawing.Size(525, 222);
-            this.DGVData.TabIndex = 2;
-            // 
             // UCSearch
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.BtnSearch);
-            this.Controls.Add(this.label1);
             this.Controls.Add(this.TBSearchKey);
             this.Name = "UCSearch";
             this.Size = new System.Drawing.Size(560, 290);
             this.tabControl1.ResumeLayout(false);
             this.TabPageData.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.DGVData)).EndInit();
             this.TabPageInfo.ResumeLayout(false);
             this.TabPageInfo.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.DGVData)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -153,7 +142,6 @@
         #endregion
 
         private System.Windows.Forms.TextBox TBSearchKey;
-        private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button BtnSearch;
         private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.TabPage TabPageData;
