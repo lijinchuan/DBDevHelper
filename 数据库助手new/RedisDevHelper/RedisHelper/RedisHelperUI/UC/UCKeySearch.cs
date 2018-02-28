@@ -147,25 +147,20 @@ namespace RedisHelperUI.UC
 
             if (key != "*")
             {
-                key = string.Format("{0}{1}{2}", key.StartsWith("*") ? "" : "*", key, key.EndsWith("*") ? "" : "*");
+                //key = string.Format("{0}{1}{2}", key.StartsWith("*") ? "" : "*", key, key.EndsWith("*") ? "" : "*");
+                key = string.Format("{0}{1}{2}", "", key, key.EndsWith("*") ? "" : "*");
             }
             DateTime time = DateTime.Now;
-            RedisUtil.SearchKey(RedisServer.ConnStr, "*"+key+"*", (d) =>
+            RedisUtil.SearchKey(RedisServer.ConnStr, key, (d) =>
                 {
                     tabControl1.SelectedTab = TabPageData;
                     DataTable dt = new DataTable();
-                    dt.Columns.Add("server");
                     dt.Columns.Add("key");
                     foreach (var s in d)
                     {
-                        foreach (var ss in s.Value)
-                        {
-                            dt.Rows.Add(s.Key, ss);
-                        }
-                        
+                        dt.Rows.Add(s);
                     }
                     TCBSearchKey.DataSource = dt.AsEnumerable().Select(p=>new{
-                        server = p["server"],
                         key=p["key"]
                     }).ToList();
 
