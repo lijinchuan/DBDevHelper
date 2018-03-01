@@ -81,6 +81,12 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="RedisUtil.cs" />
+    <Compile Include="SubUpdateForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SubUpdateForm.Designer.cs">
+      <DependentUpon>SubUpdateForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="UC\TableCombox.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -115,6 +121,9 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <SubType>Designer</SubType>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SubUpdateForm.resx">
+      <DependentUpon>SubUpdateForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UC\TableCombox.resx">
       <DependentUpon>TableCombox.cs</DependentUpon>

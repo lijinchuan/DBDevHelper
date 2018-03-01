@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.TBSearchKey = new System.Windows.Forms.TextBox();
             this.BtnSearch = new System.Windows.Forms.Button();
             this.tabControl1 = new System.Windows.Forms.TabControl();
@@ -35,10 +36,15 @@
             this.DGVData = new System.Windows.Forms.DataGridView();
             this.TabPageInfo = new System.Windows.Forms.TabPage();
             this.TBMsg = new System.Windows.Forms.TextBox();
+            this.CMSOP = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.删除ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.修改ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.增加ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tabControl1.SuspendLayout();
             this.TabPageData.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.DGVData)).BeginInit();
             this.TabPageInfo.SuspendLayout();
+            this.CMSOP.SuspendLayout();
             this.SuspendLayout();
             // 
             // TBSearchKey
@@ -120,6 +126,33 @@
             this.TBMsg.Size = new System.Drawing.Size(525, 222);
             this.TBMsg.TabIndex = 0;
             // 
+            // CMSOP
+            // 
+            this.CMSOP.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.删除ToolStripMenuItem,
+            this.修改ToolStripMenuItem,
+            this.增加ToolStripMenuItem});
+            this.CMSOP.Name = "CMSOP";
+            this.CMSOP.Size = new System.Drawing.Size(101, 70);
+            // 
+            // 删除ToolStripMenuItem
+            // 
+            this.删除ToolStripMenuItem.Name = "删除ToolStripMenuItem";
+            this.删除ToolStripMenuItem.Size = new System.Drawing.Size(100, 22);
+            this.删除ToolStripMenuItem.Text = "删除";
+            // 
+            // 修改ToolStripMenuItem
+            // 
+            this.修改ToolStripMenuItem.Name = "修改ToolStripMenuItem";
+            this.修改ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.修改ToolStripMenuItem.Text = "修改";
+            // 
+            // 增加ToolStripMenuItem
+            // 
+            this.增加ToolStripMenuItem.Name = "增加ToolStripMenuItem";
+            this.增加ToolStripMenuItem.Size = new System.Drawing.Size(100, 22);
+            this.增加ToolStripMenuItem.Text = "增加";
+            // 
             // UCSearch
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -134,6 +167,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.DGVData)).EndInit();
             this.TabPageInfo.ResumeLayout(false);
             this.TabPageInfo.PerformLayout();
+            this.CMSOP.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -148,5 +182,9 @@
         private System.Windows.Forms.TabPage TabPageInfo;
         private System.Windows.Forms.TextBox TBMsg;
         private System.Windows.Forms.DataGridView DGVData;
+        private System.Windows.Forms.ContextMenuStrip CMSOP;
+        private System.Windows.Forms.ToolStripMenuItem 删除ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 修改ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 增加ToolStripMenuItem;
     }
 }
