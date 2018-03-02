@@ -93,6 +93,12 @@
     <Compile Include="SubUpdateForm.Designer.cs">
       <DependentUpon>SubUpdateForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="TextView.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="TextView.Designer.cs">
+      <DependentUpon>TextView.cs</DependentUpon>
+    </Compile>
     <Compile Include="UC\TableCombox.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -134,6 +140,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="SubUpdateForm.resx">
       <DependentUpon>SubUpdateForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="TextView.resx">
+      <DependentUpon>TextView.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UC\TableCombox.resx">
       <DependentUpon>TableCombox.cs</DependentUpon>

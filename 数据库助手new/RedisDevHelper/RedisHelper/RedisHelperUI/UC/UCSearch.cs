@@ -43,10 +43,31 @@ namespace RedisHelperUI.UC
             this.Dock = DockStyle.Fill;
 
             this.DGVData.ContextMenuStrip = CMSOP;
+            this.DGVData.DoubleClick += DGVData_DoubleClick;
             foreach (ToolStripMenuItem item in CMSOP.Items)
             {
                 item.Click += item_Click;
             }
+        }
+
+        void DGVData_DoubleClick(object sender, EventArgs e)
+        {
+            var cell = DGVData.CurrentCell;
+            if (cell == null)
+            {
+                return;
+            }
+
+            var content = cell.Value.ToString();
+            TextView tv = new TextView();
+            tv.Content = content;
+            tv.ShowDialog();
+        }
+
+        void DGVData_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        {
+          
+            
         }
 
         private void Del()
