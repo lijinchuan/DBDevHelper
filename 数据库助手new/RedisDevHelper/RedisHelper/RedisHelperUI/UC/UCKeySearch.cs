@@ -19,6 +19,12 @@ namespace RedisHelperUI.UC
             set;
         }
 
+        public string HostAndPoint
+        {
+            get;
+            set;
+        }
+
         private RedisType RedisType
         {
             get;
@@ -448,7 +454,7 @@ namespace RedisHelperUI.UC
                 //key = string.Format("{0}{1}{2}", "", key, key.EndsWith("*") ? "" : "*");
             }
             DateTime time = DateTime.Now;
-            RedisUtil.SearchKey(RedisServer.ConnStr,RedisServer.IsPrd, key, (d) =>
+            RedisUtil.SearchKey(RedisServer.ConnStr,HostAndPoint,RedisServer.IsPrd, key, (d) =>
                 {
                     tabControl1.SelectedTab = TabPageData;
                     DataTable dt = new DataTable();

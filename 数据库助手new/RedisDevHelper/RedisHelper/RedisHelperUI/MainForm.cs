@@ -168,6 +168,18 @@ namespace RedisHelperUI
 
                 this.PanelRight.Controls.Add(us);
             }
+            else if (node != null && node.Level == 2)
+            {
+                this.PanelRight.Controls.Clear();
+                UC.UCKeySearch us = new UC.UCKeySearch();
+                us.Dock = DockStyle.Fill;
+                us.HostAndPoint = node.Text;
+                us.RedisServer = (RedisHelper.Model.RedisServerEntity)node.Parent.Tag;
+
+                this.Text = string.Format("redis管理【key搜索 {0}:{1}】", us.RedisServer.ServerName,node.Text);
+
+                this.PanelRight.Controls.Add(us);
+            }
         }
     }
 }

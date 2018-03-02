@@ -63,8 +63,47 @@ namespace RedisHelperUI
             }
         }
 
-        public static void SearchKey(string connstr,bool isprd, string keypatten, Action<List<string>> keysplit, Action<Exception> err, int pagesize = 10, int offset = 0)
+        public static void SearchKey2(string connstr, string hostandpoint, bool isprd, string keypatten, Action<List<string>> keysplit, Action<Exception> err, int pagesize = 10, int offset = 0)
         {
+            Conn(connstr, (conn) =>
+            {
+                List<string> keys = new List<string>();
+
+                foreach (var hp in GetHostAndPoint(connstr))
+                {
+                    if (hp.Equals(hostandpoint))
+                    {
+                        var iserver = conn.GetServer(hp);
+
+                        //var result=iserver.ScriptLoad(LuaScript.Prepare("local dbsize=redis.call('dbsize') local res=redis.call('scan',0,'match',KEYS[1],'count',dbsize) return res[2]").Evaluate(conn.GetDatabase());
+
+                        var v = iserver.Version;
+                        var li = iserver.Keys(0, keypatten, pagesize, pageOffset: offset).Select(p => p.ToString()).ToList();
+                        keys.AddRange(li);
+
+                        break;
+                    }
+
+                }
+
+                keysplit(keys);
+            }, (ex) =>
+            {
+                if (err != null)
+                {
+                    err(ex);
+                }
+            });
+        }
+
+        public static void SearchKey(string connstr,string hostandpoint,bool isprd, string keypatten, Action<List<string>> keysplit, Action<Exception> err, int pagesize = 10, int offset = 0)
+        {
+            if (!string.IsNullOrWhiteSpace(hostandpoint))
+            {
+                SearchKey2(connstr, hostandpoint, isprd, keypatten, keysplit, err, pagesize, offset);
+                return;
+            }
+
             Conn(connstr, (conn) =>
                 {
                     List<string> keys = new List<string>();

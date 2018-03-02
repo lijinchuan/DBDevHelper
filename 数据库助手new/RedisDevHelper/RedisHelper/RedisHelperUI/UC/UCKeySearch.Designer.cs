@@ -125,7 +125,7 @@
             // 
             this.TCBSearchKey.AutoSize = true;
             this.TCBSearchKey.DataSource = null;
-            this.TCBSearchKey.Location = new System.Drawing.Point(13, 2);
+            this.TCBSearchKey.Location = new System.Drawing.Point(13, 3);
             this.TCBSearchKey.Name = "TCBSearchKey";
             this.TCBSearchKey.SelectedValues = ((System.Collections.Generic.List<object>)(resources.GetObject("TCBSearchKey.SelectedValues")));
             this.TCBSearchKey.Size = new System.Drawing.Size(495, 26);
@@ -139,30 +139,30 @@
             this.增加ToolStripMenuItem,
             this.复制ToolStripMenuItem});
             this.CMSOP.Name = "CMSOP";
-            this.CMSOP.Size = new System.Drawing.Size(153, 114);
+            this.CMSOP.Size = new System.Drawing.Size(101, 92);
             // 
             // 删除ToolStripMenuItem
             // 
             this.删除ToolStripMenuItem.Name = "删除ToolStripMenuItem";
-            this.删除ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.删除ToolStripMenuItem.Size = new System.Drawing.Size(100, 22);
             this.删除ToolStripMenuItem.Text = "删除";
             // 
             // 修改ToolStripMenuItem
             // 
             this.修改ToolStripMenuItem.Name = "修改ToolStripMenuItem";
-            this.修改ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.修改ToolStripMenuItem.Size = new System.Drawing.Size(100, 22);
             this.修改ToolStripMenuItem.Text = "修改";
             // 
             // 增加ToolStripMenuItem
             // 
             this.增加ToolStripMenuItem.Name = "增加ToolStripMenuItem";
-            this.增加ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.增加ToolStripMenuItem.Size = new System.Drawing.Size(100, 22);
             this.增加ToolStripMenuItem.Text = "增加";
             // 
             // 复制ToolStripMenuItem
             // 
             this.复制ToolStripMenuItem.Name = "复制ToolStripMenuItem";
-            this.复制ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.复制ToolStripMenuItem.Size = new System.Drawing.Size(100, 22);
             this.复制ToolStripMenuItem.Text = "复制";
             // 
             // UCKeySearch
