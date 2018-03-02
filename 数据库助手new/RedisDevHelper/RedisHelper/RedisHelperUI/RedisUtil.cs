@@ -153,5 +153,37 @@ namespace RedisHelperUI
                 }
             }
         }
+
+        public static bool TryParseNumber(string str, out RedisValue val)
+        {
+            if (str.IndexOf(".") == -1)
+            {
+                long l = 0;
+                if (!long.TryParse(str, out l))
+                {
+                    val = RedisValue.Null;
+                    return false;
+                }
+                else
+                {
+                    val = l;
+                    return true;
+                }
+            }
+            else
+            {
+                double db = 0;
+                if (!double.TryParse(str, out db))
+                {
+                    val = RedisValue.Null;
+                    return false;
+                }
+                else
+                {
+                    val = db;
+                    return true;
+                }
+            }
+        }
     }
 }

@@ -264,6 +264,19 @@ namespace RedisHelperUI.UC
             }
         }
 
+        private void Add()
+        {
+            SubInsertForm form = new SubInsertForm();
+            form.Key = this.RedisKey;
+            form.RedisType = this.RedisType;
+            form.RedisServer = this.RedisServer;
+
+            if (form.ShowDialog() == DialogResult.Yes)
+            {
+
+            }
+        }
+
         void item_Click(object sender, EventArgs e)
         {
             if (sender is ToolStripMenuItem)
@@ -279,6 +292,20 @@ namespace RedisHelperUI.UC
                     case "修改":
                         {
                             RedisUpdate();
+                            break;
+                        }
+                    case "增加":
+                        {
+                            Add();
+                            break;
+                        }
+                    case "复制":
+                        {
+                            if (DGVData.CurrentCell != null)
+                            {
+                               Clipboard.SetText(DGVData.CurrentCell.Value.ToString());
+                               MessageBox.Show("已复制到粘贴板");
+                            }
                             break;
                         }
                 }

@@ -40,6 +40,7 @@
             this.删除ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.修改ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.增加ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.复制ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tabControl1.SuspendLayout();
             this.TabPageData.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.DGVData)).BeginInit();
@@ -131,14 +132,15 @@
             this.CMSOP.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.删除ToolStripMenuItem,
             this.修改ToolStripMenuItem,
-            this.增加ToolStripMenuItem});
+            this.增加ToolStripMenuItem,
+            this.复制ToolStripMenuItem});
             this.CMSOP.Name = "CMSOP";
-            this.CMSOP.Size = new System.Drawing.Size(101, 70);
+            this.CMSOP.Size = new System.Drawing.Size(153, 114);
             // 
             // 删除ToolStripMenuItem
             // 
             this.删除ToolStripMenuItem.Name = "删除ToolStripMenuItem";
-            this.删除ToolStripMenuItem.Size = new System.Drawing.Size(100, 22);
+            this.删除ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.删除ToolStripMenuItem.Text = "删除";
             // 
             // 修改ToolStripMenuItem
@@ -150,8 +152,14 @@
             // 增加ToolStripMenuItem
             // 
             this.增加ToolStripMenuItem.Name = "增加ToolStripMenuItem";
-            this.增加ToolStripMenuItem.Size = new System.Drawing.Size(100, 22);
+            this.增加ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.增加ToolStripMenuItem.Text = "增加";
+            // 
+            // 复制ToolStripMenuItem
+            // 
+            this.复制ToolStripMenuItem.Name = "复制ToolStripMenuItem";
+            this.复制ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.复制ToolStripMenuItem.Text = "复制";
             // 
             // UCSearch
             // 
@@ -186,5 +194,6 @@
         private System.Windows.Forms.ToolStripMenuItem 删除ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 修改ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 增加ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 复制ToolStripMenuItem;
     }
 }

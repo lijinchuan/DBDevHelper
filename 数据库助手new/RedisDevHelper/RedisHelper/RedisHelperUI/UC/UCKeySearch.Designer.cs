@@ -44,7 +44,7 @@
             // 
             // BtnSearchPatten
             // 
-            this.BtnSearchPatten.Location = new System.Drawing.Point(227, 3);
+            this.BtnSearchPatten.Location = new System.Drawing.Point(514, 5);
             this.BtnSearchPatten.Name = "BtnSearchPatten";
             this.BtnSearchPatten.Size = new System.Drawing.Size(75, 23);
             this.BtnSearchPatten.TabIndex = 1;
@@ -118,10 +118,10 @@
             // 
             this.TCBSearchKey.AutoSize = true;
             this.TCBSearchKey.DataSource = null;
-            this.TCBSearchKey.Location = new System.Drawing.Point(13, 0);
+            this.TCBSearchKey.Location = new System.Drawing.Point(13, 2);
             this.TCBSearchKey.Name = "TCBSearchKey";
             this.TCBSearchKey.SelectedValues = ((System.Collections.Generic.List<object>)(resources.GetObject("TCBSearchKey.SelectedValues")));
-            this.TCBSearchKey.Size = new System.Drawing.Size(208, 26);
+            this.TCBSearchKey.Size = new System.Drawing.Size(495, 26);
             this.TCBSearchKey.TabIndex = 2;
             // 
             // UCKeySearch

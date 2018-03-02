@@ -81,6 +81,12 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="RedisUtil.cs" />
+    <Compile Include="SubInsertForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SubInsertForm.Designer.cs">
+      <DependentUpon>SubInsertForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="SubUpdateForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -111,6 +117,7 @@
     <Compile Include="UC\UCTableComboBox.Designer.cs">
       <DependentUpon>UCTableComboBox.cs</DependentUpon>
     </Compile>
+    <Compile Include="Util.cs" />
     <EmbeddedResource Include="AddRedisServerForm.resx">
       <DependentUpon>AddRedisServerForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -121,6 +128,9 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <SubType>Designer</SubType>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SubInsertForm.resx">
+      <DependentUpon>SubInsertForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="SubUpdateForm.resx">
       <DependentUpon>SubUpdateForm.cs</DependentUpon>
