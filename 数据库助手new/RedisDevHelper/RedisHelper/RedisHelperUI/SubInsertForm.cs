@@ -351,6 +351,11 @@ namespace RedisHelperUI
 
                         break;
                     }
+                default:
+                    {
+                        this.DialogResult = DialogResult.Cancel;
+                        break;
+                    }
             }
         }
 

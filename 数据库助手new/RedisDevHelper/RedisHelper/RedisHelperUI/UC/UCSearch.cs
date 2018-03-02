@@ -64,12 +64,6 @@ namespace RedisHelperUI.UC
             tv.ShowDialog();
         }
 
-        void DGVData_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
-        {
-          
-            
-        }
-
         private void Del()
         {
             switch (this.RedisType)
