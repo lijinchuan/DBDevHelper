@@ -71,7 +71,6 @@ namespace RedisHelperUI
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
-            LabKey.Width = 100;
             this.TBKey.Enabled = false;
             switch (RedisType)
             {
@@ -83,7 +82,7 @@ namespace RedisHelperUI
                         labmembertext.TextAlign = ContentAlignment.MiddleCenter;
                         labmembertext.Width = LabKey.Width;
                         labmembertext.Left = LabKey.Left;
-                        labmembertext.Top = LabKey.Top + LabKey.Height + 15;
+                        labmembertext.Top = LabKey.Top + LabKey.Height + 19;
 
                         TextBox tbmebmerbox = new TextBox();
                         this.Controls.Add(tbmebmerbox);
@@ -101,7 +100,7 @@ namespace RedisHelperUI
                         this.Controls.Add(labvaluetext);
                         labvaluetext.Width = labmembertext.Width;
                         labvaluetext.Left = labmembertext.Left;
-                        labvaluetext.Top = labmembertext.Top + labmembertext.Height + 15;
+                        labvaluetext.Top = labmembertext.Top + labmembertext.Height + 19;
 
                         TextBox tbvalbox = new TextBox();
                         this.Controls.Add(tbvalbox);
@@ -166,7 +165,7 @@ namespace RedisHelperUI
                         this.Controls.Add(labitemtext);
                         labitemtext.Width = LabKey.Width;
                         labitemtext.Left = LabKey.Left;
-                        labitemtext.Top = LabKey.Top + LabKey.Height + 15;
+                        labitemtext.Top = LabKey.Top + LabKey.Height + 19;
 
                         TextBox tbitembox = new TextBox();
                         this.Controls.Add(tbitembox);
@@ -231,7 +230,7 @@ namespace RedisHelperUI
                         this.Controls.Add(labitemtext);
                         labitemtext.Width = LabKey.Width;
                         labitemtext.Left = LabKey.Left;
-                        labitemtext.Top = LabKey.Top + LabKey.Height + 15;
+                        labitemtext.Top = LabKey.Top + LabKey.Height + 19;
 
                         TextBox tbitembox = new TextBox();
                         this.Controls.Add(tbitembox);
@@ -296,7 +295,7 @@ namespace RedisHelperUI
                         this.Controls.Add(labmembertext);
                         labmembertext.Width = LabKey.Width;
                         labmembertext.Left = LabKey.Left;
-                        labmembertext.Top = LabKey.Top + LabKey.Height + 15;
+                        labmembertext.Top = LabKey.Top + LabKey.Height + 19;
 
                         TextBox tbmebmerbox = new TextBox();
                         this.Controls.Add(tbmebmerbox);
@@ -309,7 +308,7 @@ namespace RedisHelperUI
                         this.Controls.Add(labvaluetext);
                         labvaluetext.Width = labmembertext.Width;
                         labvaluetext.Left = labmembertext.Left;
-                        labvaluetext.Top = labmembertext.Top + labmembertext.Height + 15;
+                        labvaluetext.Top = labmembertext.Top + labmembertext.Height + 19;
 
                         TextBox tbvalbox = new TextBox();
                         this.Controls.Add(tbvalbox);

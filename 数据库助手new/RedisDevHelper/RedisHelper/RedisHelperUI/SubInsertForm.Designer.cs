@@ -39,16 +39,16 @@
             this.LabKey.AutoSize = true;
             this.LabKey.Location = new System.Drawing.Point(38, 21);
             this.LabKey.Name = "LabKey";
-            this.LabKey.Size = new System.Drawing.Size(23, 12);
+            this.LabKey.Size = new System.Drawing.Size(47, 12);
             this.LabKey.TabIndex = 0;
-            this.LabKey.Text = "key";
+            this.LabKey.Text = "key:   ";
             this.LabKey.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // TBKey
             // 
-            this.TBKey.Location = new System.Drawing.Point(67, 18);
+            this.TBKey.Location = new System.Drawing.Point(90, 18);
             this.TBKey.Name = "TBKey";
-            this.TBKey.Size = new System.Drawing.Size(292, 21);
+            this.TBKey.Size = new System.Drawing.Size(269, 21);
             this.TBKey.TabIndex = 1;
             // 
             // BtnOk

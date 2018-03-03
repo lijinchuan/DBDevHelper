@@ -135,6 +135,7 @@
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "MainForm";
+            this.ShowIcon = false;
             this.Text = "Redis管理";
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
