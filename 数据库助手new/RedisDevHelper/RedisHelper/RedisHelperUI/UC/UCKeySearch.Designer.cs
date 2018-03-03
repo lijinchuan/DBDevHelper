@@ -36,12 +36,13 @@
             this.DGVData = new System.Windows.Forms.DataGridView();
             this.TabPageInfo = new System.Windows.Forms.TabPage();
             this.TBMsg = new System.Windows.Forms.TextBox();
-            this.TCBSearchKey = new RedisHelperUI.UC.TableCombox();
             this.CMSOP = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.删除ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.修改ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.增加ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.复制ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.CBServers = new System.Windows.Forms.ComboBox();
+            this.TCBSearchKey = new RedisHelperUI.UC.TableCombox();
             this.tabControl1.SuspendLayout();
             this.TabPageData.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.DGVData)).BeginInit();
@@ -51,7 +52,7 @@
             // 
             // BtnSearchPatten
             // 
-            this.BtnSearchPatten.Location = new System.Drawing.Point(514, 5);
+            this.BtnSearchPatten.Location = new System.Drawing.Point(605, 6);
             this.BtnSearchPatten.Name = "BtnSearchPatten";
             this.BtnSearchPatten.Size = new System.Drawing.Size(75, 23);
             this.BtnSearchPatten.TabIndex = 1;
@@ -66,10 +67,10 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tabControl1.Controls.Add(this.TabPageData);
             this.tabControl1.Controls.Add(this.TabPageInfo);
-            this.tabControl1.Location = new System.Drawing.Point(13, 32);
+            this.tabControl1.Location = new System.Drawing.Point(13, 35);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(805, 393);
+            this.tabControl1.Size = new System.Drawing.Size(805, 390);
             this.tabControl1.TabIndex = 4;
             // 
             // TabPageData
@@ -78,7 +79,7 @@
             this.TabPageData.Location = new System.Drawing.Point(4, 22);
             this.TabPageData.Name = "TabPageData";
             this.TabPageData.Padding = new System.Windows.Forms.Padding(3);
-            this.TabPageData.Size = new System.Drawing.Size(797, 367);
+            this.TabPageData.Size = new System.Drawing.Size(797, 364);
             this.TabPageData.TabIndex = 0;
             this.TabPageData.Text = "数据";
             this.TabPageData.UseVisualStyleBackColor = true;
@@ -95,7 +96,7 @@
             this.DGVData.Location = new System.Drawing.Point(3, 3);
             this.DGVData.Name = "DGVData";
             this.DGVData.RowTemplate.Height = 23;
-            this.DGVData.Size = new System.Drawing.Size(791, 361);
+            this.DGVData.Size = new System.Drawing.Size(791, 358);
             this.DGVData.TabIndex = 2;
             // 
             // TabPageInfo
@@ -104,7 +105,7 @@
             this.TabPageInfo.Location = new System.Drawing.Point(4, 22);
             this.TabPageInfo.Name = "TabPageInfo";
             this.TabPageInfo.Padding = new System.Windows.Forms.Padding(3);
-            this.TabPageInfo.Size = new System.Drawing.Size(797, 367);
+            this.TabPageInfo.Size = new System.Drawing.Size(797, 364);
             this.TabPageInfo.TabIndex = 1;
             this.TabPageInfo.Text = "信息";
             this.TabPageInfo.UseVisualStyleBackColor = true;
@@ -118,18 +119,8 @@
             this.TBMsg.Multiline = true;
             this.TBMsg.Name = "TBMsg";
             this.TBMsg.ReadOnly = true;
-            this.TBMsg.Size = new System.Drawing.Size(791, 361);
+            this.TBMsg.Size = new System.Drawing.Size(791, 358);
             this.TBMsg.TabIndex = 0;
-            // 
-            // TCBSearchKey
-            // 
-            this.TCBSearchKey.AutoSize = true;
-            this.TCBSearchKey.DataSource = null;
-            this.TCBSearchKey.Location = new System.Drawing.Point(13, 3);
-            this.TCBSearchKey.Name = "TCBSearchKey";
-            this.TCBSearchKey.SelectedValues = ((System.Collections.Generic.List<object>)(resources.GetObject("TCBSearchKey.SelectedValues")));
-            this.TCBSearchKey.Size = new System.Drawing.Size(495, 26);
-            this.TCBSearchKey.TabIndex = 2;
             // 
             // CMSOP
             // 
@@ -165,10 +156,29 @@
             this.复制ToolStripMenuItem.Size = new System.Drawing.Size(100, 22);
             this.复制ToolStripMenuItem.Text = "复制";
             // 
+            // CBServers
+            // 
+            this.CBServers.FormattingEnabled = true;
+            this.CBServers.Location = new System.Drawing.Point(446, 7);
+            this.CBServers.Name = "CBServers";
+            this.CBServers.Size = new System.Drawing.Size(153, 20);
+            this.CBServers.TabIndex = 5;
+            // 
+            // TCBSearchKey
+            // 
+            this.TCBSearchKey.AutoSize = true;
+            this.TCBSearchKey.DataSource = null;
+            this.TCBSearchKey.Location = new System.Drawing.Point(13, 3);
+            this.TCBSearchKey.Name = "TCBSearchKey";
+            this.TCBSearchKey.SelectedValues = ((System.Collections.Generic.List<object>)(resources.GetObject("TCBSearchKey.SelectedValues")));
+            this.TCBSearchKey.Size = new System.Drawing.Size(427, 26);
+            this.TCBSearchKey.TabIndex = 2;
+            // 
             // UCKeySearch
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.CBServers);
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.TCBSearchKey);
             this.Controls.Add(this.BtnSearchPatten);
@@ -199,5 +209,6 @@
         private System.Windows.Forms.ToolStripMenuItem 修改ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 增加ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 复制ToolStripMenuItem;
+        private System.Windows.Forms.ComboBox CBServers;
     }
 }

@@ -71,7 +71,8 @@ namespace RedisHelperUI
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
-
+            LabKey.Width = 100;
+            this.TBKey.Enabled = false;
             switch (RedisType)
             {
                 case RedisType.Hash:
@@ -79,6 +80,7 @@ namespace RedisHelperUI
                         Label labmembertext = new Label();
                         labmembertext.Text = "member:";
                         this.Controls.Add(labmembertext);
+                        labmembertext.TextAlign = ContentAlignment.MiddleCenter;
                         labmembertext.Width = LabKey.Width;
                         labmembertext.Left = LabKey.Left;
                         labmembertext.Top = LabKey.Top + LabKey.Height + 15;

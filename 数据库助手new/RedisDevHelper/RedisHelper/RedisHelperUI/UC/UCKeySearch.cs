@@ -147,6 +147,27 @@ namespace RedisHelperUI.UC
         {
             base.OnLoad(e);
 
+
+            if (this.RedisServer != null)
+            {
+                List<string> servers = new List<string>();
+                servers.Add("");
+                foreach (var ha in RedisUtil.GetHostAndPoint(this.RedisServer.ConnStr))
+                {
+                    servers.Add(ha);
+                }
+                CBServers.DataSource = servers;
+                CBServers.DropDownStyle = ComboBoxStyle.DropDownList;
+                if (this.HostAndPoint != null)
+                {
+                    CBServers.SelectedItem = HostAndPoint;
+                }
+                else
+                {
+                    CBServers.SelectedItem = "";
+                }
+            }
+
             this.DGVData.ContextMenuStrip = CMSOP;
             this.DGVData.DoubleClick += DGVData_DoubleClick;
             foreach (ToolStripMenuItem item in CMSOP.Items)
@@ -454,7 +475,7 @@ namespace RedisHelperUI.UC
                 //key = string.Format("{0}{1}{2}", "", key, key.EndsWith("*") ? "" : "*");
             }
             DateTime time = DateTime.Now;
-            RedisUtil.SearchKey(RedisServer.ConnStr,HostAndPoint,RedisServer.IsPrd, key, (d) =>
+            RedisUtil.SearchKey(RedisServer.ConnStr,this.CBServers.SelectedItem.ToString(),RedisServer.IsPrd, key, (d) =>
                 {
                     tabControl1.SelectedTab = TabPageData;
                     DataTable dt = new DataTable();

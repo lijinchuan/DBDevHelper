@@ -42,6 +42,7 @@
             this.LabKey.Size = new System.Drawing.Size(23, 12);
             this.LabKey.TabIndex = 0;
             this.LabKey.Text = "key";
+            this.LabKey.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // TBKey
             // 
