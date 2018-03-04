@@ -114,7 +114,7 @@ namespace RedisHelperUI.UC
                 this.Parent.Controls.Add(gridview);
 
                 var pt = this.Parent.PointToClient(this.PointToScreen(this.comboBox1.Location));
-                this.gridview.Location = new Point(pt.X, pt.Y + this.comboBox1.Height + 2);
+                this.gridview.Location = new Point(pt.X, pt.Y + this.comboBox1.Height + 1);
 
                 comboBox1.DropDown += comboBox1_DropDown;
                 comboBox1.DropDownClosed += comboBox1_DropDownClosed;

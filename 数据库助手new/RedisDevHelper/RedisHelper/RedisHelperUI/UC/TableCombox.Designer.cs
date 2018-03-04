@@ -49,7 +49,7 @@
             this.AutoSize = true;
             this.Controls.Add(this.comboBox1);
             this.Name = "TableCombox";
-            this.Size = new System.Drawing.Size(195, 26);
+            this.Size = new System.Drawing.Size(195, 150);
             this.ResumeLayout(false);
 
         }
