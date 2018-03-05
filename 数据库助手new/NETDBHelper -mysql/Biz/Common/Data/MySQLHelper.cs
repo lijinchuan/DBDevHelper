@@ -409,8 +409,8 @@ namespace Biz.Common.Data
                     throw new Exception("只能有一个自增长键");
                 }
                 sql = string.Format("alter table `{0}`.`{1}` modify `{2}` {3} auto_increment;", dbName, tabname, cols.First().Name, cols.First().TypeName);
+                ExecuteNoQuery(dbSource, dbName, sql, null);
             }
-            ExecuteNoQuery(dbSource, dbName, sql, null);
 
             if (primarykey)
             {
