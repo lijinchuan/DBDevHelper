@@ -65,7 +65,7 @@ namespace Biz.Common.Data
         public static IEnumerable<TBColumn> GetColumns(DBSource dbSource, string dbName,string tbName)
         {
             var tb = ExecuteDBTable(dbSource, dbName, MySqlHelperConsts.GetColumns, new MySqlParameter("@db", dbName),new MySqlParameter("@tb",tbName));
-
+            //var idColumnName = GetAutoIncrementColName(dbSource, dbName, tbName);
             for (int i = 0; i < tb.Rows.Count; i++)
             {
                 yield return new TBColumn
@@ -426,6 +426,27 @@ namespace Biz.Common.Data
             }
            
             ExecuteNoQuery(dbSource, dbName, sql, null);
+        }
+
+        public static string GetAutoIncrementColName(DBSource dbSource, string dbName, string tabname)
+        {
+            string sql=string.Format("select * from information_schema.`TABLES` where table_name='{0}' and TABLE_SCHEMA='{1}'",tabname,dbName);
+
+//            string sql = string.Format(@"SELECT
+//  TABLE_SCHEMA,TABLE_NAME,COLUMN_NAME
+//FROM
+//  information_schema.KEY_COLUMN_USAGE", dbName, tabname);
+
+            var tb=ExecuteDBTable(dbSource,dbName,sql,null);
+
+            if (tb.Rows.Count == 0)
+            {
+                return string.Empty;
+            }
+            else
+            {
+                return tb.Rows[0][0].ToString();
+            }
         }
 
         public static List<IndexEntry> GetIndexs(DBSource dbSource, string dbName, string tabname)
