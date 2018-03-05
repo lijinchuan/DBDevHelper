@@ -65,7 +65,7 @@ namespace Biz.Common.Data
         public static IEnumerable<TBColumn> GetColumns(DBSource dbSource, string dbName,string tbName)
         {
             var tb = ExecuteDBTable(dbSource, dbName, MySqlHelperConsts.GetColumns, new MySqlParameter("@db", dbName),new MySqlParameter("@tb",tbName));
-            //var idColumnName = GetAutoIncrementColName(dbSource, dbName, tbName);
+            var idColumnName = GetAutoIncrementColName(dbSource, dbName, tbName);
             for (int i = 0; i < tb.Rows.Count; i++)
             {
                 yield return new TBColumn
@@ -74,7 +74,7 @@ namespace Biz.Common.Data
                     Length = int.Parse(string.IsNullOrEmpty(tb.Rows[i]["character_maximum_length"].ToString()) ? "0" : tb.Rows[i]["character_maximum_length"].ToString()),
                     Name = tb.Rows[i]["column_name"].ToString(),
                     TypeName = tb.Rows[i]["data_type"].ToString(),
-                    //IsID = string.Equals(idColumnName, tb.Rows[i]["name"].ToString()),
+                    IsID = string.Equals(idColumnName, tb.Rows[i]["column_name"].ToString()),
                     IsNullAble = tb.Rows[i]["is_nullable"].ToString().Equals("yes", StringComparison.OrdinalIgnoreCase),
                     prec = NumberHelper.CovertToInt(tb.Rows[i]["numeric_precision"]),
                     scale = NumberHelper.CovertToInt(tb.Rows[i]["numeric_scale"]),
@@ -430,12 +430,14 @@ namespace Biz.Common.Data
 
         public static string GetAutoIncrementColName(DBSource dbSource, string dbName, string tabname)
         {
-            string sql=string.Format("select * from information_schema.`TABLES` where table_name='{0}' and TABLE_SCHEMA='{1}'",tabname,dbName);
+            //string sql=string.Format("select * from information_schema.`TABLES` where table_name='{0}' and TABLE_SCHEMA='{1}'",tabname,dbName);
 
 //            string sql = string.Format(@"SELECT
 //  TABLE_SCHEMA,TABLE_NAME,COLUMN_NAME
 //FROM
 //  information_schema.KEY_COLUMN_USAGE", dbName, tabname);
+
+            string sql = string.Format("select COLUMN_NAME FROM information_schema.COLUMNS where TABLE_SCHEMA='{0}' and TABLE_NAME='{1}' and EXTRA='auto_increment'",dbName,tabname);
 
             var tb=ExecuteDBTable(dbSource,dbName,sql,null);
 
