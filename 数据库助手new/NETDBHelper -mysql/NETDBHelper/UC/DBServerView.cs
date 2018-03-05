@@ -954,7 +954,7 @@ namespace NETDBHelper
             {
                 try
                 {
-                    Biz.Common.Data.MySQLHelper.CreateIndex(ds, db, tb, win.IndexName, win.IsUnique(), win.IsPrimaryKey(), win.IndexColumns);
+                    Biz.Common.Data.MySQLHelper.CreateIndex(ds, db, tb, win.IndexName, win.IsUnique(), win.IsPrimaryKey(),win.IsAutoIncr(), win.IndexColumns);
                     MessageBox.Show("创建索引成功");
                 }
                 catch (Exception ex)

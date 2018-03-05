@@ -398,9 +398,19 @@ namespace Biz.Common.Data
             return sb.ToString();
         }
 
-        public static void CreateIndex(DBSource dbSource, string dbName, string tabname, string indexname,bool unique,bool primarykey, List<TBColumn> cols)
+        public static void CreateIndex(DBSource dbSource, string dbName, string tabname, string indexname,bool unique,bool primarykey,bool autoIncr, List<TBColumn> cols)
         {
             string sql = string.Empty;
+
+            if (autoIncr)
+            {
+                if (cols.Count != 1)
+                {
+                    throw new Exception("只能有一个自增长键");
+                }
+                sql = string.Format("alter table `{0}`.`{1}` modify `{2}` {3} auto_increment;", dbName, tabname, cols.First().Name, cols.First().TypeName);
+            }
+            ExecuteNoQuery(dbSource, dbName, sql, null);
 
             if (primarykey)
             {
@@ -414,6 +424,7 @@ namespace Biz.Common.Data
             {
                 sql = string.Format("ALTER TABLE `{0}`.`{1}` ADD INDEX {2}({3}) ", dbName, tabname, indexname, string.Join(",", cols.Select(p => "`" + p.Name + "`")));
             }
+           
             ExecuteNoQuery(dbSource, dbName, sql, null);
         }
 
