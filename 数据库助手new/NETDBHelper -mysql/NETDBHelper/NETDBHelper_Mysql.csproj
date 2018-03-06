@@ -339,12 +339,14 @@
     <Content Include="Resources\DB6.png" />
     <None Include="Resources\MYSQLICON.jpg" />
     <None Include="Resources\MysqlLogo.jpg" />
+    <Content Include="Resources\key_add.png" />
     <Content Include="Resources\OpenServer.jpg" />
     <Content Include="Resources\OpenServer.png" />
     <None Include="Resources\page.png" />
     <None Include="Resources\report.png" />
     <None Include="Resources\report_key.png" />
     <None Include="Resources\shapes_many.png" />
+    <Content Include="Resources\plugin_add.png" />
     <Content Include="Resources\SQLSerTop.jpg" />
   </ItemGroup>
   <ItemGroup>

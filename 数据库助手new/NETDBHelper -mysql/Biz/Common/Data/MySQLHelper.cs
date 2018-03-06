@@ -408,24 +408,37 @@ namespace Biz.Common.Data
                 {
                     throw new Exception("只能有一个自增长键");
                 }
+
+                if (primarykey)
+                {
+                    sql = string.Format("ALTER TABLE `{0}`.`{1}` ADD PRIMARY KEY ({2}) ", dbName, tabname, string.Join(",", cols.Select(p => "`" + p.Name + "`")));
+                    ExecuteNoQuery(dbSource, dbName, sql, null);
+                }
+
                 sql = string.Format("alter table `{0}`.`{1}` modify `{2}` {3} auto_increment;", dbName, tabname, cols.First().Name, cols.First().TypeName);
                 ExecuteNoQuery(dbSource, dbName, sql, null);
-            }
 
-            if (primarykey)
-            {
-                sql = string.Format("ALTER TABLE `{0}`.`{1}` ADD PRIMARY KEY ({2}) ", dbName, tabname, string.Join(",", cols.Select(p => "`" + p.Name + "`")));
-            }
-            else if (unique)
-            {
-                sql = string.Format("ALTER TABLE `{0}`.`{1} ADD UNIQUE ({2})", dbName, tabname, string.Join(",", cols.Select(p => "`" + p.Name + "`")));
+                return;
             }
             else
             {
-                sql = string.Format("ALTER TABLE `{0}`.`{1}` ADD INDEX {2}({3}) ", dbName, tabname, indexname, string.Join(",", cols.Select(p => "`" + p.Name + "`")));
+                if (primarykey)
+                {
+                    sql = string.Format("ALTER TABLE `{0}`.`{1}` ADD PRIMARY KEY ({2}) ", dbName, tabname, string.Join(",", cols.Select(p => "`" + p.Name + "`")));
+                }
+                else if (unique)
+                {
+                    sql = string.Format("ALTER TABLE `{0}`.`{1} ADD UNIQUE ({2})", dbName, tabname, string.Join(",", cols.Select(p => "`" + p.Name + "`")));
+                }
+                else
+                {
+                    sql = string.Format("ALTER TABLE `{0}`.`{1}` ADD INDEX {2}({3}) ", dbName, tabname, indexname, string.Join(",", cols.Select(p => "`" + p.Name + "`")));
+                }
+
+                ExecuteNoQuery(dbSource, dbName, sql, null);
             }
            
-            ExecuteNoQuery(dbSource, dbName, sql, null);
+            
         }
 
         public static string GetAutoIncrementColName(DBSource dbSource, string dbName, string tabname)

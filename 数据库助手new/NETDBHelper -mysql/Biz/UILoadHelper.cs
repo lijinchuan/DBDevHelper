@@ -140,7 +140,7 @@ namespace Biz
             List<TreeNode> treeNodes = new List<TreeNode>();
             foreach (TBColumn col in Biz.Common.Data.MySQLHelper.GetColumns(server, tbNode.Parent.Text, tbNode.Text))
             {
-                int imgIdx = col.IsKey ? 4 : 5;
+                int imgIdx = (col.IsID && col.IsKey) ? 9 : (col.IsKey ? 4 : (col.IsID ? 10 : 5));
                 TreeNode newNode = new TreeNode(string.Concat(col.Name, "(", col.TypeName, ")"), imgIdx, imgIdx);
                 newNode.Tag = col;
                 treeNodes.Add(newNode);
