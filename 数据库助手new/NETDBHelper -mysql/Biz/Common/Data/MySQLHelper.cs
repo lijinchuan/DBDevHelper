@@ -428,7 +428,7 @@ namespace Biz.Common.Data
                 }
                 else if (unique)
                 {
-                    sql = string.Format("ALTER TABLE `{0}`.`{1} ADD UNIQUE ({2})", dbName, tabname, string.Join(",", cols.Select(p => "`" + p.Name + "`")));
+                    sql = string.Format("ALTER TABLE `{0}`.`{1}` ADD UNIQUE ({2})", dbName, tabname, string.Join(",", cols.Select(p => "`" + p.Name + "`")));
                 }
                 else
                 {
