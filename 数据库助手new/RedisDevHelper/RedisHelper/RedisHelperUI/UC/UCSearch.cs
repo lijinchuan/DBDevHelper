@@ -327,16 +327,29 @@ namespace RedisHelperUI.UC
             }
         }
 
+        private string GetSubKey
+        {
+            get
+            {
+                return TBSubKey.Text.Trim();
+            }
+        }
+
         private void BtnSearch_Click(object sender, EventArgs e)
         {
             if (RedisServer == null)
             {
                 return;
             }
+            var key=this.TBSearchKey.Text;
+            if (string.IsNullOrWhiteSpace(key))
+            {
+                return;
+            }
             DateTime time = DateTime.Now;
             RedisUtil.Execute(RedisServer.ConnStr, (client) =>
                 {
-                    var key=this.TBSearchKey.Text;
+                    
                     tabControl1.SelectedTab = TabPageData;
                     TBMsg.Text = "";
                     var keytype = client.KeyType(key);
@@ -358,32 +371,83 @@ namespace RedisHelperUI.UC
                                 
                                 dt.Columns.Add("key");
                                 dt.Columns.Add("value");
-                                dt.Rows.Add(TBSearchKey.Text, str);
+                                dt.Columns.Add("valuetype");
+                                dt.Rows.Add(TBSearchKey.Text, str,"str");
                                 this.DGVData.DataSource = dt;
 
                                 break;
                             }
                         case RedisType.Hash:
                             {
-                                var hashs = client.HashGetAll(key);
                                 DataTable dt = new DataTable();
                                 dt.Columns.Add("name");
+                                dt.Columns.Add("nametype");
                                 dt.Columns.Add("value");
-                                foreach (var hash in hashs)
+                                dt.Columns.Add("valuetype");
+                                if (string.IsNullOrWhiteSpace(GetSubKey))
                                 {
-                                    dt.Rows.Add(hash.Name, hash.Value);
+                                    var hashs = client.HashGetAll(key);
+                                    
+                                    foreach (var hash in hashs)
+                                    {
+                                        dt.Rows.Add(hash.Name,hash.Name.IsInteger?"int":"str", hash.Value,hash.Value.IsInteger?"int":"str");
+                                    }
+                                    
+                                }
+                                else
+                                {
+                                    var value = client.HashGet(key, GetSubKey);
+                                    if (value.HasValue)
+                                    {
+                                        dt.Rows.Add(GetSubKey,"str", value,value.IsInteger?"int":"str");
+                                    }
+                                    else
+                                    {
+                                          RedisValue rv=RedisValue.Null;
+                                          if (RedisUtil.TryParseNumber(GetSubKey, out rv))
+                                          {
+                                              
+                                              dt.Rows.Add(GetSubKey,"int",value,value.IsInteger?"int":"str");
+                                          }
+                                    }
                                 }
                                 this.DGVData.DataSource = dt;
                                 break;
                             }
                         case RedisType.Set:
                             {
-                                var sets = client.SetMembers(key);
                                 DataTable dt = new DataTable();
                                 dt.Columns.Add("members");
-                                foreach (var set in sets)
+                                dt.Columns.Add("valuetype");
+
+                                if (string.IsNullOrWhiteSpace(GetSubKey))
                                 {
-                                    dt.Rows.Add(set);
+                                    var sets = client.SetMembers(key);
+
+                                    foreach (var set in sets)
+                                    {
+                                        dt.Rows.Add(set,set.IsInteger?"int":"str");
+                                    }
+                                }
+                                else
+                                {
+                                    var value = client.SetContains(key, GetSubKey);
+                                    if (value)
+                                    {
+                                        dt.Rows.Add(GetSubKey,"str");
+                                    }
+                                    else
+                                    {
+                                        RedisValue rv=RedisValue.Null;
+                                        if(RedisUtil.TryParseNumber(GetSubKey,out rv))
+                                        {
+                                            value = client.SetContains(key, GetSubKey);
+                                            if (value)
+                                            {
+                                                dt.Rows.Add(GetSubKey,"int");
+                                            }
+                                        }
+                                    }
                                 }
                                 this.DGVData.DataSource = dt;
                                 break;
@@ -393,22 +457,49 @@ namespace RedisHelperUI.UC
                                 var list = client.ListRange(key, 0, 100);
                                 DataTable dt = new DataTable();
                                 dt.Columns.Add("item");
+                                dt.Columns.Add("valuetype");
                                 foreach (var item in list)
                                 {
-                                    dt.Rows.Add(item);
+                                    dt.Rows.Add(item,item.IsInteger?"int":"str");
                                 }
                                 this.DGVData.DataSource = dt;
                                 break;
                             }
                         case RedisType.SortedSet:
                             {
-                                var ssets=client.SortedSetRangeByRankWithScores(key, 0, 100);
                                 DataTable dt = new DataTable();
                                 dt.Columns.Add("Element");
+                                dt.Columns.Add("ElementType");
                                 dt.Columns.Add("Score");
-                                foreach (var set in ssets)
+
+                                if (string.IsNullOrWhiteSpace(GetSubKey))
                                 {
-                                    dt.Rows.Add(set.Element,set.Score);
+                                    var ssets = client.SortedSetRangeByRankWithScores(key, 0, 100);
+
+                                    foreach (var set in ssets)
+                                    {
+                                        dt.Rows.Add(set.Element, set.Element.IsInteger ? "int" : "str", set.Score);
+                                    }
+                                }
+                                else
+                                {
+                                    var sset = client.SortedSetScore(key, GetSubKey);
+                                    if (sset.HasValue)
+                                    {
+                                        dt.Rows.Add(GetSubKey, "str", sset.Value);
+                                    }
+                                    else
+                                    {
+                                         RedisValue rv=RedisValue.Null;
+                                         if (RedisUtil.TryParseNumber(GetSubKey, out rv))
+                                         {
+                                             sset = client.SortedSetScore(key, rv);
+                                             if (sset.HasValue)
+                                             {
+                                                 dt.Rows.Add(GetSubKey, "int", sset.Value);
+                                             }
+                                         }
+                                    }
                                 }
                                 this.DGVData.DataSource = dt;
                                 break;
