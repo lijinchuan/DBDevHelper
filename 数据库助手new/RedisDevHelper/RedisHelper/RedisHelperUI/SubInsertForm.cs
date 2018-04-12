@@ -324,8 +324,14 @@ namespace RedisHelperUI
                                 return false;
                             }
 
+                            RedisValue subkey;
+                            if (!RedisUtil.TryParseNumber(tbmebmerbox.Text, out subkey))
+                            {
+                                subkey = tbmebmerbox.Text;
+                            }
+
                             RedisValue rv;
-                            if (RedisUtil.TryParseNumber(tbmebmerbox.Text, out rv))
+                            if (RedisUtil.TryParseNumber(tbvalbox.Text, out rv))
                             {
                                 this.Val = rv;
                             }
@@ -339,7 +345,7 @@ namespace RedisHelperUI
                             {
                                 RedisUtil.Execute(connstr, db =>
                                 {
-                                    db.SortedSetAdd(this.Key,this.SubKey, (double)this.Val);
+                                    db.SortedSetAdd(this.Key, subkey, (double)this.Val);
                                     MessageBox.Show("添加成功");
                                 }, ex =>
                                 {
