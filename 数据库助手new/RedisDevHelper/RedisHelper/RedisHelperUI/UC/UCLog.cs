@@ -18,6 +18,7 @@ namespace RedisHelperUI.UC
         public UCLog()
         {
             InitializeComponent();
+            LoadLog();
         }
 
         public void LoadLog()

@@ -37,6 +37,11 @@ namespace RedisHelperUI.UC
             InitializeComponent();
         }
 
+        public void SetKey(string key)
+        {
+            this.TBSearchKey.Text = key;
+        }
+
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);

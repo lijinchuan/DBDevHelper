@@ -197,6 +197,7 @@ namespace RedisHelperUI
                         this.PanelRight.Controls.Clear();
                         UC.UCSearch us = new UC.UCSearch();
                         us.RedisServer = server;
+                        us.SetKey(lg.Key);
 
                         this.Text = string.Format("redis管理【查询 {0}】", us.RedisServer.ServerName);
 
