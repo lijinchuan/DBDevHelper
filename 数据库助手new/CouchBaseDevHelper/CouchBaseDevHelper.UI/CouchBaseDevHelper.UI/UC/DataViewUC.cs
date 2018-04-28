@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
+using LJC.FrameWork.Data.EntityDataBase;
 
 namespace CouchBaseDevHelper.UI.UC
 {
@@ -35,6 +36,18 @@ namespace CouchBaseDevHelper.UI.UC
         private void label1_Click(object sender, EventArgs e)
         {
             
+        }
+
+        public string Key
+        {
+            get
+            {
+                return TBKey.Text;
+            }
+            set
+            {
+                TBKey.Text = value;
+            }
         }
 
         protected override void OnLoad(EventArgs e)
@@ -70,6 +83,17 @@ namespace CouchBaseDevHelper.UI.UC
                 {
                     try
                     {
+                        if (!EntityTableEngine.LocalEngine.Exists(Global.TBName_SearchLog,key))
+                        {
+                            EntityTableEngine.LocalEngine.Insert<SearchLog>(Global.TBName_SearchLog, new SearchLog
+                            {
+                                Key=key,
+                                Mark=string.Empty,
+                                ServerName=_server.ServerName,
+                                Connstr=_server.ConnStr
+                            });
+                        }
+
                         if (!client.TryGet(key, out val))
                         {
                             TBMSG.Text = "键不存在";

@@ -150,11 +150,11 @@ namespace CouchBaseDevHelper.UI
             var node = TVServerList.SelectedNode;
             if (node != null && node.Level == 2)
             {
-                
+                this.Text = ((CouchBaseServerEntity)node.Tag).ServerName;
                 UC.DataViewUC dv = new UC.DataViewUC(new CouchBaseServerEntity
                 {
                     ConnStr=node.Text,
-                    ServerName=node.Text,
+                    ServerName = ((CouchBaseServerEntity)node.Tag).ServerName,
                     Buckets=((CouchBaseServerEntity)node.Tag).Buckets
                 });
                 dv.Dock=DockStyle.Fill;
@@ -164,6 +164,35 @@ namespace CouchBaseDevHelper.UI
             {
 
             }
+        }
+
+        private void 日志ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            UC.UCLog logview = new UC.UCLog();
+            logview.Dock = DockStyle.Fill;
+            this.PanelRight.Controls.Clear();
+            this.PanelRight.Controls.Add(logview);
+
+            logview.OnLogSelected += (log) =>
+                {
+                    this.PanelRight.Controls.Clear();
+                    var server = EntityTableEngine.LocalEngine.Find<CouchBaseServerEntity>(Global.TBName_RedisServer, log.ServerName).FirstOrDefault();
+                    if (server == null)
+                    {
+                        MessageBox.Show("服务已经删除:"+log.ServerName);
+                        return;
+                    }
+                    this.Text = log.ServerName;
+                    UC.DataViewUC dv = new UC.DataViewUC(new CouchBaseServerEntity
+                    {
+                        ConnStr = log.Connstr,
+                        ServerName = log.ServerName,
+                        Buckets = server.Buckets
+                    });
+                    dv.Key = log.Key;
+                    dv.Dock = DockStyle.Fill;
+                    this.PanelRight.Controls.Add(dv);
+                };
         }
     }
 }
