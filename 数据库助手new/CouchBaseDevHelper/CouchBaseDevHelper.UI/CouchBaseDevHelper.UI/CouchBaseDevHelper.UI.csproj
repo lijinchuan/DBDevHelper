@@ -41,8 +41,9 @@
     <Reference Include="Enyim.Caching">
       <HintPath>..\..\..\Lib\Enyim.Caching.dll</HintPath>
     </Reference>
-    <Reference Include="LJC.FrameWork">
-      <HintPath>..\..\..\RedisDevHelper\RedisHelper\DLL\LJC.FrameWork.dll</HintPath>
+    <Reference Include="LJC.FrameWork, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\Lib\LJC.FrameWork.dll</HintPath>
     </Reference>
     <Reference Include="LJC.FrameWork.Couchbase">
       <HintPath>..\..\..\Lib\LJC.FrameWork.Couchbase.dll</HintPath>
