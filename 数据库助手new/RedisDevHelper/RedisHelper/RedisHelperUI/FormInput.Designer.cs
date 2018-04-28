@@ -62,6 +62,7 @@
             this.MinimizeBox = false;
             this.Name = "FormInput";
             this.ShowIcon = false;
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "输入";
             this.ResumeLayout(false);
             this.PerformLayout();

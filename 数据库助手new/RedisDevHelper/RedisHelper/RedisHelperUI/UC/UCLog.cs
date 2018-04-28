@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using LJC.FrameWork.Data.EntityDataBase;
+using System.Threading;
 
 namespace RedisHelperUI.UC
 {
@@ -127,10 +128,13 @@ namespace RedisHelperUI.UC
                             log.Mark = input.Val;
                             EntityTableEngine.LocalEngine.Update<SearchLog>(Global.TBName_SearchLog, log);
 
+                            this.gvlog.ClearSelection();
+                            Thread.Sleep(3000);
                             LoadLog();
-                            this.gvlog.Invalidate();
                         }
                     }
+
+                    ;
                 }
             }
         }
