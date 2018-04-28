@@ -19,15 +19,12 @@ namespace CouchBaseDevHelper.UI.UC
         public DataViewUC()
         {
             InitializeComponent();
-
-            this.CBType.SelectedIndex = 0;
         }
 
         public DataViewUC(CouchBaseServerEntity server)
         {
             this._server = server;
             InitializeComponent();
-            this.CBType.SelectedIndex = 0;
 
             this.CBBucket.DataSource = server.Buckets;
             this.CBBucket.SelectedIndex = 0;

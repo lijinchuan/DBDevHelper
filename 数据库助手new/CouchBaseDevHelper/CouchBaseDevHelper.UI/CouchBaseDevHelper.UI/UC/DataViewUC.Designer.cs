@@ -30,7 +30,6 @@
         {
             this.label1 = new System.Windows.Forms.Label();
             this.TBKey = new System.Windows.Forms.TextBox();
-            this.CBType = new System.Windows.Forms.ComboBox();
             this.BtnOK = new System.Windows.Forms.Button();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.TPData = new System.Windows.Forms.TabPage();
@@ -61,23 +60,9 @@
             this.TBKey.Size = new System.Drawing.Size(250, 21);
             this.TBKey.TabIndex = 1;
             // 
-            // CBType
-            // 
-            this.CBType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.CBType.FormattingEnabled = true;
-            this.CBType.Items.AddRange(new object[] {
-            "bin",
-            "string",
-            "json",
-            "xml"});
-            this.CBType.Location = new System.Drawing.Point(565, 13);
-            this.CBType.Name = "CBType";
-            this.CBType.Size = new System.Drawing.Size(109, 20);
-            this.CBType.TabIndex = 2;
-            // 
             // BtnOK
             // 
-            this.BtnOK.Location = new System.Drawing.Point(680, 12);
+            this.BtnOK.Location = new System.Drawing.Point(576, 12);
             this.BtnOK.Name = "BtnOK";
             this.BtnOK.Size = new System.Drawing.Size(75, 23);
             this.BtnOK.TabIndex = 3;
@@ -164,7 +149,6 @@
             this.Controls.Add(this.label2);
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.BtnOK);
-            this.Controls.Add(this.CBType);
             this.Controls.Add(this.TBKey);
             this.Controls.Add(this.label1);
             this.Name = "DataViewUC";
@@ -183,7 +167,6 @@
 
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TextBox TBKey;
-        private System.Windows.Forms.ComboBox CBType;
         private System.Windows.Forms.Button BtnOK;
         private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.TabPage TPData;
