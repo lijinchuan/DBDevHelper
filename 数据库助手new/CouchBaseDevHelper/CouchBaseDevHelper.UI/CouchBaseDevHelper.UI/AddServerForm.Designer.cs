@@ -121,6 +121,7 @@
             this.MinimizeBox = false;
             this.Name = "AddServerForm";
             this.ShowIcon = false;
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "添加服务器";
             this.ResumeLayout(false);
             this.PerformLayout();

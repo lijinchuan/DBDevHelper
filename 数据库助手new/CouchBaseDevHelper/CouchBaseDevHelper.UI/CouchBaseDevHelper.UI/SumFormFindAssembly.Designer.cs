@@ -97,6 +97,7 @@
             this.MinimizeBox = false;
             this.Name = "SumFormFindAssembly";
             this.ShowIcon = false;
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "查找程序集";
             this.ResumeLayout(false);
             this.PerformLayout();

@@ -84,5 +84,29 @@ namespace CouchBaseDevHelper.UI.UC
                 MessageBox.Show(ex.Message, "删除出错", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
+        private void 修改ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+             var row = gvlog.CurrentRow;
+             if (row != null)
+             {
+
+                 FormInput inputform = new FormInput();
+                 if (inputform.ShowDialog() == DialogResult.OK)
+                 {
+                     if (!string.IsNullOrWhiteSpace(inputform.Val))
+                     {
+                         var log = EntityTableEngine.LocalEngine.Find<SearchLog>(Global.TBName_SearchLog, row.Cells[0].Value.ToString()).FirstOrDefault();
+                         if (log != null)
+                         {
+                             log.Mark = inputform.Val;
+                             EntityTableEngine.LocalEngine.Update<SearchLog>(Global.TBName_SearchLog, log);
+                             this.LoadLog();
+                         }
+                     }
+                 }
+             }
+            
+        }
     }
 }
