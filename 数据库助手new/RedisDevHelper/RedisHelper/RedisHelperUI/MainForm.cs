@@ -181,5 +181,28 @@ namespace RedisHelperUI
                 this.PanelRight.Controls.Add(us);
             }
         }
+
+        private void 日志ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            UC.UCLog log = new UC.UCLog();
+            this.PanelRight.Controls.Clear();
+            log.Dock = DockStyle.Fill;
+            this.PanelRight.Controls.Add(log);
+
+            log.OnLogSelected = (lg) =>
+                {
+                    var server = EntityTableEngine.LocalEngine.Find<RedisHelper.Model.RedisServerEntity>(Global.TBName_RedisServer, lg.ServerName).FirstOrDefault();
+                    if (server != null)
+                    {
+                        this.PanelRight.Controls.Clear();
+                        UC.UCSearch us = new UC.UCSearch();
+                        us.RedisServer = server;
+
+                        this.Text = string.Format("redis管理【查询 {0}】", us.RedisServer.ServerName);
+
+                        this.PanelRight.Controls.Add(us);
+                    }
+                };
+        }
     }
 }

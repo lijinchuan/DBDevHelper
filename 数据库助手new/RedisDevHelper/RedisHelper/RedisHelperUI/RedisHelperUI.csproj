@@ -81,6 +81,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="RedisUtil.cs" />
+    <Compile Include="SearchLog.cs" />
     <Compile Include="SubInsertForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -110,6 +111,12 @@
     </Compile>
     <Compile Include="UC\UCKeySearch.Designer.cs">
       <DependentUpon>UCKeySearch.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UC\UCLog.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UC\UCLog.Designer.cs">
+      <DependentUpon>UCLog.cs</DependentUpon>
     </Compile>
     <Compile Include="UC\UCSearch.cs">
       <SubType>UserControl</SubType>
@@ -149,6 +156,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="UC\UCKeySearch.resx">
       <DependentUpon>UCKeySearch.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UC\UCLog.resx">
+      <DependentUpon>UCLog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UC\UCSearch.resx">
       <DependentUpon>UCSearch.cs</DependentUpon>

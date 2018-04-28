@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using StackExchange.Redis;
+using LJC.FrameWork.Data.EntityDataBase;
 
 namespace RedisHelperUI.UC
 {
@@ -516,6 +517,17 @@ namespace RedisHelperUI.UC
             {
                 return;
             }
+
+            if (!EntityTableEngine.LocalEngine.Exists(Global.TBName_SearchLog, key))
+            {
+                EntityTableEngine.LocalEngine.Insert<SearchLog>(Global.TBName_SearchLog, new SearchLog
+                {
+                    Key = key,
+                    Mark = string.Empty,
+                    ServerName = this.RedisServer.ServerName,
+                });
+            }
+
             DateTime time = DateTime.Now;
             RedisUtil.Execute(RedisServer.ConnStr, (client) =>
                 {

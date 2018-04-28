@@ -38,6 +38,7 @@
             this.PanelLeft = new System.Windows.Forms.Panel();
             this.TVServerList = new System.Windows.Forms.TreeView();
             this.PanelRight = new System.Windows.Forms.Panel();
+            this.日志ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.PanelLeft.SuspendLayout();
             this.SuspendLayout();
@@ -58,7 +59,8 @@
             // 
             this.TSM_File.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.TSM_NewRedis,
-            this.TSMDel});
+            this.TSMDel,
+            this.日志ToolStripMenuItem});
             this.TSM_File.Name = "TSM_File";
             this.TSM_File.Size = new System.Drawing.Size(44, 21);
             this.TSM_File.Text = "文件";
@@ -125,6 +127,13 @@
             this.PanelRight.Size = new System.Drawing.Size(699, 508);
             this.PanelRight.TabIndex = 2;
             // 
+            // 日志ToolStripMenuItem
+            // 
+            this.日志ToolStripMenuItem.Name = "日志ToolStripMenuItem";
+            this.日志ToolStripMenuItem.Size = new System.Drawing.Size(165, 22);
+            this.日志ToolStripMenuItem.Text = "日志";
+            this.日志ToolStripMenuItem.Click += new System.EventHandler(this.日志ToolStripMenuItem_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -157,6 +166,7 @@
         private System.Windows.Forms.ToolStripMenuItem TSMEdit;
         private System.Windows.Forms.ToolStripMenuItem TSMSearch;
         private System.Windows.Forms.ToolStripMenuItem TSMSearchKey;
+        private System.Windows.Forms.ToolStripMenuItem 日志ToolStripMenuItem;
     }
 }
 
