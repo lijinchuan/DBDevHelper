@@ -35,8 +35,9 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="LJC.FrameWork">
-      <HintPath>..\DLL\LJC.FrameWork.dll</HintPath>
+    <Reference Include="LJC.FrameWork, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\Lib\LJC.FrameWork.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -65,6 +66,12 @@
     </Compile>
     <Compile Include="AddRedisServerForm.Designer.cs">
       <DependentUpon>AddRedisServerForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormInput.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormInput.Designer.cs">
+      <DependentUpon>FormInput.cs</DependentUpon>
     </Compile>
     <Compile Include="Global.cs" />
     <Compile Include="MainForm.cs">
@@ -133,6 +140,9 @@
     <Compile Include="Util.cs" />
     <EmbeddedResource Include="AddRedisServerForm.resx">
       <DependentUpon>AddRedisServerForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormInput.resx">
+      <DependentUpon>FormInput.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>

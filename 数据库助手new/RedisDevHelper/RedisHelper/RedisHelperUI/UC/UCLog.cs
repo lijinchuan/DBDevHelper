@@ -109,5 +109,30 @@ namespace RedisHelperUI.UC
                 MessageBox.Show(ex.Message, "删除出错", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
+        private void 修改ToolStripMenuItem_Click_1(object sender, EventArgs e)
+        {
+            var row = this.gvlog.CurrentRow;
+            if (row != null)
+            {
+                var key = row.Cells["Key"].Value.ToString();
+                var log = EntityTableEngine.LocalEngine.Find<SearchLog>(Global.TBName_SearchLog, key).FirstOrDefault();
+                if (log != null)
+                {
+                    FormInput input = new FormInput();
+                    if (input.ShowDialog() == DialogResult.OK)
+                    {
+                        if (!string.IsNullOrWhiteSpace(input.Val))
+                        {
+                            log.Mark = input.Val;
+                            EntityTableEngine.LocalEngine.Update<SearchLog>(Global.TBName_SearchLog, log);
+
+                            LoadLog();
+                            this.gvlog.Invalidate();
+                        }
+                    }
+                }
+            }
+        }
     }
 }
