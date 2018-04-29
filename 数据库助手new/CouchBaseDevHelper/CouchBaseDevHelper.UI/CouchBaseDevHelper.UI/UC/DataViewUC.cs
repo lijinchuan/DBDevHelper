@@ -75,8 +75,12 @@ namespace CouchBaseDevHelper.UI.UC
             DateTime now = DateTime.Now;
             try
             {
-                var client = LJC.FrameWork.Couchbase.CouchbaseHelper.GetClient(_server.ConnStr.Split(':')[0],
-                    int.Parse(_server.ConnStr.Split(':')[1]), CBBucket.Text);
+                var server = _server.ConnStr.Split(',')[0];
+                var hostandport = server.Split(':');
+                var host = hostandport[0];
+                var point = hostandport.Length == 2 ? int.Parse(hostandport[1]) : 8091;
+                var client = LJC.FrameWork.Couchbase.CouchbaseHelper.GetClient(host,
+                    point, CBBucket.Text);
                 
                 object val = null;
                 while (true)
@@ -110,7 +114,8 @@ namespace CouchBaseDevHelper.UI.UC
                             else if (val is string)
                             {
                                 var str = (string)val;
-                                if (str.StartsWith("{") && str.EndsWith("}"))
+                                if ((str.StartsWith("{") && str.EndsWith("}"))
+                                    ||(str.StartsWith("[") && str.EndsWith("]")))
                                 {
                                     TBData.Text =JsonUtil<dynamic>.Serialize(JsonUtil<dynamic>.Deserialize(str),true);
                                 }
@@ -198,6 +203,56 @@ namespace CouchBaseDevHelper.UI.UC
         private void CBBucket_SelectedIndexChanged(object sender, EventArgs e)
         {
             this.KeyVal = null;
+        }
+
+        private void 删除ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            string key=TBKey.Text.Trim();
+            string backkey = key + "_$delbak";
+            var bucket = CBBucket.Text;
+            if (MessageBox.Show("要删除:" + key + "吗", "询问", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.No)
+            {
+                return;
+            }
+
+            try
+            {
+                var server = _server.ConnStr.Split(',')[0];
+                var hostandport = server.Split(':');
+                var host = hostandport[0];
+                var point = hostandport.Length == 2 ? int.Parse(hostandport[1]) : 8091;
+
+                //先备份
+                var client = LJC.FrameWork.Couchbase.CouchbaseHelper.GetClient(host,
+                        point, bucket);
+                object oldval = null;
+                if (client.TryGet(key, out oldval))
+                {
+                    if (!client.Store(Enyim.Caching.Memcached.StoreMode.Set, backkey, oldval))
+                    {
+                        MessageBox.Show("备份失败");
+                        return;
+                    }
+                    LJC.FrameWork.LogManager.LogHelper.Instance.Info("备份：key=" + key + ",备份key:" + backkey + ",内容：" + JsonUtil<object>.Serialize(oldval));
+                    if (client.Remove(key))
+                    {
+                        MessageBox.Show("删除成功");
+                    }
+                    else
+                    {
+                        MessageBox.Show("删除失败");
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("键不存在");
+                    return;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("删除失败:"+ex.ToString());
+            }
         }
     }
 }

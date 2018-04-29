@@ -194,5 +194,16 @@ namespace CouchBaseDevHelper.UI
                     this.PanelRight.Controls.Add(dv);
                 };
         }
+
+        private void 添加ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var node = TVServerList.SelectedNode;
+            if (node != null && node.Level == 2)
+            {
+                FormAdd fa = new FormAdd();
+                fa._server = ((CouchBaseServerEntity)node.Tag);
+                fa.ShowDialog();
+            }
+        }
     }
 }

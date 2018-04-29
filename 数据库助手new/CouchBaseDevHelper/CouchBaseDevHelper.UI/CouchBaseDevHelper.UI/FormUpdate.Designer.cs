@@ -39,12 +39,12 @@
             this.TBValContent.Name = "TBValContent";
             this.TBValContent.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.TBValContent.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.TBValContent.Size = new System.Drawing.Size(533, 268);
+            this.TBValContent.Size = new System.Drawing.Size(1041, 444);
             this.TBValContent.TabIndex = 0;
             // 
             // BtnUpdate
             // 
-            this.BtnUpdate.Location = new System.Drawing.Point(404, 281);
+            this.BtnUpdate.Location = new System.Drawing.Point(933, 453);
             this.BtnUpdate.Name = "BtnUpdate";
             this.BtnUpdate.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.BtnUpdate.Size = new System.Drawing.Size(75, 23);
@@ -57,7 +57,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(536, 316);
+            this.ClientSize = new System.Drawing.Size(1044, 488);
             this.Controls.Add(this.BtnUpdate);
             this.Controls.Add(this.TBValContent);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;

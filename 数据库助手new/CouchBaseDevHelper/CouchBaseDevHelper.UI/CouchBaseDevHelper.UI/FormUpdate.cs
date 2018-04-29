@@ -73,15 +73,16 @@ namespace CouchBaseDevHelper.UI
             if (Val is string)
             {
                 var valstr = (string)Val;
-                if (valstr.StartsWith("{") && valstr.EndsWith("}"))
+                if ((valstr.StartsWith("{") && valstr.EndsWith("}"))
+                                     || (valstr.StartsWith("[") && valstr.EndsWith("]")))
                 {
-                    this.TBValContent.Text =JsonUtil<dynamic>.Serialize(JsonUtil<dynamic>.Deserialize(valstr),true);
+                    this.TBValContent.Text = JsonUtil<dynamic>.Serialize(JsonUtil<dynamic>.Deserialize(valstr), true);
                 }
                 else
                 {
                     this.TBValContent.Text = valstr;
                 }
-              
+
             }
             else
             {

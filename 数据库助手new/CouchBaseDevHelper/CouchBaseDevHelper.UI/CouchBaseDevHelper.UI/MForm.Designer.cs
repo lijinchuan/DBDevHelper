@@ -35,9 +35,10 @@
             this.文件ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.添加服务器ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.删除服务器ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.日志ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.编辑ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.查询ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.日志ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.添加ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.PanelLeft.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -93,21 +94,29 @@
             // 添加服务器ToolStripMenuItem
             // 
             this.添加服务器ToolStripMenuItem.Name = "添加服务器ToolStripMenuItem";
-            this.添加服务器ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.添加服务器ToolStripMenuItem.Size = new System.Drawing.Size(136, 22);
             this.添加服务器ToolStripMenuItem.Text = "添加服务器";
             this.添加服务器ToolStripMenuItem.Click += new System.EventHandler(this.TSM_NewRedis_Click);
             // 
             // 删除服务器ToolStripMenuItem
             // 
             this.删除服务器ToolStripMenuItem.Name = "删除服务器ToolStripMenuItem";
-            this.删除服务器ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.删除服务器ToolStripMenuItem.Size = new System.Drawing.Size(136, 22);
             this.删除服务器ToolStripMenuItem.Text = "删除服务器";
             this.删除服务器ToolStripMenuItem.Click += new System.EventHandler(this.TSMDel_Click);
+            // 
+            // 日志ToolStripMenuItem
+            // 
+            this.日志ToolStripMenuItem.Name = "日志ToolStripMenuItem";
+            this.日志ToolStripMenuItem.Size = new System.Drawing.Size(136, 22);
+            this.日志ToolStripMenuItem.Text = "日志";
+            this.日志ToolStripMenuItem.Click += new System.EventHandler(this.日志ToolStripMenuItem_Click);
             // 
             // 编辑ToolStripMenuItem
             // 
             this.编辑ToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.查询ToolStripMenuItem});
+            this.查询ToolStripMenuItem,
+            this.添加ToolStripMenuItem});
             this.编辑ToolStripMenuItem.Name = "编辑ToolStripMenuItem";
             this.编辑ToolStripMenuItem.Size = new System.Drawing.Size(44, 21);
             this.编辑ToolStripMenuItem.Text = "编辑";
@@ -115,16 +124,16 @@
             // 查询ToolStripMenuItem
             // 
             this.查询ToolStripMenuItem.Name = "查询ToolStripMenuItem";
-            this.查询ToolStripMenuItem.Size = new System.Drawing.Size(100, 22);
+            this.查询ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.查询ToolStripMenuItem.Text = "查询";
             this.查询ToolStripMenuItem.Click += new System.EventHandler(this.查询ToolStripMenuItem_Click);
             // 
-            // 日志ToolStripMenuItem
+            // 添加ToolStripMenuItem
             // 
-            this.日志ToolStripMenuItem.Name = "日志ToolStripMenuItem";
-            this.日志ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.日志ToolStripMenuItem.Text = "日志";
-            this.日志ToolStripMenuItem.Click += new System.EventHandler(this.日志ToolStripMenuItem_Click);
+            this.添加ToolStripMenuItem.Name = "添加ToolStripMenuItem";
+            this.添加ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.添加ToolStripMenuItem.Text = "添加";
+            this.添加ToolStripMenuItem.Click += new System.EventHandler(this.添加ToolStripMenuItem_Click);
             // 
             // MForm
             // 
@@ -157,6 +166,7 @@
         private System.Windows.Forms.ToolStripMenuItem 编辑ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 查询ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 日志ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 添加ToolStripMenuItem;
 
     }
 }

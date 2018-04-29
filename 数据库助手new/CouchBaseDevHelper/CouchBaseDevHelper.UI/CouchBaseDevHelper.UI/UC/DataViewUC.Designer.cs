@@ -35,16 +35,17 @@
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.TPData = new System.Windows.Forms.TabPage();
             this.TBData = new System.Windows.Forms.TextBox();
+            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.修改ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.TPMsg = new System.Windows.Forms.TabPage();
             this.TBMSG = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.CBBucket = new System.Windows.Forms.ComboBox();
-            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.修改ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.删除ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tabControl1.SuspendLayout();
             this.TPData.SuspendLayout();
-            this.TPMsg.SuspendLayout();
             this.contextMenuStrip1.SuspendLayout();
+            this.TPMsg.SuspendLayout();
             this.SuspendLayout();
             // 
             // label1
@@ -111,6 +112,21 @@
             this.TBData.TabIndex = 0;
             this.TBData.TextChanged += new System.EventHandler(this.TBData_TextChanged);
             // 
+            // contextMenuStrip1
+            // 
+            this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.修改ToolStripMenuItem,
+            this.删除ToolStripMenuItem});
+            this.contextMenuStrip1.Name = "contextMenuStrip1";
+            this.contextMenuStrip1.Size = new System.Drawing.Size(153, 70);
+            // 
+            // 修改ToolStripMenuItem
+            // 
+            this.修改ToolStripMenuItem.Name = "修改ToolStripMenuItem";
+            this.修改ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.修改ToolStripMenuItem.Text = "修改";
+            this.修改ToolStripMenuItem.Click += new System.EventHandler(this.修改ToolStripMenuItem_Click);
+            // 
             // TPMsg
             // 
             this.TPMsg.Controls.Add(this.TBMSG);
@@ -149,19 +165,12 @@
             this.CBBucket.TabIndex = 6;
             this.CBBucket.SelectedIndexChanged += new System.EventHandler(this.CBBucket_SelectedIndexChanged);
             // 
-            // contextMenuStrip1
+            // 删除ToolStripMenuItem
             // 
-            this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.修改ToolStripMenuItem});
-            this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(101, 26);
-            // 
-            // 修改ToolStripMenuItem
-            // 
-            this.修改ToolStripMenuItem.Name = "修改ToolStripMenuItem";
-            this.修改ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.修改ToolStripMenuItem.Text = "修改";
-            this.修改ToolStripMenuItem.Click += new System.EventHandler(this.修改ToolStripMenuItem_Click);
+            this.删除ToolStripMenuItem.Name = "删除ToolStripMenuItem";
+            this.删除ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.删除ToolStripMenuItem.Text = "删除";
+            this.删除ToolStripMenuItem.Click += new System.EventHandler(this.删除ToolStripMenuItem_Click);
             // 
             // DataViewUC
             // 
@@ -178,9 +187,9 @@
             this.tabControl1.ResumeLayout(false);
             this.TPData.ResumeLayout(false);
             this.TPData.PerformLayout();
+            this.contextMenuStrip1.ResumeLayout(false);
             this.TPMsg.ResumeLayout(false);
             this.TPMsg.PerformLayout();
-            this.contextMenuStrip1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -200,5 +209,6 @@
         private System.Windows.Forms.TextBox TBData;
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
         private System.Windows.Forms.ToolStripMenuItem 修改ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 删除ToolStripMenuItem;
     }
 }
