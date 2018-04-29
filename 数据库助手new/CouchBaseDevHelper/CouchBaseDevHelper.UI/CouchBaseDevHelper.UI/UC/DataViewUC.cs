@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
 using LJC.FrameWork.Data.EntityDataBase;
+using LJC.FrameWork.Comm;
 
 namespace CouchBaseDevHelper.UI.UC
 {
@@ -108,7 +109,15 @@ namespace CouchBaseDevHelper.UI.UC
                             }
                             else if (val is string)
                             {
-                                TBData.Text = val.ToString();
+                                var str = (string)val;
+                                if (str.StartsWith("{") && str.EndsWith("}"))
+                                {
+                                    TBData.Text =JsonUtil<dynamic>.Serialize(JsonUtil<dynamic>.Deserialize(str),true);
+                                }
+                                else
+                                {
+                                    TBData.Text = str;
+                                }
                             }
                             else
                             {

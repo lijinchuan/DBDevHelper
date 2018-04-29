@@ -70,14 +70,46 @@ namespace CouchBaseDevHelper.UI
 
             this.Text = "修改->" + Key;
 
-            this.TBValContent.Text = LJC.FrameWork.Comm.JsonUtil<object>.Serialize(Val, true);
+            if (Val is string)
+            {
+                var valstr = (string)Val;
+                if (valstr.StartsWith("{") && valstr.EndsWith("}"))
+                {
+                    this.TBValContent.Text =JsonUtil<dynamic>.Serialize(JsonUtil<dynamic>.Deserialize(valstr),true);
+                }
+                else
+                {
+                    this.TBValContent.Text = valstr;
+                }
+              
+            }
+            else
+            {
+                this.TBValContent.Text = LJC.FrameWork.Comm.JsonUtil<object>.Serialize(Val, true);
+            }
         }
 
         private void BtnUpdate_Click(object sender, EventArgs e)
         {
             try
             {
-                var obj = LJC.FrameWork.Comm.JsonUtil<object>.Deserialize(TBValContent.Text, Val.GetType());
+                object obj = null;
+                if (Val is string)
+                {
+                    var str = (string)Val;
+                    if (str.StartsWith("{") && str.EndsWith("}"))
+                    {
+                        obj =JsonUtil<dynamic>.Serialize(JsonUtil<dynamic>.Deserialize(TBValContent.Text));
+                    }
+                    else
+                    {
+                        obj = TBValContent.Text;
+                    }
+                }
+                else
+                {
+                    obj = LJC.FrameWork.Comm.JsonUtil<object>.Deserialize(TBValContent.Text, Val.GetType());
+                }
                 var client = LJC.FrameWork.Couchbase.CouchbaseHelper.GetClient(Connstr.Split(':')[0],
                     int.Parse(Connstr.Split(':')[1]), Bucket);
 
