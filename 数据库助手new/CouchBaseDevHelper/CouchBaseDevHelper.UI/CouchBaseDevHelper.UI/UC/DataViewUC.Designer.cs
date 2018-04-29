@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.label1 = new System.Windows.Forms.Label();
             this.TBKey = new System.Windows.Forms.TextBox();
             this.BtnOK = new System.Windows.Forms.Button();
@@ -38,9 +39,12 @@
             this.TBMSG = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.CBBucket = new System.Windows.Forms.ComboBox();
+            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.修改ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tabControl1.SuspendLayout();
             this.TPData.SuspendLayout();
             this.TPMsg.SuspendLayout();
+            this.contextMenuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // label1
@@ -59,6 +63,7 @@
             this.TBKey.Name = "TBKey";
             this.TBKey.Size = new System.Drawing.Size(250, 21);
             this.TBKey.TabIndex = 1;
+            this.TBKey.TextChanged += new System.EventHandler(this.TBKey_TextChanged);
             // 
             // BtnOK
             // 
@@ -96,6 +101,7 @@
             // 
             // TBData
             // 
+            this.TBData.ContextMenuStrip = this.contextMenuStrip1;
             this.TBData.Dock = System.Windows.Forms.DockStyle.Fill;
             this.TBData.Location = new System.Drawing.Point(3, 3);
             this.TBData.Multiline = true;
@@ -103,6 +109,7 @@
             this.TBData.ScrollBars = System.Windows.Forms.ScrollBars.Both;
             this.TBData.Size = new System.Drawing.Size(775, 190);
             this.TBData.TabIndex = 0;
+            this.TBData.TextChanged += new System.EventHandler(this.TBData_TextChanged);
             // 
             // TPMsg
             // 
@@ -140,6 +147,21 @@
             this.CBBucket.Name = "CBBucket";
             this.CBBucket.Size = new System.Drawing.Size(206, 20);
             this.CBBucket.TabIndex = 6;
+            this.CBBucket.SelectedIndexChanged += new System.EventHandler(this.CBBucket_SelectedIndexChanged);
+            // 
+            // contextMenuStrip1
+            // 
+            this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.修改ToolStripMenuItem});
+            this.contextMenuStrip1.Name = "contextMenuStrip1";
+            this.contextMenuStrip1.Size = new System.Drawing.Size(101, 26);
+            // 
+            // 修改ToolStripMenuItem
+            // 
+            this.修改ToolStripMenuItem.Name = "修改ToolStripMenuItem";
+            this.修改ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.修改ToolStripMenuItem.Text = "修改";
+            this.修改ToolStripMenuItem.Click += new System.EventHandler(this.修改ToolStripMenuItem_Click);
             // 
             // DataViewUC
             // 
@@ -158,6 +180,7 @@
             this.TPData.PerformLayout();
             this.TPMsg.ResumeLayout(false);
             this.TPMsg.PerformLayout();
+            this.contextMenuStrip1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -175,5 +198,7 @@
         private System.Windows.Forms.ComboBox CBBucket;
         private System.Windows.Forms.TextBox TBMSG;
         private System.Windows.Forms.TextBox TBData;
+        private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
+        private System.Windows.Forms.ToolStripMenuItem 修改ToolStripMenuItem;
     }
 }

@@ -15,6 +15,7 @@ namespace CouchBaseDevHelper.UI.UC
     public partial class DataViewUC : UserControl
     {
         private CouchBaseServerEntity _server = null;
+        private object KeyVal = null;
 
         public DataViewUC()
         {
@@ -65,6 +66,7 @@ namespace CouchBaseDevHelper.UI.UC
         private void BtnOK_Click(object sender, EventArgs e)
         {
             var key = TBKey.Text.Trim();
+            KeyVal = null;
             if (string.IsNullOrWhiteSpace(key))
             {
                 return;
@@ -99,6 +101,7 @@ namespace CouchBaseDevHelper.UI.UC
                         }
                         else
                         {
+                            KeyVal = val;
                             if (val == null)
                             {
                                 TBData.Text = "null";
@@ -109,7 +112,7 @@ namespace CouchBaseDevHelper.UI.UC
                             }
                             else
                             {
-                                TBData.Text = LJC.FrameWork.Comm.JsonUtil<object>.Serialize(val);
+                                TBData.Text = LJC.FrameWork.Comm.JsonUtil<object>.Serialize(val,true);
                             }
 
                             this.tabControl1.SelectedTab = TPData;
@@ -161,6 +164,31 @@ namespace CouchBaseDevHelper.UI.UC
                 TBMSG.Text += "\r\n用时:" + DateTime.Now.Subtract(now).TotalMilliseconds+"毫秒";
             }
 
+        }
+
+        private void TBData_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void 修改ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            FormUpdate fu = new FormUpdate();
+            fu.Connstr = _server.ConnStr.Split(',').First();
+            fu.Key = TBKey.Text.Trim();
+            fu.Bucket = CBBucket.Text;
+            fu.Val = KeyVal;
+            fu.ShowDialog();
+        }
+
+        private void TBKey_TextChanged(object sender, EventArgs e)
+        {
+            this.KeyVal = null;
+        }
+
+        private void CBBucket_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            this.KeyVal = null;
         }
     }
 }

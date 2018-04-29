@@ -48,6 +48,13 @@
     <Reference Include="LJC.FrameWork.Couchbase">
       <HintPath>..\..\..\Lib\LJC.FrameWork.Couchbase.dll</HintPath>
     </Reference>
+    <Reference Include="log4net">
+      <HintPath>..\..\..\Lib\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\Lib\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="protobuf-net">
       <HintPath>..\..\..\RedisDevHelper\RedisHelper\DLL\protobuf-net.dll</HintPath>
     </Reference>
@@ -76,6 +83,12 @@
     </Compile>
     <Compile Include="FormInput.Designer.cs">
       <DependentUpon>FormInput.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormUpdate.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormUpdate.Designer.cs">
+      <DependentUpon>FormUpdate.cs</DependentUpon>
     </Compile>
     <Compile Include="Global.cs" />
     <Compile Include="MForm.cs">
@@ -111,6 +124,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="FormInput.resx">
       <DependentUpon>FormInput.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormUpdate.resx">
+      <DependentUpon>FormUpdate.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MForm.resx">
       <DependentUpon>MForm.cs</DependentUpon>
