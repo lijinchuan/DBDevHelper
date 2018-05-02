@@ -79,8 +79,22 @@ namespace CouchBaseDevHelper.UI.UC
                 var hostandport = server.Split(':');
                 var host = hostandport[0];
                 var point = hostandport.Length == 2 ? int.Parse(hostandport[1]) : 8091;
+                var bucket = CBBucket.Text;
                 var client = LJC.FrameWork.Couchbase.CouchbaseHelper.GetClient(host,
-                    point, CBBucket.Text);
+                    point, bucket);
+
+                if (!_server.Buckets.Contains(bucket))
+                {
+                    _server.Buckets.Add(bucket);
+                    var item = EntityTableEngine.LocalEngine.Find<CouchBaseServerEntity>(Global.TBName_RedisServer, _server.ServerName).FirstOrDefault();
+                    if (!item.Buckets.Contains(bucket))
+                    {
+                        item.Buckets.Add(bucket);
+                        EntityTableEngine.LocalEngine.Update<CouchBaseServerEntity>(Global.TBName_RedisServer, item);
+                    }
+                    this.CBBucket.DataSource = _server.Buckets;
+                    this.CBBucket.SelectedText = bucket;
+                }
                 
                 object val = null;
                 while (true)
@@ -252,6 +266,21 @@ namespace CouchBaseDevHelper.UI.UC
             catch (Exception ex)
             {
                 MessageBox.Show("删除失败:"+ex.ToString());
+            }
+        }
+
+        private void 删除bucketToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var bucket = CBBucket.SelectedText;
+            if (!string.IsNullOrWhiteSpace(bucket))
+            {
+                var item = EntityTableEngine.LocalEngine.Find<CouchBaseServerEntity>(Global.TBName_RedisServer, _server.ServerName).FirstOrDefault();
+                if (item.Buckets.Contains(bucket))
+                {
+                    item.Buckets.Remove(bucket);
+                    EntityTableEngine.LocalEngine.Update<CouchBaseServerEntity>(Global.TBName_RedisServer, item);
+                    this.CBBucket.DataSource = item.Buckets;
+                }
             }
         }
     }

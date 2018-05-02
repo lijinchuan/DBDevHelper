@@ -37,15 +37,18 @@
             this.TBData = new System.Windows.Forms.TextBox();
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.修改ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.删除ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.TPMsg = new System.Windows.Forms.TabPage();
             this.TBMSG = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.CBBucket = new System.Windows.Forms.ComboBox();
-            this.删除ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.CMS_Bucket = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.删除bucketToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tabControl1.SuspendLayout();
             this.TPData.SuspendLayout();
             this.contextMenuStrip1.SuspendLayout();
             this.TPMsg.SuspendLayout();
+            this.CMS_Bucket.SuspendLayout();
             this.SuspendLayout();
             // 
             // label1
@@ -118,14 +121,21 @@
             this.修改ToolStripMenuItem,
             this.删除ToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(153, 70);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(101, 48);
             // 
             // 修改ToolStripMenuItem
             // 
             this.修改ToolStripMenuItem.Name = "修改ToolStripMenuItem";
-            this.修改ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.修改ToolStripMenuItem.Size = new System.Drawing.Size(100, 22);
             this.修改ToolStripMenuItem.Text = "修改";
             this.修改ToolStripMenuItem.Click += new System.EventHandler(this.修改ToolStripMenuItem_Click);
+            // 
+            // 删除ToolStripMenuItem
+            // 
+            this.删除ToolStripMenuItem.Name = "删除ToolStripMenuItem";
+            this.删除ToolStripMenuItem.Size = new System.Drawing.Size(100, 22);
+            this.删除ToolStripMenuItem.Text = "删除";
+            this.删除ToolStripMenuItem.Click += new System.EventHandler(this.删除ToolStripMenuItem_Click);
             // 
             // TPMsg
             // 
@@ -158,6 +168,7 @@
             // 
             // CBBucket
             // 
+            this.CBBucket.ContextMenuStrip = this.CMS_Bucket;
             this.CBBucket.FormattingEnabled = true;
             this.CBBucket.Location = new System.Drawing.Point(353, 14);
             this.CBBucket.Name = "CBBucket";
@@ -165,12 +176,19 @@
             this.CBBucket.TabIndex = 6;
             this.CBBucket.SelectedIndexChanged += new System.EventHandler(this.CBBucket_SelectedIndexChanged);
             // 
-            // 删除ToolStripMenuItem
+            // CMS_Bucket
             // 
-            this.删除ToolStripMenuItem.Name = "删除ToolStripMenuItem";
-            this.删除ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.删除ToolStripMenuItem.Text = "删除";
-            this.删除ToolStripMenuItem.Click += new System.EventHandler(this.删除ToolStripMenuItem_Click);
+            this.CMS_Bucket.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.删除bucketToolStripMenuItem});
+            this.CMS_Bucket.Name = "CMS_Bucket";
+            this.CMS_Bucket.Size = new System.Drawing.Size(153, 48);
+            // 
+            // 删除bucketToolStripMenuItem
+            // 
+            this.删除bucketToolStripMenuItem.Name = "删除bucketToolStripMenuItem";
+            this.删除bucketToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.删除bucketToolStripMenuItem.Text = "删除bucket";
+            this.删除bucketToolStripMenuItem.Click += new System.EventHandler(this.删除bucketToolStripMenuItem_Click);
             // 
             // DataViewUC
             // 
@@ -190,6 +208,7 @@
             this.contextMenuStrip1.ResumeLayout(false);
             this.TPMsg.ResumeLayout(false);
             this.TPMsg.PerformLayout();
+            this.CMS_Bucket.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -210,5 +229,7 @@
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
         private System.Windows.Forms.ToolStripMenuItem 修改ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 删除ToolStripMenuItem;
+        private System.Windows.Forms.ContextMenuStrip CMS_Bucket;
+        private System.Windows.Forms.ToolStripMenuItem 删除bucketToolStripMenuItem;
     }
 }
