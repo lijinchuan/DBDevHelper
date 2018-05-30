@@ -146,6 +146,7 @@ namespace Biz.Common.Data
                 return null;
             MySqlConnectionStringBuilder sb = new MySqlConnectionStringBuilder();
             sb.Server = dbSource.ServerName;
+            sb.Port = (uint)dbSource.Port;
             sb.Database = connDB;
             sb.Pooling = true;
             sb.ConnectionTimeout = 30;
