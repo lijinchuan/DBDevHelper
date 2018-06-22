@@ -32,13 +32,13 @@
             this.TSM_File = new System.Windows.Forms.ToolStripMenuItem();
             this.TSM_NewRedis = new System.Windows.Forms.ToolStripMenuItem();
             this.TSMDel = new System.Windows.Forms.ToolStripMenuItem();
+            this.日志ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.TSMEdit = new System.Windows.Forms.ToolStripMenuItem();
             this.TSMSearch = new System.Windows.Forms.ToolStripMenuItem();
             this.TSMSearchKey = new System.Windows.Forms.ToolStripMenuItem();
             this.PanelLeft = new System.Windows.Forms.Panel();
             this.TVServerList = new System.Windows.Forms.TreeView();
             this.PanelRight = new System.Windows.Forms.Panel();
-            this.日志ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.PanelLeft.SuspendLayout();
             this.SuspendLayout();
@@ -78,6 +78,13 @@
             this.TSMDel.Size = new System.Drawing.Size(165, 22);
             this.TSMDel.Text = "删除";
             this.TSMDel.Click += new System.EventHandler(this.TSMDel_Click);
+            // 
+            // 日志ToolStripMenuItem
+            // 
+            this.日志ToolStripMenuItem.Name = "日志ToolStripMenuItem";
+            this.日志ToolStripMenuItem.Size = new System.Drawing.Size(165, 22);
+            this.日志ToolStripMenuItem.Text = "备忘录";
+            this.日志ToolStripMenuItem.Click += new System.EventHandler(this.日志ToolStripMenuItem_Click);
             // 
             // TSMEdit
             // 
@@ -126,13 +133,6 @@
             this.PanelRight.Name = "PanelRight";
             this.PanelRight.Size = new System.Drawing.Size(699, 508);
             this.PanelRight.TabIndex = 2;
-            // 
-            // 日志ToolStripMenuItem
-            // 
-            this.日志ToolStripMenuItem.Name = "日志ToolStripMenuItem";
-            this.日志ToolStripMenuItem.Size = new System.Drawing.Size(165, 22);
-            this.日志ToolStripMenuItem.Text = "日志";
-            this.日志ToolStripMenuItem.Click += new System.EventHandler(this.日志ToolStripMenuItem_Click);
             // 
             // MainForm
             // 
