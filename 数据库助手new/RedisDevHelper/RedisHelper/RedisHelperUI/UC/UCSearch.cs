@@ -641,7 +641,7 @@ namespace RedisHelperUI.UC
                             }
                         case RedisType.List:
                             {
-                                var list = client.ListRange(key, 0, 100);
+                                var list = client.ListRange(key, 0, 2000);
                                 DataTable dt = new DataTable();
                                 dt.Columns.Add("item");
                                 dt.Columns.Add("valuetype");
@@ -661,7 +661,8 @@ namespace RedisHelperUI.UC
 
                                 if (string.IsNullOrWhiteSpace(GetSubKey))
                                 {
-                                    var ssets = client.SortedSetRangeByRankWithScores(key, 0, 100);
+                                    //var ssets = client.SortedSetRangeByRankWithScores(key, 0, 100);
+                                    var ssets = client.SortedSetRangeByRankWithScores(key, 0, 2000);
 
                                     foreach (var set in ssets)
                                     {

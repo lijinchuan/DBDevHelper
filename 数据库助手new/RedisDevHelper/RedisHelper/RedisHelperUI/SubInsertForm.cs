@@ -360,7 +360,100 @@ namespace RedisHelperUI
                     }
                 default:
                     {
-                        this.DialogResult = DialogResult.Cancel;
+                        //this.DialogResult = DialogResult.Cancel;
+                        this.TBKey.Enabled = true;
+                        this.TBKey.ReadOnly = false;
+                        Label labitemtext = new Label();
+                        labitemtext.Text = "item:";
+                        this.Controls.Add(labitemtext);
+                        labitemtext.Width = LabKey.Width;
+                        labitemtext.Left = LabKey.Left;
+                        labitemtext.Top = LabKey.Top + LabKey.Height + 19;
+
+                        TextBox tbitembox = new TextBox();
+                        this.Controls.Add(tbitembox);
+                        tbitembox.Width = TBKey.Width;
+                        tbitembox.Left = TBKey.Left;
+                        tbitembox.Top = TBKey.Top + TBKey.Height + 15;
+
+                        ComboBox cbtype = new ComboBox();
+                        cbtype.Items.AddRange(new[] { "string", "set" });
+                        cbtype.SelectedText = "string";
+                        this.Controls.Add(cbtype);
+                        cbtype.Left = tbitembox.Left;
+                        cbtype.Top = tbitembox.Top + tbitembox.Height + 15;
+
+                        CheckBox cb = new CheckBox();
+                        cb.Text = "数字";
+                        cb.Checked = false;
+                        this.Controls.Add(cb);
+                        cb.Left = tbitembox.Left;
+                        cb.Top = cbtype.Top + cbtype.Height + 15;
+
+                        IsValid = () =>
+                        {
+                            if (string.IsNullOrWhiteSpace(TBKey.Text))
+                            {
+                                MessageBox.Show("key不能为空");
+                                return false;
+                            }
+
+                            if (string.IsNullOrWhiteSpace(tbitembox.Text))
+                            {
+                                MessageBox.Show("item不能为空");
+                                return false;
+                            }
+
+                            if (cbtype.SelectedText == "set")
+                            {
+                                if (cb.Checked)
+                                {
+                                    RedisValue rv;
+                                    if (RedisUtil.TryParseNumber(tbitembox.Text, out rv))
+                                    {
+                                        this.Val = rv;
+                                    }
+                                    else
+                                    {
+                                        MessageBox.Show("格式错误");
+                                        return false;
+                                    }
+                                }
+                                else
+                                {
+                                    this.Val = tbitembox.Text;
+                                }
+
+                                OnAdd = (connstr) =>
+                                {
+                                    RedisUtil.Execute(connstr, db =>
+                                    {
+                                        db.SetAdd(this.TBKey.Text, this.Val);
+                                        MessageBox.Show("添加成功");
+                                    }, ex =>
+                                    {
+                                        MessageBox.Show(ex.Message);
+                                    });
+                                };
+                            }
+                            else
+                            {
+                                OnAdd = (connstr) =>
+                                {
+                                    RedisUtil.Execute(connstr, db =>
+                                    {
+                                        db.StringSet(this.TBKey.Text, this.Val.ToString());
+                                        MessageBox.Show("添加成功");
+                                    }, ex =>
+                                    {
+                                        MessageBox.Show(ex.Message);
+                                    });
+                                };
+                            }
+
+                            return true;
+                        };
+
                         break;
                     }
             }

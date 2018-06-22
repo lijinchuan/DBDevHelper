@@ -108,7 +108,7 @@ namespace RedisHelperUI.UC
                         }
                     case RedisType.List:
                         {
-                            var list = client.ListRange(key, 0, 100);
+                            var list = client.ListRange(key, 0, 2000);
                             DataTable dt = new DataTable();
                             dt.Columns.Add("item");
                             foreach (var item in list)
@@ -120,7 +120,7 @@ namespace RedisHelperUI.UC
                         }
                     case RedisType.SortedSet:
                         {
-                            var ssets = client.SortedSetRangeByRankWithScores(key, 0, 100);
+                            var ssets = client.SortedSetRangeByRankWithScores(key, 0, 2000);
                             DataTable dt = new DataTable();
                             dt.Columns.Add("Element");
                             dt.Columns.Add("Score");
