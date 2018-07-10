@@ -103,9 +103,9 @@ namespace CouchBaseDevHelper.UI.UC
                              log.Mark = inputform.Val;
                              EntityTableEngine.LocalEngine.Update<SearchLog>(Global.TBName_SearchLog, log);
                              
-                             MessageBox.Show("修改成功");
-                             Thread.Sleep(1000);
-                             this.gvlog.ClearSelection();
+                             //MessageBox.Show("修改成功");
+                             //Thread.Sleep(1000);
+                             //this.gvlog.ClearSelection();
                              this.LoadLog();
                          }
                      }
