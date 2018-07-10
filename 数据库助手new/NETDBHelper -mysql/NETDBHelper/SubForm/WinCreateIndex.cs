@@ -76,6 +76,11 @@ namespace NETDBHelper.SubForm
             return CBKey.Checked;
         }
 
+        public bool IsAutoIncr()
+        {
+            return CB_AutoIncr.Checked;
+        }
+
         private void InitCheckBoxGroup(List<TBColumn> colContainer, Control ctlContainer)
         {
             if (colContainer == null || ctlContainer == null)
@@ -138,6 +143,27 @@ namespace NETDBHelper.SubForm
             {
                 MessageBox.Show("索引名称不能为空");
                 return;
+            }
+
+            if (IsAutoIncr())
+            {
+                if (this.IndexColumns.Count != 1)
+                {
+                    MessageBox.Show("只能选择一个自增长键");
+                    return;
+                }
+
+                if (!this.IndexColumns[0].TypeName.Equals("int", StringComparison.OrdinalIgnoreCase) && !this.IndexColumns[0].TypeName.Equals("bigint", StringComparison.OrdinalIgnoreCase))
+                {
+                    MessageBox.Show("自增长键必须是数字类型");
+                    return;
+                }
+
+                if (this.IndexColumns[0].IsID)
+                {
+                    MessageBox.Show("已经是自增主键");
+                    return;
+                }
             }
 
             this.DialogResult = DialogResult.OK;

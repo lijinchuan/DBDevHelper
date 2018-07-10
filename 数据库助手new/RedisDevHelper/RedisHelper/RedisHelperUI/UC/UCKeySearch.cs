@@ -108,7 +108,7 @@ namespace RedisHelperUI.UC
                         }
                     case RedisType.List:
                         {
-                            var list = client.ListRange(key, 0, 100);
+                            var list = client.ListRange(key, 0, 2000);
                             DataTable dt = new DataTable();
                             dt.Columns.Add("item");
                             foreach (var item in list)
@@ -120,7 +120,7 @@ namespace RedisHelperUI.UC
                         }
                     case RedisType.SortedSet:
                         {
-                            var ssets = client.SortedSetRangeByRankWithScores(key, 0, 100);
+                            var ssets = client.SortedSetRangeByRankWithScores(key, 0, 2000);
                             DataTable dt = new DataTable();
                             dt.Columns.Add("Element");
                             dt.Columns.Add("Score");
@@ -323,6 +323,176 @@ namespace RedisHelperUI.UC
             }
         }
 
+        private void DelMul()
+        {
+            switch (this.RedisType)
+            {
+                case RedisType.String:
+                    {
+                        if (MessageBox.Show("要删除 " + this.RedisKey + " 吗？", "ask", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+                        {
+                            RedisUtil.Execute(this.RedisServer.ConnStr, (db) =>
+                            {
+                                if (db.KeyDelete(this.RedisKey))
+                                {
+                                    MessageBox.Show("success");
+                                }
+                                else
+                                {
+                                    MessageBox.Show("fail");
+                                }
+                            }, (ex) =>
+                            {
+                                MessageBox.Show(ex.Message);
+                            });
+                        }
+                        break;
+                    }
+                case RedisType.Hash:
+                    {
+                        if (this.DGVData.CurrentRow == null)
+                        {
+                            return;
+                        }
+                        
+                        if (MessageBox.Show("要删除 " + this.RedisKey + ":选择的项吗？", "ask", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+                        {
+                            int delcount = 0;
+                            int failcount = 0;
+                            foreach (DataGridViewRow item in DGVData.SelectedRows)
+                            {
+                                var field = (string)item.Cells["name"].Value;
+                                RedisUtil.Execute(this.RedisServer.ConnStr, (db) =>
+                                {
+                                    if (db.HashDelete(this.RedisKey, field))
+                                    {
+                                        //MessageBox.Show("success");
+                                        delcount++;
+                                    }
+                                    else
+                                    {
+                                        //MessageBox.Show("fail");
+                                        failcount++;
+                                    }
+
+                                    
+                                }, (ex) =>
+                                {
+                                    MessageBox.Show(ex.Message);
+                                });
+                            }
+                            MessageBox.Show("success:" + delcount + ",fail:" + failcount);
+                        }
+                        break;
+                    }
+                case RedisType.List:
+                    {
+
+                        if (this.DGVData.CurrentRow == null)
+                        {
+                            return;
+                        }
+                        
+                        if (MessageBox.Show("要删除 " + this.RedisKey + ":选定的项吗？", "ask", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+                        {
+                            int delcount = 0, failcount = 0;
+                            foreach (DataGridViewRow row in DGVData.SelectedRows)
+                            {
+                                var field = (string)row.Cells["item"].Value;
+                                RedisUtil.Execute(this.RedisServer.ConnStr, (db) =>
+                                {
+                                    if (db.ListRemove(this.RedisKey, field) >= 0)
+                                    {
+                                        //MessageBox.Show("success");
+                                        delcount++;
+                                    }
+                                    else
+                                    {
+                                        //MessageBox.Show("fail");
+                                        failcount++;
+                                    }
+                                }, (ex) =>
+                                {
+                                    MessageBox.Show(ex.Message);
+                                });
+                            }
+
+                            MessageBox.Show("success:" + delcount + ",fail:" + failcount);
+                        }
+                        break;
+                    }
+                case RedisType.Set:
+                    {
+                        if (this.DGVData.CurrentRow == null)
+                        {
+                            return;
+                        }
+                        
+                        if (MessageBox.Show("要删除 " + this.RedisKey + ":选定的项吗？", "ask", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+                        {
+                            int delcount = 0, failcount = 0;
+                            foreach (DataGridViewRow row in DGVData.SelectedRows)
+                            {
+                                var field = (string)row.Cells["members"].Value;
+                                RedisUtil.Execute(this.RedisServer.ConnStr, (db) =>
+                                {
+                                    if (db.SetRemove(this.RedisKey, field))
+                                    {
+                                        //MessageBox.Show("success");
+                                        delcount++;
+                                    }
+                                    else
+                                    {
+                                        //MessageBox.Show("fail");
+                                        failcount++;
+                                    }
+                                }, (ex) =>
+                                {
+                                    MessageBox.Show(ex.Message);
+                                });
+
+                            }
+                            MessageBox.Show("success:" + delcount + ",fail:" + failcount);
+                        }
+                        break;
+                    }
+                case RedisType.SortedSet:
+                    {
+                        if (this.DGVData.CurrentRow == null)
+                        {
+                            return;
+                        }
+                        
+                        if (MessageBox.Show("要删除 " + this.RedisKey + ":选定的项 吗？", "ask", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+                        {
+                            int delcount=0, failcount = 0;
+                            foreach (DataGridViewRow row in DGVData.SelectedRows)
+                            {
+                                var field = (string)row.Cells["Element"].Value;
+                                RedisUtil.Execute(this.RedisServer.ConnStr, (db) =>
+                                {
+                                    if (db.SortedSetRemove(this.RedisKey, field))
+                                    {
+                                        //MessageBox.Show("success");
+                                        delcount++;
+                                    }
+                                    else
+                                    {
+                                        //MessageBox.Show("fail");
+                                        failcount++;
+                                    }
+                                }, (ex) =>
+                                {
+                                    MessageBox.Show(ex.Message);
+                                });
+                            }
+                            MessageBox.Show("success:" + delcount + ",fail:" + failcount);
+                        }
+                        break;
+                    }
+            }
+        }
+
         private void RedisUpdate()
         {
             SubUpdateForm subform = null;
@@ -427,7 +597,7 @@ namespace RedisHelperUI.UC
                 {
                     case "删除":
                         {
-                            Del();
+                            DelMul();
                             break;
                         }
                     case "修改":

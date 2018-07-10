@@ -49,6 +49,8 @@ namespace NETDBHelper
             tv_DBServers.ImageList.Images.Add(Resources.Resource1.DB7);
             tv_DBServers.ImageList.Images.Add(Resources.Resource1.DB8);
             tv_DBServers.ImageList.Images.Add(Resources.Resource1.DB9);
+            tv_DBServers.ImageList.Images.Add(Resources.Resource1.DB10);
+            tv_DBServers.ImageList.Images.Add(Resources.Resource1.DB11);
             tv_DBServers.Nodes.Add("0", "资源管理器", 0);
             tv_DBServers.NodeMouseClick += new TreeNodeMouseClickEventHandler(tv_DBServers_NodeMouseClick);
 
@@ -954,7 +956,7 @@ namespace NETDBHelper
             {
                 try
                 {
-                    Biz.Common.Data.MySQLHelper.CreateIndex(ds, db, tb, win.IndexName, win.IsUnique(), win.IsPrimaryKey(), win.IndexColumns);
+                    Biz.Common.Data.MySQLHelper.CreateIndex(ds, db, tb, win.IndexName, win.IsUnique(), win.IsPrimaryKey(),win.IsAutoIncr(), win.IndexColumns);
                     MessageBox.Show("创建索引成功");
                 }
                 catch (Exception ex)

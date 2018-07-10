@@ -81,6 +81,8 @@ namespace RedisHelperUI
         public SubUpdateForm()
         {
             InitializeComponent();
+
+            TBOld.Enabled = false;
         }
 
         private void BtnCancel_Click(object sender, EventArgs e)

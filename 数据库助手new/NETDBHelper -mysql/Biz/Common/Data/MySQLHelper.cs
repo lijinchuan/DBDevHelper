@@ -65,7 +65,7 @@ namespace Biz.Common.Data
         public static IEnumerable<TBColumn> GetColumns(DBSource dbSource, string dbName,string tbName)
         {
             var tb = ExecuteDBTable(dbSource, dbName, MySqlHelperConsts.GetColumns, new MySqlParameter("@db", dbName),new MySqlParameter("@tb",tbName));
-
+            var idColumnName = GetAutoIncrementColName(dbSource, dbName, tbName);
             for (int i = 0; i < tb.Rows.Count; i++)
             {
                 yield return new TBColumn
@@ -74,7 +74,7 @@ namespace Biz.Common.Data
                     Length = int.Parse(string.IsNullOrEmpty(tb.Rows[i]["character_maximum_length"].ToString()) ? "0" : tb.Rows[i]["character_maximum_length"].ToString()),
                     Name = tb.Rows[i]["column_name"].ToString(),
                     TypeName = tb.Rows[i]["data_type"].ToString(),
-                    //IsID = string.Equals(idColumnName, tb.Rows[i]["name"].ToString()),
+                    IsID = string.Equals(idColumnName, tb.Rows[i]["column_name"].ToString()),
                     IsNullAble = tb.Rows[i]["is_nullable"].ToString().Equals("yes", StringComparison.OrdinalIgnoreCase),
                     prec = NumberHelper.CovertToInt(tb.Rows[i]["numeric_precision"]),
                     scale = NumberHelper.CovertToInt(tb.Rows[i]["numeric_scale"]),
@@ -146,6 +146,7 @@ namespace Biz.Common.Data
                 return null;
             MySqlConnectionStringBuilder sb = new MySqlConnectionStringBuilder();
             sb.Server = dbSource.ServerName;
+            sb.Port = (uint)dbSource.Port;
             sb.Database = connDB;
             sb.Pooling = true;
             sb.ConnectionTimeout = 30;
@@ -398,23 +399,70 @@ namespace Biz.Common.Data
             return sb.ToString();
         }
 
-        public static void CreateIndex(DBSource dbSource, string dbName, string tabname, string indexname,bool unique,bool primarykey, List<TBColumn> cols)
+        public static void CreateIndex(DBSource dbSource, string dbName, string tabname, string indexname,bool unique,bool primarykey,bool autoIncr, List<TBColumn> cols)
         {
             string sql = string.Empty;
 
-            if (primarykey)
+            if (autoIncr)
             {
-                sql = string.Format("ALTER TABLE `{0}`.`{1}` ADD PRIMARY KEY ({2}) ", dbName, tabname, string.Join(",", cols.Select(p => "`" + p.Name + "`")));
-            }
-            else if (unique)
-            {
-                sql = string.Format("ALTER TABLE `{0}`.`{1} ADD UNIQUE ({2})", dbName, tabname, string.Join(",", cols.Select(p => "`" + p.Name + "`")));
+                if (cols.Count != 1)
+                {
+                    throw new Exception("只能有一个自增长键");
+                }
+
+                if (primarykey)
+                {
+                    sql = string.Format("ALTER TABLE `{0}`.`{1}` ADD PRIMARY KEY ({2}) ", dbName, tabname, string.Join(",", cols.Select(p => "`" + p.Name + "`")));
+                    ExecuteNoQuery(dbSource, dbName, sql, null);
+                }
+
+                sql = string.Format("alter table `{0}`.`{1}` modify `{2}` {3} auto_increment;", dbName, tabname, cols.First().Name, cols.First().TypeName);
+                ExecuteNoQuery(dbSource, dbName, sql, null);
+
+                return;
             }
             else
             {
-                sql = string.Format("ALTER TABLE `{0}`.`{1}` ADD INDEX {2}({3}) ", dbName, tabname, indexname, string.Join(",", cols.Select(p => "`" + p.Name + "`")));
+                if (primarykey)
+                {
+                    sql = string.Format("ALTER TABLE `{0}`.`{1}` ADD PRIMARY KEY ({2}) ", dbName, tabname, string.Join(",", cols.Select(p => "`" + p.Name + "`")));
+                }
+                else if (unique)
+                {
+                    sql = string.Format("ALTER TABLE `{0}`.`{1}` ADD UNIQUE ({2})", dbName, tabname, string.Join(",", cols.Select(p => "`" + p.Name + "`")));
+                }
+                else
+                {
+                    sql = string.Format("ALTER TABLE `{0}`.`{1}` ADD INDEX {2}({3}) ", dbName, tabname, indexname, string.Join(",", cols.Select(p => "`" + p.Name + "`")));
+                }
+
+                ExecuteNoQuery(dbSource, dbName, sql, null);
             }
-            ExecuteNoQuery(dbSource, dbName, sql, null);
+           
+            
+        }
+
+        public static string GetAutoIncrementColName(DBSource dbSource, string dbName, string tabname)
+        {
+            //string sql=string.Format("select * from information_schema.`TABLES` where table_name='{0}' and TABLE_SCHEMA='{1}'",tabname,dbName);
+
+//            string sql = string.Format(@"SELECT
+//  TABLE_SCHEMA,TABLE_NAME,COLUMN_NAME
+//FROM
+//  information_schema.KEY_COLUMN_USAGE", dbName, tabname);
+
+            string sql = string.Format("select COLUMN_NAME FROM information_schema.COLUMNS where TABLE_SCHEMA='{0}' and TABLE_NAME='{1}' and EXTRA='auto_increment'",dbName,tabname);
+
+            var tb=ExecuteDBTable(dbSource,dbName,sql,null);
+
+            if (tb.Rows.Count == 0)
+            {
+                return string.Empty;
+            }
+            else
+            {
+                return tb.Rows[0][0].ToString();
+            }
         }
 
         public static List<IndexEntry> GetIndexs(DBSource dbSource, string dbName, string tabname)

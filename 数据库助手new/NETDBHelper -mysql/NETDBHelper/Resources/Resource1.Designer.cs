@@ -83,6 +83,26 @@ namespace NETDBHelper.Resources {
         /// <summary>
         ///   查找 System.Drawing.Bitmap 类型的本地化资源。
         /// </summary>
+        internal static System.Drawing.Bitmap DB10 {
+            get {
+                object obj = ResourceManager.GetObject("DB10", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        /// </summary>
+        internal static System.Drawing.Bitmap DB11 {
+            get {
+                object obj = ResourceManager.GetObject("DB11", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        /// </summary>
         internal static System.Drawing.Bitmap DB2 {
             get {
                 object obj = ResourceManager.GetObject("DB2", resourceCulture);

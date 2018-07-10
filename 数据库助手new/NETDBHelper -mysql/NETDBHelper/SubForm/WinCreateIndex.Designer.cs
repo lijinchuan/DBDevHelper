@@ -35,6 +35,7 @@
             this.TBIndexName = new System.Windows.Forms.TextBox();
             this.CBUnique = new System.Windows.Forms.CheckBox();
             this.CBKey = new System.Windows.Forms.CheckBox();
+            this.CB_AutoIncr = new System.Windows.Forms.CheckBox();
             this.GpCondition.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -106,11 +107,22 @@
             this.CBKey.Text = "主键";
             this.CBKey.UseVisualStyleBackColor = true;
             // 
+            // CB_AutoIncr
+            // 
+            this.CB_AutoIncr.AutoSize = true;
+            this.CB_AutoIncr.Location = new System.Drawing.Point(219, 325);
+            this.CB_AutoIncr.Name = "CB_AutoIncr";
+            this.CB_AutoIncr.Size = new System.Drawing.Size(48, 16);
+            this.CB_AutoIncr.TabIndex = 8;
+            this.CB_AutoIncr.Text = "自增";
+            this.CB_AutoIncr.UseVisualStyleBackColor = true;
+            // 
             // WinCreateIndex
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(749, 399);
+            this.Controls.Add(this.CB_AutoIncr);
             this.Controls.Add(this.CBKey);
             this.Controls.Add(this.CBUnique);
             this.Controls.Add(this.TBIndexName);
@@ -134,5 +146,6 @@
         private System.Windows.Forms.TextBox TBIndexName;
         private System.Windows.Forms.CheckBox CBUnique;
         private System.Windows.Forms.CheckBox CBKey;
+        private System.Windows.Forms.CheckBox CB_AutoIncr;
     }
 }

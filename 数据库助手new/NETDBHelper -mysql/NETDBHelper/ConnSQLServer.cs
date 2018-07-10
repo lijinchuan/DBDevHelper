@@ -120,7 +120,14 @@ namespace NETDBHelper
             for (int i = 0; i < dbs.Count(); i++)
             {
                 var row = tb.NewRow();
-                row["Name"] = dbs[i].ServerName;
+                if (dbs[i].Port == 0 || dbs[i].Port == 3306)
+                {
+                    row["Name"] = dbs[i].ServerName;
+                }
+                else
+                {
+                    row["Name"] = dbs[i].ServerName + ":" + dbs[i].Port;
+                }
                 row["Server"] = dbs[i].ServerName;
                 tb.Rows.InsertAt(row, i);
             }
@@ -145,7 +152,21 @@ namespace NETDBHelper
         private void Btn_Conn_Click(object sender, EventArgs e)
         {
             DBSource = new DBSource();
-            DBSource.ServerName = cb_servers.Text;
+            try
+            {
+                var server = cb_servers.Text.Split(':');
+                DBSource.ServerName = server.First();
+                if (server.Length > 1)
+                {
+                    DBSource.Port = int.Parse(server[1]);
+                }
+            }
+            catch
+            {
+                MessageBox.Show("服务器名填写错误");
+                return;
+            }
+
             DBSource.IDType = (IDType)(int)cb_yz.SelectedValue;
             DBSource.LoginName = cb_username.Text;
             DBSource.LoginPassword = tb_password.Text;

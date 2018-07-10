@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using StackExchange.Redis;
+using LJC.FrameWork.Data.EntityDataBase;
 
 namespace RedisHelperUI.UC
 {
@@ -34,6 +35,11 @@ namespace RedisHelperUI.UC
         public UCSearch()
         {
             InitializeComponent();
+        }
+
+        public void SetKey(string key)
+        {
+            this.TBSearchKey.Text = key;
         }
 
         protected override void OnLoad(EventArgs e)
@@ -197,6 +203,176 @@ namespace RedisHelperUI.UC
             }
         }
 
+        private void DelMul()
+        {
+            switch (this.RedisType)
+            {
+                case RedisType.String:
+                    {
+                        if (MessageBox.Show("要删除 " + this.RedisKey + " 吗？", "ask", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+                        {
+                            RedisUtil.Execute(this.RedisServer.ConnStr, (db) =>
+                            {
+                                if (db.KeyDelete(this.RedisKey))
+                                {
+                                    MessageBox.Show("success");
+                                }
+                                else
+                                {
+                                    MessageBox.Show("fail");
+                                }
+                            }, (ex) =>
+                            {
+                                MessageBox.Show(ex.Message);
+                            });
+                        }
+                        break;
+                    }
+                case RedisType.Hash:
+                    {
+                        if (this.DGVData.CurrentRow == null)
+                        {
+                            return;
+                        }
+
+                        if (MessageBox.Show("要删除 " + this.RedisKey + ":选择的项吗？", "ask", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+                        {
+                            int delcount = 0;
+                            int failcount = 0;
+                            foreach (DataGridViewRow item in DGVData.SelectedRows)
+                            {
+                                var field = (string)item.Cells["name"].Value;
+                                RedisUtil.Execute(this.RedisServer.ConnStr, (db) =>
+                                {
+                                    if (db.HashDelete(this.RedisKey, field))
+                                    {
+                                        //MessageBox.Show("success");
+                                        delcount++;
+                                    }
+                                    else
+                                    {
+                                        //MessageBox.Show("fail");
+                                        failcount++;
+                                    }
+
+
+                                }, (ex) =>
+                                {
+                                    MessageBox.Show(ex.Message);
+                                });
+                            }
+                            MessageBox.Show("success:" + delcount + ",fail:" + failcount);
+                        }
+                        break;
+                    }
+                case RedisType.List:
+                    {
+
+                        if (this.DGVData.CurrentRow == null)
+                        {
+                            return;
+                        }
+
+                        if (MessageBox.Show("要删除 " + this.RedisKey + ":选定的项吗？", "ask", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+                        {
+                            int delcount = 0, failcount = 0;
+                            foreach (DataGridViewRow row in DGVData.SelectedRows)
+                            {
+                                var field = (string)row.Cells["item"].Value;
+                                RedisUtil.Execute(this.RedisServer.ConnStr, (db) =>
+                                {
+                                    if (db.ListRemove(this.RedisKey, field) >= 0)
+                                    {
+                                        //MessageBox.Show("success");
+                                        delcount++;
+                                    }
+                                    else
+                                    {
+                                        //MessageBox.Show("fail");
+                                        failcount++;
+                                    }
+                                }, (ex) =>
+                                {
+                                    MessageBox.Show(ex.Message);
+                                });
+                            }
+
+                            MessageBox.Show("success:" + delcount + ",fail:" + failcount);
+                        }
+                        break;
+                    }
+                case RedisType.Set:
+                    {
+                        if (this.DGVData.CurrentRow == null)
+                        {
+                            return;
+                        }
+
+                        if (MessageBox.Show("要删除 " + this.RedisKey + ":选定的项吗？", "ask", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+                        {
+                            int delcount = 0, failcount = 0;
+                            foreach (DataGridViewRow row in DGVData.SelectedRows)
+                            {
+                                var field = (string)row.Cells["members"].Value;
+                                RedisUtil.Execute(this.RedisServer.ConnStr, (db) =>
+                                {
+                                    if (db.SetRemove(this.RedisKey, field))
+                                    {
+                                        //MessageBox.Show("success");
+                                        delcount++;
+                                    }
+                                    else
+                                    {
+                                        //MessageBox.Show("fail");
+                                        failcount++;
+                                    }
+                                }, (ex) =>
+                                {
+                                    MessageBox.Show(ex.Message);
+                                });
+
+                            }
+                            MessageBox.Show("success:" + delcount + ",fail:" + failcount);
+                        }
+                        break;
+                    }
+                case RedisType.SortedSet:
+                    {
+                        if (this.DGVData.CurrentRow == null)
+                        {
+                            return;
+                        }
+
+                        if (MessageBox.Show("要删除 " + this.RedisKey + ":选定的项 吗？", "ask", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+                        {
+                            int delcount = 0, failcount = 0;
+                            foreach (DataGridViewRow row in DGVData.SelectedRows)
+                            {
+                                var field = (string)row.Cells["Element"].Value;
+                                RedisUtil.Execute(this.RedisServer.ConnStr, (db) =>
+                                {
+                                    if (db.SortedSetRemove(this.RedisKey, field))
+                                    {
+                                        //MessageBox.Show("success");
+                                        delcount++;
+                                    }
+                                    else
+                                    {
+                                        //MessageBox.Show("fail");
+                                        failcount++;
+                                    }
+                                }, (ex) =>
+                                {
+                                    MessageBox.Show(ex.Message);
+                                });
+                            }
+                            MessageBox.Show("success:" + delcount + ",fail:" + failcount);
+                        }
+                        break;
+                    }
+            }
+        }
+
         private void RedisUpdate()
         {
             SubUpdateForm subform = null;
@@ -301,7 +477,7 @@ namespace RedisHelperUI.UC
                 {
                     case "删除":
                         {
-                            Del();
+                            DelMul();
                             break;
                         }
                     case "修改":
@@ -327,16 +503,40 @@ namespace RedisHelperUI.UC
             }
         }
 
+        private string GetSubKey
+        {
+            get
+            {
+                return TBSubKey.Text.Trim();
+            }
+        }
+
         private void BtnSearch_Click(object sender, EventArgs e)
         {
             if (RedisServer == null)
             {
                 return;
             }
+            var key=this.TBSearchKey.Text;
+            if (string.IsNullOrWhiteSpace(key))
+            {
+                return;
+            }
+
+            if (!EntityTableEngine.LocalEngine.Exists(Global.TBName_SearchLog, key))
+            {
+                EntityTableEngine.LocalEngine.Insert<SearchLog>(Global.TBName_SearchLog, new SearchLog
+                {
+                    Key = key,
+                    Mark = string.Empty,
+                    ServerName = this.RedisServer.ServerName,
+                });
+            }
+
             DateTime time = DateTime.Now;
             RedisUtil.Execute(RedisServer.ConnStr, (client) =>
                 {
-                    var key=this.TBSearchKey.Text;
+                    
                     tabControl1.SelectedTab = TabPageData;
                     TBMsg.Text = "";
                     var keytype = client.KeyType(key);
@@ -358,57 +558,136 @@ namespace RedisHelperUI.UC
                                 
                                 dt.Columns.Add("key");
                                 dt.Columns.Add("value");
-                                dt.Rows.Add(TBSearchKey.Text, str);
+                                dt.Columns.Add("valuetype");
+                                dt.Rows.Add(TBSearchKey.Text, str,"str");
                                 this.DGVData.DataSource = dt;
 
                                 break;
                             }
                         case RedisType.Hash:
                             {
-                                var hashs = client.HashGetAll(key);
                                 DataTable dt = new DataTable();
                                 dt.Columns.Add("name");
+                                dt.Columns.Add("nametype");
                                 dt.Columns.Add("value");
-                                foreach (var hash in hashs)
+                                dt.Columns.Add("valuetype");
+                                if (string.IsNullOrWhiteSpace(GetSubKey))
                                 {
-                                    dt.Rows.Add(hash.Name, hash.Value);
+                                    var hashs = client.HashGetAll(key);
+                                    
+                                    foreach (var hash in hashs)
+                                    {
+                                        dt.Rows.Add(hash.Name,hash.Name.IsInteger?"int":"str", hash.Value,hash.Value.IsInteger?"int":"str");
+                                    }
+                                    
+                                }
+                                else
+                                {
+                                    var value = client.HashGet(key, GetSubKey);
+                                    if (value.HasValue)
+                                    {
+                                        dt.Rows.Add(GetSubKey,"str", value,value.IsInteger?"int":"str");
+                                    }
+                                    else
+                                    {
+                                          RedisValue rv=RedisValue.Null;
+                                          if (RedisUtil.TryParseNumber(GetSubKey, out rv))
+                                          {
+                                              
+                                              dt.Rows.Add(GetSubKey,"int",value,value.IsInteger?"int":"str");
+                                          }
+                                    }
                                 }
                                 this.DGVData.DataSource = dt;
                                 break;
                             }
                         case RedisType.Set:
                             {
-                                var sets = client.SetMembers(key);
                                 DataTable dt = new DataTable();
                                 dt.Columns.Add("members");
-                                foreach (var set in sets)
+                                dt.Columns.Add("valuetype");
+
+                                if (string.IsNullOrWhiteSpace(GetSubKey))
                                 {
-                                    dt.Rows.Add(set);
+                                    var sets = client.SetMembers(key);
+
+                                    foreach (var set in sets)
+                                    {
+                                        dt.Rows.Add(set,set.IsInteger?"int":"str");
+                                    }
+                                }
+                                else
+                                {
+                                    var value = client.SetContains(key, GetSubKey);
+                                    if (value)
+                                    {
+                                        dt.Rows.Add(GetSubKey,"str");
+                                    }
+                                    else
+                                    {
+                                        RedisValue rv=RedisValue.Null;
+                                        if(RedisUtil.TryParseNumber(GetSubKey,out rv))
+                                        {
+                                            value = client.SetContains(key, GetSubKey);
+                                            if (value)
+                                            {
+                                                dt.Rows.Add(GetSubKey,"int");
+                                            }
+                                        }
+                                    }
                                 }
                                 this.DGVData.DataSource = dt;
                                 break;
                             }
                         case RedisType.List:
                             {
-                                var list = client.ListRange(key, 0, 100);
+                                var list = client.ListRange(key, 0, 2000);
                                 DataTable dt = new DataTable();
                                 dt.Columns.Add("item");
+                                dt.Columns.Add("valuetype");
                                 foreach (var item in list)
                                 {
-                                    dt.Rows.Add(item);
+                                    dt.Rows.Add(item,item.IsInteger?"int":"str");
                                 }
                                 this.DGVData.DataSource = dt;
                                 break;
                             }
                         case RedisType.SortedSet:
                             {
-                                var ssets=client.SortedSetRangeByRankWithScores(key, 0, 100);
                                 DataTable dt = new DataTable();
                                 dt.Columns.Add("Element");
+                                dt.Columns.Add("ElementType");
                                 dt.Columns.Add("Score");
-                                foreach (var set in ssets)
+
+                                if (string.IsNullOrWhiteSpace(GetSubKey))
                                 {
-                                    dt.Rows.Add(set.Element,set.Score);
+                                    //var ssets = client.SortedSetRangeByRankWithScores(key, 0, 100);
+                                    var ssets = client.SortedSetRangeByRankWithScores(key, 0, 2000);
+
+                                    foreach (var set in ssets)
+                                    {
+                                        dt.Rows.Add(set.Element, set.Element.IsInteger ? "int" : "str", set.Score);
+                                    }
+                                }
+                                else
+                                {
+                                    var sset = client.SortedSetScore(key, GetSubKey);
+                                    if (sset.HasValue)
+                                    {
+                                        dt.Rows.Add(GetSubKey, "str", sset.Value);
+                                    }
+                                    else
+                                    {
+                                         RedisValue rv=RedisValue.Null;
+                                         if (RedisUtil.TryParseNumber(GetSubKey, out rv))
+                                         {
+                                             sset = client.SortedSetScore(key, rv);
+                                             if (sset.HasValue)
+                                             {
+                                                 dt.Rows.Add(GetSubKey, "int", sset.Value);
+                                             }
+                                         }
+                                    }
                                 }
                                 this.DGVData.DataSource = dt;
                                 break;

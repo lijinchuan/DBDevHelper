@@ -14,6 +14,19 @@ namespace Entity
             set;
         }
 
+        private int _port = 3306;
+        public int Port
+        {
+            get
+            {
+                return _port;
+            }
+            set
+            {
+                _port = value;
+            }
+        }
+
         public IDType IDType
         {
             get;

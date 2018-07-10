@@ -1,4 +1,5 @@
 ﻿using LJC.FrameWork.Data.EntityDataBase;
+using RedisHelper.Model;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -36,25 +37,25 @@ namespace RedisHelperUI
             {
                 TVServerList.Nodes.Add(new TreeNode
                 {
-                    Text="redis服务器"
+                    Text = "redis服务器"
                 });
             }
 
             var parent = TVServerList.Nodes[0];
             parent.Nodes.Clear();
-            foreach (var item in EntityTableEngine.LocalEngine.ListAll<RedisHelper.Model.RedisServerEntity>(Global.TBName_RedisServer))
+            foreach (var item in EntityTableEngine.LocalEngine.ListAll<RedisHelper.Model.RedisServerEntity>(Global.TBName_RedisServer).OrderBy(p => p.ServerName))
             {
                 var newnode = new TreeNode
                 {
-                    Text = item.ServerName,
-                    Tag=item
+                    Text = item.ServerName + (item.IsPrd ? "(生产)" : ""),
+                    Tag = item
                 };
 
                 foreach (var hp in RedisUtil.GetHostAndPoint(item.ConnStr))
                 {
                     var hostnode = new TreeNode
                     {
-                       Text=hp
+                        Text = hp
                     };
 
                     newnode.Nodes.Add(hostnode);
@@ -63,6 +64,27 @@ namespace RedisHelperUI
                 parent.Nodes.Add(newnode);
             }
             parent.Expand();
+
+            TVServerList.NodeMouseDoubleClick += TVServerList_NodeMouseDoubleClick;
+        }
+
+        void TVServerList_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
+        {
+            var currentnodel = TVServerList.SelectedNode;
+            if (currentnodel == null)
+            {
+                return;
+            }
+            if (currentnodel.Level == 2)
+            {
+                var server = currentnodel.Parent.Tag as RedisServerEntity;
+                if (server != null)
+                {
+                    server.IsPrd = !server.IsPrd;
+                    EntityTableEngine.LocalEngine.Update<RedisServerEntity>(Global.TBName_RedisServer, server);
+                    this.LoadRedisServers();
+                }
+            }
         }
 
         private void TSM_NewRedis_Click(object sender, EventArgs e)
@@ -180,6 +202,30 @@ namespace RedisHelperUI
 
                 this.PanelRight.Controls.Add(us);
             }
+        }
+
+        private void 日志ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            UC.UCLog log = new UC.UCLog();
+            this.PanelRight.Controls.Clear();
+            log.Dock = DockStyle.Fill;
+            this.PanelRight.Controls.Add(log);
+
+            log.OnLogSelected = (lg) =>
+                {
+                    var server = EntityTableEngine.LocalEngine.Find<RedisHelper.Model.RedisServerEntity>(Global.TBName_RedisServer, lg.ServerName).FirstOrDefault();
+                    if (server != null)
+                    {
+                        this.PanelRight.Controls.Clear();
+                        UC.UCSearch us = new UC.UCSearch();
+                        us.RedisServer = server;
+                        us.SetKey(lg.Key);
+
+                        this.Text = string.Format("redis管理【查询 {0}】", us.RedisServer.ServerName);
+
+                        this.PanelRight.Controls.Add(us);
+                    }
+                };
         }
     }
 }
