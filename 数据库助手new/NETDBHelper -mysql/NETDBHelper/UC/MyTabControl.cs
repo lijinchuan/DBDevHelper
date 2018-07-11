@@ -30,9 +30,9 @@ namespace NETDBHelper.UC
             this.DrawItem += new DrawItemEventHandler(MyTabControl_DrawItem);
             this.SizeMode = TabSizeMode.Fixed;
 
-            this.ItemSize = new Size { Width = 1, Height = 1 };
+            this.ItemSize = new Size { Width = 0, Height = 18 };
 
-  
+            this.SetStyle(ControlStyles.UserPaint, true);
 
         }
 
@@ -152,6 +152,14 @@ namespace NETDBHelper.UC
                 DEF_START_POS -= (int)textSize.Width;
             }
 
+        }
+
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            foreach (var item in this.tabExDic)
+            {
+                MyTabControl_DrawItem_Tab(item.Key, e.Graphics);
+            }
         }
 
         void MyTabControl_DrawItem_Tab(int tabindex, Graphics g)
