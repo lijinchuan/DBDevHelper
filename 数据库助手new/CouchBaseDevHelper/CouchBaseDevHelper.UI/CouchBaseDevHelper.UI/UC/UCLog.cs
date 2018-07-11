@@ -23,7 +23,7 @@ namespace CouchBaseDevHelper.UI.UC
 
         public void LoadLog()
         {
-            var logs = EntityTableEngine.LocalEngine.ListAll<SearchLog>(Global.TBName_SearchLog).ToList();
+            var logs = EntityTableEngine.LocalEngine.ListAll<SearchLog>(Global.TBName_SearchLog).OrderBy(p=>p.Key).ToList();
             this.gvlog.DataSource = logs;
             this.gvlog.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
 
