@@ -92,9 +92,12 @@ namespace NETDBHelper.UC
                 }
                 try
                 {
+                    DateTime now = DateTime.Now;
                     this.Text = m.Groups[1].Value;
                     this.TBName = m.Groups[1].Value;
                     this.dv_Data.DataSource = Biz.Common.Data.SQLHelper.ExecuteDBTable(DBSource, DBName, value, null);
+                    this.tb_Msg.Text = string.Format("执行用时:{0} ms",DateTime.Now.Subtract(now).TotalMilliseconds);
+                    this.tabControl1.SelectedTab = tabPage1;
                 }
                 catch (Exception e)
                 {

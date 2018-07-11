@@ -102,6 +102,7 @@ namespace NETDBHelper
         {
             ViewTBData viewTb = new ViewTBData();
             viewTb.SQLString = sql;
+            viewTb.BorderStyle = BorderStyle.None;
             this.TabControl.TabPages.Add(viewTb);
             TabControl.SelectedTab = viewTb;
             tsb_Excute.Enabled = true;
