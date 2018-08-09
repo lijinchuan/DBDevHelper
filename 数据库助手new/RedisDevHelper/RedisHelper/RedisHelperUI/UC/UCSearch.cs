@@ -14,10 +14,34 @@ namespace RedisHelperUI.UC
 {
     public partial class UCSearch : UserControl
     {
+        private RedisType _redistype;
         private RedisType RedisType
         {
-            get;
-            set;
+            get
+            {
+                return _redistype;
+            }
+            set
+            {
+                _redistype = value;
+                switch (value)
+                {
+                    case StackExchange.Redis.RedisType.Hash:
+                    case StackExchange.Redis.RedisType.List:
+                    case StackExchange.Redis.RedisType.Set:
+                    case StackExchange.Redis.RedisType.SortedSet:
+                        {
+                            this.统计条数ToolStripMenuItem.Enabled = true;
+                            break;
+                        }
+                    default:
+                        {
+                            this.统计条数ToolStripMenuItem.Enabled = false;
+                            break;
+                        }
+                }
+                
+            }
         }
 
         private string RedisKey
@@ -702,6 +726,76 @@ namespace RedisHelperUI.UC
                     TBMsg.Text = ex.ToString();
                     //TBMsg.Text = string.Format("查询用时{0}ms", DateTime.Now.Subtract(time).TotalMilliseconds);
                 });
+        }
+
+        private void 统计条数ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (RedisServer == null)
+            {
+                return;
+            }
+            var key = this.TBSearchKey.Text;
+            if (string.IsNullOrWhiteSpace(key))
+            {
+                return;
+            }
+
+            if (!EntityTableEngine.LocalEngine.Exists(Global.TBName_SearchLog, key))
+            {
+                EntityTableEngine.LocalEngine.Insert<SearchLog>(Global.TBName_SearchLog, new SearchLog
+                {
+                    Key = key,
+                    Mark = string.Empty,
+                    ServerName = this.RedisServer.ServerName,
+                });
+            }
+
+            DateTime time = DateTime.Now;
+            RedisUtil.Execute(RedisServer.ConnStr, (client) =>
+            {
+
+                tabControl1.SelectedTab = TabPageData;
+                TBMsg.Text = "";
+                var keytype = client.KeyType(key);
+                this.RedisType = keytype;
+                this.RedisKey = key;
+                switch (keytype)
+                {
+                    case RedisType.Unknown:
+                    case RedisType.None:
+                        {
+                            break;
+                        }
+                    case RedisType.Hash:
+                        {
+                            MessageBox.Show("总条数" + client.HashLength(key));
+                            break;
+                        }
+                    case RedisType.Set:
+                        {
+                            MessageBox.Show("总条数" + client.SetLength(key));
+                            break;
+                        }
+                    case RedisType.List:
+                        {
+                            MessageBox.Show("总条数" + client.ListLength(key));
+                            break;
+                        }
+                    case RedisType.SortedSet:
+                        {
+                            MessageBox.Show("总条数" + client.SortedSetLength(key));
+                            break;
+                        }
+
+                }
+
+                TBMsg.Text += string.Format("\r\n查询用时{0}ms", DateTime.Now.Subtract(time).TotalMilliseconds);
+            }, (ex) =>
+            {
+                tabControl1.SelectedTab = TabPageInfo;
+                TBMsg.Text = ex.ToString();
+                //TBMsg.Text = string.Format("查询用时{0}ms", DateTime.Now.Subtract(time).TotalMilliseconds);
+            });
         }
     }
 }
