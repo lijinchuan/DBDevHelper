@@ -490,6 +490,8 @@ namespace RedisHelperUI.UC
             {
 
             }
+
+            
         }
 
         void item_Click(object sender, EventArgs e)
@@ -509,7 +511,7 @@ namespace RedisHelperUI.UC
                             RedisUpdate();
                             break;
                         }
-                    case "增加":
+                    case "增加项":
                         {
                             Add();
                             break;
@@ -796,6 +798,16 @@ namespace RedisHelperUI.UC
                 TBMsg.Text = ex.ToString();
                 //TBMsg.Text = string.Format("查询用时{0}ms", DateTime.Now.Subtract(time).TotalMilliseconds);
             });
+        }
+
+        private void 新增keyToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            AddNewForm addform = new AddNewForm();
+            addform.RediServer = this.RedisServer;
+            if (addform.ShowDialog() == DialogResult.OK)
+            {
+                this.TBSearchKey.Text = addform.NewKey;
+            }
         }
     }
 }

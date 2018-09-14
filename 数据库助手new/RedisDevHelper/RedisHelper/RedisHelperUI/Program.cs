@@ -16,6 +16,7 @@ namespace RedisHelperUI
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Global.Init();
+            //new AddNewForm().ShowDialog();
             Application.Run(new MainForm());
         }
     }

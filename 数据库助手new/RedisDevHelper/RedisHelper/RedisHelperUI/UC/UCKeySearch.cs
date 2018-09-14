@@ -586,6 +586,8 @@ namespace RedisHelperUI.UC
             {
 
             }
+
+            
         }
 
         void item_Click(object sender, EventArgs e)
@@ -605,7 +607,7 @@ namespace RedisHelperUI.UC
                             RedisUpdate();
                             break;
                         }
-                    case "增加":
+                    case "新增项":
                         {
                             Add();
                             break;
@@ -665,6 +667,16 @@ namespace RedisHelperUI.UC
                         this.TBMsg.Text = ex.ToString();
                         tabControl1.SelectedTab = TabPageInfo;
                     },100);
+        }
+
+        private void 新增KeyToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            AddNewForm addform = new AddNewForm();
+            addform.RediServer = this.RedisServer;
+            if (addform.ShowDialog() == DialogResult.OK)
+            {
+                this.TCBSearchKey.Text = addform.NewKey;
+            }
         }
     }
 }

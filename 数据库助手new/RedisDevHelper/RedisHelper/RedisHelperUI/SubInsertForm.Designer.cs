@@ -85,6 +85,7 @@
             this.MinimizeBox = false;
             this.Name = "SubInsertForm";
             this.ShowIcon = false;
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "添加";
             this.ResumeLayout(false);
             this.PerformLayout();

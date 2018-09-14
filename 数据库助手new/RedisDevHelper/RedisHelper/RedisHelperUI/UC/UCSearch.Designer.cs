@@ -41,8 +41,9 @@
             this.修改ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.增加ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.复制ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.TBSubKey = new System.Windows.Forms.TextBox();
             this.统计条数ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.TBSubKey = new System.Windows.Forms.TextBox();
+            this.新增keyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tabControl1.SuspendLayout();
             this.TabPageData.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.DGVData)).BeginInit();
@@ -136,9 +137,10 @@
             this.修改ToolStripMenuItem,
             this.增加ToolStripMenuItem,
             this.复制ToolStripMenuItem,
-            this.统计条数ToolStripMenuItem});
+            this.统计条数ToolStripMenuItem,
+            this.新增keyToolStripMenuItem});
             this.CMSOP.Name = "CMSOP";
-            this.CMSOP.Size = new System.Drawing.Size(153, 136);
+            this.CMSOP.Size = new System.Drawing.Size(153, 158);
             // 
             // 删除ToolStripMenuItem
             // 
@@ -156,13 +158,20 @@
             // 
             this.增加ToolStripMenuItem.Name = "增加ToolStripMenuItem";
             this.增加ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.增加ToolStripMenuItem.Text = "增加";
+            this.增加ToolStripMenuItem.Text = "增加项";
             // 
             // 复制ToolStripMenuItem
             // 
             this.复制ToolStripMenuItem.Name = "复制ToolStripMenuItem";
             this.复制ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.复制ToolStripMenuItem.Text = "复制";
+            // 
+            // 统计条数ToolStripMenuItem
+            // 
+            this.统计条数ToolStripMenuItem.Name = "统计条数ToolStripMenuItem";
+            this.统计条数ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.统计条数ToolStripMenuItem.Text = "统计条数";
+            this.统计条数ToolStripMenuItem.Click += new System.EventHandler(this.统计条数ToolStripMenuItem_Click);
             // 
             // TBSubKey
             // 
@@ -171,12 +180,12 @@
             this.TBSubKey.Size = new System.Drawing.Size(158, 21);
             this.TBSubKey.TabIndex = 4;
             // 
-            // 统计条数ToolStripMenuItem
+            // 新增keyToolStripMenuItem
             // 
-            this.统计条数ToolStripMenuItem.Name = "统计条数ToolStripMenuItem";
-            this.统计条数ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.统计条数ToolStripMenuItem.Text = "统计条数";
-            this.统计条数ToolStripMenuItem.Click += new System.EventHandler(this.统计条数ToolStripMenuItem_Click);
+            this.新增keyToolStripMenuItem.Name = "新增keyToolStripMenuItem";
+            this.新增keyToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.新增keyToolStripMenuItem.Text = "新增key";
+            this.新增keyToolStripMenuItem.Click += new System.EventHandler(this.新增keyToolStripMenuItem_Click);
             // 
             // UCSearch
             // 
@@ -215,5 +224,6 @@
         private System.Windows.Forms.ToolStripMenuItem 复制ToolStripMenuItem;
         private System.Windows.Forms.TextBox TBSubKey;
         private System.Windows.Forms.ToolStripMenuItem 统计条数ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 新增keyToolStripMenuItem;
     }
 }
