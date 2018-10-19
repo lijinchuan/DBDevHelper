@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<TestRun id="04da2bbf-9f2e-43f3-8da4-180149d07044" name="lijc@DST56621 2015-01-06 12:17:56" runUser="CN1\lijc" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <TestSettings name="本地" id="475ae35f-bb0b-4ecf-a4cb-475f14642e6d">
+    <Description>这些设置为本地测试运行的默认测试设置。</Description>
+    <Deployment enabled="false" runDeploymentRoot="lijc_DST56621 2015-01-06 12_17_56">
+      <DeploymentItem filename="D:\Work\learn\数据库助手new\NETDBHelper -mysql\Biz\bin\Debug\Biz.dll" />
+      <DeploymentItem filename="D:\Work\learn\数据库助手new\NETDBHelper -mysql\Entity\bin\Debug\Entity.dll" />
+    </Deployment>
+    <Execution>
+      <TestTypeSpecific />
+      <AgentRule name="Execution Agents">
+      </AgentRule>
+    </Execution>
+  </TestSettings>
+  <Times creation="2015-01-06T12:17:56.2426902+08:00" queuing="2015-01-06T12:18:01.9671902+08:00" start="2015-01-06T12:18:02.2051902+08:00" finish="2015-01-06T12:18:36.2231902+08:00" />
+  <ResultSummary outcome="Error">
+    <Counters total="1" executed="1" error="0" failed="0" timeout="0" aborted="1" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" passed="0" completed="0" inProgress="0" pending="0" />
+    <RunInfos>
+      <RunInfo computerName="DST56621" outcome="Error" timestamp="2015-01-06T12:18:36.2221902+08:00">
+        <Text>Test host process exited unexpectedly.</Text>
+      </RunInfo>
+    </RunInfos>
+  </ResultSummary>
+  <TestDefinitions>
+    <UnitTest name="GetDBsTest" storage="d:\work\learn\数据库助手new\netdbhelper -mysql\testproject1\bin\debug\testproject1.dll" id="0fa4e543-44c8-79d9-0e0e-f7a03760e88d">
+      <Execution id="de41c1a9-eefb-4228-a2b6-66ebe3e8f9c3" />
+      <TestMethod codeBase="D:/Work/learn/数据库助手new/NETDBHelper -mysql/TestProject1/bin/Debug/TestProject1.DLL" adapterTypeName="Microsoft.VisualStudio.TestTools.TestTypes.Unit.UnitTestAdapter, Microsoft.VisualStudio.QualityTools.Tips.UnitTest.Adapter, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" className="TestProject1.MySQLHelperTest, TestProject1, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" name="GetDBsTest" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestLists>
+    <TestList name="Results Not in a List" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="All Loaded Results" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <TestEntries>
+    <TestEntry testId="0fa4e543-44c8-79d9-0e0e-f7a03760e88d" executionId="de41c1a9-eefb-4228-a2b6-66ebe3e8f9c3" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <Results>
+    <UnitTestResult executionId="de41c1a9-eefb-4228-a2b6-66ebe3e8f9c3" testId="0fa4e543-44c8-79d9-0e0e-f7a03760e88d" testName="GetDBsTest" computerName="DST56621" duration="00:00:33.7750000" startTime="2015-01-06T12:18:02.4476902+08:00" endTime="2015-01-06T12:18:36.2226902+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Aborted" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="de41c1a9-eefb-4228-a2b6-66ebe3e8f9c3">
+    </UnitTestResult>
+  </Results>
+</TestRun>
