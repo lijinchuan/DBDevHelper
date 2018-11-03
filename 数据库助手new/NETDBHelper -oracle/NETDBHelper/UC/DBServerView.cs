@@ -55,6 +55,7 @@ namespace NETDBHelper
             tv_DBServers.ImageList.Images.Add(Resources.Resource1.DB13);
             tv_DBServers.ImageList.Images.Add(Resources.Resource1.DB14);
             tv_DBServers.ImageList.Images.Add(Resources.Resource1.DB15);
+            tv_DBServers.ImageList.Images.Add(Resources.Resource1.DB16);
             tv_DBServers.Nodes.Add("0", "资源管理器", 0);
             tv_DBServers.NodeMouseClick += new TreeNodeMouseClickEventHandler(tv_DBServers_NodeMouseClick);
 
@@ -202,6 +203,10 @@ namespace NETDBHelper
             {
                 Biz.UILoadHelper.LoadSeqsAnsy(this.ParentForm, selNode, GetDBSource(selNode));
             }
+            else if (selNode.Level == 3 && selNode.Text.Equals("用户"))
+            {
+                Biz.UILoadHelper.LoadUsersAnsy(this.ParentForm, selNode, GetDBSource(selNode));
+            }
             else if (selNode.Level == 3)
             {
                 Biz.UILoadHelper.LoadColumnsAnsy(this.ParentForm, selNode, GetDBSource(selNode));
@@ -222,6 +227,7 @@ namespace NETDBHelper
             {
                 Biz.UILoadHelper.LoadTriggersAnsy(this.ParentForm, selNode, GetDBSource(selNode));
             }
+            
         }
 
         private bool IsTableNode(TreeNode node)
@@ -231,7 +237,8 @@ namespace NETDBHelper
                 && !"视图".Equals(node.Text)
                 && !"物化视图".Equals(node.Text)
                 && !"作业".Equals(node.Text)
-                && !"序列".Equals(node.Text);
+                && !"序列".Equals(node.Text)
+                && !"用户".Equals(node.Text);
         }
 
         private bool IsCanDelete(TreeNode node)
@@ -345,13 +352,52 @@ namespace NETDBHelper
                             break;
                         }
                     default:
-                        _node = tv_DBServers.SelectedNode;
+                        {
+                            _node = tv_DBServers.SelectedNode;
+                            if (e.ClickedItem is ToolStripMenuItem)
+                            {
+                                var menu = e.ClickedItem as ToolStripMenuItem;
+                                if (menu.DropDownItems.Count > 0)
+                                {
+                                    menu.DropDownItemClicked -= menu_DropDownItemClicked;
+                                    menu.DropDownItemClicked += menu_DropDownItemClicked;
+                                }
+                            }
+                        }
                         break;
                 }
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, "发生错误", MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
+            }
+        }
+
+        void menu_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+            switch (e.ClickedItem.Text)
+            {
+                case "修改用户密码":
+                    {
+                        var selnode = tv_DBServers.SelectedNode;
+                        if (selnode != null && selnode.Level > 1 && selnode.Parent.Text.Equals("用户"))
+                        {
+                            SubForm.ModifyUserDlg dlg = new ModifyUserDlg(selnode.Name);
+                            if (dlg.ShowDialog() == DialogResult.OK)
+                            {
+                                try
+                                {
+                                    OracleHelper.ModifyUserPassword(GetDBSource(selnode), dlg.User, dlg.NewPassword);
+                                    MessageBox.Show("修改成功");
+                                }
+                                catch (Exception ex)
+                                {
+                                    MessageBox.Show("修改失败:"+ex.Message);
+                                }
+                            }
+                        }
+                        break;
+                    }
             }
         }
 
@@ -560,6 +606,10 @@ namespace NETDBHelper
                 {
                     Biz.UILoadHelper.LoadSeqsAnsy(this.ParentForm, e.Node, GetDBSource(e.Node));
                 }
+                else if (e.Node.Text.Equals("用户"))
+                {
+                    Biz.UILoadHelper.LoadUsersAnsy(this.ParentForm, e.Node, GetDBSource(e.Node));
+                }
                 else
                 {
                     Biz.UILoadHelper.LoadColumnsAnsy(this.ParentForm, e.Node, GetDBSource(e.Node));
@@ -586,7 +636,6 @@ namespace NETDBHelper
                 {
                     Biz.UILoadHelper.LoadColumnsAnsy(this.ParentForm, e.Node, GetDBSource(e.Node));
                 }
-                
             }
 
         }
@@ -655,6 +704,7 @@ namespace NETDBHelper
                 {
                     if (IsTableNode(node)
                         || (tv_DBServers.SelectedNode.Level == 4 && tv_DBServers.SelectedNode.Parent.Text.Equals("存储过程"))
+                        || (tv_DBServers.SelectedNode.Level == 4 && tv_DBServers.SelectedNode.Parent.Text.Equals("用户"))
                         || (tv_DBServers.SelectedNode.Level == 5 && tv_DBServers.SelectedNode.Parent.Text.Equals("索引")))
                     {
                         this.tv_DBServers.ContextMenuStrip = this.DBServerviewContextMenuStrip;
@@ -666,7 +716,7 @@ namespace NETDBHelper
                             }
 
                             导出ToolStripMenuItem.Visible = true;
-                            复制表名ToolStripMenuItem.Visible = true;
+                            
                         }
                         else if (tv_DBServers.SelectedNode.Parent.Text.Equals("索引"))
                         {
@@ -675,6 +725,15 @@ namespace NETDBHelper
                                 item.Visible = false;
                             }
                             TSM_ManIndex.Visible = true;
+                        }
+                        else if (tv_DBServers.SelectedNode.Parent.Text.Equals("用户"))
+                        {
+                            foreach (ToolStripItem item in tv_DBServers.ContextMenuStrip.Items)
+                            {
+                                item.Visible = false;
+                            }
+
+                            用户管理ToolStripMenuItem.Visible = true;
                         }
                         else
                         {
@@ -690,6 +749,7 @@ namespace NETDBHelper
                         ExpdataToolStripMenuItem.Visible = node.Level == 3;
                         新增字段ToolStripMenuItem.Visible = IsTableNode(node);
                         授权ToolStripMenuItem.Visible = IsTableNode(node);
+                        复制表名ToolStripMenuItem.Visible = true;
                     }
                     else
                     {

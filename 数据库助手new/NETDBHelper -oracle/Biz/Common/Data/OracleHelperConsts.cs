@@ -55,7 +55,7 @@ namespace Biz.Common.Data
         public const string GetJOBBodySql = "select dbms_metadata.get_ddl( 'PROCOBJ', :name ) from dual";
 
         public const string GetSeqListSql = "select SEQUENCE_NAME from dba_sequences where SEQUENCE_OWNER=:user";
-        public const string GetUserSqlListSql = "select SEQUENCE_NAME from user_sequences";
+        public const string GetUserSeqListSql = "select SEQUENCE_NAME from user_sequences";
 
         public const string GetSeqBodySql = @"select  'create sequence ' ||sequence_name||     
                            ' minvalue ' ||min_value||     

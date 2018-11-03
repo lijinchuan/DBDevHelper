@@ -120,6 +120,12 @@
     <Compile Include="SubForm\InputStringDlg.Designer.cs">
       <DependentUpon>InputStringDlg.cs</DependentUpon>
     </Compile>
+    <Compile Include="SubForm\ModifyUserDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SubForm\ModifyUserDlg.Designer.cs">
+      <DependentUpon>ModifyUserDlg.cs</DependentUpon>
+    </Compile>
     <Compile Include="SubForm\SubFrmPerformAnalysis.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -275,6 +281,9 @@
     <EmbeddedResource Include="SubForm\InputStringDlg.resx">
       <DependentUpon>InputStringDlg.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="SubForm\ModifyUserDlg.resx">
+      <DependentUpon>ModifyUserDlg.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="SubForm\SubFrmPerformAnalysis.resx">
       <DependentUpon>SubFrmPerformAnalysis.cs</DependentUpon>
     </EmbeddedResource>
@@ -350,6 +359,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resources\user_b.png" />
     <None Include="Resources\time_green.png" />
     <None Include="Map\新建位图图像.bmp" />
     <None Include="Map\新建位图图像 %282%29.bmp" />

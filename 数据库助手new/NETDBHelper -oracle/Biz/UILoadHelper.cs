@@ -326,6 +326,45 @@ namespace Biz
             }
         }
 
+        public static void LoadUsersAnsy(Form parent, TreeNode tbNode, DBSource server)
+        {
+            tbNode.Nodes.Add(new TreeNode("加载中..."));
+            Thread.Sleep(100);
+            new Action<Form, TreeNode, DBSource>(LoadUsers).BeginInvoke(parent, tbNode, server, null, null);
+        }
+
+        private static void LoadUsers(Form parent, TreeNode tbNode, DBSource server)
+        {
+            if (server == null)
+            {
+                return;
+            }
+
+            var list = Biz.Common.Data.OracleHelper.GetUsers(server).ToList();
+            List<TreeNode> treeNodes = new List<TreeNode>();
+            //MessageBox.Show(list.Count().ToString());
+            foreach (var item in list)
+            {
+                TreeNode newNode = new TreeNode(item);
+                newNode.Name = item;
+
+                newNode.ImageIndex = newNode.SelectedImageIndex = 15;
+
+                treeNodes.Add(newNode);
+            }
+
+            if (parent.InvokeRequired)
+            {
+                parent.Invoke(new Action(() => { tbNode.Nodes.Clear(); tbNode.Nodes.AddRange(treeNodes.ToArray()); tbNode.Expand(); }));
+            }
+            else
+            {
+                tbNode.Nodes.Clear();
+                tbNode.Nodes.AddRange(treeNodes.ToArray());
+                tbNode.Expand();
+            }
+        }
+
         private static void InsertRange(TreeNode node, IEnumerable<TreeNode> nodes)
         {
             if (nodes.Count() == 0)
@@ -431,6 +470,7 @@ namespace Biz
                     serverNode.Nodes.Insert(2,"MVIEW", "物化视图", 1, 1);
                     serverNode.Nodes.Insert(3,"JOBS", "作业", 1, 1);
                     serverNode.Nodes.Insert(4, "SEQUENCE", "序列", 1, 1);
+                    serverNode.Nodes.Insert(5, "USERS", "用户", 1, 1);
                     serverNode.Expand(); }));
             }
             else
@@ -442,6 +482,7 @@ namespace Biz
                 serverNode.Nodes.Insert(2, "MVIEW", "物化视图", 1, 1);
                 serverNode.Nodes.Insert(3, "JOBS", "作业", 1, 1);
                 serverNode.Nodes.Insert(4, "SEQUENCE", "序列", 1, 1);
+                serverNode.Nodes.Insert(5, "USERS", "用户", 1, 1);
                 serverNode.Expand();
             }
         }

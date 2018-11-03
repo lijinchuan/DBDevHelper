@@ -372,7 +372,7 @@ namespace Biz.Common.Data
             var result = new List<string>();
             //string sql = string.Format("show index from `{0}`", tabname);
 
-            var tb = ExecuteDBTable(dbSource, string.Empty, OracleHelperConsts.GetUserSqlListSql,null);
+            var tb = ExecuteDBTable(dbSource, string.Empty, OracleHelperConsts.GetUserSeqListSql,null);
 
             foreach (DataRow row in tb.Rows)
             {
@@ -720,6 +720,13 @@ namespace Biz.Common.Data
             }
 
             return true;
+        }
+
+        public static bool ModifyUserPassword(DBSource dbsource, string user, string newpassword)
+        {
+            string sql = string.Format("alter user {0} identified by {1}",user,newpassword);
+
+            return ExecuteNoQuery(dbsource, string.Empty, sql, null)>0;
         }
     }
 }
