@@ -11,12 +11,15 @@ namespace Biz.Common
         private static readonly string coltypes = "";
         private static bool IsSupport(TBColumn column)
         {
-            MSSQLTypeEnum outEnum;
-            if (Enum.TryParse(column.TypeName,true, out outEnum))
-            {
-                return true;
-            }
-            return false;
+            var oraclecolumn = Common.Data.Common.GetOracleColumnType().FirstOrDefault(p => p.TypeName.Equals(column.TypeName, StringComparison.OrdinalIgnoreCase));
+            //MSSQLTypeEnum outEnum;
+            //if (Enum.TryParse(column.TypeName,true, out outEnum))
+            //{
+            //    return true;
+            //}
+            //return false;
+
+            return oraclecolumn != null;
         }
 
         private static void CheckIsSupport(TBColumn column)
@@ -30,80 +33,57 @@ namespace Biz.Common
         public static bool IsString(this TBColumn column)
         {
             CheckIsSupport(column);
-            var colEnum = Enum.Parse(typeof(MSSQLTypeEnum), column.TypeName, true);
+            var oraclecolumn = Common.Data.Common.GetOracleColumnType().FirstOrDefault(p => p.TypeName.Equals(column.TypeName, StringComparison.OrdinalIgnoreCase));
 
-            return colEnum.Equals(MSSQLTypeEnum.Xml)
-                   || colEnum.Equals(MSSQLTypeEnum.Char)
-                   || colEnum.Equals(MSSQLTypeEnum.NChar)
-                   || colEnum.Equals(MSSQLTypeEnum.NText)
-                   || colEnum.Equals(MSSQLTypeEnum.NVarChar)
-                   || colEnum.Equals(MSSQLTypeEnum.Text)
-                   || colEnum.Equals(MSSQLTypeEnum.Varchar);
+            return oraclecolumn.IsString;
         }
 
         public static bool IsEnum(this TBColumn column)
         {
             CheckIsSupport(column);
-            var colEnum = Enum.Parse(typeof(MSSQLTypeEnum), column.TypeName, true);
-
-            return colEnum.Equals(MSSQLTypeEnum.Enum);
+            return false;
         }
 
         public static bool IsNumber(this TBColumn column)
         {
             CheckIsSupport(column);
-            var colEnum = Enum.Parse(typeof(MSSQLTypeEnum), column.TypeName, true);
-            return colEnum.Equals(MSSQLTypeEnum.Bigint)
-                || colEnum.Equals(MSSQLTypeEnum.Decimal)
-                || colEnum.Equals(MSSQLTypeEnum.Float)
-                || colEnum.Equals(MSSQLTypeEnum.Int)
-                || colEnum.Equals(MSSQLTypeEnum.Money)
-                || colEnum.Equals(MSSQLTypeEnum.Numeric)
-                || colEnum.Equals(MSSQLTypeEnum.Real)
-                || colEnum.Equals(MSSQLTypeEnum.Smallint)
-                || colEnum.Equals(MSSQLTypeEnum.Smallmoney)
-                || colEnum.Equals(MSSQLTypeEnum.Tinyint);
+            var oraclecolumn = Common.Data.Common.GetOracleColumnType().FirstOrDefault(p => p.TypeName.Equals(column.TypeName, StringComparison.OrdinalIgnoreCase));
+
+            return oraclecolumn.IsNumber;
         }
 
         public static bool IsBoolean(this TBColumn column)
         {
             CheckIsSupport(column);
-            var colEnum = Enum.Parse(typeof(MSSQLTypeEnum), column.TypeName, true);
-            return colEnum.Equals(MSSQLTypeEnum.Bit);
+
+            return false;
         }
 
         public static bool IsDateTime(this TBColumn column)
         {
             CheckIsSupport(column);
-            var colEnum = Enum.Parse(typeof(MSSQLTypeEnum), column.TypeName, true);
-            return colEnum.Equals(MSSQLTypeEnum.Datetime)
-                || colEnum.Equals(MSSQLTypeEnum.Datetime2)
-                || colEnum.Equals(MSSQLTypeEnum.Smalldatetime)
-                || colEnum.Equals(MSSQLTypeEnum.Time)
-                || colEnum.Equals(MSSQLTypeEnum.Date);
+            var oraclecolumn = Common.Data.Common.GetOracleColumnType().FirstOrDefault(p => p.TypeName.Equals(column.TypeName, StringComparison.OrdinalIgnoreCase));
+
+            return oraclecolumn.IsTime;
         }
 
         public static string TypeToString(this TBColumn column)
         {
             CheckIsSupport(column);
-            var colEnum = Enum.Parse(typeof(MSSQLTypeEnum), column.TypeName, true);
-            if (colEnum.Equals(MSSQLTypeEnum.Char)
-                || colEnum.Equals(MSSQLTypeEnum.Datetime2)
-                || colEnum.Equals(MSSQLTypeEnum.NChar)
-                || colEnum.Equals(MSSQLTypeEnum.NVarChar)
-                || colEnum.Equals(MSSQLTypeEnum.Time)
-                || colEnum.Equals(MSSQLTypeEnum.Varchar))
+            
+            var oraclecolumn = Common.Data.Common.GetOracleColumnType().FirstOrDefault(p => p.TypeName.Equals(column.TypeName, StringComparison.OrdinalIgnoreCase));
+
+            if (oraclecolumn.LenAble)
             {
-                return string.Format("{0}({1})", column.TypeName, column.Length);
+                return string.Format("{0}({1})", oraclecolumn.TypeName, oraclecolumn.DefaultLen);
             }
-            else if (colEnum.Equals(MSSQLTypeEnum.Decimal)
-               || colEnum.Equals(MSSQLTypeEnum.Numeric))
+            else if (oraclecolumn.ScaleAble)
             {
-                return string.Format("{0}({1},{2})", column.TypeName, column.prec, column.scale);
+                return string.Format("{0}({1},{2})", oraclecolumn.TypeName, oraclecolumn.DefaultPrecision, oraclecolumn.DefaultScale);
             }
             else
             {
-                return column.TypeName;
+                return oraclecolumn.TypeName;
             }
         }
     }

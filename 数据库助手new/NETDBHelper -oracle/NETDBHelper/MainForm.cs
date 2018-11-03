@@ -107,15 +107,42 @@ namespace NETDBHelper
 
         public void ShowTableData(DBSource db,string dbName,string tbName, string sql)
         {
-            ViewTBData viewTb = new ViewTBData();
-            viewTb.Text = string.Format("{0}-查询数据",dbName);
-            this.TabControl.TabPages.Add(viewTb);
-            TabControl.SelectedTab = viewTb;
-            tsb_Excute.Enabled = true;
-            viewTb.DBSource = db;
-            viewTb.DBName = dbName;
-            viewTb.TBName = tbName;
-            viewTb.SQLString = sql;
+            var text=string.Format("{0}-查询数据",tbName);
+
+            ViewTBData viewTb = null;
+            foreach (TabPage page in TabControl.TabPages)
+            {
+                if (page is ViewTBData&& page.Text == text)
+                {
+                    viewTb = page as ViewTBData;
+                    if (viewTb.DBSource == db && viewTb.DBName == dbName && viewTb.TBName == tbName)
+                    {
+                        TabControl.SelectedTab = viewTb;
+                        viewTb.SQLString = sql;
+                        TabControl.Invalidate();
+                        viewTb.Invalidate();
+                        tsb_Excute.Enabled = true;
+                        break;
+                    }
+                    else
+                    {
+                        viewTb = null;
+                    }
+                }
+            }
+
+            if (viewTb == null)
+            {
+                viewTb = new ViewTBData();
+                viewTb.Text = text;
+                this.TabControl.TabPages.Add(viewTb);
+                TabControl.SelectedTab = viewTb;
+                tsb_Excute.Enabled = true;
+                viewTb.DBSource = db;
+                viewTb.DBName = dbName;
+                viewTb.TBName = tbName;
+                viewTb.SQLString = sql;
+            }
         }
 
         public void AddSqlExecute(DBSource db,string dbName,string tbname)

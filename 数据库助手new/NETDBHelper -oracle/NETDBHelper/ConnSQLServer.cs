@@ -26,6 +26,8 @@ namespace NETDBHelper
         public ConnSQLServer()
         {
             InitializeComponent();
+            this.ShowInTaskbar = false;
+
             this.pictureBox1.BackgroundImage = Resources.Resource1.oracle;
 
             this.cb_ServerType.DataSource = Biz.Common.Data.Common.GetSQLServerType().ToList();

@@ -35,11 +35,12 @@
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.tb_Msg = new System.Windows.Forms.TextBox();
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.MenuItem_DelItem = new System.Windows.Forms.ToolStripMenuItem();
             this.MenuItem_CopyValue = new System.Windows.Forms.ToolStripMenuItem();
             this.MenuItem_CopyColumnName = new System.Windows.Forms.ToolStripMenuItem();
-            this.tb_sql = new NETDBHelper.UC.EditTextBox();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.MenuItem_DelItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.tb_sql = new NETDBHelper.UC.EditTextBox();
+            this.MenuItem_FixColumn = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.dv_Data)).BeginInit();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
@@ -111,19 +112,13 @@
             // contextMenuStrip1
             // 
             this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.MenuItem_FixColumn,
             this.MenuItem_CopyValue,
             this.MenuItem_CopyColumnName,
             this.toolStripSeparator1,
             this.MenuItem_DelItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(137, 70);
-            // 
-            // MenuItem_DelItem
-            // 
-            this.MenuItem_DelItem.Name = "MenuItem_DelItem";
-            this.MenuItem_DelItem.Size = new System.Drawing.Size(136, 22);
-            this.MenuItem_DelItem.Text = "删除记录";
-            this.MenuItem_DelItem.Click += new System.EventHandler(this.MenuItem_DelItem_Click);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(137, 76);
             // 
             // MenuItem_CopyValue
             // 
@@ -137,6 +132,18 @@
             this.MenuItem_CopyColumnName.Size = new System.Drawing.Size(136, 22);
             this.MenuItem_CopyColumnName.Text = "复制此列名";
             // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(133, 6);
+            // 
+            // MenuItem_DelItem
+            // 
+            this.MenuItem_DelItem.Name = "MenuItem_DelItem";
+            this.MenuItem_DelItem.Size = new System.Drawing.Size(136, 22);
+            this.MenuItem_DelItem.Text = "删除记录";
+            this.MenuItem_DelItem.Click += new System.EventHandler(this.MenuItem_DelItem_Click);
+            // 
             // tb_sql
             // 
             this.tb_sql.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
@@ -146,10 +153,11 @@
             this.tb_sql.Size = new System.Drawing.Size(842, 319);
             this.tb_sql.TabIndex = 3;
             // 
-            // toolStripSeparator1
+            // MenuItem_FixColumn
             // 
-            this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(133, 6);
+            this.MenuItem_FixColumn.Name = "MenuItem_FixColumn";
+            this.MenuItem_FixColumn.Size = new System.Drawing.Size(136, 22);
+            this.MenuItem_FixColumn.Text = "锁定此列";
             // 
             // ViewTBData
             // 
@@ -179,5 +187,6 @@
         private System.Windows.Forms.ToolStripMenuItem MenuItem_CopyValue;
         private System.Windows.Forms.ToolStripMenuItem MenuItem_CopyColumnName;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
+        private System.Windows.Forms.ToolStripMenuItem MenuItem_FixColumn;
     }
 }

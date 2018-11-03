@@ -51,6 +51,48 @@ namespace NETDBHelper.UC
 
             MenuItem_CopyValue.Click += MenuItem1_CopValue_Click;
             MenuItem_CopyColumnName.Click += MenuItem_CopyColumnName_Click;
+            MenuItem_FixColumn.Click += MenuItem_FixColumn_Click;
+
+            this.dv_Data.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
+
+            
+            dv_Data.CellContextMenuStripNeeded += dv_Data_CellContextMenuStripNeeded;
+        }
+
+        void dv_Data_CellContextMenuStripNeeded(object sender, DataGridViewCellContextMenuStripNeededEventArgs e)
+        {
+            if (e.ColumnIndex >= 0)
+            {
+                var columname = dv_Data.Columns[e.ColumnIndex].Name;
+                if (dv_Data.Columns[e.ColumnIndex].Frozen)
+                {
+                    MenuItem_FixColumn.Text = "解锁列[" + columname + "]";
+                }
+                else
+                {
+                    MenuItem_FixColumn.Text = "锁定列[" + columname + "]";
+                }
+                MenuItem_FixColumn.Tag = e.ColumnIndex;
+                MenuItem_FixColumn.Enabled = e.ColumnIndex < 3;
+                MenuItem_FixColumn.Visible = true;
+            }
+            else
+            {
+                MenuItem_FixColumn.Visible = false;
+                
+            }
+        }
+
+        void MenuItem_FixColumn_Click(object sender, EventArgs e)
+        {
+            var tag = MenuItem_FixColumn.Tag;
+            if (tag == null)
+            {
+                return;
+            }
+            var columnindex=(int)tag;
+            dv_Data.Columns[columnindex].Frozen = !dv_Data.Columns[columnindex].Frozen;
+
         }
 
         void MenuItem_CopyColumnName_Click(object sender, EventArgs e)
@@ -182,29 +224,23 @@ namespace NETDBHelper.UC
                 MessageBoxDefaultButton.Button2) == DialogResult.No)
                 return;
             this.tb_Msg.Text = "";
-            var tb = Biz.Common.Data.MySQLHelper.GetKeys(this.DBSource, this.DBName, this.TBName);
-            if (tb.Rows.Count == 0)
+            var cols = Biz.Common.Data.OracleHelper.GetColumns(this.DBSource, this.DBName, this.TBName).Where(p=>p.IsKey).ToList();
+            if (cols.Count == 0)
             {
-                //MessageBox.Show("查找不到主键，不能删除记录！");
-                //return;
-                foreach (DataGridViewColumn column in dv_Data.Columns)
-                {
-                    var row=tb.NewRow();
-                    row[0] = column.Name;
-                    tb.Rows.Add(row);
-                }
+                MessageBox.Show("删除失败，没有主键");
+                return;
             }
             
             foreach (DataGridViewRow selRow in dv_Data.SelectedRows)
             {
                 List<KeyValuePair<string,object>> kvs=new List<KeyValuePair<string,object>>();
-                foreach (DataRow row in tb.Rows)
+                foreach (var col in cols)
                 {
-                    kvs.Add(new KeyValuePair<string,object>(row[0].ToString(),selRow.Cells[row[0].ToString()].Value));
+                    kvs.Add(new KeyValuePair<string,object>(col.Name,selRow.Cells[col.Name].Value));
                 }
                 try
                 {
-                    Biz.Common.Data.MySQLHelper.DeleteItem(DBSource, DBName, TBName, kvs);
+                    Biz.Common.Data.OracleHelper.DeleteItem(DBSource, DBName, TBName, kvs);
                 }
                 catch (Exception ex)
                 {

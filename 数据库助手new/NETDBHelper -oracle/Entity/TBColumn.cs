@@ -66,4 +66,32 @@ namespace Entity
             set;
         }
     }
+
+    public class TBColumnIndex : TBColumn
+    {
+        public TBColumnIndex(TBColumn column)
+        {
+            this.Description = column.Description;
+            this.IsID = column.IsID;
+            this.IsKey = column.IsKey;
+            this.IsNullAble = column.IsNullAble;
+            this.Length = column.Length;
+            this.Name = column.Name;
+            this.prec = column.prec;
+            this.scale = column.scale;
+            this.TypeName = column.TypeName;
+        }
+
+        public int Direction
+        {
+            get;
+            set;
+        }
+
+        public TBColumnIndex SetDirection(int direction)
+        {
+            this.Direction = direction;
+            return this;
+        }
+    }
 }

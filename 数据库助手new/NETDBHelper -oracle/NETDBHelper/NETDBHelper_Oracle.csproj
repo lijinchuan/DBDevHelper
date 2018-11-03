@@ -96,6 +96,18 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resource1.resx</DependentUpon>
     </Compile>
+    <Compile Include="SubForm\AuthDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SubForm\AuthDlg.Designer.cs">
+      <DependentUpon>AuthDlg.cs</DependentUpon>
+    </Compile>
+    <Compile Include="SubForm\ClumnAddSubForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SubForm\ClumnAddSubForm.Designer.cs">
+      <DependentUpon>ClumnAddSubForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="SubForm\CreateEntityNavDlg.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -251,6 +263,12 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resource1.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <EmbeddedResource Include="SubForm\AuthDlg.resx">
+      <DependentUpon>AuthDlg.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SubForm\ClumnAddSubForm.resx">
+      <DependentUpon>ClumnAddSubForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="SubForm\CreateEntityNavDlg.resx">
       <DependentUpon>CreateEntityNavDlg.cs</DependentUpon>
     </EmbeddedResource>
@@ -332,8 +350,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resources\time_green.png" />
     <None Include="Map\新建位图图像.bmp" />
     <None Include="Map\新建位图图像 %282%29.bmp" />
+    <None Include="Resources\application_cascade.png" />
     <Content Include="Resources\CloseServer.jpg" />
     <Content Include="Resources\DB1.png" />
     <Content Include="Resources\DB2.png" />
@@ -344,6 +364,7 @@
     <None Include="Resources\MYSQLICON.jpg" />
     <None Include="Resources\MysqlLogo.jpg" />
     <Content Include="Resources\key_add.png" />
+    <None Include="Resources\lightning.png" />
     <Content Include="Resources\OpenServer.jpg" />
     <Content Include="Resources\OpenServer.png" />
     <None Include="Resources\page.png" />
@@ -352,6 +373,7 @@
     <None Include="Resources\shapes_many.png" />
     <Content Include="Resources\oracle.gif" />
     <Content Include="Resources\plugin_add.png" />
+    <None Include="Resources\script_save.png" />
     <Content Include="Resources\SQLSerTop.jpg" />
   </ItemGroup>
   <ItemGroup>

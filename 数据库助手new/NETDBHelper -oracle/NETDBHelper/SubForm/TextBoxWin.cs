@@ -16,6 +16,10 @@ namespace NETDBHelper.SubForm
         public TextBoxWin(string caption, string text) :
             base()
         {
+            if (text != null && text.IndexOf("\r\n") == -1)
+            {
+                text = text.Replace("\n", "\r\n");
+            }
             this.text = text;
             this.caption = caption;
             InitializeComponent();

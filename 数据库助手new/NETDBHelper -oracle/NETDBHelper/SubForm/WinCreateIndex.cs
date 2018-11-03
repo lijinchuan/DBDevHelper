@@ -14,18 +14,20 @@ namespace NETDBHelper.SubForm
     public partial class WinCreateIndex : Form
     {
         private List<TBColumn> TBColumnList = new List<TBColumn>();
-        public List<TBColumn> IndexColumns = new List<TBColumn>();
+        public List<TBColumnIndex> IndexColumns = new List<TBColumnIndex>();
+        private string _tablename = string.Empty;
 
         public WinCreateIndex()
         {
             InitializeComponent();
         }
 
-        public WinCreateIndex(List<TBColumn> columns)
+        public WinCreateIndex(string tablename,List<TBColumn> columns)
         {
             InitializeComponent();
 
             this.TBColumnList = columns;
+            this._tablename = tablename;
         }
 
         protected override void OnLoad(EventArgs e)
@@ -51,7 +53,7 @@ namespace NETDBHelper.SubForm
                 return string.Empty;
             }
 
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder(this._tablename);
             foreach (var ctl in this.panItmes.Controls)
             {
                 if (ctl is LabCombox)
@@ -59,7 +61,7 @@ namespace NETDBHelper.SubForm
                     LabCombox lc = (LabCombox)ctl;
                     if (lc.SelectedIndex != 0)
                     {
-                        sb.AppendFormat("_{0}_{1}", lc.Text, lc.SelectedIndex);
+                        sb.AppendFormat("_{0}_{1}", lc.Text,lc.SelectedIndex);
                     }
                 }
             }
@@ -81,7 +83,7 @@ namespace NETDBHelper.SubForm
             return CB_AutoIncr.Checked;
         }
 
-        private void InitCheckBoxGroup(List<TBColumn> colContainer, Control ctlContainer)
+        private void InitCheckBoxGroup(List<TBColumnIndex> colContainer, Control ctlContainer)
         {
             if (colContainer == null || ctlContainer == null)
                 return;
@@ -91,7 +93,6 @@ namespace NETDBHelper.SubForm
             int margintop = 5;
             int marginright = 10;
             var items=new[] { "不选", "顺序", "倒序" };
-
             for (int i = 0; i < TBColumnList.Count; i++)
             {
                 var col = TBColumnList[i];
@@ -105,11 +106,11 @@ namespace NETDBHelper.SubForm
                 {
                     if (cb.SelectedIndex!=0)
                     {
-                        colContainer.Add(col);
+                        colContainer.Add(new TBColumnIndex(col).SetDirection(cb.SelectedIndex));
                     }
                     else
                     {
-                        colContainer.Remove(col);
+                        colContainer.Remove(new TBColumnIndex(col).SetDirection(cb.SelectedIndex));
                     }
 
                     this.TBIndexName.Text = GetIndexName();
@@ -153,7 +154,7 @@ namespace NETDBHelper.SubForm
                     return;
                 }
 
-                if (!this.IndexColumns[0].TypeName.Equals("int", StringComparison.OrdinalIgnoreCase) && !this.IndexColumns[0].TypeName.Equals("bigint", StringComparison.OrdinalIgnoreCase))
+                if (!this.IndexColumns[0].TypeName.Equals("NUMBER", StringComparison.OrdinalIgnoreCase) && !this.IndexColumns[0].TypeName.Equals("INTEGER", StringComparison.OrdinalIgnoreCase))
                 {
                     MessageBox.Show("自增长键必须是数字类型");
                     return;
@@ -163,6 +164,15 @@ namespace NETDBHelper.SubForm
                 {
                     MessageBox.Show("已经是自增主键");
                     return;
+                }
+
+                this.IndexColumns[0].IsID = true;
+            }
+            else
+            {
+                foreach (var col in this.IndexColumns)
+                {
+                    col.IsID = false;
                 }
             }
 

@@ -19,6 +19,7 @@ namespace NETDBHelper.SubForm
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
+            this.webBrowser1.IsWebBrowserContextMenuEnabled = false;
 
             this.webBrowser1.DocumentCompleted += (s, ee) =>
             {

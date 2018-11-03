@@ -51,6 +51,10 @@ namespace NETDBHelper
             tv_DBServers.ImageList.Images.Add(Resources.Resource1.DB9);
             tv_DBServers.ImageList.Images.Add(Resources.Resource1.DB10);
             tv_DBServers.ImageList.Images.Add(Resources.Resource1.DB11);
+            tv_DBServers.ImageList.Images.Add(Resources.Resource1.DB12);
+            tv_DBServers.ImageList.Images.Add(Resources.Resource1.DB13);
+            tv_DBServers.ImageList.Images.Add(Resources.Resource1.DB14);
+            tv_DBServers.ImageList.Images.Add(Resources.Resource1.DB15);
             tv_DBServers.Nodes.Add("0", "资源管理器", 0);
             tv_DBServers.NodeMouseClick += new TreeNodeMouseClickEventHandler(tv_DBServers_NodeMouseClick);
 
@@ -88,23 +92,75 @@ namespace NETDBHelper
                         }
                         break;
                     case "删除对象":
-                        if (MessageBox.Show("确认要删除数据库" + tv_DBServers.SelectedNode.Text + "吗？", "询问",
-                            MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
                         {
-                            var node = tv_DBServers.SelectedNode;
-                            Biz.Common.Data.MySQLHelper.DeleteDataBase(GetDBSource(node), node.Text);
-                            ReLoadDBObj(node.Parent);
+                            var delnode = tv_DBServers.SelectedNode;
+                            if (delnode != null)
+                            {
+                                if (delnode.Parent.Text == "序列")
+                                {
+                                    if (MessageBox.Show("要删删除序列：" + delnode.Text + " 吗?", "询问", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                                    {
+                                        OracleHelper.DropSeq(GetDBSource(delnode), delnode.Text);
+                                        ReLoadDBObj(delnode.Parent);
+                                    }
+                                }
+                                else if (delnode.Parent.Text == "触发器")
+                                {
+                                    if (MessageBox.Show("要删删除触发器：" + delnode.Text + " 吗?", "询问", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                                    {
+                                        OracleHelper.DropTrigger(GetDBSource(delnode), delnode.Text);
+                                        ReLoadDBObj(delnode.Parent);
+                                    }
+                                }
+                            }
                         }
                         break;
                     case "新增对象":
-                        var selnode = tv_DBServers.SelectedNode;
-                        var dlg = new SubForm.InputStringDlg("请输入库名：");
-                        if (dlg.ShowDialog() == DialogResult.OK)
                         {
-                            Biz.Common.Data.MySQLHelper.CreateDataBase(GetDBSource(selnode),selnode.FirstNode.Text, dlg.InputString);
-                            ReLoadDBObj(selnode);
+                            var selnode = tv_DBServers.SelectedNode;
+                            var dlg = new SubForm.InputStringDlg("请输入库名：");
+                            if (dlg.ShowDialog() == DialogResult.OK)
+                            {
+                                Biz.Common.Data.MySQLHelper.CreateDataBase(GetDBSource(selnode), selnode.FirstNode.Text, dlg.InputString);
+                                ReLoadDBObj(selnode);
+                            }
+                            break;
                         }
-                        break;
+                    case "查看语句":
+                        {
+                            var selnode = tv_DBServers.SelectedNode;
+                            if (selnode != null && selnode.Level > 1 && selnode.Parent.Text == "触发器")
+                            {
+                                var detail = OracleHelper.GetTriggerDetail(GetDBSource(selnode), selnode.Text);
+                                TextBoxWin tb = new TextBoxWin("触发器:" + selnode.Text, detail);
+                                tb.ShowDialog();
+                            }
+                            else if (selnode != null && selnode.Level > 1 && selnode.Parent.Text == "视图")
+                            {
+                                var detail = OracleHelper.GetViewDetail(GetDBSource(selnode), selnode.Text);
+                                TextBoxWin tb = new TextBoxWin("视图:" + selnode.Text, detail);
+                                tb.ShowDialog();
+                            }
+                            else if (selnode != null && selnode.Level > 1 && selnode.Parent.Text == "物化视图")
+                            {
+                                var detail = OracleHelper.GetMViewDetail(GetDBSource(selnode), selnode.Text);
+                                TextBoxWin tb = new TextBoxWin("物化视图:" + selnode.Text, detail);
+                                tb.ShowDialog();
+                            }
+                            else if (selnode != null && selnode.Level > 1 && selnode.Parent.Text.Equals("作业"))
+                            {
+                                var body = OracleHelper.GetJobDetail(GetDBSource(selnode), selnode.Name);
+                                TextBoxWin win = new TextBoxWin("作业[" + selnode.Name + "]", body);
+                                win.ShowDialog();
+                            }
+                            else if (selnode != null && selnode.Level > 1 && selnode.Parent.Text.Equals("序列"))
+                            {
+                                var body = OracleHelper.GetSeqBody(GetDBSource(selnode), selnode.Name);
+                                TextBoxWin win = new TextBoxWin("序列[" + selnode.Name + "]", body);
+                                win.ShowDialog();
+                            }
+                            break;
+                        }
                 }
             }
             catch (Exception ex)
@@ -126,18 +182,76 @@ namespace NETDBHelper
             {
                 Biz.UILoadHelper.LoadTBsAnsy(this.ParentForm, selNode, GetDBSource(selNode));
             }
-            else if (selNode.Level == 3 && !selNode.Text.Equals("存储过程"))
-            {
-                Biz.UILoadHelper.LoadColumnsAnsy(this.ParentForm, selNode, GetDBSource(selNode));
-            }
             else if (selNode.Level == 3 && selNode.Text.Equals("存储过程"))
             {
                 Biz.UILoadHelper.LoadProcedureAnsy(this.ParentForm, selNode, GetDBSource(selNode));
+            }
+            else if (selNode.Level == 3 && selNode.Text.Equals("视图"))
+            {
+                Biz.UILoadHelper.LoadViewAnsy(this.ParentForm, selNode, GetDBSource(selNode));
+            }
+            else if (selNode.Level == 3 && selNode.Text.Equals("物化视图"))
+            {
+                Biz.UILoadHelper.LoadMViewAnsy(this.ParentForm, selNode, GetDBSource(selNode));
+            }
+            else if (selNode.Level == 3 && selNode.Text.Equals("作业"))
+            {
+                Biz.UILoadHelper.LoadJobsAnsy(this.ParentForm, selNode, GetDBSource(selNode));
+            }
+            else if (selNode.Level == 3 && selNode.Text.Equals("序列"))
+            {
+                Biz.UILoadHelper.LoadSeqsAnsy(this.ParentForm, selNode, GetDBSource(selNode));
+            }
+            else if (selNode.Level == 3)
+            {
+                Biz.UILoadHelper.LoadColumnsAnsy(this.ParentForm, selNode, GetDBSource(selNode));
+            }
+            else if (selNode.Level == 4 && selNode.Parent.Text.Equals("视图"))
+            {
+                Biz.UILoadHelper.LoadColumnsAnsy(this.ParentForm, selNode, GetDBSource(selNode));
+            }
+            else if (selNode.Level == 4 && selNode.Parent.Text.Equals("物化视图"))
+            {
+                Biz.UILoadHelper.LoadColumnsAnsy(this.ParentForm, selNode, GetDBSource(selNode));
             }
             else if (selNode.Level == 4 && selNode.Text.Equals("索引"))
             {
                 Biz.UILoadHelper.LoadIndexAnsy(this.ParentForm, selNode, GetDBSource(selNode));
             }
+            else if (selNode.Level == 4 && selNode.Text.Equals("触发器"))
+            {
+                Biz.UILoadHelper.LoadTriggersAnsy(this.ParentForm, selNode, GetDBSource(selNode));
+            }
+        }
+
+        private bool IsTableNode(TreeNode node)
+        {
+            return node != null && node.Level == 3
+                && !"存储过程".Equals(node.Text)
+                && !"视图".Equals(node.Text)
+                && !"物化视图".Equals(node.Text)
+                && !"作业".Equals(node.Text)
+                && !"序列".Equals(node.Text);
+        }
+
+        private bool IsCanDelete(TreeNode node)
+        {
+            if (node.Level < 2)
+            {
+                return false;
+            }
+
+            if (node.Level == 2)
+            {
+                return true;
+            }
+
+            if (node.Parent.Text == "序列"||node.Parent.Text=="触发器")
+            {
+                return true;
+            }
+
+            return false;
         }
 
         void OnMenuStrip_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
@@ -155,7 +269,7 @@ namespace NETDBHelper
                     case "复制对象名":
                         if (this.tv_DBServers.SelectedNode != null)
                         {
-                            Clipboard.SetText(tv_DBServers.SelectedNode.Text);
+                            Clipboard.SetText(tv_DBServers.SelectedNode.Name ?? tv_DBServers.SelectedNode.Text);
                         }
                         break;
                     case "删除表":
@@ -180,7 +294,7 @@ namespace NETDBHelper
                             {
                                 return;
                             }
-                            Biz.Common.Data.MySQLHelper.ReNameTableName(GetDBSource(_node), _node.Parent.Text,
+                            Biz.Common.Data.OracleHelper.ReNameTableName(GetDBSource(_node), _node.Parent.Text,
                                 oldname, dlg.InputString);
                             ReLoadDBObj(_node.Parent);
                         }
@@ -205,6 +319,31 @@ namespace NETDBHelper
                     case "创建语句":
                         MessageBox.Show("Create");
                         break;
+                    case "新增字段":
+                        {
+                            var node = tv_DBServers.SelectedNode;
+                            SubForm.ClumnAddSubForm subform = new ClumnAddSubForm();
+                            subform.TableName = node.Name;
+                            if (subform.ShowDialog() == DialogResult.Yes)
+                            {
+                                var innsesql=string.Empty;
+                                try
+                                {
+
+                                    foreach (var sql in subform.GetSql())
+                                    {
+                                        innsesql=sql;
+                                        Biz.Common.Data.OracleHelper.ExecuteNoQuery(GetDBSource(node), node.Parent.Text, sql);
+                                    }
+                                    ReLoadDBObj(node);
+                                }
+                                catch (Exception ex)
+                                {
+                                    MessageBox.Show("出错:" + innsesql + "," + ex.Message);
+                                }
+                            }
+                            break;
+                        }
                     default:
                         _node = tv_DBServers.SelectedNode;
                         break;
@@ -223,24 +362,24 @@ namespace NETDBHelper
                 List<KeyValuePair<string, bool>> cols = new List<KeyValuePair<string, bool>>();
                 foreach (TreeNode node in tv_DBServers.SelectedNode.Nodes)
                 {
-                    if (node.Text == "索引" && node == tv_DBServers.SelectedNode.LastNode)
+                    if (node.Text == "索引" || node.Text=="触发器")
                     {
                         continue;
                     }
-                    cols.Add(new KeyValuePair<string, bool>(node.Text.Substring(0,node.Text.IndexOf('(')), (node.Tag as TBColumn).IsKey));
+                    cols.Add(new KeyValuePair<string, bool>((node.Tag as TBColumn).Name, (node.Tag as TBColumn).IsKey));
                 }
                 StringBuilder sb = new StringBuilder();
                 sb.AppendLine("select");
-                sb.Append(string.Join(",\r\n", cols.Select(p =>p.Key)));
+                sb.Append(string.Join(",\r\n", cols.Select(p => "t." + p.Key)));
                 sb.AppendLine("");
                 sb.Append(" from ");
-                sb.Append(tv_DBServers.SelectedNode.Text);
-                sb.Append(" where rownum<=100 ");
+                sb.Append(tv_DBServers.SelectedNode.Name);
+                sb.Append(" t where rownum<=100 ");
                 sb.AppendLine();
                 
                 if (this.OnShowTableData != null)
                 {
-                    OnShowTableData(this.tv_DBServers.SelectedNode.Parent.Parent.Tag as DBSource,this.tv_DBServers.SelectedNode.Parent.Text,this.tv_DBServers.SelectedNode.Text, sb.ToString());
+                    OnShowTableData(this.tv_DBServers.SelectedNode.Parent.Parent.Tag as DBSource,this.tv_DBServers.SelectedNode.Parent.Name,this.tv_DBServers.SelectedNode.Name, sb.ToString());
                 }
             }
         }
@@ -274,7 +413,7 @@ namespace NETDBHelper
                 if (dlg.SupportProtobuf)
                     sb.AppendLine("    [ProtoContract]");
                 if (dlg.SupportDBMapperAttr)
-                    sb.AppendLine("    [DataBaseMapperAttr(TableName=\"" + tv_DBServers.SelectedNode.Text + "\")]");
+                    sb.AppendLine("    [DataBaseMapperAttr(TableName=\"" + tv_DBServers.SelectedNode.Name + "\")]");
                 sb.Append("    public class ");
                 sb.Append(Biz.Common.StringHelper.FirstToUpper(tv_DBServers.SelectedNode.Text));
                 sb.Append("Entity");
@@ -299,13 +438,13 @@ namespace NETDBHelper
                 int idx = 1;
                 foreach (TreeNode node in selNode.Nodes)
                 {
-                    if (node.Text == "索引" && node == selNode.LastNode)
+                    if (node.Text == "索引" || node.Text == "触发器")
                     {
                         continue;
                     }
                     var col = node.Tag as TBColumn;
                     
-                        string privateAttr = string.Concat("_" + Biz.Common.StringHelper.FirstToLower(col.Name));
+                        string privateAttr = string.Concat("_" + Biz.Common.StringHelper.FirstToLower(col.Name.ToLower()));
                         sb.AppendFormat("        private {0} {1};", Biz.Common.Data.Common.OracleTypeToNetType(col.TypeName), privateAttr);
                         sb.AppendLine();
                         if (dlg.SupportProtobuf)
@@ -333,11 +472,11 @@ namespace NETDBHelper
 
                         if (dlg.SupportJsonproterty)
                         {
-                            sb.AppendLine("        [JsonProperty(\"" + col.Name + "\")]");
+                            sb.AppendLine("        [JsonProperty(\"" + col.Name.ToLower() + "\")]");
                             sb.AppendLine("        [PropertyDescriptionAttr(\"" + col.Description + "\")]");
                         }
 
-                        sb.AppendFormat(format, Biz.Common.Data.Common.OracleTypeToNetType(col.TypeName), Biz.Common.StringHelper.FirstToUpper(col.Name),
+                        sb.AppendFormat(format, Biz.Common.Data.Common.OracleTypeToNetType(col.TypeName), Biz.Common.StringHelper.FirstToUpper(col.Name.ToLower()),
                             privateAttr, privateAttr, dlg.SupportMvcDisplay ? string.Format("[Display(Name = \"{0}\")]\r\n        ", col.Description) : string.Empty);
                         sb.AppendLine();
                    
@@ -346,7 +485,7 @@ namespace NETDBHelper
                 sb.AppendLine("}");
                 if (OnCreateEntity != null)
                 {
-                    OnCreateEntity("实体类" + selNode.Text, sb.ToString());
+                    OnCreateEntity("实体类" + Biz.Common.StringHelper.FirstToUpper(selNode.Text.ToLower()), sb.ToString());
                 }
                 Clipboard.SetText(sb.ToString());
                 MainFrm.SendMsg(string.Format("实体代码已经复制到剪贴板,{0}", hasKey ? "" : "警告：表没有自增主键。"));
@@ -360,7 +499,7 @@ namespace NETDBHelper
             if (node.Level < 1)
                 return null;
             if (node.Level == 1)
-                return DBServers.FirstOrDefault(p => p.ServerName.Equals(node.Text));
+                return DBServers.FirstOrDefault(p => p.ServerName.Equals(node.Text,StringComparison.Ordinal));
             return GetDBSource(node.Parent);
         }
 
@@ -405,6 +544,22 @@ namespace NETDBHelper
                     Biz.UILoadHelper.LoadProcedureAnsy(this.ParentForm, e.Node, GetDBSource(e.Node));
 
                 }
+                else if (e.Node.Text.Equals("视图"))
+                {
+                    Biz.UILoadHelper.LoadViewAnsy(this.ParentForm, e.Node, GetDBSource(e.Node));
+                }
+                else if (e.Node.Text.Equals("物化视图"))
+                {
+                    Biz.UILoadHelper.LoadMViewAnsy(this.ParentForm, e.Node, GetDBSource(e.Node));
+                }
+                else if (e.Node.Text.Equals("作业"))
+                {
+                    Biz.UILoadHelper.LoadJobsAnsy(this.ParentForm, e.Node, GetDBSource(e.Node));
+                }
+                else if (e.Node.Text.Equals("序列"))
+                {
+                    Biz.UILoadHelper.LoadSeqsAnsy(this.ParentForm, e.Node, GetDBSource(e.Node));
+                }
                 else
                 {
                     Biz.UILoadHelper.LoadColumnsAnsy(this.ParentForm, e.Node, GetDBSource(e.Node));
@@ -419,6 +574,19 @@ namespace NETDBHelper
                 {
                     Biz.UILoadHelper.LoadIndexAnsy(this.ParentForm, e.Node, GetDBSource(e.Node));
                 }
+                else if (e.Node.Text.Equals("触发器"))
+                {
+                    Biz.UILoadHelper.LoadTriggersAnsy(this.ParentForm, e.Node, GetDBSource(e.Node));
+                }
+                else if (e.Node.Parent.Text.Equals("视图"))
+                {
+                    Biz.UILoadHelper.LoadColumnsAnsy(this.ParentForm, e.Node, GetDBSource(e.Node));
+                }
+                else if (e.Node.Parent.Text.Equals("物化视图"))
+                {
+                    Biz.UILoadHelper.LoadColumnsAnsy(this.ParentForm, e.Node, GetDBSource(e.Node));
+                }
+                
             }
 
         }
@@ -485,7 +653,7 @@ namespace NETDBHelper
                 var node=tv_DBServers.SelectedNode;
                 if ( node!= null)
                 {
-                    if ((tv_DBServers.SelectedNode.Level == 3 && !tv_DBServers.SelectedNode.Text.Equals("存储过程"))
+                    if (IsTableNode(node)
                         || (tv_DBServers.SelectedNode.Level == 4 && tv_DBServers.SelectedNode.Parent.Text.Equals("存储过程"))
                         || (tv_DBServers.SelectedNode.Level == 5 && tv_DBServers.SelectedNode.Parent.Text.Equals("索引")))
                     {
@@ -498,6 +666,7 @@ namespace NETDBHelper
                             }
 
                             导出ToolStripMenuItem.Visible = true;
+                            复制表名ToolStripMenuItem.Visible = true;
                         }
                         else if (tv_DBServers.SelectedNode.Parent.Text.Equals("索引"))
                         {
@@ -519,17 +688,22 @@ namespace NETDBHelper
                         TTSM_DelIndex.Visible = node.Level == 5 && node.Parent.Text.Equals("索引");
 
                         ExpdataToolStripMenuItem.Visible = node.Level == 3;
+                        新增字段ToolStripMenuItem.Visible = IsTableNode(node);
+                        授权ToolStripMenuItem.Visible = IsTableNode(node);
                     }
                     else
                     {
                         this.tv_DBServers.ContextMenuStrip = this.CommMenuStrip;
                         subMenuItemAddEntityTB.Visible = node.Level == 2;
-                        CommSubMenuItem_Delete.Visible = node.Level == 2;
+                        CommSubMenuItem_Delete.Visible = IsCanDelete(node);
                         CommSubMenuitem_add.Visible = node.Level == 1;
                         CommSubMenuitem_ViewConnsql.Visible = node.Level == 2;
                         性能分析工具ToolStripMenuItem.Visible = node.Level == 1;
                         SqlExecuterToolStripMenuItem.Visible = node.Level == 2;
-                        
+                        查看语句ToolStripMenuItem.Visible = node.Level > 1
+                            && (node.Parent.Text == "触发器" || node.Parent.Text == "视图"
+                            ||node.Parent.Text=="物化视图"||node.Parent.Text=="作业"
+                            ||node.Parent.Text=="序列");
                     }
                 }
             }
@@ -634,7 +808,7 @@ namespace NETDBHelper
             var _node = tv_DBServers.SelectedNode;
             if (this.OnCreatePorcSQL != null)
             {
-                this.OnCreatePorcSQL(GetDBSource(_node), _node.Parent.Text, _node.Name, _node.Text, CreateProceEnum.InsertOrUpdate);
+                this.OnCreatePorcSQL(GetDBSource(_node), _node.Parent.Name, _node.Name, _node.Name, CreateProceEnum.InsertOrUpdate);
             }
         }
 
@@ -643,44 +817,33 @@ namespace NETDBHelper
             var node = this.tv_DBServers.SelectedNode;
             if (node != null && node.Level == 3)
             {
-                StringBuilder sb = new StringBuilder(string.Format("CREATE TABLE `{0}`(", node.Text));
-                sb.AppendLine();
-                foreach (TBColumn col in Biz.Common.Data.MySQLHelper.GetColumns(GetDBSource(node), node.Parent.Text, node.Text))
-                {
-                    sb.AppendFormat("`{0}` {1} {2} {3},", col.Name, Biz.Common.Data.Common.GetDBType(col), (col.IsID || col.IsKey) ? "NOT NULL" : (col.IsNullAble ? "NOT NULL" : "NULL"), col.IsID ? "AUTO_INCREMENT" : "");
-                    if (col.IsID)
-                    {
-                        sb.AppendLine();
-                        sb.AppendFormat("PRIMARY KEY (`{0}`),", col.Name);
-                    }
-                    sb.AppendLine();
-                }
-                sb.AppendLine("`last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");
-                sb.AppendLine(")ENGINE=InnoDB AUTO_INCREMENT=201 DEFAULT CHARSET=utf8;");
-                sb.AppendLine("//注意：bit类型要手工改成TINYINT(1)。");
-                TextBoxWin win = new TextBoxWin("创建表" + node.Text, sb.ToString());
+                string createsql = OracleHelper.GetCreateTableSql(GetDBSource(node), node.Name);
+
+                
+                TextBoxWin win = new TextBoxWin("创建表[" + node.Name+"]", createsql);
                 win.ShowDialog();
             }
             else if (node != null && node.Level == 4 && node.Parent.Text.Equals("存储过程"))
             {
-                var body = Biz.Common.Data.MySQLHelper.GetProcedureBody(GetDBSource(node), node.Parent.Parent.Text, node.Text);
-                TextBoxWin win = new TextBoxWin("存储过程[" + node.Text + "]", "drop PROCEDURE if exists " + node.Text + ";\r\n\r\n" + body.Replace("\n","\r\n"));
+                var body = Biz.Common.Data.OracleHelper.GetProcedureBody(GetDBSource(node), node.Name);
+                TextBoxWin win = new TextBoxWin("存储过程[" + node.Text + "]", body);
                 win.ShowDialog();
             }
+            
         }
 
         private void ExpdataToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var node = this.tv_DBServers.SelectedNode;
-            if (node == null || node.Level != 3)
+            if (!IsTableNode(node))
             {
                 return;
             }
-            var cols = Biz.Common.Data.MySQLHelper.GetColumns(GetDBSource(node), node.Parent.Text, node.Text)
+            var cols = Biz.Common.Data.OracleHelper.GetColumns(GetDBSource(node), node.Parent.Name, node.Name)
                 .Where(p => !p.IsID).ToList();
-            string sqltext = string.Format("select {0} from {1}", string.Join(",", cols.Select(p => string.Concat("[", p.Name, "]"))), string.Concat("[", node.Text, "]"));
-            var datas = Biz.Common.Data.MySQLHelper.ExecuteDBTable(GetDBSource(node), node.Parent.Text, sqltext, null);
-            StringBuilder sb = new StringBuilder(string.Format("Insert into {0} ({1}) values", string.Concat("`", node.Text, "`"), string.Join(",", cols.Select(p => string.Concat("`", p.Name, "`")))));
+            string sqltext = string.Format("select {0} from {1}", string.Join(",", cols.Select(p => p.Name)),  node.Name);
+            var datas = Biz.Common.Data.OracleHelper.ExecuteDBTable(GetDBSource(node), node.Parent.Text, sqltext, null);
+            StringBuilder sb = new StringBuilder(string.Format("Insert into {0} ({1}) values",node.Name, string.Join(",", cols.Select(p => p.Name))));
             foreach (DataRow row in datas.Rows)
             {
                 StringBuilder sb1 = new StringBuilder();
@@ -693,24 +856,17 @@ namespace NETDBHelper
                     }
                     else
                     {
-                        if (column.TypeName.IndexOf("int", StringComparison.OrdinalIgnoreCase) > -1
-                            || column.TypeName.IndexOf("decimal", StringComparison.OrdinalIgnoreCase) > -1
+                        if (column.TypeName.IndexOf("binary_float", StringComparison.OrdinalIgnoreCase) > -1
+                            || column.TypeName.IndexOf("binary_double", StringComparison.OrdinalIgnoreCase) > -1
+                            || column.TypeName.IndexOf("integer", StringComparison.OrdinalIgnoreCase) > -1
                             || column.TypeName.IndexOf("float", StringComparison.OrdinalIgnoreCase) > -1
-                            || column.TypeName.Equals("bit", StringComparison.OrdinalIgnoreCase)
-                            || column.TypeName.Equals("real", StringComparison.OrdinalIgnoreCase)
-                            || column.TypeName.IndexOf("money", StringComparison.OrdinalIgnoreCase) > -1
+                            || column.TypeName.IndexOf("number", StringComparison.OrdinalIgnoreCase) > -1
                             || column.TypeName.Equals("timestamp", StringComparison.OrdinalIgnoreCase)
-                            || column.TypeName.IndexOf("money", StringComparison.OrdinalIgnoreCase) > -1
                         )
                         {
                             sb1.AppendFormat("{0},", data);
                         }
-                        else if (column.TypeName.Equals("boolean", StringComparison.OrdinalIgnoreCase)
-                               || column.TypeName.Equals("bool", StringComparison.OrdinalIgnoreCase))
-                        {
-                            sb1.AppendFormat("{0},", data.Equals(true) ? 1 : 0);
-                        }
-                        else if (column.TypeName.Equals("datetime", StringComparison.OrdinalIgnoreCase))
+                        else if (column.TypeName.Equals("data", StringComparison.OrdinalIgnoreCase))
                         {
                             sb1.AppendFormat("'{0}',", ((DateTime)data).ToString("yyyy-MM-dd HH:mm:ss"));
                         }
@@ -739,10 +895,10 @@ namespace NETDBHelper
             }
 
             DBSource dbsource = GetDBSource(node);
-            string dbname = node.Parent.Text,
-                tbname = node.Text, tid = node.Name;
+            string dbname = node.Parent.Name,
+                tbname = node.Name, tid = node.Name;
 
-            var cols = Biz.Common.Data.MySQLHelper.GetColumns(dbsource, dbname, tbname).ToList();
+            var cols = Biz.Common.Data.OracleHelper.GetColumns(dbsource, dbname, tbname).ToList();
 
             SubForm.WinCreateSelectSpNav nav = new WinCreateSelectSpNav(cols);
 
@@ -754,7 +910,7 @@ namespace NETDBHelper
             var conditioncols = nav.ConditionColumns;
             var outputcols = nav.OutPutColumns;
 
-            string codes = MySQLHelper.CreateSelectSql(dbname, tbname, nav.Editer, nav.SPAbout, cols, conditioncols, outputcols);
+            string codes = OracleHelper.CreateSelectSql(dbname, tbname, nav.Editer, nav.SPAbout, cols, conditioncols, outputcols);
 
             if (OnCreateSelectSql != null)
             {
@@ -818,7 +974,7 @@ namespace NETDBHelper
                 resulttb.Columns.AddRange(new string[][] { 
                     new []{"line","行号"},
                     new []{"name","列名"},
-                    new []{"iskey","是否主键"},
+                    new []{"iskey","主键"},
                     new []{"type","类型"},
                     new []{"len","长度"},
                     new []{"desc","说明"} }.Select(s => new DataColumn
@@ -836,7 +992,7 @@ namespace NETDBHelper
                 int idx = 1;
                 foreach (TreeNode node in selNode.Nodes)
                 {
-                    if (node.Text.Equals("索引") && node == selnode.LastNode)
+                    if (node.Text.Equals("索引") ||node.Text.Equals("触发器"))
                     {
                         continue;
                     }
@@ -844,12 +1000,12 @@ namespace NETDBHelper
                     newrow["line"] = idx++;
 
                     var col = node.Tag as TBColumn;
-                    newrow["desc"] = col.Description;
-                    newrow["name"] = col.Name;
+                    newrow["desc"] = string.IsNullOrWhiteSpace(col.Description) ? "-" : col.Description;
+                    newrow["name"] = col.Name.ToLowerInvariant();
                     newrow["type"] = col.TypeName;
 
                     bool iskey = col.IsKey;
-                    newrow["iskey"] = iskey ? "是" : "否";
+                    newrow["iskey"] = iskey ? "<font color='red'>Y</font>" : "N";
 
 
                     newrow["len"] = col.prec != 0 ? col.prec.ToString() : (col.Length > 0 ? col.Length.ToString() : "&nbsp;");
@@ -860,9 +1016,33 @@ namespace NETDBHelper
 
                 }
 
+                SubForm.WinWebBroswer web = new WinWebBroswer();
+                web.Width=(int)(this.Parent.Width*0.8);
+                web.Height = (int)(this.Parent.Height * 0.8);
+
+                var stylehtml = string.Format(@"<style>
+table{{
+   border-right:solid 1px #ccc;
+   border-bottom:solid 1px #ccc;
+   width:{0}px;
+}}
+table th{{
+   background-color:#ddd
+}}
+table td,th{{
+  border-left:solid 1px #ccc;
+  border-top:solid 1px #ccc;
+  height:28px;
+  line-height:28px;
+}}
+body{{
+  width:{1}px;
+  margin:0px auto;
+}}
+</style>",(int)(web.Width*0.99),web.Width);
                 //生成HTML
                 StringBuilder sb = new StringBuilder();
-                sb.AppendFormat(@"<html><head><title>数据字典-{0}</title></head><body><table cellpadding='1' cellspacing='0' border='1'>", tbname);
+                sb.AppendFormat(@"<html><head><title>数据字典-{0}</title></head>{1}<body><table cellpadding='1' cellspacing='0' border='1'>", tbname, stylehtml);
                 sb.Append("<tr>");
                 foreach (DataColumn col in resulttb.Columns)
                 {
@@ -882,8 +1062,9 @@ namespace NETDBHelper
 
                 sb.Append("</table></body></html>");
 
-                SubForm.WinWebBroswer web = new WinWebBroswer();
+                web.StartPosition = FormStartPosition.CenterParent;
                 web.SetHtml(sb.ToString());
+                
                 web.ShowDialog();
 
             }
@@ -905,7 +1086,7 @@ namespace NETDBHelper
             var _node = tv_DBServers.SelectedNode;
             if (this.OnCreatePorcSQL != null)
             {
-                this.OnCreatePorcSQL(GetDBSource(_node), _node.Parent.Text, _node.Name, _node.Text, CreateProceEnum.Delete);
+                this.OnCreatePorcSQL(GetDBSource(_node), _node.Parent.Name, _node.Name, _node.Name, CreateProceEnum.Delete);
             }
         }
 
@@ -913,15 +1094,16 @@ namespace NETDBHelper
         {
             var _node = tv_DBServers.SelectedNode;
             var ds = GetDBSource(_node);
-            var db = _node.Parent.Text;
-            var tb = _node.Text;
+            var db = _node.Parent.Name;
+            var tb = _node.Name;
             var cols = Biz.Common.Data.OracleHelper.GetColumns(ds, db, tb).ToList();
-            WinCreateIndex win = new WinCreateIndex(cols);
+            WinCreateIndex win = new WinCreateIndex(tb,cols);
+            win.StartPosition = FormStartPosition.CenterParent;
             if (win.ShowDialog() == DialogResult.OK && MessageBox.Show("要创建索引吗？") == DialogResult.OK)
             {
                 try
                 {
-                    Biz.Common.Data.MySQLHelper.CreateIndex(ds, db, tb, win.IndexName, win.IsUnique(), win.IsPrimaryKey(),win.IsAutoIncr(), win.IndexColumns);
+                    Biz.Common.Data.OracleHelper.CreateIndex(ds, db, tb, win.IndexName, win.IsUnique(), win.IsPrimaryKey(),win.IsAutoIncr(), win.IndexColumns);
                     MessageBox.Show("创建索引成功");
                 }
                 catch (Exception ex)
@@ -942,13 +1124,45 @@ namespace NETDBHelper
                     var ds = GetDBSource(_node);
                     try
                     {
-                        Biz.Common.Data.MySQLHelper.DropIndex(ds, _node.Parent.Parent.Parent.Text, _node.Parent.Parent.Text, indexname.Equals("primary", StringComparison.OrdinalIgnoreCase), indexname);
+                        Biz.Common.Data.OracleHelper.DropIndex(ds, _node.Parent.Parent.Parent.Text, _node.Parent.Parent.Text, indexname.Equals("primary", StringComparison.OrdinalIgnoreCase), indexname);
                         MessageBox.Show("删除成功");
                         ReLoadDBObj(_node.Parent);
                     }
                     catch (Exception ex)
                     {
                         MessageBox.Show(ex.Message, "删除索引失败", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+            }
+        }
+
+        private void 授权ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var node = tv_DBServers.SelectedNode;
+            if (node != null && IsTableNode(node))
+            {
+                AuthDlg dlg = new AuthDlg();
+                dlg.TBName = node.Name;
+                dlg.Users = OracleHelper.GetUsers(GetDBSource(node));
+                if (dlg.ShowDialog() == DialogResult.OK)
+                {
+                    try
+                    {
+                        if (dlg.AuthAll)
+                        {
+                            OracleHelper.AuthAllUser(GetDBSource(node), dlg.TBName, dlg.User);
+                        }
+                        else
+                        {
+                            OracleHelper.ReAuthUser(GetDBSource(node), dlg.TBName, dlg.User,
+                                dlg.AuthSelect, dlg.AuthUpdate, dlg.AuthInsert, dlg.AuthDelete);
+                        }
+
+                        MessageBox.Show("成功！");
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("失败：" + ex.Message);
                     }
                 }
             }

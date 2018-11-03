@@ -322,7 +322,7 @@ namespace Biz.Common.Data
                     }
                 case "LONG":
                     {
-                        return "long";
+                        return "string";
                     }
                 case "RAW":
                     {
@@ -352,6 +352,97 @@ namespace Biz.Common.Data
                 default:
                     return col.TypeName;
             }
+        }
+
+        public static IEnumerable<OracleDataType> GetOracleColumnType()
+        {
+            //BINARY_DOUBLE 是为 64 位，双精度浮点数字数据类型。每个 BINARY_DOUBLE 的值需要 9 个字节，包括长度字节。
+            yield return new OracleDataType { TypeName = "binary_double",IsNumber=true, About = "BINARY_DOUBLE 是为 64 位，双精度浮点数字数据类型。每个 BINARY_DOUBLE 的值需要 9 个字节，包括长度字节。" };
+            //BINARY_FLOAT 是 32 位、 单精度浮点数字数据类型。可以支持至少6位精度,每个 BINARY_FLOAT 的值需要 5 个字节，包括长度字节。
+            yield return new OracleDataType { TypeName = "binary_float",IsNumber=true, About = "BINARY_FLOAT 是 32 位、 单精度浮点数字数据类型。可以支持至少6位精度,每个 BINARY_FLOAT 的值需要 5 个字节，包括长度字节。" };
+            //内置的LOB数据类型包括BLOB、CLOB、NCLOB、BFILE（外部存储）的大型化和非结构化数据，如文本、图像、视屏、空间数据存储。BLOB、CLOB、NCLOB类型
+            //它存储非结构化的二进制数据大对象，它可以被认为是没有字符集语义的比特流，一般是图像、声音、视频等文件。BLOB对象最多存储(4 gigabytes-1) * (database block size)的二进制数据。
+            yield return new OracleDataType
+            {
+                TypeName = "blob",
+                MaxByteLen = 4L * 1024L * 1024L * 1024L - 1,
+                About = @"它存储非结构化的二进制数据大对象，它可以被认为是没有字符集语义的比特流，一般是图像、声音、视频等文件。
+BLOB对象最多存储(4 gigabytes-1) * (database block size)的二进制数据。"
+            };
+            // 它存储单字节和多字节字符数据。支持固定宽度和可变宽度的字符集。CLOB对象可以存储最多 (4 gigabytes-1) * (database block size) 大小的字符
+            yield return new OracleDataType
+            {
+                TypeName = "clob",
+                MaxByteLen = 4L * 1024L * 1024L * 1024L - 1,
+                About = @"它存储单字节和多字节字符数据。支持固定宽度和可变宽度的字符集。
+CLOB对象可以存储最多 (4 gigabytes-1) * (database block size) 大小的字符",
+                IsString=true
+            };
+            //定长字符串，会用空格填充来达到其最大长度。非NULL的CHAR（12）总是包含12字节信息。CHAR字段最多可以存储2,000字节的信息。如果创建表时，不指定CHAR长度，则默认为1。另外你可以指定它存储字节或字符，例如 CHAR(12 BYTYE) CHAR(12 CHAR).
+            yield return new OracleDataType { TypeName = "char", LenAble = true, DefaultLen = 50, MaxByteLen = 2000, IsString=true,
+                About = @"定长字符串，会用空格填充来达到其最大长度。非NULL的CHAR（12）总是包含12字节信息。
+CHAR字段最多可以存储2,000字节的信息。如果创建表时，不指定CHAR长度，则默认为1。
+另外你可以指定它存储字节或字符，例如 CHAR(12 BYTYE) CHAR(12 CHAR)." };
+            yield return new OracleDataType { TypeName = "date", IsTime = true };
+            yield return new OracleDataType { TypeName = "interval day to second" };
+            yield return new OracleDataType { TypeName = "interval year to month" };
+            /*
+             * 它存储变长字符串，最多达2G的字符数据（2GB是指2千兆字节， 而不是2千兆字符），与VARCHAR2 或CHAR 类型一样，存储在LONG 类型中的文本要进行字符集转换。
+             * ORACLE建议开发中使用CLOB替代LONG类型。支持LONG 列只是为了保证向后兼容性。CLOB类型比LONG类型的限制要少得多。 LONG类型的限制如下：
+             * 1.一个表中只有一列可以为LONG型。(Why?有些不明白)
+             * 2.LONG列不能定义为主键或唯一约束，
+             * 3.不能建立索引
+             * 4.LONG数据不能指定正则表达式。
+             * 5.函数或存储过程不能接受LONG数据类型的参数。
+             * 6.LONG列不能出现在WHERE子句或完整性约束（除了可能会出现NULL和NOT NULL约束）
+             */
+            yield return new OracleDataType
+            {
+                TypeName = "long",
+                MaxByteLen = 1024L * 1024L * 1024L * 2L,
+                About = @"它存储变长字符串，最多达2G的字符数据（2GB是指2千兆字节， 而不是2千兆字符），与VARCHAR2 或CHAR 类型一样，存储在LONG 类型中的文本要进行字符集转换。
+ORACLE建议开发中使用CLOB替代LONG类型。支持LONG 列只是为了保证向后兼容性。CLOB类型比LONG类型的限制要少得多。 LONG类型的限制如下：
+1.一个表中只有一列可以为LONG型。(Why?有些不明白)
+2.LONG列不能定义为主键或唯一约束，
+3.不能建立索引
+4.LONG数据不能指定正则表达式。
+5.函数或存储过程不能接受LONG数据类型的参数。
+6.LONG列不能出现在WHERE子句或完整性约束（除了可能会出现NULL和NOT NULL约束）",
+                IsString=true
+            };
+            //能存储2GB 的原始二进制数据（不用进行字符集转换的数据）
+            yield return new OracleDataType
+            {
+                TypeName = "long raw",
+                MaxByteLen = 1024L * 1024L * 1024L * 2L,
+                About = "能存储2GB 的原始二进制数据（不用进行字符集转换的数据）"
+            };
+            //它存储UNICODE类型的数据，支持固定宽度和可变宽度的字符集，NCLOB对象可以存储最多(4 gigabytes-1) * (database block size)大小的文本数据。
+            yield return new OracleDataType
+            {
+                TypeName = "nclob",
+                MaxByteLen = 1024L * 1024L * 1024L * 4L - 1,
+                About = @"它存储UNICODE类型的数据，支持固定宽度和可变宽度的字符集，
+NCLOB对象可以存储最多(4 gigabytes-1) * (database block size)大小的文本数据。",
+                IsString=true
+            };
+
+            //NUMBER(P,S)是最常见的数字类型，可以存放数据范围为10^130~10^126（不包含此值)，需要1~22字节(BYTE)不等的存储空间。P 是Precison的英文缩写，即精度缩写，表示有效数字的位数，最多不能超过38个有效数字S是Scale的英文缩写，可以使用的范围为-84~127。Scale为正数时，表示从小数点到最低有效数字的位数，它为负数时，表示从最大有效数字到小数点的位数
+            yield return new OracleDataType { TypeName = "number",IsNumber=true, PrecisionAble = true, ScaleAble = true, DefaultPrecision = 38, DefaultScale = 0,
+            About=@"NUMBER(P,S)是最常见的数字类型，可以存放数据范围为10^130~10^126（不包含此值)，需要1~22字节(BYTE)不等的存储空间。
+P 是Precison的英文缩写，即精度缩写，表示有效数字的位数，最多不能超过38个有效数字
+S是Scale的英文缩写，可以使用的范围为-84~127。
+Scale为正数时，表示从小数点到最低有效数字的位数，它为负数时，表示从最大有效数字到小数点的位数"};
+            
+            //用于存储二进制或字符类型数据，变长二进制数据类型，这说明采用这种数据类型存储的数据不会发生字符集转换。这种类型最多可以存储2,000字节的信息
+            yield return new OracleDataType { TypeName = "raw", LenAble = true, MaxByteLen = 2000, About = "用于存储二进制或字符类型数据，变长二进制数据类型，这说明采用这种数据类型存储的数据不会发生字符集转换。这种类型最多可以存储2,000字节的信息" };
+            //这是一个7字节或12字节的定宽日期/时间数据类型。它与DATE数据类型不同，因为TIMESTAMP可以包含小数秒，带小数秒的TIMESTAMP在小数点右边最多可以保留9位
+            yield return new OracleDataType { TypeName = "timestamp",IsNumber=true, About = "这是一个7字节或12字节的定宽日期/时间数据类型。它与DATE数据类型不同，因为TIMESTAMP可以包含小数秒，带小数秒的TIMESTAMP在小数点右边最多可以保留9位" };
+            yield return new OracleDataType { TypeName = "timestamp with local time zone" };
+            yield return new OracleDataType { TypeName = "timestamp with time zone" };
+            //变长字符串，与CHAR类型不同，它不会使用空格填充至最大长度。VARCHAR2最多可以存储4,000字节的信息。
+            yield return new OracleDataType { TypeName = "varchar2",IsString=true,LenAble=true, MaxByteLen = 4000, About = "变长字符串，与CHAR类型不同，它不会使用空格填充至最大长度。VARCHAR2最多可以存储4,000字节的信息。" };
+            yield return new OracleDataType { TypeName = "nvarchar2", IsString=true,LenAble = true, DefaultLen = 50, MaxByteLen = 4000, About = "这是一个包含UNICODE格式数据的变长字符串。 NVARCHAR2最多可以存储4,000字节的信息。" };
         }
     }
 }

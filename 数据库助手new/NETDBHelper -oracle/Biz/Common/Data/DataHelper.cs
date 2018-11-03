@@ -191,50 +191,39 @@ namespace Biz.Common.Data
         public static string GetInsertProcSql(DBSource dbSource, string dbName, string tbid, string tbName)
         {
             StringBuilder sb = new StringBuilder();
-            sb.AppendLine(string.Format("USE {0};", dbName));
-            sb.AppendLine(string.Format("drop PROCEDURE if exists {0}_sp_{1}_i;",dbName,tbName));
-            sb.AppendLine("DELIMITER $$");
-            
-            sb.Append(string.Format(" CREATE PROCEDURE {0}_sp_{1}_i(", dbName, tbName));
-            var cols=MySQLHelper.GetColumns(dbSource, dbName, tbName);
+
+            sb.Append(string.Format("create procedure SP_{0}_I(", tbName));
+            var cols=OracleHelper.GetColumns(dbSource, dbName, tbName);
             int i = 0;
             foreach (TBColumn x in cols)
             {
                 i++;
-                sb.AppendLine(string.Format("{0} {1} {2} {3}", (x.IsID ? "OUT" : ("IN")), x.Name, Common.GetDBType(x),i==cols.Count()?"":","));
+                sb.AppendLine(string.Format("{0} {1} {2},", x.Name,(x.IsID ? "OUT" : ("IN")), x.TypeName));
             }
+            sb.AppendLine(" P_ROWS OUT NUMBER");
             sb.Append(")");
-            sb.AppendLine();
+            sb.AppendLine("as");
 
             sb.AppendLine("BEGIN");
 
             sb.AppendLine(string.Format("INSERT INTO {0}({1})",tbName, string.Join(",", cols.Where(p => !p.IsID).Select(p => p.Name))));
             sb.AppendLine(string.Format("VALUES({0});",string.Join(",",cols.Where(p=>!p.IsID).Select(p=>p.Name))));
             var idCol = cols.FirstOrDefault(p => p.IsID);
-            if (idCol != null)
-            {
-                sb.AppendLine(string.Format("set {0}=@@IDENTITY;", idCol.Name));
-                sb.AppendLine(string.Format("select {0};", idCol.Name));
-            }
-            else
-            {
-                sb.AppendLine("select 0;");
-            }
-            sb.AppendLine("END$$");
 
-            sb.AppendLine("DELIMITER ;");
+            sb.AppendLine("P_ROWS := SQL%ROWCOUNT;");
+
+            sb.AppendLine("COMMIT;");
+            sb.AppendLine("END;");
+
             return sb.ToString();
         }
 
         public static string GetDeleteProcSql(DBSource dbSource, string dbName, string tbid, string tbName)
         {
             StringBuilder sb = new StringBuilder();
-            sb.AppendLine(string.Format("USE {0};", dbName));
-            sb.AppendLine(string.Format("drop PROCEDURE if exists {0}_sp_{1}_d;", dbName, tbName));
-            sb.AppendLine("DELIMITER $$");
 
-            sb.Append(string.Format(" CREATE PROCEDURE {0}_sp_{1}_d(", dbName, tbName));
-            var cols = MySQLHelper.GetColumns(dbSource, dbName, tbName);
+            sb.Append(string.Format(" CREATE PROCEDURE SP_{0}_D(", tbName));
+            var cols = OracleHelper.GetColumns(dbSource, dbName, tbName);
 
             if (!cols.Any(p => p.IsKey))
             {
@@ -246,19 +235,19 @@ namespace Biz.Common.Data
             foreach (TBColumn x in cols)
             {
                 i++;
-                sb.AppendLine(string.Format("{0} {1} {2} {3}", "IN", x.Name, Common.GetDBType(x), i == cols.Count() ? "" : ","));
+                sb.AppendLine(string.Format("{0} {1} {2},",x.Name, "IN", x.TypeName));
             }
+            sb.AppendLine("P_ROWS OUT NUMBER");
             sb.Append(")");
-            sb.AppendLine();
+            sb.AppendLine("as");
 
             sb.AppendLine("BEGIN");
-            sb.AppendLine("SET SQL_SAFE_UPDATES = 0;");
             sb.AppendLine(string.Format("delete from {0} where {1};", tbName, string.Join(" and ",cols.Select(p => p.Name+"="+p.Name))));
-           
-            sb.AppendLine("select 0;");
-            sb.AppendLine("END$$");
+            sb.AppendLine("P_ROWS := SQL%ROWCOUNT;");
 
-            sb.AppendLine("DELIMITER ;");
+            sb.AppendLine("COMMIT;");
+            sb.AppendLine("END;");
+
             return sb.ToString();
         }
 
