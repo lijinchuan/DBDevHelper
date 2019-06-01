@@ -69,6 +69,7 @@ namespace CouchBaseDevHelper.UI
             }
 
             this.Text = "修改->" + Key;
+            this.TBKey.Text = Key;
 
             if (Val is string)
             {
@@ -94,6 +95,11 @@ namespace CouchBaseDevHelper.UI
         {
             try
             {
+                if (string.IsNullOrWhiteSpace(this.TBKey.Text))
+                {
+                    throw new Exception("键不能为空");
+                }
+
                 object obj = null;
                 if (Val is string)
                 {
@@ -114,9 +120,19 @@ namespace CouchBaseDevHelper.UI
                 var client = LJC.FrameWork.Couchbase.CouchbaseHelper.GetClient(Connstr.Split(':')[0],
                     int.Parse(Connstr.Split(':')[1]), Bucket);
 
-                LJC.FrameWork.LogManager.LogHelper.Instance.Info("修改备份,key=" + Key+ "类型："+Val.GetType().FullName+",原值:" + JsonUtil<object>.Serialize(Val));
+                if (this.TBKey.Text != Key)
+                {
+                    if (client.KeyExists(this.TBKey.Text))
+                    {
+                        throw new Exception("新的键已经存在，不能修改。");
+                    }
+                }
+                else
+                {
+                    LJC.FrameWork.LogManager.LogHelper.Instance.Info("修改备份,key=" + Key + "类型：" + Val.GetType().FullName + ",原值:" + JsonUtil<object>.Serialize(Val));
+                }
 
-                if(client.Store(Enyim.Caching.Memcached.StoreMode.Set, Key, obj))
+                if(client.Store(Enyim.Caching.Memcached.StoreMode.Set, this.TBKey.Text, obj))
                 {
                     MessageBox.Show("存储成功");
                 }
