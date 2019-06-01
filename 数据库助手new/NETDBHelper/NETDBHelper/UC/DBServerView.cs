@@ -532,7 +532,7 @@ namespace NETDBHelper
             sb.AppendLine();
             foreach (TBColumn col in Biz.Common.Data.SQLHelper.GetColumns(GetDBSource(node), node.Parent.Text, node.Name, node.Text))
             {
-                sb.AppendFormat("`{0}` {1} {2} {3},", col.Name, Biz.Common.Data.Common.GetDBType(col), (col.IsID||col.IsKey) ? "NOT NULL" : (col.IsNullAble ? "NOT NULL" : "NULL"),col.IsID?"AUTO_INCREMENT":"");
+                sb.AppendFormat("`{0}` {1} {2} {3},", col.Name, Biz.Common.Data.Common.GetDBType(col), (col.IsID||col.IsKey) ? "NOT NULL" : (col.IsNullAble ? "NULL" : "NOT NULL"),col.IsID?"AUTO_INCREMENT":"");
                 if (col.IsID)
                 {
                     sb.AppendLine();
@@ -674,7 +674,7 @@ GO");
             //sb.AppendLine();
             foreach (TBColumn col in Biz.Common.Data.SQLHelper.GetColumns(GetDBSource(node), node.Parent.Text, node.Name, node.Text))
             {
-                sb.AppendFormat("[{0}] {1} {2} {3},", col.Name, Biz.Common.Data.Common.GetDBType(col), (col.IsID || col.IsKey) ? "NOT NULL" : (col.IsNullAble ? "NOT NULL" : "NULL"), col.IsID ? "IDENTITY(1,1)" : "");
+                sb.AppendFormat("[{0}] {1} {2} {3},", col.Name, Biz.Common.Data.Common.GetDBType(col), (col.IsID || col.IsKey) ? "NOT NULL" : (col.IsNullAble ? "NULL" : "NOT NULL"), col.IsID ? "IDENTITY(1,1)" : "");
                 sb.AppendLine();
             }
             sb.AppendLine(")");
@@ -802,6 +802,7 @@ GO");
                     new []{"line","行号"},
                     new []{"name","列名"},
                     new []{"iskey","是否主键"},
+                    new []{"null","可空"},
                     new []{"type","类型"},
                     new []{"len","长度"},
                     new []{"desc","说明"} }.Select(s => new DataColumn
@@ -840,11 +841,12 @@ GO");
                             iskey = (node.Tag as TBColumn).IsKey;
                         }
                         newrow["iskey"] = iskey?"是":"否";
-
+                        
                         var col=tbclumns.Find(p => p.Name.Equals(m.Groups[1].Value, StringComparison.OrdinalIgnoreCase));
                         if (col != null)
                         {
                             newrow["len"] = col.Length == -1 ? "max" : col.Length.ToString();
+                            newrow["null"] = col.IsNullAble ? "是" : "否";
                         }
 
                         resulttb.Rows.Add(newrow);
