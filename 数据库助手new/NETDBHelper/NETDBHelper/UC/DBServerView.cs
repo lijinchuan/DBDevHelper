@@ -672,12 +672,23 @@ GO");
             sb.AppendLine();
             sb.AppendLine(string.Format("CREATE TABLE dbo.[{0}](", node.Text));
             //sb.AppendLine();
+            List<string> keys = new List<string>();
             foreach (TBColumn col in Biz.Common.Data.SQLHelper.GetColumns(GetDBSource(node), node.Parent.Text, node.Name, node.Text))
             {
                 sb.AppendFormat("[{0}] {1} {2} {3},", col.Name, Biz.Common.Data.Common.GetDBType(col), (col.IsID || col.IsKey) ? "NOT NULL" : (col.IsNullAble ? "NULL" : "NOT NULL"), col.IsID ? "IDENTITY(1,1)" : "");
                 sb.AppendLine();
+                if (col.IsKey)
+                {
+                    keys.Add(col.Name);
+                }
             }
             sb.AppendLine(")");
+            
+            if (keys.Count > 0)
+            {
+                sb.AppendLine("alter table " + node.Text + " add constraint pk_" + string.Join("_", keys) + "_1 primary key(" + string.Join(",", keys) + ")");
+                
+            }
             sb.AppendLine("Go");
             TextBoxWin win = new TextBoxWin("创建表" + node.Text, sb.ToString());
             win.ShowDialog();
