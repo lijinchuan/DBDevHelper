@@ -46,6 +46,11 @@ namespace NETDBHelper
             tv_DBServers.ImageList.Images.Add(Resources.Resource1.DB4);
             tv_DBServers.ImageList.Images.Add(Resources.Resource1.DB5);
             tv_DBServers.ImageList.Images.Add(Resources.Resource1.DB6);
+            tv_DBServers.ImageList.Images.Add(Resources.Resource1.DB7);
+            tv_DBServers.ImageList.Images.Add(Resources.Resource1.DB8);
+            tv_DBServers.ImageList.Images.Add(Resources.Resource1.DB9);
+            tv_DBServers.ImageList.Images.Add(Resources.Resource1.DB10);
+            tv_DBServers.ImageList.Images.Add(Resources.Resource1.DB11);
             tv_DBServers.Nodes.Add("0", "资源管理器", 0);
             tv_DBServers.NodeMouseClick += new TreeNodeMouseClickEventHandler(tv_DBServers_NodeMouseClick);
 
@@ -146,9 +151,17 @@ namespace NETDBHelper
             {
                 Biz.UILoadHelper.LoadTBsAnsy(this.ParentForm, selNode, GetDBSource(selNode));
             }
-            else if (selNode.Level == 3)
+            else if (selNode.Level == 3 && !selNode.Text.Equals("存储过程"))
             {
                 Biz.UILoadHelper.LoadColumnsAnsy(this.ParentForm, selNode, GetDBSource(selNode));
+            }
+            else if (selNode.Level == 3 && selNode.Text.Equals("存储过程"))
+            {
+                Biz.UILoadHelper.LoadProcedureAnsy(this.ParentForm, selNode, GetDBSource(selNode));
+            }
+            else if (selNode.Level == 4 && selNode.Text.Equals("索引"))
+            {
+                Biz.UILoadHelper.LoadIndexAnsy(this.ParentForm, selNode, GetDBSource(selNode));
             }
         }
 
@@ -238,6 +251,10 @@ namespace NETDBHelper
                 List<KeyValuePair<string, bool>> cols = new List<KeyValuePair<string, bool>>();
                 foreach (TreeNode node in tv_DBServers.SelectedNode.Nodes)
                 {
+                    if (node.Text == "索引" && node == tv_DBServers.SelectedNode.LastNode)
+                    {
+                        continue;
+                    }
                     cols.Add(new KeyValuePair<string, bool>(node.Text.Substring(0,node.Text.IndexOf('(')), (node.Tag as TBColumn).IsKey));
                 }
                 StringBuilder sb = new StringBuilder("select top 100 ");
@@ -335,7 +352,25 @@ namespace NETDBHelper
                 //    e.Node.Nodes.Add(newNode);
                 //}
                 //e.Node.Expand();
-                Biz.UILoadHelper.LoadColumnsAnsy(this.ParentForm, e.Node, GetDBSource(e.Node));
+                if (e.Node.Text.Equals("存储过程"))
+                {
+                    Biz.UILoadHelper.LoadProcedureAnsy(this.ParentForm, e.Node, GetDBSource(e.Node));
+
+                }
+                else
+                {
+                    Biz.UILoadHelper.LoadColumnsAnsy(this.ParentForm, e.Node, GetDBSource(e.Node));
+                }
+            }
+            else if (e.Node.Level == 4)
+            {
+                if (e.Node.Nodes.Count > 0)
+                    return;
+
+                if (e.Node.Text.Equals("索引"))
+                {
+                    Biz.UILoadHelper.LoadIndexAnsy(this.ParentForm, e.Node, GetDBSource(e.Node));
+                }
             }
         }
         public void Bind()
@@ -401,9 +436,47 @@ namespace NETDBHelper
                 var node=tv_DBServers.SelectedNode;
                 if ( node!= null)
                 {
-                    if (tv_DBServers.SelectedNode.Level == 3)
+                    if ((tv_DBServers.SelectedNode.Level == 3 && !tv_DBServers.SelectedNode.Text.Equals("存储过程"))
+                        || (tv_DBServers.SelectedNode.Level == 4 && tv_DBServers.SelectedNode.Parent.Text.Equals("存储过程"))
+                        || (tv_DBServers.SelectedNode.Level == 5 && tv_DBServers.SelectedNode.Parent.Text.Equals("索引")))
                     {
                         this.tv_DBServers.ContextMenuStrip = this.DBServerviewContextMenuStrip;
+                        if (tv_DBServers.SelectedNode.Parent.Text.Equals("存储过程"))
+                        {
+                            foreach (ToolStripItem item in tv_DBServers.ContextMenuStrip.Items)
+                            {
+                                item.Visible = false;
+                            }
+
+                            导出ToolStripMenuItem.Visible = true;
+                            foreach(ToolStripItem ts in 导出ToolStripMenuItem.DropDownItems)
+                            {
+                                if (ts != CreateMSSQLToolStripMenuItem)
+                                {
+                                    ts.Visible = false;
+                                }
+                            }
+                        }
+                        else if (tv_DBServers.SelectedNode.Parent.Text.Equals("索引"))
+                        {
+                            foreach (ToolStripItem item in tv_DBServers.ContextMenuStrip.Items)
+                            {
+                                item.Visible = false;
+                            }
+                            //TSM_ManIndex.Visible = true;
+                        }
+                        else
+                        {
+                            foreach (ToolStripItem item in tv_DBServers.ContextMenuStrip.Items)
+                            {
+                                item.Visible = true;
+                                ExpdataToolStripMenuItem.Visible = false;
+                            }
+                        }
+                        //TTSM_CreateIndex.Visible = node.Level == 3;
+                        //TTSM_DelIndex.Visible = node.Level == 5 && node.Parent.Text.Equals("索引");
+
+                        ExpdataToolStripMenuItem.Visible = node.Level == 3;
                     }
                     else
                     {
@@ -654,14 +727,12 @@ namespace NETDBHelper
         private void CreateMSSQLToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var node = this.tv_DBServers.SelectedNode;
-            if (node == null || node.Level != 3)
+            if (node != null && node.Level == 3)
             {
-                return;
-            }
-            StringBuilder sb = new StringBuilder(string.Format("Use [{0}]",node.Parent.Text));
-            sb.AppendLine();
-            sb.AppendLine("Go");
-            sb.Append(@"SET ANSI_NULLS ON
+                StringBuilder sb = new StringBuilder(string.Format("Use [{0}]", node.Parent.Text));
+                sb.AppendLine();
+                sb.AppendLine("Go");
+                sb.Append(@"SET ANSI_NULLS ON
 GO
 
 SET QUOTED_IDENTIFIER ON
@@ -669,29 +740,36 @@ GO
 
 SET ANSI_PADDING ON
 GO");
-            sb.AppendLine();
-            sb.AppendLine(string.Format("CREATE TABLE dbo.[{0}](", node.Text));
-            //sb.AppendLine();
-            List<string> keys = new List<string>();
-            foreach (TBColumn col in Biz.Common.Data.SQLHelper.GetColumns(GetDBSource(node), node.Parent.Text, node.Name, node.Text))
-            {
-                sb.AppendFormat("[{0}] {1} {2} {3},", col.Name, Biz.Common.Data.Common.GetDBType(col), (col.IsID || col.IsKey) ? "NOT NULL" : (col.IsNullAble ? "NULL" : "NOT NULL"), col.IsID ? "IDENTITY(1,1)" : "");
                 sb.AppendLine();
-                if (col.IsKey)
+                sb.AppendLine(string.Format("CREATE TABLE dbo.[{0}](", node.Text));
+                //sb.AppendLine();
+                List<string> keys = new List<string>();
+                foreach (TBColumn col in Biz.Common.Data.SQLHelper.GetColumns(GetDBSource(node), node.Parent.Text, node.Name, node.Text))
                 {
-                    keys.Add(col.Name);
+                    sb.AppendFormat("[{0}] {1} {2} {3},", col.Name, Biz.Common.Data.Common.GetDBType(col), (col.IsID || col.IsKey) ? "NOT NULL" : (col.IsNullAble ? "NULL" : "NOT NULL"), col.IsID ? "IDENTITY(1,1)" : "");
+                    sb.AppendLine();
+                    if (col.IsKey)
+                    {
+                        keys.Add(col.Name);
+                    }
                 }
+                sb.AppendLine(")");
+
+                if (keys.Count > 0)
+                {
+                    sb.AppendLine("alter table " + node.Text + " add constraint pk_" + string.Join("_", keys) + "_1 primary key(" + string.Join(",", keys) + ")");
+
+                }
+                sb.AppendLine("Go");
+                TextBoxWin win = new TextBoxWin("创建表" + node.Text, sb.ToString());
+                win.ShowDialog();
             }
-            sb.AppendLine(")");
-            
-            if (keys.Count > 0)
+            else if (node != null && node.Level == 4 && node.Parent.Text.Equals("存储过程"))
             {
-                sb.AppendLine("alter table " + node.Text + " add constraint pk_" + string.Join("_", keys) + "_1 primary key(" + string.Join(",", keys) + ")");
-                
+                var body = Biz.Common.Data.SQLHelper.GetProcedureBody(GetDBSource(node), node.Parent.Parent.Text, node.Text);
+                TextBoxWin win = new TextBoxWin("存储过程[" + node.Text + "]", body);
+                win.ShowDialog();
             }
-            sb.AppendLine("Go");
-            TextBoxWin win = new TextBoxWin("创建表" + node.Text, sb.ToString());
-            win.ShowDialog();
         }
 
         //导出数据

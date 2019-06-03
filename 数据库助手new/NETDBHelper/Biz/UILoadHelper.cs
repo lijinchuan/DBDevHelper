@@ -85,12 +85,13 @@ namespace Biz
             }
             if (parent.InvokeRequired)
             {
-                parent.Invoke(new Action(() => { tbNode.Nodes.Clear(); tbNode.Nodes.AddRange(treeNodes.ToArray()); tbNode.Expand(); }));
+                parent.Invoke(new Action(() => { tbNode.Nodes.Clear(); tbNode.Nodes.AddRange(treeNodes.ToArray()); tbNode.Nodes.Add("INDEXS", "索引", 1, 1); tbNode.Expand(); tbNode.Expand(); }));
             }
             else
             {
                 tbNode.Nodes.Clear();
                 tbNode.Nodes.AddRange(treeNodes.ToArray());
+                tbNode.Nodes.Add("INDEXS", "索引", 1, 1);
                 tbNode.Expand();
             }
         }
@@ -116,13 +117,85 @@ namespace Biz
             }
             if (parent.InvokeRequired)
             {
-                parent.Invoke(new Action(() => { serverNode.Nodes.Clear(); serverNode.Nodes.AddRange(treeNodes.ToArray()); serverNode.Expand(); }));
+                parent.Invoke(new Action(() => { serverNode.Nodes.Clear(); serverNode.Nodes.AddRange(treeNodes.ToArray()); serverNode.Nodes.Add("PROCEDURE", "存储过程", 1, 1); serverNode.Expand(); }));
             }
             else
             {
                 serverNode.Nodes.Clear();
                 serverNode.Nodes.AddRange(treeNodes.ToArray());
+                serverNode.Nodes.Add("PROCEDURE", "存储过程", 1, 1);
                 serverNode.Expand();
+            }
+        }
+
+        private static void LoadProcedure(Form parent, TreeNode tbNode, DBSource server)
+        {
+            if (server == null)
+                return;
+            List<TreeNode> treeNodes = new List<TreeNode>();
+            foreach (string col in Biz.Common.Data.SQLHelper.GetProcedures(server, tbNode.Parent.Text).ToList())
+            {
+                //int imgIdx = col.IsKey ? 4 : 5;
+                TreeNode newNode = new TreeNode(col, 5, 5);
+                newNode.Tag = col;
+                treeNodes.Add(newNode);
+            }
+            if (parent.InvokeRequired)
+            {
+                parent.Invoke(new Action(() => { tbNode.Nodes.Clear(); tbNode.Nodes.AddRange(treeNodes.ToArray()); tbNode.Expand(); }));
+            }
+            else
+            {
+                tbNode.Nodes.Clear();
+                tbNode.Nodes.AddRange(treeNodes.ToArray());
+                tbNode.Expand();
+            }
+        }
+
+        public static void LoadProcedureAnsy(Form parent, TreeNode procedureNode, DBSource server)
+        {
+            new Action<Form, TreeNode, DBSource>(LoadProcedure).BeginInvoke(parent, procedureNode, server, null, null);
+        }
+
+        public static void LoadIndexAnsy(Form parent, TreeNode tbNode, DBSource server)
+        {
+            new Action<Form, TreeNode, DBSource>(LoadIndexs).BeginInvoke(parent, tbNode, server, null, null);
+        }
+
+        private static void LoadIndexs(Form parent, TreeNode tbNode, DBSource server)
+        {
+            if (server == null)
+            {
+                return;
+            }
+
+            var list = Biz.Common.Data.SQLHelper.GetIndexs(server, tbNode.Parent.Parent.Text, tbNode.Parent.Text);
+            List<TreeNode> treeNodes = new List<TreeNode>();
+
+            foreach (var item in list)
+            {
+                var imageindex = item.IndexName.Equals("primary", StringComparison.OrdinalIgnoreCase) ? 8 : 7;
+                TreeNode newNode = new TreeNode(item.IndexName, item.Cols.Select(p => new TreeNode
+                {
+                    Text = p,
+                    ImageIndex = imageindex,
+                    SelectedImageIndex = imageindex
+                }).ToArray());
+
+                newNode.ImageIndex = newNode.SelectedImageIndex = 6;
+
+                treeNodes.Add(newNode);
+            }
+
+            if (parent.InvokeRequired)
+            {
+                parent.Invoke(new Action(() => { tbNode.Nodes.Clear(); tbNode.Nodes.AddRange(treeNodes.ToArray()); tbNode.Expand(); }));
+            }
+            else
+            {
+                tbNode.Nodes.Clear();
+                tbNode.Nodes.AddRange(treeNodes.ToArray());
+                tbNode.Expand();
             }
         }
     }

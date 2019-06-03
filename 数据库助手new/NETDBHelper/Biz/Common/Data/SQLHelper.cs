@@ -219,5 +219,56 @@ namespace Biz.Common.Data
             ExecuteNoQuery(dbSource, connDB, delSql, parameters.ToArray());
             return true;
         }
+
+        public static IEnumerable<string> GetProcedures(DBSource dbSource, string dbName)
+        {
+            var tb = ExecuteDBTable(dbSource, dbName, "select name from dbo.sysobjects where OBJECTPROPERTY(id, N'IsProcedure') = 1 order by name");
+
+            var y = from x in tb.AsEnumerable()
+                    select x["name"] as string;
+
+            return y;
+        }
+
+        public static string GetProcedureBody(DBSource dbSource, string dbName, string procedure)
+        {
+            //show create {procedure|function} sp_name
+            string sql = string.Format("sp_helptext  '{0}'", procedure);
+
+            var tb = ExecuteDBTable(dbSource, dbName, sql);
+            StringBuilder sb = new StringBuilder();
+
+            foreach(DataRow row in tb.Rows)
+            {
+                sb.AppendLine((string)row["Text"]);
+            }
+            
+
+            return sb.ToString();
+        }
+
+        public static List<IndexEntry> GetIndexs(DBSource dbSource, string dbName, string tabname)
+        {
+            var indexs = new List<IndexEntry>();
+            string sql = string.Format(@"SELECT  a.name Key_name,d.name Column_name,b.keyno Seq_in_index from
+sysindexes a 
+left join sysindexkeys  b  on a.id=b.id 
+left JOIN  sysobjects  c  ON  b.id = c.id
+left JOIN  syscolumns  d  ON  b.id = d.id 
+WHERE  a.indid=b.indid and b.colid = d.colid and  c.xtype = 'U'
+AND  c.name = '{0}' ", tabname);
+
+            var tb = ExecuteDBTable(dbSource, dbName, sql);
+
+            var x = from row in tb.AsEnumerable()
+                    group row by row.Field<string>("Key_name") into pp
+                    select new IndexEntry
+                    {
+                        IndexName = pp.Key,
+                        Cols = pp.OrderBy(c => c.Field<object>("Seq_in_index")).Select(c => c.Field<string>("Column_name")).ToArray()
+                    };
+
+            return x.ToList();
+        }
     }
 }

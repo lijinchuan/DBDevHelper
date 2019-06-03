@@ -280,8 +280,26 @@
     <Content Include="Resources\DB4.png" />
     <Content Include="Resources\DB5.png" />
     <Content Include="Resources\DB6.png" />
+    <Content Include="Resources\key_add.png" />
+    <None Include="Resources\key_add1.png" />
+    <Content Include="Resources\MYSQLICON.jpg" />
+    <Content Include="Resources\MysqlLogo.jpg" />
     <Content Include="Resources\OpenServer.jpg" />
     <Content Include="Resources\OpenServer.png" />
+    <Content Include="Resources\page.png" />
+    <None Include="Resources\page1.png" />
+    <None Include="Resources\page2.png" />
+    <Content Include="Resources\plugin_add.png" />
+    <None Include="Resources\plugin_add1.png" />
+    <Content Include="Resources\report.png" />
+    <None Include="Resources\report1.png" />
+    <None Include="Resources\report2.png" />
+    <Content Include="Resources\report_key.png" />
+    <None Include="Resources\report_key1.png" />
+    <None Include="Resources\report_key2.png" />
+    <Content Include="Resources\shapes_many.png" />
+    <None Include="Resources\shapes_many1.png" />
+    <None Include="Resources\shapes_many2.png" />
     <Content Include="Resources\SQLSerTop.jpg" />
   </ItemGroup>
   <ItemGroup>
