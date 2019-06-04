@@ -117,12 +117,18 @@ namespace Biz
             }
             if (parent.InvokeRequired)
             {
-                parent.Invoke(new Action(() => { serverNode.Nodes.Clear(); serverNode.Nodes.AddRange(treeNodes.ToArray()); serverNode.Nodes.Add("PROCEDURE", "存储过程", 1, 1); serverNode.Expand(); }));
+                parent.Invoke(new Action(() => 
+                { serverNode.Nodes.Clear();
+                    serverNode.Nodes.AddRange(treeNodes.ToArray());
+                    serverNode.Nodes.Add("VIEW", "视图", 1, 1);
+                    serverNode.Nodes.Add("PROCEDURE", "存储过程", 1, 1);
+                    serverNode.Expand(); }));
             }
             else
             {
                 serverNode.Nodes.Clear();
                 serverNode.Nodes.AddRange(treeNodes.ToArray());
+                serverNode.Nodes.Add("VIEW", "视图", 1, 1);
                 serverNode.Nodes.Add("PROCEDURE", "存储过程", 1, 1);
                 serverNode.Expand();
             }
@@ -183,6 +189,47 @@ namespace Biz
                 }).ToArray());
 
                 newNode.ImageIndex = newNode.SelectedImageIndex = 6;
+
+                treeNodes.Add(newNode);
+            }
+
+            if (parent.InvokeRequired)
+            {
+                parent.Invoke(new Action(() => { tbNode.Nodes.Clear(); tbNode.Nodes.AddRange(treeNodes.ToArray()); tbNode.Expand(); }));
+            }
+            else
+            {
+                tbNode.Nodes.Clear();
+                tbNode.Nodes.AddRange(treeNodes.ToArray());
+                tbNode.Expand();
+            }
+        }
+
+        public static void LoadViewsAnsy(Form parent, TreeNode tbNode, DBSource server)
+        {
+            new Action<Form, TreeNode, DBSource>(LoadViews).BeginInvoke(parent, tbNode, server, null, null);
+        }
+
+        private static void LoadViews(Form parent, TreeNode tbNode, DBSource server)
+        {
+            if (server == null)
+            {
+                return;
+            }
+
+            var list = Biz.Common.Data.SQLHelper.GetViews(server, tbNode.Parent.Text);
+            List<TreeNode> treeNodes = new List<TreeNode>();
+
+            foreach (var item in list)
+            {
+                TreeNode newNode = new TreeNode(item.Key, item.Value.Select(p => new TreeNode
+                {
+                    Text = p.Name+"("+p.TypeName+(p.Length==-1?"":("("+p.Length+")"))+")",
+                    ImageIndex = 6,
+                    SelectedImageIndex = 6
+                }).ToArray());
+
+                newNode.ImageIndex = newNode.SelectedImageIndex = 3;
 
                 treeNodes.Add(newNode);
             }

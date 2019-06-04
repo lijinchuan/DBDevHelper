@@ -159,6 +159,10 @@ namespace NETDBHelper
             {
                 Biz.UILoadHelper.LoadProcedureAnsy(this.ParentForm, selNode, GetDBSource(selNode));
             }
+            else if (selNode.Level == 3 && selNode.Text.Equals("视图"))
+            {
+                Biz.UILoadHelper.LoadViewsAnsy(this.ParentForm, selNode, GetDBSource(selNode));
+            }
             else if (selNode.Level == 4 && selNode.Text.Equals("索引"))
             {
                 Biz.UILoadHelper.LoadIndexAnsy(this.ParentForm, selNode, GetDBSource(selNode));
@@ -357,6 +361,11 @@ namespace NETDBHelper
                     Biz.UILoadHelper.LoadProcedureAnsy(this.ParentForm, e.Node, GetDBSource(e.Node));
 
                 }
+                if (e.Node.Text.Equals("视图"))
+                {
+                    Biz.UILoadHelper.LoadViewsAnsy(this.ParentForm, e.Node, GetDBSource(e.Node));
+
+                }
                 else
                 {
                     Biz.UILoadHelper.LoadColumnsAnsy(this.ParentForm, e.Node, GetDBSource(e.Node));
@@ -434,14 +443,16 @@ namespace NETDBHelper
             if (e.Button == MouseButtons.Right)
             {
                 var node=tv_DBServers.SelectedNode;
-                if ( node!= null)
+                if (node != null)
                 {
                     if ((tv_DBServers.SelectedNode.Level == 3 && !tv_DBServers.SelectedNode.Text.Equals("存储过程"))
                         || (tv_DBServers.SelectedNode.Level == 4 && tv_DBServers.SelectedNode.Parent.Text.Equals("存储过程"))
+                        || (tv_DBServers.SelectedNode.Level == 4 && tv_DBServers.SelectedNode.Parent.Text.Equals("视图"))
                         || (tv_DBServers.SelectedNode.Level == 5 && tv_DBServers.SelectedNode.Parent.Text.Equals("索引")))
                     {
                         this.tv_DBServers.ContextMenuStrip = this.DBServerviewContextMenuStrip;
-                        if (tv_DBServers.SelectedNode.Parent.Text.Equals("存储过程"))
+                        if (tv_DBServers.SelectedNode.Parent.Text.Equals("存储过程")
+                            || tv_DBServers.SelectedNode.Parent.Text.Equals("视图"))
                         {
                             foreach (ToolStripItem item in tv_DBServers.ContextMenuStrip.Items)
                             {
@@ -770,6 +781,12 @@ GO");
                 TextBoxWin win = new TextBoxWin("存储过程[" + node.Text + "]", body);
                 win.ShowDialog();
             }
+            else if (node != null && node.Level == 4 && node.Parent.Text.Equals("视图"))
+            {
+                var body = Biz.Common.Data.SQLHelper.GetViewCreateSql(GetDBSource(node), node.Parent.Parent.Text, node.Text);
+                TextBoxWin win = new TextBoxWin("视图[" + node.Text + "]", body);
+                win.ShowDialog();
+            }
         }
 
         //导出数据
@@ -909,6 +926,10 @@ GO");
                 int idx = 1;
                 foreach (TreeNode node in selNode.Nodes)
                 {
+                    if (node.Text == "索引")
+                    {
+                        continue;
+                    }
                     var newrow = resulttb.NewRow();
                     newrow["line"] = idx++;
                     Match m = rg.Match(node.Text);
