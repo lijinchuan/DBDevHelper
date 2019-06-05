@@ -139,11 +139,19 @@ namespace Biz
             if (server == null)
                 return;
             List<TreeNode> treeNodes = new List<TreeNode>();
-            foreach (string col in Biz.Common.Data.SQLHelper.GetProcedures(server, tbNode.Parent.Text).ToList())
+            foreach (var kv in Biz.Common.Data.SQLHelper.GetProceduresWithParams(server, tbNode.Parent.Text).AsEnumerable().GroupBy(p=>p.Field<string>("name")))
             {
+                
                 //int imgIdx = col.IsKey ? 4 : 5;
-                TreeNode newNode = new TreeNode(col, 5, 5);
-                newNode.Tag = col;
+                TreeNode newNode = new TreeNode(kv.Key, 13, 14);
+                newNode.Tag = kv.Key;
+                foreach(var row in kv)
+                {
+                    var len = row.Field<Int16>("length");
+                    var isnullable = row.Field<int>("isnullable")==1;
+                    var isoutparam = row.Field<int>("isoutparam")==1;
+                    newNode.Nodes.Add(row.Field<string>("pname"), $"{row.Field<string>("pname")}({row.Field<string>("tpname")}{(len==-1?string.Empty:"("+len.ToString()+")")}{(isnullable?" null":"")}{(isoutparam?" output":"")})",isoutparam?12: 11,isoutparam?12:11);
+                }
                 treeNodes.Add(newNode);
             }
             if (parent.InvokeRequired)
@@ -225,11 +233,11 @@ namespace Biz
                 TreeNode newNode = new TreeNode(item.Key, item.Value.Select(p => new TreeNode
                 {
                     Text = p.Name+"("+p.TypeName+(p.Length==-1?"":("("+p.Length+")"))+")",
-                    ImageIndex = 6,
-                    SelectedImageIndex = 6
+                    ImageIndex = 5,
+                    SelectedImageIndex = 5
                 }).ToArray());
 
-                newNode.ImageIndex = newNode.SelectedImageIndex = 3;
+                newNode.ImageIndex = newNode.SelectedImageIndex = 15;
 
                 treeNodes.Add(newNode);
             }

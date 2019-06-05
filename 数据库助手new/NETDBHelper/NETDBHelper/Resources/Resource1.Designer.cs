@@ -103,6 +103,16 @@ namespace NETDBHelper.Resources {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap DB16 {
+            get {
+                object obj = ResourceManager.GetObject("DB16", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap DB2 {
             get {
                 object obj = ResourceManager.GetObject("DB2", resourceCulture);
@@ -255,6 +265,46 @@ namespace NETDBHelper.Resources {
         internal static System.Drawing.Bitmap OpenServer1 {
             get {
                 object obj = ResourceManager.GetObject("OpenServer1", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap param {
+            get {
+                object obj = ResourceManager.GetObject("param", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap paramout {
+            get {
+                object obj = ResourceManager.GetObject("paramout", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap script_code {
+            get {
+                object obj = ResourceManager.GetObject("script_code", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap script_code_red {
+            get {
+                object obj = ResourceManager.GetObject("script_code_red", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

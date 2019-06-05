@@ -230,6 +230,15 @@ namespace Biz.Common.Data
             return y;
         }
 
+        public static DataTable GetProceduresWithParams(DBSource dbSource, string dbName)
+        {
+            string sql = "select a.name,b.name pname,c.name tpname,b.length,b.isnullable,b.isoutparam from dbo.sysobjects a,syscolumns b,systypes c where a.id=b.id and b.xusertype=c.xusertype and c.name<>'sysname' and OBJECTPROPERTY(a.id, N'IsProcedure') = 1 order by a.name";
+            var tb = ExecuteDBTable(dbSource, dbName, sql);
+
+            return tb;
+
+        }
+
         public static string GetProcedureBody(DBSource dbSource, string dbName, string procedure)
         {
             //show create {procedure|function} sp_name

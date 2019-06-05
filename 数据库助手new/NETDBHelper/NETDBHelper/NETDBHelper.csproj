@@ -271,8 +271,11 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resources\tags_red.png" />
+    <None Include="Resources\tags_grey.png" />
     <None Include="Map\新建位图图像.bmp" />
     <None Include="Map\新建位图图像 %282%29.bmp" />
+    <None Include="Resources\application_form_magnify.png" />
     <Content Include="Resources\CloseServer.jpg" />
     <Content Include="Resources\DB1.png" />
     <Content Include="Resources\DB2.png" />
@@ -297,6 +300,8 @@
     <Content Include="Resources\report_key.png" />
     <None Include="Resources\report_key1.png" />
     <None Include="Resources\report_key2.png" />
+    <None Include="Resources\script_code_red.png" />
+    <None Include="Resources\script_code.png" />
     <Content Include="Resources\shapes_many.png" />
     <None Include="Resources\shapes_many1.png" />
     <None Include="Resources\shapes_many2.png" />

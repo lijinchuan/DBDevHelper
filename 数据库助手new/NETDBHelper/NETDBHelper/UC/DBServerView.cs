@@ -51,6 +51,11 @@ namespace NETDBHelper
             tv_DBServers.ImageList.Images.Add(Resources.Resource1.DB9);
             tv_DBServers.ImageList.Images.Add(Resources.Resource1.DB10);
             tv_DBServers.ImageList.Images.Add(Resources.Resource1.DB11);
+            tv_DBServers.ImageList.Images.Add(Resources.Resource1.param);
+            tv_DBServers.ImageList.Images.Add(Resources.Resource1.paramout);
+            tv_DBServers.ImageList.Images.Add(Resources.Resource1.script_code);
+            tv_DBServers.ImageList.Images.Add(Resources.Resource1.script_code_red);
+            tv_DBServers.ImageList.Images.Add(Resources.Resource1.DB16);
             tv_DBServers.Nodes.Add("0", "资源管理器", 0);
             tv_DBServers.NodeMouseClick += new TreeNodeMouseClickEventHandler(tv_DBServers_NodeMouseClick);
 
@@ -151,10 +156,6 @@ namespace NETDBHelper
             {
                 Biz.UILoadHelper.LoadTBsAnsy(this.ParentForm, selNode, GetDBSource(selNode));
             }
-            else if (selNode.Level == 3 && !selNode.Text.Equals("存储过程"))
-            {
-                Biz.UILoadHelper.LoadColumnsAnsy(this.ParentForm, selNode, GetDBSource(selNode));
-            }
             else if (selNode.Level == 3 && selNode.Text.Equals("存储过程"))
             {
                 Biz.UILoadHelper.LoadProcedureAnsy(this.ParentForm, selNode, GetDBSource(selNode));
@@ -162,6 +163,10 @@ namespace NETDBHelper
             else if (selNode.Level == 3 && selNode.Text.Equals("视图"))
             {
                 Biz.UILoadHelper.LoadViewsAnsy(this.ParentForm, selNode, GetDBSource(selNode));
+            }
+            else if (selNode.Level == 3)
+            {
+                Biz.UILoadHelper.LoadColumnsAnsy(this.ParentForm, selNode, GetDBSource(selNode));
             }
             else if (selNode.Level == 4 && selNode.Text.Equals("索引"))
             {
@@ -467,6 +472,7 @@ namespace NETDBHelper
                                     ts.Visible = false;
                                 }
                             }
+                            复制表名ToolStripMenuItem.Visible = true;
                         }
                         else if (tv_DBServers.SelectedNode.Parent.Text.Equals("索引"))
                         {
@@ -475,6 +481,15 @@ namespace NETDBHelper
                                 item.Visible = false;
                             }
                             //TSM_ManIndex.Visible = true;
+                        }
+                        else if (tv_DBServers.SelectedNode.Text.Equals("视图"))
+                        {
+                            foreach (ToolStripItem item in tv_DBServers.ContextMenuStrip.Items)
+                            {
+                                item.Visible = false;
+                            }
+                            //TSM_ManIndex.Visible = true;
+                            刷新ToolStripMenuItem.Visible = true;
                         }
                         else
                         {
@@ -488,6 +503,15 @@ namespace NETDBHelper
                         //TTSM_DelIndex.Visible = node.Level == 5 && node.Parent.Text.Equals("索引");
 
                         ExpdataToolStripMenuItem.Visible = node.Level == 3;
+                    }
+                    else if (tv_DBServers.SelectedNode.Text.Equals("索引"))
+                    {
+                        foreach (ToolStripItem item in tv_DBServers.ContextMenuStrip.Items)
+                        {
+                            item.Visible = false;
+                        }
+                        刷新ToolStripMenuItem.Visible = true;
+                        //TSM_ManIndex.Visible = true;
                     }
                     else
                     {
