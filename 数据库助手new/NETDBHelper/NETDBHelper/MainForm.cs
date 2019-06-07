@@ -101,13 +101,14 @@ namespace NETDBHelper
         public void ShowTableData(DBSource db,string dbName, string sql)
         {
             ViewTBData viewTb = new ViewTBData();
-            viewTb.SQLString = sql;
+            
             viewTb.BorderStyle = BorderStyle.None;
             this.TabControl.TabPages.Add(viewTb);
             TabControl.SelectedTab = viewTb;
             tsb_Excute.Enabled = true;
             viewTb.DBSource = db;
             viewTb.DBName = dbName;
+            viewTb.SQLString = sql;
         }
 
         private void 连接对象资源管理器ToolStripMenuItem_Click(object sender, EventArgs e)
