@@ -652,7 +652,7 @@ namespace NETDBHelper
             sb.AppendLine(")ENGINE=InnoDB AUTO_INCREMENT=201 DEFAULT CHARSET=utf8;");
             sb.AppendLine("//注意：bit类型要手工改成TINYINT(1)。");
             TextBoxWin win = new TextBoxWin("创建表"+node.Text, sb.ToString());
-            win.ShowDialog();
+            win.Show();
         }
 
         private void ExpdataToolStripMenuItem_Click(object sender, EventArgs e)
@@ -720,7 +720,7 @@ namespace NETDBHelper
             if (sb.Length > 0)
                 sb.Remove(sb.Length - 1, 1);
             TextBoxWin win = new TextBoxWin("导出数据", sb.ToString());
-            win.ShowDialog();
+            win.Show();
         }
 
         private void SubMenuItem_Select_Click(object sender, EventArgs e)
@@ -797,19 +797,19 @@ GO");
                 }
                 sb.AppendLine("Go");
                 TextBoxWin win = new TextBoxWin("创建表" + node.Text, sb.ToString());
-                win.ShowDialog();
+                win.Show();
             }
             else if (node != null && node.Level == 4 && node.Parent.Text.Equals("存储过程"))
             {
                 var body = Biz.Common.Data.SQLHelper.GetProcedureBody(GetDBSource(node), node.Parent.Parent.Text, node.Text);
                 TextBoxWin win = new TextBoxWin("存储过程[" + node.Text + "]", body);
-                win.ShowDialog();
+                win.Show();
             }
             else if (node != null && node.Level == 4 && node.Parent.Text.Equals("视图"))
             {
                 var body = Biz.Common.Data.SQLHelper.GetViewCreateSql(GetDBSource(node), node.Parent.Parent.Text, node.Text);
                 TextBoxWin win = new TextBoxWin("视图[" + node.Text + "]", body);
-                win.ShowDialog();
+                win.Show();
             }
         }
 
@@ -914,7 +914,7 @@ GO");
                 sb.AppendLine("GO");
             }
             TextBoxWin win = new TextBoxWin("导出数据", sb.ToString());
-            win.ShowDialog();
+            win.Show();
         }
 
         private void 生成数据字典ToolStripMenuItem_Click(object sender, EventArgs e)

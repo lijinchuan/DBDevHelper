@@ -19,20 +19,22 @@ namespace NETDBHelper.SubForm
             this.text = text;
             this.caption = caption;
             InitializeComponent();
+
+            this.ShowInTaskbar = true;
         }
 
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
-            this.textBox1.Text = text;
+            this.TBContent.Text = text;
             this.Text = caption;
         }
 
         private void BtnCpy_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(textBox1.Text))
+            if (string.IsNullOrWhiteSpace(this.TBContent.Text))
                 return;
-            Clipboard.SetText(this.textBox1.Text);
+            Clipboard.SetText(this.TBContent.Text);
         }
     }
 }
