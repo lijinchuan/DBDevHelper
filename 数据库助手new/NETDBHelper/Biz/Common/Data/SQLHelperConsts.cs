@@ -25,6 +25,21 @@ namespace Biz.Common.Data
                                            where [syscolumns].[id]=@id
                                            and [systypes].name<>'sysname'";
 
+        public const string GetColumnsByTableName = @"select [syscolumns].name
+                                           ,[systypes].name type
+                                           ,[syscolumns].length
+                                           ,[syscolumns].isnullable
+                                           ,[syscolumns].prec
+                                           ,[syscolumns].scale
+                                           FROM [syscolumns](nolock)
+                                           left join [systypes](nolock)
+                                           --on [syscolumns].[xtype]=[systypes].[xtype]
+                                           on [syscolumns].xusertype = [systypes].xusertype
+                                           left join sysobjects(nolock)
+                                           on sysobjects.id=syscolumns.id
+                                           where sysobjects.name=@name
+                                           and [systypes].name<>'sysname'";
+
         public const string GetKeyColumn = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE(nolock) WHERE TABLE_NAME=@TABLE_NAME";
         /// <summary>
         /// 获取自增键

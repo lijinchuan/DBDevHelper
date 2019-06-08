@@ -96,6 +96,36 @@ namespace Biz.Common.Data
             }
         }
 
+        public static IEnumerable<TBColumn> GetColumns(DBSource dbSource, string dbName, string tbName)
+        {
+            var tb = ExecuteDBTable(dbSource, dbName, SQLHelperConsts.GetColumnsByTableName, new SqlParameter("@name", tbName));
+            //查主键
+            var tb2 = GetKeys(dbSource, dbName, tbName);
+            //查自增键
+            string idColumnName = GetIdColumName(dbSource, dbName, tbName);
+            //描述
+            DataTable tbDesc = GetTableColsDescription(dbSource, dbName, tbName);
+
+            for (int i = 0; i < tb.Rows.Count; i++)
+            {
+                var y = (from x in tbDesc.AsEnumerable()
+                         where string.Equals((string)x["ColumnName"], (string)tb.Rows[i]["name"], StringComparison.OrdinalIgnoreCase)
+                         select x["Description"]).FirstOrDefault();
+                yield return new TBColumn
+                {
+                    IsKey = (tb2.AsEnumerable()).FirstOrDefault(p => p[0].ToString().Equals(tb.Rows[i]["name"].ToString(), StringComparison.OrdinalIgnoreCase)) != null,
+                    Length = int.Parse(tb.Rows[i]["length"].ToString()),
+                    Name = tb.Rows[i]["name"].ToString(),
+                    TypeName = tb.Rows[i]["type"].ToString(),
+                    IsID = string.Equals(idColumnName, tb.Rows[i]["name"].ToString()),
+                    IsNullAble = tb.Rows[i]["isnullable"].ToString().Equals("1"),
+                    prec = NumberHelper.CovertToInt(tb.Rows[i]["prec"]),
+                    scale = NumberHelper.CovertToInt(tb.Rows[i]["scale"]),
+                    Description = y == null ? "" : y.ToString(),
+                };
+            }
+        }
+
         public static DataTable ExecuteDBTable(DBSource dbSource, string connDB, string sql, params SqlParameter[] sqlParams)
         {
             SqlCommand cmd = new SqlCommand();

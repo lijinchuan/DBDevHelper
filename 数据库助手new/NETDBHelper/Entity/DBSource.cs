@@ -8,6 +8,11 @@ namespace Entity
     [Serializable]
     public class DBSource
     {
+        public DBSource()
+        {
+
+        }
+
         public string ServerName
         {
             get;
@@ -21,6 +26,12 @@ namespace Entity
         }
 
         public string LoginName
+        {
+            get;
+            set;
+        }
+
+        public string ConnDB
         {
             get;
             set;

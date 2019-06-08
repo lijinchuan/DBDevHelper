@@ -37,14 +37,30 @@ namespace NETDBHelper.SubForm
             InitializeComponent();
         }
 
-        public SyncDataWin(string sourcestr,string sourcetable)
+        private DBSource DBSource
+        {
+            get;
+            set;
+        }
+
+        private string ConnDB
+        {
+            get;
+            set;
+        }
+
+        public SyncDataWin(DBSource dbsource,string conndb,string sourcetable)
         {
             InitializeComponent();
 
-            this.TBSourceConnStr.Text = sourcestr;
+            this.DBSource = dbsource;
+            this.ConnDB = conndb;
+            this.TBSourceConnStr.Text = SQLHelper.GetConnstringFromDBSource(dbsource,conndb);
             this.TBSource.Text = sourcetable;
 
             this.TBSourceConnStr.ReadOnly = this.TBSource.ReadOnly = true;
+
+            BtnLoadFields_Click(null, null);
 
         }
 
@@ -119,6 +135,20 @@ namespace NETDBHelper.SubForm
             }
         }
 
+        private TBColumn GetByCol
+        {
+            get
+            {
+                
+                if (CBByCol.SelectedIndex == -1)
+                {
+                    throw new Exception("请选择主键");
+                }
+
+                return SQLHelper.GetColumns(DBSource,ConnDB,GetSourceTBName).AsEnumerable().First(p=>p.Name==CBByCol.SelectedItem.ToString());
+            }
+        }
+
         private string[] GetDestFields
         {
             get
@@ -132,6 +162,14 @@ namespace NETDBHelper.SubForm
                 if (!fields.Contains(GetKeyField))
                 {
                     fields.Add(GetKeyField);
+                    for(int i = 0; i < CBFields.Items.Count; i++)
+                    {
+                        if (CBFields.Items[i].ToString().Equals(GetKeyField))
+                        {
+                            CBFields.SetItemChecked(i, true);
+                            break;
+                        }
+                    }
                 }
 
                 if (fields.Count == 0)
@@ -189,8 +227,28 @@ namespace NETDBHelper.SubForm
                     }
                 }
 
-                var boo = DataSyncHelper.SyncSQLDBData(sourceconnstr, soucretable, fields
-                   , keyfield, destconnstr, desttable, 0);
+                var col = GetByCol;
+
+                if (col.TypeName.IndexOf("timestamp", StringComparison.OrdinalIgnoreCase) > -1)
+                {
+                    var boo = DataSyncHelper.SyncSQLDBDataByTimeStamp(sourceconnstr, soucretable, fields, col.Name
+                       , keyfield, destconnstr, desttable, 0);
+                }
+                else if (col.TypeName.IndexOf("datetime", StringComparison.OrdinalIgnoreCase) > -1)
+                {
+                    var boo = DataSyncHelper.SyncSQLDBDataByTime(sourceconnstr, soucretable, fields, col.Name
+                       , keyfield, destconnstr, desttable, 0);
+                }
+                else if (col.TypeName.IndexOf("int", StringComparison.OrdinalIgnoreCase) > -1)
+                {
+                    var boo = DataSyncHelper.SyncSQLDBDataByNumberCol(sourceconnstr, soucretable, fields, col.Name
+                       , keyfield, destconnstr, desttable, 0);
+                }
+                else
+                {
+                    var boo = DataSyncHelper.SyncSQLDBDataByStrCol(sourceconnstr, soucretable, fields, col.Name
+                       , keyfield, destconnstr, desttable, 0);
+                }
 
                 MessageBox.Show("同步成功");
             }
@@ -207,28 +265,35 @@ namespace NETDBHelper.SubForm
         {
             try
             {
+                var cols = SQLHelper.GetColumns(DBSource, ConnDB, GetSourceTBName);
 
-                using (SqlConnection conn = new SqlConnection(GetSourceConnStr))
+                this.CBFields.Items.Clear();
+                CBKey.Items.Clear();
+                foreach (TBColumn col in cols)
                 {
-                    using (var cmd = conn.CreateCommand())
+                    this.CBFields.Items.Add(col.Name);
+                    this.CBKey.Items.Add(col.Name);
+                    this.CBByCol.Items.Add(col.Name);
+                }
+
+                var idcol = cols.First(p => p.IsID);
+                if (idcol != null)
+                {
+                    CBKey.SelectedItem = idcol.Name;
+                }
+                else
+                {
+                    var keycols = cols.Where(p => p.IsKey).ToArray();
+                    if (keycols.Length == 1)
                     {
-                        cmd.CommandType = CommandType.Text;
-                        cmd.CommandText = $"select top 0 * from {GetSourceTBName}";
-
-                        SqlDataAdapter adp = new SqlDataAdapter(cmd);
-                        DataTable table = new DataTable();
-                        adp.Fill(table);
-
-                        this.CBFields.Items.Clear();
-                        CBKey.Items.Clear();
-                        foreach (DataColumn col in table.Columns)
+                        if (keycols != null)
                         {
-                            this.CBFields.Items.Add(col.ColumnName);
-                            this.CBKey.Items.Add(col.ColumnName);
+                            CBKey.SelectedItem = keycols[0].Name;
                         }
                     }
                 }
             }
+            
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
@@ -246,57 +311,91 @@ namespace NETDBHelper.SubForm
                 sb.AppendLine($"CREATE TABLE [{GetDestTBName}](");
                 using (SqlConnection destconn = new SqlConnection(GetDestConnStr))
                 {
+                    bool exist = false;
+                    destconn.Open();
+                    using (var cmd0 = destconn.CreateCommand())
+                    {
+                        cmd0.CommandType = CommandType.Text;
+
+                        cmd0.CommandText = $@"if object_id('{GetDestTBName}') is not null
+                                           select 0
+                                             else 
+                                          select 1";
+
+                        exist = cmd0.ExecuteScalar().ToString()=="0";
+                    }
                     using (SqlConnection conn = new SqlConnection(GetSourceConnStr))
                     {
                         using (var cmd = conn.CreateCommand())
                         {
-
-                            cmd.CommandType = CommandType.Text;
-                            cmd.CommandText = GetTableColumnsMetaDataSQL; //$"select top 1 {string.Join(",",GetDestFields)} from {GetSourceTBName}";
-                            cmd.Parameters.Add(new SqlParameter("@name", GetSourceTBName));
-
-                            SqlDataAdapter adp = new SqlDataAdapter(cmd);
-                            DataTable tb = new DataTable();
-                            adp.Fill(tb);
-
-                            for (int i = 0; i < tb.Rows.Count; i++)
+                           
+                            if (!exist)
                             {
-                                var name = tb.Rows[i]["name"].ToString();
-                                if (!fields.Contains(name))
+                                cmd.CommandText = GetTableColumnsMetaDataSQL; //$"select top 1 {string.Join(",",GetDestFields)} from {GetSourceTBName}";
+                                cmd.Parameters.Add(new SqlParameter("@name", GetSourceTBName));
+
+                                SqlDataAdapter adp = new SqlDataAdapter(cmd);
+                                DataTable tb = new DataTable();
+                                adp.Fill(tb);
+
+                                for (int i = 0; i < tb.Rows.Count; i++)
                                 {
-                                    continue;
+                                    var name = tb.Rows[i]["name"].ToString();
+                                    if (!fields.Contains(name))
+                                    {
+                                        continue;
+                                    }
+
+                                    var col = new TBColumn
+                                    {
+                                        IsKey = name == GetKeyField,
+                                        Length = int.Parse(tb.Rows[i]["length"].ToString()),
+                                        Name = tb.Rows[i]["name"].ToString(),
+                                        TypeName = tb.Rows[i]["type"].ToString(),
+                                        IsNullAble = tb.Rows[i]["isnullable"].ToString().Equals("1"),
+                                        prec = tb.Rows[i]["prec"].CovertToInt(),
+                                        scale = tb.Rows[i]["scale"].CovertToInt()
+                                    };
+
+                                    sb.AppendFormat("[{0}] {1} {2} ,", col.Name, col.ToDBType(), (col.IsID || col.IsKey) ? "NOT NULL" : (col.IsNullAble ? "NULL" : "NOT NULL"));
+                                    sb.AppendLine();
+
                                 }
 
-                                var col = new TBColumn
+                                sb.AppendLine(")");
+                                sb.AppendLine($"alter table {GetDestTBName} add constraint PK_{GetDestTBName}_1 primary key({GetKeyField})");
+                                sb.AppendLine("end");
+
+                                using (var cmd1 = destconn.CreateCommand())
                                 {
-                                    IsKey = name == GetKeyField,
-                                    Length = int.Parse(tb.Rows[i]["length"].ToString()),
-                                    Name = tb.Rows[i]["name"].ToString(),
-                                    TypeName = tb.Rows[i]["type"].ToString(),
-                                    IsNullAble = tb.Rows[i]["isnullable"].ToString().Equals("1"),
-                                    prec = tb.Rows[i]["prec"].CovertToInt(),
-                                    scale = tb.Rows[i]["scale"].CovertToInt()
-                                };
+                                    cmd1.CommandType = CommandType.Text;
+                                    cmd1.CommandText = sb.ToString();
 
-                                sb.AppendFormat("[{0}] {1} {2} ,", col.Name, col.ToDBType(), (col.IsID || col.IsKey) ? "NOT NULL" : (col.IsNullAble ? "NULL" : "NOT NULL"));
-                                sb.AppendLine();
+                                    var ret = cmd1.ExecuteNonQuery();
 
+                                    MessageBox.Show("创建成功");
+                                }
                             }
+                            else
+                            {
+                                var sql = $"select top 0 * from {GetDestTBName}";
 
-                            sb.AppendLine(")");
-                            sb.AppendLine($"alter table {GetDestTBName} add constraint PK_{GetDestTBName}_1 primary key({GetKeyField})");
-                            sb.AppendLine("end");
-                        }
+                                using(var cmd2 = destconn.CreateCommand())
+                                {
+                                    cmd2.CommandType = CommandType.Text;
+                                    cmd2.CommandText = sql;
+                                    var table = new DataTable();
+                                    new SqlDataAdapter(cmd2).Fill(table);
 
-                        using (var cmd = destconn.CreateCommand())
-                        {
-                            destconn.Open();
-                            cmd.CommandType = CommandType.Text;
-                            cmd.CommandText = sb.ToString();
-
-                            var ret = cmd.ExecuteNonQuery();
-
-                            MessageBox.Show("检查完成");
+                                    for(int i = 0; i < CBFields.Items.Count; i++)
+                                    {
+                                        
+                                        CBFields.SetItemChecked(i, table.Columns.Contains(CBFields.Items[i].ToString()));
+                                    }
+                                    
+                                    
+                                }
+                            }
                         }
                     }
                 }

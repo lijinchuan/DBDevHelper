@@ -1116,8 +1116,7 @@ GO");
                     conndb = pnode.Text;
                 }
 
-                var connsql = SQLHelper.GetConnstringFromDBSource(GetDBSource(node), conndb);
-                var dlg = new SubForm.SyncDataWin(connsql,node.Text);
+                var dlg = new SubForm.SyncDataWin(GetDBSource(node),conndb,node.Text);
                 dlg.Show();
             }
         }

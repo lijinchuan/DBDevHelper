@@ -46,6 +46,8 @@
             this.label2 = new System.Windows.Forms.Label();
             this.TBSourceConnStr = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
+            this.label6 = new System.Windows.Forms.Label();
+            this.CBByCol = new System.Windows.Forms.ComboBox();
             this.SuspendLayout();
             // 
             // BtnSave
@@ -202,11 +204,30 @@
             this.label1.TabIndex = 24;
             this.label1.Text = "源数据库连接串：";
             // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(331, 90);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(89, 12);
+            this.label6.TabIndex = 48;
+            this.label6.Text = "同步查询字段：";
+            // 
+            // CBByCol
+            // 
+            this.CBByCol.FormattingEnabled = true;
+            this.CBByCol.Location = new System.Drawing.Point(416, 87);
+            this.CBByCol.Name = "CBByCol";
+            this.CBByCol.Size = new System.Drawing.Size(121, 20);
+            this.CBByCol.TabIndex = 49;
+            // 
             // SyncDataWin
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.CBByCol);
+            this.Controls.Add(this.label6);
             this.Controls.Add(this.BtnSave);
             this.Controls.Add(this.TBAutoSyncMS);
             this.Controls.Add(this.label10);
@@ -255,5 +276,7 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.TextBox TBSourceConnStr;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.ComboBox CBByCol;
     }
 }
