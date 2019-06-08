@@ -100,6 +100,12 @@
     <Compile Include="SubForm\InputStringDlg.Designer.cs">
       <DependentUpon>InputStringDlg.cs</DependentUpon>
     </Compile>
+    <Compile Include="SubForm\SyncDataWin.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SubForm\SyncDataWin.Designer.cs">
+      <DependentUpon>SyncDataWin.cs</DependentUpon>
+    </Compile>
     <Compile Include="SubForm\TextBoxWin.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -212,6 +218,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="SubForm\InputStringDlg.resx">
       <DependentUpon>InputStringDlg.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SubForm\SyncDataWin.resx">
+      <DependentUpon>SyncDataWin.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="SubForm\TextBoxWin.resx">
       <DependentUpon>TextBoxWin.cs</DependentUpon>

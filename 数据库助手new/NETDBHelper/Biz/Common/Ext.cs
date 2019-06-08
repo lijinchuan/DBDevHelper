@@ -97,5 +97,40 @@ namespace Biz.Common
                 return column.TypeName;
             }
         }
+
+        public static string ToDBType(this TBColumn col)
+        {
+            switch (col.TypeName.ToLower())
+            {
+                case "varchar":
+                case "char":
+                case "nchar":
+                    return string.Concat(col.TypeName, "(", col.Length == -1 ? "max" : col.Length.ToString(), ")");
+                case "nvarchar":
+                    return string.Concat(col.TypeName, "(", col.Length == -1 ? "max" : (col.Length == 8000 ? "4000" : col.Length.ToString()), ")");
+                case "numeric":
+                case "money":
+                case "decimal":
+                case "float":
+                    return string.Concat(col.TypeName, "(", col.prec, ",", col.scale, ")");
+                default:
+                    return col.TypeName;
+            }
+        }
+
+        public static int CovertToInt(this string s)
+        {
+            int result = 0;
+            int.TryParse(s, out result);
+            return result;
+        }
+        public static int CovertToInt(this object o)
+        {
+            if (o == null || o == DBNull.Value)
+                return 0;
+            int result = 0;
+            int.TryParse(o.ToString(), out result);
+            return result;
+        }
     }
 }

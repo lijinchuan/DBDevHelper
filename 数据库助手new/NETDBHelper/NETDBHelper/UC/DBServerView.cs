@@ -242,6 +242,11 @@ namespace NETDBHelper
                     case "创建语句":
                         MessageBox.Show("Create");
                         break;
+                    case "同步数据":
+                        {
+                            SyncTableData();
+                            break;
+                        }
                     default:
                         _node = tv_DBServers.SelectedNode;
                         break;
@@ -1085,6 +1090,35 @@ GO");
             if (this.OnCreatePorcSQL != null)
             {
                 this.OnCreatePorcSQL(GetDBSource(_node), _node.Parent.Text, _node.Name, _node.Text, CreateProceEnum.Upsert);
+            }
+        }
+
+        private void SyncTableData()
+        {
+            if (tv_DBServers.SelectedNode != null && tv_DBServers.SelectedNode.Level == 3)
+            {
+                var node = tv_DBServers.SelectedNode;
+                string conndb = string.Empty;
+                if (node.Level < 2)
+                    return;
+
+                if (node.Level == 2)
+                {
+                    conndb = node.Text;
+                }
+                else
+                {
+                    var pnode = node.Parent;
+                    while (pnode.Level != 2)
+                    {
+                        pnode = pnode.Parent;
+                    }
+                    conndb = pnode.Text;
+                }
+
+                var connsql = SQLHelper.GetConnstringFromDBSource(GetDBSource(node), conndb);
+                var dlg = new SubForm.SyncDataWin(connsql,node.Text);
+                dlg.Show();
             }
         }
     }

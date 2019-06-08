@@ -47,6 +47,7 @@
   <ItemGroup>
     <Compile Include="Common\Data\Common.cs" />
     <Compile Include="Common\Data\DataHelper.cs" />
+    <Compile Include="Common\Data\DataSyncHelper.cs" />
     <Compile Include="Common\EnumUtility.cs" />
     <Compile Include="Common\Ext.cs" />
     <Compile Include="Common\NumberHelper.cs" />
