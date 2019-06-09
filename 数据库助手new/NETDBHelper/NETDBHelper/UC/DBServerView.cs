@@ -17,7 +17,7 @@ namespace NETDBHelper
     public partial class DBServerView : UserControl
     {
         public Action<string,string> OnCreateEntity;
-        public Action<DBSource,string, string> OnShowTableData;
+        public Action<DBSource,string, string,string> OnShowTableData;
         public Action<DBSource,string> OnAddEntityTB;
         public Action<string, string> OnCreateSelectSql;
         public Action<DBSource, string, string, string,CreateProceEnum> OnCreatePorcSQL;
@@ -280,7 +280,7 @@ namespace NETDBHelper
                 sb.Append("(nolock)");
                 if (this.OnShowTableData != null)
                 {
-                    OnShowTableData(this.tv_DBServers.SelectedNode.Parent.Parent.Tag as DBSource,this.tv_DBServers.SelectedNode.Parent.Text, sb.ToString());
+                    OnShowTableData(this.tv_DBServers.SelectedNode.Parent.Parent.Tag as DBSource,this.tv_DBServers.SelectedNode.Parent.Text,this.tv_DBServers.SelectedNode.Text, sb.ToString());
                 }
             }
         }

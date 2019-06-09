@@ -98,10 +98,18 @@ namespace NETDBHelper
             Biz.UILoadHelper.LoadTBsAnsy(this, dbServerView1.FindNode(db.ServerName, dbName), db);
         }
 
-        public void ShowTableData(DBSource db,string dbName, string sql)
+        public void ShowTableData(DBSource db,string dbName,string tablename, string sql)
         {
+            foreach(TabPage page in this.TabControl.TabPages)
+            {
+                if (page.Text == tablename)
+                {
+                    TabControl.SelectedTab = page;
+                    return;
+                }
+            }
             ViewTBData viewTb = new ViewTBData();
-            viewTb.Text = dbName;
+            viewTb.Text = tablename;
             viewTb.BorderStyle = BorderStyle.None;
             this.TabControl.TabPages.Add(viewTb);
             TabControl.SelectedTab = viewTb;

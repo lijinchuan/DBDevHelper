@@ -64,6 +64,14 @@ namespace NETDBHelper.UC
             }
         }
 
+        protected override void OnSelected(TabControlEventArgs e)
+        {
+
+            base.OnSelected(e);
+
+            this.Invalidate();
+        }
+
         protected override void OnControlAdded(ControlEventArgs e)
         {
             if (e.Control is TabPage)
