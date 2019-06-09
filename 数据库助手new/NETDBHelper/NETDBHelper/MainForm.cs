@@ -101,7 +101,7 @@ namespace NETDBHelper
         public void ShowTableData(DBSource db,string dbName, string sql)
         {
             ViewTBData viewTb = new ViewTBData();
-            
+            viewTb.Text = dbName;
             viewTb.BorderStyle = BorderStyle.None;
             this.TabControl.TabPages.Add(viewTb);
             TabControl.SelectedTab = viewTb;
