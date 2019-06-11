@@ -100,16 +100,17 @@ namespace NETDBHelper
 
         public void ShowTableData(DBSource db,string dbName,string tablename, string sql)
         {
-            foreach(TabPage page in this.TabControl.TabPages)
+            var title = $"[查询数据 {tablename} -{db.ServerName}]";
+            foreach (TabPage page in this.TabControl.TabPages)
             {
-                if (page.Text == tablename)
+                if (page.Text == title)
                 {
                     TabControl.SelectedTab = page;
                     return;
                 }
             }
             ViewTBData viewTb = new ViewTBData();
-            viewTb.Text = tablename;
+            viewTb.Text =title;
             viewTb.BorderStyle = BorderStyle.None;
             this.TabControl.TabPages.Add(viewTb);
             TabControl.SelectedTab = viewTb;

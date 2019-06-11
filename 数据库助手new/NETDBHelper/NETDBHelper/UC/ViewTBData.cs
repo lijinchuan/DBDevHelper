@@ -82,7 +82,7 @@ namespace NETDBHelper.UC
                     this.tb_sql.Text = value;
                 tb_sql.MarkKeyWords(true);
                 
-                Regex rg = new Regex(@"^select [\s\w\*\,\.\[\]]+ from [\s]*([\w]+)");
+                Regex rg = new Regex(@"^select (([\s\w\*\,\.\[\]]+)|(count\s*\((\d{1,}|\*)\))\s*(as\s*[\w]{1,20})?)\s{1,}from [\s]*([\w]+)");
                 Match m=rg.Match(value.Replace("\r\n",""));
                 if (!m.Success)
                 {
@@ -93,7 +93,7 @@ namespace NETDBHelper.UC
                 try
                 {
                     DateTime now = DateTime.Now;
-                    this.Text = m.Groups[1].Value;
+                    //this.Text = m.Groups[1].Value;
                     this.TBName = m.Groups[1].Value;
                     this.dv_Data.DataSource = Biz.Common.Data.SQLHelper.ExecuteDBTable(DBSource, DBName, value, null);
                     this.tb_Msg.Text = string.Format("执行用时:{0} ms",DateTime.Now.Subtract(now).TotalMilliseconds);
