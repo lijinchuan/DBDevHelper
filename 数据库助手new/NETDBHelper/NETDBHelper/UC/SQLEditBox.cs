@@ -21,8 +21,10 @@ namespace NETDBHelper.UC
             dic.Add("use", Color.Blue);
             dic.Add("set", Color.Blue);
             dic.Add("table", Color.Blue);
+            dic.Add("on", Color.Blue);
             dic.Add("view", Color.Blue);
             dic.Add("ansi_nulls", Color.Pink);
+            dic.Add("quoted_identifier", Color.Pink);
             dic.Add("create", Color.Blue);
             dic.Add("@@error", Color.Pink);
             dic.Add("@@rowcount", Color.Pink);
@@ -58,6 +60,9 @@ namespace NETDBHelper.UC
             dic.Add("exec", Color.Blue);
             dic.Add("execute", Color.Blue);
             dic.Add("proc", Color.Blue);
+            dic.Add("procedure", Color.Blue);
+            dic.Add("declare", Color.Blue);
+            dic.Add("count", Color.Blue);
             dic.Add(",", Color.Green);
             dic.Add("[", Color.Gray);
             dic.Add("]", Color.Gray);
