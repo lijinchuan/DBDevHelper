@@ -269,18 +269,37 @@ namespace NETDBHelper
                     {
                         continue;
                     }
-                    cols.Add(new KeyValuePair<string, bool>(node.Text.Substring(0,node.Text.IndexOf('(')), (node.Tag as TBColumn).IsKey));
+                    cols.Add(new KeyValuePair<string, bool>(node.Text.Substring(0, node.Text.IndexOf('(')), (node.Tag as TBColumn).IsKey));
                 }
                 StringBuilder sb = new StringBuilder("select top 100 ");
                 sb.AppendLine();
-                sb.Append(string.Join(",\r\n", cols.Select(p =>"["+p.Key+"]")));
+                sb.Append(string.Join(",\r\n", cols.Select(p => "[" + p.Key + "]")));
                 sb.AppendLine("");
                 sb.Append(" from ");
                 sb.Append(tv_DBServers.SelectedNode.Text);
                 sb.Append("(nolock)");
                 if (this.OnShowTableData != null)
                 {
-                    OnShowTableData(this.tv_DBServers.SelectedNode.Parent.Parent.Tag as DBSource,this.tv_DBServers.SelectedNode.Parent.Text,this.tv_DBServers.SelectedNode.Text, sb.ToString());
+                    OnShowTableData(this.tv_DBServers.SelectedNode.Parent.Parent.Tag as DBSource, this.tv_DBServers.SelectedNode.Parent.Text, this.tv_DBServers.SelectedNode.Text, sb.ToString());
+                }
+            }
+            if (tv_DBServers.SelectedNode != null && tv_DBServers.SelectedNode.Level == 4 && tv_DBServers.SelectedNode.Parent.Text == "视图")
+            {
+                List<KeyValuePair<string, bool>> cols = new List<KeyValuePair<string, bool>>();
+                foreach (TreeNode node in tv_DBServers.SelectedNode.Nodes)
+                {
+                    cols.Add(new KeyValuePair<string, bool>(node.Text.Substring(0, node.Text.IndexOf('(')), (node.Tag as TBColumn).IsKey));
+                }
+                StringBuilder sb = new StringBuilder("select top 100 ");
+                sb.AppendLine();
+                sb.Append(string.Join(",\r\n", cols.Select(p => "[" + p.Key + "]")));
+                sb.AppendLine("");
+                sb.Append(" from ");
+                sb.Append(tv_DBServers.SelectedNode.Text);
+                sb.Append("(nolock)");
+                if (this.OnShowTableData != null)
+                {
+                    OnShowTableData(this.tv_DBServers.SelectedNode.Parent.Parent.Parent.Tag as DBSource, this.tv_DBServers.SelectedNode.Parent.Parent.Text, this.tv_DBServers.SelectedNode.Text, sb.ToString());
                 }
             }
         }
@@ -478,6 +497,7 @@ namespace NETDBHelper
                                 }
                             }
                             复制表名ToolStripMenuItem.Visible = true;
+                            显示前100条数据ToolStripMenuItem.Visible = tv_DBServers.SelectedNode.Level == 4 && tv_DBServers.SelectedNode.Parent.Text.Equals("视图");
                         }
                         else if (tv_DBServers.SelectedNode.Parent.Text.Equals("索引"))
                         {

@@ -234,7 +234,8 @@ namespace Biz
                 {
                     Text = p.Name+"("+p.TypeName+(p.Length==-1?"":("("+p.Length+")"))+")",
                     ImageIndex = 5,
-                    SelectedImageIndex = 5
+                    SelectedImageIndex = 5,
+                    Tag=p
                 }).ToArray());
 
                 newNode.ImageIndex = newNode.SelectedImageIndex = 15;
