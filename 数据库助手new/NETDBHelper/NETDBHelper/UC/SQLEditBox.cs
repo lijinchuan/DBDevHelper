@@ -69,10 +69,8 @@ namespace NETDBHelper.UC
 
             foreach(var kv in dic)
             {
-                if (!dic.ContainsKey(kv.Key))
-                {
-                   this.KeyWords.AddKeyWord(kv.Key, kv.Value);
-                }
+
+                this.KeyWords.AddKeyWord(kv.Key, kv.Value);
 
                 if (kv.Key.Length>1 && !dic.ContainsKey(kv.Key.ToUpper()))
                 {

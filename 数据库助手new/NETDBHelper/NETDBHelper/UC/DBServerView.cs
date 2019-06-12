@@ -390,7 +390,7 @@ namespace NETDBHelper
                     Biz.UILoadHelper.LoadProcedureAnsy(this.ParentForm, e.Node, GetDBSource(e.Node));
 
                 }
-                if (e.Node.Text.Equals("视图"))
+                else if (e.Node.Text.Equals("视图"))
                 {
                     Biz.UILoadHelper.LoadViewsAnsy(this.ParentForm, e.Node, GetDBSource(e.Node));
 
@@ -913,16 +913,17 @@ GO");
                         }
                         else if (column.TypeName.Equals("bit", StringComparison.OrdinalIgnoreCase))
                         {
-                            sb1.AppendFormat("{0},", (bool)data?1:0);
+                            sb1.AppendFormat("{0},", (bool)data ? 1 : 0);
                         }
                         else if (column.TypeName.Equals("datetime", StringComparison.OrdinalIgnoreCase)
-                            ||column.TypeName.Equals("datetime2",StringComparison.OrdinalIgnoreCase))
+                            || column.TypeName.Equals("smalldatetime", StringComparison.OrdinalIgnoreCase)
+                            || column.TypeName.Equals("datetime2", StringComparison.OrdinalIgnoreCase))
                         {
                             sb1.AppendFormat("'{0}',", ((DateTime)data).ToString("yyyy-MM-dd HH:mm:ss"));
                         }
                         else
                         {
-                            sb1.Append(string.Concat("'",string.IsNullOrEmpty((string)data)?string.Empty: data.ToString().Replace("'","''"), "',"));
+                            sb1.Append(string.Concat("'", string.IsNullOrEmpty((string)data) ? string.Empty : data.ToString().Replace("'", "''"), "',"));
                         }
                     }
                 }
