@@ -350,6 +350,28 @@ namespace NETDBHelper
             return GetDBSource(node.Parent);
         }
 
+        private string GetTBName(TreeNode node)
+        {
+            if (node == null)
+                return null;
+            if (node.Level < 2)
+                return null;
+            if (node.Level == 3)
+                return node.Text;
+            return GetTBName(node.Parent);
+        }
+
+        private string GetDBName(TreeNode node)
+        {
+            if (node == null)
+                return null;
+            if (node.Level < 1)
+                return null;
+            if (node.Level == 2)
+                return node.Text;
+            return GetDBName(node.Parent);
+        }
+
         void tv_DBServers_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
             //throw new NotImplementedException();
@@ -546,6 +568,7 @@ namespace NETDBHelper
                         CommSubMenuitem_add.Visible = node.Level == 1;
                         CommSubMenuitem_ViewConnsql.Visible = node.Level == 2;
                         CommSubMenuitem_ReorderColumn.Visible = node.Level == 4;
+                        备注本地ToolStripMenuItem.Visible = node.Level == 4;
                     }
                 }
             }
@@ -989,6 +1012,16 @@ GO");
                                  where string.Equals((string)x["ColumnName"], m.Groups[1].Value, StringComparison.OrdinalIgnoreCase)
                                  select x["Description"]).FirstOrDefault();
 
+                        if (y == null||string.IsNullOrEmpty(y.ToString()))
+                        {
+                            var mark=LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkColumnInfo>("MarkColumnInfo", "keys", new
+                                [] { GetDBName(selnode).ToUpper(),GetTBName(selnode).ToUpper(), m.Groups[1].Value.ToUpper() }).FirstOrDefault();
+                            if (mark != null)
+                            {
+                                y = mark.MarkInfo;
+                            }
+                        }
+
                         //字段描述
                         string desc = y == DBNull.Value ? "&nbsp;" : (string)y;
                         newrow["desc"] = desc;
@@ -1114,6 +1147,32 @@ GO");
             }
         }
 
+        private void Mark_Local()
+        {
+            var selnode = tv_DBServers.SelectedNode;
+            if (selnode != null && selnode.Level == 4)
+            {
+                var col = ((TBColumn)selnode.Tag).Name;
+                var tbname = GetTBName(selnode);
+                var severname = GetDBSource(selnode).ServerName;
+                var dbname = GetDBName(selnode);
+                var item = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkColumnInfo>("MarkColumnInfo", "keys", new[] { dbname.ToUpper(), tbname.ToUpper(), col.ToUpper() }).FirstOrDefault();
+
+                if (item == null)
+                {
+                    item = new MarkColumnInfo { ColumnName = col.ToUpper(), DBName = dbname.ToUpper(), TBName = tbname.ToUpper(), Servername = severname };
+                }
+                InputStringDlg dlg = new InputStringDlg($"备注字段[{tbname}.{col}]",item.MarkInfo);
+                if (dlg.ShowDialog() == DialogResult.OK)
+                {
+
+                    item.MarkInfo = dlg.InputString;
+                    LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Upsert<MarkColumnInfo>("MarkColumnInfo", item);
+                    MessageBox.Show("备注成功");
+                }
+            }
+        }
+
         private void SyncTableData()
         {
             if (tv_DBServers.SelectedNode != null && tv_DBServers.SelectedNode.Level == 3)
@@ -1140,6 +1199,11 @@ GO");
                 var dlg = new SubForm.SyncDataWin(GetDBSource(node),conndb,node.Text);
                 dlg.Show();
             }
+        }
+
+        private void 备注本地ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Mark_Local();
         }
     }
 }
