@@ -154,7 +154,13 @@ namespace NETDBHelper
             }
             else if (selNode.Level == 2)
             {
-                Biz.UILoadHelper.LoadTBsAnsy(this.ParentForm, selNode, GetDBSource(selNode));
+                var dbname = GetDBName(selNode).ToUpper();
+                Biz.UILoadHelper.LoadTBsAnsy(this.ParentForm, selNode, GetDBSource(selNode),name=>
+                {
+                    var mark = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkColumnInfo>("MarkColumnInfo", "keys", new
+                                 [] { dbname, name.ToUpper(), string.Empty }).FirstOrDefault();
+                    return mark == null ? string.Empty : mark.MarkInfo;
+                });
             }
             else if (selNode.Level == 3 && selNode.Text.Equals("存储过程"))
             {
@@ -166,7 +172,13 @@ namespace NETDBHelper
             }
             else if (selNode.Level == 3)
             {
-                Biz.UILoadHelper.LoadColumnsAnsy(this.ParentForm, selNode, GetDBSource(selNode));
+                var dbname = GetDBName(selNode).ToUpper();
+                Biz.UILoadHelper.LoadColumnsAnsy(this.ParentForm, selNode, GetDBSource(selNode), (col) =>
+                 {
+                     var mark = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkColumnInfo>("MarkColumnInfo", "keys", new
+                                 [] { dbname, selNode.Text.ToUpper(), col.Name.ToUpper() }).FirstOrDefault();
+                     return mark == null ? string.Empty : mark.MarkInfo;
+                 });
             }
             else if (selNode.Level == 4 && selNode.Text.Equals("索引"))
             {
@@ -245,6 +257,11 @@ namespace NETDBHelper
                     case "同步数据":
                         {
                             SyncTableData();
+                            break;
+                        }
+                    case "备注":
+                        {
+                            MarkResource();
                             break;
                         }
                     default:
@@ -390,7 +407,12 @@ namespace NETDBHelper
                 //    e.Node.Nodes.Add(newNode);
                 //}
                 //e.Node.Expand();
-                Biz.UILoadHelper.LoadTBsAnsy(this.ParentForm, e.Node, GetDBSource(e.Node));
+                Biz.UILoadHelper.LoadTBsAnsy(this.ParentForm, e.Node, GetDBSource(e.Node),name=>
+                {
+                    var mark = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkColumnInfo>("MarkColumnInfo", "keys", new
+                                 [] { GetDBName(e.Node), name.ToUpper(), string.Empty }).FirstOrDefault();
+                    return mark == null ? string.Empty : mark.MarkInfo;
+                });
             }
             if (e.Node.Level == 3)
             {
@@ -419,7 +441,13 @@ namespace NETDBHelper
                 }
                 else
                 {
-                    Biz.UILoadHelper.LoadColumnsAnsy(this.ParentForm, e.Node, GetDBSource(e.Node));
+                    var dbname = GetDBName(e.Node).ToUpper();
+                    Biz.UILoadHelper.LoadColumnsAnsy(this.ParentForm, e.Node, GetDBSource(e.Node), (col) =>
+                    {
+                        var mark = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkColumnInfo>("MarkColumnInfo", "keys", new
+                                    [] { dbname, e.Node.Text.ToUpper(), col.Name.ToUpper() }).FirstOrDefault();
+                        return mark == null ? string.Empty : mark.MarkInfo;
+                    });
                 }
             }
             else if (e.Node.Level == 4)
@@ -1168,6 +1196,7 @@ GO");
 
                     item.MarkInfo = dlg.InputString;
                     LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Upsert<MarkColumnInfo>("MarkColumnInfo", item);
+                    selnode.ToolTipText = item.MarkInfo;
                     MessageBox.Show("备注成功");
                 }
             }
@@ -1204,6 +1233,32 @@ GO");
         private void 备注本地ToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Mark_Local();
+        }
+
+        private void MarkResource()
+        {
+            var currnode = tv_DBServers.SelectedNode;
+            if (currnode != null)
+            {
+                if(currnode.Tag!=null&&currnode.Tag is TableInfo)
+                {
+                    var tb = (TableInfo)currnode.Tag;
+                    var item = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkColumnInfo>("MarkColumnInfo", "keys", new[] { tb.DBName.ToUpper(), tb.TBName.ToUpper(), string.Empty }).FirstOrDefault();
+
+                    if (item == null)
+                    {
+                        item = new MarkColumnInfo { ColumnName = string.Empty, DBName = tb.DBName.ToUpper(), TBName = tb.TBName.ToUpper(), Servername = GetDBSource(currnode).ServerName,MarkInfo=string.Empty };
+                    }
+                    InputStringDlg dlg = new InputStringDlg($"备注:{tb.TBName}",item.MarkInfo);
+                    if (dlg.ShowDialog() == DialogResult.OK)
+                    {
+                        item.MarkInfo = dlg.InputString;
+                        LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Upsert<MarkColumnInfo>("MarkColumnInfo", item);
+                        currnode.ToolTipText = item.MarkInfo;
+                        MessageBox.Show("备注成功");
+                    }
+                }
+            }
         }
     }
 }

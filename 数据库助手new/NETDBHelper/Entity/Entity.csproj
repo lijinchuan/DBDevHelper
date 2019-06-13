@@ -51,6 +51,7 @@
     <Compile Include="MarkColumnInfo.cs" />
     <Compile Include="MSSQLTypeEnum.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TableInfo.cs" />
     <Compile Include="TBColumn.cs" />
   </ItemGroup>
   <ItemGroup>

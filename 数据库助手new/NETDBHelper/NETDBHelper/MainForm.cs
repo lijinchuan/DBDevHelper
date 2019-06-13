@@ -95,7 +95,7 @@ namespace NETDBHelper
 
         private void OnNewTableAdd(DBSource db,string dbName)
         {
-            Biz.UILoadHelper.LoadTBsAnsy(this, dbServerView1.FindNode(db.ServerName, dbName), db);
+            Biz.UILoadHelper.LoadTBsAnsy(this, dbServerView1.FindNode(db.ServerName, dbName), db,null);
         }
 
         public void ShowTableData(DBSource db,string dbName,string tablename, string sql)
