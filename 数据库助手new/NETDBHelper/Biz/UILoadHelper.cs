@@ -83,6 +83,10 @@ namespace Biz
                 newNode.Tag = col;
                 
                 newNode.ToolTipText =string.IsNullOrWhiteSpace(col.Description)?gettip(col):col.Description;
+                if (!col.IsKey&& string.IsNullOrWhiteSpace(newNode.ToolTipText))
+                {
+                    newNode.ImageIndex = newNode.SelectedImageIndex = 16;
+                }
                 treeNodes.Add(newNode);
             }
             if (parent.InvokeRequired)

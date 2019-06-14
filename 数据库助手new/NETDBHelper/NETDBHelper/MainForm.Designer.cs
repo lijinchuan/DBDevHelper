@@ -64,7 +64,7 @@
             this.SubItemHelp});
             this.mainMenuBar.Location = new System.Drawing.Point(0, 0);
             this.mainMenuBar.Name = "mainMenuBar";
-            this.mainMenuBar.Size = new System.Drawing.Size(830, 24);
+            this.mainMenuBar.Size = new System.Drawing.Size(830, 25);
             this.mainMenuBar.TabIndex = 0;
             this.mainMenuBar.Text = "menuStrip1";
             // 
@@ -74,33 +74,33 @@
             this.连接对象资源管理器ToolStripMenuItem,
             this.断开对象资源管理器ToolStripMenuItem});
             this.MenItem_File.Name = "MenItem_File";
-            this.MenItem_File.Size = new System.Drawing.Size(59, 20);
+            this.MenItem_File.Size = new System.Drawing.Size(58, 21);
             this.MenItem_File.Text = "文件(F)";
             // 
             // 连接对象资源管理器ToolStripMenuItem
             // 
             this.连接对象资源管理器ToolStripMenuItem.Name = "连接对象资源管理器ToolStripMenuItem";
-            this.连接对象资源管理器ToolStripMenuItem.Size = new System.Drawing.Size(178, 22);
+            this.连接对象资源管理器ToolStripMenuItem.Size = new System.Drawing.Size(184, 22);
             this.连接对象资源管理器ToolStripMenuItem.Text = "连接对象资源管理器";
             this.连接对象资源管理器ToolStripMenuItem.Click += new System.EventHandler(this.连接对象资源管理器ToolStripMenuItem_Click);
             // 
             // 断开对象资源管理器ToolStripMenuItem
             // 
             this.断开对象资源管理器ToolStripMenuItem.Name = "断开对象资源管理器ToolStripMenuItem";
-            this.断开对象资源管理器ToolStripMenuItem.Size = new System.Drawing.Size(178, 22);
+            this.断开对象资源管理器ToolStripMenuItem.Size = new System.Drawing.Size(184, 22);
             this.断开对象资源管理器ToolStripMenuItem.Text = "断开对象资源管理器";
             this.断开对象资源管理器ToolStripMenuItem.Click += new System.EventHandler(this.断开对象资源管理器ToolStripMenuItem_Click);
             // 
             // SubItemEdit
             // 
             this.SubItemEdit.Name = "SubItemEdit";
-            this.SubItemEdit.Size = new System.Drawing.Size(59, 20);
+            this.SubItemEdit.Size = new System.Drawing.Size(59, 21);
             this.SubItemEdit.Text = "编辑(E)";
             // 
             // SubItemView
             // 
             this.SubItemView.Name = "SubItemView";
-            this.SubItemView.Size = new System.Drawing.Size(41, 20);
+            this.SubItemView.Size = new System.Drawing.Size(44, 21);
             this.SubItemView.Text = "视图";
             // 
             // SubItemTool
@@ -109,26 +109,26 @@
             this.ToolStripMenuItem_callsp,
             this.实体建表ToolStripMenuItem});
             this.SubItemTool.Name = "SubItemTool";
-            this.SubItemTool.Size = new System.Drawing.Size(41, 20);
+            this.SubItemTool.Size = new System.Drawing.Size(44, 21);
             this.SubItemTool.Text = "工具";
             // 
             // ToolStripMenuItem_callsp
             // 
             this.ToolStripMenuItem_callsp.Name = "ToolStripMenuItem_callsp";
-            this.ToolStripMenuItem_callsp.Size = new System.Drawing.Size(142, 22);
+            this.ToolStripMenuItem_callsp.Size = new System.Drawing.Size(148, 22);
             this.ToolStripMenuItem_callsp.Text = "存储过程调用";
             this.ToolStripMenuItem_callsp.Click += new System.EventHandler(this.ToolStripMenuItem_callsp_Click);
             // 
             // 实体建表ToolStripMenuItem
             // 
             this.实体建表ToolStripMenuItem.Name = "实体建表ToolStripMenuItem";
-            this.实体建表ToolStripMenuItem.Size = new System.Drawing.Size(142, 22);
+            this.实体建表ToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
             this.实体建表ToolStripMenuItem.Text = "建表工具";
             // 
             // SubItemHelp
             // 
             this.SubItemHelp.Name = "SubItemHelp";
-            this.SubItemHelp.Size = new System.Drawing.Size(41, 20);
+            this.SubItemHelp.Size = new System.Drawing.Size(44, 21);
             this.SubItemHelp.Text = "帮助";
             // 
             // panel1
@@ -159,7 +159,7 @@
             // 
             this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsb_Excute});
-            this.toolStrip1.Location = new System.Drawing.Point(0, 24);
+            this.toolStrip1.Location = new System.Drawing.Point(0, 25);
             this.toolStrip1.Name = "toolStrip1";
             this.toolStrip1.Size = new System.Drawing.Size(830, 25);
             this.toolStrip1.TabIndex = 3;
@@ -171,7 +171,7 @@
             this.tsb_Excute.Image = global::NETDBHelper.Properties.Resources.新建位图图像__2_;
             this.tsb_Excute.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsb_Excute.Name = "tsb_Excute";
-            this.tsb_Excute.Size = new System.Drawing.Size(49, 22);
+            this.tsb_Excute.Size = new System.Drawing.Size(52, 22);
             this.tsb_Excute.Text = "执行";
             // 
             // dbServerView1
@@ -199,7 +199,7 @@
             // 
             this.MspPanel.ForeColor = System.Drawing.Color.Red;
             this.MspPanel.Name = "MspPanel";
-            this.MspPanel.Size = new System.Drawing.Size(23, 17);
+            this.MspPanel.Size = new System.Drawing.Size(20, 17);
             this.MspPanel.Text = "   ";
             // 
             // MainFrm
@@ -214,6 +214,7 @@
             this.Controls.Add(this.mainMenuBar);
             this.MainMenuStrip = this.mainMenuBar;
             this.Name = "MainFrm";
+            this.ShowIcon = false;
             this.Text = "数据库助手(SQL Server)";
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.mainMenuBar.ResumeLayout(false);

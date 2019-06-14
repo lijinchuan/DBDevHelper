@@ -182,6 +182,12 @@
     <Compile Include="UC\Scale.Designer.cs">
       <DependentUpon>Scale.cs</DependentUpon>
     </Compile>
+    <Compile Include="UC\SQLCodePanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="UC\SQLCodePanel.Designer.cs">
+      <DependentUpon>SQLCodePanel.cs</DependentUpon>
+    </Compile>
     <Compile Include="UC\SQLEditBox.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -209,6 +215,12 @@
     </Compile>
     <Compile Include="UC\ViewTBData.Designer.cs">
       <DependentUpon>ViewTBData.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UC\WebTab.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="UC\WebTab.Designer.cs">
+      <DependentUpon>WebTab.cs</DependentUpon>
     </Compile>
     <EmbeddedResource Include="ConnSQLServer.resx">
       <DependentUpon>ConnSQLServer.cs</DependentUpon>
@@ -260,6 +272,9 @@
     <EmbeddedResource Include="UC\Scale.resx">
       <DependentUpon>Scale.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="UC\SQLCodePanel.resx">
+      <DependentUpon>SQLCodePanel.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="UC\SqlProceCodePanel.resx">
       <DependentUpon>SqlProceCodePanel.cs</DependentUpon>
     </EmbeddedResource>
@@ -271,6 +286,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="UC\ViewTBData.resx">
       <DependentUpon>ViewTBData.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UC\WebTab.resx">
+      <DependentUpon>WebTab.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="app.config" />
   </ItemGroup>
@@ -295,6 +313,7 @@
     <None Include="Resources\application_form_magnify.png" />
     <Content Include="Resources\CloseServer.jpg" />
     <Content Include="Resources\DB1.png" />
+    <None Include="Resources\DB16.png" />
     <Content Include="Resources\DB2.png" />
     <Content Include="Resources\DB3.png" />
     <Content Include="Resources\DB4.png" />

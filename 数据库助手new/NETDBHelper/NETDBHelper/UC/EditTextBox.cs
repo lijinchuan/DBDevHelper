@@ -283,5 +283,15 @@ namespace NETDBHelper.UC
                 return contextMenuStrip1;
             }
         }
+
+        private void 全选ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.RichText.SelectAll();
+        }
+
+        private void 复制ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Clipboard.SetText(this.RichText.SelectedText);
+        }
     }
 }

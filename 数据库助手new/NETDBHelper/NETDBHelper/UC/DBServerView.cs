@@ -21,6 +21,8 @@ namespace NETDBHelper
         public Action<DBSource,string> OnAddEntityTB;
         public Action<string, string> OnCreateSelectSql;
         public Action<DBSource, string, string, string,CreateProceEnum> OnCreatePorcSQL;
+        public Action<DBSource,string,string> OnShowProc;
+        public Action<DBSource,string,string,string> OnShowDataDic;
         private DBSourceCollection _dbServers;
         /// <summary>
         /// 实体命名空间
@@ -56,6 +58,7 @@ namespace NETDBHelper
             tv_DBServers.ImageList.Images.Add(Resources.Resource1.script_code);
             tv_DBServers.ImageList.Images.Add(Resources.Resource1.script_code_red);
             tv_DBServers.ImageList.Images.Add(Resources.Resource1.DB16);
+            tv_DBServers.ImageList.Images.Add(Resources.Resource1.DB161);
             tv_DBServers.Nodes.Add("0", "资源管理器", 0);
             tv_DBServers.NodeMouseClick += new TreeNodeMouseClickEventHandler(tv_DBServers_NodeMouseClick);
 
@@ -410,7 +413,7 @@ namespace NETDBHelper
                 Biz.UILoadHelper.LoadTBsAnsy(this.ParentForm, e.Node, GetDBSource(e.Node),name=>
                 {
                     var mark = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkColumnInfo>("MarkColumnInfo", "keys", new
-                                 [] { GetDBName(e.Node), name.ToUpper(), string.Empty }).FirstOrDefault();
+                                 [] { GetDBName(e.Node).ToUpper(), name.ToUpper(), string.Empty }).FirstOrDefault();
                     return mark == null ? string.Empty : mark.MarkInfo;
                 });
             }
@@ -877,9 +880,14 @@ GO");
             }
             else if (node != null && node.Level == 4 && node.Parent.Text.Equals("存储过程"))
             {
-                var body = Biz.Common.Data.SQLHelper.GetProcedureBody(GetDBSource(node), node.Parent.Parent.Text, node.Text);
-                TextBoxWin win = new TextBoxWin("存储过程[" + node.Text + "]", body);
-                win.Show();
+                if (OnShowProc != null)
+                {
+                    var body = Biz.Common.Data.SQLHelper.GetProcedureBody(GetDBSource(node), node.Parent.Parent.Text, node.Text);
+                    //TextBoxWin win = new TextBoxWin("存储过程[" + node.Text + "]", body);
+                    //win.Show();
+                    OnShowProc(GetDBSource(node), node.Text, body);
+                }
+
             }
             else if (node != null && node.Level == 4 && node.Parent.Text.Equals("视图"))
             {
@@ -1102,10 +1110,10 @@ GO");
 
                 sb.Append("</table></body></html>");
 
-                SubForm.WinWebBroswer web = new WinWebBroswer();
-                web.SetHtml(sb.ToString());
-                web.ShowDialog();
-
+                if (OnShowDataDic != null)
+                {
+                    OnShowDataDic(GetDBSource(selnode),GetDBName(selnode),selnode.Text,sb.ToString());
+                }
             }
         }
 
@@ -1193,7 +1201,10 @@ GO");
                 InputStringDlg dlg = new InputStringDlg($"备注字段[{tbname}.{col}]",item.MarkInfo);
                 if (dlg.ShowDialog() == DialogResult.OK)
                 {
-
+                    if (selnode.ImageIndex == 16)
+                    {
+                        selnode.ImageIndex = selnode.SelectedImageIndex = 5;
+                    }
                     item.MarkInfo = dlg.InputString;
                     LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Upsert<MarkColumnInfo>("MarkColumnInfo", item);
                     selnode.ToolTipText = item.MarkInfo;

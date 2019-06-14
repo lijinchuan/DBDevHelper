@@ -23,6 +23,8 @@ namespace NETDBHelper
             this.dbServerView1.OnShowTableData += this.ShowTableData;
             this.dbServerView1.OnAddEntityTB += this.AddEntityDB;
             this.dbServerView1.OnCreatePorcSQL += this.CreateProcSql;
+            this.dbServerView1.OnShowProc += this.ShowProc;
+            this.dbServerView1.OnShowDataDic += this.ShowDataDic;
             this.TabControl.Selected += new TabControlEventHandler(TabControl_Selected);
         }
 
@@ -44,6 +46,34 @@ namespace NETDBHelper
             this.TabControl.TabPages.Add(cp);
             cp.Create();
             TabControl.SelectedTab = cp;
+        }
+
+        private void ShowProc(DBSource dBSource, string procname, string procbody)
+        {
+            UC.SQLCodePanel panel = new SQLCodePanel();
+            panel.SetCode(procbody);
+            panel.Text = $"存储过程-{procname}";
+            this.TabControl.TabPages.Add(panel);
+            this.TabControl.SelectedTab = panel;
+        }
+
+        private void ShowDataDic(DBSource dBSource,string dbname,string tbname,string html)
+        {
+            var tit = $"数据字典-[{dbname}].[{tbname}]";
+            foreach(TabPage tab in this.TabControl.TabPages)
+            {
+                if (tab.Text.Equals(tit))
+                {
+                    (tab as UC.WebTab).SetHtml(html);
+                    TabControl.SelectedTab = tab;
+                    return;
+                }
+            }
+            UC.WebTab panel = new WebTab();
+            panel.SetHtml(html);
+            panel.Text = tit;
+            this.TabControl.TabPages.Add(panel);
+            this.TabControl.SelectedTab = panel;
         }
 
         protected void CreateEntity(string entityName,string s)
