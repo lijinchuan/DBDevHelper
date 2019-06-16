@@ -21,6 +21,14 @@ namespace NETDBHelper.UC
             set;
         }
 
+        public string Text
+        {
+            get
+            {
+                return TabPage.Text;
+            }
+        }
+
         public TabPage TabPage
         {
             get;

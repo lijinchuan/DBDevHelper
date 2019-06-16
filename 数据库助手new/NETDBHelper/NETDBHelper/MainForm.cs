@@ -225,5 +225,10 @@ namespace NETDBHelper
             }
             Instance.SetMsg(msg);
         }
+
+        private void TabControl_MouseDown(object sender, MouseEventArgs e)
+        {
+
+        }
     }
 }

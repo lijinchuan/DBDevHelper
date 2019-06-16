@@ -311,6 +311,7 @@
     <None Include="Map\新建位图图像.bmp" />
     <None Include="Map\新建位图图像 %282%29.bmp" />
     <None Include="Resources\application_form_magnify.png" />
+    <None Include="Resources\bullet_eject.png" />
     <Content Include="Resources\CloseServer.jpg" />
     <Content Include="Resources\DB1.png" />
     <None Include="Resources\DB16.png" />

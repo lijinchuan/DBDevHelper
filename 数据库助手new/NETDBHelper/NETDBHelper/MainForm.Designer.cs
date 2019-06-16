@@ -154,6 +154,7 @@
             this.TabControl.Size = new System.Drawing.Size(569, 476);
             this.TabControl.SizeMode = System.Windows.Forms.TabSizeMode.Fixed;
             this.TabControl.TabIndex = 0;
+            this.TabControl.MouseDown += new System.Windows.Forms.MouseEventHandler(this.TabControl_MouseDown);
             // 
             // toolStrip1
             // 
