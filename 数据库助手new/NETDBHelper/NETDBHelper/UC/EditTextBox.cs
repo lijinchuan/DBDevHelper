@@ -161,6 +161,14 @@ namespace NETDBHelper.UC
             }
         }
 
+        public string SelectedText
+        {
+            get
+            {
+                return this.RichText.SelectedText;
+            }
+        }
+
         public void AppendText(string text)
         {
             this.RichText.AppendText(text);
