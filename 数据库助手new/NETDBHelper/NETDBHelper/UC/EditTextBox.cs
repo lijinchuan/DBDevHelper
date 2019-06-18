@@ -9,6 +9,7 @@ using System.Windows.Forms;
 using System.Text.RegularExpressions;
 using Biz.Common;
 using LJC.FrameWork.CodeExpression.KeyWordMatch;
+using Entity;
 
 namespace NETDBHelper.UC
 {
@@ -21,6 +22,8 @@ namespace NETDBHelper.UC
         private List<int> _markedLines = new List<int>();
         private int _lastMarketedLines = -1;
         private int _lastInputChar = '\0';
+
+        private DataGridView view = new DataGridView();
 
         public KeyWordManager KeyWords
         {
@@ -41,6 +44,32 @@ namespace NETDBHelper.UC
             
             this.RichText.TextChanged+=new EventHandler(RichText_TextChanged);
             defaultSelectionColor = this.RichText.SelectionColor;
+
+            view.Visible = false;
+            view.MouseLeave += View_MouseLeave;
+            view.BorderStyle = BorderStyle.None;
+            view.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
+            //view.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
+            view.AllowUserToAddRows = false;
+            view.RowHeadersVisible = false;
+            view.CellBorderStyle = DataGridViewCellBorderStyle.Single;
+            view.BackgroundColor = Color.White;
+            view.GridColor = Color.LightGreen;
+
+            this.ParentChanged += EditTextBox_ParentChanged;
+        }
+
+        private void EditTextBox_ParentChanged(object sender, EventArgs e)
+        {
+            if (this.Parent != null&&!this.Parent.Controls.Contains(view))
+            {
+                this.Parent.Controls.Add(view);
+            }
+        }
+
+        private void View_MouseLeave(object sender, EventArgs e)
+        {
+            view.Visible = false;
         }
 
         protected override void OnResize(EventArgs e)
@@ -300,6 +329,86 @@ namespace NETDBHelper.UC
         private void 复制ToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Clipboard.SetText(this.RichText.SelectedText);
+        }
+
+        private void RichText_MouseHover(object sender, EventArgs e)
+        {
+            
+            
+
+        }
+
+        private void RichText_SelectionChanged(object sender, EventArgs e)
+        {
+            var seltext = this.RichText.SelectedText;
+            if (string.IsNullOrWhiteSpace(seltext) || seltext.IndexOf('\n') > -1 || seltext.Length > 30)
+            {
+                return;
+            }
+
+            seltext = seltext.Trim().ToUpper();
+            var subtexts = seltext.Split('.').Select(p => p.Trim('[', ']').Trim()).ToArray();
+            if (subtexts.Length > 2)
+            {
+                subtexts = subtexts.Skip(subtexts.Length - 2).ToArray();
+            }
+            List<MarkColumnInfo> marklist = new List<MarkColumnInfo>();
+            if (subtexts.Length > 1)
+            {
+                marklist = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkColumnInfo>("MarkColumnInfo",
+                    p => p.TBName.Equals(subtexts[0]) && p.ColumnName.Equals(subtexts[1])).ToList();
+
+
+            }
+            else
+            {
+                HashSet<string> tablenamehash = new HashSet<string>();
+                foreach (Match m in Regex.Matches(this.RichText.Text, @"[\s\n]+from[\s\n]+([\w\.\[\]]{1,})|[\s\n]+join[\s\n]+([\w\.\[\]]{1,})", RegexOptions.IgnoreCase | RegexOptions.Multiline))
+                {
+                    if (!string.IsNullOrEmpty(m.Groups[1].Value))
+                    {
+                        var t1 = m.Groups[1].Value.Split('.').Last().ToUpper();
+
+                        if (!tablenamehash.Contains(t1))
+                        {
+                            tablenamehash.Add(t1);
+                        }
+
+                    }
+
+                    if (!string.IsNullOrEmpty(m.Groups[2].Value))
+                    {
+                        var t2 = m.Groups[2].Value.Split('.').Last().ToUpper();
+
+                        if (!tablenamehash.Contains(t2))
+                        {
+                            tablenamehash.Add(t2);
+                        }
+
+                    }
+
+                }
+
+                if (tablenamehash.Count > 0)
+                {
+                    marklist = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkColumnInfo>("MarkColumnInfo",
+                    p => tablenamehash.Contains(p.TBName) && p.ColumnName.Equals(seltext)).ToList();
+                }
+
+            }
+
+            if (marklist.Count > 0)
+            {
+                view.DataSource = marklist.Select(p => new
+                {
+                    提示 = p.DBName.ToLower() + "." + p.TBName.ToLower() + "." + p.ColumnName.ToLower() + ":" + p.MarkInfo
+                }).ToList();
+                view.Visible = true;
+                view.BringToFront();
+                view.Height = (view.Rows.GetRowsHeight(DataGridViewElementStates.Visible) / marklist.Count) * (Math.Min(10, marklist.Count) + 1) + view.ColumnHeadersHeight;
+                
+                view.Location = PointToClient(Control.MousePosition);
+            }
         }
     }
 }

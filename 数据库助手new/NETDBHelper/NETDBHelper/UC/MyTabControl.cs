@@ -46,7 +46,13 @@ namespace NETDBHelper.UC
             morelistbox.ItemHeight = 22;
 
             morelistbox.DoubleClick += Morelistbox_DoubleClick;
+            morelistbox.MouseLeave += Morelistbox_MouseLeave;
 
+        }
+
+        private void Morelistbox_MouseLeave(object sender, EventArgs e)
+        {
+            morelistbox.Visible = false;
         }
 
         private void Morelistbox_DoubleClick(object sender, EventArgs e)
@@ -57,16 +63,22 @@ namespace NETDBHelper.UC
 
             if (selitem != null)
             {
-                var lasttabex = this.tabExDic.AsEnumerable().ToArray()[this.TabPages.Count-this.moretabtablelist.Count - 1].Value;
-                tabExDic.Remove(lasttabex.TabIndex);
-                tabExDic.Remove(selitem.TabIndex);
-                var temp = selitem.TabIndex;
-                selitem.TabIndex = lasttabex.TabIndex;
-                tabExDic.Add(selitem.TabIndex, selitem);
-                lasttabex.TabIndex = temp;
-                tabExDic.Add(temp, lasttabex);
+                var pos = Math.Max(this.TabPages.Count - this.moretabtablelist.Count - 1, 0);
 
-                var tabs = tabExDic.AsEnumerable().OrderBy(p => p.Key).Select(p => p.Value.TabPage).ToArray();
+                for(var i = pos; i >= 0; i--)
+                {
+                    this.tabExDic[i].TabIndex--;
+                }
+
+                var lasttabex = this.tabExDic.AsEnumerable().ToArray()[pos].Value;
+                selitem.TabIndex = pos;
+
+                selitem.TabIndex = pos;
+                if (pos != 0)
+                {
+                    tabExDic[0].TabIndex = tabExDic.Count;
+                }
+                var tabs = tabExDic.AsEnumerable().OrderBy(p => p.Value.TabIndex).Select(p => p.Value.TabPage).ToArray();
                 this.tabExDic.Clear();
                 this.TabPages.Clear();
                 this.TabPages.AddRange(tabs);
@@ -151,11 +163,20 @@ namespace NETDBHelper.UC
 
         protected override void OnControlAdded(ControlEventArgs e)
         {
-            if (moretabtablelist.Count > 0 || (this.tabExDic.Count > 0 && this.Width - this.tabExDic.Last().Value.StripRect.Location.X- this.tabExDic.Last().Value.StripRect.Width < 120))
+            SizeF textSize = this.CreateGraphics().MeasureString(e.Control.Text, defaultFont, new SizeF(200, 10), StringFormat.GenericDefault);
+            textSize.Width += 35;
+            
+            if (moretabtablelist.Count > 0 || (this.tabExDic.Count > 0 && this.Width - this.tabExDic.Last().Value.StripRect.Location.X - this.tabExDic.Last().Value.StripRect.Width < 20 + textSize.Width))
             {
                 var tabpage = (TabPage)e.Control;
                 var list = new List<TabPage>();
-                list.AddRange(this.tabExDic.Select(p => p.Value.TabPage));
+                var items = this.tabExDic.Select(p => p.Value.TabPage).ToList();
+                if (items.Count > 1)
+                {
+                    items.Add(items.First());
+                    items = items.Skip(1).ToList();
+                }
+                list.AddRange(items);
                 list.Insert(Math.Max(0, this.tabExDic.Count - this.moretabtablelist.Count - 1), tabpage);
 
                 this.SuspendLayout();
