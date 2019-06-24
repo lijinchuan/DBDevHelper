@@ -5,6 +5,7 @@ using System.Text;
 using System.Windows.Forms;
 using Entity;
 using System.Data;
+using System.Threading;
 
 namespace Biz
 {
@@ -32,6 +33,8 @@ namespace Biz
 
         public static void LoadDBsAnsy(Form parent, TreeNode serverNode, DBSource server)
         {
+            serverNode.Nodes.Add(new TreeNode("加载中...", 17, 17));
+            serverNode.Expand();
             new Action<Form, TreeNode, DBSource>(LoadDBs).BeginInvoke(parent, serverNode, server, null, null);
         }
 
@@ -63,11 +66,15 @@ namespace Biz
 
         public static void LoadTBsAnsy(Form parent, TreeNode dbNode, DBSource server,Func<string,string> gettip)
         {
+            dbNode.Nodes.Add(new TreeNode("加载中...", 17, 17));
+            dbNode.Expand();
             new Action<Form, TreeNode, DBSource,Func<string,string>>(LoadTBs).BeginInvoke(parent, dbNode, server,gettip, null, null);
         }
 
         public static void LoadColumnsAnsy(Form parent, TreeNode tbNode, DBSource server, Func<TBColumn,string> gettip)
         {
+            tbNode.Nodes.Add(new TreeNode("加载中...", 17, 17));
+            tbNode.Expand();
             new Action<Form, TreeNode, DBSource, Func<TBColumn,string>>(LoadColumns).BeginInvoke(parent, tbNode, server,gettip, null, null);
         }
 
@@ -76,16 +83,21 @@ namespace Biz
             if (server == null)
                 return;
             List<TreeNode> treeNodes = new List<TreeNode>();
+            
             foreach (TBColumn col in Biz.Common.Data.SQLHelper.GetColumns(server, tbNode.Parent.Text, tbNode.Name, tbNode.Text))
             {
                 int imgIdx = col.IsKey ? 4 : 5;
                 TreeNode newNode = new TreeNode(string.Concat(col.Name, "(", col.TypeName, ")"), imgIdx, imgIdx);
                 newNode.Tag = col;
-                
-                newNode.ToolTipText =string.IsNullOrWhiteSpace(col.Description)?gettip(col):col.Description;
+
+                newNode.ToolTipText = gettip(col);
+                if (string.IsNullOrWhiteSpace(newNode.ToolTipText))
+                {
+                    newNode.ToolTipText = col.Description;
+                }
                 if (!col.IsKey&& string.IsNullOrWhiteSpace(newNode.ToolTipText))
                 {
-                    newNode.ImageIndex = newNode.SelectedImageIndex = 16;
+                    newNode.ImageIndex = newNode.SelectedImageIndex = 18;
                 }
                 treeNodes.Add(newNode);
             }
@@ -185,11 +197,15 @@ namespace Biz
 
         public static void LoadProcedureAnsy(Form parent, TreeNode procedureNode, DBSource server)
         {
+            procedureNode.Nodes.Add(new TreeNode("加载中...", 17, 17));
+            procedureNode.Expand();
             new Action<Form, TreeNode, DBSource>(LoadProcedure).BeginInvoke(parent, procedureNode, server, null, null);
         }
 
         public static void LoadIndexAnsy(Form parent, TreeNode tbNode, DBSource server)
         {
+            tbNode.Nodes.Add(new TreeNode("加载中...", 17, 17));
+            tbNode.Expand();
             new Action<Form, TreeNode, DBSource>(LoadIndexs).BeginInvoke(parent, tbNode, server, null, null);
         }
 
@@ -232,6 +248,8 @@ namespace Biz
 
         public static void LoadViewsAnsy(Form parent, TreeNode tbNode, DBSource server)
         {
+            tbNode.Nodes.Add(new TreeNode("加载中...", 17, 17));
+            tbNode.Expand();
             new Action<Form, TreeNode, DBSource>(LoadViews).BeginInvoke(parent, tbNode, server, null, null);
         }
 

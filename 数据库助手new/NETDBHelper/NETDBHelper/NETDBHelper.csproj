@@ -102,6 +102,12 @@
     <Compile Include="SubForm\CreateEntityNavDlg.Designer.cs">
       <DependentUpon>CreateEntityNavDlg.cs</DependentUpon>
     </Compile>
+    <Compile Include="SubForm\FindDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SubForm\FindDlg.Designer.cs">
+      <DependentUpon>FindDlg.cs</DependentUpon>
+    </Compile>
     <Compile Include="SubForm\InputStringDlg.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -163,6 +169,12 @@
     </Compile>
     <Compile Include="UC\EntityCodePanel.Designer.cs">
       <DependentUpon>EntityCodePanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UC\LogViewTab.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="UC\LogViewTab.Designer.cs">
+      <DependentUpon>LogViewTab.cs</DependentUpon>
     </Compile>
     <Compile Include="UC\MyRichTextBox.cs">
       <SubType>Component</SubType>
@@ -236,6 +248,9 @@
     <EmbeddedResource Include="SubForm\CreateEntityNavDlg.resx">
       <DependentUpon>CreateEntityNavDlg.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="SubForm\FindDlg.resx">
+      <DependentUpon>FindDlg.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="SubForm\InputStringDlg.resx">
       <DependentUpon>InputStringDlg.cs</DependentUpon>
     </EmbeddedResource>
@@ -265,6 +280,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="UC\EntityCodePanel.resx">
       <DependentUpon>EntityCodePanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UC\LogViewTab.resx">
+      <DependentUpon>LogViewTab.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UC\MyTabControl.resx">
       <DependentUpon>MyTabControl.cs</DependentUpon>
@@ -313,6 +331,7 @@
     <None Include="Resources\application_form_magnify.png" />
     <None Include="Resources\bullet_eject.png" />
     <Content Include="Resources\CloseServer.jpg" />
+    <Content Include="Resources\ColQ.png" />
     <Content Include="Resources\DB1.png" />
     <None Include="Resources\DB16.png" />
     <Content Include="Resources\DB2.png" />
@@ -322,6 +341,7 @@
     <Content Include="Resources\DB6.png" />
     <Content Include="Resources\key_add.png" />
     <None Include="Resources\key_add1.png" />
+    <Content Include="Resources\loading.gif" />
     <Content Include="Resources\MYSQLICON.jpg" />
     <Content Include="Resources\MysqlLogo.jpg" />
     <Content Include="Resources\OpenServer.jpg" />

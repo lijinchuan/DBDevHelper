@@ -36,6 +36,8 @@
             this.粘贴ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.RichText = new NETDBHelper.UC.MyRichTextBox();
             this.ScaleNos = new NETDBHelper.UC.Scale();
+            this.搜索ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
             this.contextMenuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -44,9 +46,11 @@
             this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.全选ToolStripMenuItem,
             this.复制ToolStripMenuItem,
-            this.粘贴ToolStripMenuItem});
+            this.粘贴ToolStripMenuItem,
+            this.toolStripMenuItem2,
+            this.搜索ToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(101, 70);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(181, 120);
             // 
             // 全选ToolStripMenuItem
             // 
@@ -92,6 +96,18 @@
             this.ScaleNos.Size = new System.Drawing.Size(44, 442);
             this.ScaleNos.TabIndex = 0;
             // 
+            // 搜索ToolStripMenuItem
+            // 
+            this.搜索ToolStripMenuItem.Name = "搜索ToolStripMenuItem";
+            this.搜索ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.搜索ToolStripMenuItem.Text = "搜索";
+            this.搜索ToolStripMenuItem.Click += new System.EventHandler(this.搜索ToolStripMenuItem_Click);
+            // 
+            // toolStripMenuItem2
+            // 
+            this.toolStripMenuItem2.Name = "toolStripMenuItem2";
+            this.toolStripMenuItem2.Size = new System.Drawing.Size(97, 6);
+            // 
             // EditTextBox
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -113,5 +129,7 @@
         private System.Windows.Forms.ToolStripMenuItem 粘贴ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 全选ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 复制ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem2;
+        private System.Windows.Forms.ToolStripMenuItem 搜索ToolStripMenuItem;
     }
 }

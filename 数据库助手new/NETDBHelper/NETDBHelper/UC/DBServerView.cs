@@ -21,7 +21,7 @@ namespace NETDBHelper
         public Action<DBSource,string> OnAddEntityTB;
         public Action<string, string> OnCreateSelectSql;
         public Action<DBSource, string, string, string,CreateProceEnum> OnCreatePorcSQL;
-        public Action<DBSource,string,string> OnShowProc;
+        public Action<DBSource,string,string,string> OnShowProc;
         public Action<DBSource,string,string,string> OnShowDataDic;
         private DBSourceCollection _dbServers;
         /// <summary>
@@ -55,10 +55,12 @@ namespace NETDBHelper
             tv_DBServers.ImageList.Images.Add(Resources.Resource1.DB11);
             tv_DBServers.ImageList.Images.Add(Resources.Resource1.param);
             tv_DBServers.ImageList.Images.Add(Resources.Resource1.paramout);
-            tv_DBServers.ImageList.Images.Add(Resources.Resource1.script_code);
+            tv_DBServers.ImageList.Images.Add(Resources.Resource1.script_code); //13
             tv_DBServers.ImageList.Images.Add(Resources.Resource1.script_code_red);
             tv_DBServers.ImageList.Images.Add(Resources.Resource1.DB16);
-            tv_DBServers.ImageList.Images.Add(Resources.Resource1.DB161);
+            tv_DBServers.ImageList.Images.Add(Resources.Resource1.DB161); //16
+            tv_DBServers.ImageList.Images.Add(Resources.Resource1.loading);
+            tv_DBServers.ImageList.Images.Add(Resources.Resource1.ColQ); //18
             tv_DBServers.Nodes.Add("0", "资源管理器", 0);
             tv_DBServers.NodeMouseClick += new TreeNodeMouseClickEventHandler(tv_DBServers_NodeMouseClick);
 
@@ -127,6 +129,17 @@ namespace NETDBHelper
                             var node = tv_DBServers.SelectedNode;
                             Biz.Common.Data.SQLHelper.DeleteDataBase(GetDBSource(node), node.Text);
                             ReLoadDBObj(node.Parent);
+
+                            LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<HLogEntity>("HLog", new HLogEntity
+                            {
+                                TypeName = node.Text,
+                                LogTime = DateTime.Now,
+                                LogType = LogTypeEnum.db,
+                                DB = node.Text,
+                                Sever = GetDBSource(node).ServerName,
+                                Info = "删除",
+                                Valid = true
+                            });
                         }
                         break;
                     case "新增对象":
@@ -136,7 +149,19 @@ namespace NETDBHelper
                         {
                             Biz.Common.Data.SQLHelper.CreateDataBase(GetDBSource(selnode),selnode.FirstNode.Text, dlg.InputString);
                             ReLoadDBObj(selnode);
+
+                            LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<HLogEntity>("HLog", new HLogEntity
+                            {
+                                TypeName = dlg.InputString,
+                                LogTime = DateTime.Now,
+                                LogType = LogTypeEnum.db,
+                                DB = dlg.InputString,
+                                Sever = GetDBSource(selnode).ServerName,
+                                Info = "新增",
+                                Valid = true
+                            });
                         }
+
                         break;
                 }
             }
@@ -176,12 +201,49 @@ namespace NETDBHelper
             else if (selNode.Level == 3)
             {
                 var dbname = GetDBName(selNode).ToUpper();
-                Biz.UILoadHelper.LoadColumnsAnsy(this.ParentForm, selNode, GetDBSource(selNode), (col) =>
+                var dbsource = GetDBSource(selNode);
+                var synccolumnmark = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.
+                    Find<ColumnMarkSyncRecord>("ColumnMarkSyncRecord", "keys", new[] { dbname,selNode.Text.ToUpper() }).FirstOrDefault() != null;
+                Biz.UILoadHelper.LoadColumnsAnsy(this.ParentForm, selNode,dbsource , (col) =>
                  {
                      var mark = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkColumnInfo>("MarkColumnInfo", "keys", new
                                  [] { dbname, selNode.Text.ToUpper(), col.Name.ToUpper() }).FirstOrDefault();
+
+                     if (mark == null && !synccolumnmark&&!string.IsNullOrWhiteSpace(col.Description))
+                     {
+                         LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<MarkColumnInfo>("MarkColumnInfo", new MarkColumnInfo
+                         {
+                             DBName=dbname.ToUpper(),
+                             ColumnName=col.Name.ToUpper(),
+                             Servername=dbsource.ServerName,
+                             TBName=selNode.Text.ToUpper(),
+                             MarkInfo=col.Description
+                         });
+                     }
+
                      return mark == null ? string.Empty : mark.MarkInfo;
                  });
+
+                if (!synccolumnmark)
+                {
+                    LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<ColumnMarkSyncRecord>("ColumnMarkSyncRecord",
+                        new ColumnMarkSyncRecord
+                        {
+                            DBName = dbname.ToUpper(),
+                            SyncDate = DateTime.Now,
+                            TBName = selNode.Text.ToUpper()
+                        });
+                }
+
+                LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<HLogEntity>("HLog", new HLogEntity
+                {
+                    TypeName = selNode.Text,
+                    LogTime = DateTime.Now,
+                    LogType = LogTypeEnum.table,
+                    DB = dbname,
+                    Sever = GetDBSource(selNode).ServerName,
+                    Valid = true
+                });
             }
             else if (selNode.Level == 4 && selNode.Text.Equals("索引"))
             {
@@ -212,8 +274,22 @@ namespace NETDBHelper
                             MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
                         {
                             var node = tv_DBServers.SelectedNode;
+
+                            LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<HLogEntity>("HLog", new HLogEntity
+                            {
+                                TypeName = node.Text,
+                                LogTime = DateTime.Now,
+                                LogType = LogTypeEnum.table,
+                                DB = node.Parent.Text,
+                                Sever = GetDBSource(node).ServerName,
+                                Info = "删除",
+                                Valid = true
+                            });
+
                             Biz.Common.Data.SQLHelper.DeleteTable(GetDBSource(node), node.Parent.Text, node.Text);
                             ReLoadDBObj(node.Parent);
+
+                            
                         }
                         break;
                     case "刷新":
@@ -232,6 +308,17 @@ namespace NETDBHelper
                             Biz.Common.Data.SQLHelper.ReNameTableName(GetDBSource(_node), _node.Parent.Text,
                                 oldname, dlg.InputString);
                             ReLoadDBObj(_node.Parent);
+
+                            LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<HLogEntity>("HLog", new HLogEntity
+                            {
+                                TypeName = dlg.InputString,
+                                LogTime = DateTime.Now,
+                                LogType = LogTypeEnum.table,
+                                DB = _node.Parent.Text,
+                                Sever = GetDBSource(_node).ServerName,
+                                Info=string.Format("重命名：{0}-{1}",oldname,dlg.InputString),
+                                Valid = true
+                            });
                         }
                         break;
                     case "Insert":
@@ -297,7 +384,7 @@ namespace NETDBHelper
                 sb.AppendLine("");
                 sb.Append(" from ");
                 sb.Append(tv_DBServers.SelectedNode.Text);
-                sb.Append("(nolock)");
+                sb.Append(" with(nolock)");
                 if (this.OnShowTableData != null)
                 {
                     OnShowTableData(this.tv_DBServers.SelectedNode.Parent.Parent.Tag as DBSource, this.tv_DBServers.SelectedNode.Parent.Text, this.tv_DBServers.SelectedNode.Text, sb.ToString());
@@ -316,7 +403,7 @@ namespace NETDBHelper
                 sb.AppendLine("");
                 sb.Append(" from ");
                 sb.Append(tv_DBServers.SelectedNode.Text);
-                sb.Append("(nolock)");
+                sb.Append(" with(nolock)");
                 if (this.OnShowTableData != null)
                 {
                     OnShowTableData(this.tv_DBServers.SelectedNode.Parent.Parent.Parent.Tag as DBSource, this.tv_DBServers.SelectedNode.Parent.Parent.Text, this.tv_DBServers.SelectedNode.Text, sb.ToString());
@@ -416,6 +503,16 @@ namespace NETDBHelper
                                  [] { GetDBName(e.Node).ToUpper(), name.ToUpper(), string.Empty }).FirstOrDefault();
                     return mark == null ? string.Empty : mark.MarkInfo;
                 });
+
+                LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<HLogEntity>("HLog", new HLogEntity
+                {
+                    TypeName=e.Node.Text,
+                    LogTime=DateTime.Now,
+                    LogType=LogTypeEnum.db,
+                    DB=e.Node.Text,
+                    Sever=GetDBSource(e.Node).ServerName,
+                    Valid=true
+                });
             }
             if (e.Node.Level == 3)
             {
@@ -445,11 +542,46 @@ namespace NETDBHelper
                 else
                 {
                     var dbname = GetDBName(e.Node).ToUpper();
+                    var dbsource = GetDBSource(e.Node);
+                    var synccolumnmark = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.
+                       Find<ColumnMarkSyncRecord>("ColumnMarkSyncRecord", "keys", new[] { dbname, e.Node.Text.ToUpper() }).FirstOrDefault() != null;
                     Biz.UILoadHelper.LoadColumnsAnsy(this.ParentForm, e.Node, GetDBSource(e.Node), (col) =>
                     {
                         var mark = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkColumnInfo>("MarkColumnInfo", "keys", new
                                     [] { dbname, e.Node.Text.ToUpper(), col.Name.ToUpper() }).FirstOrDefault();
+                        if (mark == null && !synccolumnmark && !string.IsNullOrWhiteSpace(col.Description))
+                        {
+                            LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<MarkColumnInfo>("MarkColumnInfo", new MarkColumnInfo
+                            {
+                                DBName = dbname.ToUpper(),
+                                ColumnName = col.Name.ToUpper(),
+                                Servername = dbsource.ServerName,
+                                TBName = e.Node.Text.ToUpper(),
+                                MarkInfo = col.Description
+                            });
+                        }
                         return mark == null ? string.Empty : mark.MarkInfo;
+                    });
+
+                    if (!synccolumnmark)
+                    {
+                        LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<ColumnMarkSyncRecord>("ColumnMarkSyncRecord",
+                            new ColumnMarkSyncRecord
+                            {
+                                DBName = dbname.ToUpper(),
+                                SyncDate = DateTime.Now,
+                                TBName = e.Node.Text.ToUpper()
+                            });
+                    }
+
+                    LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<HLogEntity>("HLog", new HLogEntity
+                    {
+                        TypeName = e.Node.Text,
+                        LogTime = DateTime.Now,
+                        LogType = LogTypeEnum.table,
+                        DB = dbname,
+                        Sever = GetDBSource(e.Node).ServerName,
+                        Valid = true
                     });
                 }
             }
@@ -657,11 +789,12 @@ namespace NETDBHelper
                     return SearchNode(nodeStart.Parent.NextNode, txt);
                 }
             }
-            if (tv_DBServers.Nodes.Count > 0)
-            {
-                tv_DBServers.SelectedNode=tv_DBServers.Nodes[0];
-            }
-            return true;
+            //if (tv_DBServers.Nodes.Count > 0)
+            //{
+            //    tv_DBServers.SelectedNode=tv_DBServers.Nodes[0];
+            //}
+            //return true;
+            return false;
         }
 
         private void ts_serchKey_KeyPress(object sender, KeyPressEventArgs e)
@@ -750,7 +883,7 @@ namespace NETDBHelper
             }
             cols = cols.OrderBy(p => p.IsID ? 0 : 1);
 
-            string sqltext = string.Format("select {0} from {1}(nolock)", string.Join(",", cols.Select(p => string.Concat("[", p.Name, "]"))), string.Concat("[", node.Text, "]"));
+            string sqltext = string.Format("select {0} from {1} with(nolock)", string.Join(",", cols.Select(p => string.Concat("[", p.Name, "]"))), string.Concat("[", node.Text, "]"));
             var datas = Biz.Common.Data.SQLHelper.ExecuteDBTable(GetDBSource(node), node.Parent.Text, sqltext, null);
             StringBuilder sb = new StringBuilder();
             if(!isNotExportKey)
@@ -885,7 +1018,17 @@ GO");
                     var body = Biz.Common.Data.SQLHelper.GetProcedureBody(GetDBSource(node), node.Parent.Parent.Text, node.Text);
                     //TextBoxWin win = new TextBoxWin("存储过程[" + node.Text + "]", body);
                     //win.Show();
-                    OnShowProc(GetDBSource(node), node.Text, body);
+                    OnShowProc(GetDBSource(node), node.Parent.Parent.Text, node.Text, body);
+
+                    LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<HLogEntity>("HLog", new HLogEntity
+                    {
+                        TypeName = node.Text,
+                        LogTime = DateTime.Now,
+                        LogType = LogTypeEnum.proc,
+                        DB = node.Parent.Parent.Text,
+                        Sever = GetDBSource(node).ServerName,
+                        Valid = true
+                    });
                 }
 
             }
@@ -894,6 +1037,16 @@ GO");
                 var body = Biz.Common.Data.SQLHelper.GetViewCreateSql(GetDBSource(node), node.Parent.Parent.Text, node.Text);
                 TextBoxWin win = new TextBoxWin("视图[" + node.Text + "]", body);
                 win.Show();
+
+                LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<HLogEntity>("HLog", new HLogEntity
+                {
+                    TypeName = node.Text,
+                    LogTime = DateTime.Now,
+                    LogType = LogTypeEnum.view,
+                    DB = node.Parent.Parent.Text,
+                    Sever = GetDBSource(node).ServerName,
+                    Valid = true
+                });
             }
         }
 
@@ -932,7 +1085,7 @@ GO");
             }
             cols = cols.OrderBy(p => p.IsID ? 0 : 1);
 
-            string sqltext = string.Format("select top {2} {0} from {1}(nolock)", string.Join(",", cols.Select(p => string.Concat("[", p.Name, "]"))), string.Concat("[", node.Text, "]"), topNum);
+            string sqltext = string.Format("select top {2} {0} from {1} with(nolock)", string.Join(",", cols.Select(p => string.Concat("[", p.Name, "]"))), string.Concat("[", node.Text, "]"), topNum);
             var datas = Biz.Common.Data.SQLHelper.ExecuteDBTable(GetDBSource(node), node.Parent.Text, sqltext, null);
             StringBuilder sb = new StringBuilder();
             if(!notExportId)
@@ -1201,7 +1354,7 @@ GO");
                 InputStringDlg dlg = new InputStringDlg($"备注字段[{tbname}.{col}]",item.MarkInfo);
                 if (dlg.ShowDialog() == DialogResult.OK)
                 {
-                    if (selnode.ImageIndex == 16)
+                    if (selnode.ImageIndex == 18)
                     {
                         selnode.ImageIndex = selnode.SelectedImageIndex = 5;
                     }

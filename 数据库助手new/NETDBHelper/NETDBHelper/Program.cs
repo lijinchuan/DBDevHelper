@@ -41,6 +41,41 @@ namespace NETDBHelper
                     }
                 }
             });
+            BigEntityTableEngine.LocalEngine.CreateTable("ColumnMarkSyncRecord", "ID", true, typeof(ColumnMarkSyncRecord), new IndexInfo[]
+            {
+                new IndexInfo
+                {
+                    IndexName="keys",
+                    Indexs=new IndexItem[]
+                    {
+                        new IndexItem
+                        {
+                            Field="DBName",
+                            FieldType=EntityType.STRING,
+                        },
+                        new IndexItem
+                        {
+                            Field="TBName",
+                            FieldType=EntityType.STRING,
+                        }
+                    }
+                }
+            });
+
+            BigEntityTableEngine.LocalEngine.CreateTable("HLog", "ID", true, typeof(HLogEntity), new IndexInfo[]{
+                 new IndexInfo
+                 {
+                     IndexName="LogTime",
+                     Indexs=new IndexItem[]
+                     {
+                         new IndexItem
+                         {
+                             Field="LogTime",
+                             FieldType=EntityType.DATETIME,
+                         }
+                     }
+                 }
+                });
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new MainFrm());

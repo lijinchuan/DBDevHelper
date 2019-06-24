@@ -43,15 +43,16 @@ namespace NETDBHelper
         private void CreateProcSql(DBSource dbSource, string dbName, string tableID, string table,CreateProceEnum createProcType)
         {
             UC.CreateProc cp = new CreateProc(dbSource, dbName, table, tableID, createProcType);
-            this.TabControl.TabPages.Add(cp);
             cp.Create();
+            this.TabControl.TabPages.Add(cp);
+            
             TabControl.SelectedTab = cp;
         }
 
-        private void ShowProc(DBSource dBSource, string procname, string procbody)
+        private void ShowProc(DBSource dBSource,string dbname, string procname, string procbody)
         {
             UC.SQLCodePanel panel = new SQLCodePanel();
-            panel.SetCode(procbody);
+            panel.SetCode(dbname,procbody);
             panel.Text = $"存储过程-{procname}";
             this.TabControl.TabPages.Add(panel);
             this.TabControl.SelectedTab = panel;
@@ -229,6 +230,25 @@ namespace NETDBHelper
         private void TabControl_MouseDown(object sender, MouseEventArgs e)
         {
 
+        }
+
+        private void 查看日志ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            foreach(TabPage page in this.TabControl.TabPages)
+            {
+                if (page.Text == "查看日志")
+                {
+                    TabControl.SelectedTab = page;
+                    (page as LogViewTab).BindData();
+                    return;
+                }
+            }
+            LogViewTab logview = new LogViewTab();
+            logview.Text = "查看日志";
+
+            this.TabControl.TabPages.Add(logview);
+            this.TabControl.SelectedTab = logview;
+            logview.BindData();
         }
     }
 }

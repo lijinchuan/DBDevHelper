@@ -48,6 +48,7 @@ namespace NETDBHelper.UC
             InitializeComponent();
             this.dbSource = dbSource;
             this.connDB = connDB;
+            this.editTextBox1.DBName = connDB;
             this.table = table;
             this.tableID = tableID;
             this.proceType = proceType;

@@ -120,6 +120,10 @@ namespace NETDBHelper.UC
                 var curlen = RichText.Lines[i - 1].Length;
                 if (curlen == 0)
                 {
+                    if (i == line1)
+                    {
+                        continue;
+                    }
                     Point p = new Point(2, 0);
                     p.Y = offset + (offset==0?0:this.Font.Height) + 1;
                     offset = p.Y;

@@ -83,6 +83,16 @@ namespace NETDBHelper.Resources {
         /// <summary>
         ///   查找 System.Drawing.Bitmap 类型的本地化资源。
         /// </summary>
+        internal static System.Drawing.Bitmap ColQ {
+            get {
+                object obj = ResourceManager.GetObject("ColQ", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        /// </summary>
         internal static System.Drawing.Bitmap DB1 {
             get {
                 object obj = ResourceManager.GetObject("DB1", resourceCulture);
@@ -265,6 +275,16 @@ namespace NETDBHelper.Resources {
         internal static System.Drawing.Bitmap Index1 {
             get {
                 object obj = ResourceManager.GetObject("Index1", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        /// </summary>
+        internal static System.Drawing.Bitmap loading {
+            get {
+                object obj = ResourceManager.GetObject("loading", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

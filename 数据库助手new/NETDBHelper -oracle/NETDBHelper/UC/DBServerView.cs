@@ -821,11 +821,13 @@ namespace NETDBHelper
                     return SearchNode(nodeStart.Parent.NextNode, txt);
                 }
             }
-            if (tv_DBServers.Nodes.Count > 0)
-            {
-                tv_DBServers.SelectedNode=tv_DBServers.Nodes[0];
-            }
-            return true;
+            //if (tv_DBServers.Nodes.Count > 0)
+            //{
+            //    tv_DBServers.SelectedNode=tv_DBServers.Nodes[0];
+            //}
+            //return true;
+
+            return false;
         }
 
         private void ts_serchKey_KeyPress(object sender, KeyPressEventArgs e)

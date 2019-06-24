@@ -17,9 +17,10 @@ namespace NETDBHelper.UC
             InitializeComponent();
         }
 
-        public void SetCode(string code)
+        public void SetCode(string dbname,string code)
         {
             this.sqlEditBox1.Text = code;
+            this.sqlEditBox1.DBName = dbname;
         }
     }
 }
