@@ -748,15 +748,33 @@ namespace NETDBHelper
             {
                 tv_DBServers.SelectedNode = tv_DBServers.Nodes[0];
             }
+
             bool boo = false;
             if (tv_DBServers.SelectedNode.Nodes.Count > 0)
-                boo=SearchNode(tv_DBServers.SelectedNode.Nodes[0], serchkey);
+                boo = SearchNode(tv_DBServers.SelectedNode.Nodes[0], serchkey);
             else if (tv_DBServers.SelectedNode.NextNode != null)
-                boo=SearchNode(tv_DBServers.SelectedNode.NextNode, serchkey);
+                boo = SearchNode(tv_DBServers.SelectedNode.NextNode, serchkey);
+            else
+            {
+                var parent = tv_DBServers.SelectedNode.Parent;
+                while (parent != null && parent.NextNode == null)
+                {
+                    parent = parent.Parent;
+                }
+                if (parent != null)
+                {
+                    if (parent.NextNode != null)
+                    {
+                        boo = SearchNode(parent.NextNode, serchkey);
+                    }
+                }
+            }
+                
             if (!boo)
             {
                 tv_DBServers.SelectedNode = tv_DBServers.Nodes[0];
             }
+
         }
 
         private bool SearchNode(TreeNode nodeStart, string txt)
@@ -778,22 +796,25 @@ namespace NETDBHelper
                         return true;
                 }
             }
+
+
             if (nodeStart.NextNode != null)
             {
-                return SearchNode(nodeStart.NextNode,txt);
+                return SearchNode(nodeStart.NextNode, txt);
             }
-            if (nodeStart.Parent != null)
+            else
             {
-                if (nodeStart.Parent.NextNode != null)
+                var parent = nodeStart.Parent;
+                while (parent!=null&&parent.NextNode==null)
                 {
-                    return SearchNode(nodeStart.Parent.NextNode, txt);
+                    parent = parent.Parent;
+                }
+                if (parent != null)
+                {
+                    return SearchNode(parent.NextNode, txt);
                 }
             }
-            //if (tv_DBServers.Nodes.Count > 0)
-            //{
-            //    tv_DBServers.SelectedNode=tv_DBServers.Nodes[0];
-            //}
-            //return true;
+
             return false;
         }
 
