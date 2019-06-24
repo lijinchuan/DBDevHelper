@@ -25,9 +25,25 @@ namespace NETDBHelper.UC
             this.bindingNavigatorMoveFirstItem.Click += BindingNavigatorMoveFirstItem_Click;
             this.bindingNavigatorMovePreviousItem.Click += BindingNavigatorMovePreviousItem_Click;
 
+            this.bindingNavigatorDeleteItem.Click += BindingNavigatorDeleteItem_Click;
+
             this.GVLog.ContextMenuStrip = new ContextMenuStrip();
             this.GVLog.ContextMenuStrip.Items.Add("复制");
             this.GVLog.ContextMenuStrip.ItemClicked += ContextMenuStrip_ItemClicked;
+        }
+
+        private void BindingNavigatorDeleteItem_Click(object sender, EventArgs e)
+        {
+            var logs = GVLog.SelectedRows;
+            if(logs.Count>0&&MessageBox.Show("要删除"+logs.Count+"条数据吗？","提示",MessageBoxButtons.YesNo,MessageBoxIcon.Question)
+                == DialogResult.Yes)
+            {
+                foreach(DataGridViewRow log in logs)
+                {
+                    LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Delete<Entity.HLogEntity>("HLog", (int)log.Cells["编号"].Value);
+                }
+                BindData();
+            }
         }
 
         private void ContextMenuStrip_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
@@ -138,6 +154,7 @@ namespace NETDBHelper.UC
             var totalpage = (int)Math.Ceiling(total * 1.0 / pageSize);
             this.bindingNavigatorCountItem.Text = totalpage.ToString();
             this.bindingNavigatorPositionItem.Text = PageIndex.ToString();
+            this.bindingNavigatorDeleteItem.Enabled = total > 0;
 
             this.bindingNavigatorMoveNextItem.Enabled = PageIndex < totalpage;
             this.bindingNavigatorMoveFirstItem.Enabled = PageIndex > 1;
