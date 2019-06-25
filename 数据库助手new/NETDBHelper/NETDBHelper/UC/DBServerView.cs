@@ -751,9 +751,9 @@ namespace NETDBHelper
 
             bool boo = false;
             if (tv_DBServers.SelectedNode.Nodes.Count > 0)
-                boo = SearchNode(tv_DBServers.SelectedNode.Nodes[0], serchkey);
+                boo = SearchNode(tv_DBServers.SelectedNode.Nodes[0], serchkey,true);
             else if (tv_DBServers.SelectedNode.NextNode != null)
-                boo = SearchNode(tv_DBServers.SelectedNode.NextNode, serchkey);
+                boo = SearchNode(tv_DBServers.SelectedNode.NextNode, serchkey,true);
             else
             {
                 var parent = tv_DBServers.SelectedNode.Parent;
@@ -765,7 +765,7 @@ namespace NETDBHelper
                 {
                     if (parent.NextNode != null)
                     {
-                        boo = SearchNode(parent.NextNode, serchkey);
+                        boo = SearchNode(parent.NextNode, serchkey,true);
                     }
                 }
             }
@@ -777,7 +777,7 @@ namespace NETDBHelper
 
         }
 
-        private bool SearchNode(TreeNode nodeStart, string txt)
+        private bool SearchNode(TreeNode nodeStart, string txt,bool searchup)
         {
             if (nodeStart == null)
             {
@@ -792,7 +792,7 @@ namespace NETDBHelper
             {
                 foreach (TreeNode node in nodeStart.Nodes)
                 {
-                    if (SearchNode(node, txt))
+                    if (SearchNode(node, txt,false))
                         return true;
                 }
             }
@@ -800,18 +800,21 @@ namespace NETDBHelper
 
             if (nodeStart.NextNode != null)
             {
-                return SearchNode(nodeStart.NextNode, txt);
+                return SearchNode(nodeStart.NextNode, txt,true);
             }
             else
             {
-                var parent = nodeStart.Parent;
-                while (parent!=null&&parent.NextNode==null)
+                if (searchup)
                 {
-                    parent = parent.Parent;
-                }
-                if (parent != null)
-                {
-                    return SearchNode(parent.NextNode, txt);
+                    var parent = nodeStart.Parent;
+                    while (parent != null && parent.NextNode == null)
+                    {
+                        parent = parent.Parent;
+                    }
+                    if (parent != null)
+                    {
+                        return SearchNode(parent.NextNode, txt, true);
+                    }
                 }
             }
 
