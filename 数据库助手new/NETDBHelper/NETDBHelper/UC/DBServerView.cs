@@ -740,6 +740,12 @@ namespace NETDBHelper
         private void toolStripDropDownButton1_Click(object sender, EventArgs e)
         {
             string serchkey = ts_serchKey.Text;
+
+            bool matchall = serchkey.StartsWith("'");
+            if (matchall)
+            {
+                serchkey = serchkey.Trim('\'');
+            }
             if (!ts_serchKey.Items.Contains(serchkey))
             {
                 ts_serchKey.Items.Add(serchkey);
@@ -751,9 +757,9 @@ namespace NETDBHelper
 
             bool boo = false;
             if (tv_DBServers.SelectedNode.Nodes.Count > 0)
-                boo = SearchNode(tv_DBServers.SelectedNode.Nodes[0], serchkey,true);
+                boo = SearchNode(tv_DBServers.SelectedNode.Nodes[0], serchkey,matchall,true);
             else if (tv_DBServers.SelectedNode.NextNode != null)
-                boo = SearchNode(tv_DBServers.SelectedNode.NextNode, serchkey,true);
+                boo = SearchNode(tv_DBServers.SelectedNode.NextNode, serchkey,matchall,true);
             else
             {
                 var parent = tv_DBServers.SelectedNode.Parent;
@@ -765,7 +771,7 @@ namespace NETDBHelper
                 {
                     if (parent.NextNode != null)
                     {
-                        boo = SearchNode(parent.NextNode, serchkey,true);
+                        boo = SearchNode(parent.NextNode, serchkey,matchall,true);
                     }
                 }
             }
@@ -777,13 +783,14 @@ namespace NETDBHelper
 
         }
 
-        private bool SearchNode(TreeNode nodeStart, string txt,bool maxsearch)
+        private bool SearchNode(TreeNode nodeStart, string txt,bool matchall,bool maxsearch)
         {
             if (nodeStart == null)
             {
                 return false;
             }
-            if (nodeStart.Text.IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1)
+            var find = matchall ? nodeStart.Text.Equals(txt, StringComparison.OrdinalIgnoreCase) : nodeStart.Text.IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1;
+            if (find)
             {
                 tv_DBServers.SelectedNode = nodeStart;
                 return true;
@@ -792,7 +799,7 @@ namespace NETDBHelper
             {
                 foreach (TreeNode node in nodeStart.Nodes)
                 {
-                    if (SearchNode(node, txt,false))
+                    if (SearchNode(node, txt,matchall,false))
                         return true;
                 }
             }
@@ -801,7 +808,7 @@ namespace NETDBHelper
             {
                 if (nodeStart.NextNode != null)
                 {
-                    return SearchNode(nodeStart.NextNode, txt, true);
+                    return SearchNode(nodeStart.NextNode, txt,matchall, true);
                 }
                 else
                 {
@@ -814,7 +821,7 @@ namespace NETDBHelper
                         }
                         if (parent != null)
                         {
-                            return SearchNode(parent.NextNode, txt, true);
+                            return SearchNode(parent.NextNode, txt,matchall, true);
                         }
                     }
                 }
