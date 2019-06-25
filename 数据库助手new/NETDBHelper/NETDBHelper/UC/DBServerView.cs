@@ -777,7 +777,7 @@ namespace NETDBHelper
 
         }
 
-        private bool SearchNode(TreeNode nodeStart, string txt,bool searchup)
+        private bool SearchNode(TreeNode nodeStart, string txt,bool maxsearch)
         {
             if (nodeStart == null)
             {
@@ -797,23 +797,25 @@ namespace NETDBHelper
                 }
             }
 
-
-            if (nodeStart.NextNode != null)
+            if (maxsearch)
             {
-                return SearchNode(nodeStart.NextNode, txt,true);
-            }
-            else
-            {
-                if (searchup)
+                if (nodeStart.NextNode != null)
                 {
-                    var parent = nodeStart.Parent;
-                    while (parent != null && parent.NextNode == null)
+                    return SearchNode(nodeStart.NextNode, txt, true);
+                }
+                else
+                {
+                    if (maxsearch)
                     {
-                        parent = parent.Parent;
-                    }
-                    if (parent != null)
-                    {
-                        return SearchNode(parent.NextNode, txt, true);
+                        var parent = nodeStart.Parent;
+                        while (parent != null && parent.NextNode == null)
+                        {
+                            parent = parent.Parent;
+                        }
+                        if (parent != null)
+                        {
+                            return SearchNode(parent.NextNode, txt, true);
+                        }
                     }
                 }
             }
