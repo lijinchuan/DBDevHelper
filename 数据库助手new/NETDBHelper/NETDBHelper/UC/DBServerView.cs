@@ -1198,6 +1198,10 @@ GO");
 
                 var tbclumns = Biz.Common.Data.SQLHelper.GetColumns(this.GetDBSource(selnode), selnode.Parent.Text, selnode.Name, selnode.Text).ToList();
 
+                var tbmark = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkColumnInfo>("MarkColumnInfo", "keys", new
+                                 [] { selnode.Parent.Text.ToUpper(), selnode.Text.ToUpper(), string.Empty }).FirstOrDefault();
+                var tbdesc = tbmark == null ? selnode.Text : tbmark.MarkInfo;
+
                 DataTable resulttb = new DataTable();
                 resulttb.Columns.AddRange(new string[][] { 
                     new []{"line","行号"},
@@ -1255,13 +1259,13 @@ GO");
                         {
                             iskey = (node.Tag as TBColumn).IsKey;
                         }
-                        newrow["iskey"] = iskey?"是":"否";
+                        newrow["iskey"] = iskey? "√" : "✕";
                         
                         var col=tbclumns.Find(p => p.Name.Equals(m.Groups[1].Value, StringComparison.OrdinalIgnoreCase));
                         if (col != null)
                         {
                             newrow["len"] = col.Length == -1 ? "max" : col.Length.ToString();
-                            newrow["null"] = col.IsNullAble ? "是" : "否";
+                            newrow["null"] = col.IsNullAble ? "√" : "✕";
                         }
 
                         resulttb.Rows.Add(newrow);
@@ -1276,7 +1280,30 @@ GO");
 
                 //生成HTML
                 StringBuilder sb = new StringBuilder();
-                sb.AppendFormat(@"<html><head><title>数据字典-{0}</title></head><body><table cellpadding='1' cellspacing='0' border='1'>", tbname);
+                sb.AppendFormat(@"<html><head><title>数据字典-{0}</title><style>
+ table {{
+width:98%;
+font-family: verdana,arial,sans-serif;
+font-size:11px;
+color:#333333;
+border-width: 1px;
+border-color: #666666;
+border-collapse: collapse;
+}}
+table th {{
+border-width: 1px;
+padding: 8px;
+border-style: solid;
+border-color: #666666;
+background-color: #dedede;
+}}
+table td {{
+border-width: 1px;
+padding: 8px;
+border-style: solid;
+border-color: #666666;
+background-color: #ffffff;
+}}</style></head><body><p>表说明：{1}</p><table cellpadding='0' cellspacing='0' border='1'>", tbname,tbdesc);
                 sb.Append("<tr>");
                 foreach (DataColumn col in resulttb.Columns)
                 {
@@ -1456,6 +1483,85 @@ GO");
                     }
                 }
             }
+        }
+
+        private void TSMI_MulMarkLocal_Click(object sender, EventArgs e)
+        {
+            var currnode = tv_DBServers.SelectedNode;
+            if (currnode == null)
+            {
+                return;
+            }
+            MultiInputDlg dlg = new MultiInputDlg();
+            if (dlg.ShowDialog() != DialogResult.OK)
+            {
+                return;
+            }
+
+            var tbname = GetTBName(currnode)?.ToUpper();
+            if (string.IsNullOrWhiteSpace(tbname))
+            {
+                return;
+            }
+
+            var dbname = GetDBName(currnode).ToUpper();
+
+            var allnodes = currnode.Parent.Nodes;
+            var dic = new Dictionary<string, TreeNode>();
+            foreach(TreeNode node in allnodes)
+            {
+                if(node.Tag is TBColumn)
+                {
+                    if (string.IsNullOrWhiteSpace(node.ToolTipText))
+                    {
+                        var colinfo = (TBColumn)node.Tag;
+                        dic.Add(colinfo.Name.ToUpper(), node);
+                    }
+                }
+            }
+
+            int scount = 0;
+
+            foreach(var ln in dlg.InputString.Split(new[] { '\r', '\n' },StringSplitOptions.RemoveEmptyEntries))
+            {
+                var arr = ln.Split(new[] { "#####" }, StringSplitOptions.RemoveEmptyEntries);
+                if (arr.Length > 1)
+                {
+                    var mark = arr[1];
+                    if (string.IsNullOrWhiteSpace(arr[1]))
+                    {
+                        continue;
+                    }
+                    var column = arr[0].Trim().ToUpper();
+
+                    if (dic.ContainsKey(column))
+                    {
+                        var tb = (TBColumn)dic[column].Tag;
+                        var item = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkColumnInfo>("MarkColumnInfo", "keys", new[] { dbname, tbname, column }).FirstOrDefault();
+
+                        if (item == null)
+                        {
+                            item = new MarkColumnInfo { ColumnName = column, DBName = dbname, TBName = tbname, Servername = GetDBSource(currnode).ServerName, MarkInfo = string.Empty };
+                        }
+
+                        item.MarkInfo = mark;
+                        LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Upsert<MarkColumnInfo>("MarkColumnInfo", item);
+                        dic[column].ToolTipText = mark;
+
+                        if (dic[column].ImageIndex == 18)
+                        {
+                            dic[column].ImageIndex = dic[column].SelectedImageIndex = 5;
+                        }
+
+                        scount++;
+                        //MessageBox.Show("备注成功");
+
+                    }
+                }
+            }
+            
+
+            MessageBox.Show($"备注成功{scount}条");
         }
     }
 }

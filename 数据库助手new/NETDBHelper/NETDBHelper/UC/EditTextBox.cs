@@ -64,6 +64,8 @@ namespace NETDBHelper.UC
             view.GridColor = Color.LightGreen;
             
             this.ParentChanged += EditTextBox_ParentChanged;
+
+            this.RichText.ImeMode = ImeMode.On;
         }
 
         private void EditTextBox_ParentChanged(object sender, EventArgs e)
@@ -499,7 +501,7 @@ namespace NETDBHelper.UC
                     }).ToList();
                     view.Visible = true;
                     view.BringToFront();
-                    view.Height = (view.Rows.GetRowsHeight(DataGridViewElementStates.Visible) / marklist.Count) * (Math.Min(10, marklist.Count) + 1) + view.ColumnHeadersHeight;
+                    view.Height = (view.Rows.GetRowsHeight(DataGridViewElementStates.Visible) / marklist.Count) * marklist.Count + view.ColumnHeadersHeight;
 
                     view.Location = PointToClient(Control.MousePosition);
                 }

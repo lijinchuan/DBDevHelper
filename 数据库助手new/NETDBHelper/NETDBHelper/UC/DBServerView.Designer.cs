@@ -62,13 +62,14 @@
             this.CommSubMenuitem_ViewConnsql = new System.Windows.Forms.ToolStripMenuItem();
             this.复制对象名ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.subMenuItemAddEntityTB = new System.Windows.Forms.ToolStripMenuItem();
-            this.CommSubMenuItem_Delete = new System.Windows.Forms.ToolStripMenuItem();
-            this.CommSubMenuitem_add = new System.Windows.Forms.ToolStripMenuItem();
+            this.备注本地ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripSeparator();
             this.CommSubMenuitem_ReorderColumn = new System.Windows.Forms.ToolStripMenuItem();
             this.ColumnMoveUp = new System.Windows.Forms.ToolStripMenuItem();
             this.ColumnMoveDown = new System.Windows.Forms.ToolStripMenuItem();
-            this.备注本地ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripSeparator();
+            this.CommSubMenuitem_add = new System.Windows.Forms.ToolStripMenuItem();
+            this.CommSubMenuItem_Delete = new System.Windows.Forms.ToolStripMenuItem();
+            this.TSMI_MulMarkLocal = new System.Windows.Forms.ToolStripMenuItem();
             this.DBServerviewContextMenuStrip.SuspendLayout();
             this.toolStrip1.SuspendLayout();
             this.CommMenuStrip.SuspendLayout();
@@ -305,12 +306,13 @@
             this.复制对象名ToolStripMenuItem,
             this.subMenuItemAddEntityTB,
             this.备注本地ToolStripMenuItem,
+            this.TSMI_MulMarkLocal,
             this.toolStripMenuItem3,
             this.CommSubMenuitem_ReorderColumn,
             this.CommSubMenuitem_add,
             this.CommSubMenuItem_Delete});
             this.CommMenuStrip.Name = "CommMenuStrip";
-            this.CommMenuStrip.Size = new System.Drawing.Size(181, 208);
+            this.CommMenuStrip.Size = new System.Drawing.Size(181, 230);
             // 
             // ToolStripMenuItemReload
             // 
@@ -338,17 +340,17 @@
             this.subMenuItemAddEntityTB.Size = new System.Drawing.Size(180, 22);
             this.subMenuItemAddEntityTB.Text = "添加实体映射表";
             // 
-            // CommSubMenuItem_Delete
+            // 备注本地ToolStripMenuItem
             // 
-            this.CommSubMenuItem_Delete.Name = "CommSubMenuItem_Delete";
-            this.CommSubMenuItem_Delete.Size = new System.Drawing.Size(180, 22);
-            this.CommSubMenuItem_Delete.Text = "删除对象";
+            this.备注本地ToolStripMenuItem.Name = "备注本地ToolStripMenuItem";
+            this.备注本地ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.备注本地ToolStripMenuItem.Text = "备注(本地)";
+            this.备注本地ToolStripMenuItem.Click += new System.EventHandler(this.备注本地ToolStripMenuItem_Click);
             // 
-            // CommSubMenuitem_add
+            // toolStripMenuItem3
             // 
-            this.CommSubMenuitem_add.Name = "CommSubMenuitem_add";
-            this.CommSubMenuitem_add.Size = new System.Drawing.Size(180, 22);
-            this.CommSubMenuitem_add.Text = "新增对象";
+            this.toolStripMenuItem3.Name = "toolStripMenuItem3";
+            this.toolStripMenuItem3.Size = new System.Drawing.Size(177, 6);
             // 
             // CommSubMenuitem_ReorderColumn
             // 
@@ -371,17 +373,24 @@
             this.ColumnMoveDown.Size = new System.Drawing.Size(100, 22);
             this.ColumnMoveDown.Text = "下移";
             // 
-            // 备注本地ToolStripMenuItem
+            // CommSubMenuitem_add
             // 
-            this.备注本地ToolStripMenuItem.Name = "备注本地ToolStripMenuItem";
-            this.备注本地ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.备注本地ToolStripMenuItem.Text = "备注(本地)";
-            this.备注本地ToolStripMenuItem.Click += new System.EventHandler(this.备注本地ToolStripMenuItem_Click);
+            this.CommSubMenuitem_add.Name = "CommSubMenuitem_add";
+            this.CommSubMenuitem_add.Size = new System.Drawing.Size(180, 22);
+            this.CommSubMenuitem_add.Text = "新增对象";
             // 
-            // toolStripMenuItem3
+            // CommSubMenuItem_Delete
             // 
-            this.toolStripMenuItem3.Name = "toolStripMenuItem3";
-            this.toolStripMenuItem3.Size = new System.Drawing.Size(177, 6);
+            this.CommSubMenuItem_Delete.Name = "CommSubMenuItem_Delete";
+            this.CommSubMenuItem_Delete.Size = new System.Drawing.Size(180, 22);
+            this.CommSubMenuItem_Delete.Text = "删除对象";
+            // 
+            // TSMI_MulMarkLocal
+            // 
+            this.TSMI_MulMarkLocal.Name = "TSMI_MulMarkLocal";
+            this.TSMI_MulMarkLocal.Size = new System.Drawing.Size(180, 22);
+            this.TSMI_MulMarkLocal.Text = "批量备注(本地)";
+            this.TSMI_MulMarkLocal.Click += new System.EventHandler(this.TSMI_MulMarkLocal_Click);
             // 
             // DBServerView
             // 
@@ -446,5 +455,6 @@
         private System.Windows.Forms.ToolStripMenuItem 备注ToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem2;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem3;
+        private System.Windows.Forms.ToolStripMenuItem TSMI_MulMarkLocal;
     }
 }
