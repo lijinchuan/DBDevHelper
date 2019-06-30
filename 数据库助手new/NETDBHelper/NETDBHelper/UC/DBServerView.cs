@@ -23,6 +23,7 @@ namespace NETDBHelper
         public Action<DBSource, string, string, string,CreateProceEnum> OnCreatePorcSQL;
         public Action<DBSource,string,string,string> OnShowProc;
         public Action<DBSource,string,string,string> OnShowDataDic;
+        public Action<string,string> OnViewTable;
         private DBSourceCollection _dbServers;
         /// <summary>
         /// 实体命名空间
@@ -163,6 +164,11 @@ namespace NETDBHelper
                         }
 
                         break;
+                    case "查看表":
+                        {
+                            OnViewTables();
+                            break;
+                        }
                 }
             }
             catch (Exception ex)
@@ -352,6 +358,11 @@ namespace NETDBHelper
                     case "备注":
                         {
                             MarkResource();
+                            break;
+                        }
+                    case "生成调用代码":
+                        {
+
                             break;
                         }
                     default:
@@ -727,6 +738,7 @@ namespace NETDBHelper
                     {
                         this.tv_DBServers.ContextMenuStrip = this.CommMenuStrip;
                         subMenuItemAddEntityTB.Visible=node.Level==2;
+                        TSMI_ViewTableList.Visible = node.Level == 2;
                         CommSubMenuItem_Delete.Visible = node.Level ==2;
                         CommSubMenuitem_add.Visible = node.Level == 1;
                         CommSubMenuitem_ViewConnsql.Visible = node.Level == 2;
@@ -753,6 +765,11 @@ namespace NETDBHelper
             if (tv_DBServers.SelectedNode == null)
             {
                 tv_DBServers.SelectedNode = tv_DBServers.Nodes[0];
+            }
+
+            if (!tv_DBServers.Focused)
+            {
+                this.tv_DBServers.Focus();
             }
 
             bool boo = false;
@@ -1281,6 +1298,7 @@ GO");
                 //生成HTML
                 StringBuilder sb = new StringBuilder();
                 sb.AppendFormat(@"<html><head><title>数据字典-{0}</title><style>
+p{{font-size:11px;}}
  table {{
 width:98%;
 font-family: verdana,arial,sans-serif;
@@ -1303,7 +1321,7 @@ padding: 8px;
 border-style: solid;
 border-color: #666666;
 background-color: #ffffff;
-}}</style></head><body><p>表说明：{1}</p><table cellpadding='0' cellspacing='0' border='1'>", tbname,tbdesc);
+}}</style></head><body><p>表名：{0}</p><p>表说明：{1}</p><table cellpadding='0' cellspacing='0' border='1'>", tbname,tbdesc);
                 sb.Append("<tr>");
                 foreach (DataColumn col in resulttb.Columns)
                 {
@@ -1493,6 +1511,8 @@ background-color: #ffffff;
                 return;
             }
             MultiInputDlg dlg = new MultiInputDlg();
+            dlg.Text = "批量注释";
+            dlg.Moke = "每行一个，示例：列名#####说明文字";
             if (dlg.ShowDialog() != DialogResult.OK)
             {
                 return;
@@ -1562,6 +1582,86 @@ background-color: #ffffff;
             
 
             MessageBox.Show($"备注成功{scount}条");
+        }
+
+        private void OnViewTables()
+        {
+            var selnode = tv_DBServers.SelectedNode;
+            if (this.OnViewTable!=null&& selnode != null)
+            {
+                var dbname = GetDBName(selnode);
+                DataTable tb = Biz.Common.Data.SQLHelper.GetTBs(GetDBSource(selnode), dbname);
+
+                StringBuilder sb = new StringBuilder("<html>");
+                sb.Append("<head>");
+                sb.Append($"<title>查看{dbname}的库表</title>");
+                sb.Append(@"<style>
+ table {{
+width:98%;
+font-family: verdana,arial,sans-serif;
+font-size:11px;
+color:#333333;
+border-width: 1px;
+border-color: #666666;
+border-collapse: collapse;
+}}
+table th {{
+border-width: 1px;
+padding: 8px;
+border-style: solid;
+border-color: #666666;
+background-color: #dedede;
+}}
+table td {{
+border-width: 1px;
+padding: 8px;
+border-style: solid;
+border-color: #666666;
+background-color: #ffffff;
+}}</style>");
+                sb.Append("</head>");
+                sb.Append(@"<body>
+                  <script>
+                      function s(){
+                       var w=document.getElementById('w').value
+                       if(/^\s*$/.test(w)){
+                           var idx=1
+                           var trs= document.getElementsByTagName('tr');
+                           for(var i=0;i<trs.length;i++){
+                               trs[i].style.display=''
+                               if(trs[i].firstChild.tagName=='TD')
+                                   trs[i].firstChild.innerText=idx++
+                            }
+                           return
+                       }
+                       var idx=1;
+                       var tds= document.getElementsByTagName('td');
+                       for(var i=0;i<tds.length;i+=3){
+                           var boo=tds[i+1].innerText.indexOf(w)>-1||tds[i+2].innerText.indexOf(w)>-1
+                           tds[i].parentNode.style.display=boo?'':'none'
+                           if(boo) tds[i].innerText=idx++
+                       }
+                   }
+                  </script>");
+                sb.Append("<input id='w' type='text' value=''/><input type='button' style='font-size:11px;line-height:21px;height: 21px;' value='搜索' onclick='s()'/>");
+                sb.Append("<p/>");
+                sb.Append("<table>");
+                sb.Append("<tr><th>序号</th><th>表名</th><th>描述</th></tr>");
+                int i = 1;
+                foreach (DataRow row in tb.Rows)
+                {
+                    var name = (string)row["name"];
+                    var item = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkColumnInfo>("MarkColumnInfo", "keys", new[] { dbname.ToUpper(), name.ToUpper(), string.Empty }).FirstOrDefault();
+
+                    sb.Append($"<tr><td>{i++}</td><td>{name}</td><td>{(item == null ? string.Empty : item.MarkInfo)}</td></tr>");
+                }
+                sb.Append("</table>");
+                sb.Append("</body>");
+                sb.Append("</html>");
+
+                this.OnViewTable(dbname,sb.ToString());
+            }
+            
         }
     }
 }

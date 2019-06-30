@@ -5,6 +5,7 @@ using System.Text;
 using System.Data.SqlClient;
 using Entity;
 using System.Data;
+using static Entity.IndexEntry;
 
 namespace Biz.Common.Data
 {
@@ -289,13 +290,15 @@ namespace Biz.Common.Data
         public static List<IndexEntry> GetIndexs(DBSource dbSource, string dbName, string tabname)
         {
             var indexs = new List<IndexEntry>();
-            string sql = string.Format(@"SELECT  a.name Key_name,d.name Column_name,b.keyno Seq_in_index from
-sysindexes a 
-left join sysindexkeys  b  on a.id=b.id 
-left JOIN  sysobjects  c  ON  b.id = c.id
-left JOIN  syscolumns  d  ON  b.id = d.id 
-WHERE  a.indid=b.indid and b.colid = d.colid and  c.xtype = 'U'
-AND  c.name = '{0}' ", tabname);
+            //            string sql = string.Format(@"SELECT  a.name Key_name,d.name Column_name,b.keyno Seq_in_index from
+            //sysindexes a 
+            //left join sysindexkeys  b  on a.id=b.id 
+            //left JOIN  sysobjects  c  ON  b.id = c.id
+            //left JOIN  syscolumns  d  ON  b.id = d.id 
+            //WHERE  a.indid=b.indid and b.colid = d.colid and  c.xtype = 'U'
+            //AND  c.name = '{0}' ", tabname);
+
+            string sql = string.Format(SQLHelperConsts.SQL_GETINDEXLIST, tabname);
 
             var tb = ExecuteDBTable(dbSource, dbName, sql);
 
@@ -304,7 +307,14 @@ AND  c.name = '{0}' ", tabname);
                     select new IndexEntry
                     {
                         IndexName = pp.Key,
-                        Cols = pp.OrderBy(c => c.Field<object>("Seq_in_index")).Select(c => c.Field<string>("Column_name")).ToArray()
+                        IsPri= pp.First().Field<bool>("is_primary_key"),//
+                        IsClustered =pp.First().Field<string>("ix_type_desc").Equals("CLUSTERED", StringComparison.OrdinalIgnoreCase),
+                        Cols = pp.OrderBy(c => c.Field<object>("Seq_in_index")).Select(c =>new IndexCol
+                        {
+                            Col= c.Field<string>("Column_name"),
+                            IsDesc=c.Field<bool>("is_descending_key"),
+                            IsInclude= c.Field<bool>("is_included_column")
+                        }).ToArray()
                     };
 
             return x.ToList();

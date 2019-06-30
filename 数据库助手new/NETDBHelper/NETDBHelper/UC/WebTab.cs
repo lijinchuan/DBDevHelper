@@ -12,6 +12,8 @@ namespace NETDBHelper.UC
 {
     public partial class WebTab : TabPage
     {
+        public Action<string> OnSearch;
+
         public WebTab()
         {
             InitializeComponent();
@@ -50,6 +52,14 @@ namespace NETDBHelper.UC
             {
                 this.Text = "出错了！";
                 this.webBrowser1.DocumentText = string.Format("<html><head><title>出错了！</title></head><body>{0}</body></html>", ex.Message);
+            }
+        }
+
+        public void Search(string word)
+        {
+            if (OnSearch != null)
+            {
+                OnSearch(word);
             }
         }
     }

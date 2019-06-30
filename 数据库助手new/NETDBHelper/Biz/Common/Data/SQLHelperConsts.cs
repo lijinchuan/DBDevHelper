@@ -63,5 +63,26 @@ namespace Biz.Common.Data
                                     AND OBJECT_NAME(c.object_id) =@TbName
                                 ORDER  
                                     BY OBJECT_NAME(c.object_id), c.column_id";
+
+        public const string SQL_GETINDEXLIST = @"SELECT a.object_id
+                      ,b.name AS schema_name
+                      ,a.name AS table_name
+                      ,c.name as Key_name
+                      ,c.is_unique AS ix_unique
+                      ,c.type_desc AS ix_type_desc
+                      ,d.index_column_id Seq_in_index
+                      ,d.is_included_column
+                      ,e.name AS Column_name
+                      ,f.name AS fg_name
+                      ,d.is_descending_key AS is_descending_key
+                      ,c.is_primary_key
+                      ,c.is_unique_constraint
+                  FROM sys.tables AS a
+                 INNER JOIN sys.schemas AS b            ON a.schema_id = b.schema_id AND a.is_ms_shipped = 0
+                 INNER JOIN sys.indexes AS c            ON a.object_id = c.object_id
+                 INNER JOIN sys.index_columns AS d      ON d.object_id = c.object_id AND d.index_id = c.index_id
+                 INNER JOIN sys.columns AS e            ON e.object_id = d.object_id AND e.column_id = d.column_id
+                 INNER JOIN sys.data_spaces AS f        ON f.data_space_id = c.data_space_id
+                 where a.name='{0}'";
     }
 }

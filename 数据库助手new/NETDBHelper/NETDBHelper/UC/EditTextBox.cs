@@ -500,6 +500,7 @@ namespace NETDBHelper.UC
                         提示 = p.DBName.ToLower() + "." + p.TBName.ToLower() + "." + p.ColumnName.ToLower() + ":" + p.MarkInfo
                     }).ToList();
                     view.Visible = true;
+                    
                     view.BringToFront();
                     view.Height = (view.Rows.GetRowsHeight(DataGridViewElementStates.Visible) / marklist.Count) * marklist.Count + view.ColumnHeadersHeight;
 

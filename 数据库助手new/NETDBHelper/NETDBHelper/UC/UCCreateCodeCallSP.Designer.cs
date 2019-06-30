@@ -36,6 +36,8 @@
             this.tb_Entity = new System.Windows.Forms.TextBox();
             this.lab = new System.Windows.Forms.Label();
             this.btnCreate = new System.Windows.Forms.Button();
+            this.label3 = new System.Windows.Forms.Label();
+            this.CBType = new System.Windows.Forms.ComboBox();
             this.SuspendLayout();
             // 
             // label1
@@ -51,7 +53,7 @@
             // 
             this.tb_spName.Location = new System.Drawing.Point(166, 31);
             this.tb_spName.Name = "tb_spName";
-            this.tb_spName.Size = new System.Drawing.Size(207, 21);
+            this.tb_spName.Size = new System.Drawing.Size(142, 21);
             this.tb_spName.TabIndex = 1;
             // 
             // label2
@@ -92,15 +94,15 @@
             // 
             // tb_Entity
             // 
-            this.tb_Entity.Location = new System.Drawing.Point(510, 33);
+            this.tb_Entity.Location = new System.Drawing.Point(398, 34);
             this.tb_Entity.Name = "tb_Entity";
-            this.tb_Entity.Size = new System.Drawing.Size(279, 21);
+            this.tb_Entity.Size = new System.Drawing.Size(156, 21);
             this.tb_Entity.TabIndex = 5;
             // 
             // lab
             // 
             this.lab.AutoSize = true;
-            this.lab.Location = new System.Drawing.Point(439, 36);
+            this.lab.Location = new System.Drawing.Point(327, 37);
             this.lab.Name = "lab";
             this.lab.Size = new System.Drawing.Size(65, 12);
             this.lab.TabIndex = 6;
@@ -116,8 +118,27 @@
             this.btnCreate.UseVisualStyleBackColor = true;
             this.btnCreate.Click += new System.EventHandler(this.btnCreate_Click);
             // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(572, 37);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(59, 12);
+            this.label3.TabIndex = 8;
+            this.label3.Text = "调用方式 ";
+            // 
+            // CBType
+            // 
+            this.CBType.FormattingEnabled = true;
+            this.CBType.Location = new System.Drawing.Point(628, 34);
+            this.CBType.Name = "CBType";
+            this.CBType.Size = new System.Drawing.Size(121, 20);
+            this.CBType.TabIndex = 9;
+            // 
             // UCCreateCodeCallSP
             // 
+            this.Controls.Add(this.CBType);
+            this.Controls.Add(this.label3);
             this.Controls.Add(this.btnCreate);
             this.Controls.Add(this.lab);
             this.Controls.Add(this.tb_Entity);
@@ -143,5 +164,7 @@
         private System.Windows.Forms.TextBox tb_Entity;
         private System.Windows.Forms.Label lab;
         private System.Windows.Forms.Button btnCreate;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.ComboBox CBType;
     }
 }

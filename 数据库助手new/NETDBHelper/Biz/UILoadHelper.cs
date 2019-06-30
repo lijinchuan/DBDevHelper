@@ -221,10 +221,10 @@ namespace Biz
 
             foreach (var item in list)
             {
-                var imageindex = item.IndexName.Equals("primary", StringComparison.OrdinalIgnoreCase) ? 8 : 7;
-                TreeNode newNode = new TreeNode(item.IndexName, item.Cols.Select(p => new TreeNode
+                var imageindex = item.IsPri ? 8 : 7;
+                TreeNode newNode = new TreeNode($"{item.IndexName}{(item.IsClustered?"(聚集)":"")}", item.Cols.Select(p => new TreeNode
                 {
-                    Text = p,
+                    Text = $"{p.Col}{(p.IsDesc?"(倒序)":"")}{(p.IsInclude?"(包含)":"")}",
                     ImageIndex = imageindex,
                     SelectedImageIndex = imageindex
                 }).ToArray());
