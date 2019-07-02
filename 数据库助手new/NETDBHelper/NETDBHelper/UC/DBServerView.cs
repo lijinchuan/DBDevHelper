@@ -24,6 +24,7 @@ namespace NETDBHelper
         public Action<DBSource,string,string,string> OnShowProc;
         public Action<DBSource,string,string,string> OnShowDataDic;
         public Action<string,string> OnViewTable;
+        public Action<DBSource,string, string> OnExecutSql;
         private DBSourceCollection _dbServers;
         /// <summary>
         /// 实体命名空间
@@ -365,6 +366,55 @@ namespace NETDBHelper
 
                             break;
                         }
+                    case "执行存储过程":
+                        {
+                            var selnode = tv_DBServers.SelectedNode;
+                            if (selnode != null && OnExecutSql != null)
+                            {
+                                //foreach (var row in kv)
+                                //{
+                                //    var len = row.Field<Int16>("length");
+                                //    var isnullable = row.Field<int>("isnullable") == 1;
+                                //    var isoutparam = row.Field<int>("isoutparam") == 1;
+                                //    newNode.Nodes.Add(row.Field<string>("pname"), $"{row.Field<string>("pname")}({row.Field<string>("tpname")}{(len == -1 ? string.Empty : "(" + len.ToString() + ")")}{(isnullable ? " null" : "")}{(isoutparam ? " output" : "")})", isoutparam ? 12 : 11, isoutparam ? 12 : 11);
+                                //}
+                                var kv= ((IGrouping<string,DataRow>)selnode.Tag);
+                                StringBuilder sb = new StringBuilder();
+                                sb.AppendLine($"exec {selnode.Text} ");
+                                StringBuilder sb1 = new StringBuilder($"use {GetDBName(selnode)}");
+                                sb1.AppendLine();
+                                sb1.AppendLine("GO");
+                                StringBuilder sb2 = new StringBuilder();
+                                foreach (var row in kv)
+                                {
+                                    var len = row.Field<Int16>("length");
+                                    var isnullable = row.Field<int>("isnullable") == 1;
+                                    var isoutparam = row.Field<int>("isoutparam") == 1;
+                                    var pname = row.Field<string>("pname");
+                                    var tpname = row.Field<string>("tpname");
+                                    if (isoutparam)
+                                    {
+                                        sb.AppendLine($"{pname}={pname}1 output,");
+                                        sb1.AppendLine($"declare {pname}1 {(Biz.Common.Data.Common.GetDBType(new TBColumn { Name = pname, TypeName = tpname, Length = len }))}");
+                                        sb2.AppendLine($"select {pname}1");
+                                    }
+                                    else
+                                    {
+                                        sb.AppendLine($"{pname}=<{(Biz.Common.Data.Common.GetDBType(new TBColumn { Name = pname, TypeName = tpname, Length = len }))}>,");
+                                    }
+                                }
+                                
+                                if (sb.Length > 2 && sb[sb.Length - 3] == ',')
+                                {
+                                    sb = sb.Remove(sb.Length - 3, 1);
+                                }
+                                var sql = sb1.ToString()+sb.ToString() + sb2.ToString();
+
+                                
+                                OnExecutSql(GetDBSource(selnode), GetDBName(selnode), sql);
+                            }
+                            break;
+                        }
                     default:
                         _node = tv_DBServers.SelectedNode;
                         break;
@@ -670,6 +720,7 @@ namespace NETDBHelper
                 var node=tv_DBServers.SelectedNode;
                 if (node != null)
                 {
+                    
                     if ((tv_DBServers.SelectedNode.Level == 3 && !tv_DBServers.SelectedNode.Text.Equals("存储过程"))
                         || (tv_DBServers.SelectedNode.Level == 4 && tv_DBServers.SelectedNode.Parent.Text.Equals("存储过程"))
                         || (tv_DBServers.SelectedNode.Level == 4 && tv_DBServers.SelectedNode.Parent.Text.Equals("视图"))
@@ -692,6 +743,7 @@ namespace NETDBHelper
                                     ts.Visible = false;
                                 }
                             }
+                            
                             复制表名ToolStripMenuItem.Visible = true;
                             显示前100条数据ToolStripMenuItem.Visible = tv_DBServers.SelectedNode.Level == 4 && tv_DBServers.SelectedNode.Parent.Text.Equals("视图");
                         }
@@ -722,7 +774,7 @@ namespace NETDBHelper
                         }
                         //TTSM_CreateIndex.Visible = node.Level == 3;
                         //TTSM_DelIndex.Visible = node.Level == 5 && node.Parent.Text.Equals("索引");
-
+                        TSMI_ExeProc.Visible = tv_DBServers.SelectedNode.Parent.Text.Equals("存储过程");
                         ExpdataToolStripMenuItem.Visible = node.Level == 3;
                     }
                     else if (tv_DBServers.SelectedNode.Text.Equals("索引"))
@@ -744,6 +796,9 @@ namespace NETDBHelper
                         CommSubMenuitem_ViewConnsql.Visible = node.Level == 2;
                         CommSubMenuitem_ReorderColumn.Visible = node.Level == 4;
                         备注本地ToolStripMenuItem.Visible = node.Level == 4;
+                        TSMI_MulMarkLocal.Visible = node.Level == 4;
+                        TSMI_ExeProc.Visible = false;
+
                     }
                 }
             }

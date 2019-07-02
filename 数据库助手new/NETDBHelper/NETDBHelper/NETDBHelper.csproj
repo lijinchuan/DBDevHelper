@@ -212,6 +212,12 @@
     <Compile Include="UC\SQLEditBox.Designer.cs">
       <DependentUpon>SQLEditBox.cs</DependentUpon>
     </Compile>
+    <Compile Include="UC\SqlExcuter.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="UC\SqlExcuter.Designer.cs">
+      <DependentUpon>SqlExcuter.cs</DependentUpon>
+    </Compile>
     <Compile Include="UC\SqlProceCodePanel.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -301,6 +307,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="UC\SQLCodePanel.resx">
       <DependentUpon>SQLCodePanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UC\SqlExcuter.resx">
+      <DependentUpon>SqlExcuter.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UC\SqlProceCodePanel.resx">
       <DependentUpon>SqlProceCodePanel.cs</DependentUpon>

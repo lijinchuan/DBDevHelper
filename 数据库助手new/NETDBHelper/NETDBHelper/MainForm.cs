@@ -26,6 +26,7 @@ namespace NETDBHelper
             this.dbServerView1.OnShowProc += this.ShowProc;
             this.dbServerView1.OnShowDataDic += this.ShowDataDic;
             this.dbServerView1.OnViewTable += this.ShowTables;
+            this.dbServerView1.OnExecutSql += this.ExecutSql;
             this.TabControl.Selected += new TabControlEventHandler(TabControl_Selected);
         }
 
@@ -38,7 +39,8 @@ namespace NETDBHelper
 
         void TabControl_Selected(object sender, TabControlEventArgs e)
         {
-            tsb_Excute.Enabled = e.TabPage is UC.ViewTBData;
+            tsb_Excute.Enabled = e.TabPage is UC.ViewTBData
+                ||e.TabPage is UC.SqlExcuter;
         }
 
         private void CreateProcSql(DBSource dbSource, string dbName, string tableID, string table,CreateProceEnum createProcType)
@@ -99,6 +101,25 @@ namespace NETDBHelper
             };
             this.TabControl.TabPages.Add(panel);
             this.TabControl.SelectedTab = panel;
+        }
+
+        private void ExecutSql(DBSource source,string db,string sql)
+        {
+            var tit = $"执行语句";
+            //foreach (TabPage tab in this.TabControl.TabPages)
+            //{
+            //    if (tab.Text.Equals(tit))
+            //    {
+            //        (tab as UC.WebTab).SetHtml(html);
+            //        TabControl.SelectedTab = tab;
+            //        return;
+            //    }
+            //}
+            SqlExcuter se = new SqlExcuter(source, db, sql);
+            se.Text = tit;
+            this.TabControl.TabPages.Add(se);
+            this.TabControl.SelectedTab = se;
+            tsb_Excute.Enabled = true;
         }
 
         protected void CreateEntity(string entityName,string s)
@@ -211,6 +232,10 @@ namespace NETDBHelper
                     if (this.TabControl.SelectedTab != null && this.TabControl.SelectedTab is UC.ViewTBData)
                     {
                         (this.TabControl.SelectedTab as UC.ViewTBData).Execute();
+                    }
+                    else if (this.TabControl.SelectedTab != null && this.TabControl.SelectedTab is UC.SqlExcuter)
+                    {
+                        (this.TabControl.SelectedTab as UC.SqlExcuter).Execute();
                     }
                     break;
             }

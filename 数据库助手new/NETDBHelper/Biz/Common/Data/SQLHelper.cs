@@ -144,6 +144,24 @@ namespace Biz.Common.Data
             return tb;
         }
 
+        public static DataSet ExecuteDataSet(DBSource dbSource, string connDB, string sql, params SqlParameter[] sqlParams)
+        {
+            SqlCommand cmd = new SqlCommand();
+            cmd.Connection = new SqlConnection(GetConnstringFromDBSource(dbSource, connDB));
+            cmd.CommandText = sql;
+            cmd.CommandType = CommandType.Text;
+            cmd.CommandTimeout = 180;
+            if (sqlParams != null)
+            {
+                cmd.Parameters.AddRange(sqlParams);
+            }
+            SqlDataAdapter ada = new SqlDataAdapter(cmd);
+            DataSet ts = new DataSet();
+            ada.Fill(ts);
+            
+            return ts;
+        }
+
         public static void ExecuteNoQuery(DBSource dbSource, string connDB, string sql, params SqlParameter[] sqlParams)
         {
             var conn= new SqlConnection(GetConnstringFromDBSource(dbSource, connDB));

@@ -173,7 +173,7 @@ namespace Biz
                 
                 //int imgIdx = col.IsKey ? 4 : 5;
                 TreeNode newNode = new TreeNode(kv.Key, 13, 14);
-                newNode.Tag = kv.Key;
+                newNode.Tag = kv;
                 foreach(var row in kv)
                 {
                     var len = row.Field<Int16>("length");

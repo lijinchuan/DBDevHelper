@@ -11,6 +11,7 @@ namespace Entity
         table,
         view,
         proc,
+        sql
         
     }
 

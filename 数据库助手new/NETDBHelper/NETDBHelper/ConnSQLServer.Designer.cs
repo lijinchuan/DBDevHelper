@@ -44,9 +44,9 @@
             this.panel_yz = new System.Windows.Forms.Panel();
             this.tb_password = new System.Windows.Forms.TextBox();
             this.panel_main = new System.Windows.Forms.Panel();
+            this.BtnRefrash = new System.Windows.Forms.Button();
             this.labmsg = new System.Windows.Forms.Label();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
-            this.BtnRefrash = new System.Windows.Forms.Button();
             this.panel_yz.SuspendLayout();
             this.panel_main.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
@@ -204,6 +204,16 @@
             this.panel_main.Size = new System.Drawing.Size(464, 233);
             this.panel_main.TabIndex = 15;
             // 
+            // BtnRefrash
+            // 
+            this.BtnRefrash.Location = new System.Drawing.Point(193, 189);
+            this.BtnRefrash.Name = "BtnRefrash";
+            this.BtnRefrash.Size = new System.Drawing.Size(98, 33);
+            this.BtnRefrash.TabIndex = 15;
+            this.BtnRefrash.Text = "刷新";
+            this.BtnRefrash.UseVisualStyleBackColor = true;
+            this.BtnRefrash.Click += new System.EventHandler(this.BtnRefrash_Click);
+            // 
             // labmsg
             // 
             this.labmsg.AutoSize = true;
@@ -215,22 +225,13 @@
             // 
             // pictureBox1
             // 
+            this.pictureBox1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.pictureBox1.InitialImage = ((System.Drawing.Image)(resources.GetObject("pictureBox1.InitialImage")));
             this.pictureBox1.Location = new System.Drawing.Point(0, -1);
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.Size = new System.Drawing.Size(468, 86);
             this.pictureBox1.TabIndex = 0;
             this.pictureBox1.TabStop = false;
-            // 
-            // BtnRefrash
-            // 
-            this.BtnRefrash.Location = new System.Drawing.Point(193, 189);
-            this.BtnRefrash.Name = "BtnRefrash";
-            this.BtnRefrash.Size = new System.Drawing.Size(98, 33);
-            this.BtnRefrash.TabIndex = 15;
-            this.BtnRefrash.Text = "刷新";
-            this.BtnRefrash.UseVisualStyleBackColor = true;
-            this.BtnRefrash.Click += new System.EventHandler(this.BtnRefrash_Click);
             // 
             // ConnSQLServer
             // 

@@ -71,6 +71,7 @@
             this.ColumnMoveDown = new System.Windows.Forms.ToolStripMenuItem();
             this.CommSubMenuitem_add = new System.Windows.Forms.ToolStripMenuItem();
             this.CommSubMenuItem_Delete = new System.Windows.Forms.ToolStripMenuItem();
+            this.TSMI_ExeProc = new System.Windows.Forms.ToolStripMenuItem();
             this.DBServerviewContextMenuStrip.SuspendLayout();
             this.toolStrip1.SuspendLayout();
             this.CommMenuStrip.SuspendLayout();
@@ -107,13 +108,14 @@
             this.备注ToolStripMenuItem,
             this.刷新ToolStripMenuItem,
             this.SubMenuItem_Proc,
+            this.TSMI_ExeProc,
             this.导出ToolStripMenuItem,
             this.SyncDataToolStripMenuItem,
             this.toolStripMenuItem2,
             this.修改表名ToolStripMenuItem,
             this.删除表ToolStripMenuItem});
             this.DBServerviewContextMenuStrip.Name = "DBServerviewContextMenuStrip";
-            this.DBServerviewContextMenuStrip.Size = new System.Drawing.Size(181, 274);
+            this.DBServerviewContextMenuStrip.Size = new System.Drawing.Size(181, 296);
             // 
             // 生成实体类ToolStripMenuItem
             // 
@@ -221,28 +223,28 @@
             // 创建语句ToolStripMenuItem
             // 
             this.创建语句ToolStripMenuItem.Name = "创建语句ToolStripMenuItem";
-            this.创建语句ToolStripMenuItem.Size = new System.Drawing.Size(174, 22);
+            this.创建语句ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.创建语句ToolStripMenuItem.Text = "创建语句(MySQL)";
             this.创建语句ToolStripMenuItem.Click += new System.EventHandler(this.创建语句ToolStripMenuItem_Click);
             // 
             // ExpdataToolStripMenuItem
             // 
             this.ExpdataToolStripMenuItem.Name = "ExpdataToolStripMenuItem";
-            this.ExpdataToolStripMenuItem.Size = new System.Drawing.Size(174, 22);
+            this.ExpdataToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.ExpdataToolStripMenuItem.Text = "数据(MySQL)";
             this.ExpdataToolStripMenuItem.Click += new System.EventHandler(this.ExpdataToolStripMenuItem_Click);
             // 
             // CreateMSSQLToolStripMenuItem
             // 
             this.CreateMSSQLToolStripMenuItem.Name = "CreateMSSQLToolStripMenuItem";
-            this.CreateMSSQLToolStripMenuItem.Size = new System.Drawing.Size(174, 22);
+            this.CreateMSSQLToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.CreateMSSQLToolStripMenuItem.Text = "创建语句(MSSQL)";
             this.CreateMSSQLToolStripMenuItem.Click += new System.EventHandler(this.CreateMSSQLToolStripMenuItem_Click);
             // 
             // 数据MSSQLToolStripMenuItem
             // 
             this.数据MSSQLToolStripMenuItem.Name = "数据MSSQLToolStripMenuItem";
-            this.数据MSSQLToolStripMenuItem.Size = new System.Drawing.Size(174, 22);
+            this.数据MSSQLToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.数据MSSQLToolStripMenuItem.Text = "数据(MSSQL)";
             this.数据MSSQLToolStripMenuItem.Click += new System.EventHandler(this.数据MSSQLToolStripMenuItem_Click);
             // 
@@ -400,6 +402,12 @@
             this.CommSubMenuItem_Delete.Size = new System.Drawing.Size(160, 22);
             this.CommSubMenuItem_Delete.Text = "删除对象";
             // 
+            // TSMI_ExeProc
+            // 
+            this.TSMI_ExeProc.Name = "TSMI_ExeProc";
+            this.TSMI_ExeProc.Size = new System.Drawing.Size(180, 22);
+            this.TSMI_ExeProc.Text = "执行存储过程";
+            // 
             // DBServerView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -465,5 +473,6 @@
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem3;
         private System.Windows.Forms.ToolStripMenuItem TSMI_MulMarkLocal;
         private System.Windows.Forms.ToolStripMenuItem TSMI_ViewTableList;
+        private System.Windows.Forms.ToolStripMenuItem TSMI_ExeProc;
     }
 }
