@@ -93,12 +93,12 @@ namespace NETDBHelper.UC
                     {
                         outPutParam = m.Groups[1].Value;
                         
-                        sb.Append($@"new SqlParameter({outPutParam},{Biz.Common.Data.Common.SqlTypeToDatadbType(m.Groups[2].Value)}){{Value={tb_Entity.Text}.{outPutParam.Trim('@')},Direction=ParameterDirection.Output}},");
+                        sb.Append($@"new SqlParameter(""{outPutParam}"",{Biz.Common.Data.Common.SqlTypeToDatadbType(m.Groups[2].Value)}){{Value={tb_Entity.Text}.{outPutParam.Trim('@')},Direction=ParameterDirection.Output}},");
                         sboutput.AppendLine($"object op_{outPutParam.Trim('@')}=parameters[{i}].Value;");
                     }
                     else
                     {
-                        sb.Append($@"new SqlParameter({m.Groups[1].Value},{Biz.Common.Data.Common.SqlTypeToDatadbType(m.Groups[2].Value)}){{Value={tb_Entity.Text}.{m.Groups[1].Value.Trim('@')}}},");
+                        sb.Append($@"new SqlParameter(""{m.Groups[1].Value}"",{Biz.Common.Data.Common.SqlTypeToDatadbType(m.Groups[2].Value)}){{Value={tb_Entity.Text}.{m.Groups[1].Value.Trim('@')}}},");
                     }
                     i++;
                     sb.AppendLine();
