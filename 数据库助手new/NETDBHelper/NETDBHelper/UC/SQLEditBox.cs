@@ -32,6 +32,8 @@ namespace NETDBHelper.UC
             dic.Add("*", Color.Gray);
             dic.Add("from", Color.Blue);
             dic.Add("delete", Color.Blue);
+            dic.Add("update", Color.Blue);
+            dic.Add("insert", Color.Blue);
             dic.Add("where", Color.Blue);
             dic.Add("distinct", Color.Blue);
             dic.Add("top", Color.Blue);
@@ -59,6 +61,7 @@ namespace NETDBHelper.UC
             dic.Add("begin", Color.Blue);
             dic.Add("exec", Color.Blue);
             dic.Add("execute", Color.Blue);
+            dic.Add("sp_executesql", Color.Blue);
             dic.Add("proc", Color.Blue);
             dic.Add("procedure", Color.Blue);
             dic.Add("declare", Color.Blue);
@@ -66,8 +69,9 @@ namespace NETDBHelper.UC
             dic.Add(",", Color.Green);
             dic.Add("[", Color.Gray);
             dic.Add("]", Color.Gray);
+            dic.Add("print", Color.Gray);
 
-            foreach(var kv in dic)
+            foreach (var kv in dic)
             {
 
                 this.KeyWords.AddKeyWord(kv.Key, kv.Value);

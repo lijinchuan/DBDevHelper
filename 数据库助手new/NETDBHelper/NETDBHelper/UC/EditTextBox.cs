@@ -283,7 +283,7 @@ namespace NETDBHelper.UC
                     {
                         _markedLines.Add(l);
 
-                        foreach (var m in this.KeyWords.MatchKeyWord(express))
+                        foreach (var m in this.KeyWords.MatchKeyWord(express.ToLower().Replace('@','\'')))
                         {
                             if ((m.PostionStart == 0 || "[]{},|%#@!<>=();\r\n 　".IndexOf(express[m.PostionStart-1])>-1)
                                 && (m.PostionEnd == express.Length - 1 || "[]{},|%#@!<>=();\r\n 　".IndexOf(express[m.PostionEnd + 1])>-1))

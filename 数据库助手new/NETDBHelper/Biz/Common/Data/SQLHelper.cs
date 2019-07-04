@@ -6,6 +6,7 @@ using System.Data.SqlClient;
 using Entity;
 using System.Data;
 using static Entity.IndexEntry;
+using System.Text.RegularExpressions;
 
 namespace Biz.Common.Data
 {
@@ -129,37 +130,47 @@ namespace Biz.Common.Data
 
         public static DataTable ExecuteDBTable(DBSource dbSource, string connDB, string sql, params SqlParameter[] sqlParams)
         {
-            SqlCommand cmd = new SqlCommand();
-            cmd.Connection = new SqlConnection(GetConnstringFromDBSource(dbSource, connDB));
-            cmd.CommandText = sql;
-            cmd.CommandType = CommandType.Text;
-            cmd.CommandTimeout = 180;
-            if (sqlParams != null)
-            {
-               cmd.Parameters.AddRange(sqlParams);
+            using (var conn = new SqlConnection(GetConnstringFromDBSource(dbSource, connDB))) {
+                using (SqlCommand cmd = new SqlCommand())
+                {
+                    cmd.Connection = conn;
+                    cmd.CommandText = sql;
+                    cmd.CommandType = CommandType.Text;
+                    cmd.CommandTimeout = 180;
+                    if (sqlParams != null)
+                    {
+                        cmd.Parameters.AddRange(sqlParams);
+                    }
+                    SqlDataAdapter ada = new SqlDataAdapter(cmd);
+                    DataTable tb = new DataTable();
+                    ada.Fill(tb);
+                    return tb;
+                }
             }
-            SqlDataAdapter ada = new SqlDataAdapter(cmd);
-            DataTable tb=new DataTable();
-            ada.Fill(tb);
-            return tb;
         }
 
-        public static DataSet ExecuteDataSet(DBSource dbSource, string connDB, string sql, params SqlParameter[] sqlParams)
+        public static DataSet ExecuteDataSet(DBSource dbSource, string connDB, string sql, SqlInfoMessageEventHandler onmsg , params SqlParameter[] sqlParams)
         {
-            SqlCommand cmd = new SqlCommand();
-            cmd.Connection = new SqlConnection(GetConnstringFromDBSource(dbSource, connDB));
-            cmd.CommandText = sql;
-            cmd.CommandType = CommandType.Text;
-            cmd.CommandTimeout = 180;
-            if (sqlParams != null)
+            using (var conn = new SqlConnection(GetConnstringFromDBSource(dbSource, connDB)))
             {
-                cmd.Parameters.AddRange(sqlParams);
+                conn.InfoMessage += onmsg;
+                using (SqlCommand cmd = new SqlCommand())
+                {
+                    cmd.Connection = conn;
+                    cmd.CommandText = sql;
+                    cmd.CommandType = CommandType.Text;
+                    cmd.CommandTimeout = 180;
+                    if (sqlParams != null)
+                    {
+                        cmd.Parameters.AddRange(sqlParams);
+                    }
+                    SqlDataAdapter ada = new SqlDataAdapter(cmd);
+                    DataSet ts = new DataSet();
+                    ada.Fill(ts);
+
+                    return ts;
+                }
             }
-            SqlDataAdapter ada = new SqlDataAdapter(cmd);
-            DataSet ts = new DataSet();
-            ada.Fill(ts);
-            
-            return ts;
         }
 
         public static void ExecuteNoQuery(DBSource dbSource, string connDB, string sql, params SqlParameter[] sqlParams)
@@ -298,7 +309,8 @@ namespace Biz.Common.Data
 
             foreach(DataRow row in tb.Rows)
             {
-                sb.AppendLine((string)row["Text"]);
+                //sb.Append(Regex.Replace((string)row["Text"],"\n{1,}","\n").Replace("\t","    "));
+                sb.Append(((string)row["Text"]).TrimStart('\n').Replace("\t", "    "));
             }
             
 

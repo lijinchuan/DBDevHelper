@@ -63,8 +63,18 @@ namespace NETDBHelper.UC
                     tabControl1.TabPages.Remove(tp);
                 }
                 DateTime now = DateTime.Now;
-                var ts = Biz.Common.Data.SQLHelper.ExecuteDataSet(Server, DB, seltext);
-                TBInfo.Text = $"用时:{DateTime.Now.Subtract(now).TotalMilliseconds}ms\r\n";
+                var ts = Biz.Common.Data.SQLHelper.ExecuteDataSet(Server, DB, seltext, (s, e) =>
+                 {
+                     TBInfo.Text += $"{e.Message}\r\n\r\n";
+                     if (e.Errors != null && e.Errors.Count > 0)
+                     {
+                         for (int i = 0; i < e.Errors.Count; i++)
+                         {
+                             TBInfo.Text += $"{e.Errors[i].Message}\r\n\r\n";
+                         }
+                     }
+                 });
+                TBInfo.Text += $"用时:{DateTime.Now.Subtract(now).TotalMilliseconds}ms\r\n";
                 if (ts != null && ts.Tables.Count > 0)
                 {
                     for(int i = 0; i < ts.Tables.Count; i++)
