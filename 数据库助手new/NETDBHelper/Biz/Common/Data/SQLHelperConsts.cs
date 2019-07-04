@@ -78,11 +78,11 @@ namespace Biz.Common.Data
                       ,c.is_primary_key
                       ,c.is_unique_constraint
                   FROM sys.tables AS a
-                 INNER JOIN sys.schemas AS b            ON a.schema_id = b.schema_id AND a.is_ms_shipped = 0
-                 INNER JOIN sys.indexes AS c            ON a.object_id = c.object_id
-                 INNER JOIN sys.index_columns AS d      ON d.object_id = c.object_id AND d.index_id = c.index_id
-                 INNER JOIN sys.columns AS e            ON e.object_id = d.object_id AND e.column_id = d.column_id
-                 INNER JOIN sys.data_spaces AS f        ON f.data_space_id = c.data_space_id
-                 where a.name='{0}'";
+                 INNER JOIN sys.schemas AS b   with(nolock)         ON a.schema_id = b.schema_id AND a.is_ms_shipped = 0
+                 INNER JOIN sys.indexes AS c   with(nolock)         ON a.object_id = c.object_id
+                 INNER JOIN sys.index_columns AS d   with(nolock)   ON d.object_id = c.object_id AND d.index_id = c.index_id
+                 INNER JOIN sys.columns AS e    with(nolock)        ON e.object_id = d.object_id AND e.column_id = d.column_id
+                 INNER JOIN sys.data_spaces AS f   with(nolock)     ON f.data_space_id = c.data_space_id
+                 where a.name='{0}' and c.is_hypothetical=0 and c.type_desc<>'HEAP' and d.partition_ordinal=0";
     }
 }
