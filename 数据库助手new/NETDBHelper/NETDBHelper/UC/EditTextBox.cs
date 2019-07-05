@@ -283,10 +283,10 @@ namespace NETDBHelper.UC
                     {
                         _markedLines.Add(l);
 
-                        foreach (var m in this.KeyWords.MatchKeyWord(express.ToLower().Replace('@','\'')))
+                        foreach (var m in this.KeyWords.MatchKeyWord(express.ToLower()))
                         {
-                            if ((m.PostionStart == 0 || "[]{},|%#@!<>=();\r\n 　".IndexOf(express[m.PostionStart-1])>-1)
-                                && (m.PostionEnd == express.Length - 1 || "[]{},|%#@!<>=();\r\n 　".IndexOf(express[m.PostionEnd + 1])>-1))
+                            if ((m.PostionStart == 0 || "[]{},|%#!<>=();+-*/\r\n 　".IndexOf(express[m.PostionStart-1])>-1)
+                                && (m.PostionEnd == express.Length - 1 || "[]{},|%#!<>=();+-*/\r\n 　".IndexOf(express[m.PostionEnd + 1])>-1))
                             {
                                 DataRow row = tb.NewRow();
                                 row[0] = totalIndex + m.PostionStart;
