@@ -25,6 +25,7 @@ namespace NETDBHelper
         public Action<DBSource,string,string,string> OnShowDataDic;
         public Action<string,string> OnViewTable;
         public Action<DBSource,string, string> OnExecutSql;
+        public Action<DBSource, string, string,string> OnShowViewSql;
         private DBSourceCollection _dbServers;
         /// <summary>
         /// 实体命名空间
@@ -1139,9 +1140,16 @@ GO");
             }
             else if (node != null && node.Level == 4 && node.Parent.Text.Equals("视图"))
             {
-                var body = Biz.Common.Data.SQLHelper.GetViewCreateSql(GetDBSource(node), node.Parent.Parent.Text, node.Text);
-                TextBoxWin win = new TextBoxWin("视图[" + node.Text + "]", body);
-                win.Show();
+                var dbsource = GetDBSource(node);
+                var dbname = GetDBName(node);
+                var body = Biz.Common.Data.SQLHelper.GetViewCreateSql(dbsource, dbname, node.Text);
+                //TextBoxWin win = new TextBoxWin("视图[" + node.Text + "]", body);
+                //win.Show();
+
+                if (OnShowViewSql != null)
+                {
+                    OnShowViewSql(dbsource, dbname, node.Text,body);
+                }
 
                 LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<HLogEntity>("HLog", new HLogEntity
                 {

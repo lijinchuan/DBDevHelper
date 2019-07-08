@@ -27,6 +27,7 @@ namespace NETDBHelper
             this.dbServerView1.OnShowDataDic += this.ShowDataDic;
             this.dbServerView1.OnViewTable += this.ShowTables;
             this.dbServerView1.OnExecutSql += this.ExecutSql;
+            this.dbServerView1.OnShowViewSql += this.ShowViewSql;
             this.TabControl.Selected += new TabControlEventHandler(TabControl_Selected);
         }
 
@@ -298,6 +299,26 @@ namespace NETDBHelper
             this.TabControl.TabPages.Add(logview);
             this.TabControl.SelectedTab = logview;
             logview.BindData();
+        }
+
+        private void ShowViewSql(DBSource source,string dbname,string viewname,string sql)
+        {
+            var title = $"视图{dbname}.{viewname}";
+            foreach (TabPage page in this.TabControl.TabPages)
+            {
+                if (page.Text == title)
+                {
+                    TabControl.SelectedTab = page;
+                    return;
+                }
+            }
+            var tip= $"视图{dbname}.{viewname}-{source.ServerName}";
+            UC.SQLCodePanel panel = new SQLCodePanel();
+            panel.ToolTipText = tip;
+            panel.SetCode(dbname, sql);
+            panel.Text = title;
+            this.TabControl.TabPages.Add(panel);
+            this.TabControl.SelectedTab = panel;
         }
     }
 }

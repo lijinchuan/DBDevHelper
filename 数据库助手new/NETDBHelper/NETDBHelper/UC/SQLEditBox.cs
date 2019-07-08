@@ -47,6 +47,8 @@ namespace NETDBHelper.UC
             dic.Add("with", Color.Blue);
             dic.Add("order", Color.Blue);
             dic.Add("by", Color.Blue);
+            dic.Add("desc", Color.Blue);
+            dic.Add("asc", Color.Blue);
             dic.Add("between", Color.Blue);
             dic.Add("and", Color.Blue);
             dic.Add("or", Color.Blue);

@@ -3,19 +3,36 @@ using LJC.FrameWorkV3.Data.EntityDataBase;
 using LJC.FrameWorkV3.EntityBuf;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
 namespace NETDBHelper
 {
     static class Program
     {
+        [DllImport("user32.dll")]
+        public static extern void SwitchToThisWindow(IntPtr hWnd, bool fAltTab);
+
         /// <summary>
         /// 应用程序的主入口点。
         /// </summary>
         [STAThread]
         static void Main()
         {
+            Process[] pa = Process.GetProcesses();//获取当前进程数组。
+            var currprocess = Process.GetCurrentProcess();
+            foreach (Process p in pa)
+            {
+                if (p.ProcessName == currprocess.ProcessName && p.Id != currprocess.Id && p.MainModule.FileName == currprocess.MainModule.FileName)
+                {
+                    //MessageBox.Show("另一个进程正在运行，无法启动。");
+                    SwitchToThisWindow(p.MainWindowHandle, true);
+                    return;
+                }
+            }
+
             BigEntityTableEngine.LocalEngine.CreateTable("MarkColumnInfo", "ID",true, typeof(MarkColumnInfo), new IndexInfo[]
             {
                 new IndexInfo

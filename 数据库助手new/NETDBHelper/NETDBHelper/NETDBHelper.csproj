@@ -51,6 +51,9 @@
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>dbs_sqlserver2.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="CalculateModel">
       <HintPath>..\..\Lib\CalculateModel.dll</HintPath>
@@ -256,6 +259,7 @@
     <EmbeddedResource Include="Resources\Resource1.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resource1.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="SubForm\CreateEntityNavDlg.resx">
       <DependentUpon>CreateEntityNavDlg.cs</DependentUpon>
@@ -348,6 +352,8 @@
     <None Include="Map\新建位图图像 %282%29.bmp" />
     <None Include="Resources\application_form_magnify.png" />
     <None Include="Resources\bullet_eject.png" />
+    <Content Include="dbs_sqlserver.ico" />
+    <Content Include="dbs_sqlserver2.ico" />
     <Content Include="Resources\CloseServer.jpg" />
     <Content Include="Resources\ColQ.png" />
     <Content Include="Resources\DB1.png" />
@@ -357,6 +363,7 @@
     <Content Include="Resources\DB4.png" />
     <Content Include="Resources\DB5.png" />
     <Content Include="Resources\DB6.png" />
+    <Content Include="Resources\dbs_sqlserver2.ico" />
     <Content Include="Resources\key_add.png" />
     <None Include="Resources\key_add1.png" />
     <Content Include="Resources\loading.gif" />

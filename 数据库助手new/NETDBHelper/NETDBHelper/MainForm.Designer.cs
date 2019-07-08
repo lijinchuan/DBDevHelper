@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainFrm));
             this.mainMenuBar = new System.Windows.Forms.MenuStrip();
             this.MenItem_File = new System.Windows.Forms.ToolStripMenuItem();
             this.连接对象资源管理器ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -37,6 +38,7 @@
             this.SubItemTool = new System.Windows.Forms.ToolStripMenuItem();
             this.ToolStripMenuItem_callsp = new System.Windows.Forms.ToolStripMenuItem();
             this.实体建表ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.查看日志ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.SubItemHelp = new System.Windows.Forms.ToolStripMenuItem();
             this.panel1 = new System.Windows.Forms.Panel();
             this.TabControl = new NETDBHelper.UC.MyTabControl();
@@ -45,7 +47,6 @@
             this.dbServerView1 = new NETDBHelper.DBServerView();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.MspPanel = new System.Windows.Forms.ToolStripStatusLabel();
-            this.查看日志ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mainMenuBar.SuspendLayout();
             this.panel1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
@@ -127,6 +128,13 @@
             this.实体建表ToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
             this.实体建表ToolStripMenuItem.Text = "建表工具";
             // 
+            // 查看日志ToolStripMenuItem
+            // 
+            this.查看日志ToolStripMenuItem.Name = "查看日志ToolStripMenuItem";
+            this.查看日志ToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
+            this.查看日志ToolStripMenuItem.Text = "查看日志";
+            this.查看日志ToolStripMenuItem.Click += new System.EventHandler(this.查看日志ToolStripMenuItem_Click);
+            // 
             // SubItemHelp
             // 
             this.SubItemHelp.Name = "SubItemHelp";
@@ -205,13 +213,6 @@
             this.MspPanel.Size = new System.Drawing.Size(20, 17);
             this.MspPanel.Text = "   ";
             // 
-            // 查看日志ToolStripMenuItem
-            // 
-            this.查看日志ToolStripMenuItem.Name = "查看日志ToolStripMenuItem";
-            this.查看日志ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.查看日志ToolStripMenuItem.Text = "查看日志";
-            this.查看日志ToolStripMenuItem.Click += new System.EventHandler(this.查看日志ToolStripMenuItem_Click);
-            // 
             // MainFrm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -222,6 +223,7 @@
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.dbServerView1);
             this.Controls.Add(this.mainMenuBar);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.mainMenuBar;
             this.Name = "MainFrm";
             this.ShowIcon = false;
