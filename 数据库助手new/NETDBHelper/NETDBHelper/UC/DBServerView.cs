@@ -1699,8 +1699,9 @@ background-color: #ffffff;
                        }
                        var idx=1;
                        var tds= document.getElementsByTagName('td');
+                       w=w.toUpperCase();
                        for(var i=0;i<tds.length;i+=3){
-                           var boo=tds[i+1].innerText.indexOf(w)>-1||tds[i+2].innerText.indexOf(w)>-1
+                           var boo=tds[i+1].innerText.toUpperCase().indexOf(w)>-1||tds[i+2].innerText.toUpperCase().indexOf(w)>-1
                            tds[i].parentNode.style.display=boo?'':'none'
                            if(boo) tds[i].innerText=idx++
                        }
