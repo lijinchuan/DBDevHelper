@@ -355,6 +355,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Resources\msg.png" />
+    <Content Include="Resources\tbview.png" />
     <None Include="Resources\tags_red.png" />
     <None Include="Resources\tags_grey.png" />
     <None Include="Map\新建位图图像.bmp" />

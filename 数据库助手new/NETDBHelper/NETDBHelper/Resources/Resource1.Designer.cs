@@ -292,6 +292,16 @@ namespace NETDBHelper.Resources {
         /// <summary>
         ///   查找 System.Drawing.Bitmap 类型的本地化资源。
         /// </summary>
+        internal static System.Drawing.Bitmap msg {
+            get {
+                object obj = ResourceManager.GetObject("msg", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        /// </summary>
         internal static System.Drawing.Bitmap OpenServer {
             get {
                 object obj = ResourceManager.GetObject("OpenServer", resourceCulture);
@@ -365,6 +375,16 @@ namespace NETDBHelper.Resources {
         internal static System.Drawing.Bitmap SQLSerTop {
             get {
                 object obj = ResourceManager.GetObject("SQLSerTop", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        /// </summary>
+        internal static System.Drawing.Bitmap tbview {
+            get {
+                object obj = ResourceManager.GetObject("tbview", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

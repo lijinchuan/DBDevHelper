@@ -44,6 +44,9 @@ namespace NETDBHelper.UC
             this.GVLog.ContextMenuStrip.Items.Add("复制");
             this.GVLog.ContextMenuStrip.Items.Add("备注");
             this.GVLog.ContextMenuStrip.ItemClicked += ContextMenuStrip_ItemClicked;
+
+            this.GVLog.BorderStyle = BorderStyle.None;
+            this.GVLog.GridColor = Color.LightBlue;
         }
 
         private void BindingNavigatorDeleteItem_Click(object sender, EventArgs e)

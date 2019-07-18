@@ -16,6 +16,8 @@ namespace NETDBHelper.UC
         public SqlExcuter()
         {
             InitializeComponent();
+
+            
         }
 
         private DBSource Server
@@ -38,6 +40,13 @@ namespace NETDBHelper.UC
             this.DB = db;
             this.sqlEditBox1.DBName = db;
             this.sqlEditBox1.Text = sql;
+
+            this.TBInfo.ScrollBars = ScrollBars.Both;
+            this.TBInfo.ContextMenuStrip = contextMenuStrip1;
+
+            this.imageList1.Images.Add(Resources.Resource1.tbview);
+            this.imageList1.Images.Add(Resources.Resource1.msg);
+            this.tabControl1.TabPages[0].ImageIndex = 1;
         }
 
         public void Execute()
@@ -82,8 +91,19 @@ namespace NETDBHelper.UC
                     {
                         var tb = ts.Tables[i];
                         TabPage page = new TabPage(tb.TableName ?? "未命名表");
+                        page.ImageIndex = 0;
                         var dgv = new DataGridView();
                         page.Controls.Add(dgv);
+                        dgv.CellDoubleClick += (s,e)=>
+                        {
+                            if (dgv.CurrentCell.Value != null)
+                            {
+                                Clipboard.SetText(dgv.CurrentCell.Value.ToString());
+                                MessageBox.Show("已复制到剪贴板");
+                            }
+                        };
+                        dgv.BorderStyle = BorderStyle.None;
+                        dgv.GridColor = Color.LightBlue;
                         dgv.Dock = DockStyle.Fill;
                         dgv.BackgroundColor = Color.White;
                         dgv.AllowUserToAddRows = false;
@@ -112,6 +132,12 @@ namespace NETDBHelper.UC
                 TBInfo.Text += ex.Message+"\r\n";
                 tabControl1.SelectedTab = TPInfo;
             }
+
+        }
+
+        private void 清空ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.TBInfo.Text = string.Empty;
         }
     }
 }
