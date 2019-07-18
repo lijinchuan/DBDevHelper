@@ -36,6 +36,7 @@ namespace NETDBHelper.UC
 
             this.Server = server;
             this.DB = db;
+            this.sqlEditBox1.DBName = db;
             this.sqlEditBox1.Text = sql;
         }
 

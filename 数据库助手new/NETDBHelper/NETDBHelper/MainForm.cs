@@ -186,15 +186,16 @@ namespace NETDBHelper
                     return;
                 }
             }
-            ViewTBData viewTb = new ViewTBData();
+            var viewTb = new SqlExcuter(db, dbName, sql);
+            //ViewTBData viewTb = new ViewTBData();
             viewTb.Text =title;
             viewTb.BorderStyle = BorderStyle.None;
             this.TabControl.TabPages.Add(viewTb);
             TabControl.SelectedTab = viewTb;
             tsb_Excute.Enabled = true;
-            viewTb.DBSource = db;
-            viewTb.DBName = dbName;
-            viewTb.SQLString = sql;
+            //viewTb.DBSource = db;
+            //viewTb.DBName = dbName;
+            //viewTb.SQLString = sql;
         }
 
         private void 连接对象资源管理器ToolStripMenuItem_Click(object sender, EventArgs e)
@@ -319,6 +320,25 @@ namespace NETDBHelper
             panel.Text = title;
             this.TabControl.TabPages.Add(panel);
             this.TabControl.SelectedTab = panel;
+        }
+
+        private void 常用SQLToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            foreach (TabPage page in this.TabControl.TabPages)
+            {
+                if (page.Text == "常用SQL")
+                {
+                    TabControl.SelectedTab = page;
+                    (page as SqlSaveViewTab).BindData();
+                    return;
+                }
+            }
+            SqlSaveViewTab view = new SqlSaveViewTab();
+            view.Text = "常用SQL";
+
+            this.TabControl.TabPages.Add(view);
+            this.TabControl.SelectedTab = view;
+            view.BindData();
         }
     }
 }

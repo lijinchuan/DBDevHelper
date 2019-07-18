@@ -10,6 +10,7 @@ using System.Text.RegularExpressions;
 using Biz.Common;
 using LJC.FrameWork.CodeExpression.KeyWordMatch;
 using Entity;
+using LJC.FrameWork.Data.EntityDataBase;
 
 namespace NETDBHelper.UC
 {
@@ -535,6 +536,33 @@ namespace NETDBHelper.UC
             };
 
             dlg.Show();
+        }
+
+        private void TSMI_Save_Click(object sender, EventArgs e)
+        {
+            var sql = this.RichText.Text;
+            if (string.IsNullOrEmpty(sql))
+            {
+                return;
+            }
+
+            var nameinput = new SubForm.InputStringDlg("备注");
+            if (nameinput.ShowDialog() == DialogResult.OK)
+            {
+                if (LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<SqlSaveEntity>("SqlSave", new SqlSaveEntity
+                {
+                    Desc = nameinput.InputString,
+                    MDate = DateTime.Now,
+                    Sql = sql
+                }))
+                {
+                    MessageBox.Show("保存成功");
+                }
+                else
+                {
+                    MessageBox.Show("保存失败");
+                }
+            }
         }
     }
 }
