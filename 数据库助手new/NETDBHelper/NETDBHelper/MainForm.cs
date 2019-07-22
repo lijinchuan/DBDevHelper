@@ -242,10 +242,10 @@ namespace NETDBHelper
         private void 断开对象资源管理器ToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var server = this.dbServerView1.DisConnectSelectDBServer();
-            if (server != null && this.TSCBServer.Items.Contains(server))
-            {
-                this.TSCBServer.Items.Remove(server);
-            }
+            //if (server != null && this.TSCBServer.Items.Contains(server))
+            //{
+            //    this.TSCBServer.Items.Remove(server);
+            //}
         }
 
         private void toolStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
