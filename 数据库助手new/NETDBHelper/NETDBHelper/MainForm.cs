@@ -30,9 +30,9 @@ namespace NETDBHelper
             this.dbServerView1.OnShowViewSql += this.ShowViewSql;
             
             this.TabControl.Selected += new TabControlEventHandler(TabControl_Selected);
+
+            this.TSCBServer.ForeColor = Color.HotPink;
             
-            this.TSCBServer.BackColor = Color.LightGray;
-            this.TSCBServer.Enabled = false;
             this.TSCBServer.Alignment = ToolStripItemAlignment.Right;
         }
 
@@ -50,7 +50,7 @@ namespace NETDBHelper
 
             if (e.TabPage is UC.SqlExcuter)
             {
-                this.TSCBServer.SelectedItem = (e.TabPage as UC.SqlExcuter).Server.ServerName;
+                this.TSCBServer.Text = (e.TabPage as UC.SqlExcuter).Server.ServerName;
             }
         }
 
@@ -132,7 +132,7 @@ namespace NETDBHelper
             this.TabControl.TabPages.Add(se);
             this.TabControl.SelectedTab = se;
             tsb_Excute.Enabled = true;
-            this.TSCBServer.SelectedItem = source.ServerName;
+            this.TSCBServer.Text = source.ServerName;
         }
 
         protected void CreateEntity(string entityName,string s)
@@ -205,7 +205,7 @@ namespace NETDBHelper
             this.TabControl.TabPages.Add(viewTb);
             TabControl.SelectedTab = viewTb;
             tsb_Excute.Enabled = true;
-            this.TSCBServer.SelectedItem = db.ServerName;
+            this.TSCBServer.Text = db.ServerName;
             //viewTb.DBSource = db;
             //viewTb.DBName = dbName;
             //viewTb.SQLString = sql;
@@ -223,11 +223,6 @@ namespace NETDBHelper
                     allDBs.Add(obj.DBSource);
                     Biz.Common.XMLHelper.Serialize(allDBs, Application.StartupPath + Resources.Resource1.DbServersFile);
                     this.dbServerView1.Bind();
-                }
-
-                if(!this.TSCBServer.Items.Contains(obj.DBSource.ServerName))
-                {
-                    this.TSCBServer.Items.Add(obj.DBSource.ServerName);
                 }
             }
         }

@@ -45,10 +45,10 @@
             this.TabControl = new NETDBHelper.UC.MyTabControl();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.tsb_Excute = new System.Windows.Forms.ToolStripButton();
-            this.TSCBServer = new System.Windows.Forms.ToolStripComboBox();
             this.dbServerView1 = new NETDBHelper.DBServerView();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.MspPanel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.TSCBServer = new System.Windows.Forms.ToolStripLabel();
             this.mainMenuBar.SuspendLayout();
             this.panel1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
@@ -196,12 +196,6 @@
             this.tsb_Excute.Size = new System.Drawing.Size(52, 22);
             this.tsb_Excute.Text = "执行";
             // 
-            // TSCBServer
-            // 
-            this.TSCBServer.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.TSCBServer.Name = "TSCBServer";
-            this.TSCBServer.Size = new System.Drawing.Size(121, 25);
-            // 
             // dbServerView1
             // 
             this.dbServerView1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -229,6 +223,11 @@
             this.MspPanel.Name = "MspPanel";
             this.MspPanel.Size = new System.Drawing.Size(20, 17);
             this.MspPanel.Text = "   ";
+            // 
+            // TSCBServer
+            // 
+            this.TSCBServer.Name = "TSCBServer";
+            this.TSCBServer.Size = new System.Drawing.Size(0, 22);
             // 
             // MainFrm
             // 
@@ -279,7 +278,7 @@
         private System.Windows.Forms.ToolStripStatusLabel MspPanel;
         private System.Windows.Forms.ToolStripMenuItem 查看日志ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 常用SQLToolStripMenuItem;
-        private System.Windows.Forms.ToolStripComboBox TSCBServer;
+        private System.Windows.Forms.ToolStripLabel TSCBServer;
     }
 }
 
