@@ -139,5 +139,17 @@ namespace NETDBHelper.UC
         {
             this.TBInfo.Text = string.Empty;
         }
+
+        private void TabControl1_DoubleClick(object sender, EventArgs e)
+        {
+            if (this.tabControl1.Dock == DockStyle.Fill)
+            {
+                this.tabControl1.Dock = DockStyle.Bottom;
+            }
+            else
+            {
+                this.tabControl1.Dock = DockStyle.Fill;
+            }
+        }
     }
 }

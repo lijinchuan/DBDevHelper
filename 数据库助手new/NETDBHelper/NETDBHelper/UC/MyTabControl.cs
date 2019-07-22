@@ -336,8 +336,15 @@ namespace NETDBHelper.UC
             currentItem.BorderStyle = BorderStyle.None;
             bool isFirstTab = buttonRect.X < 50;
 
+            var txt = currentItem.Text;
             SizeF textSize = g.MeasureString(currentItem.Text, currentFont, new SizeF(200, 10), sf);
             textSize.Width += 20;
+            var maxw = currentItem == SelectedItem ? 190 : 200;
+            if (textSize.Width > maxw)
+            {
+                while (g.MeasureString(txt = txt.Substring(0, txt.Length - 1), currentFont, new SizeF(200, 10), sf).Width > maxw) ;
+                txt += "...";
+            }
 
             GraphicsPath path = new GraphicsPath();
             LinearGradientBrush brush;
@@ -391,11 +398,11 @@ namespace NETDBHelper.UC
                 if (currentItem == SelectedItem)
                 {
                     //textRect.Y -= 2;
-                    g.DrawString(currentItem.Text, currentFont, new SolidBrush(Color.LightSeaGreen), textRect, sf);
+                    g.DrawString(txt, currentFont, new SolidBrush(Color.LightSeaGreen), textRect, sf);
                 }
                 else
                 {
-                    g.DrawString(currentItem.Text, currentFont, new SolidBrush(ForeColor), textRect, sf);
+                    g.DrawString(txt, currentFont, new SolidBrush(ForeColor), textRect, sf);
                 }
             }
 

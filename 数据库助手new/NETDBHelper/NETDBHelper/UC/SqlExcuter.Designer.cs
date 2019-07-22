@@ -33,9 +33,9 @@
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.TPInfo = new System.Windows.Forms.TabPage();
             this.TBInfo = new System.Windows.Forms.TextBox();
+            this.imageList1 = new System.Windows.Forms.ImageList(this.components);
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.清空ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.imageList1 = new System.Windows.Forms.ImageList(this.components);
             this.tabControl1.SuspendLayout();
             this.TPInfo.SuspendLayout();
             this.contextMenuStrip1.SuspendLayout();
@@ -62,14 +62,15 @@
             this.tabControl1.SelectedIndex = 0;
             this.tabControl1.Size = new System.Drawing.Size(596, 245);
             this.tabControl1.TabIndex = 2;
+            this.tabControl1.DoubleClick += new System.EventHandler(this.TabControl1_DoubleClick);
             // 
             // TPInfo
             // 
             this.TPInfo.Controls.Add(this.TBInfo);
-            this.TPInfo.Location = new System.Drawing.Point(4, 22);
+            this.TPInfo.Location = new System.Drawing.Point(4, 23);
             this.TPInfo.Name = "TPInfo";
             this.TPInfo.Padding = new System.Windows.Forms.Padding(3);
-            this.TPInfo.Size = new System.Drawing.Size(588, 219);
+            this.TPInfo.Size = new System.Drawing.Size(588, 218);
             this.TPInfo.TabIndex = 1;
             this.TPInfo.Text = "信息";
             this.TPInfo.UseVisualStyleBackColor = true;
@@ -82,8 +83,14 @@
             this.TBInfo.Multiline = true;
             this.TBInfo.Name = "TBInfo";
             this.TBInfo.ReadOnly = true;
-            this.TBInfo.Size = new System.Drawing.Size(582, 213);
+            this.TBInfo.Size = new System.Drawing.Size(582, 212);
             this.TBInfo.TabIndex = 0;
+            // 
+            // imageList1
+            // 
+            this.imageList1.ColorDepth = System.Windows.Forms.ColorDepth.Depth8Bit;
+            this.imageList1.ImageSize = new System.Drawing.Size(16, 16);
+            this.imageList1.TransparentColor = System.Drawing.Color.Transparent;
             // 
             // contextMenuStrip1
             // 
@@ -98,12 +105,6 @@
             this.清空ToolStripMenuItem.Size = new System.Drawing.Size(100, 22);
             this.清空ToolStripMenuItem.Text = "清空";
             this.清空ToolStripMenuItem.Click += new System.EventHandler(this.清空ToolStripMenuItem_Click);
-            // 
-            // imageList1
-            // 
-            this.imageList1.ColorDepth = System.Windows.Forms.ColorDepth.Depth8Bit;
-            this.imageList1.ImageSize = new System.Drawing.Size(16, 16);
-            this.imageList1.TransparentColor = System.Drawing.Color.Transparent;
             // 
             // SqlExcuter
             // 

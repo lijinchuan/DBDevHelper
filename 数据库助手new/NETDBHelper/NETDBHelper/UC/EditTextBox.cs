@@ -67,6 +67,8 @@ namespace NETDBHelper.UC
             this.ParentChanged += EditTextBox_ParentChanged;
 
             this.RichText.ImeMode = ImeMode.On;
+
+            this.RichText.HideSelection = false;
         }
 
         private void EditTextBox_ParentChanged(object sender, EventArgs e)
@@ -112,6 +114,11 @@ namespace NETDBHelper.UC
         {
             if (_lastInputChar == '\0')
                 return;
+
+            if (this.RichText.Lines.Length == 0)
+            {
+                return;
+            }
 
             int line = this.RichText.GetLineFromCharIndex(this.RichText.GetFirstCharIndexOfCurrentLine());
             if (_lastInputChar == '\r' || _lastInputChar == '\n')
