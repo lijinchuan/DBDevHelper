@@ -20,7 +20,7 @@ namespace NETDBHelper.UC
             
         }
 
-        private DBSource Server
+        public DBSource Server
         {
             get;
             set;

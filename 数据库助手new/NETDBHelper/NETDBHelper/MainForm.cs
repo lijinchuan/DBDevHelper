@@ -28,7 +28,12 @@ namespace NETDBHelper
             this.dbServerView1.OnViewTable += this.ShowTables;
             this.dbServerView1.OnExecutSql += this.ExecutSql;
             this.dbServerView1.OnShowViewSql += this.ShowViewSql;
+            
             this.TabControl.Selected += new TabControlEventHandler(TabControl_Selected);
+            
+            this.TSCBServer.BackColor = Color.LightGray;
+            this.TSCBServer.Enabled = false;
+            this.TSCBServer.Alignment = ToolStripItemAlignment.Right;
         }
 
         public MainFrm()
@@ -42,6 +47,11 @@ namespace NETDBHelper
         {
             tsb_Excute.Enabled = e.TabPage is UC.ViewTBData
                 ||e.TabPage is UC.SqlExcuter;
+
+            if (e.TabPage is UC.SqlExcuter)
+            {
+                this.TSCBServer.SelectedItem = (e.TabPage as UC.SqlExcuter).Server.ServerName;
+            }
         }
 
         private void CreateProcSql(DBSource dbSource, string dbName, string tableID, string table,CreateProceEnum createProcType)
@@ -116,11 +126,13 @@ namespace NETDBHelper
             //        return;
             //    }
             //}
+            
             SqlExcuter se = new SqlExcuter(source, db, sql);
             se.Text = tit;
             this.TabControl.TabPages.Add(se);
             this.TabControl.SelectedTab = se;
             tsb_Excute.Enabled = true;
+            this.TSCBServer.SelectedItem = source.ServerName;
         }
 
         protected void CreateEntity(string entityName,string s)
@@ -193,6 +205,7 @@ namespace NETDBHelper
             this.TabControl.TabPages.Add(viewTb);
             TabControl.SelectedTab = viewTb;
             tsb_Excute.Enabled = true;
+            this.TSCBServer.SelectedItem = db.ServerName;
             //viewTb.DBSource = db;
             //viewTb.DBName = dbName;
             //viewTb.SQLString = sql;
@@ -211,6 +224,11 @@ namespace NETDBHelper
                     Biz.Common.XMLHelper.Serialize(allDBs, Application.StartupPath + Resources.Resource1.DbServersFile);
                     this.dbServerView1.Bind();
                 }
+
+                if(!this.TSCBServer.Items.Contains(obj.DBSource.ServerName))
+                {
+                    this.TSCBServer.Items.Add(obj.DBSource.ServerName);
+                }
             }
         }
 
@@ -223,7 +241,11 @@ namespace NETDBHelper
 
         private void 断开对象资源管理器ToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            this.dbServerView1.DisConnectSelectDBServer();
+            var server = this.dbServerView1.DisConnectSelectDBServer();
+            if (server != null && this.TSCBServer.Items.Contains(server))
+            {
+                this.TSCBServer.Items.Remove(server);
+            }
         }
 
         private void toolStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e)

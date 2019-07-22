@@ -411,7 +411,6 @@ namespace NETDBHelper
                                 }
                                 var sql = sb1.ToString()+sb.ToString() + sb2.ToString();
 
-                                
                                 OnExecutSql(GetDBSource(selnode), GetDBName(selnode), sql);
                             }
                             break;
@@ -694,11 +693,13 @@ namespace NETDBHelper
             Bind();
         }
 
-        public void DisConnectSelectDBServer()
+        public string DisConnectSelectDBServer()
         {
             if (this.tv_DBServers.SelectedNode==null||this.tv_DBServers.SelectedNode.Level != 1)
-                return;
-            DisConnectServer(this.tv_DBServers.SelectedNode.Text);
+                return null;
+            var server = this.tv_DBServers.SelectedNode.Text;
+            DisConnectServer(server);
+            return server;
         }
 
         private void DisConnectServer(string serverName)

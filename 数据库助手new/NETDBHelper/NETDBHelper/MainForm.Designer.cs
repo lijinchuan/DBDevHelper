@@ -39,15 +39,16 @@
             this.ToolStripMenuItem_callsp = new System.Windows.Forms.ToolStripMenuItem();
             this.实体建表ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.查看日志ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.常用SQLToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.SubItemHelp = new System.Windows.Forms.ToolStripMenuItem();
             this.panel1 = new System.Windows.Forms.Panel();
             this.TabControl = new NETDBHelper.UC.MyTabControl();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.tsb_Excute = new System.Windows.Forms.ToolStripButton();
+            this.TSCBServer = new System.Windows.Forms.ToolStripComboBox();
             this.dbServerView1 = new NETDBHelper.DBServerView();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.MspPanel = new System.Windows.Forms.ToolStripStatusLabel();
-            this.常用SQLToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mainMenuBar.SuspendLayout();
             this.panel1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
@@ -120,22 +121,29 @@
             // ToolStripMenuItem_callsp
             // 
             this.ToolStripMenuItem_callsp.Name = "ToolStripMenuItem_callsp";
-            this.ToolStripMenuItem_callsp.Size = new System.Drawing.Size(180, 22);
+            this.ToolStripMenuItem_callsp.Size = new System.Drawing.Size(148, 22);
             this.ToolStripMenuItem_callsp.Text = "存储过程调用";
             this.ToolStripMenuItem_callsp.Click += new System.EventHandler(this.ToolStripMenuItem_callsp_Click);
             // 
             // 实体建表ToolStripMenuItem
             // 
             this.实体建表ToolStripMenuItem.Name = "实体建表ToolStripMenuItem";
-            this.实体建表ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.实体建表ToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
             this.实体建表ToolStripMenuItem.Text = "建表工具";
             // 
             // 查看日志ToolStripMenuItem
             // 
             this.查看日志ToolStripMenuItem.Name = "查看日志ToolStripMenuItem";
-            this.查看日志ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.查看日志ToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
             this.查看日志ToolStripMenuItem.Text = "查看日志";
             this.查看日志ToolStripMenuItem.Click += new System.EventHandler(this.查看日志ToolStripMenuItem_Click);
+            // 
+            // 常用SQLToolStripMenuItem
+            // 
+            this.常用SQLToolStripMenuItem.Name = "常用SQLToolStripMenuItem";
+            this.常用SQLToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
+            this.常用SQLToolStripMenuItem.Text = "常用SQL";
+            this.常用SQLToolStripMenuItem.Click += new System.EventHandler(this.常用SQLToolStripMenuItem_Click);
             // 
             // SubItemHelp
             // 
@@ -171,7 +179,8 @@
             // toolStrip1
             // 
             this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsb_Excute});
+            this.tsb_Excute,
+            this.TSCBServer});
             this.toolStrip1.Location = new System.Drawing.Point(0, 25);
             this.toolStrip1.Name = "toolStrip1";
             this.toolStrip1.Size = new System.Drawing.Size(830, 25);
@@ -186,6 +195,12 @@
             this.tsb_Excute.Name = "tsb_Excute";
             this.tsb_Excute.Size = new System.Drawing.Size(52, 22);
             this.tsb_Excute.Text = "执行";
+            // 
+            // TSCBServer
+            // 
+            this.TSCBServer.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.TSCBServer.Name = "TSCBServer";
+            this.TSCBServer.Size = new System.Drawing.Size(121, 25);
             // 
             // dbServerView1
             // 
@@ -214,13 +229,6 @@
             this.MspPanel.Name = "MspPanel";
             this.MspPanel.Size = new System.Drawing.Size(20, 17);
             this.MspPanel.Text = "   ";
-            // 
-            // 常用SQLToolStripMenuItem
-            // 
-            this.常用SQLToolStripMenuItem.Name = "常用SQLToolStripMenuItem";
-            this.常用SQLToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.常用SQLToolStripMenuItem.Text = "常用SQL";
-            this.常用SQLToolStripMenuItem.Click += new System.EventHandler(this.常用SQLToolStripMenuItem_Click);
             // 
             // MainFrm
             // 
@@ -271,6 +279,7 @@
         private System.Windows.Forms.ToolStripStatusLabel MspPanel;
         private System.Windows.Forms.ToolStripMenuItem 查看日志ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 常用SQLToolStripMenuItem;
+        private System.Windows.Forms.ToolStripComboBox TSCBServer;
     }
 }
 
