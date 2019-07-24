@@ -179,6 +179,12 @@
     <Compile Include="UC\EntityCodePanel.Designer.cs">
       <DependentUpon>EntityCodePanel.cs</DependentUpon>
     </Compile>
+    <Compile Include="UC\LoadingBox.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UC\LoadingBox.Designer.cs">
+      <DependentUpon>LoadingBox.cs</DependentUpon>
+    </Compile>
     <Compile Include="UC\LogViewTab.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -306,6 +312,9 @@
     <EmbeddedResource Include="UC\EntityCodePanel.resx">
       <DependentUpon>EntityCodePanel.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="UC\LoadingBox.resx">
+      <DependentUpon>LoadingBox.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="UC\LogViewTab.resx">
       <DependentUpon>LogViewTab.cs</DependentUpon>
     </EmbeddedResource>
@@ -355,6 +364,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Resources\computer_link.png" />
+    <Content Include="Resources\connect.png" />
+    <Content Include="Resources\loading2.gif" />
     <Content Include="Resources\msg.png" />
     <Content Include="Resources\tbview.png" />
     <None Include="Resources\tags_red.png" />

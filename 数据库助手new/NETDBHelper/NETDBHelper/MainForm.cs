@@ -32,7 +32,8 @@ namespace NETDBHelper
             this.TabControl.Selected += new TabControlEventHandler(TabControl_Selected);
 
             this.TSCBServer.ForeColor = Color.HotPink;
-            
+            this.TSCBServer.Visible = false;
+            this.TSCBServer.Image = Resources.Resource1.connect;
             this.TSCBServer.Alignment = ToolStripItemAlignment.Right;
         }
 
@@ -51,6 +52,11 @@ namespace NETDBHelper
             if (e.TabPage is UC.SqlExcuter)
             {
                 this.TSCBServer.Text = (e.TabPage as UC.SqlExcuter).Server.ServerName;
+                this.TSCBServer.Visible = true;
+            }
+            else
+            {
+                this.TSCBServer.Visible = false;
             }
         }
 
@@ -133,6 +139,7 @@ namespace NETDBHelper
             this.TabControl.SelectedTab = se;
             tsb_Excute.Enabled = true;
             this.TSCBServer.Text = source.ServerName;
+            this.TSCBServer.Visible = true;
         }
 
         protected void CreateEntity(string entityName,string s)
@@ -206,6 +213,7 @@ namespace NETDBHelper
             TabControl.SelectedTab = viewTb;
             tsb_Excute.Enabled = true;
             this.TSCBServer.Text = db.ServerName;
+            this.TSCBServer.Visible = true;
             //viewTb.DBSource = db;
             //viewTb.DBName = dbName;
             //viewTb.SQLString = sql;

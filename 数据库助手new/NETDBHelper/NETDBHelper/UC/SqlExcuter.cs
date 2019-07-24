@@ -8,16 +8,20 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Entity;
+using Biz.Common;
+using System.IO;
+using System.Threading;
 
 namespace NETDBHelper.UC
 {
-    public partial class SqlExcuter : TabPage
+    public partial class SqlExcuter : TabPage,IDataExport
     {
+        UC.LoadingBox loadbox = new LoadingBox();
+        bool isexecuting = false;
+        
         public SqlExcuter()
         {
             InitializeComponent();
-
-            
         }
 
         public DBSource Server
@@ -31,6 +35,8 @@ namespace NETDBHelper.UC
             get;
             set;
         }
+
+        ContextMenuStrip datastrip = null;
 
         public SqlExcuter(DBSource server,string db,string sql)
         {
@@ -47,92 +53,181 @@ namespace NETDBHelper.UC
             this.imageList1.Images.Add(Resources.Resource1.tbview);
             this.imageList1.Images.Add(Resources.Resource1.msg);
             this.tabControl1.TabPages[0].ImageIndex = 1;
+
+            datastrip = new ContextMenuStrip();
+            datastrip.Items.Add("复制内容");
+            datastrip.Items.Add("复制标题");
+            datastrip.Items.Add("复制标题+内容");
+            datastrip.Items.Add("结果另存为");
+            datastrip.ItemClicked += Datastrip_ItemClicked;
+        }
+
+        private void Datastrip_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+            if (e.ClickedItem.Text == "结果另存为")
+            {
+                Export();
+            }
+            else if(e.ClickedItem.Text == "复制内容")
+            {
+                Copy();
+            }
+            else if (e.ClickedItem.Text == "复制标题")
+            {
+                CopyTitle();
+            }
+            else if (e.ClickedItem.Text == "复制标题+内容")
+            {
+                CopyDataWithTitle();
+            }
+
+        }
+
+        private void Stop(object o)
+        {
+            try
+            {
+                var th = (Thread)o;
+                if (th.ThreadState != ThreadState.Stopped)
+                {
+                    th.Abort();
+                }
+            }
+            catch(Exception ex)
+            {
+
+            }
         }
 
         public void Execute()
         {
+            if (isexecuting)
+            {
+                return;
+            }
+            isexecuting = true;
             var seltext = this.sqlEditBox1.SelectedText;
             if (string.IsNullOrWhiteSpace(seltext))
             {
                 seltext = this.sqlEditBox1.Text;
             }
-
-            try
+            Thread exthread = new Thread(new ThreadStart(() =>
             {
-                List<TabPage> listrm = new List<TabPage>();
-                foreach(TabPage tp in tabControl1.TabPages)
+
+                try
                 {
-                    if (tp == TPInfo)
+                    List<TabPage> listrm = new List<TabPage>();
+                    foreach (TabPage tp in tabControl1.TabPages)
                     {
-                        continue;
-                    }
-                    listrm.Add(tp);
-                }
-                foreach (var tp in listrm)
-                {
-                    tabControl1.TabPages.Remove(tp);
-                }
-                DateTime now = DateTime.Now;
-                var ts = Biz.Common.Data.SQLHelper.ExecuteDataSet(Server, DB, seltext, (s, e) =>
-                 {
-                     TBInfo.Text += $"{e.Message}\r\n\r\n";
-                     if (e.Errors != null && e.Errors.Count > 0)
-                     {
-                         for (int i = 0; i < e.Errors.Count; i++)
-                         {
-                             TBInfo.Text += $"{e.Errors[i].Message}\r\n\r\n";
-                         }
-                     }
-                 });
-                TBInfo.Text += $"用时:{DateTime.Now.Subtract(now).TotalMilliseconds}ms\r\n";
-                if (ts != null && ts.Tables.Count > 0)
-                {
-                    for(int i = 0; i < ts.Tables.Count; i++)
-                    {
-                        var tb = ts.Tables[i];
-                        TabPage page = new TabPage(tb.TableName ?? "未命名表");
-                        page.ImageIndex = 0;
-                        var dgv = new DataGridView();
-                        page.Controls.Add(dgv);
-                        dgv.CellDoubleClick += (s,e)=>
+                        if (tp == TPInfo
+                            || tp.Controls.Contains(sqlEditBox1))
                         {
-                            if (dgv.CurrentCell.Value != null)
-                            {
-                                Clipboard.SetText(dgv.CurrentCell.Value.ToString());
-                                MessageBox.Show("已复制到剪贴板");
-                            }
-                        };
-                        dgv.BorderStyle = BorderStyle.None;
-                        dgv.GridColor = Color.LightBlue;
-                        dgv.Dock = DockStyle.Fill;
-                        dgv.BackgroundColor = Color.White;
-                        dgv.AllowUserToAddRows = false;
-                        dgv.ReadOnly = true;
-                        dgv.DataSource = tb;
-                        tabControl1.TabPages.Insert(i, page);
-                        if (i == 0)
-                        {
-                            tabControl1.SelectedTab = page;
+                            continue;
                         }
+                        listrm.Add(tp);
+                    }
+                    foreach (var tp in listrm)
+                    {
+                        this.Invoke(new Action(() => tabControl1.TabPages.Remove(tp)));
+                    }
+
+                    this.Invoke(new Action(() =>
+                    {
+                        loadbox.Location = new Point((this.Width - loadbox.Width) / 2, (this.Height - loadbox.Height) / 2);
+                        this.Controls.Add(loadbox);
+                        loadbox.BringToFront();
+                    }));
+
+                    DateTime now = DateTime.Now;
+                    var ts = Biz.Common.Data.SQLHelper.ExecuteDataSet(Server, DB, seltext, (s, e) =>
+                     {
+                         this.Invoke(new Action(() =>
+                         {
+                             TBInfo.Text += $"{e.Message}\r\n\r\n";
+                             if (e.Errors != null && e.Errors.Count > 0)
+                             {
+                                 for (int i = 0; i < e.Errors.Count; i++)
+                                 {
+                                     TBInfo.Text += $"{e.Errors[i].Message}\r\n\r\n";
+                                 }
+                             }
+                         }));
+                     });
+
+                    this.Invoke(new Action(() =>
+                    {
+                        TBInfo.Text += $"用时:{DateTime.Now.Subtract(now).TotalMilliseconds}ms\r\n";
+                        if (ts != null && ts.Tables.Count > 0)
+                        {
+                            int pos = 0;
+                            if (this.tabControl1.TabPages.Count > 1)
+                            {
+                                pos = 1;
+                            }
+                            for (int i = 0; i < ts.Tables.Count; i++)
+                            {
+                                var tb = ts.Tables[i];
+                                TabPage page = new TabPage(tb.TableName ?? "未命名表");
+                                page.ImageIndex = 0;
+                                var dgv = new DataGridView();
+                                page.Controls.Add(dgv);
+                                dgv.CellDoubleClick += (s, e) =>
+                                {
+                                    if (dgv.CurrentCell.Value != null)
+                                    {
+                                        Clipboard.SetText(dgv.CurrentCell.Value.ToString());
+                                        MessageBox.Show("已复制到剪贴板");
+                                    }
+                                };
+                                dgv.BorderStyle = BorderStyle.None;
+                                dgv.GridColor = Color.LightBlue;
+                                dgv.Dock = DockStyle.Fill;
+                                dgv.BackgroundColor = Color.White;
+                                dgv.AllowUserToAddRows = false;
+                                dgv.ReadOnly = true;
+                                dgv.DataSource = tb;
+                                dgv.ContextMenuStrip = this.datastrip;
+                                tabControl1.TabPages.Insert(i + pos, page);
+                                if (i == 0)
+                                {
+                                    tabControl1.SelectedTab = page;
+                                }
+                            }
+                        }
+                    }));
+                    LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<HLogEntity>("HLog", new HLogEntity
+                    {
+                        TypeName = "sql",
+                        LogTime = DateTime.Now,
+                        LogType = LogTypeEnum.sql,
+                        DB = this.DB,
+                        Sever = Server.ServerName,
+                        Info = seltext,
+                        Valid = true
+                    });
+                }
+                catch (Exception ex)
+                {
+                    this.Invoke(new Action(() =>
+                    {
+                        TBInfo.Text += ex.Message + "\r\n";
+                        tabControl1.SelectedTab = TPInfo;
+                    }));
+                }
+                finally
+                {
+                    isexecuting = false;
+                    this.loadbox.OnStop -= Stop;
+                    if (this.Controls.Contains(loadbox))
+                    {
+                        this.Invoke(new Action(() => this.Controls.Remove(loadbox)));
                     }
                 }
-                LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<HLogEntity>("HLog", new HLogEntity
-                {
-                    TypeName = "sql",
-                    LogTime = DateTime.Now,
-                    LogType = LogTypeEnum.sql,
-                    DB = this.DB,
-                    Sever = Server.ServerName,
-                    Info = seltext,
-                    Valid = true
-                });
-            }
-            catch (Exception ex)
-            {
-                TBInfo.Text += ex.Message+"\r\n";
-                tabControl1.SelectedTab = TPInfo;
-            }
-
+            
+            }));
+            this.loadbox.tag = exthread;
+            this.loadbox.OnStop += Stop;
+            exthread.Start();
         }
 
         private void 清空ToolStripMenuItem_Click(object sender, EventArgs e)
@@ -145,10 +240,177 @@ namespace NETDBHelper.UC
             if (this.tabControl1.Dock == DockStyle.Fill)
             {
                 this.tabControl1.Dock = DockStyle.Bottom;
+                if (this.tabControl1.TabPages[0].Controls.Contains(sqlEditBox1))
+                {
+                    this.tabControl1.TabPages[0].Controls.Remove(sqlEditBox1);
+                    this.tabControl1.TabPages.RemoveAt(0);
+                    this.Controls.Add(sqlEditBox1);
+                    sqlEditBox1.Dock = DockStyle.None;
+                    sqlEditBox1.Width = this.tabControl1.Width;
+                    sqlEditBox1.Height = tabControl1.Location.Y - sqlEditBox1.Location.Y - 5;
+                    sqlEditBox1.Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right | AnchorStyles.Bottom;
+                }
             }
             else
             {
                 this.tabControl1.Dock = DockStyle.Fill;
+                var tabpage = new TabPage();
+                tabpage.Text = "sql";
+                this.Controls.Remove(this.sqlEditBox1);
+                tabpage.Controls.Add(sqlEditBox1);
+                this.sqlEditBox1.Dock = DockStyle.Fill;
+                this.tabControl1.TabPages.Insert(0, tabpage);
+            }
+        }
+
+        public void Export()
+        {
+            foreach (var ctl in tabControl1.SelectedTab.Controls)
+            {
+                if(ctl is DataGridView)
+                {
+                    var gv = (DataGridView)ctl;
+                    var dir = Application.StartupPath + "\\temp\\";
+                    if (gv.DataSource != null && gv.DataSource is DataTable)
+                    {
+                        if (!Directory.Exists(dir))
+                        {
+                            Directory.CreateDirectory(dir);
+                        }
+                        SubForm.InputStringDlg dlg = new SubForm.InputStringDlg("导出文件名");
+                        if (dlg.ShowDialog() == DialogResult.OK)
+                        {
+                            using (StreamWriter fs = new StreamWriter($"{dir}\\{dlg.InputString}.csv", false, Encoding.UTF8))
+                            {
+                                var table = (DataTable)gv.DataSource;
+                                if (table != null)
+                                {
+                                    var str = table.ToCsv();
+                                    if (!string.IsNullOrWhiteSpace(str))
+                                    {
+                                        fs.Write(str);
+                                    }
+                                }
+                            }
+                            System.Diagnostics.Process.Start("explorer.exe", dir);
+                        }
+                        break;
+
+                    }
+                }
+            }
+        }
+
+        public void Copy()
+        {
+            foreach (var ctl in tabControl1.SelectedTab.Controls)
+            {
+                if (ctl is DataGridView)
+                {
+                    var view = (DataGridView)ctl;
+                    if (view.SelectedCells.Count == 0)
+                    {
+                        return;
+                    }
+                    StringBuilder sb = new StringBuilder();
+
+                    List<DataGridViewCell> list = new List<DataGridViewCell>();
+                    foreach(DataGridViewCell cell in view.SelectedCells)
+                    {
+                        list.Add(cell);
+                    }
+                    foreach (var row in list.GroupBy(p => p.RowIndex).OrderBy(p=>p.Key))
+                    {
+                        foreach (var cell in row.OrderBy(p=>p.ColumnIndex))
+                        {
+                            if (cell.Value != null)
+                            {
+                                sb.Append(cell.Value.ToString());
+                            }
+                            sb.Append("\t");
+                        }
+                        sb.Remove(sb.Length - 1, 1);
+                        sb.AppendLine();
+                    }
+                    Clipboard.SetText(sb.ToString().Trim('\t'));
+                    break;
+                }
+            }
+        }
+
+        public void CopyTitle()
+        {
+            foreach (var ctl in tabControl1.SelectedTab.Controls)
+            {
+                if (ctl is DataGridView)
+                {
+                    var view = (DataGridView)ctl;
+                    if (view.SelectedCells.Count == 0)
+                    {
+                        return;
+                    }
+                    StringBuilder sb = new StringBuilder();
+                    List<DataGridViewCell> list = new List<DataGridViewCell>();
+                    foreach (DataGridViewCell cell in view.SelectedCells)
+                    {
+                        list.Add(cell);
+                    }
+
+                    foreach (DataGridViewCell cell in list.GroupBy(p => p.RowIndex).First().OrderBy(p=>p.ColumnIndex))
+                    {
+                        sb.Append(view.Columns[cell.ColumnIndex].Name.ToString());
+                        sb.Append("\t");
+                    }
+                    sb.Remove(sb.Length - 1, 1);
+                    Clipboard.SetText(sb.ToString());
+                    break;
+                }
+            }
+        }
+
+        public void CopyDataWithTitle()
+        {
+            foreach (var ctl in tabControl1.SelectedTab.Controls)
+            {
+                if (ctl is DataGridView)
+                {
+                    var view = (DataGridView)ctl;
+                    if (view.SelectedCells.Count == 0)
+                    {
+                        return;
+                    }
+                    StringBuilder sb = new StringBuilder();
+
+                    List<DataGridViewCell> list = new List<DataGridViewCell>();
+                    foreach (DataGridViewCell cell in view.SelectedCells)
+                    {
+                        list.Add(cell);
+                    }
+
+                    foreach (DataGridViewCell cell in list.GroupBy(p=>p.RowIndex).First().OrderBy(p=>p.ColumnIndex))
+                    {
+                        sb.Append(view.Columns[cell.ColumnIndex].Name.ToString());
+                        sb.Append("\t");
+                    }
+                    sb.Remove(sb.Length - 1, 1);
+                    sb.AppendLine();
+                    foreach (var row in list.GroupBy(p => p.RowIndex).OrderBy(p=>p.Key))
+                    {
+                        foreach (var cell in row.OrderBy(p=>p.ColumnIndex))
+                        {
+                            if (cell.Value != null)
+                            {
+                                sb.Append(cell.Value.ToString());
+                            }
+                            sb.Append("\t");
+                        }
+                        sb.Remove(sb.Length - 1, 1);
+                        sb.AppendLine();
+                    }
+
+                    Clipboard.SetText(sb.ToString());
+                    break;
+                }
             }
         }
     }

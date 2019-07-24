@@ -51,6 +51,7 @@
             this.sqlEditBox1.Name = "sqlEditBox1";
             this.sqlEditBox1.Size = new System.Drawing.Size(581, 176);
             this.sqlEditBox1.TabIndex = 0;
+            
             // 
             // tabControl1
             // 

@@ -154,6 +154,7 @@ namespace Biz.Common.Data
             using (var conn = new SqlConnection(GetConnstringFromDBSource(dbSource, connDB)))
             {
                 conn.InfoMessage += onmsg;
+                
                 using (SqlCommand cmd = new SqlCommand())
                 {
                     cmd.Connection = conn;
