@@ -1686,6 +1686,9 @@ background-color: #ffffff;
                 sb.Append("</head>");
                 sb.Append(@"<body>
                   <script>
+                      function k(){
+                          if (event.keyCode == 13) s();
+                      }
                       function s(){
                        var w=document.getElementById('w').value
                        if(/^\s*$/.test(w)){
@@ -1708,7 +1711,7 @@ background-color: #ffffff;
                        }
                    }
                   </script>");
-                sb.Append("<input id='w' type='text' value=''/><input type='button' style='font-size:11px;line-height:21px;height: 21px;' value='搜索' onclick='s()'/>");
+                sb.Append("<input id='w' type='text' style='height:23px; line-height:23px;' onkeypress='k()' value=''/><input type='button' style='font-size:12px; height:23px; line-height:18px;' value='搜索'  onclick='s()'/>");
                 sb.Append("<p/>");
                 sb.Append("<table>");
                 sb.Append("<tr><th>序号</th><th>表名</th><th>描述</th></tr>");

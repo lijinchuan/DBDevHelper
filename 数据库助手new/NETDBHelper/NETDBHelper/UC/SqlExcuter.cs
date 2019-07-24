@@ -170,13 +170,22 @@ namespace NETDBHelper.UC
                                 TabPage page = new TabPage(tb.TableName ?? "未命名表");
                                 page.ImageIndex = 0;
                                 var dgv = new DataGridView();
+                                dgv.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
+                                dgv.AllowUserToResizeRows = true;
                                 page.Controls.Add(dgv);
                                 dgv.CellDoubleClick += (s, e) =>
                                 {
-                                    if (dgv.CurrentCell.Value != null)
+                                    if (dgv.CurrentCell.Value != null&&dgv.CurrentCell.ValueType==typeof(string))
                                     {
-                                        Clipboard.SetText(dgv.CurrentCell.Value.ToString());
-                                        MessageBox.Show("已复制到剪贴板");
+                                        var cell = dgv.CurrentCell;
+                                        if (cell.Style.WrapMode == DataGridViewTriState.True)
+                                        {
+                                            cell.Style.WrapMode = DataGridViewTriState.False;
+                                        }
+                                        else
+                                        {
+                                            cell.Style.WrapMode = DataGridViewTriState.True;
+                                        }
                                     }
                                 };
                                 dgv.BorderStyle = BorderStyle.None;

@@ -30,10 +30,28 @@ namespace NETDBHelper.UC
             this.GVLog.ContextMenuStrip = new ContextMenuStrip();
             this.GVLog.ContextMenuStrip.Items.Add("复制");
             this.GVLog.ContextMenuStrip.Items.Add("备注");
+            //this.GVLog.ContextMenuStrip.Items.Add("自动换行");
             this.GVLog.ContextMenuStrip.ItemClicked += ContextMenuStrip_ItemClicked;
-
+            this.GVLog.CellDoubleClick += GVLog_CellDoubleClick;
             this.GVLog.BorderStyle = BorderStyle.None;
             this.GVLog.GridColor = Color.LightBlue;
+
+            this.GVLog.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.DisplayedCells;
+            this.GVLog.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
+            this.GVLog.AllowUserToResizeRows = true;
+        }
+
+        private void GVLog_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        {
+            var cell = GVLog.Rows[e.RowIndex].Cells[e.ColumnIndex];
+            if (cell.Style.WrapMode == DataGridViewTriState.True)
+            {
+                cell.Style.WrapMode = DataGridViewTriState.False;
+            }
+            else
+            {
+                cell.Style.WrapMode = DataGridViewTriState.True;
+            }
         }
 
         private void BindingNavigatorDeleteItem_Click(object sender, EventArgs e)
@@ -71,18 +89,37 @@ namespace NETDBHelper.UC
                 if (rows.Count > 0)
                 {
                     SubForm.InputStringDlg dlg = new SubForm.InputStringDlg("备注");
-                    
-                    if (dlg.ShowDialog()==DialogResult.OK)
+
+                    if (dlg.ShowDialog() == DialogResult.OK)
                     {
                         var logid = (int)rows[0].Cells["编号"].Value;
                         var log = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<Entity.HLogEntity>("HLog", logid);
                         if (log != null)
                         {
-                            log.Info = dlg.InputString;
+                            log.TypeName = dlg.InputString;
                             LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Update<HLogEntity>("HLog", log);
                             BindData();
                         }
                     }
+                }
+            }
+            else if (e.ClickedItem.Text == "自动换行")
+            {
+                if (e.ClickedItem.Tag == null)
+                {
+                    e.ClickedItem.Tag = 1;
+                    
+                    this.GVLog.RowsDefaultCellStyle.WrapMode = DataGridViewTriState.True;
+                    //Dgv.Columns[0].CellTemplate.Style.WrapMode = true;
+                    e.ClickedItem.Image = Resources.Resource1.bullet_tick;
+                }
+                else
+                {
+                    e.ClickedItem.Tag = null;
+
+                    this.GVLog.RowsDefaultCellStyle.WrapMode = DataGridViewTriState.False;
+                    //Dgv.Columns[0].CellTemplate.Style.WrapMode = true;
+                    e.ClickedItem.Image = null;
                 }
             }
         }
@@ -173,8 +210,10 @@ namespace NETDBHelper.UC
                     对象名称 =p.TypeName,
                     信息=p.Info
                 }).ToList();
+            
             this.Total = (int)total;
             this.GVLog.DataSource = logs;
+
             var totalpage = (int)Math.Ceiling(total * 1.0 / pageSize);
             this.bindingNavigatorCountItem.Text = totalpage.ToString();
             this.bindingNavigatorPositionItem.Text = PageIndex.ToString();
