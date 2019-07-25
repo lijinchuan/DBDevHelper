@@ -47,10 +47,14 @@ namespace NETDBHelper.UC
             if (cell.Style.WrapMode == DataGridViewTriState.True)
             {
                 cell.Style.WrapMode = DataGridViewTriState.False;
+                GVLog.EndEdit();
             }
             else
             {
                 cell.Style.WrapMode = DataGridViewTriState.True;
+                GVLog.ReadOnly = false;
+                cell.ReadOnly = false;
+                GVLog.BeginEdit(true);
             }
         }
 
@@ -111,6 +115,7 @@ namespace NETDBHelper.UC
                     
                     this.GVLog.RowsDefaultCellStyle.WrapMode = DataGridViewTriState.True;
                     //Dgv.Columns[0].CellTemplate.Style.WrapMode = true;
+                    GVLog.ReadOnly = false;
                     e.ClickedItem.Image = Resources.Resource1.bullet_tick;
                 }
                 else
@@ -213,7 +218,6 @@ namespace NETDBHelper.UC
             
             this.Total = (int)total;
             this.GVLog.DataSource = logs;
-
             var totalpage = (int)Math.Ceiling(total * 1.0 / pageSize);
             this.bindingNavigatorCountItem.Text = totalpage.ToString();
             this.bindingNavigatorPositionItem.Text = PageIndex.ToString();

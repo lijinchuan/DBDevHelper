@@ -178,13 +178,18 @@ namespace NETDBHelper.UC
                                     if (dgv.CurrentCell.Value != null&&dgv.CurrentCell.ValueType==typeof(string))
                                     {
                                         var cell = dgv.CurrentCell;
+                                        
                                         if (cell.Style.WrapMode == DataGridViewTriState.True)
                                         {
                                             cell.Style.WrapMode = DataGridViewTriState.False;
+                                            dgv.EndEdit();
                                         }
                                         else
                                         {
                                             cell.Style.WrapMode = DataGridViewTriState.True;
+                                            cell.ReadOnly = false;
+                                            dgv.ReadOnly = false;
+                                            dgv.BeginEdit(true);
                                         }
                                     }
                                 };

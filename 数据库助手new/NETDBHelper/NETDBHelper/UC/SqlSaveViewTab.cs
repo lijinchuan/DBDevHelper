@@ -60,10 +60,14 @@ namespace NETDBHelper.UC
             if(cell.Style.WrapMode == DataGridViewTriState.True)
             {
                 cell.Style.WrapMode = DataGridViewTriState.False;
+                GVLog.EndEdit();
             }
             else
             {
                 cell.Style.WrapMode = DataGridViewTriState.True;
+                GVLog.ReadOnly = false;
+                cell.ReadOnly = false;
+                GVLog.BeginEdit(true);
             }
         }
 
