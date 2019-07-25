@@ -46,7 +46,7 @@ namespace NETDBHelper.UC
             this.DB = db;
             this.sqlEditBox1.DBName = db;
             this.sqlEditBox1.Text = sql;
-
+            
             this.TBInfo.ScrollBars = ScrollBars.Both;
             this.TBInfo.ContextMenuStrip = contextMenuStrip1;
 
@@ -194,6 +194,10 @@ namespace NETDBHelper.UC
                                     }
                                 };
                                 dgv.BorderStyle = BorderStyle.None;
+                                dgv.DataError += (s, e) =>
+                                {
+                                    e.Cancel = true;
+                                };
                                 dgv.GridColor = Color.LightBlue;
                                 dgv.Dock = DockStyle.Fill;
                                 dgv.BackgroundColor = Color.White;
