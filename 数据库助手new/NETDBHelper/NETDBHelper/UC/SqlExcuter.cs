@@ -59,6 +59,7 @@ namespace NETDBHelper.UC
             datastrip.Items.Add("复制标题");
             datastrip.Items.Add("复制标题+内容");
             datastrip.Items.Add("结果另存为");
+            datastrip.Items.Add("统计条数");
             datastrip.ItemClicked += Datastrip_ItemClicked;
         }
 
@@ -68,7 +69,7 @@ namespace NETDBHelper.UC
             {
                 Export();
             }
-            else if(e.ClickedItem.Text == "复制内容")
+            else if (e.ClickedItem.Text == "复制内容")
             {
                 Copy();
             }
@@ -79,6 +80,19 @@ namespace NETDBHelper.UC
             else if (e.ClickedItem.Text == "复制标题+内容")
             {
                 CopyDataWithTitle();
+            }
+            else if (e.ClickedItem.Text == "统计条数")
+            {
+                foreach (var ctl in tabControl1.SelectedTab.Controls)
+                {
+                    if (ctl is DataGridView)
+                    {
+                        var view = (DataGridView)ctl;
+                        this.datastrip.Visible = false;
+                        Util.SendMsg(this, "记录数:" + view.RowCount + "条");
+                        //MessageBox.Show("记录数:" + view.RowCount + "条");
+                    }
+                }
             }
 
         }
@@ -157,62 +171,66 @@ namespace NETDBHelper.UC
                     this.Invoke(new Action(() =>
                     {
                         TBInfo.Text += $"用时:{DateTime.Now.Subtract(now).TotalMilliseconds}ms\r\n";
-                        if (ts != null && ts.Tables.Count > 0)
+                    }));
+                    if (ts != null && ts.Tables.Count > 0)
+                    {
+                        int pos = 0;
+                        if (this.tabControl1.TabPages.Count > 1)
                         {
-                            int pos = 0;
-                            if (this.tabControl1.TabPages.Count > 1)
+                            pos = 1;
+                        }
+                        for (int i = 0; i < ts.Tables.Count; i++)
+                        {
+                            var tb = ts.Tables[i];
+                            TabPage page = new TabPage(tb.TableName ?? "未命名表");
+                            page.ImageIndex = 0;
+                            var dgv = new DataGridView();
+                            dgv.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.DisplayedCells;
+                            dgv.AllowUserToResizeRows = true;
+                            page.Controls.Add(dgv);
+                            dgv.CellDoubleClick += (s, e) =>
                             {
-                                pos = 1;
-                            }
-                            for (int i = 0; i < ts.Tables.Count; i++)
-                            {
-                                var tb = ts.Tables[i];
-                                TabPage page = new TabPage(tb.TableName ?? "未命名表");
-                                page.ImageIndex = 0;
-                                var dgv = new DataGridView();
-                                dgv.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
-                                dgv.AllowUserToResizeRows = true;
-                                page.Controls.Add(dgv);
-                                dgv.CellDoubleClick += (s, e) =>
+                                if (dgv.CurrentCell.Value != null && dgv.CurrentCell.ValueType == typeof(string))
                                 {
-                                    if (dgv.CurrentCell.Value != null&&dgv.CurrentCell.ValueType==typeof(string))
+                                    var cell = dgv.CurrentCell;
+
+                                    if (cell.Style.WrapMode == DataGridViewTriState.True)
                                     {
-                                        var cell = dgv.CurrentCell;
-                                        
-                                        if (cell.Style.WrapMode == DataGridViewTriState.True)
-                                        {
-                                            cell.Style.WrapMode = DataGridViewTriState.False;
-                                            dgv.EndEdit();
-                                        }
-                                        else
-                                        {
-                                            cell.Style.WrapMode = DataGridViewTriState.True;
-                                            cell.ReadOnly = false;
-                                            dgv.ReadOnly = false;
-                                            dgv.BeginEdit(true);
-                                        }
+                                        cell.Style.WrapMode = DataGridViewTriState.False;
+                                        dgv.EndEdit();
                                     }
-                                };
-                                dgv.BorderStyle = BorderStyle.None;
-                                dgv.DataError += (s, e) =>
-                                {
-                                    e.Cancel = true;
-                                };
-                                dgv.GridColor = Color.LightBlue;
-                                dgv.Dock = DockStyle.Fill;
-                                dgv.BackgroundColor = Color.White;
-                                dgv.AllowUserToAddRows = false;
-                                dgv.ReadOnly = true;
-                                dgv.DataSource = tb;
-                                dgv.ContextMenuStrip = this.datastrip;
+                                    else
+                                    {
+                                        cell.Style.WrapMode = DataGridViewTriState.True;
+                                        cell.ReadOnly = false;
+                                        dgv.ReadOnly = false;
+                                        dgv.BeginEdit(true);
+                                    }
+                                }
+                            };
+                            dgv.BorderStyle = BorderStyle.None;
+                            dgv.DataError += (s, e) =>
+                            {
+                                e.Cancel = true;
+                            };
+                            dgv.GridColor = Color.LightBlue;
+                            dgv.Dock = DockStyle.Fill;
+                            dgv.BackgroundColor = Color.White;
+                            dgv.AllowUserToAddRows = false;
+                            dgv.ReadOnly = true;
+                            dgv.DataSource = tb;
+                            dgv.ContextMenuStrip = this.datastrip;
+
+                            this.Invoke(new Action(() =>
+                            {
                                 tabControl1.TabPages.Insert(i + pos, page);
                                 if (i == 0)
                                 {
                                     tabControl1.SelectedTab = page;
                                 }
-                            }
+                            }));
                         }
-                    }));
+                    }
                     LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<HLogEntity>("HLog", new HLogEntity
                     {
                         TypeName = "sql",

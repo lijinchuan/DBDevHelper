@@ -172,15 +172,15 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.GVLog.BackgroundColor = System.Drawing.SystemColors.ButtonFace;
             this.GVLog.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.GVLog.Location = new System.Drawing.Point(3, 66);
+            this.GVLog.Location = new System.Drawing.Point(3, 40);
             this.GVLog.Name = "GVLog";
             this.GVLog.RowTemplate.Height = 23;
-            this.GVLog.Size = new System.Drawing.Size(679, 236);
+            this.GVLog.Size = new System.Drawing.Size(679, 262);
             this.GVLog.TabIndex = 3;
             // 
             // BtnSearch
             // 
-            this.BtnSearch.Location = new System.Drawing.Point(168, 38);
+            this.BtnSearch.Location = new System.Drawing.Point(168, 7);
             this.BtnSearch.Name = "BtnSearch";
             this.BtnSearch.Size = new System.Drawing.Size(51, 23);
             this.BtnSearch.TabIndex = 4;
@@ -190,7 +190,7 @@
             // 
             // TBWord
             // 
-            this.TBWord.Location = new System.Drawing.Point(3, 39);
+            this.TBWord.Location = new System.Drawing.Point(3, 8);
             this.TBWord.Name = "TBWord";
             this.TBWord.Size = new System.Drawing.Size(159, 21);
             this.TBWord.TabIndex = 5;

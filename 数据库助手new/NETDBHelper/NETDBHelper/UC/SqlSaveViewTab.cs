@@ -11,7 +11,7 @@ using LJC.FrameWorkV3.Data.EntityDataBase;
 
 namespace NETDBHelper.UC
 {
-    public partial class SqlSaveViewTab : TabPage//UserControl
+    public partial class SqlSaveViewTab : TabPage
     {
         int pageSize = 20;
 
@@ -31,7 +31,7 @@ namespace NETDBHelper.UC
         public SqlSaveViewTab()
         {
             InitializeComponent();
-            this.GVLog.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
+            this.GVLog.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.DisplayedCells;
             PageIndex = 1;
             this.bindingNavigatorMoveLastItem.Click += BindingNavigatorMoveLastItem_Click;
             this.bindingNavigatorMoveNextItem.Click += BindingNavigatorMoveNextItem_Click;

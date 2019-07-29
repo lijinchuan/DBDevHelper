@@ -205,7 +205,7 @@
             // 
             // BeginDate
             // 
-            this.BeginDate.Location = new System.Drawing.Point(3, 3);
+            this.BeginDate.Location = new System.Drawing.Point(3, 4);
             this.BeginDate.Name = "BeginDate";
             this.BeginDate.Size = new System.Drawing.Size(112, 21);
             this.BeginDate.TabIndex = 4;

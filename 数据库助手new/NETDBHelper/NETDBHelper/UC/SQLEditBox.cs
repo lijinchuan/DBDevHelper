@@ -40,6 +40,7 @@ namespace NETDBHelper.UC
             dic.Add("update", Color.Blue);
             dic.Add("insert", Color.Blue);
             dic.Add("into", Color.Blue);
+            dic.Add("values", Color.Blue);
             dic.Add("where", Color.Blue);
             dic.Add("distinct", Color.Blue);
             dic.Add("top", Color.Blue);
@@ -54,7 +55,7 @@ namespace NETDBHelper.UC
             dic.Add("and", Color.Blue);
             dic.Add("or", Color.Blue);
             dic.Add("not", Color.Blue);
-            dic.Add("null", Color.Blue);
+            dic.Add("null", Color.Gray);
             dic.Add("isnull", Color.Red);
             dic.Add("getdate", Color.Red);
             dic.Add("year", Color.Red);
@@ -87,6 +88,8 @@ namespace NETDBHelper.UC
             dic.Add("output", Color.Blue);
             dic.Add("option", Color.Blue);
             dic.Add("recompile", Color.Blue);
+            dic.Add("commit", Color.Blue);
+            dic.Add("nocount", Color.Blue);
 
             dic.Add("count", Color.Red);
             dic.Add(",", Color.Gray);

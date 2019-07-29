@@ -20,7 +20,7 @@ namespace NETDBHelper.UC
         public LogViewTab()
         {
             InitializeComponent();
-            this.GVLog.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
+            this.GVLog.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.DisplayedCells;
             PageIndex = 1;
             this.bindingNavigatorMoveLastItem.Click += BindingNavigatorMoveLastItem_Click;
             this.bindingNavigatorMoveNextItem.Click += BindingNavigatorMoveNextItem_Click;
