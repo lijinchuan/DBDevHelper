@@ -268,17 +268,17 @@ namespace NETDBHelper.UC
                 int oldSelectLen = this.RichText.SelectionLength;
 
                 int totalIndex = this.RichText.GetCharIndexFromPosition(new Point(0, 0));
-                if (oldStart < totalIndex)
-                {
-                    oldStart = totalIndex + RichText.Lines[line1].Length+1;
-                    oldSelectLen = 0;
-                }
-                if (oldStart > this.RichText.GetFirstCharIndexFromLine(line2-1)+this.RichText.Lines[line2-1].Length)
-                {
-                    oldStart = this.RichText.GetFirstCharIndexFromLine(line2-1);
-                    oldSelectLen = 0;
-                }
-   
+                //if (oldStart < totalIndex)
+                //{
+                //    oldStart = totalIndex + RichText.Lines[line1].Length + 1;
+                //    oldSelectLen = 0;
+                //}
+                //if (oldStart > this.RichText.GetFirstCharIndexFromLine(line2 - 1) + this.RichText.Lines[line2 - 1].Length)
+                //{
+                //    oldStart = this.RichText.GetFirstCharIndexFromLine(line2 - 1);
+                //    oldSelectLen = 0;
+                //}
+
                 DataTable tb = Biz.Common.Data.DataHelper.CreateFatTable("pos", "len", "color");
                 
                 var linesLen = this.RichText.Lines.Length;

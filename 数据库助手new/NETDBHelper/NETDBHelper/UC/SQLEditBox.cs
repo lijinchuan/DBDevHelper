@@ -92,6 +92,13 @@ namespace NETDBHelper.UC
             dic.Add("nocount", Color.Blue);
 
             dic.Add("count", Color.Red);
+            dic.Add("sum", Color.Red);
+            dic.Add("max", Color.Red);
+            dic.Add("min", Color.Red);
+            dic.Add("avg", Color.Red);
+            dic.Add("exists", Color.Red);
+            dic.Add("having", Color.Red);
+            dic.Add("mid", Color.Red);
             dic.Add(",", Color.Gray);
             dic.Add("[", Color.Gray);
             dic.Add("]", Color.Gray);
@@ -101,6 +108,7 @@ namespace NETDBHelper.UC
             dic.Add("right", Color.Red);
             dic.Add("stuff", Color.Red);
             dic.Add("len", Color.Red);
+            dic.Add("round", Color.Red);
             dic.Add("difference", Color.Red);
             dic.Add("soundex", Color.Red);
             dic.Add("lower", Color.Red);
