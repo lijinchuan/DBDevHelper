@@ -192,9 +192,25 @@ namespace NETDBHelper.UC
 
         void RichText_VScroll(object sender, EventArgs e)
         {
+            if (RichText.SelectionLength == 0)
+            {
+                var currline = RichText.GetLineFromCharIndex(RichText.SelectionStart);
+
+                if (currline > CurrentClientScreentEndLine && currline + 1 != RichText.Lines.Length)
+                {
+                    RichText.SelectionStart = RichText.GetFirstCharIndexFromLine(CurrentClientScreentEndLine);
+                }
+                else if (currline < CurrentClientScreenStartLine)
+                {
+                    RichText.SelectionStart = RichText.GetFirstCharIndexFromLine(CurrentClientScreenStartLine);
+                }
+            }
             _timer.SetTimeOutCallBack(() =>
                 {
-                    this.Invoke(new Action<bool>(MarkKeyWords),true);
+                    this.Invoke(new Action<bool>(MarkKeyWords), true);
+                    this.Invoke(new Action(() => {
+                        
+                    }));
                 });
         }
 

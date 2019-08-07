@@ -43,7 +43,7 @@ namespace NETDBHelper.UC
             this.GVLog.ContextMenuStrip = new ContextMenuStrip();
             this.GVLog.ContextMenuStrip.Items.Add("复制");
             this.GVLog.ContextMenuStrip.Items.Add("备注");
-            //this.GVLog.ContextMenuStrip.Items.Add("自动换行");
+            this.GVLog.ContextMenuStrip.Items.Add("查看文本");
             this.GVLog.ContextMenuStrip.ItemClicked += ContextMenuStrip_ItemClicked;
 
             this.GVLog.BorderStyle = BorderStyle.None;
@@ -120,26 +120,17 @@ namespace NETDBHelper.UC
                     }
                 }
             }
-            else if (e.ClickedItem.Text == "自动换行")
+            else if (e.ClickedItem.Text == "查看文本")
             {
-                if (this.GVLog.Columns.Count > 0)
+                var cells = GVLog.SelectedCells;
+                if (cells.Count > 0)
                 {
-                    if (e.ClickedItem.Tag == null)
+                    List<string> list = new List<string>();
+                    foreach (DataGridViewCell cell in cells)
                     {
-                        e.ClickedItem.Tag = 1;
-
-                        this.GVLog.RowsDefaultCellStyle.WrapMode = DataGridViewTriState.True;
-                        //this.GVLog.Columns[GVLog.Columns.Count - 1].CellTemplate.Style.WrapMode = DataGridViewTriState.True;
-                        e.ClickedItem.Image = Resources.Resource1.bullet_tick;
+                        list.Add(cell.Value?.ToString());
                     }
-                    else
-                    {
-                        e.ClickedItem.Tag = null;
-
-                        this.GVLog.RowsDefaultCellStyle.WrapMode = DataGridViewTriState.False;
-                        //this.GVLog.Columns[GVLog.Columns.Count - 1].CellTemplate.Style.WrapMode = DataGridViewTriState.False;
-                        e.ClickedItem.Image = null;
-                    }
+                    new SubForm.TextBoxWin("查看文本", string.Join("\t", list)).ShowDialog();
                 }
             }
         }

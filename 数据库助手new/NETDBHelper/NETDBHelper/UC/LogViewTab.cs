@@ -32,7 +32,7 @@ namespace NETDBHelper.UC
             this.GVLog.ContextMenuStrip = new ContextMenuStrip();
             this.GVLog.ContextMenuStrip.Items.Add("复制");
             this.GVLog.ContextMenuStrip.Items.Add("备注");
-            //this.GVLog.ContextMenuStrip.Items.Add("自动换行");
+            this.GVLog.ContextMenuStrip.Items.Add("查看文本");
             this.GVLog.ContextMenuStrip.ItemClicked += ContextMenuStrip_ItemClicked;
             this.GVLog.CellDoubleClick += GVLog_CellDoubleClick;
             this.GVLog.BorderStyle = BorderStyle.None;
@@ -94,6 +94,7 @@ namespace NETDBHelper.UC
             if (cell.Style.WrapMode == DataGridViewTriState.True)
             {
                 cell.Style.WrapMode = DataGridViewTriState.False;
+                cell.ReadOnly = true;
                 GVLog.EndEdit();
             }
             else
@@ -154,24 +155,18 @@ namespace NETDBHelper.UC
                     }
                 }
             }
-            else if (e.ClickedItem.Text == "自动换行")
+            else if (e.ClickedItem.Text == "查看文本")
             {
-                if (e.ClickedItem.Tag == null)
+                var cells = GVLog.SelectedCells;
+                if (cells.Count > 0)
                 {
-                    e.ClickedItem.Tag = 1;
-                    
-                    this.GVLog.RowsDefaultCellStyle.WrapMode = DataGridViewTriState.True;
-                    //Dgv.Columns[0].CellTemplate.Style.WrapMode = true;
-                    GVLog.ReadOnly = false;
-                    e.ClickedItem.Image = Resources.Resource1.bullet_tick;
-                }
-                else
-                {
-                    e.ClickedItem.Tag = null;
-
-                    this.GVLog.RowsDefaultCellStyle.WrapMode = DataGridViewTriState.False;
-                    //Dgv.Columns[0].CellTemplate.Style.WrapMode = true;
-                    e.ClickedItem.Image = null;
+                    List<string> list = new List<string>();
+                    foreach (DataGridViewCell cell in cells)
+                    {
+                        list.Add(cell.Value?.ToString());
+                    }
+                    SubForm.TextBoxWin win = new SubForm.TextBoxWin("", string.Join("\t", list));
+                    win.ShowDialog();
                 }
             }
         }

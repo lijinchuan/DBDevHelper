@@ -11,6 +11,8 @@ using Entity;
 using Biz.Common;
 using System.IO;
 using System.Threading;
+using NPOI.SS.UserModel;
+using NPOI.HSSF.UserModel;
 
 namespace NETDBHelper.UC
 {
@@ -56,22 +58,35 @@ namespace NETDBHelper.UC
 
             datastrip = new ContextMenuStrip();
             datastrip.Items.Add("复制内容");
+            datastrip.Items.Add("查看文本");
             datastrip.Items.Add("复制标题");
             datastrip.Items.Add("复制标题+内容");
-            datastrip.Items.Add("结果另存为");
             datastrip.Items.Add("统计条数");
+            datastrip.Items.Add("选择这一列");
+            datastrip.Items.Add("-------");
+            datastrip.Items.Add("表重命名");
+            datastrip.Items.Add("导出表格数据");
+            datastrip.Items.Add("导出全部表格数据");
             datastrip.ItemClicked += Datastrip_ItemClicked;
         }
 
         private void Datastrip_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
         {
-            if (e.ClickedItem.Text == "结果另存为")
+            if (e.ClickedItem.Text == "导出表格数据")
             {
                 Export();
+            }
+            else if (e.ClickedItem.Text == "导出全部表格数据")
+            {
+                MExport();
             }
             else if (e.ClickedItem.Text == "复制内容")
             {
                 Copy();
+            }
+            else if (e.ClickedItem.Text == "查看文本")
+            {
+                ViewText();
             }
             else if (e.ClickedItem.Text == "复制标题")
             {
@@ -80,6 +95,14 @@ namespace NETDBHelper.UC
             else if (e.ClickedItem.Text == "复制标题+内容")
             {
                 CopyDataWithTitle();
+            }
+            else if (e.ClickedItem.Text == "选择这一列")
+            {
+                SelectCurrColumn();
+            }
+            else if (e.ClickedItem.Text == "表重命名")
+            {
+                RenameViewName();
             }
             else if (e.ClickedItem.Text == "统计条数")
             {
@@ -184,6 +207,7 @@ namespace NETDBHelper.UC
                             var tb = ts.Tables[i];
                             TabPage page = new TabPage(tb.TableName ?? "未命名表");
                             page.ImageIndex = 0;
+                            
                             var dgv = new DataGridView();
                             dgv.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.DisplayedCells;
                             dgv.AllowUserToResizeRows = true;
@@ -208,7 +232,7 @@ namespace NETDBHelper.UC
                                     }
                                 }
                             };
-                            dgv.BorderStyle = BorderStyle.None;
+                            dgv.BorderStyle = System.Windows.Forms.BorderStyle.None;
                             dgv.DataError += (s, e) =>
                             {
                                 e.Cancel = true;
@@ -316,7 +340,8 @@ namespace NETDBHelper.UC
                         SubForm.InputStringDlg dlg = new SubForm.InputStringDlg("导出文件名");
                         if (dlg.ShowDialog() == DialogResult.OK)
                         {
-                            using (StreamWriter fs = new StreamWriter($"{dir}\\{dlg.InputString}.csv", false, Encoding.UTF8))
+                            var filename = $"{dir}\\{dlg.InputString}.csv";
+                            using (StreamWriter fs = new StreamWriter(filename, false, Encoding.UTF8))
                             {
                                 var table = (DataTable)gv.DataSource;
                                 if (table != null)
@@ -328,12 +353,167 @@ namespace NETDBHelper.UC
                                     }
                                 }
                             }
+                            Util.SendMsg(this, $"文件已保存:{filename}");
                             System.Diagnostics.Process.Start("explorer.exe", dir);
                         }
                         break;
 
                     }
                 }
+            }
+        }
+
+        public void RenameViewName()
+        {
+            foreach (var ctl in tabControl1.SelectedTab.Controls)
+            {
+                if (ctl is DataGridView)
+                {
+                    var gv = (DataGridView)ctl;
+                    if (gv.DataSource != null && gv.DataSource is DataTable)
+                    {
+                        SubForm.InputStringDlg dlg = new SubForm.InputStringDlg("重命名");
+                        if (dlg.ShowDialog() == DialogResult.OK)
+                        {
+                            tabControl1.SelectedTab.Text = dlg.InputString;
+                        }
+                        break;
+
+                    }
+                }
+            }
+        }
+
+        public static ICellStyle CreateHeaderStyle(IWorkbook book)
+        {
+            ICellStyle cellStyle = book.CreateCellStyle();
+            cellStyle.Alignment = NPOI.SS.UserModel.HorizontalAlignment.Center;
+            cellStyle.VerticalAlignment = VerticalAlignment.Center;
+            IFont fontLeft = book.CreateFont();
+            fontLeft.FontHeightInPoints = 15;
+            fontLeft.Boldweight = (short)FontBoldWeight.Bold;
+            fontLeft.FontName = "宋体";
+            cellStyle.ShrinkToFit = false;
+            cellStyle.SetFont(fontLeft);
+            return cellStyle;
+        }
+
+        public static ICellStyle CreateCellStyle(IWorkbook book)
+        {
+            ICellStyle cellStyle = book.CreateCellStyle();
+            cellStyle.Alignment = NPOI.SS.UserModel.HorizontalAlignment.Center;
+            cellStyle.VerticalAlignment = VerticalAlignment.Center;
+            IFont fontLeft = book.CreateFont();
+            fontLeft.FontHeightInPoints = 15;
+            fontLeft.FontName = "宋体";
+            cellStyle.ShrinkToFit = false;
+            cellStyle.SetFont(fontLeft);
+            return cellStyle;
+        }
+
+        public static void AjustColWidth(ISheet ffSheet, int row, int col)
+        {
+
+            int columnWidth = ffSheet.GetColumnWidth(col) / 256;//获取当前列宽度
+
+            IRow currentRow = ffSheet.GetRow(row);
+            ICell currentCell = currentRow.GetCell(col);
+            int length = Encoding.UTF8.GetBytes(currentCell.ToString()).Length;//获取当前单元格的内容宽度
+            if (columnWidth < length + 1)
+            {
+                columnWidth = length + 1;
+            }//若当前单元格内容宽度大于列宽，则调整列宽为当前单元格宽度，后面的+1是我人为的将宽度增加一个字符
+
+            ffSheet.SetColumnWidth(col, columnWidth * 400);
+
+        }
+
+        public void MExport()
+        {
+            var dir = Application.StartupPath + "\\temp\\";
+            if (!Directory.Exists(dir))
+            {
+                Directory.CreateDirectory(dir);
+            }
+            SubForm.InputStringDlg dlg = new SubForm.InputStringDlg("导出文件名");
+            if (dlg.ShowDialog() == DialogResult.OK)
+            {
+                var filename = $"{dir}\\{dlg.InputString}.xls";
+                HSSFWorkbook book = new HSSFWorkbook();
+
+                foreach (TabPage page in tabControl1.TabPages)
+                {
+                    foreach (var ctl in page.Controls)
+                    {
+                        if (ctl is DataGridView)
+                        {
+                            var gv = (DataGridView)ctl;
+                            var rowidx = 0;
+                            if (gv.DataSource != null && gv.DataSource is DataTable)
+                            {
+                                var sheet = book.CreateSheet(page.Text);
+                                //book.CreateSheet()
+                                var row = sheet.CreateRow(rowidx++);
+                                var colcount = 0;
+                                foreach (DataGridViewColumn col in gv.Columns)
+                                {
+                                    var cell = row.CreateCell(colcount,CellType.String);
+                                    cell.SetCellValue(col.Name);
+                                    cell.CellStyle = CreateHeaderStyle(book);
+                                    AjustColWidth(sheet, 0, colcount);
+                                    colcount++;
+                                }
+                                
+
+                                foreach (DataGridViewRow gvrow in gv.Rows)
+                                {
+                                    row = sheet.CreateRow(rowidx++);
+                                    for(int i = 0; i < colcount; i++)
+                                    {
+                                        var cell = row.CreateCell(i);
+                                        //cell.CellStyle = CreateCellStyle(book);
+                                        if (gvrow.Cells[i].Value == DBNull.Value)
+                                        {
+                                            cell.SetCellValue(string.Empty);
+                                        }
+                                        else if (gvrow.Cells[i].ValueType == typeof(string))
+                                        {
+                                            cell.SetCellValue((string)gvrow.Cells[i].Value);
+                                        }
+                                        else if (gvrow.Cells[i].ValueType == typeof(bool))
+                                        {
+                                            cell.SetCellValue((bool)gvrow.Cells[i].Value);
+                                        }
+                                        else if (gvrow.Cells[i].ValueType == typeof(DateTime))
+                                        {
+                                            cell.SetCellValue(((DateTime)gvrow.Cells[i].Value).ToString("yyyy/MM/dd HH:mm:ss"));
+                                        }
+                                        else if (gvrow.Cells[i].ValueType == typeof(double)
+                                            || gvrow.Cells[i].ValueType == typeof(Single))
+                                        {
+                                            cell.SetCellValue((double)gvrow.Cells[i].Value);
+                                        }
+                                        else
+                                        {
+                                            cell.SetCellValue(gvrow.Cells[i].Value?.ToString() ?? string.Empty);
+                                        }
+                                    }
+                                }
+
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                using (var fs = new System.IO.FileStream(filename, FileMode.Create))
+                {
+                    book.Write(fs);
+                    
+                    Util.SendMsg(this, $"文件已保存:{filename}");
+                    System.Diagnostics.Process.Start("explorer.exe", dir);
+                }
+
             }
         }
 
@@ -369,6 +549,65 @@ namespace NETDBHelper.UC
                         sb.AppendLine();
                     }
                     Clipboard.SetText(sb.ToString().Trim('\t'));
+                    Util.SendMsg(this, $"内容已复制到剪贴板");
+                    break;
+                }
+            }
+        }
+
+        public void ViewText()
+        {
+            foreach (var ctl in tabControl1.SelectedTab.Controls)
+            {
+                if (ctl is DataGridView)
+                {
+                    var view = (DataGridView)ctl;
+                    if (view.SelectedCells.Count == 0)
+                    {
+                        return;
+                    }
+                    StringBuilder sb = new StringBuilder();
+
+                    List<DataGridViewCell> list = new List<DataGridViewCell>();
+                    foreach (DataGridViewCell cell in view.SelectedCells)
+                    {
+                        list.Add(cell);
+                    }
+                    foreach (var row in list.GroupBy(p => p.RowIndex).OrderBy(p => p.Key))
+                    {
+                        foreach (var cell in row.OrderBy(p => p.ColumnIndex))
+                        {
+                            if (cell.Value != null)
+                            {
+                                sb.Append(cell.Value.ToString());
+                            }
+                            sb.Append("\t");
+                        }
+                        sb.Remove(sb.Length - 1, 1);
+                        sb.AppendLine();
+                    }
+                    new SubForm.TextBoxWin("查看文本", sb.ToString().Trim('\t')).ShowDialog();
+                    break;
+                }
+            }
+        }
+
+        public void SelectCurrColumn()
+        {
+            foreach (var ctl in tabControl1.SelectedTab.Controls)
+            {
+                if (ctl is DataGridView)
+                {
+                    var view = (DataGridView)ctl;
+                    var currentcell = view.CurrentCell;
+                    if (currentcell == null)
+                    {
+                        return;
+                    }
+                    foreach(DataGridViewRow row in view.Rows)
+                    {
+                        row.Cells[currentcell.ColumnIndex].Selected = true;
+                    }
                     break;
                 }
             }
@@ -399,6 +638,7 @@ namespace NETDBHelper.UC
                     }
                     sb.Remove(sb.Length - 1, 1);
                     Clipboard.SetText(sb.ToString());
+                    Util.SendMsg(this, $"标题已复制到剪贴板");
                     break;
                 }
             }
@@ -445,6 +685,7 @@ namespace NETDBHelper.UC
                     }
 
                     Clipboard.SetText(sb.ToString());
+                    Util.SendMsg(this, $"内容和标题已复制到剪贴板");
                     break;
                 }
             }
