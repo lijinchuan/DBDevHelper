@@ -444,7 +444,9 @@ namespace NETDBHelper
                 sb.Append(string.Join(",\r\n", cols.Select(p => "[" + p.Key + "]")));
                 sb.AppendLine("");
                 sb.Append(" from ");
+                sb.Append("[");
                 sb.Append(tv_DBServers.SelectedNode.Text);
+                sb.Append("]");
                 sb.Append(" with(nolock)");
                 if (this.OnShowTableData != null)
                 {
@@ -463,7 +465,9 @@ namespace NETDBHelper
                 sb.Append(string.Join(",\r\n", cols.Select(p => "[" + p.Key + "]")));
                 sb.AppendLine("");
                 sb.Append(" from ");
+                sb.Append("[");
                 sb.Append(tv_DBServers.SelectedNode.Text);
+                sb.Append("]");
                 sb.Append(" with(nolock)");
                 if (this.OnShowTableData != null)
                 {
