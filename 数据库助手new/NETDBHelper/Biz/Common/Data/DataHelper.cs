@@ -518,7 +518,7 @@ namespace Biz.Common.Data
         }
 
         public static string CreateTableEntity(DBSource dbsource, string dbname, string tbname, string tid,string classnamespace, bool isSupportProtobuf,
-            bool isSupportDBMapperAttr, bool isSupportJsonproterty, bool isSupportMvcDisplay, out bool hasKey)
+            bool isSupportDBMapperAttr, bool isSupportJsonproterty, bool isSupportMvcDisplay,Func<string,string> getDesc, out bool hasKey)
         {
             hasKey = false;
             var tbDesc = SQLHelper.GetTableColsDescription(dbsource, dbname, tbname);
@@ -566,11 +566,15 @@ namespace Biz.Common.Data
                          where string.Equals((string)x["ColumnName"], column.Name, StringComparison.OrdinalIgnoreCase)
                          select x["Description"]).FirstOrDefault();
 
-                string desc = y == DBNull.Value ? string.Empty : (string)y;
+                string desc = y == DBNull.Value ? getDesc(column.Name) : (string)y;
 
                 string privateAttr = string.Concat("_" + Biz.Common.StringHelper.FirstToLower(column.Name));
-                sb.AppendFormat("        private {0} {1};", Biz.Common.Data.Common.DbTypeToNetType(column.TypeName), privateAttr);
+                sb.AppendFormat("        private {0} {1};", Biz.Common.Data.Common.DbTypeToNetType(column.TypeName,column.IsNullAble), privateAttr);
                 sb.AppendLine();
+
+                sb.AppendLine(@"        /// <summary>");
+                sb.AppendLine($@"        /// {desc}");
+                sb.AppendLine(@"        /// </summary>");
 
                 if (isSupportProtobuf)
                 {
@@ -598,7 +602,12 @@ namespace Biz.Common.Data
                     sb.AppendLine("        [PropertyDescriptionAttr(\"" + desc + "\")]");
                 }
 
-                sb.AppendFormat(format, Biz.Common.Data.Common.DbTypeToNetType(column.TypeName), Biz.Common.StringHelper.FirstToUpper(column.Name),
+                if (iskey)
+                {
+                    sb.AppendLine("        [Key]");
+                }
+                
+                sb.AppendFormat(format, Biz.Common.Data.Common.DbTypeToNetType(column.TypeName,column.IsNullAble), Biz.Common.StringHelper.FirstToUpper(column.Name),
                     privateAttr, privateAttr, isSupportMvcDisplay ? string.Format("[Display(Name = \"{0}\")]\r\n        ", string.IsNullOrWhiteSpace(desc) ? column.Name : desc) : string.Empty);
                 sb.AppendLine();
             }

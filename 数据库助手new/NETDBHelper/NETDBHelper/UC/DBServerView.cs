@@ -499,7 +499,14 @@ namespace NETDBHelper
                 var tid = tv_DBServers.SelectedNode.Name;
 
                 var classcode = DataHelper.CreateTableEntity(dbsource, dbname, tbname, tid, DefaultEntityNamespace,
-                    isSupportProtobuf, isSupportDBMapperAttr, isSupportJsonproterty, isSupportMvcDisplay, out hasKey);
+                    isSupportProtobuf, isSupportDBMapperAttr, isSupportJsonproterty, isSupportMvcDisplay,name=>
+                    {
+                        var mark = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkColumnInfo>("MarkColumnInfo", "keys", new
+                                 [] { dbname.ToUpper(), tbname.ToUpper(), name.ToUpper() }).FirstOrDefault();
+
+                        return mark == null ? name : mark.MarkInfo;
+
+                    }, out hasKey);
 
                 if (OnCreateEntity != null)
                 {
