@@ -517,11 +517,21 @@ namespace Biz.Common.Data
             return sb.ToString();
         }
 
-        public static string CreateTableEntity(DBSource dbsource, string dbname, string tbname, string tid,string classnamespace, bool isSupportProtobuf,
+        public static string CreateTableEntity(DBSource dbsource, string dbname, string tbname, string tid,string classnamespace,bool isview, bool isSupportProtobuf,
             bool isSupportDBMapperAttr, bool isSupportJsonproterty, bool isSupportMvcDisplay,Func<string,string> getDesc, out bool hasKey)
         {
             hasKey = false;
-            var tbDesc = SQLHelper.GetTableColsDescription(dbsource, dbname, tbname);
+            DataTable tbDesc = null;
+            if (isview)
+            {
+                tbDesc = new DataTable();
+                tbDesc.Columns.Add("ColumnName");
+                tbDesc.Columns.Add("Description");
+            }
+            else
+            {
+                tbDesc = SQLHelper.GetTableColsDescription(dbsource, dbname, tbname);
+            }
 
             Regex rg = new Regex(@"(\w+)\s*\((\w+)\)");
             string format = @"        {4}public {0} {1}
@@ -554,7 +564,8 @@ namespace Biz.Common.Data
                 sb.AppendLine(string.Format("        public const string TbName=\"{0}.{1}\";", dbname, tbname));
             }
 
-            var cols = SQLHelper.GetColumns(dbsource, dbname, tid, tbname);
+            var cols =isview? SQLHelper.GetViews(dbsource,dbname,tbname).First().Value: SQLHelper.GetColumns(dbsource, dbname, tid, tbname);
+            
             //TreeNode selNode = tv_DBServers.SelectedNode;
             int idx = 1;
             //foreach (TreeNode column in selNode.Nodes)

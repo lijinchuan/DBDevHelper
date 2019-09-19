@@ -369,6 +369,24 @@ where a.TABLE_NAME=b.TABLE_NAME ORDER BY A.TABLE_NAME,B.ORDINAL_POSITION";
                 }).ToList())).ToList();
         }
 
+        public static List<KeyValuePair<string, List<Entity.TBColumn>>> GetViews(DBSource dbSource, string dbname,string viewname)
+        {
+            string sql = @"SELECT a.TABLE_NAME,b.COLUMN_NAME,B.IS_NULLABLE,B.DATA_TYPE,isnull(B.CHARACTER_MAXIMUM_LENGTH,-1) CHARACTER_MAXIMUM_LENGTH FROM INFORMATION_SCHEMA.VIEWS a,INFORMATION_SCHEMA.COLUMNS b
+where a.Table_NAME='"+viewname+"' and a.TABLE_NAME=b.TABLE_NAME ORDER BY A.TABLE_NAME,B.ORDINAL_POSITION";
+
+            var tb = ExecuteDBTable(dbSource, dbname, sql);
+
+
+            return tb.AsEnumerable().GroupBy(p => p.Field<string>("TABLE_NAME")).
+                Select(p => new KeyValuePair<string, List<TBColumn>>(p.Key, p.Select(q => new TBColumn
+                {
+                    Name = q.Field<string>("COLUMN_NAME"),
+                    TypeName = q.Field<string>("DATA_TYPE"),
+                    Length = q.Field<int>("CHARACTER_MAXIMUM_LENGTH"),
+                    IsNullAble = q.Field<string>("IS_NULLABLE").Equals("YES")
+                }).ToList())).ToList();
+        }
+
         public static string GetViewCreateSql(DBSource dbSource, string dbName, string viewname)
         {
             //show create {procedure|function} sp_name

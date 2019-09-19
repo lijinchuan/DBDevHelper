@@ -64,6 +64,8 @@ namespace NETDBHelper
             tv_DBServers.ImageList.Images.Add(Resources.Resource1.DB161); //16
             tv_DBServers.ImageList.Images.Add(Resources.Resource1.loading);
             tv_DBServers.ImageList.Images.Add(Resources.Resource1.ColQ); //18
+            tv_DBServers.ImageList.Images.Add(Resources.Resource1.script_code_no);
+            tv_DBServers.ImageList.Images.Add(Resources.Resource1.script_code_red_no);
             tv_DBServers.Nodes.Add("0", "资源管理器", 0);
             tv_DBServers.NodeMouseClick += new TreeNodeMouseClickEventHandler(tv_DBServers_NodeMouseClick);
             tv_DBServers.HideSelection = false;
@@ -200,7 +202,17 @@ namespace NETDBHelper
             }
             else if (selNode.Level == 3 && selNode.Text.Equals("存储过程"))
             {
-                Biz.UILoadHelper.LoadProcedureAnsy(this.ParentForm, selNode, GetDBSource(selNode));
+                var dbname = GetDBName(selNode).ToUpper();
+                Biz.UILoadHelper.LoadProcedureAnsy(this.ParentForm, selNode, GetDBSource(selNode),p=>
+                {
+                    var item = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<SPInfo>("SPInfo", "DBName_SPName", new[] { dbname, p.ToUpper() }).FirstOrDefault();
+
+                    if (item !=null)
+                    {
+                        return item.Mark;
+                    }
+                    return string.Empty;
+                });
             }
             else if (selNode.Level == 3 && selNode.Text.Equals("视图"))
             {
@@ -478,7 +490,7 @@ namespace NETDBHelper
 
         void CreateEntityClass()
         {
-            if (tv_DBServers.SelectedNode != null && tv_DBServers.SelectedNode.Level == 3)
+            if (tv_DBServers.SelectedNode != null)
             {
                 //命名空间
                 SubForm.CreateEntityNavDlg dlg = new CreateEntityNavDlg("请输入实体命名空间", DefaultEntityNamespace);
@@ -495,10 +507,10 @@ namespace NETDBHelper
 
                 var dbsource = GetDBSource(tv_DBServers.SelectedNode);
                 var tbname = tv_DBServers.SelectedNode.Text;
-                string dbname = tv_DBServers.SelectedNode.Parent.Text;
+                string dbname = GetDBName(tv_DBServers.SelectedNode);
                 var tid = tv_DBServers.SelectedNode.Name;
 
-                var classcode = DataHelper.CreateTableEntity(dbsource, dbname, tbname, tid, DefaultEntityNamespace,
+                var classcode = DataHelper.CreateTableEntity(dbsource, dbname, tbname, tid, DefaultEntityNamespace, tv_DBServers.SelectedNode.Parent.Text=="视图",
                     isSupportProtobuf, isSupportDBMapperAttr, isSupportJsonproterty, isSupportMvcDisplay,name=>
                     {
                         var mark = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkColumnInfo>("MarkColumnInfo", "keys", new
@@ -603,7 +615,17 @@ namespace NETDBHelper
                 //e.Node.Expand();
                 if (e.Node.Text.Equals("存储过程"))
                 {
-                    Biz.UILoadHelper.LoadProcedureAnsy(this.ParentForm, e.Node, GetDBSource(e.Node));
+                    var dbname = GetDBName(e.Node).ToUpper();
+                    Biz.UILoadHelper.LoadProcedureAnsy(this.ParentForm, e.Node, GetDBSource(e.Node), p =>
+                    {
+                        var item = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<SPInfo>("SPInfo", "DBName_SPName", new[] { dbname, p.ToUpper() }).FirstOrDefault();
+
+                        if (item != null)
+                        {
+                            return item.Mark;
+                        }
+                        return string.Empty;
+                    });
 
                 }
                 else if (e.Node.Text.Equals("视图"))
@@ -758,6 +780,8 @@ namespace NETDBHelper
                             }
                             
                             复制表名ToolStripMenuItem.Visible = true;
+                            备注ToolStripMenuItem.Visible = true;
+                            生成实体类ToolStripMenuItem.Visible = tv_DBServers.SelectedNode.Parent.Text.Equals("视图");
                             显示前100条数据ToolStripMenuItem.Visible = tv_DBServers.SelectedNode.Level == 4 && tv_DBServers.SelectedNode.Parent.Text.Equals("视图");
                         }
                         else if (tv_DBServers.SelectedNode.Parent.Text.Equals("索引"))
@@ -1496,15 +1520,15 @@ background-color: #ffffff;
             {
                 var col = ((TBColumn)selnode.Tag).Name;
                 var tbname = GetTBName(selnode);
-                var severname = GetDBSource(selnode).ServerName;
+                var servername = GetDBSource(selnode).ServerName;
                 var dbname = GetDBName(selnode);
                 var item = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkColumnInfo>("MarkColumnInfo", "keys", new[] { dbname.ToUpper(), tbname.ToUpper(), col.ToUpper() }).FirstOrDefault();
 
                 if (item == null)
                 {
-                    item = new MarkColumnInfo { ColumnName = col.ToUpper(), DBName = dbname.ToUpper(), TBName = tbname.ToUpper(), Servername = severname };
+                    item = new MarkColumnInfo { ColumnName = col.ToUpper(), DBName = dbname.ToUpper(), TBName = tbname.ToUpper(), Servername = servername };
                 }
-                InputStringDlg dlg = new InputStringDlg($"备注字段[{tbname}.{col}]",item.MarkInfo);
+                InputStringDlg dlg = new InputStringDlg($"备注字段[{tbname}.{col}]", item.MarkInfo);
                 if (dlg.ShowDialog() == DialogResult.OK)
                 {
                     if (selnode.ImageIndex == 18)
@@ -1517,6 +1541,29 @@ background-color: #ffffff;
                     MessageBox.Show("备注成功");
                 }
             }
+            else if (selnode.Parent.Text.Equals("存储过程"))
+            {
+                var servername = GetDBSource(selnode).ServerName;
+                var dbname = GetDBName(selnode);
+                var spname = selnode.Text;
+                var item = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<SPInfo>("SPInfo", "DBName_SPName", new[] { dbname.ToUpper(), spname.ToUpper() }).FirstOrDefault();
+
+                if (item == null)
+                {
+                    item = new SPInfo { Servername = servername, DBName = dbname, SPName = spname, Mark = "" };
+                }
+                InputStringDlg dlg = new InputStringDlg($"备注字段[{dbname}.{spname}]", item.Mark);
+                if (dlg.ShowDialog() == DialogResult.OK)
+                {
+                    item.Mark = dlg.InputString;
+                    LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Upsert<SPInfo>("SPInfo", item);
+                    selnode.ToolTipText = item.Mark;
+                    selnode.ImageIndex = 13;
+                    selnode.SelectedImageIndex = 14;
+                    MessageBox.Show("备注成功");
+                }
+            }
+
         }
 
         private void SyncTableData()
@@ -1572,6 +1619,28 @@ background-color: #ffffff;
                         item.MarkInfo = dlg.InputString;
                         LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Upsert<MarkColumnInfo>("MarkColumnInfo", item);
                         currnode.ToolTipText = item.MarkInfo;
+                        MessageBox.Show("备注成功");
+                    }
+                }
+                else if (currnode.Parent.Text.Equals("存储过程"))
+                {
+                    var servername = GetDBSource(currnode).ServerName;
+                    var dbname = GetDBName(currnode);
+                    var spname = currnode.Text;
+                    var item = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<SPInfo>("SPInfo", "DBName_SPName", new[] { dbname.ToUpper(), spname.ToUpper() }).FirstOrDefault();
+
+                    if (item == null)
+                    {
+                        item = new SPInfo { Servername = servername, DBName = dbname.ToUpper(), SPName = spname.ToUpper(), Mark = "" };
+                    }
+                    InputStringDlg dlg = new InputStringDlg($"备注字段[{dbname}.{spname}]", item.Mark);
+                    if (dlg.ShowDialog() == DialogResult.OK)
+                    {
+                        item.Mark = dlg.InputString;
+                        LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Upsert<SPInfo>("SPInfo", item);
+                        currnode.ToolTipText = item.Mark;
+                        currnode.ImageIndex = 13;
+                        currnode.SelectedImageIndex = 14;
                         MessageBox.Show("备注成功");
                     }
                 }

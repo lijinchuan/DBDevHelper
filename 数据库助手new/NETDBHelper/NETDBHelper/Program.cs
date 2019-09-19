@@ -96,6 +96,39 @@ namespace NETDBHelper
 
             BigEntityTableEngine.LocalEngine.CreateTable("SqlSave", "ID", true, typeof(SqlSaveEntity));
 
+            BigEntityTableEngine.LocalEngine.CreateTable("SPInfo", "ID", true, typeof(SPInfo), new IndexInfo[]
+            {
+                new IndexInfo
+                {
+                    IndexName="DBName_SPName",
+                    Indexs=new IndexItem[]
+                    {
+                        new IndexItem
+                        {
+                            Field="DBName",
+                            FieldType=EntityType.STRING,
+                        },
+                        new IndexItem
+                        {
+                            Field="SPName",
+                            FieldType=EntityType.STRING,
+                        }
+                    }
+                },
+                new IndexInfo
+                {
+                    IndexName="SPName",
+                    Indexs=new IndexItem[]
+                    {
+                        new IndexItem
+                        {
+                            Field="SPName",
+                            FieldType=EntityType.STRING,
+                        }
+                    }
+                }
+            });
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new MainFrm());
