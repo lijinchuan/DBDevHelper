@@ -49,7 +49,7 @@ namespace RedisHelperUI
             if (CBTest.Checked)
             {
                 bool testsuccess = true;
-                RedisUtil.Execute(TBConnstr.Text, (client) => { }, (ex) =>
+                RedisUtil.Execute(TBConnstr.Text,null, (client) => { }, (ex) =>
                     {
                         testsuccess = false;
                         MessageBox.Show("验证失败:" + ex.Message);

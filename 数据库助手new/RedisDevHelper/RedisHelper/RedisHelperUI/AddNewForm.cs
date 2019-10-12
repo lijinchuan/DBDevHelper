@@ -14,6 +14,12 @@ namespace RedisHelperUI
 {
     public partial class AddNewForm : Form
     {
+        public int? Defaultdb
+        {
+            get;
+            set;
+        }
+
         public string NewKey
         {
             get;
@@ -112,7 +118,7 @@ SortedSet*/
                 {
                     case "String":
                         {
-                            RedisUtil.Execute(this.RediServer.ConnStr, (db) =>
+                            RedisUtil.Execute(this.RediServer.ConnStr,this.Defaultdb, (db) =>
                             {
                                 if (db.StringSet(firstkey, TBSecKey.Text))
                                 {
@@ -131,7 +137,7 @@ SortedSet*/
                         }
                     case "Set":
                         {
-                            RedisUtil.Execute(this.RediServer.ConnStr, (db) =>
+                            RedisUtil.Execute(this.RediServer.ConnStr,this.Defaultdb, (db) =>
                             {
                                 RedisValue val = TBSecKey.Text;
                                
@@ -165,7 +171,7 @@ SortedSet*/
                         }
                     case "List":
                         {
-                            RedisUtil.Execute(this.RediServer.ConnStr, (db) =>
+                            RedisUtil.Execute(this.RediServer.ConnStr, this.Defaultdb,(db) =>
                             {
                                 RedisValue val = TBSecKey.Text;
 
@@ -199,7 +205,7 @@ SortedSet*/
                         }
                     case "Hash":
                         {
-                            RedisUtil.Execute(this.RediServer.ConnStr, (db) =>
+                            RedisUtil.Execute(this.RediServer.ConnStr,this.Defaultdb, (db) =>
                             {
                                 RedisValue seckey = TBSecKey.Text;
                                 RedisValue val = TBThridKey.Text;
@@ -233,7 +239,7 @@ SortedSet*/
                         }
                     case "SortedSet":
                         {
-                            RedisUtil.Execute(this.RediServer.ConnStr, (db) =>
+                            RedisUtil.Execute(this.RediServer.ConnStr,this.Defaultdb, (db) =>
                             {
                                 RedisValue seckey = TBSecKey.Text;
                                 double val = 0;
