@@ -534,16 +534,10 @@ namespace Biz.Common.Data
             }
 
             Regex rg = new Regex(@"(\w+)\s*\((\w+)\)");
-            string format = @"        {4}public {0} {1}
+            string format = @"        {2}public {0} {1}
         {{
-            get
-            {{
-                return {2};
-            }}
-            set
-            {{
-                {3}=value;
-            }}
+            get;
+            set;
         }}";
 
 
@@ -579,9 +573,9 @@ namespace Biz.Common.Data
 
                 string desc = y == DBNull.Value ? getDesc(column.Name) : (string)y;
 
-                string privateAttr = string.Concat("_" + Biz.Common.StringHelper.FirstToLower(column.Name));
-                sb.AppendFormat("        private {0} {1};", Biz.Common.Data.Common.DbTypeToNetType(column.TypeName,column.IsNullAble), privateAttr);
-                sb.AppendLine();
+                //string privateAttr = string.Concat("_" + Biz.Common.StringHelper.FirstToLower(column.Name));
+                //sb.AppendFormat("        private {0} {1};", Biz.Common.Data.Common.DbTypeToNetType(column.TypeName,column.IsNullAble), privateAttr);
+                //sb.AppendLine();
 
                 sb.AppendLine(@"        /// <summary>");
                 sb.AppendLine($@"        /// {desc}");
@@ -619,7 +613,7 @@ namespace Biz.Common.Data
                 }
                 
                 sb.AppendFormat(format, Biz.Common.Data.Common.DbTypeToNetType(column.TypeName,column.IsNullAble), Biz.Common.StringHelper.FirstToUpper(column.Name),
-                    privateAttr, privateAttr, isSupportMvcDisplay ? string.Format("[Display(Name = \"{0}\")]\r\n        ", string.IsNullOrWhiteSpace(desc) ? column.Name : desc) : string.Empty);
+                    isSupportMvcDisplay ? string.Format("[Display(Name = \"{0}\")]\r\n        ", string.IsNullOrWhiteSpace(desc) ? column.Name : desc) : string.Empty);
                 sb.AppendLine();
             }
             sb.AppendLine("    }");
