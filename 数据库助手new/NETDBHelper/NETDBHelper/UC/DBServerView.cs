@@ -11,6 +11,7 @@ using System.Text.RegularExpressions;
 using NETDBHelper.SubForm;
 using Biz.Common;
 using Biz.Common.Data;
+using LJC.FrameWorkV3.Data.EntityDataBase;
 
 namespace NETDBHelper
 {
@@ -24,6 +25,7 @@ namespace NETDBHelper
         public Action<DBSource,string,string,string> OnShowProc;
         public Action<DBSource,string,string,string> OnShowDataDic;
         public Action<string,string> OnViewTable;
+        public Action<string, string> OnViewCloumns;
         public Action<DBSource,string, string> OnExecutSql;
         public Action<DBSource, string, string,string> OnShowViewSql;
         private DBSourceCollection _dbServers;
@@ -171,6 +173,11 @@ namespace NETDBHelper
                     case "查看表":
                         {
                             OnViewTables();
+                            break;
+                        }
+                    case "查看字段":
+                        {
+                            OnViewColumn();
                             break;
                         }
                 }
@@ -828,6 +835,7 @@ namespace NETDBHelper
                         this.tv_DBServers.ContextMenuStrip = this.CommMenuStrip;
                         subMenuItemAddEntityTB.Visible=node.Level==2;
                         TSMI_ViewTableList.Visible = node.Level == 2;
+                        TSMI_ViewColumnList.Visible = node.Level == 2;
                         CommSubMenuItem_Delete.Visible = node.Level ==2;
                         CommSubMenuitem_add.Visible = node.Level == 1;
                         CommSubMenuitem_ViewConnsql.Visible = node.Level == 2;
@@ -1810,6 +1818,90 @@ background-color: #ffffff;
                 this.OnViewTable(dbname,sb.ToString());
             }
             
+        }
+
+        private void OnViewColumn()
+        {
+            var selnode = tv_DBServers.SelectedNode;
+            if (this.OnViewCloumns != null && selnode != null)
+            {
+                var dbname = GetDBName(selnode);
+
+                var allcolumns= BigEntityTableEngine.LocalEngine.Find<MarkColumnInfo>("MarkColumnInfo",p=>p.DBName.Equals(dbname,StringComparison.OrdinalIgnoreCase));
+
+                StringBuilder sb = new StringBuilder("<html>");
+                sb.Append("<head>");
+                sb.Append($"<title>查看{dbname}的字段表</title>");
+                sb.Append(@"<style>
+ table {{
+width:98%;
+font-family: verdana,arial,sans-serif;
+font-size:11px;
+color:#333333;
+border-width: 1px;
+border-color: #666666;
+border-collapse: collapse;
+}}
+table th {{
+border-width: 1px;
+padding: 8px;
+border-style: solid;
+border-color: #666666;
+background-color: #dedede;
+}}
+table td {{
+border-width: 1px;
+padding: 8px;
+border-style: solid;
+border-color: #666666;
+background-color: #ffffff;
+}}</style>");
+                sb.Append("</head>");
+                sb.Append(@"<body>
+                  <script>
+                      function k(){
+                          if (event.keyCode == 13) s();
+                      }
+                      function s(){
+                       var w=document.getElementById('w').value
+                       if(/^\s*$/.test(w)){
+                           var idx=1
+                           var trs= document.getElementsByTagName('tr');
+                           for(var i=0;i<trs.length;i++){
+                               trs[i].style.display=''
+                               if(trs[i].firstChild.tagName=='TD')
+                                   trs[i].firstChild.innerText=idx++
+                            }
+                           return
+                       }
+                       var idx=1;
+                       var tds= document.getElementsByTagName('td');
+                       w=w.toUpperCase();
+                       for(var i=0;i<tds.length;i+=4){
+                           var boo=tds[i+2].innerText.toUpperCase().indexOf(w)>-1||tds[i+3].innerText.toUpperCase().indexOf(w)>-1
+                           tds[i].parentNode.style.display=boo?'':'none'
+                           if(boo) tds[i].innerText=idx++
+                       }
+                   }
+                  </script>");
+                sb.Append("<input id='w' type='text' style='height:23px; line-height:23px;' onkeypress='k()' value=''/><input type='button' style='font-size:12px; height:23px; line-height:18px;' value='搜索'  onclick='s()'/>");
+                sb.Append("<p/>");
+                sb.Append("<table>");
+                sb.Append("<tr><th>序号</th><th>表名</th><th>字段</th><th>描述</th></tr>");
+                int i = 1;
+                foreach (MarkColumnInfo c in allcolumns)
+                {
+                    var name = c.ColumnName;
+                    
+                    sb.Append($"<tr><td>{i++}</td><td>{c.TBName.ToLower()}</td><td>{name.ToLower()}</td><td>{c.MarkInfo}</td></tr>");
+                }
+                sb.Append("</table>");
+                sb.Append("</body>");
+                sb.Append("</html>");
+
+                this.OnViewCloumns(dbname, sb.ToString());
+            }
+
         }
     }
 }
