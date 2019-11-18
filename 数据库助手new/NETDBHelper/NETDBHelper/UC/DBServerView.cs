@@ -1827,7 +1827,7 @@ background-color: #ffffff;
             {
                 var dbname = GetDBName(selnode);
 
-                var allcolumns= BigEntityTableEngine.LocalEngine.Find<MarkColumnInfo>("MarkColumnInfo",p=>p.DBName.Equals(dbname,StringComparison.OrdinalIgnoreCase));
+                var allcolumns= BigEntityTableEngine.LocalEngine.Find<MarkColumnInfo>("MarkColumnInfo",p=>!string.IsNullOrEmpty(p.ColumnName)&&p.DBName.Equals(dbname,StringComparison.OrdinalIgnoreCase));
 
                 StringBuilder sb = new StringBuilder("<html>");
                 sb.Append("<head>");
