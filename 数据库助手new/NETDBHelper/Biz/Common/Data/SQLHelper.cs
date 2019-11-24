@@ -293,7 +293,12 @@ namespace Biz.Common.Data
 
         public static DataTable GetProceduresWithParams(DBSource dbSource, string dbName)
         {
-            string sql = "select a.name,b.name pname,c.name tpname,b.length,b.isnullable,b.isoutparam from dbo.sysobjects a,syscolumns b,systypes c where a.id=b.id and b.xusertype=c.xusertype and c.name<>'sysname' and OBJECTPROPERTY(a.id, N'IsProcedure') = 1 order by a.name";
+            string sql = @"select a.name,b.name pname,c.name tpname,b.length,b.isnullable,b.isoutparam from dbo.sysobjects a
+                           left join syscolumns b
+                           on a.id=b.id
+                           left join systypes c
+                           on b.xusertype=c.xusertype
+                           where (c.name<>'sysname' or c.name is null) and OBJECTPROPERTY(a.id, N'IsProcedure') = 1 order by a.name";
             var tb = ExecuteDBTable(dbSource, dbName, sql);
 
             return tb;

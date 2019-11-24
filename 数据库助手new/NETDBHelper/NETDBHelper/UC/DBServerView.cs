@@ -407,20 +407,23 @@ namespace NETDBHelper
                                 StringBuilder sb2 = new StringBuilder();
                                 foreach (var row in kv)
                                 {
-                                    var len = row.Field<Int16>("length");
-                                    var isnullable = row.Field<int>("isnullable") == 1;
-                                    var isoutparam = row.Field<int>("isoutparam") == 1;
-                                    var pname = row.Field<string>("pname");
-                                    var tpname = row.Field<string>("tpname");
-                                    if (isoutparam)
+                                    if (!row.IsNull("pname"))
                                     {
-                                        sb.AppendLine($"{pname}={pname}1 output,");
-                                        sb1.AppendLine($"declare {pname}1 {(Biz.Common.Data.Common.GetDBType(new TBColumn { Name = pname, TypeName = tpname, Length = len }))}");
-                                        sb2.AppendLine($"select {pname}1");
-                                    }
-                                    else
-                                    {
-                                        sb.AppendLine($"{pname}=<{(Biz.Common.Data.Common.GetDBType(new TBColumn { Name = pname, TypeName = tpname, Length = len }))}>,");
+                                        var len = row.Field<Int16>("length");
+                                        var isnullable = row.Field<int>("isnullable") == 1;
+                                        var isoutparam = row.Field<int>("isoutparam") == 1;
+                                        var pname = row.Field<string>("pname");
+                                        var tpname = row.Field<string>("tpname");
+                                        if (isoutparam)
+                                        {
+                                            sb.AppendLine($"{pname}={pname}1 output,");
+                                            sb1.AppendLine($"declare {pname}1 {(Biz.Common.Data.Common.GetDBType(new TBColumn { Name = pname, TypeName = tpname, Length = len }))}");
+                                            sb2.AppendLine($"select {pname}1");
+                                        }
+                                        else
+                                        {
+                                            sb.AppendLine($"{pname}=<{(Biz.Common.Data.Common.GetDBType(new TBColumn { Name = pname, TypeName = tpname, Length = len }))}>,");
+                                        }
                                     }
                                 }
                                 

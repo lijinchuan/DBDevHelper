@@ -177,10 +177,13 @@ namespace Biz
                 var pname = string.Empty;
                 foreach(var row in kv)
                 {
-                    var len = row.Field<Int16>("length");
-                    var isnullable = row.Field<int>("isnullable")==1;
-                    var isoutparam = row.Field<int>("isoutparam")==1;
-                    newNode.Nodes.Add(row.Field<string>("pname"), $"{row.Field<string>("pname")}({row.Field<string>("tpname")}{(len==-1?string.Empty:"("+len.ToString()+")")}{(isnullable?" null":"")}{(isoutparam?" output":"")})",isoutparam?12: 11,isoutparam?12:11);
+                    if (!row.IsNull("pname"))
+                    {
+                        var len = row.IsNull("length") ? -1 : row.Field<Int16>("length");
+                        var isnullable = row.Field<int>("isnullable") == 1;
+                        var isoutparam = row.Field<int>("isoutparam") == 1;
+                        newNode.Nodes.Add(row.Field<string>("pname"), $"{row.Field<string>("pname")}({row.Field<string>("tpname")}{(len == -1 ? string.Empty : "(" + len.ToString() + ")")}{(isnullable ? " null" : "")}{(isoutparam ? " output" : "")})", isoutparam ? 12 : 11, isoutparam ? 12 : 11);
+                    }
                 }
 
                 if (gettip != null)
