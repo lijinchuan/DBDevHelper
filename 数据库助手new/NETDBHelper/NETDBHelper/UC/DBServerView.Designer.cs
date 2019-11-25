@@ -63,6 +63,7 @@
             this.CommSubMenuitem_ViewConnsql = new System.Windows.Forms.ToolStripMenuItem();
             this.复制对象名ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.TSMI_ViewTableList = new System.Windows.Forms.ToolStripMenuItem();
+            this.TSMI_ViewColumnList = new System.Windows.Forms.ToolStripMenuItem();
             this.subMenuItemAddEntityTB = new System.Windows.Forms.ToolStripMenuItem();
             this.备注本地ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.TSMI_MulMarkLocal = new System.Windows.Forms.ToolStripMenuItem();
@@ -72,7 +73,7 @@
             this.ColumnMoveDown = new System.Windows.Forms.ToolStripMenuItem();
             this.CommSubMenuitem_add = new System.Windows.Forms.ToolStripMenuItem();
             this.CommSubMenuItem_Delete = new System.Windows.Forms.ToolStripMenuItem();
-            this.TSMI_ViewColumnList = new System.Windows.Forms.ToolStripMenuItem();
+            this.TSMI_FilterProc = new System.Windows.Forms.ToolStripMenuItem();
             this.DBServerviewContextMenuStrip.SuspendLayout();
             this.toolStrip1.SuspendLayout();
             this.CommMenuStrip.SuspendLayout();
@@ -322,9 +323,10 @@
             this.toolStripMenuItem3,
             this.CommSubMenuitem_ReorderColumn,
             this.CommSubMenuitem_add,
-            this.CommSubMenuItem_Delete});
+            this.CommSubMenuItem_Delete,
+            this.TSMI_FilterProc});
             this.CommMenuStrip.Name = "CommMenuStrip";
-            this.CommMenuStrip.Size = new System.Drawing.Size(181, 274);
+            this.CommMenuStrip.Size = new System.Drawing.Size(181, 296);
             // 
             // ToolStripMenuItemReload
             // 
@@ -351,6 +353,12 @@
             this.TSMI_ViewTableList.Name = "TSMI_ViewTableList";
             this.TSMI_ViewTableList.Size = new System.Drawing.Size(180, 22);
             this.TSMI_ViewTableList.Text = "查看表";
+            // 
+            // TSMI_ViewColumnList
+            // 
+            this.TSMI_ViewColumnList.Name = "TSMI_ViewColumnList";
+            this.TSMI_ViewColumnList.Size = new System.Drawing.Size(180, 22);
+            this.TSMI_ViewColumnList.Text = "查看字段";
             // 
             // subMenuItemAddEntityTB
             // 
@@ -410,11 +418,11 @@
             this.CommSubMenuItem_Delete.Size = new System.Drawing.Size(180, 22);
             this.CommSubMenuItem_Delete.Text = "删除对象";
             // 
-            // TSMI_ViewColumnList
+            // TSMI_FilterProc
             // 
-            this.TSMI_ViewColumnList.Name = "TSMI_ViewColumnList";
-            this.TSMI_ViewColumnList.Size = new System.Drawing.Size(180, 22);
-            this.TSMI_ViewColumnList.Text = "查看字段";
+            this.TSMI_FilterProc.Name = "TSMI_FilterProc";
+            this.TSMI_FilterProc.Size = new System.Drawing.Size(180, 22);
+            this.TSMI_FilterProc.Text = "筛选存储过程";
             // 
             // DBServerView
             // 
@@ -483,5 +491,6 @@
         private System.Windows.Forms.ToolStripMenuItem TSMI_ViewTableList;
         private System.Windows.Forms.ToolStripMenuItem TSMI_ExeProc;
         private System.Windows.Forms.ToolStripMenuItem TSMI_ViewColumnList;
+        private System.Windows.Forms.ToolStripMenuItem TSMI_FilterProc;
     }
 }
