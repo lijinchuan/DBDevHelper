@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(UCKeySearch));
             this.BtnSearchPatten = new System.Windows.Forms.Button();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.TabPageData = new System.Windows.Forms.TabPage();
@@ -43,6 +44,7 @@
             this.新增KeyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.CBServers = new System.Windows.Forms.ComboBox();
             this.CBDefaultDB = new System.Windows.Forms.ComboBox();
+            this.TCBSearchKey = new RedisHelperUI.UC.TableCombox();
             this.tabControl1.SuspendLayout();
             this.TabPageData.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.DGVData)).BeginInit();
@@ -175,10 +177,20 @@
             // CBDefaultDB
             // 
             this.CBDefaultDB.FormattingEnabled = true;
-            this.CBDefaultDB.Location = new System.Drawing.Point(13, 9);
+            this.CBDefaultDB.Location = new System.Drawing.Point(13, 6);
             this.CBDefaultDB.Name = "CBDefaultDB";
             this.CBDefaultDB.Size = new System.Drawing.Size(66, 20);
             this.CBDefaultDB.TabIndex = 6;
+            // 
+            // TCBSearchKey
+            // 
+            this.TCBSearchKey.AutoSize = true;
+            this.TCBSearchKey.DataSource = null;
+            this.TCBSearchKey.Location = new System.Drawing.Point(85, 4);
+            this.TCBSearchKey.Name = "TCBSearchKey";
+            this.TCBSearchKey.SelectedValues = ((System.Collections.Generic.List<object>)(resources.GetObject("TCBSearchKey.SelectedValues")));
+            this.TCBSearchKey.Size = new System.Drawing.Size(355, 26);
+            this.TCBSearchKey.TabIndex = 2;
             // 
             // UCKeySearch
             // 
@@ -187,6 +199,7 @@
             this.Controls.Add(this.CBDefaultDB);
             this.Controls.Add(this.CBServers);
             this.Controls.Add(this.tabControl1);
+            this.Controls.Add(this.TCBSearchKey);
             this.Controls.Add(this.BtnSearchPatten);
             this.Name = "UCKeySearch";
             this.Size = new System.Drawing.Size(824, 425);
@@ -197,6 +210,7 @@
             this.TabPageInfo.PerformLayout();
             this.CMSOP.ResumeLayout(false);
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 

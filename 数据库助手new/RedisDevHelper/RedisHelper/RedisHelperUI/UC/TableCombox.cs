@@ -62,6 +62,14 @@ namespace RedisHelperUI.UC
             }
         }
 
+        public void Clear()
+        {
+            if (gridview != null)
+            {
+                this.gridview.DataSource = null;
+            }
+        }
+
         public override string Text
         {
             get

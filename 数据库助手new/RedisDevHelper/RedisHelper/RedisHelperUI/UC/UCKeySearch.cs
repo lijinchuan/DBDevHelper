@@ -184,6 +184,8 @@ namespace RedisHelperUI.UC
             {
                 item.Click += item_Click;
             }
+
+            this.CBDefaultDB.SelectedIndex = 0;
         }
 
         void DGVData_DoubleClick(object sender, EventArgs e)
@@ -638,7 +640,8 @@ namespace RedisHelperUI.UC
 
         private void BtnSearchPatten_Click(object sender, EventArgs e)
         {
-
+            this.DGVData.DataSource = null;
+            this.TCBSearchKey.Clear();
             var key = TCBSearchKey.Text.Trim();
 
             if (string.IsNullOrWhiteSpace(key))
@@ -658,7 +661,7 @@ namespace RedisHelperUI.UC
                 //key = string.Format("{0}{1}{2}", "", key, key.EndsWith("*") ? "" : "*");
             }
             DateTime time = DateTime.Now;
-            RedisUtil.SearchKey(RedisServer.ConnStr,this.CBServers.SelectedItem.ToString(),RedisServer.IsPrd, key, (d) =>
+            RedisUtil.SearchKey(RedisServer.ConnStr,(int?)CBDefaultDB.SelectedValue,this.CBServers.SelectedItem.ToString(),RedisServer.IsPrd, key, (d) =>
                 {
                     tabControl1.SelectedTab = TabPageData;
                     DataTable dt = new DataTable();

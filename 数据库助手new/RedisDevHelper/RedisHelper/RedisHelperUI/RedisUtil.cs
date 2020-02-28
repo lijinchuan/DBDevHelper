@@ -41,7 +41,7 @@ namespace RedisHelperUI
             }
         }
 
-        public static void Conn(string connstr, Action<ConnectionMultiplexer> execute, Action<Exception> err)
+        public static void Conn(string connstr, int? defatltdb, Action<ConnectionMultiplexer> execute, Action<Exception> err)
         {
             StringBuilder sb = new StringBuilder();
             try
@@ -49,7 +49,10 @@ namespace RedisHelperUI
                 using (System.IO.TextWriter txtwriter = new System.IO.StringWriter(sb))
                 {
                     ConfigurationOptions cfg=ConfigurationOptions.Parse(connstr);
-    
+                    if (defatltdb != null)
+                    {
+                        cfg.DefaultDatabase = defatltdb;
+                    }
                     using (var conns = StackExchange.Redis.ConnectionMultiplexer.Connect(cfg, txtwriter))
                     {
                         execute(conns);
@@ -67,9 +70,9 @@ namespace RedisHelperUI
             }
         }
 
-        public static void SearchKey2(string connstr, string hostandpoint, bool isprd, string keypatten, Action<List<string>> keysplit, Action<Exception> err, int pagesize = 10, int offset = 0)
+        public static void SearchKey2(string connstr, int? defatltdb, string hostandpoint, bool isprd, string keypatten, Action<List<string>> keysplit, Action<Exception> err, int pagesize = 10, int offset = 0)
         {
-            Conn(connstr, (conn) =>
+            Conn(connstr,defatltdb, (conn) =>
             {
                 List<string> keys = new List<string>();
 
@@ -100,15 +103,15 @@ namespace RedisHelperUI
             });
         }
 
-        public static void SearchKey(string connstr,string hostandpoint,bool isprd, string keypatten, Action<List<string>> keysplit, Action<Exception> err, int pagesize = 10, int offset = 0)
+        public static void SearchKey(string connstr, int? defatltdb, string hostandpoint,bool isprd, string keypatten, Action<List<string>> keysplit, Action<Exception> err, int pagesize = 10, int offset = 0)
         {
             if (!string.IsNullOrWhiteSpace(hostandpoint))
             {
-                SearchKey2(connstr, hostandpoint, isprd, keypatten, keysplit, err, pagesize, offset);
+                SearchKey2(connstr,defatltdb, hostandpoint, isprd, keypatten, keysplit, err, pagesize, offset);
                 return;
             }
 
-            Conn(connstr, (conn) =>
+            Conn(connstr,defatltdb, (conn) =>
                 {
                     List<string> keys = new List<string>();
 

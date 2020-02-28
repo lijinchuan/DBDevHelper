@@ -89,6 +89,8 @@ namespace RedisHelperUI.UC
             {
                 item.Click += item_Click;
             }
+
+            this.CBDefaultDB.SelectedIndex = 0;
         }
 
         void DGVData_DoubleClick(object sender, EventArgs e)
