@@ -26,6 +26,8 @@ namespace NETDBHelper
             this.dbServerView1.OnShowProc += this.ShowProc;
             this.dbServerView1.OnShowDataDic += this.ShowDataDic;
             this.dbServerView1.OnViewTable += this.ShowTables;
+            this.dbServerView1.OnViewCloumns += this.ShowColumns;
+            this.dbServerView1.OnFilterProc += this.FilterProc;
             this.dbServerView1.OnExecutSql += this.ExecutSql;
             this.dbServerView1.OnShowViewSql += this.ShowViewSql;
             
@@ -115,6 +117,52 @@ namespace NETDBHelper
             panel.OnSearch += (w) =>
             {
                 
+            };
+            this.TabControl.TabPages.Add(panel);
+            this.TabControl.SelectedTab = panel;
+        }
+
+        private void ShowColumns(string dbname, string html)
+        {
+            var tit = $"查看{dbname}的字段";
+            foreach (TabPage tab in this.TabControl.TabPages)
+            {
+                if (tab.Text.Equals(tit))
+                {
+                    (tab as UC.WebTab).SetHtml(html);
+                    TabControl.SelectedTab = tab;
+                    return;
+                }
+            }
+            UC.WebTab panel = new WebTab();
+            panel.SetHtml(html);
+            panel.Text = tit;
+            panel.OnSearch += (w) =>
+            {
+
+            };
+            this.TabControl.TabPages.Add(panel);
+            this.TabControl.SelectedTab = panel;
+        }
+
+        private void FilterProc(string dbname, string html)
+        {
+            var tit = $"查看{dbname}的存储过程";
+            foreach (TabPage tab in this.TabControl.TabPages)
+            {
+                if (tab.Text.Equals(tit))
+                {
+                    (tab as UC.WebTab).SetHtml(html);
+                    TabControl.SelectedTab = tab;
+                    return;
+                }
+            }
+            UC.WebTab panel = new WebTab();
+            panel.SetHtml(html);
+            panel.Text = tit;
+            panel.OnSearch += (w) =>
+            {
+
             };
             this.TabControl.TabPages.Add(panel);
             this.TabControl.SelectedTab = panel;

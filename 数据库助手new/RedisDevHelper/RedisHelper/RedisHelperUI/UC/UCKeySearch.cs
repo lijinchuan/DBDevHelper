@@ -41,6 +41,16 @@ namespace RedisHelperUI.UC
         {
             InitializeComponent();
 
+            List<KeyValuePair<int?, string>> list = new List<KeyValuePair<int?, string>>();
+            list.Add(new KeyValuePair<int?, string>((int?)null, string.Empty));
+            for (int i = 0; i < 100; i++)
+            {
+                list.Add(new KeyValuePair<int?, string>(i, $"db({i})"));
+            }
+            this.CBDefaultDB.DataSource = list;
+            this.CBDefaultDB.ValueMember = "Key";
+            this.CBDefaultDB.DisplayMember = "Value";
+
             this.TCBSearchKey.TextChanged += TCBSearchKey_TextChanged;
         }
 
@@ -54,7 +64,7 @@ namespace RedisHelperUI.UC
                 return;
             }
             DateTime time = DateTime.Now;
-            RedisUtil.Execute(RedisServer.ConnStr, (client) =>
+            RedisUtil.Execute(RedisServer.ConnStr, (int?)CBDefaultDB.SelectedValue, (client) =>
             {
                 tabControl1.SelectedTab = TabPageData;
                 TBMsg.Text = "";
@@ -174,6 +184,8 @@ namespace RedisHelperUI.UC
             {
                 item.Click += item_Click;
             }
+
+            this.CBDefaultDB.SelectedIndex = 0;
         }
 
         void DGVData_DoubleClick(object sender, EventArgs e)
@@ -198,7 +210,7 @@ namespace RedisHelperUI.UC
                     {
                         if (MessageBox.Show("要删除 " + this.RedisKey + " 吗？", "ask", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
                         {
-                            RedisUtil.Execute(this.RedisServer.ConnStr, (db) =>
+                            RedisUtil.Execute(this.RedisServer.ConnStr, (int?)CBDefaultDB.SelectedValue, (db) =>
                             {
                                 if (db.KeyDelete(this.RedisKey))
                                 {
@@ -224,7 +236,7 @@ namespace RedisHelperUI.UC
                         var field = (string)this.DGVData.CurrentRow.Cells["name"].Value;
                         if (MessageBox.Show("要删除 " + this.RedisKey + ":" + field + " 吗？", "ask", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
                         {
-                            RedisUtil.Execute(this.RedisServer.ConnStr, (db) =>
+                            RedisUtil.Execute(this.RedisServer.ConnStr, (int?)CBDefaultDB.SelectedValue, (db) =>
                             {
                                 if (db.HashDelete(this.RedisKey, field))
                                 {
@@ -251,7 +263,7 @@ namespace RedisHelperUI.UC
                         var field = (string)this.DGVData.CurrentRow.Cells["item"].Value;
                         if (MessageBox.Show("要删除 " + this.RedisKey + ":" + field + " 吗？", "ask", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
                         {
-                            RedisUtil.Execute(this.RedisServer.ConnStr, (db) =>
+                            RedisUtil.Execute(this.RedisServer.ConnStr, (int?)CBDefaultDB.SelectedValue, (db) =>
                             {
                                 if (db.ListRemove(this.RedisKey, field) >= 0)
                                 {
@@ -277,7 +289,7 @@ namespace RedisHelperUI.UC
                         var field = (string)this.DGVData.CurrentRow.Cells["members"].Value;
                         if (MessageBox.Show("要删除 " + this.RedisKey + ":" + field + " 吗？", "ask", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
                         {
-                            RedisUtil.Execute(this.RedisServer.ConnStr, (db) =>
+                            RedisUtil.Execute(this.RedisServer.ConnStr, (int?)CBDefaultDB.SelectedValue, (db) =>
                             {
                                 if (db.SetRemove(this.RedisKey, field))
                                 {
@@ -303,7 +315,7 @@ namespace RedisHelperUI.UC
                         var field = (string)this.DGVData.CurrentRow.Cells["Element"].Value;
                         if (MessageBox.Show("要删除 " + this.RedisKey + ":" + field + " 吗？", "ask", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
                         {
-                            RedisUtil.Execute(this.RedisServer.ConnStr, (db) =>
+                            RedisUtil.Execute(this.RedisServer.ConnStr, (int?)CBDefaultDB.SelectedValue, (db) =>
                             {
                                 if (db.SortedSetRemove(this.RedisKey, field))
                                 {
@@ -331,7 +343,7 @@ namespace RedisHelperUI.UC
                     {
                         if (MessageBox.Show("要删除 " + this.RedisKey + " 吗？", "ask", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
                         {
-                            RedisUtil.Execute(this.RedisServer.ConnStr, (db) =>
+                            RedisUtil.Execute(this.RedisServer.ConnStr, (int?)CBDefaultDB.SelectedValue, (db) =>
                             {
                                 if (db.KeyDelete(this.RedisKey))
                                 {
@@ -362,7 +374,7 @@ namespace RedisHelperUI.UC
                             foreach (DataGridViewRow item in DGVData.SelectedRows)
                             {
                                 var field = (string)item.Cells["name"].Value;
-                                RedisUtil.Execute(this.RedisServer.ConnStr, (db) =>
+                                RedisUtil.Execute(this.RedisServer.ConnStr, (int?)CBDefaultDB.SelectedValue, (db) =>
                                 {
                                     if (db.HashDelete(this.RedisKey, field))
                                     {
@@ -399,7 +411,7 @@ namespace RedisHelperUI.UC
                             foreach (DataGridViewRow row in DGVData.SelectedRows)
                             {
                                 var field = (string)row.Cells["item"].Value;
-                                RedisUtil.Execute(this.RedisServer.ConnStr, (db) =>
+                                RedisUtil.Execute(this.RedisServer.ConnStr, (int?)CBDefaultDB.SelectedValue, (db) =>
                                 {
                                     if (db.ListRemove(this.RedisKey, field) >= 0)
                                     {
@@ -434,7 +446,7 @@ namespace RedisHelperUI.UC
                             foreach (DataGridViewRow row in DGVData.SelectedRows)
                             {
                                 var field = (string)row.Cells["members"].Value;
-                                RedisUtil.Execute(this.RedisServer.ConnStr, (db) =>
+                                RedisUtil.Execute(this.RedisServer.ConnStr, (int?)CBDefaultDB.SelectedValue, (db) =>
                                 {
                                     if (db.SetRemove(this.RedisKey, field))
                                     {
@@ -469,7 +481,7 @@ namespace RedisHelperUI.UC
                             foreach (DataGridViewRow row in DGVData.SelectedRows)
                             {
                                 var field = (string)row.Cells["Element"].Value;
-                                RedisUtil.Execute(this.RedisServer.ConnStr, (db) =>
+                                RedisUtil.Execute(this.RedisServer.ConnStr, (int?)CBDefaultDB.SelectedValue, (db) =>
                                 {
                                     if (db.SortedSetRemove(this.RedisKey, field))
                                     {
@@ -506,7 +518,7 @@ namespace RedisHelperUI.UC
                         subform.IsNumber = false;
                         if (subform.ShowDialog() == DialogResult.Yes)
                         {
-                            RedisUtil.Execute(this.RedisServer.ConnStr, (db) =>
+                            RedisUtil.Execute(this.RedisServer.ConnStr, (int?)CBDefaultDB.SelectedValue, (db) =>
                             {
                                 if (db.StringSet(this.RedisKey, subform.NewValue))
                                 {
@@ -536,7 +548,7 @@ namespace RedisHelperUI.UC
                         subform.OldValue = this.DGVData.CurrentRow.Cells["value"].Value.ToString();
                         if (subform.ShowDialog() == DialogResult.Yes)
                         {
-                            RedisUtil.Execute(this.RedisServer.ConnStr, (db) =>
+                            RedisUtil.Execute(this.RedisServer.ConnStr, (int?)CBDefaultDB.SelectedValue, (db) =>
                             {
                                 db.HashSet(this.RedisKey, field, subform.NewValue);
                                 MessageBox.Show("success");
@@ -560,7 +572,7 @@ namespace RedisHelperUI.UC
                         subform.IsNumber = true;
                         if (subform.ShowDialog() == DialogResult.Yes)
                         {
-                            RedisUtil.Execute(this.RedisServer.ConnStr, (db) =>
+                            RedisUtil.Execute(this.RedisServer.ConnStr, (int?)CBDefaultDB.SelectedValue, (db) =>
                             {
                                 db.SortedSetAdd(RedisKey, field, (double)subform.NewValue);
 
@@ -578,6 +590,7 @@ namespace RedisHelperUI.UC
         private void Add()
         {
             SubInsertForm form = new SubInsertForm();
+            form.DefaultDB = (int?)CBDefaultDB.SelectedValue;
             form.Key = this.RedisKey;
             form.RedisType = this.RedisType;
             form.RedisServer = this.RedisServer;
@@ -627,7 +640,8 @@ namespace RedisHelperUI.UC
 
         private void BtnSearchPatten_Click(object sender, EventArgs e)
         {
-
+            this.DGVData.DataSource = null;
+            this.TCBSearchKey.Clear();
             var key = TCBSearchKey.Text.Trim();
 
             if (string.IsNullOrWhiteSpace(key))
@@ -647,7 +661,7 @@ namespace RedisHelperUI.UC
                 //key = string.Format("{0}{1}{2}", "", key, key.EndsWith("*") ? "" : "*");
             }
             DateTime time = DateTime.Now;
-            RedisUtil.SearchKey(RedisServer.ConnStr,this.CBServers.SelectedItem.ToString(),RedisServer.IsPrd, key, (d) =>
+            RedisUtil.SearchKey(RedisServer.ConnStr,(int?)CBDefaultDB.SelectedValue,this.CBServers.SelectedItem.ToString(),RedisServer.IsPrd, key, (d) =>
                 {
                     tabControl1.SelectedTab = TabPageData;
                     DataTable dt = new DataTable();
@@ -672,6 +686,7 @@ namespace RedisHelperUI.UC
         private void 新增KeyToolStripMenuItem_Click(object sender, EventArgs e)
         {
             AddNewForm addform = new AddNewForm();
+            addform.Defaultdb = (int?)CBDefaultDB.SelectedValue;
             addform.RediServer = this.RedisServer;
             if (addform.ShowDialog() == DialogResult.OK)
             {

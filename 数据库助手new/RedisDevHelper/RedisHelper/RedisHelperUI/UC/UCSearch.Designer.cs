@@ -42,8 +42,9 @@
             this.增加ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.复制ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.统计条数ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.TBSubKey = new System.Windows.Forms.TextBox();
             this.新增keyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.TBSubKey = new System.Windows.Forms.TextBox();
+            this.CBDefaultDB = new System.Windows.Forms.ComboBox();
             this.tabControl1.SuspendLayout();
             this.TabPageData.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.DGVData)).BeginInit();
@@ -53,9 +54,9 @@
             // 
             // TBSearchKey
             // 
-            this.TBSearchKey.Location = new System.Drawing.Point(18, 9);
+            this.TBSearchKey.Location = new System.Drawing.Point(90, 10);
             this.TBSearchKey.Name = "TBSearchKey";
-            this.TBSearchKey.Size = new System.Drawing.Size(287, 21);
+            this.TBSearchKey.Size = new System.Drawing.Size(215, 21);
             this.TBSearchKey.TabIndex = 0;
             // 
             // BtnSearch
@@ -140,38 +141,45 @@
             this.统计条数ToolStripMenuItem,
             this.新增keyToolStripMenuItem});
             this.CMSOP.Name = "CMSOP";
-            this.CMSOP.Size = new System.Drawing.Size(153, 158);
+            this.CMSOP.Size = new System.Drawing.Size(125, 136);
             // 
             // 删除ToolStripMenuItem
             // 
             this.删除ToolStripMenuItem.Name = "删除ToolStripMenuItem";
-            this.删除ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.删除ToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
             this.删除ToolStripMenuItem.Text = "删除";
             // 
             // 修改ToolStripMenuItem
             // 
             this.修改ToolStripMenuItem.Name = "修改ToolStripMenuItem";
-            this.修改ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.修改ToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
             this.修改ToolStripMenuItem.Text = "修改";
             // 
             // 增加ToolStripMenuItem
             // 
             this.增加ToolStripMenuItem.Name = "增加ToolStripMenuItem";
-            this.增加ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.增加ToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
             this.增加ToolStripMenuItem.Text = "增加项";
             // 
             // 复制ToolStripMenuItem
             // 
             this.复制ToolStripMenuItem.Name = "复制ToolStripMenuItem";
-            this.复制ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.复制ToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
             this.复制ToolStripMenuItem.Text = "复制";
             // 
             // 统计条数ToolStripMenuItem
             // 
             this.统计条数ToolStripMenuItem.Name = "统计条数ToolStripMenuItem";
-            this.统计条数ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.统计条数ToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
             this.统计条数ToolStripMenuItem.Text = "统计条数";
             this.统计条数ToolStripMenuItem.Click += new System.EventHandler(this.统计条数ToolStripMenuItem_Click);
+            // 
+            // 新增keyToolStripMenuItem
+            // 
+            this.新增keyToolStripMenuItem.Name = "新增keyToolStripMenuItem";
+            this.新增keyToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
+            this.新增keyToolStripMenuItem.Text = "新增key";
+            this.新增keyToolStripMenuItem.Click += new System.EventHandler(this.新增keyToolStripMenuItem_Click);
             // 
             // TBSubKey
             // 
@@ -180,17 +188,19 @@
             this.TBSubKey.Size = new System.Drawing.Size(158, 21);
             this.TBSubKey.TabIndex = 4;
             // 
-            // 新增keyToolStripMenuItem
+            // CBDefaultDB
             // 
-            this.新增keyToolStripMenuItem.Name = "新增keyToolStripMenuItem";
-            this.新增keyToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.新增keyToolStripMenuItem.Text = "新增key";
-            this.新增keyToolStripMenuItem.Click += new System.EventHandler(this.新增keyToolStripMenuItem_Click);
+            this.CBDefaultDB.FormattingEnabled = true;
+            this.CBDefaultDB.Location = new System.Drawing.Point(18, 11);
+            this.CBDefaultDB.Name = "CBDefaultDB";
+            this.CBDefaultDB.Size = new System.Drawing.Size(66, 20);
+            this.CBDefaultDB.TabIndex = 5;
             // 
             // UCSearch
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.CBDefaultDB);
             this.Controls.Add(this.TBSubKey);
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.BtnSearch);
@@ -225,5 +235,6 @@
         private System.Windows.Forms.TextBox TBSubKey;
         private System.Windows.Forms.ToolStripMenuItem 统计条数ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 新增keyToolStripMenuItem;
+        private System.Windows.Forms.ComboBox CBDefaultDB;
     }
 }

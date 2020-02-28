@@ -63,7 +63,7 @@ namespace NETDBHelper.UC
             datastrip.Items.Add("复制标题+内容");
             datastrip.Items.Add("统计条数");
             datastrip.Items.Add("选择这一列");
-            datastrip.Items.Add("-------");
+            datastrip.Items.Add(new ToolStripSeparator());
             datastrip.Items.Add("表重命名");
             datastrip.Items.Add("导出表格数据");
             datastrip.Items.Add("导出全部表格数据");

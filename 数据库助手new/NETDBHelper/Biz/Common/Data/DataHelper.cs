@@ -517,23 +517,27 @@ namespace Biz.Common.Data
             return sb.ToString();
         }
 
-        public static string CreateTableEntity(DBSource dbsource, string dbname, string tbname, string tid,string classnamespace, bool isSupportProtobuf,
-            bool isSupportDBMapperAttr, bool isSupportJsonproterty, bool isSupportMvcDisplay, out bool hasKey)
+        public static string CreateTableEntity(DBSource dbsource, string dbname, string tbname, string tid,string classnamespace,bool isview, bool isSupportProtobuf,
+            bool isSupportDBMapperAttr, bool isSupportJsonproterty, bool isSupportMvcDisplay,Func<string,string> getDesc, out bool hasKey)
         {
             hasKey = false;
-            var tbDesc = SQLHelper.GetTableColsDescription(dbsource, dbname, tbname);
+            DataTable tbDesc = null;
+            if (isview)
+            {
+                tbDesc = new DataTable();
+                tbDesc.Columns.Add("ColumnName");
+                tbDesc.Columns.Add("Description");
+            }
+            else
+            {
+                tbDesc = SQLHelper.GetTableColsDescription(dbsource, dbname, tbname);
+            }
 
             Regex rg = new Regex(@"(\w+)\s*\((\w+)\)");
-            string format = @"        {4}public {0} {1}
+            string format = @"        {2}public {0} {1}
         {{
-            get
-            {{
-                return {2};
-            }}
-            set
-            {{
-                {3}=value;
-            }}
+            get;
+            set;
         }}";
 
 
@@ -554,7 +558,8 @@ namespace Biz.Common.Data
                 sb.AppendLine(string.Format("        public const string TbName=\"{0}.{1}\";", dbname, tbname));
             }
 
-            var cols = SQLHelper.GetColumns(dbsource, dbname, tid, tbname);
+            var cols =isview? SQLHelper.GetViews(dbsource,dbname,tbname).First().Value: SQLHelper.GetColumns(dbsource, dbname, tid, tbname);
+            
             //TreeNode selNode = tv_DBServers.SelectedNode;
             int idx = 1;
             //foreach (TreeNode column in selNode.Nodes)
@@ -566,11 +571,15 @@ namespace Biz.Common.Data
                          where string.Equals((string)x["ColumnName"], column.Name, StringComparison.OrdinalIgnoreCase)
                          select x["Description"]).FirstOrDefault();
 
-                string desc = y == DBNull.Value ? string.Empty : (string)y;
+                string desc = y == DBNull.Value ? getDesc(column.Name) : (string)y;
 
-                string privateAttr = string.Concat("_" + Biz.Common.StringHelper.FirstToLower(column.Name));
-                sb.AppendFormat("        private {0} {1};", Biz.Common.Data.Common.DbTypeToNetType(column.TypeName), privateAttr);
-                sb.AppendLine();
+                //string privateAttr = string.Concat("_" + Biz.Common.StringHelper.FirstToLower(column.Name));
+                //sb.AppendFormat("        private {0} {1};", Biz.Common.Data.Common.DbTypeToNetType(column.TypeName,column.IsNullAble), privateAttr);
+                //sb.AppendLine();
+
+                sb.AppendLine(@"        /// <summary>");
+                sb.AppendLine($@"        /// {desc}");
+                sb.AppendLine(@"        /// </summary>");
 
                 if (isSupportProtobuf)
                 {
@@ -598,8 +607,13 @@ namespace Biz.Common.Data
                     sb.AppendLine("        [PropertyDescriptionAttr(\"" + desc + "\")]");
                 }
 
-                sb.AppendFormat(format, Biz.Common.Data.Common.DbTypeToNetType(column.TypeName), Biz.Common.StringHelper.FirstToUpper(column.Name),
-                    privateAttr, privateAttr, isSupportMvcDisplay ? string.Format("[Display(Name = \"{0}\")]\r\n        ", string.IsNullOrWhiteSpace(desc) ? column.Name : desc) : string.Empty);
+                if (iskey)
+                {
+                    sb.AppendLine("        [Key]");
+                }
+                
+                sb.AppendFormat(format, Biz.Common.Data.Common.DbTypeToNetType(column.TypeName,column.IsNullAble), Biz.Common.StringHelper.FirstToUpper(column.Name),
+                    isSupportMvcDisplay ? string.Format("[Display(Name = \"{0}\")]\r\n        ", string.IsNullOrWhiteSpace(desc) ? column.Name : desc) : string.Empty);
                 sb.AppendLine();
             }
             sb.AppendLine("    }");

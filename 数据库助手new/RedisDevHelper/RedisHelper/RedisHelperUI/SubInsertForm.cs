@@ -51,6 +51,12 @@ namespace RedisHelperUI
             private set;
         }
 
+        public int? DefaultDB
+        {
+            get;
+            set;
+        }
+
         public SubInsertForm()
         {
             InitializeComponent();
@@ -143,7 +149,7 @@ namespace RedisHelperUI
 
                                 OnAdd = (connstr) =>
                                 {
-                                    RedisUtil.Execute(connstr, db =>
+                                    RedisUtil.Execute(connstr,DefaultDB, db =>
                                     {
                                         db.HashSet(this.Key, this.SubKey, this.Val);
                                         MessageBox.Show("添加成功");
@@ -208,7 +214,7 @@ namespace RedisHelperUI
 
                             OnAdd = (connstr) =>
                                 {
-                                    RedisUtil.Execute(connstr, db =>
+                                    RedisUtil.Execute(connstr,DefaultDB, db =>
                                         {
                                             db.ListLeftPush(this.Key, this.Val);
                                             MessageBox.Show("添加成功");
@@ -273,7 +279,7 @@ namespace RedisHelperUI
 
                             OnAdd = (connstr) =>
                             {
-                                RedisUtil.Execute(connstr, db =>
+                                RedisUtil.Execute(connstr,DefaultDB, db =>
                                 {
                                     db.SetAdd(this.Key, this.Val);
                                     MessageBox.Show("添加成功");
@@ -343,7 +349,7 @@ namespace RedisHelperUI
 
                             OnAdd = (connstr) =>
                             {
-                                RedisUtil.Execute(connstr, db =>
+                                RedisUtil.Execute(connstr,DefaultDB, db =>
                                 {
                                     db.SortedSetAdd(this.Key, subkey, (double)this.Val);
                                     MessageBox.Show("添加成功");
@@ -426,7 +432,7 @@ namespace RedisHelperUI
 
                                 OnAdd = (connstr) =>
                                 {
-                                    RedisUtil.Execute(connstr, db =>
+                                    RedisUtil.Execute(connstr,DefaultDB, db =>
                                     {
                                         db.SetAdd(this.TBKey.Text, this.Val);
                                         MessageBox.Show("添加成功");
@@ -440,7 +446,7 @@ namespace RedisHelperUI
                             {
                                 OnAdd = (connstr) =>
                                 {
-                                    RedisUtil.Execute(connstr, db =>
+                                    RedisUtil.Execute(connstr,DefaultDB, db =>
                                     {
                                         db.StringSet(this.TBKey.Text, this.Val.ToString());
                                         MessageBox.Show("添加成功");

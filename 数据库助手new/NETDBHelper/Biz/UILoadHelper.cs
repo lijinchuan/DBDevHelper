@@ -163,7 +163,7 @@ namespace Biz
             }
         }
 
-        private static void LoadProcedure(Form parent, TreeNode tbNode, DBSource server)
+        private static void LoadProcedure(Form parent, TreeNode tbNode, DBSource server,Func<string,string> gettip)
         {
             if (server == null)
                 return;
@@ -174,13 +174,32 @@ namespace Biz
                 //int imgIdx = col.IsKey ? 4 : 5;
                 TreeNode newNode = new TreeNode(kv.Key, 13, 14);
                 newNode.Tag = kv;
+                var pname = string.Empty;
                 foreach(var row in kv)
                 {
-                    var len = row.Field<Int16>("length");
-                    var isnullable = row.Field<int>("isnullable")==1;
-                    var isoutparam = row.Field<int>("isoutparam")==1;
-                    newNode.Nodes.Add(row.Field<string>("pname"), $"{row.Field<string>("pname")}({row.Field<string>("tpname")}{(len==-1?string.Empty:"("+len.ToString()+")")}{(isnullable?" null":"")}{(isoutparam?" output":"")})",isoutparam?12: 11,isoutparam?12:11);
+                    if (!row.IsNull("pname"))
+                    {
+                        var len = row.IsNull("length") ? -1 : row.Field<Int16>("length");
+                        var isnullable = row.Field<int>("isnullable") == 1;
+                        var isoutparam = row.Field<int>("isoutparam") == 1;
+                        newNode.Nodes.Add(row.Field<string>("pname"), $"{row.Field<string>("pname")}({row.Field<string>("tpname")}{(len == -1 ? string.Empty : "(" + len.ToString() + ")")}{(isnullable ? " null" : "")}{(isoutparam ? " output" : "")})", isoutparam ? 12 : 11, isoutparam ? 12 : 11);
+                    }
                 }
+
+                if (gettip != null)
+                {
+                    var tiptext = gettip(kv.Key);
+                    if (string.IsNullOrWhiteSpace(tiptext))
+                    {
+                        newNode.ImageIndex = 19;
+                        newNode.SelectedImageIndex = 20;
+                    }
+                    else
+                    {
+                        newNode.ToolTipText = tiptext;
+                    }
+                }
+
                 treeNodes.Add(newNode);
             }
             if (parent.InvokeRequired)
@@ -195,11 +214,11 @@ namespace Biz
             }
         }
 
-        public static void LoadProcedureAnsy(Form parent, TreeNode procedureNode, DBSource server)
+        public static void LoadProcedureAnsy(Form parent, TreeNode procedureNode, DBSource server,Func<string,string> gettip)
         {
             procedureNode.Nodes.Add(new TreeNode("加载中...", 17, 17));
             procedureNode.Expand();
-            new Action<Form, TreeNode, DBSource>(LoadProcedure).BeginInvoke(parent, procedureNode, server, null, null);
+            new Action<Form, TreeNode, DBSource,Func<string,string>>(LoadProcedure).BeginInvoke(parent, procedureNode, server, gettip,null, null);
         }
 
         public static void LoadIndexAnsy(Form parent, TreeNode tbNode, DBSource server)

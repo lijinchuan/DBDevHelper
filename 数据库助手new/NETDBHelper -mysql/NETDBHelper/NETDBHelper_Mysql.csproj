@@ -346,7 +346,11 @@
     <None Include="Resources\report.png" />
     <None Include="Resources\report_key.png" />
     <None Include="Resources\shapes_many.png" />
+    <Content Include="Resources\page1.png" />
     <Content Include="Resources\plugin_add.png" />
+    <Content Include="Resources\report1.png" />
+    <Content Include="Resources\report_key1.png" />
+    <Content Include="Resources\shapes_many1.png" />
     <Content Include="Resources\SQLSerTop.jpg" />
   </ItemGroup>
   <ItemGroup>

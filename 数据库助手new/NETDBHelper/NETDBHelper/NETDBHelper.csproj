@@ -42,7 +42,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
-    <PlatformTarget>x86</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -385,6 +385,8 @@
     <Content Include="Resources\connect.png" />
     <Content Include="Resources\loading2.gif" />
     <Content Include="Resources\msg.png" />
+    <None Include="Resources\script_code_no.png" />
+    <None Include="Resources\script_code_red_no.png" />
     <Content Include="Resources\tbview.png" />
     <None Include="packages.config" />
     <None Include="Resources\tags_red.png" />

@@ -83,6 +83,6 @@ namespace Biz.Common.Data
                  INNER JOIN sys.index_columns AS d   with(nolock)   ON d.object_id = c.object_id AND d.index_id = c.index_id
                  INNER JOIN sys.columns AS e    with(nolock)        ON e.object_id = d.object_id AND e.column_id = d.column_id
                  INNER JOIN sys.data_spaces AS f   with(nolock)     ON f.data_space_id = c.data_space_id
-                 where a.name='{0}' and c.is_hypothetical=0 and c.type_desc<>'HEAP' and d.partition_ordinal=0";
+                 where a.name='{0}' and c.is_hypothetical=0 and c.type_desc<>'HEAP' --and d.partition_ordinal=0";
     }
 }

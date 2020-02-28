@@ -109,7 +109,7 @@ namespace Biz.Common.Data
             }
         }
 
-        public static string DbTypeToNetType(string dbtype)
+        public static string DbTypeToNetType(string dbtype,bool nullable)
         {
             var lowdbtype = dbtype.ToLower();
             switch (lowdbtype)
@@ -125,25 +125,32 @@ namespace Biz.Common.Data
                 case "date":
                 case "datetime":
                 case "smalldatetime":
-                    return "DateTime";
+                    return "DateTime"+(nullable?"?":"");
                 case "bit":
-                    return "bool";
+                case "byte":
+                    return "bool" + (nullable ? "?" : "");
                 case "sql_variant":
                     return "object";
                 case "bigint":
-                    return "long";
+                    return "long" + (nullable ? "?" : "");
                 case "binary":
                     return "byte[]";
                 case "money":
                 case "numeric":
                 case "real":
                 case "smallmoney":
-                    return "decimal";
+                    return "decimal" + (nullable ? "?" : "");
                 case "tinyint":
+                    return "byte" + (nullable ? "?" : "");
                 case "smallint":
-                    return "Int16";
+                    return "Int16" + (nullable ? "?" : "");
                 case "float":
-                    return "double";
+                    return "double" + (nullable ? "?" : "");
+                case "int":
+                case "int32":
+                    return "int" + (nullable ? "?" : "");
+                case "uniqueidentifier":
+                    return "Guid" + (nullable ? "?" : "");
             }
             return lowdbtype;
         }

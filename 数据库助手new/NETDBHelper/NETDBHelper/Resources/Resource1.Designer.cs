@@ -392,9 +392,29 @@ namespace NETDBHelper.Resources {
         /// <summary>
         ///   查找 System.Drawing.Bitmap 类型的本地化资源。
         /// </summary>
+        internal static System.Drawing.Bitmap script_code_no {
+            get {
+                object obj = ResourceManager.GetObject("script_code_no", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        /// </summary>
         internal static System.Drawing.Bitmap script_code_red {
             get {
                 object obj = ResourceManager.GetObject("script_code_red", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        /// </summary>
+        internal static System.Drawing.Bitmap script_code_red_no {
+            get {
+                object obj = ResourceManager.GetObject("script_code_red_no", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
