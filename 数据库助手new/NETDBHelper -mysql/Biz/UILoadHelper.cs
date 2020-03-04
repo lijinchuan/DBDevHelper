@@ -15,10 +15,10 @@ namespace Biz
         {
             if (onLoadComplete != null)
             {
-                if (SQLServersTB == null)
-                {
-                    SQLServersTB = Microsoft.SqlServer.Management.Smo.SmoApplication.EnumAvailableSqlServers();
-                }
+                //if (SQLServersTB == null)
+                //{
+                //    SQLServersTB = Microsoft.SqlServer.Management.Smo.SmoApplication.EnumAvailableSqlServers();
+                //}
                 DataTable tb = SQLServersTB;
                 if (!parentForm.IsDisposed)
                     parentForm.Invoke(onLoadComplete, tb);
@@ -63,14 +63,14 @@ namespace Biz
             }
         }
 
-        public static void LoadTBsAnsy(Form parent, TreeNode dbNode, DBSource server)
+        public static void LoadTBsAnsy(Form parent, TreeNode dbNode, DBSource server, Func<string, string> gettip)
         {
-            new Action<Form, TreeNode, DBSource>(LoadTBs).BeginInvoke(parent, dbNode, server, null, null);
+            new Action<Form, TreeNode, DBSource, Func<string, string>>(LoadTBs).BeginInvoke(parent, dbNode, server,gettip, null, null);
         }
 
-        public static void LoadColumnsAnsy(Form parent, TreeNode tbNode, DBSource server)
+        public static void LoadColumnsAnsy(Form parent, TreeNode tbNode, DBSource server, Func<TBColumn, string> gettip)
         {
-            new Action<Form, TreeNode, DBSource>(LoadColumns).BeginInvoke(parent, tbNode, server, null, null);
+            new Action<Form, TreeNode, DBSource, Func<TBColumn, string>>(LoadColumns).BeginInvoke(parent, tbNode, server,gettip, null, null);
         }
 
         public static void LoadProcedureAnsy(Form parent,TreeNode procedureNode,DBSource server)
@@ -133,7 +133,7 @@ namespace Biz
             }
         }
 
-        private static void LoadColumns(Form parent, TreeNode tbNode, DBSource server)
+        private static void LoadColumns(Form parent, TreeNode tbNode, DBSource server, Func<TBColumn, string> gettip)
         {
             if (server == null)
                 return;
@@ -143,6 +143,11 @@ namespace Biz
                 int imgIdx = (col.IsID && col.IsKey) ? 9 : (col.IsKey ? 4 : (col.IsID ? 10 : 5));
                 TreeNode newNode = new TreeNode(string.Concat(col.Name, "(", col.TypeName, ")"), imgIdx, imgIdx);
                 newNode.Tag = col;
+                newNode.ToolTipText = string.IsNullOrWhiteSpace(col.Description) ? gettip(col) : col.Description;
+                if (!col.IsKey && string.IsNullOrWhiteSpace(newNode.ToolTipText))
+                {
+                    newNode.ImageIndex = newNode.SelectedImageIndex = 16;
+                }
                 treeNodes.Add(newNode);
             }
             if (parent.InvokeRequired)
@@ -170,7 +175,7 @@ namespace Biz
             foreach (string col in Biz.Common.Data.MySQLHelper.GetProcedures(server, tbNode.Parent.Text).ToList())
             {
                 //int imgIdx = col.IsKey ? 4 : 5;
-                TreeNode newNode = new TreeNode(col, 5, 5);
+                TreeNode newNode = new TreeNode(col, 13, 14);
                 newNode.Tag = col;
                 treeNodes.Add(newNode);
             }
@@ -186,7 +191,7 @@ namespace Biz
             }
         }
 
-        private static void LoadTBs(Form parent, TreeNode serverNode, DBSource server)
+        private static void LoadTBs(Form parent, TreeNode serverNode, DBSource server, Func<string, string> gettip)
         {
             //var server = DBServers.FirstOrDefault(p => p.ServerName.Equals(e.Node.Parent.Text));
             if (server == null)
@@ -203,6 +208,16 @@ namespace Biz
             {
                 TreeNode newNode = new TreeNode(tb2.Rows[i]["name"].ToString(), 3, 3);
                 newNode.Name = tb2.Rows[i]["name"].ToString();
+                newNode.Tag = new TableInfo
+                {
+                    DBName = serverNode.Text,
+                    //TBId = tb2.Rows[i]["id"].ToString(),
+                    TBName = tb2.Rows[i]["name"].ToString()
+                };
+                if (gettip != null)
+                {
+                    newNode.ToolTipText = gettip(tb2.Rows[i]["name"].ToString());
+                }
                 treeNodes.Add(newNode);
             }
             if (parent.InvokeRequired)

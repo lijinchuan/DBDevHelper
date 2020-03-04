@@ -15,6 +15,15 @@ namespace NETDBHelper.UC
             set;
         }
 
+        public string Text
+        {
+            get
+            {
+                return TabPage.Text;
+            }
+        }
+
+
         public int TabIndex
         {
             get;

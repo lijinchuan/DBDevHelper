@@ -32,6 +32,8 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(EditTextBox));
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.粘贴ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.全选ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.复制ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.RichText = new NETDBHelper.UC.MyRichTextBox();
             this.ScaleNos = new NETDBHelper.UC.Scale();
             this.contextMenuStrip1.SuspendLayout();
@@ -40,16 +42,32 @@
             // contextMenuStrip1
             // 
             this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.粘贴ToolStripMenuItem});
+            this.粘贴ToolStripMenuItem,
+            this.全选ToolStripMenuItem,
+            this.复制ToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(153, 48);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(95, 70);
             // 
             // 粘贴ToolStripMenuItem
             // 
             this.粘贴ToolStripMenuItem.Name = "粘贴ToolStripMenuItem";
-            this.粘贴ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.粘贴ToolStripMenuItem.Size = new System.Drawing.Size(94, 22);
             this.粘贴ToolStripMenuItem.Text = "粘贴";
             this.粘贴ToolStripMenuItem.Click += new System.EventHandler(this.粘贴ToolStripMenuItem_Click);
+            // 
+            // 全选ToolStripMenuItem
+            // 
+            this.全选ToolStripMenuItem.Name = "全选ToolStripMenuItem";
+            this.全选ToolStripMenuItem.Size = new System.Drawing.Size(94, 22);
+            this.全选ToolStripMenuItem.Text = "全选";
+            this.全选ToolStripMenuItem.Click += new System.EventHandler(this.全选ToolStripMenuItem_Click);
+            // 
+            // 复制ToolStripMenuItem
+            // 
+            this.复制ToolStripMenuItem.Name = "复制ToolStripMenuItem";
+            this.复制ToolStripMenuItem.Size = new System.Drawing.Size(94, 22);
+            this.复制ToolStripMenuItem.Text = "复制";
+            this.复制ToolStripMenuItem.Click += new System.EventHandler(this.复制ToolStripMenuItem_Click);
             // 
             // RichText
             // 
@@ -61,6 +79,8 @@
             this.RichText.Size = new System.Drawing.Size(625, 448);
             this.RichText.TabIndex = 1;
             this.RichText.Text = "";
+            this.RichText.SelectionChanged += new System.EventHandler(this.RichText_SelectionChanged);
+            this.RichText.MouseHover += new System.EventHandler(this.RichText_MouseHover);
             // 
             // ScaleNos
             // 
@@ -91,5 +111,7 @@
         private MyRichTextBox RichText;
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
         private System.Windows.Forms.ToolStripMenuItem 粘贴ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 全选ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 复制ToolStripMenuItem;
     }
 }

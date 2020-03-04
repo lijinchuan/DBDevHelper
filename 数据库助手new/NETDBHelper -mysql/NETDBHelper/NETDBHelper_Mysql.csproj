@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>NETDBHelper</RootNamespace>
     <AssemblyName>NETDBMysqlHelper</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
@@ -39,6 +39,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -48,6 +49,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="CalculateModel">
@@ -56,6 +58,9 @@
     <Reference Include="LJC.FrameWork">
       <HintPath>..\..\Lib\LJC.FrameWork.dll</HintPath>
     </Reference>
+    <Reference Include="LJC.FrameWorkV3">
+      <HintPath>..\..\Lib\LJC.FrameWorkV3.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.SqlServer.Smo, Version=10.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>C:\Program Files\Microsoft SQL Server\100\SDK\Assemblies\Microsoft.SqlServer.Smo.dll</HintPath>
@@ -63,6 +68,9 @@
     <Reference Include="MySql.Data, Version=6.4.4.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\Lib\MySql.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="protobuf-net">
+      <HintPath>..\..\Lib\protobuf-net.2.0.0.668\lib\net40\protobuf-net.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -202,6 +210,12 @@
     <Compile Include="UC\Scale.Designer.cs">
       <DependentUpon>Scale.cs</DependentUpon>
     </Compile>
+    <Compile Include="UC\SQLCodePanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="UC\SQLCodePanel.Designer.cs">
+      <DependentUpon>SQLCodePanel.cs</DependentUpon>
+    </Compile>
     <Compile Include="UC\SQLEditBox.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -235,6 +249,12 @@
     </Compile>
     <Compile Include="UC\ViewTBData.Designer.cs">
       <DependentUpon>ViewTBData.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UC\WebTab.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="UC\WebTab.Designer.cs">
+      <DependentUpon>WebTab.cs</DependentUpon>
     </Compile>
     <EmbeddedResource Include="ConnSQLServer.resx">
       <DependentUpon>ConnSQLServer.cs</DependentUpon>
@@ -295,6 +315,9 @@
     <EmbeddedResource Include="UC\Scale.resx">
       <DependentUpon>Scale.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="UC\SQLCodePanel.resx">
+      <DependentUpon>SQLCodePanel.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="UC\SqlProceCodePanel.resx">
       <DependentUpon>SqlProceCodePanel.cs</DependentUpon>
     </EmbeddedResource>
@@ -309,6 +332,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="UC\ViewTBData.resx">
       <DependentUpon>ViewTBData.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UC\WebTab.resx">
+      <DependentUpon>WebTab.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="app.config">
       <SubType>Designer</SubType>
@@ -328,10 +354,21 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resources\新建位图图像.bmp" />
+    <None Include="Resources\tbview.png" />
+    <None Include="Resources\tags_red.png" />
+    <None Include="Resources\tags_grey.png" />
     <None Include="Map\新建位图图像.bmp" />
     <None Include="Map\新建位图图像 %282%29.bmp" />
+    <None Include="Resources\bullet_eject.png" />
+    <None Include="Resources\bullet_tick.png" />
+    <None Include="Resources\application_form_magnify.png" />
     <Content Include="Resources\CloseServer.jpg" />
+    <None Include="Resources\colq.png" />
+    <None Include="Resources\computer_link.png" />
+    <None Include="Resources\connect.png" />
     <Content Include="Resources\DB1.png" />
+    <None Include="Resources\DB16.png" />
     <Content Include="Resources\DB2.png" />
     <Content Include="Resources\DB3.png" />
     <Content Include="Resources\DB4.png" />
@@ -340,6 +377,9 @@
     <None Include="Resources\MYSQLICON.jpg" />
     <None Include="Resources\MysqlLogo.jpg" />
     <Content Include="Resources\key_add.png" />
+    <None Include="Resources\loading.gif" />
+    <None Include="Resources\loading2.gif" />
+    <None Include="Resources\msg.png" />
     <Content Include="Resources\OpenServer.jpg" />
     <Content Include="Resources\OpenServer.png" />
     <None Include="Resources\page.png" />
@@ -347,9 +387,15 @@
     <None Include="Resources\report_key.png" />
     <None Include="Resources\shapes_many.png" />
     <Content Include="Resources\page1.png" />
+    <None Include="Resources\page2.png" />
     <Content Include="Resources\plugin_add.png" />
     <Content Include="Resources\report1.png" />
+    <None Include="Resources\report2.png" />
     <Content Include="Resources\report_key1.png" />
+    <None Include="Resources\script_code.png" />
+    <None Include="Resources\script_code_no.png" />
+    <None Include="Resources\script_code_red.png" />
+    <None Include="Resources\script_code_red_no.png" />
     <Content Include="Resources\shapes_many1.png" />
     <Content Include="Resources\SQLSerTop.jpg" />
   </ItemGroup>

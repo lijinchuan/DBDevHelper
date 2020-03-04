@@ -29,6 +29,13 @@ namespace NETDBHelper.SubForm
             }
         }
 
+        protected override void OnLoad(EventArgs e)
+        {
+            base.OnLoad(e);
+
+            this.tbInput.ImeMode = ImeMode.On;
+        }
+
         private void BtnOk_Click(object sender, EventArgs e)
         {
             if (!string.IsNullOrWhiteSpace(this.tbInput.Text))
