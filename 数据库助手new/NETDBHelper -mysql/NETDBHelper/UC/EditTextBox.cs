@@ -54,7 +54,7 @@ namespace NETDBHelper.UC
             view.Visible = false;
             view.MouseLeave += View_MouseLeave;
             view.BorderStyle = BorderStyle.None;
-            view.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
+            view.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             //view.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
             view.AllowUserToAddRows = false;
             view.RowHeadersVisible = false;
@@ -63,6 +63,8 @@ namespace NETDBHelper.UC
             view.GridColor = Color.LightGreen;
 
             this.ParentChanged += EditTextBox_ParentChanged;
+
+            this.RichText.ImeMode = ImeMode.On;
         }
 
         private void EditTextBox_ParentChanged(object sender, EventArgs e)
@@ -291,10 +293,10 @@ namespace NETDBHelper.UC
                     {
                         _markedLines.Add(l);
 
-                        foreach (var m in this.KeyWords.MatchKeyWord(express))
+                        foreach (var m in this.KeyWords.MatchKeyWord(express.ToLower()))
                         {
-                            if ((m.PostionStart == 0 || "[]{},|%#@!<>=(); ".IndexOf(express[m.PostionStart-1])>-1)
-                                && (m.PostionEnd == express.Length - 1 || "[]{},|%#@!<>=(); ".IndexOf(express[m.PostionEnd + 1])>-1))
+                            if ((m.PostionStart == 0 || "[]{},|%#!<>=();+-*/\r\n 　".IndexOf(express[m.PostionStart - 1]) > -1)
+                                && (m.PostionEnd == express.Length - 1 || "[]{},|%#!<>=();+-*/\r\n 　".IndexOf(express[m.PostionEnd + 1]) > -1))
                             {
                                 DataRow row = tb.NewRow();
                                 row[0] = totalIndex + m.PostionStart;
@@ -352,8 +354,29 @@ namespace NETDBHelper.UC
 
         }
 
+        private Tuple<string, string> GetTableName(string s, string defalutdb)
+        {
+            var arr = s.Split('.');
+            if (arr.Length == 1 || (arr[arr.Length - 2].Equals("dbo", StringComparison.OrdinalIgnoreCase) && arr.Length == 2))
+            {
+                return new Tuple<string, string>(defalutdb.ToUpper(), arr.Last().Trim('[', ']').Trim().ToUpper());
+            }
+            else if (arr.Length == 3)
+            {
+                return new Tuple<string, string>(arr.First().Trim('[', ']').Trim().ToUpper(), arr.Last().Trim('[', ']').Trim().ToUpper());
+            }
+            return new Tuple<string, string>(arr.First().Trim('[', ']').Trim().ToUpper(),
+                arr.Last().Trim('[', ']').Trim().ToUpper());
+        }
+
+
         private void RichText_SelectionChanged(object sender, EventArgs e)
         {
+            if (string.IsNullOrWhiteSpace(DBName))
+            {
+                return;
+            }
+
             var seltext = this.RichText.SelectedText;
             if (string.IsNullOrWhiteSpace(seltext) || seltext.IndexOf('\n') > -1 || seltext.Length > 30)
             {
@@ -362,26 +385,40 @@ namespace NETDBHelper.UC
 
             seltext = seltext.Trim().ToUpper();
             var subtexts = seltext.Split('.').Select(p => p.Trim('[', ']').Trim()).ToArray();
+            List<string[]> keys = new List<string[]>();
             if (subtexts.Length > 2)
             {
-                subtexts = subtexts.Skip(subtexts.Length - 2).ToArray();
+                keys.Add(new string[] { subtexts[subtexts.Length - 3], subtexts[subtexts.Length - 2], subtexts.Last() });
             }
-            List<MarkColumnInfo> marklist = new List<MarkColumnInfo>();
-            if (subtexts.Length > 1)
+            else if (subtexts.Length > 1)
             {
-                marklist = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkColumnInfo>("MarkColumnInfo",
-                    p => p.TBName.Equals(subtexts[0]) && p.ColumnName.Equals(subtexts[1])).ToList();
-
-
+                keys.Add(new string[] { DBName.ToUpper(), subtexts[subtexts.Length - 2], subtexts.Last() });
             }
             else
             {
-                HashSet<string> tablenamehash = new HashSet<string>();
-                foreach (Match m in Regex.Matches(this.RichText.Text, @"[\s\n]+from[\s\n]+([\w\.\[\]]{1,})|[\s\n]+join[\s\n]+([\w\.\[\]]{1,})", RegexOptions.IgnoreCase | RegexOptions.Multiline))
+                //[\s\n]+from[\s\r\n]+(?:(?:[\w\.\[\]]{1,})[\s\r\n]+(?:as)?(?:\w+)?(?:\,(?:[\w\.\[\]]{1,})[\s\r\n]+(?:as)?(?:\s+\w+)?)*)
+                //[\s\n]+from[\s\r\n]+((?:[\w\.\[\]]{1,}(?:\s?=\w+)?(?:\,?=[\w\.\[\]]{1,}(?:\s?=\w+)?))*)|[\s\n]+join[\s\n]+([\w\.\[\]]{1,})|(?:^?|\s+)update|insert\s+([\w\.\[\]]+)
+                HashSet<Tuple<string, string>> tablenamehash = new HashSet<Tuple<string, string>>();
+                foreach (Match m in Regex.Matches(this.RichText.Text, @"[\s\r\n]+from[\s\r\n]+(?:([\w\.\[\]]{1,})[\s\r\n]+(?:as)?(?:\w+)?(?:\,[\r\n\s]*(?:[\w\.\[\]]{1,})[\s\r\n]+(?:as)?(?:[\s\r\n]+\w+)?)*)|[\s\n\r]+join[\s\n\r]+([\w\.\[\]]{1,})|(?:^?|\s+)update[\s\r\n]+([\w\.\[\]]{1,})|insert[\s\r\n]+into[\s\r\n]+([\w\.\[\]]+)|delete[\s\r\n]+from[\s\r\n]+([\w\.\[\]]+)",
+                    RegexOptions.IgnoreCase | RegexOptions.Multiline))
                 {
+                    if (!string.IsNullOrWhiteSpace(m.Groups[0].Value))
+                    {
+                        foreach (Match n in Regex.Matches(m.Groups[0].Value, @",[\s\r\n]*([\w\.\[\]]{1,})[\s\r\n]+(?:as)?(?:[\s\r\n]+\w+)?", RegexOptions.IgnoreCase | RegexOptions.Multiline))
+                        {
+                            var t = GetTableName(n.Groups[1].Value, DBName);
+
+                            if (!tablenamehash.Contains(t))
+                            {
+                                tablenamehash.Add(t);
+                            }
+                        }
+                    }
+
+                    //select
                     if (!string.IsNullOrEmpty(m.Groups[1].Value))
                     {
-                        var t1 = m.Groups[1].Value.Split('.').Last().ToUpper();
+                        var t1 = GetTableName(m.Groups[1].Value, DBName);
 
                         if (!tablenamehash.Contains(t1))
                         {
@@ -390,9 +427,10 @@ namespace NETDBHelper.UC
 
                     }
 
+                    //join
                     if (!string.IsNullOrEmpty(m.Groups[2].Value))
                     {
-                        var t2 = m.Groups[2].Value.Split('.').Last().ToUpper();
+                        var t2 = GetTableName(m.Groups[2].Value, DBName);
 
                         if (!tablenamehash.Contains(t2))
                         {
@@ -401,28 +439,106 @@ namespace NETDBHelper.UC
 
                     }
 
+                    //update
+                    if (!string.IsNullOrEmpty(m.Groups[3].Value))
+                    {
+                        var t = GetTableName(m.Groups[3].Value, DBName);
+
+                        if (!tablenamehash.Contains(t))
+                        {
+                            tablenamehash.Add(t);
+                        }
+
+                    }
+
+                    //insert
+                    if (!string.IsNullOrEmpty(m.Groups[4].Value))
+                    {
+                        var t = GetTableName(m.Groups[4].Value, DBName);
+
+                        if (!tablenamehash.Contains(t))
+                        {
+                            tablenamehash.Add(t);
+                        }
+
+                    }
+                    //delete
+                    if (!string.IsNullOrEmpty(m.Groups[5].Value))
+                    {
+                        var t = GetTableName(m.Groups[5].Value, DBName);
+
+                        if (!tablenamehash.Contains(t))
+                        {
+                            tablenamehash.Add(t);
+                        }
+
+                    }
+
                 }
 
                 if (tablenamehash.Count > 0)
                 {
-                    marklist = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkColumnInfo>("MarkColumnInfo",
-                    p => tablenamehash.Contains(p.TBName) && p.ColumnName.Equals(seltext)).ToList();
+                    foreach (var it in tablenamehash)
+                    {
+                        keys.Add(new string[] { it.Item1, it.Item2, subtexts.Last() });
+                    }
                 }
 
             }
 
-            if (marklist.Count > 0)
+            if (keys.Count > 0)
             {
-                view.DataSource = marklist.Select(p => new
+                var marklist = new List<MarkColumnInfo>();
+                foreach (var key in keys)
                 {
-                    提示 = p.DBName.ToLower() + "." + p.TBName.ToLower() + "." + p.ColumnName.ToLower() + ":" + p.MarkInfo
-                }).ToList();
-                view.Visible = true;
-                view.BringToFront();
-                view.Height = (view.Rows.GetRowsHeight(DataGridViewElementStates.Visible) / marklist.Count) * (Math.Min(10, marklist.Count) + 1) + view.ColumnHeadersHeight;
+                    var findresult = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkColumnInfo>("MarkColumnInfo", "keys", key).FirstOrDefault();
+                    if (findresult != null)
+                    {
+                        marklist.Add(findresult);
+                    }
 
-                view.Location = PointToClient(Control.MousePosition);
+                }
+                if (marklist.Count > 0)
+                {
+                    view.DataSource = marklist.Select(p => new
+                    {
+                        提示 = p.DBName.ToLower() + "." + p.TBName.ToLower() + "." + p.ColumnName.ToLower() + ":" + p.MarkInfo
+                    }).ToList();
+                    view.Visible = true;
+                    view.BringToFront();
+                    view.Height = (view.Rows.GetRowsHeight(DataGridViewElementStates.Visible) / marklist.Count) * marklist.Count + view.ColumnHeadersHeight;
+
+                    view.Location = PointToClient(Control.MousePosition);
+                }
             }
+        }
+
+        private void 搜索ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SubForm.FindDlg dlg = new SubForm.FindDlg();
+            //dlg.FindLast += (s, i) =>
+            //{
+            //    var pos = this.RichText.Find(s, i,RichTextBoxFinds.NoHighlight);
+            //    return pos;
+            //};
+            dlg.FindNext += (s, i) =>
+            {
+                var pos = this.RichText.Find(s, i, RichTextBoxFinds.NoHighlight);
+                if (pos != -1)
+                {
+                    this.RichText.Select(pos, s.Length);
+                    this.RichText.ScrollToCaret();
+                    this.RichText.Focus();
+                    return pos + s.Length;
+                }
+                else
+                {
+                    return 0;
+                }
+
+            };
+
+            dlg.Show();
         }
     }
 }

@@ -84,8 +84,14 @@ namespace NETDBHelper.UC
 
         public string DBName
         {
-            get;
-            set;
+            get
+            {
+                return this.tb_sql.DBName;
+            }
+            set
+            {
+                this.tb_sql.DBName = value;
+            }
         }
 
         public string TBName

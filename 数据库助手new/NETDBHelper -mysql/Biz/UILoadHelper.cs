@@ -32,6 +32,8 @@ namespace Biz
 
         public static void LoadDBsAnsy(Form parent, TreeNode serverNode, DBSource server)
         {
+            serverNode.Nodes.Add(new TreeNode("加载中...", 17, 17));
+            serverNode.Expand();
             new Action<Form, TreeNode, DBSource>(LoadDBs).BeginInvoke(parent, serverNode, server, null, null);
         }
 
@@ -65,21 +67,29 @@ namespace Biz
 
         public static void LoadTBsAnsy(Form parent, TreeNode dbNode, DBSource server, Func<string, string> gettip)
         {
+            dbNode.Nodes.Add(new TreeNode("加载中...", 17, 17));
+            dbNode.Expand();
             new Action<Form, TreeNode, DBSource, Func<string, string>>(LoadTBs).BeginInvoke(parent, dbNode, server,gettip, null, null);
         }
 
         public static void LoadColumnsAnsy(Form parent, TreeNode tbNode, DBSource server, Func<TBColumn, string> gettip)
         {
+            tbNode.Nodes.Add(new TreeNode("加载中...", 17, 17));
+            tbNode.Expand();
             new Action<Form, TreeNode, DBSource, Func<TBColumn, string>>(LoadColumns).BeginInvoke(parent, tbNode, server,gettip, null, null);
         }
 
         public static void LoadProcedureAnsy(Form parent,TreeNode procedureNode,DBSource server)
         {
+            procedureNode.Nodes.Add(new TreeNode("加载中...", 17, 17));
+            procedureNode.Expand();
             new Action<Form, TreeNode, DBSource>(LoadProcedure).BeginInvoke(parent, procedureNode, server, null, null);
         }
 
         public static void LoadIndexAnsy(Form parent, TreeNode tbNode, DBSource server)
         {
+            tbNode.Nodes.Add(new TreeNode("加载中...", 17, 17));
+            tbNode.Expand();
             new Action<Form, TreeNode, DBSource>(LoadIndexs).BeginInvoke(parent, tbNode, server, null, null);
         }
 
@@ -143,10 +153,14 @@ namespace Biz
                 int imgIdx = (col.IsID && col.IsKey) ? 9 : (col.IsKey ? 4 : (col.IsID ? 10 : 5));
                 TreeNode newNode = new TreeNode(string.Concat(col.Name, "(", col.TypeName, ")"), imgIdx, imgIdx);
                 newNode.Tag = col;
-                newNode.ToolTipText = string.IsNullOrWhiteSpace(col.Description) ? gettip(col) : col.Description;
+                newNode.ToolTipText = gettip(col);
+                if (string.IsNullOrWhiteSpace(newNode.ToolTipText))
+                {
+                    newNode.ToolTipText = col.Description;
+                }
                 if (!col.IsKey && string.IsNullOrWhiteSpace(newNode.ToolTipText))
                 {
-                    newNode.ImageIndex = newNode.SelectedImageIndex = 16;
+                    newNode.ImageIndex = newNode.SelectedImageIndex = 18;
                 }
                 treeNodes.Add(newNode);
             }

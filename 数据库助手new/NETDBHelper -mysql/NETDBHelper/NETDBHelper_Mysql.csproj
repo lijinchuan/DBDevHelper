@@ -106,11 +106,23 @@
     <Compile Include="SubForm\CreateEntityNavDlg.Designer.cs">
       <DependentUpon>CreateEntityNavDlg.cs</DependentUpon>
     </Compile>
+    <Compile Include="SubForm\FindDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SubForm\FindDlg.Designer.cs">
+      <DependentUpon>FindDlg.cs</DependentUpon>
+    </Compile>
     <Compile Include="SubForm\InputStringDlg.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="SubForm\InputStringDlg.Designer.cs">
       <DependentUpon>InputStringDlg.cs</DependentUpon>
+    </Compile>
+    <Compile Include="SubForm\MultiInputDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SubForm\MultiInputDlg.Designer.cs">
+      <DependentUpon>MultiInputDlg.cs</DependentUpon>
     </Compile>
     <Compile Include="SubForm\SubFrmPerformAnalysis.cs">
       <SubType>Form</SubType>
@@ -185,6 +197,18 @@
     </Compile>
     <Compile Include="UC\LabCombox.Designer.cs">
       <DependentUpon>LabCombox.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UC\LoadingBox.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UC\LoadingBox.Designer.cs">
+      <DependentUpon>LoadingBox.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UC\LogViewTab.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="UC\LogViewTab.Designer.cs">
+      <DependentUpon>LogViewTab.cs</DependentUpon>
     </Compile>
     <Compile Include="UC\MultSelectCombox.cs">
       <SubType>UserControl</SubType>
@@ -270,8 +294,14 @@
     <EmbeddedResource Include="SubForm\CreateEntityNavDlg.resx">
       <DependentUpon>CreateEntityNavDlg.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="SubForm\FindDlg.resx">
+      <DependentUpon>FindDlg.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="SubForm\InputStringDlg.resx">
       <DependentUpon>InputStringDlg.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SubForm\MultiInputDlg.resx">
+      <DependentUpon>MultiInputDlg.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="SubForm\SubFrmPerformAnalysis.resx">
       <DependentUpon>SubFrmPerformAnalysis.cs</DependentUpon>
@@ -308,6 +338,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="UC\LabCombox.resx">
       <DependentUpon>LabCombox.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UC\LoadingBox.resx">
+      <DependentUpon>LoadingBox.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UC\LogViewTab.resx">
+      <DependentUpon>LogViewTab.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UC\MultSelectCombox.resx">
       <DependentUpon>MultSelectCombox.cs</DependentUpon>

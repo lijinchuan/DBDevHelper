@@ -40,6 +40,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ColumnMarkSyncRecord.cs" />
     <Compile Include="CreateProceEnum.cs" />
     <Compile Include="DataBaseMapperAttr.cs" />
     <Compile Include="DBHelperException.cs" />
@@ -47,6 +48,7 @@
     <Compile Include="DBSource.cs" />
     <Compile Include="DBSourceCollection.cs" />
     <Compile Include="GlobalStatusInfo.cs" />
+    <Compile Include="HLogEntity.cs" />
     <Compile Include="IDType.cs" />
     <Compile Include="IndexEntry.cs" />
     <Compile Include="MarkColumnInfo.cs" />
