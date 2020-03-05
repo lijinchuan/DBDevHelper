@@ -249,6 +249,12 @@
     <Compile Include="UC\SqlProceCodePanel.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="UC\SqlSaveViewTab.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="UC\SqlSaveViewTab.Designer.cs">
+      <DependentUpon>SqlSaveViewTab.cs</DependentUpon>
+    </Compile>
     <Compile Include="UC\TableCombox.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -356,6 +362,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="UC\SqlProceCodePanel.resx">
       <DependentUpon>SqlProceCodePanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UC\SqlSaveViewTab.resx">
+      <DependentUpon>SqlSaveViewTab.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UC\TableCombox.resx">
       <DependentUpon>TableCombox.cs</DependentUpon>

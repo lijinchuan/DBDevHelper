@@ -37,6 +37,7 @@ namespace NETDBHelper.UC
             dic.Add("top", Color.Blue);
             dic.Add("nolock", Color.Blue);
             dic.Add("with", Color.Blue);
+            dic.Add("like", Color.Blue);
             dic.Add("order", Color.Green);
             dic.Add("by", Color.Green);
             dic.Add("desc", Color.Blue);
