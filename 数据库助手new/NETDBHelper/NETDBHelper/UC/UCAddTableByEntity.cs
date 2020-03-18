@@ -123,7 +123,7 @@ namespace Nonamespace
             }
         }
         private string _title;
-        <span style='color:blue;'>[DBFieldMapAttribute(Len=30)]</span>
+        <span style='color:blue;'>[DBFieldMapAttribute(Len=30)]//-1:max 0:50</span>
         public string Title
         {
             get

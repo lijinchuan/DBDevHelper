@@ -54,7 +54,10 @@ namespace Biz.Common.Data
                 return "datetime";
 
             if(netType.Equals(typeof(float)))
-                return "float";
+                return "float(24)";
+
+            if (netType.Equals(typeof(double)))
+                return "float(53)";
 
             if (netType.Equals(typeof(decimal)))
             {
@@ -66,7 +69,7 @@ namespace Biz.Common.Data
             if(netType.Equals(typeof(string)))
             {
                 if (len == 0)
-                    throw new ArgumentException("字符串长度不能为0");
+                    len = 50;
                 return string.Format("varchar({0})",len==-1?"MAX":len.ToString());
             }
 
