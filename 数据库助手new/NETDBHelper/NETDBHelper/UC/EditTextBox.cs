@@ -34,10 +34,67 @@ namespace NETDBHelper.UC
             }
         }
 
+
+        private Dictionary<string, string> objects = null;
+        private object GetObjects(string keys,ref int count)
+        {
+            if (string.IsNullOrWhiteSpace(_dbname))
+            {
+                return null;
+            }
+
+            if (objects == null)
+            {
+                var markColumnInfoList = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.List<MarkColumnInfo>("MarkColumnInfo", 1, int.MaxValue);
+                var columnMarkSyncRecordList = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.List<ColumnMarkSyncRecord>("ColumnMarkSyncRecord", 1, int.MaxValue);
+                objects = new Dictionary<string, string>();
+                count = 0;
+                foreach (var m in markColumnInfoList)
+                {
+                    if (m.DBName.Equals(_dbname, StringComparison.OrdinalIgnoreCase))
+                    {
+                        if (string.IsNullOrWhiteSpace(m.ColumnName))
+                        {
+                            objects.Remove(m.TBName);
+                            objects.Add($"{m.TBName}", m.MarkInfo);
+                        }
+                        else
+                        {
+                            if (!objects.ContainsKey(m.TBName))
+                            {
+                                objects.Add($"{m.TBName}", "表");
+                            }
+                            objects.Add($"{m.TBName}.{m.ColumnName}", m.MarkInfo);
+                        }
+                    }
+
+                    if (count == 20)
+                    {
+                        break;
+                    }
+                }
+            }
+
+            var list = objects.Where(p => p.Key.StartsWith(keys, StringComparison.OrdinalIgnoreCase)).Select(p => new
+            {
+                Name = p.Key.ToLower(),
+                Desc = p.Value
+            }).OrderBy(p => p.Name.Length).Take(20).ToList();
+            count = list.Count;
+            return list;
+        }
+
+        private string _dbname;
         public string DBName
         {
-            get;
-            set;
+            get
+            {
+                return _dbname;
+            }
+            set
+            {
+                _dbname = value;
+            }
         }
 
         public EditTextBox()
@@ -49,6 +106,8 @@ namespace NETDBHelper.UC
             this.RichText.VScroll += new EventHandler(RichText_VScroll);
             this.ScaleNos.Font = new Font(RichText.Font.FontFamily, RichText.Font.Size + 1.019f);
             this.RichText.KeyUp += new KeyEventHandler(RichText_KeyUp);
+            this.RichText.KeyDown += RichText_KeyDown;
+            this.RichText.KeyPress += RichText_KeyPress;
             
             this.RichText.TextChanged+=new EventHandler(RichText_TextChanged);
             defaultSelectionColor = this.RichText.SelectionColor;
@@ -60,15 +119,161 @@ namespace NETDBHelper.UC
             //view.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
             view.AllowUserToAddRows = false;
             view.RowHeadersVisible = false;
+            view.KeyUp += View_KeyUp;
             view.CellBorderStyle = DataGridViewCellBorderStyle.Single;
             view.BackgroundColor = Color.White;
             view.GridColor = Color.LightGreen;
+            view.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            view.CellClick += View_CellClick;
             
             this.ParentChanged += EditTextBox_ParentChanged;
 
             this.RichText.ImeMode = ImeMode.On;
 
             this.RichText.HideSelection = false;
+        }
+
+        private void RichText_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Down
+                || e.KeyCode == Keys.Up)
+            {
+                if (view.Visible)
+                {
+                    View_KeyUp(this, new KeyEventArgs(e.KeyCode));
+                    e.Handled = true;
+                }
+            }
+            else if (e.KeyCode == Keys.Enter)
+            {
+                if (view.Visible)
+                {
+                    int i = 0;
+                    for (; i < view.Rows.Count; i++)
+                    {
+                        if (view.Rows[i].Selected)
+                        {
+                            view.Rows[i].Selected = false;
+                            break;
+                        }
+                    }
+                    if (i == view.Rows.Count)
+                    {
+                        i = 0;
+                    }
+                    e.Handled = true;
+                    View_CellClick(this, new DataGridViewCellEventArgs(0, i));
+                }
+            }
+        }
+
+        private string GetCurrWord()
+        {
+            var curindex = this.RichText.SelectionStart;
+            var currline = this.RichText.GetLineFromCharIndex(curindex);
+            var charstartindex = this.RichText.GetFirstCharIndexOfCurrentLine();
+            var tippt = this.RichText.GetPositionFromCharIndex(curindex);
+            tippt.Offset(0, 20);
+            string pre = "", last = "";
+            int pi = curindex - charstartindex - 1;
+            while (pi >= 0)
+            {
+
+                var ch = this.RichText.Lines[currline][pi];
+
+                if ((ch >= 'A' && ch <= 'Z') || (ch >= 48 && ch <= 57) || (ch >= 'a' && ch <= 'z') || ch == '_' || ch == '.')
+                {
+                    pre = ch + pre;
+                    pi--;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            pi = curindex - charstartindex;
+            while (pi < this.RichText.Lines[currline].Length)
+            {
+                var ch = this.RichText.Lines[currline][pi];
+
+                if ((ch >= 'A' && ch <= 'Z') || (ch >= 48 && ch <= 57) || (ch >= 'a' && ch <= 'z') || ch == '_' || ch == '.')
+                {
+                    last += ch;
+                    pi++;
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            var keyword = pre + last;
+            return keyword;
+        }
+
+        private void View_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (view.Columns[e.ColumnIndex].Name == "提示")
+            {
+                return;
+            }
+
+            var val = view.Rows[e.RowIndex].Cells[0].Value.ToString();
+            var keyword = GetCurrWord();
+            if (val.StartsWith(keyword, StringComparison.OrdinalIgnoreCase))
+            {
+                this.RichText.Select(this.RichText.SelectionStart - keyword.Length, keyword.Length);
+                //this.RichText.Text.Remove(this.RichText.SelectionStart - keyword.Length, keyword.Length);
+                this.RichText.SelectedText = val;
+                this.RichText.SelectionStart += val.Length - keyword.Length;
+                view.Visible = false;
+            }
+
+            this.RichText.Focus();
+        }
+
+        private void View_KeyUp(object sender, KeyEventArgs e)
+        {
+            int i = 0;
+            for(; i < view.Rows.Count; i++)
+            {
+                if (view.Rows[i].Selected)
+                {
+                    view.Rows[i].Selected = false;
+                    break;
+                }
+            }
+            if (i == view.Rows.Count)
+            {
+                i = -1;
+            }
+            if (e.KeyCode == Keys.Up)
+            {
+                if (i <= 0)
+                {
+                    view.Rows[view.Rows.Count - 1].Selected = true;
+                }
+                else
+                {
+                    view.Rows[i - 1].Selected = true;
+                }
+            }
+            else if (e.KeyCode == Keys.Down)
+            {
+                if (i == view.Rows.Count - 1)
+                {
+                    view.Rows[0].Selected = true;
+                }
+                else
+                {
+                    view.Rows[i + 1].Selected = true;
+                }
+            }
+        }
+
+        private void RichText_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            
         }
 
         private void EditTextBox_ParentChanged(object sender, EventArgs e)
@@ -100,13 +305,12 @@ namespace NETDBHelper.UC
                 return;
             if (e.Alt)
                 return;
-            if (e.Shift)
-                return;
+            //if (e.Shift)
+            //    return;
             if (e.KeyData == (Keys.LButton|Keys.ShiftKey))
             {
                 return;
             }
-
             _lastInputChar = e.KeyValue;
         }
 
@@ -114,11 +318,43 @@ namespace NETDBHelper.UC
         {
             if (_lastInputChar == '\0')
                 return;
-
             if (this.RichText.Lines.Length == 0)
             {
                 return;
             }
+
+            #region 联想
+            var keyword = GetCurrWord();
+
+            if (!string.IsNullOrEmpty(keyword))
+            {
+                int count = 0;
+                var obj = GetObjects(keyword, ref count);
+                if (obj != null && count > 0)
+                {
+                    view.DataSource = obj;
+                    view.Visible = true;
+
+                    view.BringToFront();
+                    view.Height = (view.Rows.GetRowsHeight(DataGridViewElementStates.Visible) / count) * count + view.ColumnHeadersHeight;
+                    var curindex = this.RichText.SelectionStart;
+                    var tippt = this.RichText.GetPositionFromCharIndex(curindex);
+                    tippt.Offset(RichText.Location.X, 20);
+                    view.Location = tippt;
+                }
+                else
+                {
+                    view.DataSource = null;
+                    view.Visible = false;
+                }
+            }
+            else
+            {
+                view.DataSource = null;
+                view.Visible = false;
+            }
+
+            #endregion
 
             int line = this.RichText.GetLineFromCharIndex(this.RichText.GetFirstCharIndexOfCurrentLine());
             if (_lastInputChar == '\r' || _lastInputChar == '\n')
