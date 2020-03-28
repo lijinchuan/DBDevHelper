@@ -387,6 +387,7 @@
     <Content Include="Resources\msg.png" />
     <None Include="Resources\script_code_no.png" />
     <None Include="Resources\script_code_red_no.png" />
+    <Content Include="Resources\table.png" />
     <Content Include="Resources\tbview.png" />
     <None Include="packages.config" />
     <None Include="Resources\tags_red.png" />

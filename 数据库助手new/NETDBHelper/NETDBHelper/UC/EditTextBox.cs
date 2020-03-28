@@ -16,6 +16,66 @@ namespace NETDBHelper.UC
 {
     public partial class EditTextBox : UserControl
     {
+        public class ThinkInfo
+        {
+            /// <summary>
+            /// 0-关键字 1-表 2-字段
+            /// </summary>
+            public int Type
+            {
+                get;
+                set;
+            }
+
+            /// <summary>
+            /// 对象名
+            /// </summary>
+            public string ObjectName
+            {
+                get;
+                set;
+            }
+
+            /// <summary>
+            /// 关联内容
+            /// </summary>
+            public object Tag
+            {
+                get;
+                set;
+            }
+
+            /// <summary>
+            /// 描述
+            /// </summary>
+            public string Desc
+            {
+                get;
+                set;
+            }
+
+            /// <summary>
+            /// 匹配打分
+            /// </summary>
+            public byte Score
+            {
+                get;
+                set;
+            }
+        }
+
+        public class ViewContext
+        {
+            /// <summary>
+            ///0-空 1-字段提示 2-联想
+            /// </summary>
+            public byte DataType
+            {
+                get;
+                set;
+            }
+        }
+
         private Color defaultSelectionColor;
         //internal KeyWordManager keywordman = new KeyWordManager();
         private KeyWordManager _keyWords=new KeyWordManager();
@@ -34,37 +94,197 @@ namespace NETDBHelper.UC
             }
         }
 
-
-        private Dictionary<string, string> objects = null;
-        private object GetObjects(string keys,ref int count)
+        /// <summary>
+        /// 备选库
+        /// </summary>
+        private List<ThinkInfo> ThinkInfoLib = null;
+        private HashSet<string> TableSet = new HashSet<string>();
+        private object GetObjects(string keys, ref int count)
         {
             if (string.IsNullOrWhiteSpace(_dbname))
             {
                 return null;
             }
 
-            if (objects == null)
+            if (ThinkInfoLib == null)
             {
                 var markColumnInfoList = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.List<MarkColumnInfo>("MarkColumnInfo", 1, int.MaxValue);
-                var columnMarkSyncRecordList = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.List<ColumnMarkSyncRecord>("ColumnMarkSyncRecord", 1, int.MaxValue);
-                objects = new Dictionary<string, string>();
+                ThinkInfoLib = new List<ThinkInfo>();
+
+                /*objects.Add("use", "使用");
+                ThinkInfoLib.Add(new ThinkInfo { Type = 0, ObjectName = "use", Desc = "使用" });
+                objects.Add("set", "设置");
+                objects.Add("table", "表");
+                objects.Add("transaction", "事务");
+                objects.Add("rollback", "回滚");
+                objects.Add("return", "返回");
+                objects.Add("on", "");
+                objects.Add("view", "视图");
+                objects.Add("ansi_nulls", "");
+                objects.Add("quoted_identifier", "");
+                objects.Add("create", "创建");
+                objects.Add("@@error", "全局错误");
+                objects.Add("@@rowcount", "行数");
+                objects.Add("@@fetch_status", "游标状态");
+
+                objects.Add("select", "选择");
+                objects.Add("*", "");
+                objects.Add("from", "从");
+                objects.Add("delete", "删除");
+                objects.Add("update", "更新");
+                objects.Add("insert", "插入");
+                objects.Add("into", "到");
+                objects.Add("values", "插入值");
+                objects.Add("where", "条件");
+                objects.Add("distinct", "");
+                objects.Add("top", "");
+                objects.Add("nolock", "");
+                objects.Add("with", "");
+                objects.Add("like", "");
+                objects.Add("order", "");
+                objects.Add("by", "");
+                objects.Add("desc", "");
+                objects.Add("asc", "");
+                objects.Add("between", "");
+                objects.Add("and", "");
+                objects.Add("or", "");
+                objects.Add("not", "");
+                objects.Add("null", "");
+                objects.Add("isnull", "");
+                objects.Add("getdate", "");
+                objects.Add("year", "");
+                objects.Add("month", "");
+                objects.Add("day", "");
+                objects.Add("cast", "");
+                objects.Add("as", "");
+                objects.Add("convert", "");
+                objects.Add("case", "");
+                objects.Add("when", "");
+                objects.Add("then", "");
+                objects.Add("else", "");
+                objects.Add("end", "");
+                objects.Add("if", "");
+                objects.Add("is", "");
+                objects.Add("begin", "");
+                objects.Add("exec", "");
+                objects.Add("execute", "");
+                objects.Add("sp_executesql", "");
+                objects.Add("proc", "存储过程");
+                objects.Add("procedure", "存储过程");
+                objects.Add("declare", "申明");
+                objects.Add("while", "");
+                objects.Add("join", "");
+                objects.Add("for", "");
+                objects.Add("inner", "");
+                objects.Add("outer", "");
+                objects.Add("hash", "");
+                objects.Add("group", "");
+                objects.Add("output", "");
+                objects.Add("option", "");
+                objects.Add("recompile", "");
+                objects.Add("commit", "");
+                objects.Add("nocount", "");
+
+                objects.Add("count", "");
+                objects.Add("sum", "");
+                objects.Add("max", "");
+                objects.Add("min", "");
+                objects.Add("avg", "平均");
+                objects.Add("exists", "存在");
+                objects.Add("having", "");
+                objects.Add("mid", "");
+                objects.Add(",", "");
+                objects.Add("[", "");
+                objects.Add("]", "");
+                objects.Add("print", "");
+                objects.Add("charindex", "查找");
+                objects.Add("left", "");
+                objects.Add("right", "");
+                objects.Add("stuff", "");
+                objects.Add("len", "");
+                objects.Add("round", "");
+                objects.Add("difference", "");
+                objects.Add("soundex", "");
+                objects.Add("lower", "小写");
+                objects.Add("upper", "大写");
+                objects.Add("ltrim", "");
+                objects.Add("rtrim", "");
+                objects.Add("replace", "替换");
+                objects.Add("space", "空格");
+                objects.Add("reverse", "反转");
+                objects.Add("replicate", "");
+                objects.Add("quotename", "");
+                objects.Add("patindex", "");
+                objects.Add("parsename", "");
+                objects.Add("isdate", "");
+                objects.Add("datename", "");
+                objects.Add("datepart", "");
+                objects.Add("coalesce", "");
+                objects.Add("open", "游标打开");
+                objects.Add("fetch", "游标获取");
+                objects.Add("close", "游标关闭");
+                objects.Add("deallocate", "游标释放");
+
+                objects.Add("char", "");
+                objects.Add("nchar", "");
+                objects.Add("varchar", "");
+                objects.Add("nvarchar", "");
+                objects.Add("datetime", "");
+                objects.Add("float", "");
+                objects.Add("text", "");
+                objects.Add("ntext", "");
+                objects.Add("bit", "");
+                objects.Add("binary", "");
+                objects.Add("varbinary", "");
+                objects.Add("int", "");
+                objects.Add("tinyint", "");
+                objects.Add("smallint", "");
+                objects.Add("bigint", "");
+                objects.Add("decimal", "");
+                objects.Add("numeric", "");
+                objects.Add("smallmoney", "");
+                objects.Add("money", "");
+                objects.Add("real", "");
+                objects.Add("datetime2", "");
+                objects.Add("smalldatetime", "");
+                objects.Add("date", "");
+                objects.Add("time", "");
+                objects.Add("datetimeoffset", "");
+                objects.Add("timestamp", "");
+                objects.Add("sql_variant", "");
+                objects.Add("uniqueidentifier", "");
+                objects.Add("xml", "");
+                objects.Add("cursor", "游标");*/
+
+                foreach (var o in SQLKeyWordHelper.GetKeyWordList())
+                {
+                    ThinkInfoLib.Add(new ThinkInfo
+                    {
+                        Type = 0,
+                        Desc = o.Desc,
+                        ObjectName = o.KeyWord
+                    });
+                }
+
                 count = 0;
+                
                 foreach (var m in markColumnInfoList)
                 {
                     if (m.DBName.Equals(_dbname, StringComparison.OrdinalIgnoreCase))
                     {
                         if (string.IsNullOrWhiteSpace(m.ColumnName))
                         {
-                            objects.Remove(m.TBName);
-                            objects.Add($"{m.TBName}", m.MarkInfo);
+                            ThinkInfoLib.RemoveAll(p => p.ObjectName.Equals(m.TBName, StringComparison.OrdinalIgnoreCase));
+                            ThinkInfoLib.Add(new ThinkInfo { Type = 1, ObjectName = m.TBName.ToLower(), Tag = m, Desc = m.MarkInfo });
                         }
                         else
                         {
-                            if (!objects.ContainsKey(m.TBName))
+                            if (!ThinkInfoLib.Any(p => p.ObjectName.Equals(m.TBName, StringComparison.OrdinalIgnoreCase)))
                             {
-                                objects.Add($"{m.TBName}", "表");
+                                ThinkInfoLib.Add(new ThinkInfo { Type = 1, ObjectName = m.TBName.ToLower(), Tag = null, Desc = m.MarkInfo });
                             }
-                            objects.Add($"{m.TBName}.{m.ColumnName}", m.MarkInfo);
+
+                            ThinkInfoLib.Add(new ThinkInfo { Type = 2, Desc = m.MarkInfo, ObjectName = m.ColumnName.ToLower(), Tag = m });
                         }
                     }
 
@@ -75,13 +295,104 @@ namespace NETDBHelper.UC
                 }
             }
 
-            var list = objects.Where(p => p.Key.StartsWith(keys, StringComparison.OrdinalIgnoreCase)).Select(p => new
+            var searchtable = string.Empty;
+            if (keys.IndexOf('.') > -1)
             {
-                Name = p.Key.ToLower(),
-                Desc = p.Value
-            }).OrderBy(p => p.Name.Length).Take(20).ToList();
-            count = list.Count;
-            return list;
+                var keyarr = keys.Split('.');
+                searchtable = keyarr[keyarr.Length - 2];
+                keys = keyarr.Last();
+            }
+
+            List<ThinkInfo> thinkresut = new List<ThinkInfo>();
+            foreach (var item in ThinkInfoLib)
+            {
+                if (!string.IsNullOrEmpty(searchtable)&&(item.Type!=2 || !searchtable.Equals((item.Tag as MarkColumnInfo).TBName, StringComparison.OrdinalIgnoreCase)))
+                {
+                    continue;
+                }
+
+                if (item.ObjectName.Equals(keys, StringComparison.OrdinalIgnoreCase)
+                    ||(item.ObjectName.Equals(keys, StringComparison.OrdinalIgnoreCase)==true))
+                {
+                    item.Score = byte.MaxValue;
+                    thinkresut.Add(item);
+                    continue;
+                }
+
+                if (item.ObjectName.StartsWith(keys, StringComparison.OrdinalIgnoreCase)
+                    ||(item.Desc?.StartsWith(keys, StringComparison.OrdinalIgnoreCase))==true)
+                {
+                    item.Score = byte.MaxValue - 1;
+                    thinkresut.Add(item);
+                    continue;
+                }
+
+                int pos =item.ObjectName.IndexOf(keys, StringComparison.OrdinalIgnoreCase);
+                if (pos > -1)
+                {
+                    item.Score = Math.Max((byte)(byte.MaxValue - (byte)item.ObjectName.Length - (byte)pos), (byte)0);
+                    thinkresut.Add(item);
+                    continue;
+                }
+                else
+                {
+                    pos = item.Desc?.IndexOf(keys, StringComparison.OrdinalIgnoreCase) ?? -1;
+                    if (pos > -1)
+                    {
+                        item.Score = Math.Max((byte)(byte.MaxValue - (byte)item.Desc.Length - (byte)pos), (byte)0);
+                        thinkresut.Add(item);
+                        continue;
+                    }
+                }
+            }
+
+            foreach(var item in TableSet.Select(p => p).ToList())
+            {
+                if (this.RichText.Text.IndexOf(item, StringComparison.OrdinalIgnoreCase) == -1)
+                {
+                    TableSet.Remove(item);
+                }
+            }
+
+            thinkresut = thinkresut.Where(p =>
+            {
+                if (p.Type == 2)
+                {
+                    if (!TableSet.Contains((p.Tag as MarkColumnInfo).TBName, StringComparer.OrdinalIgnoreCase))
+                    {
+                        return false;
+                    }
+                }
+                return true;
+            }).OrderByDescending(p => p.Score).ThenBy(p=>p.ObjectName.Length).Take(20).ToList();
+
+            foreach (var p in thinkresut)
+            {
+                if (p.Type == 1 && !TableSet.Contains(p.ObjectName, StringComparer.OrdinalIgnoreCase))
+                {
+                    TableSet.Add(p.ObjectName);
+                }
+            }
+
+            count = thinkresut.Count;
+            return thinkresut.Select(p=> {
+                string objectname = null;
+                if (p.Type == 2)
+                {
+                    var markcolumn = (p.Tag as MarkColumnInfo);
+                    objectname = $"{markcolumn.TBName.ToLower()}.{p.ObjectName}";
+                }
+                else
+                {
+                    objectname = p.ObjectName;
+                }
+                return new
+                {
+                    对象 = objectname,
+                    说明 = p.Desc,
+                    p.Type
+                };
+            }).ToList();
         }
 
         private string _dbname;
@@ -125,12 +436,48 @@ namespace NETDBHelper.UC
             view.GridColor = Color.LightGreen;
             view.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             view.CellClick += View_CellClick;
+            view.RowPostPaint += View_RowPostPaint;
+            view.DataBindingComplete += View_DataBindingComplete;
+            view.Tag = new ViewContext
+            {
+                DataType=0
+            };
             
             this.ParentChanged += EditTextBox_ParentChanged;
 
             this.RichText.ImeMode = ImeMode.On;
 
             this.RichText.HideSelection = false;
+        }
+
+        private void View_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
+        {
+            if ((view.Tag as ViewContext).DataType == 2)
+            {
+                view.Columns["Type"].Visible = false;
+            }
+        }
+
+        private void View_RowPostPaint(object sender, DataGridViewRowPostPaintEventArgs e)
+        {
+            if ((view.Tag as ViewContext).DataType == 2)
+            {
+                Bitmap rowIcon = null;
+
+                var tp = (int)view.Rows[e.RowIndex].Cells["Type"].Value;
+                if (tp == 1)
+                {
+                    rowIcon = Resources.Resource1.table;
+                }
+                else if (tp == 2)
+                {
+                    rowIcon = Resources.Resource1.DB6;
+                }
+
+                if (rowIcon != null)
+                    e.Graphics.DrawImage(rowIcon, e.RowBounds.Left + 4, Convert.ToInt16((e.RowBounds.Top + e.RowBounds.Bottom) / 2 - 8), 16, 16);
+            }
+
         }
 
         private void RichText_KeyDown(object sender, KeyEventArgs e)
@@ -181,7 +528,9 @@ namespace NETDBHelper.UC
 
                 var ch = this.RichText.Lines[currline][pi];
 
-                if ((ch >= 'A' && ch <= 'Z') || (ch >= 48 && ch <= 57) || (ch >= 'a' && ch <= 'z') || ch == '_' || ch == '.')
+                if ((ch >= 'A' && ch <= 'Z') || (ch >= 48 && ch <= 57) || (ch >= 'a' && ch <= 'z') 
+                    || ch == '_' || ch == '.'
+                    ||(ch>= '\u4E00'&&ch<='\u9FA5'))
                 {
                     pre = ch + pre;
                     pi--;
@@ -192,18 +541,23 @@ namespace NETDBHelper.UC
                 }
             }
             pi = curindex - charstartindex;
-            while (pi < this.RichText.Lines[currline].Length)
+            if (this.RichText.Lines.Length > currline)
             {
-                var ch = this.RichText.Lines[currline][pi];
+                while (pi < this.RichText.Lines[currline].Length)
+                {
+                    var ch = this.RichText.Lines[currline][pi];
 
-                if ((ch >= 'A' && ch <= 'Z') || (ch >= 48 && ch <= 57) || (ch >= 'a' && ch <= 'z') || ch == '_' || ch == '.')
-                {
-                    last += ch;
-                    pi++;
-                }
-                else
-                {
-                    break;
+                    if ((ch >= 'A' && ch <= 'Z') || (ch >= 48 && ch <= 57) || (ch >= 'a' && ch <= 'z')
+                        || ch == '_' || ch == '.'
+                        || (ch >= '\u4E00' && ch <= '\u9FA5'))
+                    {
+                        last += ch;
+                        pi++;
+                    }
+                    else
+                    {
+                        break;
+                    }
                 }
             }
 
@@ -213,23 +567,20 @@ namespace NETDBHelper.UC
 
         private void View_CellClick(object sender, DataGridViewCellEventArgs e)
         {
-            if (view.Columns[e.ColumnIndex].Name == "提示")
+            if ((view.Tag as ViewContext).DataType == 2)
             {
-                return;
-            }
+                var val = view.Rows[e.RowIndex].Cells[0].Value.ToString();
+                var desc = (view.Rows[e.RowIndex].Cells[1].Value?.ToString()) ?? string.Empty;
+                var keyword = GetCurrWord();
 
-            var val = view.Rows[e.RowIndex].Cells[0].Value.ToString();
-            var keyword = GetCurrWord();
-            if (val.StartsWith(keyword, StringComparison.OrdinalIgnoreCase))
-            {
                 this.RichText.Select(this.RichText.SelectionStart - keyword.Length, keyword.Length);
                 //this.RichText.Text.Remove(this.RichText.SelectionStart - keyword.Length, keyword.Length);
-                this.RichText.SelectedText = val;
-                this.RichText.SelectionStart += val.Length - keyword.Length;
+                this.RichText.SelectedText = val+" ";
+                //this.RichText.SelectionStart += val.Length - keyword.Length;
                 view.Visible = false;
-            }
 
-            this.RichText.Focus();
+                this.RichText.Focus();
+            }
         }
 
         private void View_KeyUp(object sender, KeyEventArgs e)
@@ -332,7 +683,11 @@ namespace NETDBHelper.UC
                 var obj = GetObjects(keyword, ref count);
                 if (obj != null && count > 0)
                 {
+                    (view.Tag as ViewContext).DataType = 2;
                     view.DataSource = obj;
+                    var padding = view.Columns[0].DefaultCellStyle.Padding;
+                    padding.Left = 20;
+                    view.Columns[0].DefaultCellStyle.Padding = padding;
                     view.Visible = true;
 
                     view.BringToFront();
@@ -345,12 +700,14 @@ namespace NETDBHelper.UC
                 else
                 {
                     view.DataSource = null;
+                    (view.Tag as ViewContext).DataType = 0;
                     view.Visible = false;
                 }
             }
             else
             {
                 view.DataSource = null;
+                (view.Tag as ViewContext).DataType = 0;
                 view.Visible = false;
             }
 
@@ -511,10 +868,10 @@ namespace NETDBHelper.UC
                     return;
 
                 int line2 = CurrentClientScreentEndLine+1;
-                if (line2 == 1)
-                {
-                    return;
-                }
+                //if (line2 == 1)
+                //{
+                //    return;
+                //}
                 
                 int oldStart = this.RichText.SelectionStart;
                 int oldSelectLen = this.RichText.SelectionLength;
@@ -755,10 +1112,14 @@ namespace NETDBHelper.UC
                 }
                 if (marklist.Count > 0)
                 {
+                    (view.Tag as ViewContext).DataType = 1;
                     view.DataSource = marklist.Select(p => new
                     {
                         提示 = p.DBName.ToLower() + "." + p.TBName.ToLower() + "." + p.ColumnName.ToLower() + ":" + p.MarkInfo
                     }).ToList();
+                    var padding = view.Columns[0].DefaultCellStyle.Padding;
+                    padding.Left = 1;
+                    view.Columns[0].DefaultCellStyle.Padding = padding;
                     view.Visible = true;
                     
                     view.BringToFront();
