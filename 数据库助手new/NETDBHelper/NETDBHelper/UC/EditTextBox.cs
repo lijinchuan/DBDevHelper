@@ -111,14 +111,7 @@ namespace NETDBHelper.UC
                 var markColumnInfoList = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.List<MarkColumnInfo>("MarkColumnInfo", 1, int.MaxValue);
                 ThinkInfoLib = new List<ThinkInfo>();
 
-                /*objects.Add("use", "使用");
-                ThinkInfoLib.Add(new ThinkInfo { Type = 0, ObjectName = "use", Desc = "使用" });
-                objects.Add("set", "设置");
-                objects.Add("table", "表");
-                objects.Add("transaction", "事务");
-                objects.Add("rollback", "回滚");
-                objects.Add("return", "返回");
-                objects.Add("on", "");
+                /*
                 objects.Add("view", "视图");
                 objects.Add("ansi_nulls", "");
                 objects.Add("quoted_identifier", "");
@@ -388,7 +381,7 @@ namespace NETDBHelper.UC
                 }
                 return new
                 {
-                    对象 = objectname,
+                    建议 = objectname,
                     说明 = p.Desc,
                     p.Type
                 };
@@ -458,26 +451,31 @@ namespace NETDBHelper.UC
             }
 
             var ajustviewwith = 0;
+            int icount = 0;
             foreach(DataGridViewColumn col in view.Columns)
             {
                 if (!col.Visible)
                 {
                     continue;
                 }
-
+                icount++;
                 int maxwith = 0;
                 foreach(DataGridViewRow row in view.Rows)
                 {
                     using (var g = view.CreateGraphics())
                     {
-                        var mwidth = col.DefaultCellStyle.Padding.Left + (int)g.MeasureString(row.Cells[col.Name].Value.ToString(), view.Font).Width;
+                        var mwidth = col.DefaultCellStyle.Padding.Left + (int)g.MeasureString(row.Cells[col.Name].Value.ToString()+col.Name, view.Font).Width + 30;
                         if (mwidth > maxwith)
                         {
                             maxwith = mwidth;
                         }
                     }
                 }
-                ajustviewwith += Math.Max(col.Width, maxwith);
+                ajustviewwith += maxwith;
+                if (icount < view.DisplayedColumnCount(false))
+                {
+                    col.Width = maxwith;
+                }
             }
 
             var width = Math.Min(ajustviewwith, (int)(view.Parent.Width * 0.7));
