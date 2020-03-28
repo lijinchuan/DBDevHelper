@@ -480,7 +480,9 @@ namespace NETDBHelper.UC
                 ajustviewwith += Math.Max(col.Width, maxwith);
             }
 
-            view.Width = Math.Min(ajustviewwith, (int)(view.Parent.Width * 0.7));
+            var width = Math.Min(ajustviewwith, (int)(view.Parent.Width * 0.7));
+            
+            view.Width = width;
         }
 
         private void View_RowPostPaint(object sender, DataGridViewRowPostPaintEventArgs e)
@@ -720,6 +722,11 @@ namespace NETDBHelper.UC
                     var curindex = this.RichText.SelectionStart;
                     var tippt = this.RichText.GetPositionFromCharIndex(curindex);
                     tippt.Offset(RichText.Location.X, 20);
+                    var morewidth = tippt.X + view.Width - view.Parent.Location.X - view.Parent.Width;
+                    if (morewidth > 0)
+                    {
+                        tippt.Offset(-morewidth, 0);
+                    }
                     view.Location = tippt;
                 }
                 else
