@@ -456,6 +456,31 @@ namespace NETDBHelper.UC
             {
                 view.Columns["Type"].Visible = false;
             }
+
+            var ajustviewwith = 0;
+            foreach(DataGridViewColumn col in view.Columns)
+            {
+                if (!col.Visible)
+                {
+                    continue;
+                }
+
+                int maxwith = 0;
+                foreach(DataGridViewRow row in view.Rows)
+                {
+                    using (var g = view.CreateGraphics())
+                    {
+                        var mwidth = col.DefaultCellStyle.Padding.Left + (int)g.MeasureString(row.Cells[col.Name].Value.ToString(), view.Font).Width;
+                        if (mwidth > maxwith)
+                        {
+                            maxwith = mwidth;
+                        }
+                    }
+                }
+                ajustviewwith += Math.Max(col.Width, maxwith);
+            }
+
+            view.Width = Math.Min(ajustviewwith, (int)(view.Parent.Width * 0.7));
         }
 
         private void View_RowPostPaint(object sender, DataGridViewRowPostPaintEventArgs e)
