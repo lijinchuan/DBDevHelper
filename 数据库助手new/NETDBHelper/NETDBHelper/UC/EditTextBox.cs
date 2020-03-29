@@ -274,7 +274,7 @@ namespace NETDBHelper.UC
                         {
                             if (!ThinkInfoLib.Any(p => p.ObjectName.Equals(m.TBName, StringComparison.OrdinalIgnoreCase)))
                             {
-                                ThinkInfoLib.Add(new ThinkInfo { Type = 1, ObjectName = m.TBName.ToLower(), Tag = null, Desc = m.MarkInfo });
+                                ThinkInfoLib.Add(new ThinkInfo { Type = 1, ObjectName = m.TBName.ToLower(), Tag = null, Desc = string.Empty });
                             }
 
                             ThinkInfoLib.Add(new ThinkInfo { Type = 2, Desc = m.MarkInfo, ObjectName = m.ColumnName.ToLower(), Tag = m });
@@ -445,6 +445,11 @@ namespace NETDBHelper.UC
 
         private void View_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
         {
+            if (view.Parent == null || !view.Visible)
+            {
+                return;
+            }
+
             if ((view.Tag as ViewContext).DataType == 2)
             {
                 view.Columns["Type"].Visible = false;
