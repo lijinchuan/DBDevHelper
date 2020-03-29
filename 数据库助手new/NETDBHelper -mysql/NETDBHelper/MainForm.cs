@@ -28,6 +28,11 @@ namespace NETDBHelper
             this.TabControl.DrawMode = TabDrawMode.OwnerDrawFixed;
             this.dbServerView1.OnViewTable += this.ShowTables;
             this.TabControl.Selected += new TabControlEventHandler(TabControl_Selected);
+
+            this.TSCBServer.ForeColor = Color.HotPink;
+            this.TSCBServer.Visible = false;
+            this.TSCBServer.Image = Resources.Resource1.connect;
+            this.TSCBServer.Alignment = ToolStripItemAlignment.Right;
         }
 
         protected void CreateSelectSql(string sqlname, string s)
@@ -66,7 +71,18 @@ namespace NETDBHelper
 
         void TabControl_Selected(object sender, TabControlEventArgs e)
         {
-            tsb_Excute.Enabled = e.TabPage is UC.ViewTBData;
+            tsb_Excute.Enabled = e.TabPage is UC.ViewTBData
+                || e.TabPage is UC.SqlExcuter;
+
+            if (e.TabPage is UC.SqlExcuter)
+            {
+                this.TSCBServer.Text = (e.TabPage as UC.SqlExcuter).Server.ServerName;
+                this.TSCBServer.Visible = true;
+            }
+            else
+            {
+                this.TSCBServer.Visible = false;
+            }
         }
 
         private void CreateProcSql(DBSource dbSource, string dbName, string tableID, string table,CreateProceEnum createProcType)
@@ -143,16 +159,18 @@ namespace NETDBHelper
                     return;
                 }
             }
-
-            ViewTBData viewTb = new ViewTBData();
+            var viewTb = new SqlExcuter(db, dbName, sql);
+            //ViewTBData viewTb = new ViewTBData();
             viewTb.Text = title;
+            viewTb.BorderStyle = BorderStyle.None;
             this.TabControl.TabPages.Add(viewTb);
             TabControl.SelectedTab = viewTb;
             tsb_Excute.Enabled = true;
-            viewTb.DBSource = db;
-            viewTb.DBName = dbName;
-            viewTb.TBName = tbName;
-            viewTb.SQLString = sql;
+            this.TSCBServer.Text = db.ServerName;
+            this.TSCBServer.Visible = true;
+            //viewTb.DBSource = db;
+            //viewTb.DBName = dbName;
+            //viewTb.SQLString = sql;
         }
 
         public void AddSqlExecute(DBSource db,string dbName,string tbname)
@@ -204,6 +222,10 @@ namespace NETDBHelper
                     if (this.TabControl.SelectedTab != null && this.TabControl.SelectedTab is UC.ViewTBData)
                     {
                         (this.TabControl.SelectedTab as UC.ViewTBData).Execute();
+                    }
+                    else if (this.TabControl.SelectedTab != null && this.TabControl.SelectedTab is UC.SqlExcuter)
+                    {
+                        (this.TabControl.SelectedTab as UC.SqlExcuter).Execute();
                     }
                     break;
             }

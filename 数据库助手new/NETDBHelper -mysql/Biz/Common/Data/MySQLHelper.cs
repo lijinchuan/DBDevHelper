@@ -140,6 +140,31 @@ namespace Biz.Common.Data
             return tb;
         }
 
+        public static DataSet ExecuteDataSet(DBSource dbSource, string connDB, string sql, MySqlInfoMessageEventHandler onmsg, params MySqlParameter[] sqlParams)
+        {
+            using (var conn = new MySqlConnection(GetConnstringFromDBSource(dbSource, connDB)))
+            {
+                conn.InfoMessage += onmsg;
+
+                using (MySqlCommand cmd = new MySqlCommand())
+                {
+                    cmd.Connection = conn;
+                    cmd.CommandText = sql;
+                    cmd.CommandType = CommandType.Text;
+                    cmd.CommandTimeout = 180;
+                    if (sqlParams != null)
+                    {
+                        cmd.Parameters.AddRange(sqlParams);
+                    }
+                    MySqlDataAdapter ada = new MySqlDataAdapter(cmd);
+                    DataSet ts = new DataSet();
+                    ada.Fill(ts);
+
+                    return ts;
+                }
+            }
+        }
+
         public static string GetConnstringFromDBSource(DBSource dbSource, string connDB)
         {
             if (dbSource == null)
