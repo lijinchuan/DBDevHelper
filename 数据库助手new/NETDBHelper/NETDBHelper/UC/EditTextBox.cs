@@ -445,19 +445,15 @@ namespace NETDBHelper.UC
 
         private void View_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
         {
-            if (view.Parent == null || !view.Visible)
-            {
-                return;
-            }
 
-            if ((view.Tag as ViewContext).DataType == 2)
+            if (view.Tag is ViewContext)
             {
                 view.Columns["Type"].Visible = false;
             }
 
             var ajustviewwith = 0;
             int icount = 0;
-            foreach(DataGridViewColumn col in view.Columns)
+            foreach (DataGridViewColumn col in view.Columns)
             {
                 if (!col.Visible)
                 {
@@ -465,11 +461,11 @@ namespace NETDBHelper.UC
                 }
                 icount++;
                 int maxwith = 0;
-                foreach(DataGridViewRow row in view.Rows)
+                foreach (DataGridViewRow row in view.Rows)
                 {
                     using (var g = view.CreateGraphics())
                     {
-                        var mwidth = col.DefaultCellStyle.Padding.Left + (int)g.MeasureString(row.Cells[col.Name].Value.ToString()+col.Name, view.Font).Width + 30;
+                        var mwidth = col.DefaultCellStyle.Padding.Left + (int)g.MeasureString(row.Cells[col.Name].Value.ToString() + col.Name, view.Font).Width + 30;
                         if (mwidth > maxwith)
                         {
                             maxwith = mwidth;
@@ -483,8 +479,8 @@ namespace NETDBHelper.UC
                 }
             }
 
-            var width = Math.Min(ajustviewwith, (int)(view.Parent.Width * 0.7));
-            
+            var width = Math.Min(ajustviewwith, (int)(view.Parent?.Width ?? 800 * 0.7));
+
             view.Width = width;
         }
 
