@@ -446,7 +446,7 @@ namespace NETDBHelper.UC
         private void View_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
         {
 
-            if (view.Tag is ViewContext)
+            if ((view.Tag as ViewContext).DataType == 2)
             {
                 view.Columns["Type"].Visible = false;
             }
@@ -730,15 +730,15 @@ namespace NETDBHelper.UC
                 }
                 else
                 {
-                    view.DataSource = null;
                     (view.Tag as ViewContext).DataType = 0;
+                    view.DataSource = null;
                     view.Visible = false;
                 }
             }
             else
             {
-                view.DataSource = null;
                 (view.Tag as ViewContext).DataType = 0;
+                view.DataSource = null;
                 view.Visible = false;
             }
 
