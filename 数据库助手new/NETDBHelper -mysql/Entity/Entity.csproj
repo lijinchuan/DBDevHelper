@@ -49,6 +49,7 @@
     <Compile Include="DBSourceCollection.cs" />
     <Compile Include="GlobalStatusInfo.cs" />
     <Compile Include="HLogEntity.cs" />
+    <Compile Include="IDataExport.cs" />
     <Compile Include="IDType.cs" />
     <Compile Include="IndexEntry.cs" />
     <Compile Include="MarkColumnInfo.cs" />

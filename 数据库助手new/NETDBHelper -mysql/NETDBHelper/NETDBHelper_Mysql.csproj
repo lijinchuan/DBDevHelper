@@ -69,6 +69,18 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\Lib\MySql.Data.dll</HintPath>
     </Reference>
+    <Reference Include="NPOI">
+      <HintPath>..\..\NETDBHelper\packages\NPOI.2.4.1\lib\net45\NPOI.dll</HintPath>
+    </Reference>
+    <Reference Include="NPOI.OOXML">
+      <HintPath>..\..\NETDBHelper\packages\NPOI.2.4.1\lib\net45\NPOI.OOXML.dll</HintPath>
+    </Reference>
+    <Reference Include="NPOI.OpenXml4Net">
+      <HintPath>..\..\NETDBHelper\packages\NPOI.2.4.1\lib\net45\NPOI.OpenXml4Net.dll</HintPath>
+    </Reference>
+    <Reference Include="NPOI.OpenXmlFormats">
+      <HintPath>..\..\NETDBHelper\packages\NPOI.2.4.1\lib\net45\NPOI.OpenXmlFormats.dll</HintPath>
+    </Reference>
     <Reference Include="protobuf-net">
       <HintPath>..\..\Lib\protobuf-net.2.0.0.668\lib\net40\protobuf-net.dll</HintPath>
     </Reference>
@@ -246,6 +258,12 @@
     <Compile Include="UC\SQLEditBox.Designer.cs">
       <DependentUpon>SQLEditBox.cs</DependentUpon>
     </Compile>
+    <Compile Include="UC\SqlExcuter.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="UC\SqlExcuter.Designer.cs">
+      <DependentUpon>SqlExcuter.cs</DependentUpon>
+    </Compile>
     <Compile Include="UC\SqlProceCodePanel.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -286,6 +304,7 @@
     <Compile Include="UC\WebTab.Designer.cs">
       <DependentUpon>WebTab.cs</DependentUpon>
     </Compile>
+    <Compile Include="Util.cs" />
     <EmbeddedResource Include="ConnSQLServer.resx">
       <DependentUpon>ConnSQLServer.cs</DependentUpon>
     </EmbeddedResource>
@@ -360,6 +379,9 @@
     <EmbeddedResource Include="UC\SQLCodePanel.resx">
       <DependentUpon>SQLCodePanel.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="UC\SqlExcuter.resx">
+      <DependentUpon>SqlExcuter.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="UC\SqlProceCodePanel.resx">
       <DependentUpon>SqlProceCodePanel.cs</DependentUpon>
     </EmbeddedResource>
@@ -399,6 +421,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resources\table.png" />
     <None Include="Resources\新建位图图像.bmp" />
     <None Include="Resources\tbview.png" />
     <None Include="Resources\tags_red.png" />
