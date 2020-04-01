@@ -201,6 +201,11 @@ namespace Biz.Common
             });
             KeyWordDic.Add(new SQLKeyWord
             {
+                KeyWord= "column",
+                Desc="列"
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
                 KeyWord = "commit",
                 Desc = ""
             });

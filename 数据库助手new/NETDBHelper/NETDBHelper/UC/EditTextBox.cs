@@ -111,144 +111,6 @@ namespace NETDBHelper.UC
                 var markColumnInfoList = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.List<MarkColumnInfo>("MarkColumnInfo", 1, int.MaxValue);
                 ThinkInfoLib = new List<ThinkInfo>();
 
-                /*
-                objects.Add("view", "视图");
-                objects.Add("ansi_nulls", "");
-                objects.Add("quoted_identifier", "");
-                objects.Add("create", "创建");
-                objects.Add("@@error", "全局错误");
-                objects.Add("@@rowcount", "行数");
-                objects.Add("@@fetch_status", "游标状态");
-
-                objects.Add("select", "选择");
-                objects.Add("*", "");
-                objects.Add("from", "从");
-                objects.Add("delete", "删除");
-                objects.Add("update", "更新");
-                objects.Add("insert", "插入");
-                objects.Add("into", "到");
-                objects.Add("values", "插入值");
-                objects.Add("where", "条件");
-                objects.Add("distinct", "");
-                objects.Add("top", "");
-                objects.Add("nolock", "");
-                objects.Add("with", "");
-                objects.Add("like", "");
-                objects.Add("order", "");
-                objects.Add("by", "");
-                objects.Add("desc", "");
-                objects.Add("asc", "");
-                objects.Add("between", "");
-                objects.Add("and", "");
-                objects.Add("or", "");
-                objects.Add("not", "");
-                objects.Add("null", "");
-                objects.Add("isnull", "");
-                objects.Add("getdate", "");
-                objects.Add("year", "");
-                objects.Add("month", "");
-                objects.Add("day", "");
-                objects.Add("cast", "");
-                objects.Add("as", "");
-                objects.Add("convert", "");
-                objects.Add("case", "");
-                objects.Add("when", "");
-                objects.Add("then", "");
-                objects.Add("else", "");
-                objects.Add("end", "");
-                objects.Add("if", "");
-                objects.Add("is", "");
-                objects.Add("begin", "");
-                objects.Add("exec", "");
-                objects.Add("execute", "");
-                objects.Add("sp_executesql", "");
-                objects.Add("proc", "存储过程");
-                objects.Add("procedure", "存储过程");
-                objects.Add("declare", "申明");
-                objects.Add("while", "");
-                objects.Add("join", "");
-                objects.Add("for", "");
-                objects.Add("inner", "");
-                objects.Add("outer", "");
-                objects.Add("hash", "");
-                objects.Add("group", "");
-                objects.Add("output", "");
-                objects.Add("option", "");
-                objects.Add("recompile", "");
-                objects.Add("commit", "");
-                objects.Add("nocount", "");
-
-                objects.Add("count", "");
-                objects.Add("sum", "");
-                objects.Add("max", "");
-                objects.Add("min", "");
-                objects.Add("avg", "平均");
-                objects.Add("exists", "存在");
-                objects.Add("having", "");
-                objects.Add("mid", "");
-                objects.Add(",", "");
-                objects.Add("[", "");
-                objects.Add("]", "");
-                objects.Add("print", "");
-                objects.Add("charindex", "查找");
-                objects.Add("left", "");
-                objects.Add("right", "");
-                objects.Add("stuff", "");
-                objects.Add("len", "");
-                objects.Add("round", "");
-                objects.Add("difference", "");
-                objects.Add("soundex", "");
-                objects.Add("lower", "小写");
-                objects.Add("upper", "大写");
-                objects.Add("ltrim", "");
-                objects.Add("rtrim", "");
-                objects.Add("replace", "替换");
-                objects.Add("space", "空格");
-                objects.Add("reverse", "反转");
-                objects.Add("replicate", "");
-                objects.Add("quotename", "");
-                objects.Add("patindex", "");
-                objects.Add("parsename", "");
-                objects.Add("isdate", "");
-                objects.Add("datename", "");
-                objects.Add("datepart", "");
-                objects.Add("coalesce", "");
-                objects.Add("open", "游标打开");
-                objects.Add("fetch", "游标获取");
-                objects.Add("close", "游标关闭");
-                objects.Add("deallocate", "游标释放");
-
-                objects.Add("char", "");
-                objects.Add("nchar", "");
-                objects.Add("varchar", "");
-                objects.Add("nvarchar", "");
-                objects.Add("datetime", "");
-                objects.Add("float", "");
-                objects.Add("text", "");
-                objects.Add("ntext", "");
-                objects.Add("bit", "");
-                objects.Add("binary", "");
-                objects.Add("varbinary", "");
-                objects.Add("int", "");
-                objects.Add("tinyint", "");
-                objects.Add("smallint", "");
-                objects.Add("bigint", "");
-                objects.Add("decimal", "");
-                objects.Add("numeric", "");
-                objects.Add("smallmoney", "");
-                objects.Add("money", "");
-                objects.Add("real", "");
-                objects.Add("datetime2", "");
-                objects.Add("smalldatetime", "");
-                objects.Add("date", "");
-                objects.Add("time", "");
-                objects.Add("datetimeoffset", "");
-                objects.Add("timestamp", "");
-                objects.Add("sql_variant", "");
-                objects.Add("uniqueidentifier", "");
-                objects.Add("xml", "");
-                objects.Add("cursor", "游标");*/
-
                 foreach (var o in SQLKeyWordHelper.GetKeyWordList())
                 {
                     ThinkInfoLib.Add(new ThinkInfo
@@ -517,7 +379,8 @@ namespace NETDBHelper.UC
                     e.Handled = true;
                 }
             }
-            else if (e.KeyCode == Keys.Enter)
+            else if (e.KeyCode == Keys.Enter
+                ||e.KeyCode==Keys.Space)
             {
                 if (view.Visible)
                 {
@@ -530,12 +393,12 @@ namespace NETDBHelper.UC
                             break;
                         }
                     }
-                    if (i == view.Rows.Count)
+                    if (i < view.Rows.Count)
                     {
-                        i = 0;
+                        View_CellClick(this, new DataGridViewCellEventArgs(0, i));
                     }
                     e.Handled = true;
-                    View_CellClick(this, new DataGridViewCellEventArgs(0, i));
+                    
                 }
             }
         }
@@ -593,19 +456,25 @@ namespace NETDBHelper.UC
 
         private void View_CellClick(object sender, DataGridViewCellEventArgs e)
         {
+            if (e.RowIndex == -1)
+            {
+                return;
+            }
             if ((view.Tag as ViewContext).DataType == 2)
             {
                 var val = view.Rows[e.RowIndex].Cells[0].Value.ToString();
                 var desc = (view.Rows[e.RowIndex].Cells[1].Value?.ToString()) ?? string.Empty;
                 var keyword = GetCurrWord();
+                if (!string.IsNullOrWhiteSpace(keyword))
+                {
+                    this.RichText.Select(this.RichText.SelectionStart - keyword.Length, keyword.Length);
+                    //this.RichText.Text.Remove(this.RichText.SelectionStart - keyword.Length, keyword.Length);
+                    this.RichText.SelectedText = val;
+                    //this.RichText.SelectionStart += val.Length - keyword.Length;
+                    view.Visible = false;
 
-                this.RichText.Select(this.RichText.SelectionStart - keyword.Length, keyword.Length);
-                //this.RichText.Text.Remove(this.RichText.SelectionStart - keyword.Length, keyword.Length);
-                this.RichText.SelectedText = val+" ";
-                //this.RichText.SelectionStart += val.Length - keyword.Length;
-                view.Visible = false;
-
-                this.RichText.Focus();
+                    this.RichText.Focus();
+                }
             }
         }
 
@@ -626,9 +495,13 @@ namespace NETDBHelper.UC
             }
             if (e.KeyCode == Keys.Up)
             {
-                if (i <= 0)
+                if (i < 0)
                 {
                     view.Rows[view.Rows.Count - 1].Selected = true;
+                }
+                else if (i == 0)
+                {
+                    view.ClearSelection();
                 }
                 else
                 {
@@ -663,6 +536,10 @@ namespace NETDBHelper.UC
 
         private void View_MouseLeave(object sender, EventArgs e)
         {
+            if ((view.Tag as ViewContext).DataType == 2)
+            {
+                return;
+            }
             view.Visible = false;
         }
 
@@ -716,6 +593,7 @@ namespace NETDBHelper.UC
                     view.Columns[0].DefaultCellStyle.Padding = padding;
                     view.Visible = true;
 
+                    view.ClearSelection();
                     view.BringToFront();
                     view.Height = (view.Rows.GetRowsHeight(DataGridViewElementStates.Visible) / count) * count + view.ColumnHeadersHeight;
                     var curindex = this.RichText.SelectionStart;
@@ -727,6 +605,7 @@ namespace NETDBHelper.UC
                         tippt.Offset(-morewidth, 0);
                     }
                     view.Location = tippt;
+                    
                 }
                 else
                 {
