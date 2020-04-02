@@ -134,7 +134,10 @@ namespace NETDBHelper
             this.cb_servers.DataSource = tb.AsEnumerable().Select(p => new { Name = p["Name"], Server = p["Server"] }).Distinct().ToList();
             this.cb_servers.DisplayMember = "Name";
             this.cb_servers.ValueMember = "Server";
-            this.cb_servers.SelectedIndex = _lastServerSelectedIndex;
+            if (tb.Rows.Count > 0)
+            {
+                this.cb_servers.SelectedIndex = _lastServerSelectedIndex;
+            }
 
             this.panel_main.Enabled = true;
         }

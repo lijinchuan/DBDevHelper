@@ -1677,11 +1677,15 @@ background-color: #ffffff;
             {
                 if (currnode.Tag != null && currnode.Tag is TableInfo)
                 {
+                    if (MessageBox.Show("要清理本地备注吗？", "警告", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) == DialogResult.No)
+                    {
+                        return;
+                    }
                     var tb = (TableInfo)currnode.Tag;
                     var markedcolumns = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Scan<MarkColumnInfo>("MarkColumnInfo", "keys", new[] { tb.DBName.ToUpper(), tb.TBName.ToUpper(), LJC.FrameWorkV3.Data.EntityDataBase.Consts.STRINGCOMPAIRMIN },
                         new[] { tb.DBName.ToUpper(), tb.TBName.ToUpper(), LJC.FrameWorkV3.Data.EntityDataBase.Consts.STRINGCOMPAIRMAX }, 1, int.MaxValue);
-                    
-                    foreach(var col in markedcolumns)
+
+                    foreach (var col in markedcolumns)
                     {
                         LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Delete<MarkColumnInfo>("MarkColumnInfo", col.ID);
                     }
