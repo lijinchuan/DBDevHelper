@@ -267,6 +267,7 @@ namespace NETDBHelper.UC
         {
             InitializeComponent();
             this.RichText.WordWrap = false;
+            this.DoubleBuffered = true;
             this.RichText.ScrollBars = RichTextBoxScrollBars.Both;
             this.RichText.ContextMenuStrip = this.contextMenuStrip1;
             this.RichText.VScroll += new EventHandler(RichText_VScroll);
@@ -276,6 +277,8 @@ namespace NETDBHelper.UC
             this.RichText.KeyPress += RichText_KeyPress;
             
             this.RichText.TextChanged+=new EventHandler(RichText_TextChanged);
+            this.RichText.MouseClick += RichText_MouseClick;
+            
             defaultSelectionColor = this.RichText.SelectionColor;
 
             view.Visible = false;
@@ -303,6 +306,18 @@ namespace NETDBHelper.UC
             this.RichText.ImeMode = ImeMode.On;
 
             this.RichText.HideSelection = false;
+        }
+
+        private void RichText_MouseClick(object sender, MouseEventArgs e)
+        {
+            if (view.Visible)
+            {
+                var tippt = this.RichText.GetPositionFromCharIndex(this.RichText.SelectionIndent);
+                if (Math.Abs(e.X - tippt.X) > 10 && Math.Abs(e.Y - tippt.Y) > 10)
+                {
+                    view.Visible = false;
+                }
+            }
         }
 
         private void View_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
@@ -396,6 +411,10 @@ namespace NETDBHelper.UC
                     if (i < view.Rows.Count)
                     {
                         View_CellClick(this, new DataGridViewCellEventArgs(0, i));
+                    }
+                    else
+                    {
+                        view.Visible = false;
                     }
                     e.Handled = true;
                     

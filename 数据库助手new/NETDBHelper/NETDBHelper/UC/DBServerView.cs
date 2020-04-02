@@ -387,6 +387,11 @@ namespace NETDBHelper
                             MarkResource();
                             break;
                         }
+                    case "清理备注":
+                        {
+                            ClearMarkResource();
+                            break;
+                        }
                     case "生成调用代码":
                         {
 
@@ -797,6 +802,7 @@ namespace NETDBHelper
 
                             复制表名ToolStripMenuItem.Visible = true;
                             备注ToolStripMenuItem.Visible = true;
+                            清理备注ToolStripMenuItem.Visible = true;
                             生成实体类ToolStripMenuItem.Visible = tv_DBServers.SelectedNode.Parent.Text.Equals("视图");
                             显示前100条数据ToolStripMenuItem.Visible = tv_DBServers.SelectedNode.Level == 4 && tv_DBServers.SelectedNode.Parent.Text.Equals("视图");
                         }
@@ -1660,6 +1666,32 @@ background-color: #ffffff;
                         currnode.SelectedImageIndex = 14;
                         MessageBox.Show("备注成功");
                     }
+                }
+            }
+        }
+
+        private void ClearMarkResource()
+        {
+            var currnode = tv_DBServers.SelectedNode;
+            if (currnode != null)
+            {
+                if (currnode.Tag != null && currnode.Tag is TableInfo)
+                {
+                    var tb = (TableInfo)currnode.Tag;
+                    var markedcolumns = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Scan<MarkColumnInfo>("MarkColumnInfo", "keys", new[] { tb.DBName.ToUpper(), tb.TBName.ToUpper(), LJC.FrameWorkV3.Data.EntityDataBase.Consts.STRINGCOMPAIRMIN },
+                        new[] { tb.DBName.ToUpper(), tb.TBName.ToUpper(), LJC.FrameWorkV3.Data.EntityDataBase.Consts.STRINGCOMPAIRMAX }, 1, int.MaxValue);
+                    
+                    foreach(var col in markedcolumns)
+                    {
+                        LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Delete<MarkColumnInfo>("MarkColumnInfo", col.ID);
+                    }
+                    var columnMarkSyncRecorditem = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<ColumnMarkSyncRecord>("ColumnMarkSyncRecord", "keys", new[] { tb.DBName.ToUpper(), tb.TBName.ToUpper() }).ToList();
+                    if (columnMarkSyncRecorditem.Count > 0)
+                    {
+                        LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Delete<ColumnMarkSyncRecord>("ColumnMarkSyncRecord", columnMarkSyncRecorditem.First().ID);
+                    }
+
+                    MessageBox.Show("清理成功");
                 }
             }
         }
