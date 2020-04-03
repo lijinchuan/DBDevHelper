@@ -274,7 +274,6 @@ namespace NETDBHelper.UC
             this.ScaleNos.Font = new Font(RichText.Font.FontFamily, RichText.Font.Size + 1.019f);
             this.RichText.KeyUp += new KeyEventHandler(RichText_KeyUp);
             this.RichText.KeyDown += RichText_KeyDown;
-            this.RichText.KeyPress += RichText_KeyPress;
             
             this.RichText.TextChanged+=new EventHandler(RichText_TextChanged);
             this.RichText.MouseClick += RichText_MouseClick;
@@ -296,6 +295,7 @@ namespace NETDBHelper.UC
             view.CellClick += View_CellClick;
             view.RowPostPaint += View_RowPostPaint;
             view.DataBindingComplete += View_DataBindingComplete;
+            
             view.Tag = new ViewContext
             {
                 DataType=0
@@ -395,7 +395,8 @@ namespace NETDBHelper.UC
                 }
             }
             else if (e.KeyCode == Keys.Enter
-                ||e.KeyCode==Keys.Space)
+                ||e.KeyCode==Keys.Space
+                ||e.KeyCode==Keys.Right)
             {
                 if (view.Visible)
                 {
@@ -410,7 +411,7 @@ namespace NETDBHelper.UC
                     }
                     if (i < view.Rows.Count)
                     {
-                        View_CellClick(this, new DataGridViewCellEventArgs(0, i));
+                        View_CellClick(e.KeyCode, new DataGridViewCellEventArgs(0, i));
                     }
                     else
                     {
@@ -422,7 +423,7 @@ namespace NETDBHelper.UC
             }
         }
 
-        private string GetCurrWord()
+        private int GetCurrWord(out string word)
         {
             var curindex = this.RichText.SelectionStart;
             var currline = this.RichText.GetLineFromCharIndex(curindex);
@@ -470,7 +471,8 @@ namespace NETDBHelper.UC
             }
 
             var keyword = pre + last;
-            return keyword;
+            word = keyword;
+            return pi + charstartindex;
         }
 
         private void View_CellClick(object sender, DataGridViewCellEventArgs e)
@@ -483,12 +485,22 @@ namespace NETDBHelper.UC
             {
                 var val = view.Rows[e.RowIndex].Cells[0].Value.ToString();
                 var desc = (view.Rows[e.RowIndex].Cells[1].Value?.ToString()) ?? string.Empty;
-                var keyword = GetCurrWord();
+                string keyword;
+                var keywordindex = GetCurrWord(out keyword);
                 if (!string.IsNullOrWhiteSpace(keyword))
                 {
-                    this.RichText.Select(this.RichText.SelectionStart - keyword.Length, keyword.Length);
+                    //this.RichText.Select(this.RichText.SelectionStart - keyword.Length, keyword.Length);
+                    this.RichText.Select(keywordindex - keyword.Length, keyword.Length);
                     //this.RichText.Text.Remove(this.RichText.SelectionStart - keyword.Length, keyword.Length);
-                    this.RichText.SelectedText = val;
+
+                    if (keyword.IndexOf('.') > -1 || sender?.Equals(Keys.Right) == true)
+                    {
+                        this.RichText.SelectedText = val;
+                    }
+                    else
+                    {
+                        this.RichText.SelectedText = val.Split('.').Last();
+                    }
                     //this.RichText.SelectionStart += val.Length - keyword.Length;
                     view.Visible = false;
 
@@ -517,6 +529,7 @@ namespace NETDBHelper.UC
                 if (i < 0)
                 {
                     view.Rows[view.Rows.Count - 1].Selected = true;
+                    view.CurrentCell = view.Rows[view.Rows.Count - 1].Cells[0];
                 }
                 else if (i == 0)
                 {
@@ -525,6 +538,7 @@ namespace NETDBHelper.UC
                 else
                 {
                     view.Rows[i - 1].Selected = true;
+                    view.CurrentCell = view.Rows[i - 1].Cells[0];
                 }
             }
             else if (e.KeyCode == Keys.Down)
@@ -532,17 +546,14 @@ namespace NETDBHelper.UC
                 if (i == view.Rows.Count - 1)
                 {
                     view.Rows[0].Selected = true;
+                    view.CurrentCell = view.Rows[0].Cells[0];
                 }
                 else
                 {
                     view.Rows[i + 1].Selected = true;
+                    view.CurrentCell = view.Rows[i + 1].Cells[0];
                 }
             }
-        }
-
-        private void RichText_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            
         }
 
         private void EditTextBox_ParentChanged(object sender, EventArgs e)
@@ -597,7 +608,8 @@ namespace NETDBHelper.UC
             }
 
             #region 联想
-            var keyword = GetCurrWord();
+            string keyword;
+            var keywordindex = GetCurrWord(out keyword);
 
             if (!string.IsNullOrEmpty(keyword))
             {
@@ -614,7 +626,9 @@ namespace NETDBHelper.UC
 
                     view.ClearSelection();
                     view.BringToFront();
-                    view.Height = (view.Rows.GetRowsHeight(DataGridViewElementStates.Visible) / count) * count + view.ColumnHeadersHeight;
+                    view.Height = (view.Rows.GetRowsHeight(DataGridViewElementStates.Visible) / count) * Math.Min(10, count) + view.ColumnHeadersHeight;
+                    //view.Height = ((view.Height- view.ColumnHeadersHeight)/count)*5+view.ColumnHeadersHeight;
+
                     var curindex = this.RichText.SelectionStart;
                     var tippt = this.RichText.GetPositionFromCharIndex(curindex);
                     tippt.Offset(RichText.Location.X, 20);
@@ -623,8 +637,13 @@ namespace NETDBHelper.UC
                     {
                         tippt.Offset(-morewidth, 0);
                     }
+                    if (view.Height + tippt.Y + 30 > this.Parent.Location.Y + this.Parent.Height)
+                    {
+                        tippt.Offset(0, -view.Height - 20);
+                    }
+                    view.ScrollBars = ScrollBars.Vertical;
                     view.Location = tippt;
-                    
+
                 }
                 else
                 {
@@ -796,12 +815,12 @@ namespace NETDBHelper.UC
                 if (_lastMarketedLines == line1)
                     return;
 
-                int line2 = CurrentClientScreentEndLine+1;
+                int line2 = CurrentClientScreentEndLine + 1;
                 //if (line2 == 1)
                 //{
                 //    return;
                 //}
-                
+
                 int oldStart = this.RichText.SelectionStart;
                 int oldSelectLen = this.RichText.SelectionLength;
 
@@ -818,21 +837,21 @@ namespace NETDBHelper.UC
                 //}
 
                 DataTable tb = Biz.Common.Data.DataHelper.CreateFatTable("pos", "len", "color");
-                
+
                 var linesLen = this.RichText.Lines.Length;
                 for (int l = line1; l <= line2 && l < linesLen; l++)
                 {
                     totalIndex = this.RichText.GetFirstCharIndexFromLine(l);
-                    string express = RichText.Lines[l]+" ";
-                    
+                    string express = RichText.Lines[l] + " ";
+
                     if (!_markedLines.Contains(l))
                     {
                         _markedLines.Add(l);
 
                         foreach (var m in this.KeyWords.MatchKeyWord(express.ToLower()))
                         {
-                            if ((m.PostionStart == 0 || "[]{},|%#!<>=();+-*/\r\n 　".IndexOf(express[m.PostionStart-1])>-1)
-                                && (m.PostionEnd == express.Length - 1 || "[]{},|%#!<>=();+-*/\r\n 　".IndexOf(express[m.PostionEnd + 1])>-1))
+                            if ((m.PostionStart == 0 || "[]{},|%#!<>=();+-*/\r\n 　".IndexOf(express[m.PostionStart - 1]) > -1)
+                                && (m.PostionEnd == express.Length - 1 || "[]{},|%#!<>=();+-*/\r\n 　".IndexOf(express[m.PostionEnd + 1]) > -1))
                             {
                                 DataRow row = tb.NewRow();
                                 row[0] = totalIndex + m.PostionStart;
@@ -851,11 +870,15 @@ namespace NETDBHelper.UC
                     this.RichText.SelectionLength = (int)row[1];
                     this.RichText.SelectionColor = (Color)row[2];
                 }
-                this.RichText.SelectionStart = oldStart;
+
+                if (this.RichText.SelectionStart != oldStart)
+                {
+                    this.RichText.SelectionStart = oldStart;
+                }
                 this.RichText.SelectionLength = oldSelectLen;
                 //this.RichText.SelectionColor = oldSelectColor;
                 _lastMarketedLines = line1;
-                
+
             }
             finally
             {
