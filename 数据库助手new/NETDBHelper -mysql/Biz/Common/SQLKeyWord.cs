@@ -170,6 +170,11 @@ namespace Biz.Common
             });
             KeyWordDic.Add(new SQLKeyWord
             {
+                KeyWord = "case",
+                Desc = ""
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
                 KeyWord = "cast",
                 Desc = ""
             });

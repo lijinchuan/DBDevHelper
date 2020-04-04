@@ -219,7 +219,7 @@ namespace NETDBHelper.UC
                     }
                 }
                 return true;
-            }).OrderByDescending(p => p.Score).ThenBy(p=>p.ObjectName.Length).Take(20).ToList();
+            }).OrderByDescending(p => p.Score).ThenBy(p=>p.ObjectName.Length).Take(250).ToList();
 
             foreach (var p in thinkresut)
             {
@@ -809,6 +809,7 @@ namespace NETDBHelper.UC
         {
             try
             {
+                this.RichText.SelectionChanged -= RichText_SelectionChanged;
                 if (this.RichText.Lines.Length == 0)
                     return;
                 int line1 = CurrentClientScreenStartLine;
@@ -883,6 +884,7 @@ namespace NETDBHelper.UC
             finally
             {
                 this.RichText.LockPaint = false;
+                this.RichText.SelectionChanged += RichText_SelectionChanged;
                 if (reSetLineNo)
                     SetLineNo();
             }
