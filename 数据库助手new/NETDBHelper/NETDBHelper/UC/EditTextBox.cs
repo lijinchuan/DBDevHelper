@@ -518,35 +518,51 @@ namespace NETDBHelper.UC
 
             var ajustviewwith = 0;
             int icount = 0;
+            List<int> maxwidthlist = new List<int>();
             foreach (DataGridViewColumn col in view.Columns)
             {
                 if (!col.Visible)
                 {
                     continue;
                 }
-                icount++;
-                int maxwith = 0;
+
+                int maxwidth = 0;
                 foreach (DataGridViewRow row in view.Rows)
                 {
                     using (var g = view.CreateGraphics())
                     {
-                        var mwidth = col.DefaultCellStyle.Padding.Left + (int)g.MeasureString(row.Cells[col.Name].Value.ToString() + col.Name, view.Font).Width + 30;
-                        if (mwidth > maxwith)
+                        var mwidth = col.DefaultCellStyle.Padding.Left + (int)g.MeasureString(row.Cells[col.Name].Value.ToString() + col.Name, view.Font).Width + 20;
+                        if (mwidth > maxwidth)
                         {
-                            maxwith = mwidth;
+                            maxwidth = mwidth;
                         }
                     }
                 }
-                ajustviewwith += maxwith;
+                ajustviewwith += maxwidth;
                 if (icount < view.DisplayedColumnCount(false))
                 {
-                    col.Width = maxwith;
+                    maxwidthlist.Add(maxwidth);
                 }
+                icount++;
             }
 
-            var width = Math.Min(ajustviewwith, (int)(view.Parent?.Width ?? 800 * 0.7));
+            var limitwidth = (int)(view.Parent?.Width ?? 800 * 0.7);
+            var width = Math.Min(ajustviewwith, limitwidth);
 
             view.Width = width;
+
+            var rate = width < ajustviewwith ? ((width*1.0/ajustviewwith)): 1.0;
+            icount = 0;
+            foreach (DataGridViewColumn col in view.Columns)
+            {
+                if (!col.Visible)
+                {
+                    continue;
+                }
+                col.Width = (int)(maxwidthlist[icount]*rate);
+                icount++;
+            }
+
         }
 
         private void View_RowPostPaint(object sender, DataGridViewRowPostPaintEventArgs e)

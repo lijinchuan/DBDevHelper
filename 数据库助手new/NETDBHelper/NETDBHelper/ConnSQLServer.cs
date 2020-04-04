@@ -62,7 +62,7 @@ namespace NETDBHelper
         void cb_Servers_SelectedIndexChanged(object sender, EventArgs e)
         {
             object val = Biz.Common.ReflectionHelper.Eval(cb_servers.SelectedValue, "Server")??cb_servers.SelectedValue;
-            this.cb_yz.SelectedIndex = 0;
+            this.cb_yz.SelectedIndex = 1;
             this.cb_username.Text = string.Empty;
             this.tb_password.Text= string.Empty;
 
