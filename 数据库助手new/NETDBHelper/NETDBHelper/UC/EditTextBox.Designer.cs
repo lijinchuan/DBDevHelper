@@ -36,9 +36,10 @@
             this.粘贴ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
             this.搜索ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.TSMI_Save = new System.Windows.Forms.ToolStripMenuItem();
             this.RichText = new NETDBHelper.UC.MyRichTextBox();
             this.ScaleNos = new NETDBHelper.UC.Scale();
-            this.TSMI_Save = new System.Windows.Forms.ToolStripMenuItem();
+            this.剪切ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -47,12 +48,13 @@
             this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.全选ToolStripMenuItem,
             this.复制ToolStripMenuItem,
+            this.剪切ToolStripMenuItem,
             this.粘贴ToolStripMenuItem,
             this.toolStripMenuItem2,
             this.搜索ToolStripMenuItem,
             this.TSMI_Save});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(181, 142);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(181, 164);
             // 
             // 全选ToolStripMenuItem
             // 
@@ -87,6 +89,13 @@
             this.搜索ToolStripMenuItem.Text = "搜索";
             this.搜索ToolStripMenuItem.Click += new System.EventHandler(this.搜索ToolStripMenuItem_Click);
             // 
+            // TSMI_Save
+            // 
+            this.TSMI_Save.Name = "TSMI_Save";
+            this.TSMI_Save.Size = new System.Drawing.Size(180, 22);
+            this.TSMI_Save.Text = "保存";
+            this.TSMI_Save.Click += new System.EventHandler(this.TSMI_Save_Click);
+            // 
             // RichText
             // 
             this.RichText.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -110,12 +119,12 @@
             this.ScaleNos.Size = new System.Drawing.Size(44, 442);
             this.ScaleNos.TabIndex = 0;
             // 
-            // TSMI_Save
+            // 剪切ToolStripMenuItem
             // 
-            this.TSMI_Save.Name = "TSMI_Save";
-            this.TSMI_Save.Size = new System.Drawing.Size(180, 22);
-            this.TSMI_Save.Text = "保存";
-            this.TSMI_Save.Click += new System.EventHandler(this.TSMI_Save_Click);
+            this.剪切ToolStripMenuItem.Name = "剪切ToolStripMenuItem";
+            this.剪切ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.剪切ToolStripMenuItem.Text = "剪切";
+            this.剪切ToolStripMenuItem.Click += new System.EventHandler(this.剪切ToolStripMenuItem_Click);
             // 
             // EditTextBox
             // 
@@ -141,5 +150,6 @@
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem2;
         private System.Windows.Forms.ToolStripMenuItem 搜索ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem TSMI_Save;
+        private System.Windows.Forms.ToolStripMenuItem 剪切ToolStripMenuItem;
     }
 }
