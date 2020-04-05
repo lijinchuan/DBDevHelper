@@ -52,6 +52,7 @@
     <Compile Include="IDType.cs" />
     <Compile Include="IndexEntry.cs" />
     <Compile Include="MarkColumnInfo.cs" />
+    <Compile Include="MarkObjectInfo.cs" />
     <Compile Include="MSSQLTypeEnum.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SPInfo.cs" />

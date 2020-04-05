@@ -208,7 +208,7 @@ namespace NETDBHelper
                 var dbname = GetDBName(selNode).ToUpper();
                 Biz.UILoadHelper.LoadTBsAnsy(this.ParentForm, selNode, GetDBSource(selNode), name =>
                  {
-                     var mark = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkColumnInfo>("MarkColumnInfo", "keys", new
+                     var mark = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys", new
                                   [] { dbname, name.ToUpper(), string.Empty }).FirstOrDefault();
                      return mark == null ? string.Empty : mark.MarkInfo;
                  });
@@ -239,17 +239,18 @@ namespace NETDBHelper
                     Find<ColumnMarkSyncRecord>("ColumnMarkSyncRecord", "keys", new[] { dbname, selNode.Text.ToUpper() }).FirstOrDefault() != null;
                 Biz.UILoadHelper.LoadColumnsAnsy(this.ParentForm, selNode, dbsource, (col) =>
                  {
-                     var mark = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkColumnInfo>("MarkColumnInfo", "keys", new
+                     var mark = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys", new
                                  [] { dbname, selNode.Text.ToUpper(), col.Name.ToUpper() }).FirstOrDefault();
 
-                     if (mark == null && !synccolumnmark && !string.IsNullOrWhiteSpace(col.Description))
+                     if (mark == null && !synccolumnmark)
                      {
-                         LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<MarkColumnInfo>("MarkColumnInfo", new MarkColumnInfo
+                         LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<MarkObjectInfo>("MarkObjectInfo", new MarkObjectInfo
                          {
                              DBName = dbname.ToUpper(),
                              ColumnName = col.Name.ToUpper(),
                              Servername = dbsource.ServerName,
                              TBName = selNode.Text.ToUpper(),
+                             ColumnType=col.ToDBType(),
                              MarkInfo = col.Description
                          });
                      }
@@ -387,7 +388,7 @@ namespace NETDBHelper
                             MarkResource();
                             break;
                         }
-                    case "清理备注":
+                    case "清理无效字段":
                         {
                             ClearMarkResource();
                             break;
@@ -534,7 +535,7 @@ namespace NETDBHelper
                 var classcode = DataHelper.CreateTableEntity(dbsource, dbname, tbname, tid, DefaultEntityNamespace, tv_DBServers.SelectedNode.Parent.Text == "视图",
                     isSupportProtobuf, isSupportDBMapperAttr, isSupportJsonproterty, isSupportMvcDisplay, name =>
                      {
-                         var mark = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkColumnInfo>("MarkColumnInfo", "keys", new
+                         var mark = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys", new
                                   [] { dbname.ToUpper(), tbname.ToUpper(), name.ToUpper() }).FirstOrDefault();
 
                          return mark == null ? name : mark.MarkInfo;
@@ -604,7 +605,7 @@ namespace NETDBHelper
                 //e.Node.Expand();
                 Biz.UILoadHelper.LoadTBsAnsy(this.ParentForm, e.Node, GetDBSource(e.Node), name =>
                  {
-                     var mark = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkColumnInfo>("MarkColumnInfo", "keys", new
+                     var mark = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys", new
                                   [] { GetDBName(e.Node).ToUpper(), name.ToUpper(), string.Empty }).FirstOrDefault();
                      return mark == null ? string.Empty : mark.MarkInfo;
                  });
@@ -662,16 +663,17 @@ namespace NETDBHelper
                        Find<ColumnMarkSyncRecord>("ColumnMarkSyncRecord", "keys", new[] { dbname, e.Node.Text.ToUpper() }).FirstOrDefault() != null;
                     Biz.UILoadHelper.LoadColumnsAnsy(this.ParentForm, e.Node, GetDBSource(e.Node), (col) =>
                     {
-                        var mark = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkColumnInfo>("MarkColumnInfo", "keys", new
+                        var mark = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys", new
                                     [] { dbname, e.Node.Text.ToUpper(), col.Name.ToUpper() }).FirstOrDefault();
-                        if (mark == null && !synccolumnmark && !string.IsNullOrWhiteSpace(col.Description))
+                        if (mark == null && !synccolumnmark)
                         {
-                            LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<MarkColumnInfo>("MarkColumnInfo", new MarkColumnInfo
+                            LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<MarkObjectInfo>("MarkObjectInfo", new MarkObjectInfo
                             {
                                 DBName = dbname.ToUpper(),
                                 ColumnName = col.Name.ToUpper(),
                                 Servername = dbsource.ServerName,
                                 TBName = e.Node.Text.ToUpper(),
+                                ColumnType=col.ToDBType(),
                                 MarkInfo = col.Description
                             });
                         }
@@ -1337,7 +1339,7 @@ GO");
 
                 var tbclumns = Biz.Common.Data.SQLHelper.GetColumns(this.GetDBSource(selnode), selnode.Parent.Text, selnode.Name, selnode.Text).ToList();
 
-                var tbmark = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkColumnInfo>("MarkColumnInfo", "keys", new
+                var tbmark = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys", new
                                  [] { selnode.Parent.Text.ToUpper(), selnode.Text.ToUpper(), string.Empty }).FirstOrDefault();
                 var tbdesc = tbmark == null ? selnode.Text : tbmark.MarkInfo;
 
@@ -1379,7 +1381,7 @@ GO");
 
                         if (y == null || string.IsNullOrEmpty(y.ToString()))
                         {
-                            var mark = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkColumnInfo>("MarkColumnInfo", "keys", new
+                            var mark = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys", new
                                 [] { GetDBName(selnode).ToUpper(), GetTBName(selnode).ToUpper(), m.Groups[1].Value.ToUpper() }).FirstOrDefault();
                             if (mark != null)
                             {
@@ -1545,11 +1547,11 @@ background-color: #ffffff;
                 var tbname = GetTBName(selnode);
                 var servername = GetDBSource(selnode).ServerName;
                 var dbname = GetDBName(selnode);
-                var item = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkColumnInfo>("MarkColumnInfo", "keys", new[] { dbname.ToUpper(), tbname.ToUpper(), col.ToUpper() }).FirstOrDefault();
+                var item = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys", new[] { dbname.ToUpper(), tbname.ToUpper(), col.ToUpper() }).FirstOrDefault();
 
                 if (item == null)
                 {
-                    item = new MarkColumnInfo { ColumnName = col.ToUpper(), DBName = dbname.ToUpper(), TBName = tbname.ToUpper(), Servername = servername };
+                    item = new MarkObjectInfo { ColumnName = col.ToUpper(), DBName = dbname.ToUpper(), TBName = tbname.ToUpper(), Servername = servername };
                 }
                 InputStringDlg dlg = new InputStringDlg($"备注字段[{tbname}.{col}]", item.MarkInfo);
                 if (dlg.ShowDialog() == DialogResult.OK)
@@ -1559,7 +1561,7 @@ background-color: #ffffff;
                         selnode.ImageIndex = selnode.SelectedImageIndex = 5;
                     }
                     item.MarkInfo = dlg.InputString;
-                    LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Upsert<MarkColumnInfo>("MarkColumnInfo", item);
+                    LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Upsert<MarkObjectInfo>("MarkObjectInfo", item);
                     selnode.ToolTipText = item.MarkInfo;
                     MessageBox.Show("备注成功");
                 }
@@ -1630,17 +1632,17 @@ background-color: #ffffff;
                 if (currnode.Tag != null && currnode.Tag is TableInfo)
                 {
                     var tb = (TableInfo)currnode.Tag;
-                    var item = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkColumnInfo>("MarkColumnInfo", "keys", new[] { tb.DBName.ToUpper(), tb.TBName.ToUpper(), string.Empty }).FirstOrDefault();
+                    var item = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys", new[] { tb.DBName.ToUpper(), tb.TBName.ToUpper(), string.Empty }).FirstOrDefault();
 
                     if (item == null)
                     {
-                        item = new MarkColumnInfo { ColumnName = string.Empty, DBName = tb.DBName.ToUpper(), TBName = tb.TBName.ToUpper(), Servername = GetDBSource(currnode).ServerName, MarkInfo = string.Empty };
+                        item = new MarkObjectInfo { ColumnName = string.Empty, DBName = tb.DBName.ToUpper(), TBName = tb.TBName.ToUpper(), Servername = GetDBSource(currnode).ServerName, MarkInfo = string.Empty };
                     }
                     InputStringDlg dlg = new InputStringDlg($"备注:{tb.TBName}", item.MarkInfo);
                     if (dlg.ShowDialog() == DialogResult.OK)
                     {
                         item.MarkInfo = dlg.InputString;
-                        LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Upsert<MarkColumnInfo>("MarkColumnInfo", item);
+                        LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Upsert<MarkObjectInfo>("MarkObjectInfo", item);
                         currnode.ToolTipText = item.MarkInfo;
                         MessageBox.Show("备注成功");
                     }
@@ -1677,22 +1679,26 @@ background-color: #ffffff;
             {
                 if (currnode.Tag != null && currnode.Tag is TableInfo)
                 {
-                    if (MessageBox.Show("要清理本地备注吗？", "警告", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) == DialogResult.No)
+                    if (MessageBox.Show("要清理无效字段吗？", "询问", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.No)
                     {
                         return;
                     }
+                    var cols = SQLHelper.GetColumns(GetDBSource(currnode), currnode.Parent.Text, currnode.Name, currnode.Text).ToList();
                     var tb = (TableInfo)currnode.Tag;
-                    var markedcolumns = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Scan<MarkColumnInfo>("MarkColumnInfo", "keys", new[] { tb.DBName.ToUpper(), tb.TBName.ToUpper(), LJC.FrameWorkV3.Data.EntityDataBase.Consts.STRINGCOMPAIRMIN },
+                    var markedcolumns = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Scan<MarkObjectInfo>("MarkObjectInfo", "keys", new[] { tb.DBName.ToUpper(), tb.TBName.ToUpper(), LJC.FrameWorkV3.Data.EntityDataBase.Consts.STRINGCOMPAIRMIN },
                         new[] { tb.DBName.ToUpper(), tb.TBName.ToUpper(), LJC.FrameWorkV3.Data.EntityDataBase.Consts.STRINGCOMPAIRMAX }, 1, int.MaxValue);
 
                     foreach (var col in markedcolumns)
                     {
-                        LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Delete<MarkColumnInfo>("MarkColumnInfo", col.ID);
+                        if (!cols.Any(p => p.Name.Equals(col.ColumnName, StringComparison.OrdinalIgnoreCase)))
+                        {
+                            LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Delete<MarkObjectInfo>("MarkObjectInfo", col.ID);
+                        }
                     }
                     var columnMarkSyncRecorditem = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<ColumnMarkSyncRecord>("ColumnMarkSyncRecord", "keys", new[] { tb.DBName.ToUpper(), tb.TBName.ToUpper() }).ToList();
-                    if (columnMarkSyncRecorditem.Count > 0)
+                    foreach(var rec in columnMarkSyncRecorditem)
                     {
-                        LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Delete<ColumnMarkSyncRecord>("ColumnMarkSyncRecord", columnMarkSyncRecorditem.First().ID);
+                        LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Delete<ColumnMarkSyncRecord>("ColumnMarkSyncRecord", rec.ID);
                     }
 
                     MessageBox.Show("清理成功");
@@ -1754,15 +1760,15 @@ background-color: #ffffff;
                     if (dic.ContainsKey(column))
                     {
                         var tb = (TBColumn)dic[column].Tag;
-                        var item = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkColumnInfo>("MarkColumnInfo", "keys", new[] { dbname, tbname, column }).FirstOrDefault();
+                        var item = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys", new[] { dbname, tbname, column }).FirstOrDefault();
 
                         if (item == null)
                         {
-                            item = new MarkColumnInfo { ColumnName = column, DBName = dbname, TBName = tbname, Servername = GetDBSource(currnode).ServerName, MarkInfo = string.Empty };
+                            item = new MarkObjectInfo { ColumnName = column, DBName = dbname, TBName = tbname, Servername = GetDBSource(currnode).ServerName, MarkInfo = string.Empty };
                         }
 
                         item.MarkInfo = mark;
-                        LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Upsert<MarkColumnInfo>("MarkColumnInfo", item);
+                        LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Upsert<MarkObjectInfo>("MarkObjectInfo", item);
                         dic[column].ToolTipText = mark;
 
                         if (dic[column].ImageIndex == 18)
@@ -1852,7 +1858,7 @@ background-color: #ffffff;
                 foreach (DataRow row in tb.Rows)
                 {
                     var name = (string)row["name"];
-                    var item = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkColumnInfo>("MarkColumnInfo", "keys", new[] { dbname.ToUpper(), name.ToUpper(), string.Empty }).FirstOrDefault();
+                    var item = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys", new[] { dbname.ToUpper(), name.ToUpper(), string.Empty }).FirstOrDefault();
 
                     sb.Append($"<tr><td>{i++}</td><td>{name}</td><td>{(item == null ? string.Empty : item.MarkInfo)}</td></tr>");
                 }
@@ -1872,7 +1878,7 @@ background-color: #ffffff;
             {
                 var dbname = GetDBName(selnode);
 
-                var allcolumns = BigEntityTableEngine.LocalEngine.Find<MarkColumnInfo>("MarkColumnInfo", p => !string.IsNullOrEmpty(p.ColumnName) && p.DBName.Equals(dbname, StringComparison.OrdinalIgnoreCase));
+                var allcolumns = BigEntityTableEngine.LocalEngine.Find<MarkObjectInfo>("MarkObjectInfo", p => !string.IsNullOrEmpty(p.ColumnName) && p.DBName.Equals(dbname, StringComparison.OrdinalIgnoreCase));
 
                 StringBuilder sb = new StringBuilder("<html>");
                 sb.Append("<head>");
@@ -1934,7 +1940,7 @@ background-color: #ffffff;
                 sb.Append("<table>");
                 sb.Append("<tr><th>序号</th><th>表名</th><th>字段</th><th>描述</th></tr>");
                 int i = 1;
-                foreach (MarkColumnInfo c in allcolumns)
+                foreach (MarkObjectInfo c in allcolumns)
                 {
                     var name = c.ColumnName;
 

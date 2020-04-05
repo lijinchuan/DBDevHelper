@@ -33,7 +33,33 @@ namespace NETDBHelper
                 }
             }
 
-            BigEntityTableEngine.LocalEngine.CreateTable("MarkColumnInfo", "ID",true, typeof(MarkColumnInfo), new IndexInfo[]
+            //BigEntityTableEngine.LocalEngine.CreateTable("MarkColumnInfo", "ID",true, typeof(MarkColumnInfo), new IndexInfo[]
+            //{
+            //    new IndexInfo
+            //    {
+            //        IndexName="keys",
+            //        Indexs=new IndexItem[]
+            //        {
+            //            new IndexItem
+            //            {
+            //                Field="DBName",
+            //                FieldType=EntityType.STRING,
+            //            },
+            //            new IndexItem
+            //            {
+            //                Field="TBName",
+            //                FieldType=EntityType.STRING,
+            //            },
+            //            new IndexItem
+            //            {
+            //                Field="ColumnName",
+            //                FieldType=EntityType.STRING,
+            //            }
+            //        }
+            //    }
+            //});
+
+            BigEntityTableEngine.LocalEngine.CreateTable("MarkObjectInfo", "ID", true, typeof(MarkObjectInfo), new IndexInfo[]
             {
                 new IndexInfo
                 {
@@ -58,6 +84,7 @@ namespace NETDBHelper
                     }
                 }
             });
+
             BigEntityTableEngine.LocalEngine.CreateTable("ColumnMarkSyncRecord", "ID", true, typeof(ColumnMarkSyncRecord), new IndexInfo[]
             {
                 new IndexInfo

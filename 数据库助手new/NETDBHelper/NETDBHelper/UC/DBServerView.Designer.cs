@@ -37,6 +37,7 @@
             this.生成数据字典ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.复制表名ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.备注ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.清理备注ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.刷新ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.SubMenuItem_Proc = new System.Windows.Forms.ToolStripMenuItem();
             this.SubMenuItem_Insert = new System.Windows.Forms.ToolStripMenuItem();
@@ -74,7 +75,6 @@
             this.CommSubMenuitem_add = new System.Windows.Forms.ToolStripMenuItem();
             this.CommSubMenuItem_Delete = new System.Windows.Forms.ToolStripMenuItem();
             this.TSMI_FilterProc = new System.Windows.Forms.ToolStripMenuItem();
-            this.清理备注ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.DBServerviewContextMenuStrip.SuspendLayout();
             this.toolStrip1.SuspendLayout();
             this.CommMenuStrip.SuspendLayout();
@@ -151,6 +151,12 @@
             this.备注ToolStripMenuItem.Name = "备注ToolStripMenuItem";
             this.备注ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.备注ToolStripMenuItem.Text = "备注";
+            // 
+            // 清理备注ToolStripMenuItem
+            // 
+            this.清理备注ToolStripMenuItem.Name = "清理备注ToolStripMenuItem";
+            this.清理备注ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.清理备注ToolStripMenuItem.Text = "清理无效字段";
             // 
             // 刷新ToolStripMenuItem
             // 
@@ -425,12 +431,6 @@
             this.TSMI_FilterProc.Name = "TSMI_FilterProc";
             this.TSMI_FilterProc.Size = new System.Drawing.Size(160, 22);
             this.TSMI_FilterProc.Text = "筛选存储过程";
-            // 
-            // 清理备注ToolStripMenuItem
-            // 
-            this.清理备注ToolStripMenuItem.Name = "清理备注ToolStripMenuItem";
-            this.清理备注ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.清理备注ToolStripMenuItem.Text = "清理备注";
             // 
             // DBServerView
             // 

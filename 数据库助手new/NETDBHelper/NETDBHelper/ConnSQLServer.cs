@@ -6,6 +6,8 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using Biz.Common;
+using Biz.Common.Data;
 using Entity;
 
 namespace NETDBHelper
@@ -181,6 +183,49 @@ namespace NETDBHelper
                 this.panel_main.Enabled = true;
                 return;
             }
+
+            //Dictionary<string, List<TBColumn>> colsdic = new Dictionary<string, List<TBColumn>>();
+            ////同步下数据
+            //foreach (var item in LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.List<MarkColumnInfo>("MarkColumnInfo", 1, int.MaxValue))
+            //{
+            //    if (LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys", new[] { item.DBName, item.TBName, item.ColumnName }).Count() > 0)
+            //    {
+            //        continue;
+            //    }
+
+            //    if (!string.IsNullOrWhiteSpace(item.ColumnName))
+            //    {
+            //        string key = (item.DBName + item.TBName).ToUpper();
+            //        if (!colsdic.ContainsKey(key))
+            //        {
+            //            var cols = SQLHelper.GetColumns(DBSource, item.DBName, item.TBName).ToList();
+            //            colsdic.Add(key, cols);
+            //        }
+                    
+            //        LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<MarkObjectInfo>("MarkObjectInfo", new MarkObjectInfo
+            //        {
+            //            DBName=item.DBName,
+            //            ColumnName=item.ColumnName,
+            //            MarkInfo=item.MarkInfo,
+            //            Servername=item.Servername,
+            //            TBName=item.TBName,
+            //            ColumnType=colsdic[key].Find(p=>p.Name.Equals(item.ColumnName,StringComparison.OrdinalIgnoreCase))?.ToDBType()
+            //        });
+            //    }
+            //    else
+            //    {
+            //        LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<MarkObjectInfo>("MarkObjectInfo", new MarkObjectInfo
+            //        {
+            //            DBName = item.DBName,
+            //            ColumnName = item.ColumnName,
+            //            MarkInfo = item.MarkInfo,
+            //            Servername = item.Servername,
+            //            TBName = item.TBName
+            //        });
+            //    }
+                
+            //}
+
             //保存一下
             if (dbs.Upsert(DBSource))
             {

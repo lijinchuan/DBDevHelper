@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Entity
 {
-    public class MarkColumnInfo
+    public class MarkObjectInfo
     {
         public int ID
         {
@@ -32,6 +32,12 @@ namespace Entity
         }
 
         public string ColumnName
+        {
+            get;
+            set;
+        }
+
+        public string ColumnType
         {
             get;
             set;
