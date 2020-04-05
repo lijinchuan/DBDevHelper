@@ -498,8 +498,11 @@ namespace NETDBHelper.UC
 
         private void RichText_MouseMove(object sender, MouseEventArgs e)
         {
-            _currpt = e.Location;
-            _pointtiptime = DateTime.Now;
+            if (_currpt != e.Location)
+            {
+                _currpt = e.Location;
+                _pointtiptime = DateTime.Now;
+            }
         }
 
         private void RichText_MouseClick(object sender, MouseEventArgs e)

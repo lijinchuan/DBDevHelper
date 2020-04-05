@@ -244,6 +244,7 @@
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "ConnSQLServer";
+            this.ShowIcon = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "连接数据库服务器";
             this.Load += new System.EventHandler(this.ConnSQLServer_Load);
