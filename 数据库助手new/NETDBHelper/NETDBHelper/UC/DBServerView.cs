@@ -289,6 +289,7 @@ namespace NETDBHelper
         {
             try
             {
+                DBServerviewContextMenuStrip.Visible = false;
                 switch (e.ClickedItem.Text)
                 {
                     case "生成实体类":

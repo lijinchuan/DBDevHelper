@@ -239,6 +239,7 @@ namespace NETDBHelper
         {
             try
             {
+                DBServerviewContextMenuStrip.Visible = false;
                 switch (e.ClickedItem.Text)
                 {
                     case "生成实体类":
@@ -326,6 +327,11 @@ namespace NETDBHelper
                     case "备注":
                         {
                             MarkResource();
+                            break;
+                        }
+                    case "清理无效字段":
+                        {
+                            ClearMarkResource();
                             break;
                         }
                     default:
@@ -1449,6 +1455,40 @@ background-color: #ffffff;
 
 
             MessageBox.Show($"备注成功{scount}条");
+        }
+
+        private void ClearMarkResource()
+        {
+            var currnode = tv_DBServers.SelectedNode;
+            if (currnode != null)
+            {
+                if (currnode.Tag != null && currnode.Tag is TableInfo)
+                {
+                    if (MessageBox.Show("要清理无效字段吗？", "询问", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.No)
+                    {
+                        return;
+                    }
+                    var cols = MySQLHelper.GetColumns(GetDBSource(currnode), currnode.Parent.Text, currnode.Name).ToList();
+                    var tb = (TableInfo)currnode.Tag;
+                    var markedcolumns = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Scan<MarkObjectInfo>("MarkObjectInfo", "keys", new[] { tb.DBName.ToUpper(), tb.TBName.ToUpper(), LJC.FrameWorkV3.Data.EntityDataBase.Consts.STRINGCOMPAIRMIN },
+                        new[] { tb.DBName.ToUpper(), tb.TBName.ToUpper(), LJC.FrameWorkV3.Data.EntityDataBase.Consts.STRINGCOMPAIRMAX }, 1, int.MaxValue);
+
+                    foreach (var col in markedcolumns)
+                    {
+                        if (!cols.Any(p => p.Name.Equals(col.ColumnName, StringComparison.OrdinalIgnoreCase)))
+                        {
+                            LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Delete<MarkObjectInfo>("MarkObjectInfo", col.ID);
+                        }
+                    }
+                    var columnMarkSyncRecorditem = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<ColumnMarkSyncRecord>("ColumnMarkSyncRecord", "keys", new[] { tb.DBName.ToUpper(), tb.TBName.ToUpper() }).ToList();
+                    foreach (var rec in columnMarkSyncRecorditem)
+                    {
+                        LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Delete<ColumnMarkSyncRecord>("ColumnMarkSyncRecord", rec.ID);
+                    }
+
+                    MessageBox.Show("清理成功");
+                }
+            }
         }
 
 
