@@ -704,6 +704,15 @@ namespace NETDBHelper.UC
             tippt.Offset(0, 20);
             string pre = "", last = "";
             int pi = curindex - charstartindex - 1;
+
+            //判断是否是注释部分
+            var nodeindex = this.RichText.Lines[currline]?.IndexOf("--");
+            if (nodeindex > -1 && pi >= nodeindex)
+            {
+                start = -1;
+                return string.Empty;
+            }
+
             while (pi >= 0)
             {
 
@@ -757,6 +766,15 @@ namespace NETDBHelper.UC
             tippt.Offset(0, 20);
             string pre = "", last = "";
             int pi = curindex - charstartindex - 1;
+
+            //判断是否是注释部分
+            var nodeindex = this.RichText.Lines[currline]?.IndexOf("--");
+            if (nodeindex > -1 && pi >= nodeindex)
+            {
+                word = string.Empty;
+                return -1;
+            }
+
             while (pi >= 0)
             {
 
@@ -1153,6 +1171,16 @@ namespace NETDBHelper.UC
                     {
                         _markedLines.Add(l);
 
+                        var nodeindex = express.IndexOf("--");
+                        if (nodeindex > -1)
+                        {
+                            DataRow row = tb.NewRow();
+                            row[0] = totalIndex + nodeindex;
+                            row[1] = express.Length - nodeindex;
+                            row[2] = Color.Gray;
+                            tb.Rows.Add(row);
+                            express = express.Substring(0, nodeindex + 1);
+                        }
                         foreach (var m in this.KeyWords.MatchKeyWord(express.ToLower()))
                         {
                             if ((m.PostionStart == 0 || "[]{},|%#!<>=();+-*/\r\n 　".IndexOf(express[m.PostionStart - 1]) > -1)
