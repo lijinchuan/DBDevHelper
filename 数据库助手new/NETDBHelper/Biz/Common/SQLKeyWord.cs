@@ -696,8 +696,13 @@ namespace Biz.Common
             });
             KeyWordDic.Add(new SQLKeyWord
             {
+                KeyWord = "sp_addextendedproperty",
+                Desc = "备注,示例：EXEC sp_addextendedproperty N'MS_Description', N'备注内容', N'SCHEMA', N'dbo',N'TABLE', N'表名', N'COLUMN', N'字段名'"
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
                 KeyWord = "sp_executesql",
-                Desc = ""
+                Desc = "执行SQL语句"
             });
             KeyWordDic.Add(new SQLKeyWord
             {

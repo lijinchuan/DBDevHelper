@@ -125,12 +125,12 @@ namespace NETDBHelper.UC
                     {
                         if (string.IsNullOrWhiteSpace(m.ColumnName))
                         {
-                            ThinkInfoLib.RemoveAll(p => p.ObjectName.Equals(m.TBName, StringComparison.OrdinalIgnoreCase));
+                            ThinkInfoLib.RemoveAll(p => p.Type == 1 && p.ObjectName.Equals(m.TBName, StringComparison.OrdinalIgnoreCase));
                             ThinkInfoLib.Add(new ThinkInfo { Type = 1, ObjectName = m.TBName.ToLower(), Tag = m, Desc = m.MarkInfo });
                         }
                         else
                         {
-                            if (!ThinkInfoLib.Any(p => p.ObjectName.Equals(m.TBName, StringComparison.OrdinalIgnoreCase)))
+                            if (!ThinkInfoLib.Any(p => p.Type == 1 && p.ObjectName.Equals(m.TBName, StringComparison.OrdinalIgnoreCase)))
                             {
                                 ThinkInfoLib.Add(new ThinkInfo { Type = 1, ObjectName = m.TBName.ToLower(), Tag = null, Desc = string.Empty });
                             }
@@ -719,7 +719,7 @@ namespace NETDBHelper.UC
                 var ch = this.RichText.Lines[currline][pi];
 
                 if ((ch >= 'A' && ch <= 'Z') || (ch >= 48 && ch <= 57) || (ch >= 'a' && ch <= 'z')
-                    || ch == '_' || ch == '.'
+                    || ch == '_' || ch == '.' || ch == '@'
                     || (ch >= '\u4E00' && ch <= '\u9FA5'))
                 {
                     pre = ch + pre;
@@ -738,7 +738,7 @@ namespace NETDBHelper.UC
                     var ch = this.RichText.Lines[currline][pi];
 
                     if ((ch >= 'A' && ch <= 'Z') || (ch >= 48 && ch <= 57) || (ch >= 'a' && ch <= 'z')
-                        || ch == '_' || ch == '.'
+                        || ch == '_' || ch == '.' || ch == '@'
                         || (ch >= '\u4E00' && ch <= '\u9FA5'))
                     {
                         last += ch;
@@ -781,8 +781,8 @@ namespace NETDBHelper.UC
                 var ch = this.RichText.Lines[currline][pi];
 
                 if ((ch >= 'A' && ch <= 'Z') || (ch >= 48 && ch <= 57) || (ch >= 'a' && ch <= 'z') 
-                    || ch == '_' || ch == '.'
-                    ||(ch>= '\u4E00'&&ch<='\u9FA5'))
+                    || ch == '_' || ch == '.' || ch == '@'
+                    || (ch>= '\u4E00'&&ch<='\u9FA5'))
                 {
                     pre = ch + pre;
                     pi--;
@@ -800,7 +800,7 @@ namespace NETDBHelper.UC
                     var ch = this.RichText.Lines[currline][pi];
 
                     if ((ch >= 'A' && ch <= 'Z') || (ch >= 48 && ch <= 57) || (ch >= 'a' && ch <= 'z')
-                        || ch == '_' || ch == '.'
+                        || ch == '_' || ch == '.' || ch == '@'
                         || (ch >= '\u4E00' && ch <= '\u9FA5'))
                     {
                         last += ch;

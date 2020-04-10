@@ -235,6 +235,11 @@ namespace NETDBHelper.UC
                             dgv.BorderStyle = System.Windows.Forms.BorderStyle.None;
                             dgv.DataError += (s, e) =>
                             {
+                                var data = dgv.Rows[e.RowIndex].Cells[e.ColumnIndex];
+                                if (dgv.Columns[e.ColumnIndex].CellType == typeof(byte[]))
+                                {
+                                    //dgv.Rows[e.RowIndex].Cells[e.ColumnIndex].
+                                }
                                 e.Cancel = true;
                             };
                             dgv.GridColor = Color.LightBlue;
