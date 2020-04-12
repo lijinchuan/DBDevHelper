@@ -118,29 +118,31 @@ namespace NETDBHelper.UC
                 }
 
                 count = 0;
-                
+
                 foreach (var m in markColumnInfoList)
                 {
-                    if (m.DBName.Equals(_dbname, StringComparison.OrdinalIgnoreCase))
+                    if (string.IsNullOrWhiteSpace(m.ColumnName))
                     {
-                        if (string.IsNullOrWhiteSpace(m.ColumnName))
+                        ThinkInfoLib.RemoveAll(p => p.Type == 1 && p.ObjectName.Equals(m.TBName, StringComparison.OrdinalIgnoreCase));
+                        ThinkInfoLib.Add(new ThinkInfo { Type = 1, ObjectName = m.TBName.ToLower(), Tag = m, Desc = m.MarkInfo });
+                    }
+                    else
+                    {
+                        if (!ThinkInfoLib.Any(p => p.Type == 1 && p.ObjectName.Equals(m.TBName, StringComparison.OrdinalIgnoreCase)))
                         {
-                            ThinkInfoLib.RemoveAll(p => p.Type == 1 && p.ObjectName.Equals(m.TBName, StringComparison.OrdinalIgnoreCase));
-                            ThinkInfoLib.Add(new ThinkInfo { Type = 1, ObjectName = m.TBName.ToLower(), Tag = m, Desc = m.MarkInfo });
+                            ThinkInfoLib.Add(new ThinkInfo { Type = 1, ObjectName = m.TBName.ToLower(), Tag = new MarkObjectInfo
+                            {
+                                DBName=m.DBName,
+                                Servername=m.Servername,
+                                TBName=m.TBName
+                            }, Desc = string.Empty });
                         }
-                        else
+                        string desc = m.ColumnType;
+                        if (!string.IsNullOrWhiteSpace(m.MarkInfo))
                         {
-                            if (!ThinkInfoLib.Any(p => p.Type == 1 && p.ObjectName.Equals(m.TBName, StringComparison.OrdinalIgnoreCase)))
-                            {
-                                ThinkInfoLib.Add(new ThinkInfo { Type = 1, ObjectName = m.TBName.ToLower(), Tag = null, Desc = string.Empty });
-                            }
-                            string desc = m.ColumnType;
-                            if (!string.IsNullOrWhiteSpace(m.MarkInfo))
-                            {
-                                desc += $",{m.MarkInfo}";
-                            }
-                            ThinkInfoLib.Add(new ThinkInfo { Type = 2, Desc = desc, ObjectName = m.ColumnName.ToLower(), Tag = m });
+                            desc += $",{m.MarkInfo}";
                         }
+                        ThinkInfoLib.Add(new ThinkInfo { Type = 2, Desc = desc, ObjectName = m.ColumnName.ToLower(), Tag = m });
                     }
 
                     if (count == 20)
@@ -233,20 +235,49 @@ namespace NETDBHelper.UC
             count = thinkresut.Count;
             return thinkresut.Select(p=> {
                 string objectname = null;
+                string replaceobjectname = null;
+                bool issamedb = true;
                 if (p.Type == 2)
                 {
                     var markcolumn = (p.Tag as MarkObjectInfo);
-                    objectname = $"{markcolumn.TBName.ToLower()}.{p.ObjectName}";
+                    issamedb = markcolumn.DBName.Equals(_dbname, StringComparison.OrdinalIgnoreCase);
+                    if (issamedb)
+                    {
+                        objectname = $"{markcolumn.TBName.ToLower()}.{p.ObjectName}";
+                    }
+                    else
+                    {
+                        objectname = $"{markcolumn.DBName.ToLower()}.dbo.{markcolumn.TBName.ToLower()}.{p.ObjectName}";
+                    }
+                    replaceobjectname= $"{markcolumn.TBName.ToLower()}.{p.ObjectName}";
+                }
+                else if (p.Type == 1)
+                {
+                    var markcolumn = (p.Tag as MarkObjectInfo);
+                    issamedb = markcolumn.DBName.Equals(_dbname, StringComparison.OrdinalIgnoreCase);
+                    if (issamedb)
+                    {
+                        objectname = p.ObjectName;
+                        replaceobjectname = p.ObjectName;
+                    }
+                    else
+                    {
+                        objectname = $"{markcolumn.DBName.ToLower()}.dbo.{p.ObjectName}";
+                        replaceobjectname = $"{markcolumn.DBName.ToLower()}.dbo.{p.ObjectName}";
+                    }
                 }
                 else
                 {
                     objectname = p.ObjectName;
+                    replaceobjectname = p.ObjectName;
                 }
                 return new
                 {
                     建议 = objectname,
                     说明 = p.Desc,
-                    p.Type
+                    p.Type,
+                    Issamedb=issamedb,
+                    replaceobjectname
                 };
             }).ToList();
         }
@@ -520,14 +551,26 @@ namespace NETDBHelper.UC
                 {
                     (view.Tag as ViewContext).DataType = 1;
                     view.DataSource = marklist.Select(p => {
-                        return new
+                        if (p.DBName.Equals(_dbname, StringComparison.OrdinalIgnoreCase))
                         {
-                            提示 = $"{p.DBName.ToLower()}.{p.TBName.ToLower()}.{p.ColumnName.ToLower()}({p.ColumnType}):{p.MarkInfo}"
-                        };
+                            return new
+                            {
+                                提示 = $"{p.TBName.ToLower()}.{p.ColumnName.ToLower()}({p.ColumnType}):{p.MarkInfo}"
+                            };
+                        }
+                        else
+                        {
+                            return new
+                            {
+                                提示 = $"{p.DBName.ToLower()}.{p.TBName.ToLower()}.{p.ColumnName.ToLower()}({p.ColumnType}):{p.MarkInfo}"
+                            };
+                        }
                     }).ToList();
+                    
                     var padding = view.Columns[0].DefaultCellStyle.Padding;
                     padding.Left = 1;
                     view.Columns[0].DefaultCellStyle.Padding = padding;
+                    
                     view.Visible = true;
 
                     view.BringToFront();
@@ -571,6 +614,8 @@ namespace NETDBHelper.UC
             if ((view.Tag as ViewContext).DataType == 2)
             {
                 view.Columns["Type"].Visible = false;
+                view.Columns["Issamedb"].Visible = false;
+                view.Columns["replaceobjectname"].Visible = false;
             }
 
             var ajustviewwith = 0;
@@ -719,7 +764,7 @@ namespace NETDBHelper.UC
                 var ch = this.RichText.Lines[currline][pi];
 
                 if ((ch >= 'A' && ch <= 'Z') || (ch >= 48 && ch <= 57) || (ch >= 'a' && ch <= 'z')
-                    || ch == '_' || ch == '.' || ch == '@'
+                    || ch == '_' || ch == '@'
                     || (ch >= '\u4E00' && ch <= '\u9FA5'))
                 {
                     pre = ch + pre;
@@ -738,7 +783,7 @@ namespace NETDBHelper.UC
                     var ch = this.RichText.Lines[currline][pi];
 
                     if ((ch >= 'A' && ch <= 'Z') || (ch >= 48 && ch <= 57) || (ch >= 'a' && ch <= 'z')
-                        || ch == '_' || ch == '.' || ch == '@'
+                        || ch == '_' || ch == '@'
                         || (ch >= '\u4E00' && ch <= '\u9FA5'))
                     {
                         last += ch;
@@ -826,17 +871,18 @@ namespace NETDBHelper.UC
             }
             if ((view.Tag as ViewContext).DataType == 2)
             {
-                var val = view.Rows[e.RowIndex].Cells[0].Value.ToString();
-                var desc = (view.Rows[e.RowIndex].Cells[1].Value?.ToString()) ?? string.Empty;
+                var val = view.Rows[e.RowIndex].Cells["replaceobjectname"].Value.ToString();
+                var Issamedb = (bool)view.Rows[e.RowIndex].Cells["Issamedb"].Value;
                 string keyword;
                 var keywordindex = GetCurrWord(out keyword);
                 if (!string.IsNullOrWhiteSpace(keyword))
                 {
+                    this.RichText.LockPaint = true;
                     //this.RichText.Select(this.RichText.SelectionStart - keyword.Length, keyword.Length);
                     this.RichText.Select(keywordindex - keyword.Length, keyword.Length);
                     //this.RichText.Text.Remove(this.RichText.SelectionStart - keyword.Length, keyword.Length);
 
-                    if (keyword.IndexOf('.') > -1 || sender?.Equals(Keys.Right) == true)
+                    if (keyword.IndexOf('.') > -1 || sender?.Equals(Keys.Right) == true || !Issamedb)
                     {
                         this.RichText.SelectedText = val;
                     }
@@ -846,7 +892,7 @@ namespace NETDBHelper.UC
                     }
                     //this.RichText.SelectionStart += val.Length - keyword.Length;
                     view.Visible = false;
-
+                    this.RichText.LockPaint = false;
                     this.RichText.Focus();
                 }
             }
@@ -962,6 +1008,7 @@ namespace NETDBHelper.UC
                 {
                     (view.Tag as ViewContext).DataType = 2;
                     view.DataSource = obj;
+                    
                     var padding = view.Columns[0].DefaultCellStyle.Padding;
                     padding.Left = 20;
                     view.Columns[0].DefaultCellStyle.Padding = padding;
