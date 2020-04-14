@@ -179,7 +179,7 @@ namespace Biz.Common.Data
             sb.AllowBatch = true;
             sb.MinimumPoolSize = 1;
             sb.MaximumPoolSize = 5;
-            
+            sb.AllowUserVariables = true;
             if (dbSource.IDType == IDType.uidpwd)
             {
                 sb.UserID = dbSource.LoginName;

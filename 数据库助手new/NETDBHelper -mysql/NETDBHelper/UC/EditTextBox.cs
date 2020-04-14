@@ -118,29 +118,35 @@ namespace NETDBHelper.UC
                 }
 
                 count = 0;
-                
+
                 foreach (var m in markColumnInfoList)
                 {
-                    if (m.DBName.Equals(_dbname, StringComparison.OrdinalIgnoreCase))
+                    if (m.TBName?.Equals("sys_route_conf_b", StringComparison.OrdinalIgnoreCase)==true)
                     {
-                        if (string.IsNullOrWhiteSpace(m.ColumnName))
+                        System.Diagnostics.Trace.WriteLine(m.ColumnName);
+                    }
+                    if (string.IsNullOrWhiteSpace(m.ColumnName))
+                    {
+                        ThinkInfoLib.RemoveAll(p => p.Type == 1 &&((MarkObjectInfo)p.Tag)?.DBName.Equals(m.DBName,StringComparison.OrdinalIgnoreCase)==true&& p.ObjectName.Equals(m.TBName, StringComparison.OrdinalIgnoreCase));
+                        ThinkInfoLib.Add(new ThinkInfo { Type = 1, ObjectName = m.TBName.ToLower(), Tag = m, Desc = m.MarkInfo });
+                    }
+                    else
+                    {
+                        if (!ThinkInfoLib.Any(p => p.Type == 1&& ((MarkObjectInfo)p.Tag)?.DBName.Equals(m.DBName, StringComparison.OrdinalIgnoreCase) == true && p.ObjectName.Equals(m.TBName, StringComparison.OrdinalIgnoreCase)))
                         {
-                            ThinkInfoLib.RemoveAll(p => p.Type == 1 && p.ObjectName.Equals(m.TBName, StringComparison.OrdinalIgnoreCase));
-                            ThinkInfoLib.Add(new ThinkInfo { Type = 1, ObjectName = m.TBName.ToLower(), Tag = m, Desc = m.MarkInfo });
+                            ThinkInfoLib.Add(new ThinkInfo { Type = 1, ObjectName = m.TBName.ToLower(), Tag = new MarkObjectInfo
+                            {
+                                DBName=m.DBName,
+                                Servername=m.Servername,
+                                TBName=m.TBName
+                            }, Desc = string.Empty });
                         }
-                        else
+                        string desc = m.ColumnType;
+                        if (!string.IsNullOrWhiteSpace(m.MarkInfo))
                         {
-                            if (!ThinkInfoLib.Any(p => p.Type == 1 && p.ObjectName.Equals(m.TBName, StringComparison.OrdinalIgnoreCase)))
-                            {
-                                ThinkInfoLib.Add(new ThinkInfo { Type = 1, ObjectName = m.TBName.ToLower(), Tag = null, Desc = string.Empty });
-                            }
-                            string desc = m.ColumnType;
-                            if (!string.IsNullOrWhiteSpace(m.MarkInfo))
-                            {
-                                desc += $",{m.MarkInfo}";
-                            }
-                            ThinkInfoLib.Add(new ThinkInfo { Type = 2, Desc = desc, ObjectName = m.ColumnName.ToLower(), Tag = m });
+                            desc += $",{m.MarkInfo}";
                         }
+                        ThinkInfoLib.Add(new ThinkInfo { Type = 2, Desc = desc, ObjectName = m.ColumnName.ToLower(), Tag = m });
                     }
 
                     if (count == 20)
@@ -161,32 +167,48 @@ namespace NETDBHelper.UC
             List<ThinkInfo> thinkresut = new List<ThinkInfo>();
             foreach (var item in ThinkInfoLib)
             {
-                if (!string.IsNullOrEmpty(searchtable)&&(item.Type!=2 || !searchtable.Equals((item.Tag as MarkObjectInfo).TBName, StringComparison.OrdinalIgnoreCase)))
+                if (!string.IsNullOrEmpty(searchtable) && (item.Type != 2 || !searchtable.Equals((item.Tag as MarkObjectInfo).TBName, StringComparison.OrdinalIgnoreCase)))
                 {
                     continue;
                 }
 
-                var desc = (item.Tag as MarkObjectInfo)?.MarkInfo;
-                if (item.ObjectName.Equals(keys, StringComparison.OrdinalIgnoreCase)
-                    ||(item.ObjectName.Equals(keys, StringComparison.OrdinalIgnoreCase)==true))
+                var tagobj = item.Tag as MarkObjectInfo;
+                var desc = tagobj?.MarkInfo;
+                var fullobjectname = item.ObjectName;
+                if (item.Type == 1)
                 {
-                    item.Score = byte.MaxValue;
+                    if (!tagobj.DBName.Equals(_dbname))
+                    {
+                        fullobjectname = $"{tagobj.DBName}.{item.ObjectName}";
+                    }
+                }
+                else if (item.Type == 2)
+                {
+                    if (!tagobj.DBName.Equals(_dbname))
+                    {
+                        fullobjectname = $"{tagobj.DBName}.{item.ObjectName}";
+                    }
+                }
+                if (item.ObjectName.Equals(keys, StringComparison.OrdinalIgnoreCase)
+                    || (item.ObjectName.Equals(keys, StringComparison.OrdinalIgnoreCase) == true))
+                {
+                    item.Score = (byte)(byte.MaxValue - (byte)fullobjectname.IndexOf(keys, StringComparison.OrdinalIgnoreCase));
                     thinkresut.Add(item);
                     continue;
                 }
 
                 if (item.ObjectName.StartsWith(keys, StringComparison.OrdinalIgnoreCase)
-                    ||(desc?.StartsWith(keys, StringComparison.OrdinalIgnoreCase))==true)
+                    || (desc?.StartsWith(keys, StringComparison.OrdinalIgnoreCase)) == true)
                 {
-                    item.Score = byte.MaxValue - 1;
+                    item.Score = (byte)(byte.MaxValue - 1 - (byte)fullobjectname.Length);
                     thinkresut.Add(item);
                     continue;
                 }
 
-                int pos =item.ObjectName.IndexOf(keys, StringComparison.OrdinalIgnoreCase);
+                int pos = fullobjectname.IndexOf(keys, StringComparison.OrdinalIgnoreCase);
                 if (pos > -1)
                 {
-                    item.Score = Math.Max((byte)(byte.MaxValue - (byte)item.ObjectName.Length - (byte)pos), (byte)0);
+                    item.Score = Math.Max((byte)(byte.MaxValue - (byte)fullobjectname.Length - (byte)pos), (byte)0);
                     thinkresut.Add(item);
                     continue;
                 }
@@ -195,7 +217,7 @@ namespace NETDBHelper.UC
                     pos = desc?.IndexOf(keys, StringComparison.OrdinalIgnoreCase) ?? -1;
                     if (pos > -1)
                     {
-                        item.Score = Math.Max((byte)(byte.MaxValue - (byte)item.Desc.Length - (byte)pos), (byte)0);
+                        item.Score = Math.Max((byte)(byte.MaxValue - fullobjectname.Length - (byte)item.Desc.Length - (byte)pos), (byte)0);
                         thinkresut.Add(item);
                         continue;
                     }
@@ -214,7 +236,17 @@ namespace NETDBHelper.UC
             {
                 if (p.Type == 2)
                 {
-                    if (!TableSet.Contains((p.Tag as MarkObjectInfo).TBName, StringComparer.OrdinalIgnoreCase))
+                    var markcolumn = (MarkObjectInfo)p.Tag;
+                    var tablename = string.Empty;
+                    if (!markcolumn.DBName.Equals(_dbname, StringComparison.OrdinalIgnoreCase))
+                    {
+                        tablename = $"{markcolumn.DBName.ToLower()}.{markcolumn.TBName}";
+                    }
+                    else
+                    {
+                        tablename = markcolumn.TBName;
+                    }
+                    if (!TableSet.Contains(tablename, StringComparer.OrdinalIgnoreCase))
                     {
                         return false;
                     }
@@ -224,29 +256,71 @@ namespace NETDBHelper.UC
 
             foreach (var p in thinkresut)
             {
-                if (p.Type == 1 && !TableSet.Contains(p.ObjectName, StringComparer.OrdinalIgnoreCase))
+                if (p.Type == 1)
                 {
-                    TableSet.Add(p.ObjectName);
+                    var markcolumn = (MarkObjectInfo)p.Tag;
+                    var tablename = string.Empty;
+                    if (!markcolumn.DBName.Equals(_dbname, StringComparison.OrdinalIgnoreCase))
+                    {
+                        tablename = $"{markcolumn.DBName.ToLower()}.{ p.ObjectName}";
+                    }
+                    else
+                    {
+                        tablename = p.ObjectName;
+                    }
+                    if(!TableSet.Contains(tablename, StringComparer.OrdinalIgnoreCase))
+                    {
+                        TableSet.Add(tablename);
+                    }
                 }
             }
 
             count = thinkresut.Count;
             return thinkresut.Select(p=> {
                 string objectname = null;
+                string replaceobjectname = null;
+                bool issamedb = true;
                 if (p.Type == 2)
                 {
                     var markcolumn = (p.Tag as MarkObjectInfo);
-                    objectname = $"{markcolumn.TBName.ToLower()}.{p.ObjectName}";
+                    issamedb = markcolumn.DBName.Equals(_dbname, StringComparison.OrdinalIgnoreCase);
+                    if (issamedb)
+                    {
+                        objectname = $"{markcolumn.TBName.ToLower()}.{p.ObjectName}";
+                    }
+                    else
+                    {
+                        objectname = $"{markcolumn.DBName.ToLower()}.{markcolumn.TBName.ToLower()}.{p.ObjectName}";
+                    }
+                    replaceobjectname= $"{markcolumn.TBName.ToLower()}.{p.ObjectName}";
+                }
+                else if (p.Type == 1)
+                {
+                    var markcolumn = (p.Tag as MarkObjectInfo);
+                    issamedb = markcolumn.DBName.Equals(_dbname, StringComparison.OrdinalIgnoreCase);
+                    if (issamedb)
+                    {
+                        objectname = p.ObjectName;
+                        replaceobjectname = p.ObjectName;
+                    }
+                    else
+                    {
+                        objectname = $"{markcolumn.DBName.ToLower()}.{p.ObjectName}";
+                        replaceobjectname = $"{markcolumn.DBName.ToLower()}.{p.ObjectName}";
+                    }
                 }
                 else
                 {
                     objectname = p.ObjectName;
+                    replaceobjectname = p.ObjectName;
                 }
                 return new
                 {
                     建议 = objectname,
                     说明 = p.Desc,
-                    p.Type
+                    p.Type,
+                    Issamedb=issamedb,
+                    replaceobjectname
                 };
             }).ToList();
         }
@@ -355,7 +429,7 @@ namespace NETDBHelper.UC
 
             backtimer = new System.Threading.Timer(new System.Threading.TimerCallback((o) =>
               {
-                  if (this.Visible&& !view.Visible && _currpt != Point.Empty && DateTime.Now.Subtract(_pointtiptime).TotalMilliseconds >= 1500)
+                  if (this.Visible&& !view.Visible && _currpt != Point.Empty && DateTime.Now.Subtract(_pointtiptime).TotalMilliseconds >= 1000)
                   {
                       _pointtiptime = DateTime.MaxValue;
                       backtimer.Change(0, Timeout.Infinite);
@@ -381,7 +455,7 @@ namespace NETDBHelper.UC
         private void RichText_DoubleClick(object sender, EventArgs e)
         {
             int st;
-            var seltext = GetTipCurrWord(out st);
+            var seltext = GetTipCurrWord(out st).Split('.').Last();
             if (string.IsNullOrWhiteSpace(seltext) || seltext.IndexOf('\n') > -1)
             {
                 return;
@@ -397,7 +471,7 @@ namespace NETDBHelper.UC
             }
             int st;
             var seltext = GetTipCurrWord(out st);
-            if (string.IsNullOrWhiteSpace(seltext) || seltext.IndexOf('\n') > -1 || seltext.Length > 30)
+            if (string.IsNullOrWhiteSpace(seltext) || seltext.IndexOf('\n') > -1)
             {
                 return;
             }
@@ -418,12 +492,12 @@ namespace NETDBHelper.UC
                 //[\s\n]+from[\s\r\n]+(?:(?:[\w\.\[\]]{1,})[\s\r\n]+(?:as)?(?:\w+)?(?:\,(?:[\w\.\[\]]{1,})[\s\r\n]+(?:as)?(?:\s+\w+)?)*)
                 //[\s\n]+from[\s\r\n]+((?:[\w\.\[\]]{1,}(?:\s?=\w+)?(?:\,?=[\w\.\[\]]{1,}(?:\s?=\w+)?))*)|[\s\n]+join[\s\n]+([\w\.\[\]]{1,})|(?:^?|\s+)update|insert\s+([\w\.\[\]]+)
                 HashSet<Tuple<string, string>> tablenamehash = new HashSet<Tuple<string, string>>();
-                foreach (Match m in Regex.Matches(this.RichText.Text, @"[\s\r\n]+from[\s\r\n]+(?:([\w\.\[\]]{1,})[\s\r\n]+(?:as)?(?:\w+)?(?:\,[\r\n\s]*(?:[\w\.\[\]]{1,})[\s\r\n]+(?:as)?(?:[\s\r\n]+\w+)?)*)|[\s\n\r]+join[\s\n\r]+([\w\.\[\]]{1,})|(?:^?|\s+)update[\s\r\n]+([\w\.\[\]]{1,})|insert[\s\r\n]+into[\s\r\n]+([\w\.\[\]]+)|delete[\s\r\n]+from[\s\r\n]+([\w\.\[\]]+)",
+                foreach (Match m in Regex.Matches(this.RichText.Text, @"[\s\r\n]+from[\s\r\n]+(?:([\w\.\[\]]{1,})[\s\r\n]+)|(?:[\s\n\r]+|^)join[\s\n\r]+([\w\.\[\]]{1,})|(?:^?|\s+)update[\s\r\n]+([\w\.\[\]]{1,})|insert[\s\r\n]+into[\s\r\n]+([\w\.\[\]]+)|delete[\s\r\n]+from[\s\r\n]+([\w\.\[\]]+)",
                     RegexOptions.IgnoreCase | RegexOptions.Multiline))
                 {
                     if (!string.IsNullOrWhiteSpace(m.Groups[0].Value))
                     {
-                        foreach (Match n in Regex.Matches(m.Groups[0].Value, @",[\s\r\n]*([\w\.\[\]]{1,})[\s\r\n]+(?:as)?(?:[\s\r\n]+\w+)?", RegexOptions.IgnoreCase | RegexOptions.Multiline))
+                        foreach (Match n in Regex.Matches(m.Groups[0].Value, @",[\s\r\n]*([\w\.\[\]]{1,})[\s\r\n]+", RegexOptions.IgnoreCase | RegexOptions.Multiline))
                         {
                             var t = GetTableName(n.Groups[1].Value, DBName);
 
@@ -520,14 +594,26 @@ namespace NETDBHelper.UC
                 {
                     (view.Tag as ViewContext).DataType = 1;
                     view.DataSource = marklist.Select(p => {
-                        return new
+                        if (p.DBName.Equals(_dbname, StringComparison.OrdinalIgnoreCase))
                         {
-                            提示 = $"{p.DBName.ToLower()}.{p.TBName.ToLower()}.{p.ColumnName.ToLower()}({p.ColumnType}):{p.MarkInfo}"
-                        };
+                            return new
+                            {
+                                提示 = $"{p.TBName.ToLower()}.{p.ColumnName.ToLower()}({p.ColumnType}):{p.MarkInfo}"
+                            };
+                        }
+                        else
+                        {
+                            return new
+                            {
+                                提示 = $"{p.DBName.ToLower()}.{p.TBName.ToLower()}.{p.ColumnName.ToLower()}({p.ColumnType}):{p.MarkInfo}"
+                            };
+                        }
                     }).ToList();
+                    
                     var padding = view.Columns[0].DefaultCellStyle.Padding;
                     padding.Left = 1;
                     view.Columns[0].DefaultCellStyle.Padding = padding;
+                    
                     view.Visible = true;
 
                     view.BringToFront();
@@ -571,6 +657,8 @@ namespace NETDBHelper.UC
             if ((view.Tag as ViewContext).DataType == 2)
             {
                 view.Columns["Type"].Visible = false;
+                view.Columns["Issamedb"].Visible = false;
+                view.Columns["replaceobjectname"].Visible = false;
             }
 
             var ajustviewwith = 0;
@@ -719,7 +807,7 @@ namespace NETDBHelper.UC
                 var ch = this.RichText.Lines[currline][pi];
 
                 if ((ch >= 'A' && ch <= 'Z') || (ch >= 48 && ch <= 57) || (ch >= 'a' && ch <= 'z')
-                    || ch == '_' || ch == '@'
+                    || ch == '_' || ch == '@' || ch == '.'
                     || (ch >= '\u4E00' && ch <= '\u9FA5'))
                 {
                     pre = ch + pre;
@@ -738,7 +826,7 @@ namespace NETDBHelper.UC
                     var ch = this.RichText.Lines[currline][pi];
 
                     if ((ch >= 'A' && ch <= 'Z') || (ch >= 48 && ch <= 57) || (ch >= 'a' && ch <= 'z')
-                        || ch == '_' || ch == '@'
+                        || ch == '_' || ch == '@' || ch == '.'
                         || (ch >= '\u4E00' && ch <= '\u9FA5'))
                     {
                         last += ch;
@@ -826,8 +914,8 @@ namespace NETDBHelper.UC
             }
             if ((view.Tag as ViewContext).DataType == 2)
             {
-                var val = view.Rows[e.RowIndex].Cells[0].Value.ToString();
-                var desc = (view.Rows[e.RowIndex].Cells[1].Value?.ToString()) ?? string.Empty;
+                var val = view.Rows[e.RowIndex].Cells["replaceobjectname"].Value.ToString();
+                var Issamedb = (bool)view.Rows[e.RowIndex].Cells["Issamedb"].Value;
                 string keyword;
                 var keywordindex = GetCurrWord(out keyword);
                 if (!string.IsNullOrWhiteSpace(keyword))
@@ -837,7 +925,7 @@ namespace NETDBHelper.UC
                     this.RichText.Select(keywordindex - keyword.Length, keyword.Length);
                     //this.RichText.Text.Remove(this.RichText.SelectionStart - keyword.Length, keyword.Length);
 
-                    if (keyword.IndexOf('.') > -1 || sender?.Equals(Keys.Right) == true)
+                    if (keyword.IndexOf('.') > -1 || sender?.Equals(Keys.Right) == true || !Issamedb)
                     {
                         this.RichText.SelectedText = val;
                     }
@@ -963,6 +1051,7 @@ namespace NETDBHelper.UC
                 {
                     (view.Tag as ViewContext).DataType = 2;
                     view.DataSource = obj;
+                    
                     var padding = view.Columns[0].DefaultCellStyle.Padding;
                     padding.Left = 20;
                     view.Columns[0].DefaultCellStyle.Padding = padding;

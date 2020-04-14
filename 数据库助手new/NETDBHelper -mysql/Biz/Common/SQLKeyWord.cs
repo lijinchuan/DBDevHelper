@@ -63,6 +63,7 @@ namespace Biz.Common
 
         static SQLKeyWordHelper()
         {
+
             KeyWordDic.Add(new SQLKeyWord
             {
                 KeyWord = "*",
@@ -202,6 +203,16 @@ namespace Biz.Common
             {
                 KeyWord = "coalesce",
                 Desc = ""
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
+                KeyWord = "column->>path",
+                Desc = "json_unquote(column -> path)的简洁写法"
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
+                KeyWord = "column->path",
+                Desc = "json_extract的简洁写法，MySQL 5.7.9开始支持"
             });
             KeyWordDic.Add(new SQLKeyWord
             {
@@ -437,6 +448,111 @@ namespace Biz.Common
             {
                 KeyWord = "join",
                 Desc = "关联"
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
+                KeyWord = "json_append",
+                Desc = "废弃，MySQL 5.7.9开始改名为json_array_append"
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
+                KeyWord = "json_array",
+                Desc = "创建json数组"
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
+                KeyWord = "json_array_append",
+                Desc = "末尾添加数组元素，如果原有值是数值或json对象，则转成数组后，再添加元素"
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
+                KeyWord = "json_array_insert",
+                Desc = "插入数组元素"
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
+                KeyWord = "json_contains",
+                Desc = "判断是否包含某个json值"
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
+                KeyWord = "json_contains_path",
+                Desc = "判断某个路径下是否包json值"
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
+                KeyWord = "json_depth",
+                Desc = "返回json文档的最大深度"
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
+                KeyWord = "json_extract",
+                Desc = "提取json值"
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
+                KeyWord = "json_insert",
+                Desc = "插入值（插入新值，但不替换已经存在的旧值）"
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
+                KeyWord = "json_keys",
+                Desc = "提取json中的键值为json数组"
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
+                KeyWord = "json_length",
+                Desc = "返回json文档的长度"
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
+                KeyWord = "json_merge",
+                Desc = "合并json数组或对象"
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
+                KeyWord = "json_object",
+                Desc = "创建json对象"
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
+                KeyWord = "json_quote",
+                Desc = "将json转成json字符串类型"
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
+                KeyWord = "json_remove",
+                Desc = "删除json数据"
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
+                KeyWord = "json_replace",
+                Desc = "替换值（只替换已经存在的旧值）"
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
+                KeyWord = "json_search",
+                Desc = "按给定字符串关键字搜索json，返回匹配的路径"
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
+                KeyWord = "json_set",
+                Desc = "设置值（替换旧值，并插入不存在的新值）"
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
+                KeyWord = "json_type",
+                Desc = "返回json值得类型"
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
+                KeyWord = "json_unquote",
+                Desc = "去除json字符串的引号，将值转成string类型"
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
+                KeyWord = "json_valid",
+                Desc = "判断是否为合法json文档"
             });
             KeyWordDic.Add(new SQLKeyWord
             {

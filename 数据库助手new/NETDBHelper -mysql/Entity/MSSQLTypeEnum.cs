@@ -36,5 +36,6 @@ namespace Entity
         Uniqueidentifier,
         timestamp,
         Enum,
+        Json
     }
 }

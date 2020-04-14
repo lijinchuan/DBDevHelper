@@ -39,7 +39,8 @@ namespace Biz.Common
                    || colEnum.Equals(MSSQLTypeEnum.NText)
                    || colEnum.Equals(MSSQLTypeEnum.NVarChar)
                    || colEnum.Equals(MSSQLTypeEnum.Text)
-                   || colEnum.Equals(MSSQLTypeEnum.Varchar);
+                   || colEnum.Equals(MSSQLTypeEnum.Varchar)
+                   || colEnum.Equals(MSSQLTypeEnum.Json);
         }
 
         public static bool IsEnum(this TBColumn column)

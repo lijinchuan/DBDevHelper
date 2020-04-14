@@ -191,7 +191,7 @@ namespace NETDBHelper
 
                     if (mark == null && !synccolumnmark && !string.IsNullOrWhiteSpace(col.Description))
                     {
-                        LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<MarkObjectInfo>("MarkColumnInfo", new MarkObjectInfo
+                        LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<MarkObjectInfo>("MarkObjectInfo", new MarkObjectInfo
                         {
                             DBName = dbname.ToUpper(),
                             ColumnName = col.Name.ToUpper(),
