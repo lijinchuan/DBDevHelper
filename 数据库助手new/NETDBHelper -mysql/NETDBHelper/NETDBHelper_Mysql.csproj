@@ -51,6 +51,9 @@
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>mysql.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="BouncyCastle.Crypto, Version=1.8.3.0, Culture=neutral, PublicKeyToken=0e99375e54769942">
       <HintPath>..\packages\BouncyCastle.1.8.3.1\lib\BouncyCastle.Crypto.dll</HintPath>
@@ -450,6 +453,7 @@
     <None Include="Resources\bullet_eject.png" />
     <None Include="Resources\bullet_tick.png" />
     <None Include="Resources\application_form_magnify.png" />
+    <Content Include="mysql.ico" />
     <Content Include="Resources\CloseServer.jpg" />
     <None Include="Resources\colq.png" />
     <None Include="Resources\computer_link.png" />
