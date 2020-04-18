@@ -68,10 +68,15 @@ namespace Biz.Common.Data
             var idColumnName = GetAutoIncrementColName(dbSource, dbName, tbName);
             for (int i = 0; i < tb.Rows.Count; i++)
             {
+                long longlen = long.Parse(string.IsNullOrEmpty(tb.Rows[i]["character_maximum_length"].ToString()) ? "0" : tb.Rows[i]["character_maximum_length"].ToString());
+                if (longlen > int.MaxValue)
+                {
+                    longlen = -1;
+                }
                 yield return new TBColumn
                 {
                     IsKey = string.Equals((string)tb.Rows[i]["column_key"], "pri", StringComparison.OrdinalIgnoreCase),
-                    Length = int.Parse(string.IsNullOrEmpty(tb.Rows[i]["character_maximum_length"].ToString()) ? "0" : tb.Rows[i]["character_maximum_length"].ToString()),
+                    Length = (int)longlen,
                     Name = tb.Rows[i]["column_name"].ToString(),
                     TypeName = tb.Rows[i]["data_type"].ToString(),
                     IsID = string.Equals(idColumnName, tb.Rows[i]["column_name"].ToString()),

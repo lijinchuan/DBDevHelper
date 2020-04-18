@@ -59,7 +59,7 @@ namespace NETDBHelper
 
             if (e.TabPage is UC.SqlExcuter)
             {
-                this.TSCBServer.Text = (e.TabPage as UC.SqlExcuter).Server.ServerName;
+                this.TSCBServer.Text = (e.TabPage as UC.SqlExcuter).Server.ServerName+"::"+ (e.TabPage as UC.SqlExcuter).GetDB();
                 this.TSCBServer.Visible = true;
             }
             else
@@ -192,7 +192,7 @@ namespace NETDBHelper
             this.TabControl.TabPages.Add(se);
             this.TabControl.SelectedTab = se;
             tsb_Excute.Enabled = true;
-            this.TSCBServer.Text = source.ServerName;
+            this.TSCBServer.Text = source.ServerName + "::" + db;
             this.TSCBServer.Visible = true;
         }
 
@@ -266,7 +266,7 @@ namespace NETDBHelper
             this.TabControl.TabPages.Add(viewTb);
             TabControl.SelectedTab = viewTb;
             tsb_Excute.Enabled = true;
-            this.TSCBServer.Text = db.ServerName;
+            this.TSCBServer.Text = db.ServerName + "::" + dbName;
             this.TSCBServer.Visible = true;
             //viewTb.DBSource = db;
             //viewTb.DBName = dbName;

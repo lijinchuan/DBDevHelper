@@ -50,6 +50,7 @@
             this.dbServerView1 = new NETDBHelper.DBServerView();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.MspPanel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.TSL_ClearMsg = new System.Windows.Forms.ToolStripStatusLabel();
             this.mainMenuBar.SuspendLayout();
             this.panel1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
@@ -224,7 +225,8 @@
             // statusStrip1
             // 
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.MspPanel});
+            this.MspPanel,
+            this.TSL_ClearMsg});
             this.statusStrip1.Location = new System.Drawing.Point(0, 531);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Size = new System.Drawing.Size(830, 22);
@@ -235,6 +237,14 @@
             // 
             this.MspPanel.Name = "MspPanel";
             this.MspPanel.Size = new System.Drawing.Size(0, 17);
+            // 
+            // TSL_ClearMsg
+            // 
+            this.TSL_ClearMsg.Image = global::NETDBHelper.Properties.Resources.cross;
+            this.TSL_ClearMsg.Name = "TSL_ClearMsg";
+            this.TSL_ClearMsg.Size = new System.Drawing.Size(16, 17);
+            this.TSL_ClearMsg.Visible = false;
+            this.TSL_ClearMsg.Click += new System.EventHandler(this.TSL_ClearMsg_Click);
             // 
             // MainFrm
             // 
@@ -286,6 +296,7 @@
         private System.Windows.Forms.ToolStripMenuItem 查看日志ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 常用SQLToolStripMenuItem;
         private System.Windows.Forms.ToolStripLabel TSCBServer;
+        private System.Windows.Forms.ToolStripStatusLabel TSL_ClearMsg;
     }
 }
 

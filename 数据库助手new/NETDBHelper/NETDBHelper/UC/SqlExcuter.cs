@@ -38,6 +38,11 @@ namespace NETDBHelper.UC
             set;
         }
 
+        public string GetDB()
+        {
+            return DB;
+        }
+
         ContextMenuStrip datastrip = null;
 
         public SqlExcuter(DBSource server,string db,string sql)
@@ -235,11 +240,6 @@ namespace NETDBHelper.UC
                             dgv.BorderStyle = System.Windows.Forms.BorderStyle.None;
                             dgv.DataError += (s, e) =>
                             {
-                                var data = dgv.Rows[e.RowIndex].Cells[e.ColumnIndex];
-                                if (dgv.Columns[e.ColumnIndex].CellType == typeof(byte[]))
-                                {
-                                    //dgv.Rows[e.RowIndex].Cells[e.ColumnIndex].
-                                }
                                 e.Cancel = true;
                             };
                             dgv.GridColor = Color.LightBlue;
@@ -584,7 +584,14 @@ namespace NETDBHelper.UC
                         {
                             if (cell.Value != null)
                             {
-                                sb.Append(cell.Value.ToString());
+                                if (cell.ValueType == typeof(byte[]))
+                                {
+                                    sb.Append("0x" + BitConverter.ToString((byte[])cell.Value).Replace("-", ""));
+                                }
+                                else
+                                {
+                                    sb.Append(cell.Value.ToString());
+                                }
                             }
                             sb.Append("\t");
                         }

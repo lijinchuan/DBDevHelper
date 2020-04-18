@@ -458,6 +458,7 @@
     <None Include="Resources\colq.png" />
     <None Include="Resources\computer_link.png" />
     <None Include="Resources\connect.png" />
+    <None Include="Resources\cross.png" />
     <Content Include="Resources\DB1.png" />
     <None Include="Resources\DB16.png" />
     <Content Include="Resources\DB2.png" />

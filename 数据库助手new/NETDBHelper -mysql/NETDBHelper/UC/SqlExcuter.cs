@@ -70,6 +70,11 @@ namespace NETDBHelper.UC
             datastrip.ItemClicked += Datastrip_ItemClicked;
         }
 
+        public string GetDB()
+        {
+            return this.DB;
+        }
+
         private void Datastrip_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
         {
             if (e.ClickedItem.Text == "导出表格数据")

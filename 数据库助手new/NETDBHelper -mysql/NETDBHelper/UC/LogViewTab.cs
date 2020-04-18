@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using Entity;
 using LJC.FrameWorkV3.Data.EntityDataBase;
 using System.Threading;
+using System.Text.RegularExpressions;
 
 namespace NETDBHelper.UC
 {
@@ -163,7 +164,12 @@ namespace NETDBHelper.UC
                     List<string> list = new List<string>();
                     foreach (DataGridViewCell cell in cells)
                     {
-                        list.Add(cell.Value?.ToString());
+                        var txt = cell.Value?.ToString();
+                        if (!string.IsNullOrWhiteSpace(txt))
+                        {
+                            txt = Regex.Replace(txt, "(?!\r)\n", "\r\n");
+                        }
+                        list.Add(txt);
                     }
                     SubForm.TextBoxWin win = new SubForm.TextBoxWin("", string.Join("\t", list));
                     win.ShowDialog();

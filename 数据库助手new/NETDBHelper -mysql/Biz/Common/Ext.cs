@@ -40,7 +40,15 @@ namespace Biz.Common
                    || colEnum.Equals(MSSQLTypeEnum.NVarChar)
                    || colEnum.Equals(MSSQLTypeEnum.Text)
                    || colEnum.Equals(MSSQLTypeEnum.Varchar)
-                   || colEnum.Equals(MSSQLTypeEnum.Json);
+                   || colEnum.Equals(MSSQLTypeEnum.Json)
+                   || colEnum.Equals(MSSQLTypeEnum.LongText)
+                   || colEnum.Equals(MSSQLTypeEnum.MediumText)
+                   || colEnum.Equals(MSSQLTypeEnum.TinyText)
+                   || colEnum.Equals(MSSQLTypeEnum.Blob)
+                   || colEnum.Equals(MSSQLTypeEnum.TinyBlob)
+                   || colEnum.Equals(MSSQLTypeEnum.MediumBlob)
+                   || colEnum.Equals(MSSQLTypeEnum.LongBlob)
+                   || colEnum.Equals(MSSQLTypeEnum.Set);
         }
 
         public static bool IsEnum(this TBColumn column)
@@ -62,9 +70,11 @@ namespace Biz.Common
                 || colEnum.Equals(MSSQLTypeEnum.Money)
                 || colEnum.Equals(MSSQLTypeEnum.Numeric)
                 || colEnum.Equals(MSSQLTypeEnum.Real)
-                || colEnum.Equals(MSSQLTypeEnum.Smallint)
+                || colEnum.Equals(MSSQLTypeEnum.SmallInt)
+                || colEnum.Equals(MSSQLTypeEnum.MediumInt)
                 || colEnum.Equals(MSSQLTypeEnum.Smallmoney)
-                || colEnum.Equals(MSSQLTypeEnum.Tinyint);
+                || colEnum.Equals(MSSQLTypeEnum.Tinyint)
+                || colEnum.Equals(MSSQLTypeEnum.Year);
         }
 
         public static bool IsBoolean(this TBColumn column)

@@ -76,7 +76,7 @@ namespace NETDBHelper
 
             if (e.TabPage is UC.SqlExcuter)
             {
-                this.TSCBServer.Text = (e.TabPage as UC.SqlExcuter).Server.ServerName;
+                this.TSCBServer.Text = (e.TabPage as UC.SqlExcuter).Server.ServerName+"::"+ (e.TabPage as UC.SqlExcuter).GetDB();
                 this.TSCBServer.Visible = true;
             }
             else
@@ -166,7 +166,7 @@ namespace NETDBHelper
             this.TabControl.TabPages.Add(viewTb);
             TabControl.SelectedTab = viewTb;
             tsb_Excute.Enabled = true;
-            this.TSCBServer.Text = db.ServerName;
+            this.TSCBServer.Text = db.ServerName+"::"+dbName;
             this.TSCBServer.Visible = true;
             //viewTb.DBSource = db;
             //viewTb.DBName = dbName;
@@ -248,11 +248,21 @@ namespace NETDBHelper
                 this.Invoke(new Action(() =>
                 {
                     this.MspPanel.Text = msg;
+                    if (this.MspPanel.Width >= this.statusStrip1.Width - this.MspPanel.Width - 10)
+                    {
+                        this.MspPanel.Spring = true;
+                        this.TSL_ClearMsg.Visible = true;
+                    }
                 }));
             }
             else
             {
                 this.MspPanel.Text = msg;
+                if (this.MspPanel.Width >= this.statusStrip1.Width - this.MspPanel.Width - 10)
+                {
+                    this.TSL_ClearMsg.Visible = true;
+                    this.MspPanel.Spring = true;
+                }
             }
         }
 
@@ -330,6 +340,13 @@ namespace NETDBHelper
             this.TabControl.TabPages.Add(view);
             this.TabControl.SelectedTab = view;
             view.BindData();
+        }
+
+        private void TSL_ClearMsg_Click(object sender, EventArgs e)
+        {
+            this.MspPanel.Text = "";
+            TSL_ClearMsg.Visible = false;
+            this.MspPanel.Spring = false;
         }
     }
 }

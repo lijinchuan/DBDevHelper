@@ -221,6 +221,11 @@ namespace Biz.Common
             });
             KeyWordDic.Add(new SQLKeyWord
             {
+                KeyWord = "read committed",
+                Desc = "隔离级别:已提交读"
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
                 KeyWord = "convert",
                 Desc = ""
             });
@@ -303,6 +308,11 @@ namespace Biz.Common
             {
                 KeyWord = "difference",
                 Desc = ""
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
+                KeyWord = "delimiter",
+                Desc = "定界符"
             });
             KeyWordDic.Add(new SQLKeyWord
             {
@@ -398,6 +408,11 @@ namespace Biz.Common
             {
                 KeyWord = "if",
                 Desc = ""
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
+                KeyWord = "isolation",
+                Desc = "隔离"
             });
             KeyWordDic.Add(new SQLKeyWord
             {
@@ -566,8 +581,18 @@ namespace Biz.Common
             });
             KeyWordDic.Add(new SQLKeyWord
             {
+                KeyWord = "level",
+                Desc = "级别"
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
                 KeyWord = "like",
                 Desc = ""
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
+                KeyWord = "limit",
+                Desc = "分页"
             });
             KeyWordDic.Add(new SQLKeyWord
             {
@@ -721,8 +746,8 @@ namespace Biz.Common
             });
             KeyWordDic.Add(new SQLKeyWord
             {
-                KeyWord = "real",
-                Desc = ""
+                KeyWord = "read",
+                Desc = "读"
             });
             KeyWordDic.Add(new SQLKeyWord
             {
@@ -738,6 +763,11 @@ namespace Biz.Common
             {
                 KeyWord = "replace",
                 Desc = "替换"
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
+                KeyWord = "repeatable read",
+                Desc = "隔离级别:可重复读"
             });
             KeyWordDic.Add(new SQLKeyWord
             {
@@ -781,6 +811,16 @@ namespace Biz.Common
             });
             KeyWordDic.Add(new SQLKeyWord
             {
+                KeyWord = "Serializable",
+                Desc = "隔离级别:可串行化"
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
+                KeyWord = "session",
+                Desc = "会话"
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
                 KeyWord = "set",
                 Desc = "设置"
             });
@@ -818,6 +858,11 @@ namespace Biz.Common
             {
                 KeyWord = "sql_variant",
                 Desc = ""
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
+                KeyWord = "start",
+                Desc = "开始"
             });
             KeyWordDic.Add(new SQLKeyWord
             {
@@ -861,13 +906,13 @@ namespace Biz.Common
             });
             KeyWordDic.Add(new SQLKeyWord
             {
-                KeyWord = "top",
-                Desc = ""
+                KeyWord = "transaction",
+                Desc = "事务"
             });
             KeyWordDic.Add(new SQLKeyWord
             {
-                KeyWord = "transaction",
-                Desc = "事务"
+                KeyWord = "read uncommitted",
+                Desc = "隔离级别:未提交读"
             });
             KeyWordDic.Add(new SQLKeyWord
             {
