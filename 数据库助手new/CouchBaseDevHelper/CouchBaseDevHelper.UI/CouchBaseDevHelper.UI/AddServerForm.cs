@@ -18,6 +18,30 @@ namespace CouchBaseDevHelper.UI
             InitializeComponent();
         }
 
+        protected override void OnLoad(EventArgs e)
+        {
+            base.OnLoad(e);
+
+            this.CBServerType.DataSource = new[]
+            {
+                new
+                {
+                    val=0,
+                    text="CouchBase"
+                },
+                new
+                {
+                    val=1,
+                    text="Memcached"
+                }
+            };
+
+            this.CBServerType.ValueMember = "val";
+            this.CBServerType.DisplayMember = "text";
+
+            this.CBServerType.SelectedIndex = 0;
+        }
+
         public CouchBaseServerEntity NewServer
         {
             get;
@@ -66,6 +90,7 @@ namespace CouchBaseDevHelper.UI
             {
                 ConnStr = TBConnstr.Text.Trim(),
                 ServerName = TBName.Text.Trim(),
+                CachServerType = (int)CBServerType.SelectedValue,
                 IsPrd = CBIsprd.Checked,
             };
             EntityTableEngine.LocalEngine.Upsert(Global.TBName_RedisServer, NewServer);

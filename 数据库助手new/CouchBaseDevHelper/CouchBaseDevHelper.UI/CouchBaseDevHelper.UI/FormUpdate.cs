@@ -1,4 +1,5 @@
 ﻿using LJC.FrameWork.Comm;
+using LJC.FrameWork.MemCached;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -13,7 +14,7 @@ namespace CouchBaseDevHelper.UI
 {
     public partial class FormUpdate : Form
     {
-        public string Connstr
+        public CouchBaseServerEntity Server
         {
             get;
             set;
@@ -56,7 +57,7 @@ namespace CouchBaseDevHelper.UI
                 return;
             }
 
-            if (string.IsNullOrWhiteSpace(Connstr))
+            if (string.IsNullOrWhiteSpace(Server.ConnStr))
             {
                 this.Close();
                 return;
@@ -117,8 +118,15 @@ namespace CouchBaseDevHelper.UI
                 {
                     obj = LJC.FrameWork.Comm.JsonUtil<object>.Deserialize(TBValContent.Text, Val.GetType());
                 }
-                var client = LJC.FrameWork.Couchbase.CouchbaseHelper.GetClient(Connstr.Split(':')[0],
-                    int.Parse(Connstr.Split(':')[1]), Bucket);
+                var connstr = Server.ConnStr.Split(',').First();
+                var host = connstr.Split(':')[0];
+                var point = int.Parse(connstr.Split(':')[1]);
+                var bucket = Bucket;
+                LJC.FrameWork.MemCached.ICachClient client = null;
+                if (Server.CachServerType == 1)
+                    client = new LJC.FrameWork.MemCached.MemcachedClient(host, point, bucket);
+                else
+                    client = new LJC.FrameWork.MemCached.CouchbaseClient(host, point, bucket);
 
                 if (this.TBKey.Text != Key)
                 {
@@ -132,7 +140,7 @@ namespace CouchBaseDevHelper.UI
                     LJC.FrameWork.LogManager.LogHelper.Instance.Info("修改备份,key=" + Key + "类型：" + Val.GetType().FullName + ",原值:" + JsonUtil<object>.Serialize(Val));
                 }
 
-                if(client.Store(Enyim.Caching.Memcached.StoreMode.Set, this.TBKey.Text, obj))
+                if(client.Store(StoreMode.Set, this.TBKey.Text, obj))
                 {
                     MessageBox.Show("存储成功");
                 }

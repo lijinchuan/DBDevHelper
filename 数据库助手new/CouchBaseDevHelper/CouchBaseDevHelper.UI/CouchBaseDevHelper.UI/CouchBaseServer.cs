@@ -30,6 +30,16 @@ namespace CouchBaseDevHelper.UI
             set;
         }
 
+        /// <summary>
+        /// 0-coursebase
+        /// 1-memcached
+        /// </summary>
+        public int CachServerType
+        {
+            get;
+            set;
+        }
+
         private bool _isprd = true;
         public bool IsPrd
         {

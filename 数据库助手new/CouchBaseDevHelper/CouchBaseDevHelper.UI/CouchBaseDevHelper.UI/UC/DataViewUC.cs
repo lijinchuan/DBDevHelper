@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using System.IO;
 using LJC.FrameWork.Data.EntityDataBase;
 using LJC.FrameWork.Comm;
+using LJC.FrameWork.MemCached;
 
 namespace CouchBaseDevHelper.UI.UC
 {
@@ -64,6 +65,23 @@ namespace CouchBaseDevHelper.UI.UC
             return Encoding.UTF8.GetString(bytes.Array,bytes.Offset,bytes.Count);
         }
 
+        private ICachClient GetClient()
+        {
+            var server = _server.ConnStr.Split(',')[0];
+            var hostandport = server.Split(':');
+            var host = hostandport[0];
+            var point = hostandport.Length == 2 ? int.Parse(hostandport[1]) : 8091;
+            var bucket = CBBucket.Text;
+
+            LJC.FrameWork.MemCached.ICachClient client = null;
+            if (_server.CachServerType == 1)
+                client = new LJC.FrameWork.MemCached.MemcachedClient(host, point, bucket);
+            else
+                client = new LJC.FrameWork.MemCached.CouchbaseClient(host, point, bucket);
+
+            return client;
+        }
+
         private void BtnOK_Click(object sender, EventArgs e)
         {
             var key = TBKey.Text.Trim();
@@ -75,13 +93,8 @@ namespace CouchBaseDevHelper.UI.UC
             DateTime now = DateTime.Now;
             try
             {
-                var server = _server.ConnStr.Split(',')[0];
-                var hostandport = server.Split(':');
-                var host = hostandport[0];
-                var point = hostandport.Length == 2 ? int.Parse(hostandport[1]) : 8091;
                 var bucket = CBBucket.Text;
-                var client = LJC.FrameWork.Couchbase.CouchbaseHelper.GetClient(host,
-                    point, bucket);
+                var client = GetClient();
 
                 if (!_server.Buckets.Contains(bucket))
                 {
@@ -108,7 +121,8 @@ namespace CouchBaseDevHelper.UI.UC
                                 Key=key,
                                 Mark=string.Empty,
                                 ServerName=_server.ServerName,
-                                Connstr=_server.ConnStr
+                                Connstr=_server.ConnStr,
+                                CachServerType=_server.CachServerType
                             });
                         }
 
@@ -202,7 +216,7 @@ namespace CouchBaseDevHelper.UI.UC
         private void 修改ToolStripMenuItem_Click(object sender, EventArgs e)
         {
             FormUpdate fu = new FormUpdate();
-            fu.Connstr = _server.ConnStr.Split(',').First();
+            fu.Server = _server;
             fu.Key = TBKey.Text.Trim();
             fu.Bucket = CBBucket.Text;
             fu.Val = KeyVal;
@@ -231,18 +245,12 @@ namespace CouchBaseDevHelper.UI.UC
 
             try
             {
-                var server = _server.ConnStr.Split(',')[0];
-                var hostandport = server.Split(':');
-                var host = hostandport[0];
-                var point = hostandport.Length == 2 ? int.Parse(hostandport[1]) : 8091;
-
                 //先备份
-                var client = LJC.FrameWork.Couchbase.CouchbaseHelper.GetClient(host,
-                        point, bucket);
+                var client = GetClient();
                 object oldval = null;
                 if (client.TryGet(key, out oldval))
                 {
-                    if (!client.Store(Enyim.Caching.Memcached.StoreMode.Set, backkey, oldval))
+                    if (!client.Store(StoreMode.Set, backkey, oldval))
                     {
                         MessageBox.Show("备份失败");
                         return;

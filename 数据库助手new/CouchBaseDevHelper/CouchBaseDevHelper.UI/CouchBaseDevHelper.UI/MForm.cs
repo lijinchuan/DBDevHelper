@@ -148,16 +148,17 @@ namespace CouchBaseDevHelper.UI
         {
             this.PanelRight.Controls.Clear();
             var node = TVServerList.SelectedNode;
-            if (node != null && node.Level == 2)
+            if (node != null && node.Level == 2 && node.Tag != null)
             {
                 this.Text = ((CouchBaseServerEntity)node.Tag).ServerName;
                 UC.DataViewUC dv = new UC.DataViewUC(new CouchBaseServerEntity
                 {
-                    ConnStr=node.Text,
+                    ConnStr = node.Text,
                     ServerName = ((CouchBaseServerEntity)node.Tag).ServerName,
-                    Buckets=((CouchBaseServerEntity)node.Tag).Buckets
+                    CachServerType=((CouchBaseServerEntity)node.Tag).CachServerType,
+                    Buckets = ((CouchBaseServerEntity)node.Tag).Buckets
                 });
-                dv.Dock=DockStyle.Fill;
+                dv.Dock = DockStyle.Fill;
                 this.PanelRight.Controls.Add(dv);
             }
             else
@@ -186,6 +187,7 @@ namespace CouchBaseDevHelper.UI
                     UC.DataViewUC dv = new UC.DataViewUC(new CouchBaseServerEntity
                     {
                         ConnStr = log.Connstr,
+                        CachServerType=log.CachServerType,
                         ServerName = log.ServerName,
                         Buckets = server.Buckets
                     });

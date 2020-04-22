@@ -26,6 +26,16 @@ namespace CouchBaseDevHelper.UI
             set;
         }
 
+        /// <summary>
+        /// 0-coursebase
+        /// 1-memcached
+        /// </summary>
+        public int CachServerType
+        {
+            get;
+            set;
+        }
+
         public string Mark
         {
             get;

@@ -35,6 +35,8 @@
             this.label2 = new System.Windows.Forms.Label();
             this.TBName = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
+            this.CBServerType = new System.Windows.Forms.ComboBox();
             this.SuspendLayout();
             // 
             // CBIsprd
@@ -42,7 +44,7 @@
             this.CBIsprd.AutoSize = true;
             this.CBIsprd.Checked = true;
             this.CBIsprd.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.CBIsprd.Location = new System.Drawing.Point(96, 251);
+            this.CBIsprd.Location = new System.Drawing.Point(99, 294);
             this.CBIsprd.Name = "CBIsprd";
             this.CBIsprd.Size = new System.Drawing.Size(72, 16);
             this.CBIsprd.TabIndex = 13;
@@ -54,7 +56,7 @@
             this.CBTest.AutoSize = true;
             this.CBTest.Checked = true;
             this.CBTest.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.CBTest.Location = new System.Drawing.Point(207, 251);
+            this.CBTest.Location = new System.Drawing.Point(210, 294);
             this.CBTest.Name = "CBTest";
             this.CBTest.Size = new System.Drawing.Size(96, 16);
             this.CBTest.TabIndex = 12;
@@ -63,7 +65,7 @@
             // 
             // BtnAdd
             // 
-            this.BtnAdd.Location = new System.Drawing.Point(403, 303);
+            this.BtnAdd.Location = new System.Drawing.Point(403, 328);
             this.BtnAdd.Name = "BtnAdd";
             this.BtnAdd.Size = new System.Drawing.Size(75, 23);
             this.BtnAdd.TabIndex = 11;
@@ -104,11 +106,30 @@
             this.label1.TabIndex = 7;
             this.label1.Text = "名称";
             // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(52, 250);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(29, 12);
+            this.label3.TabIndex = 14;
+            this.label3.Text = "类型";
+            // 
+            // CBServerType
+            // 
+            this.CBServerType.FormattingEnabled = true;
+            this.CBServerType.Location = new System.Drawing.Point(96, 246);
+            this.CBServerType.Name = "CBServerType";
+            this.CBServerType.Size = new System.Drawing.Size(121, 20);
+            this.CBServerType.TabIndex = 15;
+            // 
             // AddServerForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(627, 379);
+            this.Controls.Add(this.CBServerType);
+            this.Controls.Add(this.label3);
             this.Controls.Add(this.CBIsprd);
             this.Controls.Add(this.CBTest);
             this.Controls.Add(this.BtnAdd);
@@ -137,5 +158,7 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.TextBox TBName;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.ComboBox CBServerType;
     }
 }

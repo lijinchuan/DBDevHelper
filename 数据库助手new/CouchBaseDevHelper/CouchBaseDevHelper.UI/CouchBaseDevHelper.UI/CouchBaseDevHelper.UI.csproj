@@ -45,8 +45,8 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\Lib\LJC.FrameWork.dll</HintPath>
     </Reference>
-    <Reference Include="LJC.FrameWork.Couchbase">
-      <HintPath>..\..\..\Lib\LJC.FrameWork.Couchbase.dll</HintPath>
+    <Reference Include="LJC.FrameWork.MemCached">
+      <HintPath>..\..\..\Lib\LJC.FrameWork.MemCached.dll</HintPath>
     </Reference>
     <Reference Include="log4net">
       <HintPath>..\..\..\Lib\log4net.dll</HintPath>
