@@ -76,7 +76,8 @@ namespace CouchBaseDevHelper.UI
                 {
                     var hostnode = new TreeNode
                     {
-                        Text = hp
+                        Text = hp,
+                        Tag=item
                     };
 
                     newnode.Nodes.Add(hostnode);
