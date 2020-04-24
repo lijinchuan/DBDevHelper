@@ -156,7 +156,7 @@
             // 
             this.清理备注ToolStripMenuItem.Name = "清理备注ToolStripMenuItem";
             this.清理备注ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.清理备注ToolStripMenuItem.Text = "清理无效字段";
+            this.清理备注ToolStripMenuItem.Text = "清理本地缓存";
             // 
             // 刷新ToolStripMenuItem
             // 
