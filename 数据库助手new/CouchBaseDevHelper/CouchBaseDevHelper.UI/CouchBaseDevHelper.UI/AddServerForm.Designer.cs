@@ -40,8 +40,8 @@
             this.label4 = new System.Windows.Forms.Label();
             this.TBDLLFile = new System.Windows.Forms.TextBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.BtnLoadFile = new System.Windows.Forms.Button();
             this.label5 = new System.Windows.Forms.Label();
+            this.BtnLoadFile = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -50,7 +50,7 @@
             this.CBIsprd.AutoSize = true;
             this.CBIsprd.Checked = true;
             this.CBIsprd.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.CBIsprd.Location = new System.Drawing.Point(99, 294);
+            this.CBIsprd.Location = new System.Drawing.Point(96, 312);
             this.CBIsprd.Name = "CBIsprd";
             this.CBIsprd.Size = new System.Drawing.Size(72, 16);
             this.CBIsprd.TabIndex = 13;
@@ -62,7 +62,7 @@
             this.CBTest.AutoSize = true;
             this.CBTest.Checked = true;
             this.CBTest.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.CBTest.Location = new System.Drawing.Point(210, 294);
+            this.CBTest.Location = new System.Drawing.Point(207, 312);
             this.CBTest.Name = "CBTest";
             this.CBTest.Size = new System.Drawing.Size(96, 16);
             this.CBTest.TabIndex = 12;
@@ -71,7 +71,7 @@
             // 
             // BtnAdd
             // 
-            this.BtnAdd.Location = new System.Drawing.Point(403, 328);
+            this.BtnAdd.Location = new System.Drawing.Point(420, 340);
             this.BtnAdd.Name = "BtnAdd";
             this.BtnAdd.Size = new System.Drawing.Size(75, 23);
             this.BtnAdd.TabIndex = 11;
@@ -156,10 +156,22 @@
             this.groupBox1.FlatStyle = System.Windows.Forms.FlatStyle.System;
             this.groupBox1.Location = new System.Drawing.Point(235, 235);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(306, 53);
+            this.groupBox1.Size = new System.Drawing.Size(313, 72);
             this.groupBox1.TabIndex = 18;
             this.groupBox1.TabStop = false;
             this.groupBox1.Visible = false;
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Font = new System.Drawing.Font("宋体", 7.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.label5.ForeColor = System.Drawing.Color.Red;
+            this.label5.Location = new System.Drawing.Point(7, 35);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(300, 30);
+            this.label5.TabIndex = 19;
+            this.label5.Text = "默认客户端框架是Enyim.Caching，不需要填写。自定义插件需实现\r\nLJC.FrameWork.MemCached.ICachClient接口，并实现构造" +
+    "函数\r\n(string serverip, int port, string bucket)";
             // 
             // BtnLoadFile
             // 
@@ -170,17 +182,6 @@
             this.BtnLoadFile.Text = "...";
             this.BtnLoadFile.UseVisualStyleBackColor = true;
             this.BtnLoadFile.Click += new System.EventHandler(this.BtnLoadFile_Click);
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Font = new System.Drawing.Font("宋体", 7.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.label5.ForeColor = System.Drawing.Color.Red;
-            this.label5.Location = new System.Drawing.Point(7, 35);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(280, 10);
-            this.label5.TabIndex = 19;
-            this.label5.Text = "自定义插件需实现LJC.FrameWork.MemCached.ICachClient接口";
             // 
             // AddServerForm
             // 
