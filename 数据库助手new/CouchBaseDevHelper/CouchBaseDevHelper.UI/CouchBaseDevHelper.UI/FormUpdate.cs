@@ -124,7 +124,16 @@ namespace CouchBaseDevHelper.UI
                 var bucket = Bucket;
                 LJC.FrameWork.MemCached.ICachClient client = null;
                 if (Server.CachServerType == 1)
-                    client = new LJC.FrameWork.MemCached.MemcachedClient(host, point, bucket);
+                {
+                    if (!string.IsNullOrWhiteSpace(Server.ClientFile))
+                    {
+                        client = new LJC.FrameWork.MemCached.ExportMemcachClient(Server.ClientFile, host, point, bucket);
+                    }
+                    else
+                    {
+                        client = new LJC.FrameWork.MemCached.MemcachedClient(host, point, bucket);
+                    }
+                }
                 else
                     client = new LJC.FrameWork.MemCached.CouchbaseClient(host, point, bucket);
 

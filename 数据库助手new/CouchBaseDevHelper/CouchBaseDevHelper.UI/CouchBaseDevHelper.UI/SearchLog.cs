@@ -36,6 +36,12 @@ namespace CouchBaseDevHelper.UI
             set;
         }
 
+        public string ClientFile
+        {
+            get;
+            set;
+        }
+
         public string Mark
         {
             get;

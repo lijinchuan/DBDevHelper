@@ -86,11 +86,27 @@ namespace CouchBaseDevHelper.UI
                 //}
             }
 
+            if (!string.IsNullOrWhiteSpace(TBDLLFile.Text))
+            {
+                try
+                {
+                    var serverandport = TBConnstr.Text.Split(',').First().Split(':');
+                    var checkclient = new LJC.FrameWork.MemCached.ExportMemcachClient(TBDLLFile.Text, serverandport[0], int.Parse(serverandport[1]), string.Empty);
+
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("插件检查错误：" + ex.Message);
+                    return;
+                }
+            }
+
             this.NewServer = new CouchBaseServerEntity
             {
                 ConnStr = TBConnstr.Text.Trim(),
                 ServerName = TBName.Text.Trim(),
                 CachServerType = (int)CBServerType.SelectedValue,
+                ClientFile=TBDLLFile.Text,
                 IsPrd = CBIsprd.Checked,
             };
             EntityTableEngine.LocalEngine.Upsert(Global.TBName_RedisServer, NewServer);
@@ -126,6 +142,33 @@ namespace CouchBaseDevHelper.UI
         private void label1_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void BtnLoadFile_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            var basedir = System.AppDomain.CurrentDomain.BaseDirectory;
+            openFileDialog.InitialDirectory = basedir;
+            openFileDialog.Filter = "dll|*.dll";
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                if (openFileDialog.FileName.StartsWith(basedir))
+                {
+                    TBDLLFile.Text = openFileDialog.FileName.Substring(basedir.Length);
+                }
+                else
+                {
+                    TBDLLFile.Text = "";
+                    MessageBox.Show("客户端插件只能放到当前运行目录下");
+                }
+                
+            }
+        }
+
+        private void CBServerType_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            groupBox1.Visible = CBServerType.SelectedValue.Equals(1);
+            TBDLLFile.Text = "";
         }
     }
 }

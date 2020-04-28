@@ -37,6 +37,12 @@
             this.label1 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.CBServerType = new System.Windows.Forms.ComboBox();
+            this.label4 = new System.Windows.Forms.Label();
+            this.TBDLLFile = new System.Windows.Forms.TextBox();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.BtnLoadFile = new System.Windows.Forms.Button();
+            this.label5 = new System.Windows.Forms.Label();
+            this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
             // CBIsprd
@@ -122,12 +128,66 @@
             this.CBServerType.Name = "CBServerType";
             this.CBServerType.Size = new System.Drawing.Size(121, 20);
             this.CBServerType.TabIndex = 15;
+            this.CBServerType.SelectedIndexChanged += new System.EventHandler(this.CBServerType_SelectedIndexChanged);
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(6, 15);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(77, 12);
+            this.label4.TabIndex = 16;
+            this.label4.Text = "客户端插件：";
+            // 
+            // TBDLLFile
+            // 
+            this.TBDLLFile.Location = new System.Drawing.Point(84, 10);
+            this.TBDLLFile.Name = "TBDLLFile";
+            this.TBDLLFile.ReadOnly = true;
+            this.TBDLLFile.Size = new System.Drawing.Size(183, 21);
+            this.TBDLLFile.TabIndex = 17;
+            // 
+            // groupBox1
+            // 
+            this.groupBox1.Controls.Add(this.label5);
+            this.groupBox1.Controls.Add(this.BtnLoadFile);
+            this.groupBox1.Controls.Add(this.label4);
+            this.groupBox1.Controls.Add(this.TBDLLFile);
+            this.groupBox1.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            this.groupBox1.Location = new System.Drawing.Point(235, 235);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(306, 53);
+            this.groupBox1.TabIndex = 18;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Visible = false;
+            // 
+            // BtnLoadFile
+            // 
+            this.BtnLoadFile.Location = new System.Drawing.Point(268, 9);
+            this.BtnLoadFile.Name = "BtnLoadFile";
+            this.BtnLoadFile.Size = new System.Drawing.Size(34, 23);
+            this.BtnLoadFile.TabIndex = 18;
+            this.BtnLoadFile.Text = "...";
+            this.BtnLoadFile.UseVisualStyleBackColor = true;
+            this.BtnLoadFile.Click += new System.EventHandler(this.BtnLoadFile_Click);
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Font = new System.Drawing.Font("宋体", 7.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.label5.ForeColor = System.Drawing.Color.Red;
+            this.label5.Location = new System.Drawing.Point(7, 35);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(280, 10);
+            this.label5.TabIndex = 19;
+            this.label5.Text = "自定义插件需实现LJC.FrameWork.MemCached.ICachClient接口";
             // 
             // AddServerForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(627, 379);
+            this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.CBServerType);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.CBIsprd);
@@ -144,6 +204,8 @@
             this.ShowIcon = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "添加服务器";
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -160,5 +222,10 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.ComboBox CBServerType;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.TextBox TBDLLFile;
+        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.Button BtnLoadFile;
+        private System.Windows.Forms.Label label5;
     }
 }

@@ -75,7 +75,16 @@ namespace CouchBaseDevHelper.UI.UC
 
             LJC.FrameWork.MemCached.ICachClient client = null;
             if (_server.CachServerType == 1)
-                client = new LJC.FrameWork.MemCached.MemcachedClient(host, point, bucket);
+            {
+                if (!string.IsNullOrWhiteSpace(_server.ClientFile))
+                {
+                    client = new LJC.FrameWork.MemCached.ExportMemcachClient(_server.ClientFile,host, point, bucket);
+                }
+                else
+                {
+                    client = new LJC.FrameWork.MemCached.MemcachedClient(host, point, bucket);
+                }
+            }
             else
                 client = new LJC.FrameWork.MemCached.CouchbaseClient(host, point, bucket);
 
@@ -122,7 +131,8 @@ namespace CouchBaseDevHelper.UI.UC
                                 Mark=string.Empty,
                                 ServerName=_server.ServerName,
                                 Connstr=_server.ConnStr,
-                                CachServerType=_server.CachServerType
+                                CachServerType=_server.CachServerType,
+                                ClientFile=_server.ClientFile
                             });
                         }
 

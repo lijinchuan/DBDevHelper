@@ -157,6 +157,7 @@ namespace CouchBaseDevHelper.UI
                     ConnStr = node.Text,
                     ServerName = ((CouchBaseServerEntity)node.Tag).ServerName,
                     CachServerType=((CouchBaseServerEntity)node.Tag).CachServerType,
+                    ClientFile= ((CouchBaseServerEntity)node.Tag).ClientFile,
                     Buckets = ((CouchBaseServerEntity)node.Tag).Buckets
                 });
                 dv.Dock = DockStyle.Fill;
@@ -189,6 +190,7 @@ namespace CouchBaseDevHelper.UI
                     {
                         ConnStr = log.Connstr,
                         CachServerType=log.CachServerType,
+                        ClientFile=log.ClientFile,
                         ServerName = log.ServerName,
                         Buckets = server.Buckets
                     });

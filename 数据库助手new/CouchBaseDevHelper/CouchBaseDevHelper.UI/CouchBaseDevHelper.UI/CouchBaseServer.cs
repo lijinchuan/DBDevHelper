@@ -40,6 +40,15 @@ namespace CouchBaseDevHelper.UI
             set;
         }
 
+        /// <summary>
+        /// memcached客户端引用
+        /// </summary>
+        public string ClientFile
+        {
+            get;
+            set;
+        }
+
         private bool _isprd = true;
         public bool IsPrd
         {
