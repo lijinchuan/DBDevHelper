@@ -241,6 +241,11 @@ namespace Biz.Common
             });
             KeyWordDic.Add(new SQLKeyWord
             {
+                KeyWord = "datediff",
+                Desc = "计算时间差，DATEDIFF(year|quarter|month|week|day|hour|minute|second|millisecond,开始时间,结束时间)"
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
                 KeyWord = "datename",
                 Desc = ""
             });
@@ -391,6 +396,11 @@ namespace Biz.Common
             });
             KeyWordDic.Add(new SQLKeyWord
             {
+                KeyWord = "hour",
+                Desc = ""
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
                 KeyWord = "if",
                 Desc = ""
             });
@@ -481,8 +491,18 @@ namespace Biz.Common
             });
             KeyWordDic.Add(new SQLKeyWord
             {
+                KeyWord = "millisecond",
+                Desc = ""
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
                 KeyWord = "min",
                 Desc = "最小"
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
+                KeyWord = "minute",
+                Desc = "分钟"
             });
             KeyWordDic.Add(new SQLKeyWord
             {
@@ -492,7 +512,7 @@ namespace Biz.Common
             KeyWordDic.Add(new SQLKeyWord
             {
                 KeyWord = "month",
-                Desc = ""
+                Desc = "月"
             });
             KeyWordDic.Add(new SQLKeyWord
             {
@@ -601,6 +621,11 @@ namespace Biz.Common
             });
             KeyWordDic.Add(new SQLKeyWord
             {
+                KeyWord = "quarter",
+                Desc = ""
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
                 KeyWord = "quoted_identifier",
                 Desc = ""
             });
@@ -662,6 +687,11 @@ namespace Biz.Common
             KeyWordDic.Add(new SQLKeyWord
             {
                 KeyWord = "rtrim",
+                Desc = ""
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
+                KeyWord = "second",
                 Desc = ""
             });
             KeyWordDic.Add(new SQLKeyWord
@@ -823,6 +853,11 @@ namespace Biz.Common
             {
                 KeyWord = "view",
                 Desc = "视图"
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
+                KeyWord = "week",
+                Desc = ""
             });
             KeyWordDic.Add(new SQLKeyWord
             {
