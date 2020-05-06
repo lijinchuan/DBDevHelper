@@ -6,6 +6,7 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using Biz.Common;
 
 namespace NETDBHelper.UC
 {
@@ -175,6 +176,20 @@ namespace NETDBHelper.UC
                 if (kv.Key.Length>1 && !dic.ContainsKey(kv.Key.ToUpper()))
                 {
                     this.KeyWords.AddKeyWord(kv.Key.ToUpper(), kv.Value);
+                }
+            }
+
+            foreach(var sQLKeyWord in SQLKeyWordHelper.GetKeyWordList())
+            {
+                if (!dic.ContainsKey(sQLKeyWord.KeyWord.ToLower()))
+                {
+                    var color = sQLKeyWord.HighColor;
+                    if (color == Color.Empty)
+                    {
+                        color = Color.Blue;
+                    }
+                    this.KeyWords.AddKeyWord(sQLKeyWord.KeyWord.ToLower(), color);
+                    this.KeyWords.AddKeyWord(sQLKeyWord.KeyWord.ToUpper(), color);
                 }
             }
         }

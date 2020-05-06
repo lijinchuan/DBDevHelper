@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 
@@ -17,6 +18,12 @@ namespace Biz.Common
         {
             get;
             set;
+        }
+
+        public Color HighColor
+        {
+            get;
+            internal set;
         }
 
 
@@ -74,21 +81,7 @@ namespace Biz.Common
                 KeyWord = ",",
                 Desc = ""
             });
-            KeyWordDic.Add(new SQLKeyWord
-            {
-                KeyWord = "@@error",
-                Desc = "全局错误"
-            });
-            KeyWordDic.Add(new SQLKeyWord
-            {
-                KeyWord = "@@fetch_status",
-                Desc = "游标状态"
-            });
-            KeyWordDic.Add(new SQLKeyWord
-            {
-                KeyWord = "@@rowcount",
-                Desc = "行数"
-            });
+            
             KeyWordDic.Add(new SQLKeyWord
             {
                 KeyWord = "[",
@@ -98,6 +91,12 @@ namespace Biz.Common
             {
                 KeyWord = "]",
                 Desc = ""
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
+                KeyWord = "@@version",
+                Desc = "版本",
+                HighColor=Color.Pink
             });
             KeyWordDic.Add(new SQLKeyWord
             {
@@ -191,6 +190,11 @@ namespace Biz.Common
             });
             KeyWordDic.Add(new SQLKeyWord
             {
+                KeyWord = "character",
+                Desc = "字符集"
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
                 KeyWord = "charindex",
                 Desc = "查找"
             });
@@ -223,6 +227,11 @@ namespace Biz.Common
             {
                 KeyWord = "read committed",
                 Desc = "隔离级别:已提交读"
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
+                KeyWord = "continue",
+                Desc = ""
             });
             KeyWordDic.Add(new SQLKeyWord
             {
@@ -369,6 +378,7 @@ namespace Biz.Common
                 KeyWord = "float(n)",
                 Desc = "精度至少位n位的浮点数"
             });
+            
             KeyWordDic.Add(new SQLKeyWord
             {
                 KeyWord = "for",
@@ -378,6 +388,11 @@ namespace Biz.Common
             {
                 KeyWord = "foreign key(C) references T",
                 Desc = "外键，括号中为外键，references后为外键的表"
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
+                KeyWord = "found",
+                Desc = ""
             });
             KeyWordDic.Add(new SQLKeyWord
             {
@@ -393,6 +408,11 @@ namespace Biz.Common
             {
                 KeyWord = "group",
                 Desc = "分组"
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
+                KeyWord = "handler",
+                Desc = ""
             });
             KeyWordDic.Add(new SQLKeyWord
             {
@@ -571,6 +591,11 @@ namespace Biz.Common
             });
             KeyWordDic.Add(new SQLKeyWord
             {
+                KeyWord = "leave",
+                Desc = ""
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
                 KeyWord = "left",
                 Desc = "左联"
             });
@@ -593,6 +618,11 @@ namespace Biz.Common
             {
                 KeyWord = "limit",
                 Desc = "分页"
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
+                KeyWord = "loop",
+                Desc = ""
             });
             KeyWordDic.Add(new SQLKeyWord
             {
@@ -761,14 +791,20 @@ namespace Biz.Common
             });
             KeyWordDic.Add(new SQLKeyWord
             {
-                KeyWord = "replace",
-                Desc = "替换"
+                KeyWord = "repeat",
+                Desc = ""
             });
             KeyWordDic.Add(new SQLKeyWord
             {
                 KeyWord = "repeatable read",
                 Desc = "隔离级别:可重复读"
             });
+            KeyWordDic.Add(new SQLKeyWord
+            {
+                KeyWord = "replace",
+                Desc = "替换"
+            });
+            
             KeyWordDic.Add(new SQLKeyWord
             {
                 KeyWord = "replicate",
@@ -823,6 +859,11 @@ namespace Biz.Common
             {
                 KeyWord = "set",
                 Desc = "设置"
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
+                KeyWord = "show",
+                Desc = ""
             });
             KeyWordDic.Add(new SQLKeyWord
             {
@@ -926,6 +967,11 @@ namespace Biz.Common
             });
             KeyWordDic.Add(new SQLKeyWord
             {
+                KeyWord = "until",
+                Desc = ""
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
                 KeyWord = "update",
                 Desc = "更新"
             });
@@ -943,6 +989,11 @@ namespace Biz.Common
             {
                 KeyWord = "using",
                 Desc = "使用"
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
+                KeyWord = "utf8",
+                Desc = ""
             });
             KeyWordDic.Add(new SQLKeyWord
             {
@@ -968,6 +1019,11 @@ namespace Biz.Common
             {
                 KeyWord = "varchar(n)",
                 Desc = "可变字符"
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
+                KeyWord = "variables",
+                Desc = ""
             });
             KeyWordDic.Add(new SQLKeyWord
             {

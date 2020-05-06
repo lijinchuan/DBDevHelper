@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 
@@ -18,6 +19,12 @@ namespace Biz.Common
         {
             get;
             set;
+        }
+
+        public Color HighColor
+        {
+            get;
+            internal set;
         }
 
 
@@ -242,7 +249,8 @@ namespace Biz.Common
             KeyWordDic.Add(new SQLKeyWord
             {
                 KeyWord = "datediff",
-                Desc = "计算时间差，DATEDIFF(year|quarter|month|week|day|hour|minute|second|millisecond,开始时间,结束时间)"
+                Desc = "计算时间差，DATEDIFF(year|quarter|month|week|day|hour|minute|second|millisecond,开始时间,结束时间)",
+                HighColor=Color.Red
             });
             KeyWordDic.Add(new SQLKeyWord
             {
