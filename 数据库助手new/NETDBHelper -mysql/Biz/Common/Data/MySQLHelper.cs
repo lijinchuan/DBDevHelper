@@ -5,6 +5,7 @@ using System.Text;
 using MySql.Data.MySqlClient;
 using System.Data;
 using Entity;
+using System.Text.RegularExpressions;
 
 namespace Biz.Common.Data
 {
@@ -107,7 +108,30 @@ namespace Biz.Common.Data
 
             if (tb.Rows.Count > 0)
             {
-                return (string)tb.Rows[0]["Create Procedure"];
+                var body= (string)tb.Rows[0]["Create Procedure"];
+                body = Regex.Replace(body, @"\n", "\r\n");
+                body = Regex.Replace(body, "(?!\n);", "\r\n");
+
+                return body;
+            }
+
+            return string.Empty;
+        }
+
+        public static string GetCreateSQL(DBSource dbSource, string dbName, string tbName)
+        {
+            //show create {procedure|function} sp_name
+            string sql = string.Format("show create table {0}", tbName);
+
+            var tb = ExecuteDBTable(dbSource, dbName, sql);
+
+            if (tb.Rows.Count > 0)
+            {
+                var body= (string)tb.Rows[0]["Create Table"];
+                body = Regex.Replace(body, @"\n", "\r\n");
+                body = Regex.Replace(body, "(?!\n);", "\r\n");
+
+                return body;
             }
 
             return string.Empty;

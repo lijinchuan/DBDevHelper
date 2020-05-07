@@ -883,22 +883,7 @@ namespace NETDBHelper
             var node = this.tv_DBServers.SelectedNode;
             if (node != null && node.Level == 3)
             {
-                StringBuilder sb = new StringBuilder(string.Format("CREATE TABLE `{0}`(", node.Text));
-                sb.AppendLine();
-                foreach (TBColumn col in Biz.Common.Data.MySQLHelper.GetColumns(GetDBSource(node), node.Parent.Text, node.Text))
-                {
-                    sb.AppendFormat("`{0}` {1} {2} {3},", col.Name, Biz.Common.Data.Common.GetDBType(col), (col.IsID || col.IsKey) ? "NOT NULL" : (col.IsNullAble ? "NULL" : "NOT NULL"), col.IsID ? "AUTO_INCREMENT" : "");
-                    if (col.IsID)
-                    {
-                        sb.AppendLine();
-                        sb.AppendFormat("PRIMARY KEY (`{0}`),", col.Name);
-                    }
-                    sb.AppendLine();
-                }
-                sb.AppendLine("`last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");
-                sb.AppendLine(")ENGINE=InnoDB AUTO_INCREMENT=201 DEFAULT CHARSET=utf8;");
-                sb.AppendLine("//注意：bit类型要手工改成TINYINT(1)。");
-                TextBoxWin win = new TextBoxWin("创建表" + node.Text, sb.ToString());
+                TextBoxWin win = new TextBoxWin("创建表" + node.Text, MySQLHelper.GetCreateSQL(GetDBSource(node),node.Parent.Text,node.Text));
                 win.ShowDialog();
             }
             else if (node != null && node.Level == 4 && node.Parent.Text.Equals("存储过程"))
@@ -908,8 +893,8 @@ namespace NETDBHelper
                     var body = Biz.Common.Data.MySQLHelper.GetProcedureBody(GetDBSource(node), node.Parent.Parent.Text, node.Text);
                     //TextBoxWin win = new TextBoxWin("存储过程[" + node.Text + "]", "drop PROCEDURE if exists " + node.Text + ";\r\n\r\n" + body.Replace("\n","\r\n"));
                     //win.ShowDialog();
-                    body = Regex.Replace(body, @"\\n", "\r\n");
-                    body = Regex.Replace(body, "(?!\n);", "\r\n");
+                    //body = Regex.Replace(body, @"\\n", "\r\n");
+                    //body = Regex.Replace(body, "(?!\n);", "\r\n");
                     OnShowProc(GetDBSource(node), node.Parent.Parent.Text, node.Text, body);
 
                     LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<HLogEntity>("HLog", new HLogEntity
