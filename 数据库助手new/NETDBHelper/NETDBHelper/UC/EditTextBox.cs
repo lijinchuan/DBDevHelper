@@ -391,7 +391,8 @@ namespace NETDBHelper.UC
             this.RichText.MouseMove += RichText_MouseMove;
             this.RichText.MouseLeave += RichText_MouseLeave;
             this.RichText.DoubleClick += RichText_DoubleClick;
-            
+            contextMenuStrip1.VisibleChanged += ContextMenuStrip1_VisibleChanged;
+
             defaultSelectionColor = this.RichText.SelectionColor;
 
             view.Visible = false;
@@ -446,6 +447,12 @@ namespace NETDBHelper.UC
                       }));
                   }
               }), null, 0, 100);
+        }
+
+        private void ContextMenuStrip1_VisibleChanged(object sender, EventArgs e)
+        {
+            this.重做ToolStripMenuItem.Enabled = this.RichText.CanRedo;
+            this.撤消ToolStripMenuItem.Enabled = this.RichText.CanUndo;
         }
 
         private void RichText_DoubleClick(object sender, EventArgs e)
@@ -730,6 +737,20 @@ namespace NETDBHelper.UC
 
         private void RichText_KeyDown(object sender, KeyEventArgs e)
         {
+            if (e.Control && e.KeyData == (Keys.Control | Keys.Z))
+            {
+                e.Handled = true;
+                RichText.Undo();
+                return;
+            }
+
+            if (e.Control && e.KeyData == (Keys.Control | Keys.R))
+            {
+                e.Handled = true;
+                RichText.Redo();
+                return;
+            }
+
             if (e.KeyCode == Keys.Down
                 || e.KeyCode == Keys.Up)
             {
@@ -1360,6 +1381,8 @@ namespace NETDBHelper.UC
         private void 搜索ToolStripMenuItem_Click(object sender, EventArgs e)
         {
             SubForm.FindDlg dlg = new SubForm.FindDlg();
+            dlg.Owner = this.ParentForm;
+            
             //dlg.FindLast += (s, i) =>
             //{
             //    var pos = this.RichText.Find(s, i,RichTextBoxFinds.NoHighlight);
@@ -1418,6 +1441,22 @@ namespace NETDBHelper.UC
             {
                 Clipboard.SetData(DataFormats.Rtf,this.RichText.SelectedRtf);
                 this.RichText.SelectedRtf = string.Empty;
+            }
+        }
+
+        private void 撤消ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (this.RichText.CanUndo)
+            {
+                this.RichText.Undo();
+            }
+        }
+
+        private void 重做ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (this.RichText.CanRedo)
+            {
+                this.RichText.Redo();
             }
         }
     }

@@ -734,6 +734,20 @@ namespace NETDBHelper.UC
 
         private void RichText_KeyDown(object sender, KeyEventArgs e)
         {
+            if (e.Control && e.KeyData == (Keys.Control | Keys.Z))
+            {
+                e.Handled = true;
+                RichText.Undo();
+                return;
+            }
+
+            if (e.Control && e.KeyData == (Keys.Control | Keys.R))
+            {
+                e.Handled = true;
+                RichText.Redo();
+                return;
+            }
+
             if (e.KeyCode == Keys.Down
                 || e.KeyCode == Keys.Up)
             {
