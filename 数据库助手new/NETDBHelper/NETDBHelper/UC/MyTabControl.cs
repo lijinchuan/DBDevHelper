@@ -26,6 +26,8 @@ namespace NETDBHelper.UC
         private ListBox morelistbox = null;
         private List<TabTableTabEx> moretabtablelist = new List<TabTableTabEx>();
 
+        private ContextMenuStrip TagPageContextMenuStrip = new ContextMenuStrip();
+
         public MyTabControl()
         {
             InitializeComponent();
@@ -48,6 +50,55 @@ namespace NETDBHelper.UC
             morelistbox.DoubleClick += Morelistbox_DoubleClick;
             morelistbox.MouseLeave += Morelistbox_MouseLeave;
 
+
+            TagPageContextMenuStrip.Items.Add("关闭其它");
+            TagPageContextMenuStrip.Items.Add("重命名");
+            TagPageContextMenuStrip.ItemClicked += TagPageContextMenuStrip_ItemClicked;
+
+        }
+
+        private void TagPageContextMenuStrip_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+            TagPageContextMenuStrip.Visible = false;
+            switch (e.ClickedItem.Text)
+            {
+                case "关闭其它":
+                    {
+                        if (MessageBox.Show("确认要关闭其它选项页吗？", "询问", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
+                        {
+                            break;
+                        }
+                        List<TabPage> tbpages = new List<TabPage>();
+                        foreach (var tab in tabExDic)
+                        {
+                            if (this.SelectedIndex != tab.Key)
+                            {
+                                tbpages.Add(tab.Value.TabPage);
+                            }
+                        }
+                        moretabtablelist.Clear();
+                        morelistbox.DataSource = moretabtablelist;
+                        //morelistbox.Visible = false;
+                        foreach (var tab in tbpages)
+                        {
+                            this.TabPages.Remove(tab);
+                        }
+                        break;
+                    }
+                case "重命名":
+                    {
+                        SubForm.InputStringDlg inputStringDlg = new SubForm.InputStringDlg("重命名",this.SelectedTab.Text);
+                        if (inputStringDlg.ShowDialog() == DialogResult.OK)
+                        {
+                            if (!string.IsNullOrWhiteSpace(inputStringDlg.InputString))
+                            {
+                                this.SelectedTab.Text = inputStringDlg.InputString;
+                                this.Invalidate();
+                            }
+                        }
+                        break;
+                    }
+            }
         }
 
         private void Morelistbox_MouseLeave(object sender, EventArgs e)
@@ -111,7 +162,7 @@ namespace NETDBHelper.UC
                     }
                     else
                     {
-                        
+
                         morelistbox.DataSource = moretabtablelist;
                         var maxwidth = 0;
                         foreach (var item in moretabtablelist)
@@ -147,6 +198,23 @@ namespace NETDBHelper.UC
                                 this.TabPages.Remove(tab.Value.TabPage);
                                 break;
                             }
+                        }
+                    }
+                }
+            }
+            else if (e.Button == MouseButtons.Right)
+            {
+                foreach (var tab in tabExDic)
+                {
+                    if (this.SelectedIndex == tab.Key)
+                    {
+                        if (tab.Value.StripRect.Contains(e.X, e.Y))
+                        {
+                            this.TagPageContextMenuStrip.Visible = true;
+                            var pt=PointToScreen(new Point(e.X, e.Y));
+                            this.TagPageContextMenuStrip.Left = pt.X;
+                            this.TagPageContextMenuStrip.Top = pt.Y;
+                            break;
                         }
                     }
                 }
@@ -370,7 +438,7 @@ namespace NETDBHelper.UC
                 path.AddLine(buttonRect.Right, mtop + 2, buttonRect.Right, buttonRect.Bottom - 1);
                 path.AddLine(buttonRect.Right - 4, buttonRect.Bottom - 1, buttonRect.Left, buttonRect.Bottom - 1);
                 path.CloseFigure();
-
+                
                 if (currentItem == SelectedItem)
                 {
                     brush = new LinearGradientBrush(buttonRect, SystemColors.ControlLightLight, SystemColors.Window, LinearGradientMode.Vertical);
