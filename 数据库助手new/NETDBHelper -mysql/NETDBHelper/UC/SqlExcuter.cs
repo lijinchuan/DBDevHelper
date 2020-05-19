@@ -249,6 +249,13 @@ namespace NETDBHelper.UC
                             dgv.ReadOnly = true;
                             dgv.DataSource = tb;
                             dgv.ContextMenuStrip = this.datastrip;
+                            dgv.RowHeadersDefaultCellStyle.ForeColor = Color.Red;
+                            dgv.RowHeadersWidth = 30 + (tb.Rows.Count.ToString().Length + 1) * 8;
+                            dgv.RowStateChanged += (s, e) =>
+                            {
+                                e.Row.HeaderCell.Value = string.Format("{0}", e.Row.Index + 1);
+
+                            };
 
                             this.Invoke(new Action(() =>
                             {
