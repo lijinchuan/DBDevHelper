@@ -96,6 +96,7 @@ namespace NETDBHelper.UC
                             if (!string.IsNullOrWhiteSpace(inputStringDlg.InputString))
                             {
                                 this.SelectedTab.Text = inputStringDlg.InputString;
+                                ResetTabs();
                                 this.Invalidate();
                             }
                         }
@@ -177,13 +178,20 @@ namespace NETDBHelper.UC
             if (dragsourcetab != null && dragtargettab != null &&
                 dragsourcetab.Value.Value != dragtargettab.Value.Value)
             {
+                var sourcepage = this.TabPages[dragsourcetab.Value.Key];
+                var targetpage = this.TabPages[dragtargettab.Value.Key];
+
+                this.TabPages[dragsourcetab.Value.Key] = targetpage;
                 tabExDic[dragsourcetab.Value.Key] = dragtargettab.Value.Value;
                 dragtargettab.Value.Value.TabIndex = dragsourcetab.Value.Key;
+                this.TabPages[dragtargettab.Value.Key] = sourcepage;
                 tabExDic[dragtargettab.Value.Key] = dragsourcetab.Value.Value;
                 dragsourcetab.Value.Value.TabIndex = dragtargettab.Value.Key;
-            }
 
-            this.Invalidate();
+                this.SelectedIndex = dragtargettab.Value.Key;
+                ResetTabs();
+                this.Invalidate();
+            }
         }
 
         private void Parent_MouseMove(object sender, MouseEventArgs e)
@@ -238,11 +246,17 @@ namespace NETDBHelper.UC
 
                 if (isdragendevent)
                 {
+                    IsDraging = false;
                     OnTabDragEnd(null);
+                }
+
+                if (IsDraging)
+                {
+                    IsDraging = false;
+                    this.Invalidate();
                 }
             }
 
-            IsDraging = false;
             DragStart = Point.Empty;
             DragEnd = Point.Empty;
         }
@@ -394,6 +408,14 @@ namespace NETDBHelper.UC
             base.OnControlRemoved(e);
         }
 
+        private void ResetTabs()
+        {
+            foreach (var tab in this.tabExDic)
+            {
+                tab.Value.ClearRect();
+            }
+            DEF_START_POS = DEF_START_POS_Default;
+        }
 
         private void DrawCross(Rectangle crossRect, bool isMouseOver, Graphics g)
         {

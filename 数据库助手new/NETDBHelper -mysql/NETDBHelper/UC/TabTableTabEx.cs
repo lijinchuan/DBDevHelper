@@ -47,5 +47,12 @@ namespace NETDBHelper.UC
             this.TabPage = page;
             this.TabIndex = tabindex;
         }
+
+
+        public void ClearRect()
+        {
+            StripRect = RectangleF.Empty;
+            CloseButtonBand = Rectangle.Empty;
+        }
     }
 }
