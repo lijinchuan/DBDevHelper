@@ -26,7 +26,7 @@ namespace NETDBHelper
         public Action<DBSource, string, string, string> OnShowDataDic;
         public Action<string, string> OnViewTable;
         public Action<string, string> OnViewCloumns;
-        public Action<string, string> OnFilterProc;
+        public Action<DBSource,string, string> OnFilterProc;
         public Action<DBSource, string, string> OnExecutSql;
         public Action<DBSource, string, string, string> OnShowViewSql;
         private DBSourceCollection _dbServers;
@@ -1961,8 +1961,9 @@ background-color: #ffffff;
             var selnode = tv_DBServers.SelectedNode;
             if (this.OnViewCloumns != null && selnode != null)
             {
+                var dbsource = GetDBSource(selnode);
                 var dbname = GetDBName(selnode);
-                var proclist = Biz.Common.Data.SQLHelper.GetProcedures(GetDBSource(selnode), dbname);
+                var proclist = Biz.Common.Data.SQLHelper.GetProcedures(dbsource, dbname);
                 
                 StringBuilder sb = new StringBuilder("<html>");
                 sb.Append("<head>");
@@ -2009,6 +2010,8 @@ background-color: #ffffff;
                             }
                            return
                        }
+                       var ckbody=document.getElementById('scontent').checked;
+                       if(!ckbody){
                        var idx=1;
                        var tds= document.getElementsByTagName('td');
                        w=w.toUpperCase();
@@ -2017,9 +2020,33 @@ background-color: #ffffff;
                            tds[i].parentNode.style.display=boo?'':'none'
                            if(boo) tds[i].innerText=idx++
                        }
+                     }else{
+                         window.external.Search(w);
+                     }
                    }
+                   function searchcallback(str){
+                      var ls=str.split(',');
+                      var tds= document.getElementsByTagName('td');
+                       for(var i=0;i<tds.length;i+=3){
+                           tds[i].parentNode.style.display='none';
+                       }
+                      var idx=1;
+                      for(var j=0;j<ls.length;j++){
+                         var spname=ls[j];
+                         for(var i=0;i<tds.length;i+=3){
+                           var boo=tds[i+1].innerText==spname;
+                           if(boo){
+                               tds[i].parentNode.style.display='';
+                               tds[i].innerText=idx++;
+                               break;
+                            }
+                        }
+                      }
+                  }
                   </script>");
-                sb.Append("<input id='w' type='text' style='height:23px; line-height:23px;' onkeypress='k()' value=''/><input type='button' style='font-size:12px; height:23px; line-height:18px;' value='搜索'  onclick='s()'/>");
+                sb.Append(@"<input id='w' type='text' style='height:23px; line-height:23px;' onkeypress='k()' value=''/>
+                            <input type='checkbox' id='scontent' value='1'>搜索内容</input>
+                            <input type='button' style='font-size:12px; height:23px; line-height:18px;' value='搜索'  onclick='s()'/>");
                 sb.Append("<p/>");
                 sb.Append("<table>");
                 sb.Append("<tr><th>序号</th><th>存储过程</th><th>描述</th></tr>");
@@ -2034,7 +2061,7 @@ background-color: #ffffff;
                 sb.Append("</body>");
                 sb.Append("</html>");
 
-                this.OnFilterProc(dbname, sb.ToString());
+                this.OnFilterProc(dbsource, dbname, sb.ToString());
             }
         }
     }

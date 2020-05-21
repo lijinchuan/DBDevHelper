@@ -7,21 +7,29 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Entity;
+using System.Runtime.InteropServices;
 
 namespace NETDBHelper.UC
 {
+    [ComVisible(true)]
     public partial class WebTab : TabPage
     {
-        public Action<string> OnSearch;
+        public Func<DBSource,string,string,List<string>> OnSearch;
+        private DBSource _dbSource;
+        private string _dbName;
 
-        public WebTab()
+        public WebTab(DBSource dbsource,string dbname)
         {
             InitializeComponent();
+            _dbSource = dbsource;
+            _dbName = dbname;
 
             this.webBrowser1.DocumentCompleted += (s, ee) =>
             {
                 this.Text = this.webBrowser1.Document.Title;
             };
+            webBrowser1.ObjectForScripting = this;
         }
 
         private string _title = string.Empty;
@@ -59,7 +67,14 @@ namespace NETDBHelper.UC
         {
             if (OnSearch != null)
             {
-                OnSearch(word);
+                //var retlist = OnSearch(_dbSource, _dbName, word).ToArray();
+                //this.webBrowser1.Document.InvokeScript("searchcallback", retlist);
+
+                new Action(() =>
+                {
+                    var retlist = OnSearch(_dbSource, _dbName, word).ToArray();
+                    this.webBrowser1.Invoke(new Action(() => this.webBrowser1.Document.InvokeScript("searchcallback", new object[] { string.Join(",", retlist) })));
+                }).BeginInvoke(null, null);
             }
         }
     }

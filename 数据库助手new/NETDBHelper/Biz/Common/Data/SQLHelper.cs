@@ -141,10 +141,18 @@ namespace Biz.Common.Data
                     {
                         cmd.Parameters.AddRange(sqlParams);
                     }
-                    SqlDataAdapter ada = new SqlDataAdapter(cmd);
-                    DataTable tb = new DataTable();
-                    ada.Fill(tb);
-                    return tb;
+                    try
+                    {
+                        SqlDataAdapter ada = new SqlDataAdapter(cmd);
+                        DataTable tb = new DataTable();
+                        ada.Fill(tb);
+                        return tb;
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Trace.WriteLine(ex.ToString());
+                        throw ex;
+                    }
                 }
             }
         }
