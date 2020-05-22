@@ -63,6 +63,12 @@ namespace NETDBHelper.UC
             }
         }
 
+        public void ClearCach()
+        {
+            LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.TruncateTable(nameof(SPContent));
+            this.webBrowser1.Document.InvokeScript("alert",new[] { "清理完成" });
+        }
+
         public void Search(string word)
         {
             if (OnSearch != null)

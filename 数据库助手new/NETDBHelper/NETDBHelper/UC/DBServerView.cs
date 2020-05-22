@@ -1999,6 +1999,7 @@ background-color: #ffffff;
                           if (event.keyCode == 13) s();
                       }
                       function s(){
+                       document.getElementById('clearcachtip').style.display='none';
                        var w=document.getElementById('w').value
                        if(/^\s*$/.test(w)){
                            var idx=1
@@ -2024,6 +2025,13 @@ background-color: #ffffff;
                          window.external.Search(w);
                      }
                    }
+                    
+                   function tryclearcach(){
+                       window.external.ClearCach();
+                      document.getElementById('clearcachtip').style.display='none';
+                      
+                   }
+
                    function searchcallback(str){
                       var ls=str.split(',');
                       var tds= document.getElementsByTagName('td');
@@ -2042,11 +2050,14 @@ background-color: #ffffff;
                             }
                         }
                       }
+                      document.getElementById('clearcachtip').style.display='';
                   }
                   </script>");
                 sb.Append(@"<input id='w' type='text' style='height:23px; line-height:23px;' onkeypress='k()' value=''/>
                             <input type='checkbox' id='scontent' value='1'>搜索内容</input>
                             <input type='button' style='font-size:12px; height:23px; line-height:18px;' value='搜索'  onclick='s()'/>");
+                sb.Append("<p/>");
+                sb.Append($"<div id='clearcachtip' style='margin-top:5px;display:none;width:98%;font-size:9pt;height:18px; line-height:18px;background-color:lightyellow;border:solid 1px lightblue'>如果没有找到，可以选择<a href='javascript:tryclearcach()'>清空缓存</a>试试</div>");
                 sb.Append("<p/>");
                 sb.Append("<table>");
                 sb.Append("<tr><th>序号</th><th>存储过程</th><th>描述</th></tr>");
