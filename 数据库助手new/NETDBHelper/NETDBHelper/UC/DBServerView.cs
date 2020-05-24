@@ -2053,7 +2053,7 @@ background-color: #ffffff;
                       document.getElementById('clearcachtip').style.display='';
                   }
                   </script>");
-                sb.Append(@"<input id='w' type='text' style='height:23px; line-height:23px;' onkeypress='k()' value=''/>
+                sb.Append(@"<input id='w' type='text' style='height:23px; line-height:23px;width:30%;' onkeypress='k()' value=''/>
                             <input type='checkbox' id='scontent' value='1'>搜索内容</input>
                             <input type='button' style='font-size:12px; height:23px; line-height:18px;' value='搜索'  onclick='s()'/>");
                 sb.Append("<p/>");
@@ -2066,7 +2066,7 @@ background-color: #ffffff;
                 foreach (string name in proclist)
                 {
                     var item = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<SPInfo>("SPInfo", "DBName_SPName", new[] { dbname, name.ToUpper() }).FirstOrDefault();
-                    sb.Append($"<tr><td>{i++}</td><td>{name}</td><td>{item?.Mark}</td></tr>");
+                    sb.Append($"<tr><td>{i++}</td><td><a href='javascript:window.external.ShowProc(\"{name}\")'>{name}</a></td><td>{item?.Mark}</td></tr>");
                 }
                 sb.Append("</table>");
                 sb.Append("</body>");

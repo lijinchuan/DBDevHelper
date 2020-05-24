@@ -33,6 +33,8 @@ namespace NETDBHelper
             this.TSCBServer.Visible = false;
             this.TSCBServer.Image = Resources.Resource1.connect;
             this.TSCBServer.Alignment = ToolStripItemAlignment.Right;
+
+            this.MspPanel.TextAlign = ContentAlignment.TopLeft;
         }
 
         protected void CreateSelectSql(string sqlname, string s)

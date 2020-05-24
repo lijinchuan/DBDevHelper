@@ -63,6 +63,20 @@ namespace NETDBHelper.UC
             }
         }
 
+        public void ShowProc(string procname)
+        {
+            try
+            {
+                var procbody = Biz.Common.Data.SQLHelper.GetProcedureBody(this._dbSource, this._dbName, procname);
+                SubForm.TextBoxWin win = new SubForm.TextBoxWin($"查看存储过程 {procname}", procbody);
+                win.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                Util.SendMsg(this, ex.Message);
+            }
+        }
+
         public void ClearCach()
         {
             LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.TruncateTable(nameof(SPContent));
