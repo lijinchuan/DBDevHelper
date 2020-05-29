@@ -1831,7 +1831,6 @@ background-color: #ffffff;
                           if (event.keyCode == 13) s();
                       }
                       function s(){
-                       document.getElementById('clearcachtip').style.display='none';
                        var w=document.getElementById('w').value
                        if(/^\s*$/.test(w)){
                            var idx=1

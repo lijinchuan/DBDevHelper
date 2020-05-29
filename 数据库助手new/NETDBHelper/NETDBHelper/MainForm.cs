@@ -160,7 +160,7 @@ namespace NETDBHelper
                 foreach (DataRow row in tbs.Rows)
                 {
                     var tbname = row["name"].ToString();
-                    var searchColumns = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<TBSearchColumn>("TBSearchColumn", "DBName_TBName", new[] { n, tbname }).ToArray();
+                    var searchColumns = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<TBSearchColumn>("TBSearchColumn", "DBName_TBName", new[] { n.ToLower(), tbname.ToLower() }).ToArray();
                     if (searchColumns.Length == 0)
                     {
                         try
@@ -171,8 +171,8 @@ namespace NETDBHelper
                             {
                                 searchColumns = cols.Select(p => new TBSearchColumn
                                 {
-                                    DBName = n,
-                                    TBName = tbname,
+                                    DBName = n.ToLower(),
+                                    TBName = tbname.ToLower(),
                                     Name = p.Name,
                                     Description = p.Description
                                 }).ToArray();
