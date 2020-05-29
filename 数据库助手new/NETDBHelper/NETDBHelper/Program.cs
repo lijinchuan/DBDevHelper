@@ -171,6 +171,28 @@ namespace NETDBHelper
                   }
                 });
 
+
+            //TBSearchColumn
+            BigEntityTableEngine.LocalEngine.CreateTable("TBSearchColumn", "ID", true, typeof(TBSearchColumn), new IndexInfo[]{
+                  new IndexInfo
+                  {
+                      IndexName="DBName_TBName",
+                      Indexs=new IndexItem[]
+                      {
+                          new IndexItem
+                          {
+                              Field="DBName",
+                              FieldType=EntityType.STRING
+                          },
+                          new IndexItem
+                          {
+                              Field="TBName",
+                              FieldType=EntityType.STRING
+                          }
+                      }
+                  }
+                });
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new MainFrm());

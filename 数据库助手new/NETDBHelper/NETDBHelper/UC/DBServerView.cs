@@ -24,8 +24,8 @@ namespace NETDBHelper
         public Action<DBSource, string, string, string, CreateProceEnum> OnCreatePorcSQL;
         public Action<DBSource, string, string, string> OnShowProc;
         public Action<DBSource, string, string, string> OnShowDataDic;
-        public Action<string, string> OnViewTable;
-        public Action<string, string> OnViewCloumns;
+        public Action<DBSource,string, string> OnViewTable;
+        public Action<DBSource,string, string> OnViewCloumns;
         public Action<DBSource,string, string> OnFilterProc;
         public Action<DBSource, string, string> OnExecutSql;
         public Action<DBSource, string, string, string> OnShowViewSql;
@@ -1794,7 +1794,8 @@ background-color: #ffffff;
             if (this.OnViewTable != null && selnode != null)
             {
                 var dbname = GetDBName(selnode);
-                DataTable tb = Biz.Common.Data.SQLHelper.GetTBs(GetDBSource(selnode), dbname);
+                var dbsource = GetDBSource(selnode);
+                DataTable tb = Biz.Common.Data.SQLHelper.GetTBs(dbsource, dbname);
 
                 StringBuilder sb = new StringBuilder("<html>");
                 sb.Append("<head>");
@@ -1830,6 +1831,7 @@ background-color: #ffffff;
                           if (event.keyCode == 13) s();
                       }
                       function s(){
+                       document.getElementById('clearcachtip').style.display='none';
                        var w=document.getElementById('w').value
                        if(/^\s*$/.test(w)){
                            var idx=1
@@ -1850,6 +1852,7 @@ background-color: #ffffff;
                            if(boo) tds[i].innerText=idx++
                        }
                    }
+                   
                   </script>");
                 sb.Append("<input id='w' type='text' style='height:23px; line-height:23px;' onkeypress='k()' value=''/><input type='button' style='font-size:12px; height:23px; line-height:18px;' value='搜索'  onclick='s()'/>");
                 sb.Append("<p/>");
@@ -1867,7 +1870,7 @@ background-color: #ffffff;
                 sb.Append("</body>");
                 sb.Append("</html>");
 
-                this.OnViewTable(dbname, sb.ToString());
+                this.OnViewTable(dbsource, dbname, sb.ToString());
             }
 
         }
@@ -1926,6 +1929,9 @@ background-color: #ffffff;
                             }
                            return
                        }
+
+                       var ckbody=document.getElementById('scontent').checked;
+                       if(!ckbody){
                        var idx=1;
                        var tds= document.getElementsByTagName('td');
                        w=w.toUpperCase();
@@ -1934,11 +1940,81 @@ background-color: #ffffff;
                            tds[i].parentNode.style.display=boo?'':'none'
                            if(boo) tds[i].innerText=idx++
                        }
+                     }else{
+                         window.external.Search(w);
+                     }
+                       
+                   }
+
+                    function searchcallback(str){
+                     var searchresult= JSON.parse(str);
+
+                      var tds= document.getElementsByTagName('td');
+                       for(var i=0;i<tds.length;i+=4){
+                           tds[i].parentNode.style.display='none';
+                       }
+                      var idx=1;
+                      var newcols=[];
+                      for(var j=0;j<searchresult.length;j++){
+                         var tbname=searchresult[j].TBName.toLowerCase();
+                         var name=searchresult[j].Name.toLowerCase();
+                         var boo=false;
+                         for(var i=0;i<tds.length;i+=4){
+                           boo=tds[i+2].innerText==name&&tds[i+1].innerText==tbname;
+                           if(boo){
+                               tds[i].parentNode.style.display='';
+                               tds[i].innerText=idx++;
+                               break;
+                            }
+                        }
+                        if(!boo){
+                          newcols.push(j);
+                        }
+                      }
+                      if(newcols.length>0){
+                         var tb=document.getElementById('colstb').tBodies[0];
+                         var trs=document.getElementsByTagName('tr');
+                         for(var i=0;i<newcols.length;i++){
+                            var col=searchresult[newcols[i]];
+                            var tr=document.createElement('tr');
+                            var td1=document.createElement('td');
+                            td1.innerText=idx++;
+                            tr.appendChild(td1);
+                            var td2=document.createElement('td');
+                            td2.innerText=col.TBName.toLowerCase();
+                            tr.appendChild(td2);
+                            var td3=document.createElement('td');
+                            td3.innerText=col.Name.toLowerCase();
+                            tr.appendChild(td3);
+                            
+                            var td4=document.createElement('td');
+                            td4.innerText=col.Description;
+                            tr.appendChild(td4);
+                            //tr.innerHTML='<td>'+(idx++)+'</td><td>'+col.TBName.toLowerCase()+'</td><td>'+col.Name.toLowerCase()+'</td><td>'+col.Description+'</td>';
+                            tb.appendChild(tr);
+                            
+                            //alert(tr.innerHTML);
+                            //
+                            
+                         }
+                      }
+                      document.getElementById('clearcachtip').style.display='';
+                  }
+
+                   function tryclearcach(){
+                       window.external.ClearColSearchCach();
+                      document.getElementById('clearcachtip').style.display='none';
+                      
                    }
                   </script>");
-                sb.Append("<input id='w' type='text' style='height:23px; line-height:23px;' onkeypress='k()' value=''/><input type='button' style='font-size:12px; height:23px; line-height:18px;' value='搜索'  onclick='s()'/>");
+                sb.AppendFormat("<script>{0}</script>", System.IO.File.ReadAllText("json2.js"));
+                sb.Append(@"<input id='w' type='text' style='height:23px; line-height:23px;width:30%;' onkeypress='k()' value=''/>
+                            <input type='checkbox' id='scontent' value='1'>全库搜索</input>
+                            <input type='button' style='font-size:12px; height:23px; line-height:18px;' value='搜索'  onclick='s()'/>");
                 sb.Append("<p/>");
-                sb.Append("<table>");
+                sb.Append($"<div id='clearcachtip' style='margin-top:5px;display:none;width:98%;font-size:9pt;height:18px; line-height:18px;background-color:lightyellow;border:solid 1px lightblue'>如果没有找到，可以选择<a href='javascript:tryclearcach()'>清空缓存</a>试试</div>");
+                sb.Append("<p/>");
+                sb.Append("<table id='colstb'>");
                 sb.Append("<tr><th>序号</th><th>表名</th><th>字段</th><th>描述</th></tr>");
                 int i = 1;
                 foreach (MarkObjectInfo c in allcolumns)
@@ -1948,10 +2024,11 @@ background-color: #ffffff;
                     sb.Append($"<tr><td>{i++}</td><td>{c.TBName.ToLower()}</td><td>{name.ToLower()}</td><td>{c.MarkInfo}</td></tr>");
                 }
                 sb.Append("</table>");
+                sb.Append("<table id='colstb2'></table>");
                 sb.Append("</body>");
                 sb.Append("</html>");
 
-                this.OnViewCloumns(dbname, sb.ToString());
+                this.OnViewCloumns(GetDBSource(selnode), dbname, sb.ToString());
             }
 
         }
@@ -1994,6 +2071,7 @@ background-color: #ffffff;
 }}</style>");
                 sb.Append("</head>");
                 sb.Append(@"<body>
+                  
                   <script>
                       function k(){
                           if (event.keyCode == 13) s();
@@ -2033,14 +2111,14 @@ background-color: #ffffff;
                    }
 
                    function searchcallback(str){
-                      var ls=str.split(',');
+                      var searchresult= JSON.parse(str);
                       var tds= document.getElementsByTagName('td');
                        for(var i=0;i<tds.length;i+=3){
                            tds[i].parentNode.style.display='none';
                        }
                       var idx=1;
-                      for(var j=0;j<ls.length;j++){
-                         var spname=ls[j];
+                      for(var j=0;j<searchresult.length;j++){
+                         var spname=searchresult[j];
                          for(var i=0;i<tds.length;i+=3){
                            var boo=tds[i+1].innerText==spname;
                            if(boo){
@@ -2053,6 +2131,7 @@ background-color: #ffffff;
                       document.getElementById('clearcachtip').style.display='';
                   }
                   </script>");
+                sb.AppendFormat("<script>{0}</script>",System.IO.File.ReadAllText("json2.js"));
                 sb.Append(@"<input id='w' type='text' style='height:23px; line-height:23px;width:30%;' onkeypress='k()' value=''/>
                             <input type='checkbox' id='scontent' value='1'>搜索内容</input>
                             <input type='button' style='font-size:12px; height:23px; line-height:18px;' value='搜索'  onclick='s()'/>");
