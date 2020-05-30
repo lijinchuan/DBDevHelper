@@ -1946,33 +1946,28 @@ background-color: #ffffff;
                    }
 
                     function searchcallback(str){
-                     var searchresult= JSON.parse(str);
-
+                     var searchresult= JSON.parse(str);                                
+                      var tdsDic={};
                       var tds= document.getElementsByTagName('td');
                        for(var i=0;i<tds.length;i+=4){
                            tds[i].parentNode.style.display='none';
+                           var key=tds[i+1].innerText+'_'+tds[i+2].innerText;
+                           tdsDic[key]=tds[i];
                        }
                       var idx=1;
                       var newcols=[];
                       for(var j=0;j<searchresult.length;j++){
-                         var tbname=searchresult[j].TBName.toLowerCase();
-                         var name=searchresult[j].Name.toLowerCase();
-                         var boo=false;
-                         for(var i=0;i<tds.length;i+=4){
-                           boo=tds[i+2].innerText==name&&tds[i+1].innerText==tbname;
-                           if(boo){
-                               tds[i].parentNode.style.display='';
-                               tds[i].innerText=idx++;
-                               break;
-                            }
-                        }
-                        if(!boo){
-                          newcols.push(j);
-                        }
+                         var key=(searchresult[j].TBName+'_'+searchresult[j].Name).toLowerCase();
+                         var boo=tdsDic[key];
+                        if(boo){
+                           boo.parentNode.style.display='';
+                           boo.innerText=idx++;
+                        }else{
+                            newcols.push(j);
+                         }
                       }
                       if(newcols.length>0){
                          var tb=document.getElementById('colstb').tBodies[0];
-                         var trs=document.getElementsByTagName('tr');
                          for(var i=0;i<newcols.length;i++){
                             var col=searchresult[newcols[i]];
                             var tr=document.createElement('tr');
