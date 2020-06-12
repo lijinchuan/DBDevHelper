@@ -7,21 +7,29 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Runtime.InteropServices;
+using Entity;
 
 namespace NETDBHelper.UC
 {
+    [ComVisible(true)]
     public partial class WebTab : TabPage
     {
-        public Action<string> OnSearch;
+        public Func<DBSource, string, string, List<object>> OnSearch;
+        private DBSource _dbSource;
+        private string _dbName;
 
-        public WebTab()
+        public WebTab(DBSource dbsource, string dbname)
         {
             InitializeComponent();
+            _dbSource = dbsource;
+            _dbName = dbname;
 
             this.webBrowser1.DocumentCompleted += (s, ee) =>
             {
                 this.Text = this.webBrowser1.Document.Title;
             };
+            webBrowser1.ObjectForScripting = this;
         }
 
         private string _title = string.Empty;
@@ -55,11 +63,46 @@ namespace NETDBHelper.UC
             }
         }
 
+        public void ShowProc(string procname)
+        {
+            try
+            {
+                var procbody = Biz.Common.Data.MySQLHelper.GetProcedureBody(this._dbSource, this._dbName, procname);
+                SubForm.TextBoxWin win = new SubForm.TextBoxWin($"查看存储过程 {procname}", procbody);
+                win.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                Util.SendMsg(this, ex.Message);
+            }
+        }
+
+        public void ClearColSearchCach()
+        {
+            LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.TruncateTable(nameof(TBSearchColumn));
+            this.webBrowser1.Document.InvokeScript("alert", new[] { "清理完成" });
+        }
+
+        public void ClearCach()
+        {
+            LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.TruncateTable(nameof(SPContent));
+            this.webBrowser1.Document.InvokeScript("alert", new[] { "清理完成" });
+        }
+
+
         public void Search(string word)
         {
             if (OnSearch != null)
             {
-                OnSearch(word);
+                //var retlist = OnSearch(_dbSource, _dbName, word).ToArray();
+                //this.webBrowser1.Document.InvokeScript("searchcallback", retlist);
+
+                new Action(() =>
+                {
+                    var retlist = OnSearch(_dbSource, _dbName, word).ToArray();
+                    this.webBrowser1.Invoke(new Action(() => this.webBrowser1.Document.InvokeScript("searchcallback",
+                        new[] { LJC.FrameWorkV3.Comm.JsonUtil<object[]>.Serialize(retlist) })));
+                }).BeginInvoke(null, null);
             }
         }
     }

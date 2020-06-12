@@ -11,6 +11,7 @@ using System.Text.RegularExpressions;
 using NETDBHelper.SubForm;
 using Biz.Common;
 using Biz.Common.Data;
+using LJC.FrameWorkV3.Data.EntityDataBase;
 
 namespace NETDBHelper
 {
@@ -21,10 +22,12 @@ namespace NETDBHelper
         public Action<DBSource,string> OnAddEntityTB;
         public Action<string, string> OnCreateSelectSql;
         public Action<DBSource, string, string, string,CreateProceEnum> OnCreatePorcSQL;
+        public Action<DBSource, string, string> OnFilterProc;
         public Action<DBSource,string,string> OnAddSqlExecuter;
         public Action<DBSource, string, string, string> OnShowProc;
         public Action<DBSource, string, string, string> OnShowDataDic;
-        public Action<string, string> OnViewTable;
+        public Action<DBSource, string, string> OnViewTable;
+        public Action<DBSource, string, string> OnViewCloumns;
         private DBSourceCollection _dbServers;
         /// <summary>
         /// 实体命名空间
@@ -151,6 +154,16 @@ namespace NETDBHelper
                             OnViewTables();
                             break;
                         }
+                    case "查看字段":
+                        {
+                            OnViewColumn();
+                            break;
+                        }
+                    case "筛选存储过程":
+                        {
+                            FilterProc();
+                            break;
+                        }
                 }
             }
             catch (Exception ex)
@@ -164,6 +177,9 @@ namespace NETDBHelper
             //TreeNode selNode = tv_DBServers.SelectedNode;
             if (selNode == null)
                 return;
+            TSMI_FilterProc.Visible = false;
+            TSMI_ViewColumnList.Visible = false;
+
             if (selNode.Level == 1)
             {
                 Biz.UILoadHelper.LoadDBsAnsy(this.ParentForm, selNode, GetDBSource(selNode));
@@ -177,6 +193,7 @@ namespace NETDBHelper
                                  [] { dbname, name.ToUpper(), string.Empty }).FirstOrDefault();
                     return mark == null ? string.Empty : mark.MarkInfo;
                 });
+                TSMI_ViewColumnList.Visible = true;
             }
             else if (selNode.Level == 3 && !selNode.Text.Equals("存储过程"))
             {
@@ -228,6 +245,7 @@ namespace NETDBHelper
             else if (selNode.Level == 3 && selNode.Text.Equals("存储过程"))
             {
                 Biz.UILoadHelper.LoadProcedureAnsy(this.ParentForm, selNode, GetDBSource(selNode));
+                TSMI_FilterProc.Visible = true;
             }
             else if (selNode.Level == 4 && selNode.Text.Equals("索引"))
             {
@@ -1485,7 +1503,8 @@ background-color: #ffffff;
             if (this.OnViewTable != null && selnode != null)
             {
                 var dbname = GetDBName(selnode);
-                DataTable tb = Biz.Common.Data.MySQLHelper.GetTBs(GetDBSource(selnode), dbname);
+                var dbsource = GetDBSource(selnode);
+                DataTable tb = Biz.Common.Data.MySQLHelper.GetTBs(dbsource, dbname);
 
                 StringBuilder sb = new StringBuilder("<html>");
                 sb.Append("<head>");
@@ -1558,9 +1577,284 @@ background-color: #ffffff;
                 sb.Append("</body>");
                 sb.Append("</html>");
 
-                this.OnViewTable(dbname, sb.ToString());
+                this.OnViewTable(dbsource, dbname, sb.ToString());
             }
 
+        }
+
+        private void OnViewColumn()
+        {
+            var selnode = tv_DBServers.SelectedNode;
+            if (this.OnViewCloumns != null && selnode != null)
+            {
+                var dbname = GetDBName(selnode);
+
+                var allcolumns = BigEntityTableEngine.LocalEngine.Find<MarkObjectInfo>("MarkObjectInfo", p => !string.IsNullOrEmpty(p.ColumnName) && p.DBName.Equals(dbname, StringComparison.OrdinalIgnoreCase));
+
+                StringBuilder sb = new StringBuilder("<html>");
+                sb.Append("<head>");
+                sb.Append($"<title>查看{dbname}的字段表</title>");
+                sb.Append(@"<style>
+ table {{
+width:98%;
+font-family: verdana,arial,sans-serif;
+font-size:11px;
+color:#333333;
+border-width: 1px;
+border-color: #666666;
+border-collapse: collapse;
+}}
+table th {{
+border-width: 1px;
+padding: 8px;
+border-style: solid;
+border-color: #666666;
+background-color: #dedede;
+}}
+table td {{
+border-width: 1px;
+padding: 8px;
+border-style: solid;
+border-color: #666666;
+background-color: #ffffff;
+}}</style>");
+                sb.Append("</head>");
+                sb.Append(@"<body>
+                  <script>
+                      function k(){
+                          if (event.keyCode == 13) s();
+                      }
+                      function s(){
+                       var w=document.getElementById('w').value
+                       if(/^\s*$/.test(w)){
+                           var idx=1
+                           var trs= document.getElementsByTagName('tr');
+                           for(var i=0;i<trs.length;i++){
+                               trs[i].style.display=''
+                               if(trs[i].firstChild.tagName=='TD')
+                                   trs[i].firstChild.innerText=idx++
+                            }
+                           return
+                       }
+
+                       var ckbody=document.getElementById('scontent').checked;
+                       if(!ckbody){
+                       var idx=1;
+                       var tds= document.getElementsByTagName('td');
+                       w=w.toUpperCase();
+                       for(var i=0;i<tds.length;i+=4){
+                           var boo=tds[i+2].innerText.toUpperCase().indexOf(w)>-1||tds[i+3].innerText.toUpperCase().indexOf(w)>-1
+                           tds[i].parentNode.style.display=boo?'':'none'
+                           if(boo) tds[i].innerText=idx++
+                       }
+                     }else{
+                         window.external.Search(w);
+                     }
+                       
+                   }
+
+                    function searchcallback(str){
+                     var searchresult= JSON.parse(str);                                
+                      var tdsDic={};
+                      var tds= document.getElementsByTagName('td');
+                       for(var i=0;i<tds.length;i+=4){
+                           tds[i].parentNode.style.display='none';
+                           var key=tds[i+1].innerText+'_'+tds[i+2].innerText;
+                           tdsDic[key]=tds[i];
+                       }
+                      var idx=1;
+                      var newcols=[];
+                      for(var j=0;j<searchresult.length;j++){
+                         var key=(searchresult[j].TBName+'_'+searchresult[j].Name).toLowerCase();
+                         var boo=tdsDic[key];
+                        if(boo){
+                           boo.parentNode.style.display='';
+                           boo.innerText=idx++;
+                        }else{
+                            newcols.push(j);
+                         }
+                      }
+                      if(newcols.length>0){
+                         var tb=document.getElementById('colstb').tBodies[0];
+                         for(var i=0;i<newcols.length;i++){
+                            var col=searchresult[newcols[i]];
+                            var tr=document.createElement('tr');
+                            var td1=document.createElement('td');
+                            td1.innerText=idx++;
+                            tr.appendChild(td1);
+                            var td2=document.createElement('td');
+                            td2.innerText=col.TBName.toLowerCase();
+                            tr.appendChild(td2);
+                            var td3=document.createElement('td');
+                            td3.innerText=col.Name.toLowerCase();
+                            tr.appendChild(td3);
+                            
+                            var td4=document.createElement('td');
+                            td4.innerText=col.Description;
+                            tr.appendChild(td4);
+                            //tr.innerHTML='<td>'+(idx++)+'</td><td>'+col.TBName.toLowerCase()+'</td><td>'+col.Name.toLowerCase()+'</td><td>'+col.Description+'</td>';
+                            tb.appendChild(tr);
+                            
+                            //alert(tr.innerHTML);
+                            //
+                            
+                         }
+                      }
+                      document.getElementById('clearcachtip').style.display='';
+                  }
+
+                   function tryclearcach(){
+                       window.external.ClearColSearchCach();
+                      document.getElementById('clearcachtip').style.display='none';
+                      
+                   }
+                  </script>");
+                sb.AppendFormat("<script>{0}</script>", System.IO.File.ReadAllText("json2.js"));
+                sb.Append(@"<input id='w' type='text' style='height:23px; line-height:23px;width:30%;' onkeypress='k()' value=''/>
+                            <input type='checkbox' id='scontent' value='1'>全库搜索</input>
+                            <input type='button' style='font-size:12px; height:23px; line-height:18px;' value='搜索'  onclick='s()'/>");
+                sb.Append("<p/>");
+                sb.Append($"<div id='clearcachtip' style='margin-top:5px;display:none;width:98%;font-size:9pt;height:18px; line-height:18px;background-color:lightyellow;border:solid 1px lightblue'>如果没有找到，可以选择<a href='javascript:tryclearcach()'>清空缓存</a>试试</div>");
+                sb.Append("<p/>");
+                sb.Append("<table id='colstb'>");
+                sb.Append("<tr><th>序号</th><th>表名</th><th>字段</th><th>描述</th></tr>");
+                int i = 1;
+                foreach (MarkObjectInfo c in allcolumns)
+                {
+                    var name = c.ColumnName;
+
+                    sb.Append($"<tr><td>{i++}</td><td>{c.TBName.ToLower()}</td><td>{name.ToLower()}</td><td>{c.MarkInfo}</td></tr>");
+                }
+                sb.Append("</table>");
+                sb.Append("<table id='colstb2'></table>");
+                sb.Append("</body>");
+                sb.Append("</html>");
+
+                this.OnViewCloumns(GetDBSource(selnode), dbname, sb.ToString());
+            }
+
+        }
+
+        private void FilterProc()
+        {
+            var selnode = tv_DBServers.SelectedNode;
+            if (this.OnFilterProc != null && selnode != null)
+            {
+                var dbsource = GetDBSource(selnode);
+                var dbname = GetDBName(selnode);
+                var proclist = Biz.Common.Data.MySQLHelper.GetProcedures(dbsource, dbname);
+
+                StringBuilder sb = new StringBuilder("<html>");
+                sb.Append("<head>");
+                sb.Append($"<title>查看{dbname}的存储过程</title>");
+                sb.Append(@"<style>
+ table {{
+width:98%;
+font-family: verdana,arial,sans-serif;
+font-size:11px;
+color:#333333;
+border-width: 1px;
+border-color: #666666;
+border-collapse: collapse;
+}}
+table th {{
+border-width: 1px;
+padding: 8px;
+border-style: solid;
+border-color: #666666;
+background-color: #dedede;
+}}
+table td {{
+border-width: 1px;
+padding: 8px;
+border-style: solid;
+border-color: #666666;
+background-color: #ffffff;
+}}</style>");
+                sb.Append("</head>");
+                sb.Append(@"<body>
+                  
+                  <script>
+                      function k(){
+                          if (event.keyCode == 13) s();
+                      }
+                      function s(){
+                       document.getElementById('clearcachtip').style.display='none';
+                       var w=document.getElementById('w').value
+                       if(/^\s*$/.test(w)){
+                           var idx=1
+                           var trs= document.getElementsByTagName('tr');
+                           for(var i=0;i<trs.length;i++){
+                               trs[i].style.display=''
+                               if(trs[i].firstChild.tagName=='TD')
+                                   trs[i].firstChild.innerText=idx++
+                            }
+                           return
+                       }
+                       var ckbody=document.getElementById('scontent').checked;
+                       if(!ckbody){
+                       var idx=1;
+                       var tds= document.getElementsByTagName('td');
+                       w=w.toUpperCase();
+                       for(var i=0;i<tds.length;i+=3){
+                           var boo=tds[i+1].innerText.toUpperCase().indexOf(w)>-1||tds[i+2].innerText.toUpperCase().indexOf(w)>-1
+                           tds[i].parentNode.style.display=boo?'':'none'
+                           if(boo) tds[i].innerText=idx++
+                       }
+                     }else{
+                         window.external.Search(w);
+                     }
+                   }
+                    
+                   function tryclearcach(){
+                       window.external.ClearCach();
+                      document.getElementById('clearcachtip').style.display='none';
+                      
+                   }
+
+                   function searchcallback(str){
+                      var searchresult= JSON.parse(str);
+                      var tds= document.getElementsByTagName('td');
+                       for(var i=0;i<tds.length;i+=3){
+                           tds[i].parentNode.style.display='none';
+                       }
+                      var idx=1;
+                      for(var j=0;j<searchresult.length;j++){
+                         var spname=searchresult[j];
+                         for(var i=0;i<tds.length;i+=3){
+                           var boo=tds[i+1].innerText==spname;
+                           if(boo){
+                               tds[i].parentNode.style.display='';
+                               tds[i].innerText=idx++;
+                               break;
+                            }
+                        }
+                      }
+                      document.getElementById('clearcachtip').style.display='';
+                  }
+                  </script>");
+                sb.AppendFormat("<script>{0}</script>", System.IO.File.ReadAllText("json2.js"));
+                sb.Append(@"<input id='w' type='text' style='height:23px; line-height:23px;width:30%;' onkeypress='k()' value=''/>
+                            <input type='checkbox' id='scontent' value='1'>搜索内容</input>
+                            <input type='button' style='font-size:12px; height:23px; line-height:18px;' value='搜索'  onclick='s()'/>");
+                sb.Append("<p/>");
+                sb.Append($"<div id='clearcachtip' style='margin-top:5px;display:none;width:98%;font-size:9pt;height:18px; line-height:18px;background-color:lightyellow;border:solid 1px lightblue'>如果没有找到，可以选择<a href='javascript:tryclearcach()'>清空缓存</a>试试</div>");
+                sb.Append("<p/>");
+                sb.Append("<table>");
+                sb.Append("<tr><th>序号</th><th>存储过程</th><th>描述</th></tr>");
+                int i = 1;
+                dbname = dbname.ToUpper();
+                foreach (string name in proclist)
+                {
+                    var item = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<SPInfo>("SPInfo", "DBName_SPName", new[] { dbname, name.ToUpper() }).FirstOrDefault();
+                    sb.Append($"<tr><td>{i++}</td><td><a href='javascript:window.external.ShowProc(\"{name}\")'>{name}</a></td><td>{item?.Mark}</td></tr>");
+                }
+                sb.Append("</table>");
+                sb.Append("</body>");
+                sb.Append("</html>");
+
+                this.OnFilterProc(dbsource, dbname, sb.ToString());
+            }
         }
     }
 }

@@ -5,7 +5,9 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using Biz.Common.Data;
 using Entity;
 using NETDBHelper.UC;
 
@@ -25,6 +27,8 @@ namespace NETDBHelper
             this.dbServerView1.OnAddSqlExecuter += this.AddSqlExecute;
             this.dbServerView1.OnShowProc += this.ShowProc;
             this.dbServerView1.OnShowDataDic += this.ShowDataDic;
+            this.dbServerView1.OnViewCloumns += this.ShowColumns;
+            this.dbServerView1.OnFilterProc += this.FilterProc;
             this.TabControl.DrawMode = TabDrawMode.OwnerDrawFixed;
             this.dbServerView1.OnViewTable += this.ShowTables;
             this.TabControl.Selected += new TabControlEventHandler(TabControl_Selected);
@@ -95,7 +99,7 @@ namespace NETDBHelper
             TabControl.SelectedTab = cp;
         }
 
-        private void ShowTables(string dbname, string html)
+        private void ShowTables(DBSource dbSource,string dbname, string html)
         {
             var tit = $"查看{dbname}的库表";
             foreach (TabPage tab in this.TabControl.TabPages)
@@ -107,12 +111,12 @@ namespace NETDBHelper
                     return;
                 }
             }
-            UC.WebTab panel = new WebTab();
+            UC.WebTab panel = new WebTab(dbSource,dbname);
             panel.SetHtml(html);
             panel.Text = tit;
-            panel.OnSearch += (w) =>
+            panel.OnSearch += (d, n, w) =>
             {
-
+                return null;
             };
             this.TabControl.TabPages.Add(panel);
             this.TabControl.SelectedTab = panel;
@@ -298,9 +302,168 @@ namespace NETDBHelper
                     return;
                 }
             }
-            UC.WebTab panel = new WebTab();
+            UC.WebTab panel = new WebTab(dBSource, dbname);
             panel.SetHtml(html);
             panel.Text = tit;
+            this.TabControl.TabPages.Add(panel);
+            this.TabControl.SelectedTab = panel;
+        }
+
+        private void ShowColumns(DBSource dbsource, string dbname, string html)
+        {
+            var tit = $"查看{dbname}的字段";
+            foreach (TabPage tab in this.TabControl.TabPages)
+            {
+                if (tab.Text.Equals(tit))
+                {
+                    (tab as UC.WebTab).SetHtml(html);
+                    TabControl.SelectedTab = tab;
+                    return;
+                }
+            }
+            UC.WebTab panel = new WebTab(dbsource, dbname);
+            panel.SetHtml(html);
+            panel.Text = tit;
+            panel.OnSearch += (d, n, w) =>
+            {
+                List<object> lst = new List<object>();
+                var tbs = MySQLHelper.GetTBs(d, n);
+
+                if (tbs.Rows.Count == 0)
+                {
+                    return lst;
+                }
+                int finishcount = 0;
+                foreach (DataRow row in tbs.Rows)
+                {
+                    var tbname = row["name"].ToString();
+                    var searchColumns = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<TBSearchColumn>("TBSearchColumn", "DBName_TBName", new[] { n.ToLower(), tbname.ToLower() }).ToArray();
+                    if (searchColumns.Length == 0)
+                    {
+                        try
+                        {
+                            var cols = Biz.Common.Data.MySQLHelper.GetColumns(d, n, tbname).ToArray();
+
+                            if (cols.Length > 0)
+                            {
+                                searchColumns = cols.Select(p => new TBSearchColumn
+                                {
+                                    DBName = n.ToLower(),
+                                    TBName = tbname.ToLower(),
+                                    Name = p.Name,
+                                    Description = p.Description
+                                }).ToArray();
+                                LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.InsertBatch<TBSearchColumn>("TBSearchColumn", searchColumns);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Util.SendMsg(this, ex.Message);
+                        }
+
+                    }
+
+                    if (searchColumns.Length > 0)
+                    {
+                        foreach (var c in searchColumns)
+                        {
+                            if (c.Name.IndexOf(w, StringComparison.OrdinalIgnoreCase) > -1 || c.Description?.IndexOf(w, StringComparison.OrdinalIgnoreCase) > -1)
+                            {
+                                lst.Add(c);
+                            }
+                        }
+                    }
+
+                    finishcount++;
+                    var rat = finishcount * 100 / tbs.Rows.Count;
+                    Util.SendMsg(this, $"正在搜索表>{tbname}，完成{rat.ToString("f2")}%......");
+                }
+                Util.SendMsg(this, $"正在搜索表，完成100%，共{lst.Count}条数据......");
+                return lst;
+            };
+            this.TabControl.TabPages.Add(panel);
+            this.TabControl.SelectedTab = panel;
+        }
+
+        private void FilterProc(DBSource dbsource, string dbname, string html)
+        {
+            var tit = $"查看{dbname}的存储过程";
+            foreach (TabPage tab in this.TabControl.TabPages)
+            {
+                if (tab.Text.Equals(tit))
+                {
+                    (tab as UC.WebTab).SetHtml(html);
+                    TabControl.SelectedTab = tab;
+                    return;
+                }
+            }
+            UC.WebTab panel = new WebTab(dbsource, dbname);
+            panel.SetHtml(html);
+            panel.Text = tit;
+            panel.OnSearch += (s, n, w) =>
+            {
+                List<object> lst = new List<object>();
+                var proclist = Biz.Common.Data.MySQLHelper.GetProcedures(dbsource, dbname).ToList();
+                if (proclist.Count == 0)
+                {
+                    return lst;
+                }
+                int finishcount = 0;
+                foreach (var proc in proclist)
+                {
+                    var spcontent = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<SPContent>("SPContent", "SPName", new[] { proc }).FirstOrDefault();
+                    if (spcontent == null)
+                    {
+                        try
+                        {
+                            var body = Biz.Common.Data.MySQLHelper.GetProcedureBody(dbsource, dbname, proc);
+
+                            if (!string.IsNullOrEmpty(body))
+                            {
+                                spcontent = new SPContent { SPName = proc, Content = body };
+                                LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<SPContent>("SPContent", new SPContent
+                                {
+                                    Content = body,
+                                    SPName = proc
+                                });
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Util.SendMsg(this, ex.Message);
+                        }
+
+                    }
+
+                    if (spcontent != null)
+                    {
+                        if (spcontent.Content.IndexOf(w, StringComparison.OrdinalIgnoreCase) > -1)
+                        {
+                            lst.Add(proc);
+                        }
+                        else
+                        {
+                            try
+                            {
+                                if (Regex.IsMatch(spcontent.Content, w))
+                                {
+                                    lst.Add(proc);
+                                }
+                            }
+                            catch
+                            {
+
+                            }
+                        }
+                    }
+
+                    finishcount++;
+                    var rat = finishcount * 100 / proclist.Count;
+                    Util.SendMsg(this, $"正在搜索存储过程>{proc}，完成{rat.ToString("f2")}%......");
+                }
+                Util.SendMsg(this, $"正在搜索存储过程，完成100%，共{lst.Count}条数据......");
+                return lst;
+            };
             this.TabControl.TabPages.Add(panel);
             this.TabControl.SelectedTab = panel;
         }
