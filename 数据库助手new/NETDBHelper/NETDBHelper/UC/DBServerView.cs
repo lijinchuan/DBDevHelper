@@ -2030,7 +2030,7 @@ background-color: #ffffff;
         private void FilterProc()
         {
             var selnode = tv_DBServers.SelectedNode;
-            if (this.OnViewCloumns != null && selnode != null)
+            if (this.OnFilterProc != null && selnode != null)
             {
                 var dbsource = GetDBSource(selnode);
                 var dbname = GetDBName(selnode);
