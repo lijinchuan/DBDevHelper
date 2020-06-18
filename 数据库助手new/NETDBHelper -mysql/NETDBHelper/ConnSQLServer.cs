@@ -39,7 +39,7 @@ namespace NETDBHelper
             this.cb_yz.SelectedIndex = 0;
 
             panel_yz.Enabled = false;
-            dbs = dbs ?? (Biz.Common.XMLHelper.DeSerializeFromFile<DBSourceCollection>(Application.StartupPath + Resources.Resource1.DbServersFile) ?? new DBSourceCollection());
+            dbs = dbs ?? (Biz.Common.XMLHelper.DeSerializeFromFile<DBSourceCollection>(Resources.Resource1.DbServersFile) ?? new DBSourceCollection());
             this.cb_servers.SelectedIndexChanged += new EventHandler(cb_Servers_SelectedIndexChanged);
 
             this.cb_username.SelectedIndexChanged += cb_username_SelectedIndexChanged;

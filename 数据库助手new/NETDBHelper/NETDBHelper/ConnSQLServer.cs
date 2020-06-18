@@ -41,7 +41,7 @@ namespace NETDBHelper
             this.cb_yz.SelectedIndex = 0;
 
             panel_yz.Enabled = false;
-            dbs =dbs??( Biz.Common.XMLHelper.DeSerializeFromFile<DBSourceCollection>(Application.StartupPath + Resources.Resource1.DbServersFile)??new DBSourceCollection());
+            dbs =dbs??( Biz.Common.XMLHelper.DeSerializeFromFile<DBSourceCollection>(Resources.Resource1.DbServersFile)??new DBSourceCollection());
             this.cb_servers.SelectedIndexChanged += new EventHandler(cb_Servers_SelectedIndexChanged);
             
             this.cb_username.SelectedIndexChanged += cb_username_SelectedIndexChanged;
@@ -169,7 +169,7 @@ namespace NETDBHelper
                 {
                     if (dbs.Remove(DBSource))
                     {
-                        Biz.Common.XMLHelper.Serialize(dbs, Application.StartupPath + Resources.Resource1.DbServersFile);
+                        Biz.Common.XMLHelper.Serialize(dbs, Resources.Resource1.DbServersFile);
                     }
                     else
                     {
@@ -229,7 +229,7 @@ namespace NETDBHelper
             //保存一下
             if (dbs.Upsert(DBSource))
             {
-                Biz.Common.XMLHelper.Serialize(dbs, Application.StartupPath + Resources.Resource1.DbServersFile);
+                Biz.Common.XMLHelper.Serialize(dbs, Resources.Resource1.DbServersFile);
             }
 
             _lastServerSelectedIndex = cb_servers.SelectedIndex;

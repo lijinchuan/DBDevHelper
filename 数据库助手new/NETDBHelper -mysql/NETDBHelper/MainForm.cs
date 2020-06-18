@@ -200,9 +200,9 @@ namespace NETDBHelper
                 if (!this.dbServerView1.DBServers.Contains(obj.DBSource))
                 {
                     this.dbServerView1.DBServers.Add(obj.DBSource);
-                    var allDBs = Biz.Common.XMLHelper.DeSerializeFromFile<DBSourceCollection>(Application.StartupPath + Resources.Resource1.DbServersFile) ?? new DBSourceCollection();
+                    var allDBs = Biz.Common.XMLHelper.DeSerializeFromFile<DBSourceCollection>(Resources.Resource1.DbServersFile) ?? new DBSourceCollection();
                     allDBs.Add(obj.DBSource);
-                    Biz.Common.XMLHelper.Serialize(allDBs, Application.StartupPath + Resources.Resource1.DbServersFile);
+                    Biz.Common.XMLHelper.Serialize(allDBs, Resources.Resource1.DbServersFile);
                     this.dbServerView1.Bind();
                 }
             }

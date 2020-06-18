@@ -12,6 +12,7 @@ using LJC.FrameWork.CodeExpression.KeyWordMatch;
 using Entity;
 using LJC.FrameWork.Data.EntityDataBase;
 using System.Threading;
+using System.IO;
 
 namespace NETDBHelper.UC
 {
@@ -1457,6 +1458,38 @@ namespace NETDBHelper.UC
             if (this.RichText.CanRedo)
             {
                 this.RichText.Redo();
+            }
+        }
+
+        private void TSMI_SaveAsFile_Click(object sender, EventArgs e)
+        {
+            var sql = this.RichText.Text;
+            if (string.IsNullOrEmpty(sql))
+            {
+                return;
+            }
+
+            var nameinput = new SubForm.InputStringDlg("导出文件名");
+            if (nameinput.ShowDialog() == DialogResult.OK)
+            {
+                var dir = Application.StartupPath + "\\temp\\";
+                if (!Directory.Exists(dir))
+                {
+                    Directory.CreateDirectory(dir);
+                }
+
+                var filename = $"{dir}\\{nameinput.InputString}.sql";
+                using (StreamWriter fs = new StreamWriter(filename, false, Encoding.UTF8))
+                {
+
+                    var str = sql;
+                    if (!string.IsNullOrWhiteSpace(str))
+                    {
+                        fs.Write(str);
+                    }
+                }
+                Util.SendMsg(this, $"文件已保存:{filename}");
+                System.Diagnostics.Process.Start("explorer.exe", dir);
             }
         }
     }

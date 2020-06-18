@@ -35,13 +35,14 @@
             this.复制ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.剪切ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.粘贴ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.撤消ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.重做ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
             this.搜索ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.TSMI_Save = new System.Windows.Forms.ToolStripMenuItem();
-            this.撤消ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.RichText = new NETDBHelper.UC.MyRichTextBox();
             this.ScaleNos = new NETDBHelper.UC.Scale();
-            this.重做ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.TSMI_SaveAsFile = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -56,9 +57,10 @@
             this.重做ToolStripMenuItem,
             this.toolStripMenuItem2,
             this.搜索ToolStripMenuItem,
-            this.TSMI_Save});
+            this.TSMI_Save,
+            this.TSMI_SaveAsFile});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(101, 186);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(181, 230);
             // 
             // 全选ToolStripMenuItem
             // 
@@ -88,6 +90,20 @@
             this.粘贴ToolStripMenuItem.Text = "粘贴";
             this.粘贴ToolStripMenuItem.Click += new System.EventHandler(this.粘贴ToolStripMenuItem_Click);
             // 
+            // 撤消ToolStripMenuItem
+            // 
+            this.撤消ToolStripMenuItem.Name = "撤消ToolStripMenuItem";
+            this.撤消ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.撤消ToolStripMenuItem.Text = "撤消";
+            this.撤消ToolStripMenuItem.Click += new System.EventHandler(this.撤消ToolStripMenuItem_Click);
+            // 
+            // 重做ToolStripMenuItem
+            // 
+            this.重做ToolStripMenuItem.Name = "重做ToolStripMenuItem";
+            this.重做ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.重做ToolStripMenuItem.Text = "重做";
+            this.重做ToolStripMenuItem.Click += new System.EventHandler(this.重做ToolStripMenuItem_Click);
+            // 
             // toolStripMenuItem2
             // 
             this.toolStripMenuItem2.Name = "toolStripMenuItem2";
@@ -106,13 +122,6 @@
             this.TSMI_Save.Size = new System.Drawing.Size(180, 22);
             this.TSMI_Save.Text = "保存";
             this.TSMI_Save.Click += new System.EventHandler(this.TSMI_Save_Click);
-            // 
-            // 撤消ToolStripMenuItem
-            // 
-            this.撤消ToolStripMenuItem.Name = "撤消ToolStripMenuItem";
-            this.撤消ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.撤消ToolStripMenuItem.Text = "撤消";
-            this.撤消ToolStripMenuItem.Click += new System.EventHandler(this.撤消ToolStripMenuItem_Click);
             // 
             // RichText
             // 
@@ -137,12 +146,12 @@
             this.ScaleNos.Size = new System.Drawing.Size(44, 442);
             this.ScaleNos.TabIndex = 0;
             // 
-            // 重做ToolStripMenuItem
+            // TSMI_SaveAsFile
             // 
-            this.重做ToolStripMenuItem.Name = "重做ToolStripMenuItem";
-            this.重做ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.重做ToolStripMenuItem.Text = "重做";
-            this.重做ToolStripMenuItem.Click += new System.EventHandler(this.重做ToolStripMenuItem_Click);
+            this.TSMI_SaveAsFile.Name = "TSMI_SaveAsFile";
+            this.TSMI_SaveAsFile.Size = new System.Drawing.Size(180, 22);
+            this.TSMI_SaveAsFile.Text = "保存为文件";
+            this.TSMI_SaveAsFile.Click += new System.EventHandler(this.TSMI_SaveAsFile_Click);
             // 
             // EditTextBox
             // 
@@ -171,5 +180,6 @@
         private System.Windows.Forms.ToolStripMenuItem 剪切ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 撤消ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 重做ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem TSMI_SaveAsFile;
     }
 }
