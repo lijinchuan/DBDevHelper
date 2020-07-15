@@ -93,7 +93,7 @@ namespace NETDBHelper.UC
 
             _dbSource = dbsource;
             _dbName = dbname;
-
+            webBrowser1.ImeMode = ImeMode.On;
             this.webBrowser1.DocumentCompleted += (s, ee) =>
             {
                 this.Text = this.webBrowser1.Document.Title;
