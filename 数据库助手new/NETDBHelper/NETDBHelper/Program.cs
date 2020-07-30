@@ -196,6 +196,8 @@ namespace NETDBHelper
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new MainFrm());
+
+            LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.ShutDown();
         }
     }
 }

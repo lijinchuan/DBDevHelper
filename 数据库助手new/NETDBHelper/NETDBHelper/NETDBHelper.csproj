@@ -118,6 +118,12 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resource1.resx</DependentUpon>
     </Compile>
+    <Compile Include="SubForm\AddTaskInfoDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SubForm\AddTaskInfoDlg.Designer.cs">
+      <DependentUpon>AddTaskInfoDlg.cs</DependentUpon>
+    </Compile>
     <Compile Include="SubForm\CreateEntityNavDlg.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -142,6 +148,12 @@
     <Compile Include="SubForm\MultiInputDlg.Designer.cs">
       <DependentUpon>MultiInputDlg.cs</DependentUpon>
     </Compile>
+    <Compile Include="SubForm\PopMessageDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SubForm\PopMessageDlg.Designer.cs">
+      <DependentUpon>PopMessageDlg.cs</DependentUpon>
+    </Compile>
     <Compile Include="SubForm\SyncDataWin.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -153,6 +165,18 @@
     </Compile>
     <Compile Include="SubForm\TextBoxWin.Designer.cs">
       <DependentUpon>TextBoxWin.cs</DependentUpon>
+    </Compile>
+    <Compile Include="SubForm\WatchTaskList.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SubForm\WatchTaskList.Designer.cs">
+      <DependentUpon>WatchTaskList.cs</DependentUpon>
+    </Compile>
+    <Compile Include="SubForm\WatchTaskLogDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SubForm\WatchTaskLogDlg.Designer.cs">
+      <DependentUpon>WatchTaskLogDlg.cs</DependentUpon>
     </Compile>
     <Compile Include="SubForm\WinCreateSelectSpNav.cs">
       <SubType>Form</SubType>
@@ -293,6 +317,9 @@
       <LastGenOutput>Resource1.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </EmbeddedResource>
+    <EmbeddedResource Include="SubForm\AddTaskInfoDlg.resx">
+      <DependentUpon>AddTaskInfoDlg.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="SubForm\CreateEntityNavDlg.resx">
       <DependentUpon>CreateEntityNavDlg.cs</DependentUpon>
     </EmbeddedResource>
@@ -305,11 +332,20 @@
     <EmbeddedResource Include="SubForm\MultiInputDlg.resx">
       <DependentUpon>MultiInputDlg.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="SubForm\PopMessageDlg.resx">
+      <DependentUpon>PopMessageDlg.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="SubForm\SyncDataWin.resx">
       <DependentUpon>SyncDataWin.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="SubForm\TextBoxWin.resx">
       <DependentUpon>TextBoxWin.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SubForm\WatchTaskList.resx">
+      <DependentUpon>WatchTaskList.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SubForm\WatchTaskLogDlg.resx">
+      <DependentUpon>WatchTaskLogDlg.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="SubForm\WinCreateSelectSpNav.resx">
       <DependentUpon>WinCreateSelectSpNav.cs</DependentUpon>

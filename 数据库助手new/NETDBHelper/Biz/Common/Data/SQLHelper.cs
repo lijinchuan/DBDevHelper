@@ -204,6 +204,30 @@ namespace Biz.Common.Data
             }
             
         }
+
+        public static object ExecuteScalar(DBSource dbSource, string connDB, string sql, params SqlParameter[] sqlParams)
+        {
+            var conn = new SqlConnection(GetConnstringFromDBSource(dbSource, connDB));
+            SqlCommand cmd = conn.CreateCommand();
+            cmd.CommandText = sql;
+            cmd.CommandType = CommandType.Text;
+            if (sqlParams != null)
+            {
+                cmd.Parameters.AddRange(sqlParams);
+            }
+            try
+            {
+                conn.Open();
+                return cmd.ExecuteScalar();
+            }
+            finally
+            {
+                if (conn.State == ConnectionState.Open)
+                    conn.Close();
+            }
+
+        }
+
         /// <summary>
         /// 删除表
         /// </summary>
