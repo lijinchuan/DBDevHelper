@@ -16,6 +16,7 @@ namespace NETDBHelper
     public partial class MainFrm : Form
     {
         private static MainFrm Instance = null;
+        private System.Timers.Timer tasktimer = null;
         private void InitFrm()
         {
             this.tsb_Excute.Enabled = false;
@@ -73,6 +74,27 @@ namespace NETDBHelper
         {
             base.OnLoad(e);
             连接对象资源管理器ToolStripMenuItem_Click(null, null);
+            Biz.WatchTask.WatchTaskInfoManage.OnTiggerError += (s, o) =>
+            {
+                this.BeginInvoke(new Action(() => {
+                    Util.PopMsg(s.ID, s.Name, s.ErrorMsg);
+                }));
+            };
+            tasktimer = LJC.FrameWorkV3.Comm.TaskHelper.SetInterval(10000, () =>
+            {
+                Biz.WatchTask.WatchTaskInfoManage.LoopTask();
+                return false;
+            });
+        }
+
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            base.OnClosing(e);
+            if (tasktimer != null)
+            {
+                tasktimer.Stop();
+                tasktimer.Close();
+            }
         }
 
         void TabControl_Selected(object sender, TabControlEventArgs e)
@@ -512,6 +534,11 @@ namespace NETDBHelper
             this.MspPanel.Text = "";
             TSL_ClearMsg.Visible = false;
             this.MspPanel.Spring = false;
+        }
+
+        private void 监控任务ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            new SubForm.WatchTaskList().Show();
         }
     }
 }

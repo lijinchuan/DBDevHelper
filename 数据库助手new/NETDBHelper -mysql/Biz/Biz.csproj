@@ -40,6 +40,9 @@
     <Reference Include="Google.Protobuf, Version=3.6.1.0, Culture=neutral, PublicKeyToken=a7d26565bac4d604, processorArchitecture=MSIL">
       <HintPath>..\packages\Google.Protobuf.3.6.1\lib\net45\Google.Protobuf.dll</HintPath>
     </Reference>
+    <Reference Include="LJC.FrameWorkV3">
+      <HintPath>..\..\Lib\LJC.FrameWorkV3.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.SqlServer.Smo, Version=10.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>C:\Program Files\Microsoft SQL Server\100\SDK\Assemblies\Microsoft.SqlServer.Smo.dll</HintPath>
@@ -87,6 +90,7 @@
     <Compile Include="Common\Data\SQLHelper.cs" />
     <Compile Include="Common\Data\SQLHelperConsts.cs" />
     <Compile Include="UILoadHelper.cs" />
+    <Compile Include="WatchTask\WatchTaskInfoManage.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Entity\Entity.csproj">
