@@ -198,9 +198,9 @@ namespace Biz.WatchTask
                         {
                             BigEntityTableEngine.LocalEngine.Update<WatchTaskInfo>(nameof(WatchTaskInfo), item);
 
-                            if (OnTiggerError != null)
+                            if (haserror && OnTiggerError != null)
                             {
-                                OnTiggerError.BeginInvoke(item, obj,null,null);
+                                OnTiggerError.BeginInvoke(item, obj, null, null);
                             }
                         }
                     }
