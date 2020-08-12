@@ -34,6 +34,8 @@
             this.编辑ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.删除ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.查看日志ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.禁用ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.启用ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.DGV_TaskList)).BeginInit();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -56,6 +58,8 @@
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.添加监控ToolStripMenuItem,
             this.编辑ToolStripMenuItem,
+            this.禁用ToolStripMenuItem,
+            this.启用ToolStripMenuItem,
             this.删除ToolStripMenuItem,
             this.查看日志ToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
@@ -92,6 +96,20 @@
             this.查看日志ToolStripMenuItem.Text = "查看日志";
             this.查看日志ToolStripMenuItem.Click += new System.EventHandler(this.查看日志ToolStripMenuItem_Click);
             // 
+            // 禁用ToolStripMenuItem
+            // 
+            this.禁用ToolStripMenuItem.Name = "禁用ToolStripMenuItem";
+            this.禁用ToolStripMenuItem.Size = new System.Drawing.Size(44, 21);
+            this.禁用ToolStripMenuItem.Text = "禁用";
+            this.禁用ToolStripMenuItem.Click += new System.EventHandler(this.禁用ToolStripMenuItem_Click);
+            // 
+            // 启用ToolStripMenuItem
+            // 
+            this.启用ToolStripMenuItem.Name = "启用ToolStripMenuItem";
+            this.启用ToolStripMenuItem.Size = new System.Drawing.Size(44, 21);
+            this.启用ToolStripMenuItem.Text = "启用";
+            this.启用ToolStripMenuItem.Click += new System.EventHandler(this.启用ToolStripMenuItem_Click);
+            // 
             // WatchTaskList
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -118,5 +136,7 @@
         private System.Windows.Forms.ToolStripMenuItem 编辑ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 删除ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 查看日志ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 禁用ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 启用ToolStripMenuItem;
     }
 }

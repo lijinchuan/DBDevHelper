@@ -22,7 +22,8 @@ namespace NETDBHelper.SubForm
                     数据库 = p.ConnDB,
                     提示名称 = p.Name,
                     提示消息 = p.ErrorMsg,
-                    是否触发监控=p.HasTriggerErr
+                    是否触发监控=p.HasTriggerErr,
+                    启用 = p.IsValid
                 }).ToList();
         }
 
@@ -93,6 +94,54 @@ namespace NETDBHelper.SubForm
                 WatchTaskLogDlg dlg = new WatchTaskLogDlg();
                 dlg.BindLog(taskid);
                 dlg.Show();
+            }
+        }
+
+        private void 禁用ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var man = new Biz.WatchTask.WatchTaskInfoManage();
+            try
+            {
+                var boo = man.FindAndUpdate(int.Parse(DGV_TaskList.CurrentRow.Cells["ID"].Value.ToString()), t =>
+                {
+                    if (!t.IsValid)
+                    {
+                        return false;
+                    }
+                    t.IsValid = false;
+                    return true;
+                });
+                if (boo)
+                    Bind();
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void 启用ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var man = new Biz.WatchTask.WatchTaskInfoManage();
+            try
+            {
+                var boo = man.FindAndUpdate(int.Parse(DGV_TaskList.CurrentRow.Cells["ID"].Value.ToString()), t =>
+                {
+                    if (t.IsValid)
+                    {
+                        return false;
+                    }
+                    t.IsValid = true;
+                    return true;
+                });
+                if (boo)
+                    Bind();
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
             }
         }
     }

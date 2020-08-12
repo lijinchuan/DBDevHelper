@@ -29,6 +29,16 @@ namespace NETDBHelper
             }
         }
 
+
+        public static void ClosePopMsg(int msgid)
+        {
+            PopMessageDlg dlg = null;
+            if (PopDlgDic.TryGetValue(msgid, out dlg))
+            {
+                dlg.Close();
+            }
+        }
+
         public static void PopMsg(int msgid,string title,string content)
         {
             PopMessageDlg dlg = null;

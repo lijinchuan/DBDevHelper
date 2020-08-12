@@ -14,6 +14,7 @@ namespace Biz.WatchTask
         internal static bool StopTaskLoop = false;
 
         public static Action<WatchTaskInfo, object> OnTiggerError = null;
+        public static Action<WatchTaskInfo> OnErrorDisappear = null;
 
         static WatchTaskInfoManage()
         {
@@ -130,6 +131,27 @@ namespace Biz.WatchTask
             return BigEntityTableEngine.LocalEngine.Delete<WatchTaskInfo>(nameof(WatchTaskInfo), req.ID);
         }
 
+        public bool FindAndUpdate(int taskid, Func<WatchTaskInfo, bool> update)
+        {
+            var task = Get(taskid);
+            if (task == null)
+            {
+                throw new Exception("任务不存在");
+            }
+            if (update(task))
+            {
+                if (task.ID != taskid)
+                {
+                    throw new Exception("ID不可修改");
+                }
+                return BigEntityTableEngine.LocalEngine.Update(nameof(WatchTaskInfo), task);
+            }
+            else
+            {
+                return false;
+            }
+        }
+
         public List<WatchTaskLog> GetLogs(int taskid, DateTime start, DateTime end)
         {
             long total = 0;
@@ -190,6 +212,7 @@ namespace Biz.WatchTask
                                 Content = $"触发监控，值为：{obj}"
                             });
                         }
+                        var lasthaserror = item.HasTriggerErr;
                         item.HasTriggerErr = haserror;
                         item.LastSuccessTime = DateTime.Now;
                         if (!StopTaskLoop)
@@ -199,6 +222,10 @@ namespace Biz.WatchTask
                             if (haserror && OnTiggerError != null)
                             {
                                 OnTiggerError.BeginInvoke(item, obj, null, null);
+                            }
+                            else if (lasthaserror && !haserror && OnErrorDisappear != null)
+                            {
+                                OnErrorDisappear.BeginInvoke(item, null, null);
                             }
                         }
                     }

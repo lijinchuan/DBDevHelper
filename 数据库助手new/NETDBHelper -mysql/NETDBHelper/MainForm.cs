@@ -80,6 +80,12 @@ namespace NETDBHelper
                     Util.PopMsg(s.ID, s.Name, s.ErrorMsg);
                 }));
             };
+            Biz.WatchTask.WatchTaskInfoManage.OnErrorDisappear += (s) =>
+            {
+                this.BeginInvoke(new Action(() => {
+                    Util.ClosePopMsg(s.ID);
+                }));
+            };
             tasktimer = LJC.FrameWorkV3.Comm.TaskHelper.SetInterval(10000, () =>
             {
                 Biz.WatchTask.WatchTaskInfoManage.LoopTask();
