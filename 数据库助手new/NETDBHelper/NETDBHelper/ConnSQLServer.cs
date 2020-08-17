@@ -28,6 +28,7 @@ namespace NETDBHelper
         public ConnSQLServer()
         {
             InitializeComponent();
+            this.pictureBox1.BackgroundImageLayout = ImageLayout.Stretch;
             this.pictureBox1.BackgroundImage = Resources.Resource1.SQLSerTop;
 
             this.cb_ServerType.DataSource = Biz.Common.Data.Common.GetSQLServerType().ToList();

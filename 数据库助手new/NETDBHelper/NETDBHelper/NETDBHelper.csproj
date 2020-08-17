@@ -432,6 +432,7 @@
     <Content Include="Resources\msg.png" />
     <None Include="Resources\script_code_no.png" />
     <None Include="Resources\script_code_red_no.png" />
+    <None Include="Resources\SQLSerTop.jpg" />
     <Content Include="Resources\table.png" />
     <Content Include="Resources\tbview.png" />
     <None Include="packages.config" />
@@ -476,7 +477,6 @@
     <Content Include="Resources\shapes_many.png" />
     <None Include="Resources\shapes_many1.png" />
     <None Include="Resources\shapes_many2.png" />
-    <Content Include="Resources\SQLSerTop.jpg" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.0">
