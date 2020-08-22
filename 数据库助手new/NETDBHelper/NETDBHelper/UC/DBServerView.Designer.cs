@@ -75,6 +75,7 @@
             this.CommSubMenuitem_add = new System.Windows.Forms.ToolStripMenuItem();
             this.CommSubMenuItem_Delete = new System.Windows.Forms.ToolStripMenuItem();
             this.TSMI_FilterProc = new System.Windows.Forms.ToolStripMenuItem();
+            this.表关系图ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.DBServerviewContextMenuStrip.SuspendLayout();
             this.toolStrip1.SuspendLayout();
             this.CommMenuStrip.SuspendLayout();
@@ -107,6 +108,7 @@
             this.生成实体类ToolStripMenuItem,
             this.显示前100条数据ToolStripMenuItem,
             this.生成数据字典ToolStripMenuItem,
+            this.表关系图ToolStripMenuItem,
             this.复制表名ToolStripMenuItem,
             this.备注ToolStripMenuItem,
             this.清理备注ToolStripMenuItem,
@@ -119,7 +121,7 @@
             this.修改表名ToolStripMenuItem,
             this.删除表ToolStripMenuItem});
             this.DBServerviewContextMenuStrip.Name = "DBServerviewContextMenuStrip";
-            this.DBServerviewContextMenuStrip.Size = new System.Drawing.Size(181, 318);
+            this.DBServerviewContextMenuStrip.Size = new System.Drawing.Size(181, 340);
             // 
             // 生成实体类ToolStripMenuItem
             // 
@@ -432,6 +434,13 @@
             this.TSMI_FilterProc.Size = new System.Drawing.Size(160, 22);
             this.TSMI_FilterProc.Text = "筛选存储过程";
             // 
+            // 表关系图ToolStripMenuItem
+            // 
+            this.表关系图ToolStripMenuItem.Name = "表关系图ToolStripMenuItem";
+            this.表关系图ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.表关系图ToolStripMenuItem.Text = "表关系图";
+            this.表关系图ToolStripMenuItem.Click += new System.EventHandler(this.表关系图ToolStripMenuItem_Click);
+            // 
             // DBServerView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -501,5 +510,6 @@
         private System.Windows.Forms.ToolStripMenuItem TSMI_ViewColumnList;
         private System.Windows.Forms.ToolStripMenuItem TSMI_FilterProc;
         private System.Windows.Forms.ToolStripMenuItem 清理备注ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 表关系图ToolStripMenuItem;
     }
 }

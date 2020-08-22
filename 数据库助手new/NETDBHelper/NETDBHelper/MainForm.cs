@@ -37,7 +37,9 @@ namespace NETDBHelper
             this.dbServerView1.OnFilterProc += this.FilterProc;
             this.dbServerView1.OnExecutSql += this.ExecutSql;
             this.dbServerView1.OnShowViewSql += this.ShowViewSql;
-            
+            this.dbServerView1.OnShowRelMap += this.ShowRelMap;
+
+
             this.TabControl.Selected += new TabControlEventHandler(TabControl_Selected);
 
             this.TSCBServer.ForeColor = Color.HotPink;
@@ -555,6 +557,24 @@ namespace NETDBHelper
             UC.SQLCodePanel panel = new SQLCodePanel();
             panel.ToolTipText = tip;
             panel.SetCode(dbname, sql);
+            panel.Text = title;
+            this.TabControl.TabPages.Add(panel);
+            this.TabControl.SelectedTab = panel;
+        }
+
+        private void ShowRelMap(DBSource dbSource,string dbname)
+        {
+            var title = $"表关系图{dbname}.";
+            foreach (TabPage page in this.TabControl.TabPages)
+            {
+                if (page.Text == title)
+                {
+                    TabControl.SelectedTab = page;
+                    return;
+                }
+            }
+
+            UC.UCTableRelMap panel = new UCTableRelMap(dbSource, dbname);
             panel.Text = title;
             this.TabControl.TabPages.Add(panel);
             this.TabControl.SelectedTab = panel;
