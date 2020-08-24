@@ -12,6 +12,7 @@ using Biz.Common.Data;
 using NPOI.SS.Formula.Functions;
 using NETDBHelper.Drawing;
 using System.Drawing.Printing;
+using System.Drawing.Drawing2D;
 
 namespace NETDBHelper.UC
 {
@@ -101,10 +102,17 @@ namespace NETDBHelper.UC
                                 {
                                     using (var g = this.Parent.CreateGraphics())
                                     {
-                                        using (var p = new Pen(this.Parent.BackColor, 1))
+                                        g.SmoothingMode = SmoothingMode.AntiAlias;
+                                        using (var p = new Pen(this.Parent.BackColor, 2))
                                         {
+                                            //p.StartCap = LineCap.Round;
                                             for (int i = 1; i <= points.Count - 1; i++)
                                             {
+                                                if (i == points.Count - 1)
+                                                {
+                                                    AdjustableArrowCap arrowCap = new AdjustableArrowCap(p.Width * 2 + 1, p.Width + 2 + 1, true);
+                                                    p.CustomEndCap = arrowCap;
+                                                }
                                                 g.DrawLine(p, points[i - 1], points[i]);
                                                 //g.DrawPie(p, new RectangleF(points[i], new SizeF(5, 5)), 0, 360);
                                             }
@@ -119,10 +127,17 @@ namespace NETDBHelper.UC
 
                                 using (var g = this.Parent.CreateGraphics())
                                 {
-                                    using (var p = new Pen(Color.Gray, 1))
+                                    using (var p = new Pen(Color.Gray, 2))
                                     {
-                                        for(int i = 1; i <= points.Count - 1; i++)
+                                        //p.StartCap = LineCap.Round;
+                                        g.SmoothingMode = SmoothingMode.AntiAlias;
+                                        for (int i = 1; i <= points.Count - 1; i++)
                                         {
+                                            if (i == points.Count - 1)
+                                            {
+                                                AdjustableArrowCap arrowCap = new AdjustableArrowCap(p.Width * 2 + 1, p.Width + 2 + 1, true);
+                                                p.CustomEndCap = arrowCap;
+                                            }
                                             g.DrawLine(p, points[i - 1], points[i]);
                                             //g.DrawPie(p, new RectangleF(points[i], new SizeF(5, 5)), 0, 360);
                                         }
