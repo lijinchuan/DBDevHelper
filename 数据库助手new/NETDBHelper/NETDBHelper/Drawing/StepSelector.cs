@@ -419,14 +419,14 @@ namespace NETDBHelper.Drawing
                 }
 
                 //继续整合，将线条撸直
+                var prestep = steparray.First();
                 for (var i = 1; i < steparray.Length; i++)
                 {
-                    if (steparray[i].chooseDirection == steparray[i - 1].chooseDirection)
+                    if (steparray[i].chooseDirection == prestep.chooseDirection)
                     {
                         continue;
                     }
 
-                    var prestep = steparray[i - 1];
                     for (int j = i + 1; j < steparray.Length; j++)
                     {
                         if (steparray[j].chooseDirection == prestep.chooseDirection)
@@ -438,9 +438,9 @@ namespace NETDBHelper.Drawing
                                     Step joinstep = new Step();
                                     if (prestep.chooseDirection == StepDirection.left || prestep.chooseDirection == StepDirection.right)
                                     {
-                                        joinstep.Pos = new Point(steparray[k].Pos.X, prestep.Pos.Y);
+                                        joinstep.Pos = new Point(steparray[k].Pos.X, steparray[i - 1].Pos.Y);
 
-                                        if (prestep.Pos.X < steparray[k].Pos.X)
+                                        if (steparray[i - 1].Pos.X < steparray[k].Pos.X)
                                         {
                                             joinstep.chooseDirection = StepDirection.right;
                                         }
@@ -451,7 +451,9 @@ namespace NETDBHelper.Drawing
                                     }
                                     else
                                     {
-                                        if (prestep.Pos.Y < steparray[k].Pos.Y)
+                                        joinstep.Pos = new Point(steparray[i - 1].Pos.X, steparray[k].Pos.Y);
+
+                                        if (steparray[i - 1].Pos.Y < steparray[k].Pos.Y)
                                         {
                                             joinstep.chooseDirection = StepDirection.down;
                                         }
@@ -462,7 +464,7 @@ namespace NETDBHelper.Drawing
 
                                     }
 
-                                    if (!checkStepHasConflict(prestep.Pos, joinstep.Pos, true)
+                                    if (!checkStepHasConflict(steparray[i - 1].Pos, joinstep.Pos, true)
                                             && !checkStepHasConflict(joinstep.Pos, steparray[k].Pos, true))
                                     {
                                         List<Step> list = new List<Step>();
@@ -476,17 +478,16 @@ namespace NETDBHelper.Drawing
                                         {
                                             list.Add(steparray[m]);
                                         }
-                                        prestep = steparray[k];
+                                        
                                         steparray = list.ToArray();
-                                        goto next;
+                                        
                                     }
                                 }
                             }
                         }
                     }
 
-                next:
-                    continue;
+                    prestep = steparray[i];
                 }
 
 
@@ -550,17 +551,16 @@ namespace NETDBHelper.Drawing
                                             {
                                                 list.Add(steparray[m]);
                                             }
-                                            preDirection = steparray[k].chooseDirection;
+
                                             steparray = list.ToArray();
-                                            goto next;
                                         }
                                     }
                                 }
                             }
                         }
                     }
-                next:
-                    continue;
+
+                    preDirection = steparray[i].chooseDirection;
                 }
 
 
