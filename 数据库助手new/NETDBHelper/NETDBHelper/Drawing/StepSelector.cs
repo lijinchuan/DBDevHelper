@@ -1,7 +1,9 @@
 ﻿using NPOI.SS.Formula.Functions;
+using NPOI.Util;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data.SqlTypes;
 using System.Drawing;
 using System.Linq;
 using System.Security.Cryptography;
@@ -14,18 +16,22 @@ namespace NETDBHelper.Drawing
     {
         private Stack<Step> steps = new Stack<Step>();
         private static int defaultStepLen = 5;
-        private Func<Step, Step, bool> checkStepHasConflict = null;
+        private Func<Point, Point,bool, bool> checkStepHasConflict = null;
 
-        private Point startPoint,destPoint;
-        private StepDirection fstDirection;
+        private Point startPoint, secDestPoint,destPoint;
+        private StepDirection destDirection;
+        private StepDirection firstDirection;
 
-        public StepSelector(Point start,Point dest, Func<Step, Step, bool> funcCheckStep, StepDirection firstDirection=StepDirection.none)
+        public StepSelector(Point start,Point dest, Func<Point, Point,bool, bool> funcCheckStep, 
+            StepDirection _firstDirection=StepDirection.none,
+            StepDirection _destDirection = StepDirection.none)
         {
             startPoint = start;
             destPoint = dest;
-            fstDirection = firstDirection;
+            firstDirection = _firstDirection;
 
             checkStepHasConflict = funcCheckStep;
+            destDirection = _destDirection;
         }
 
         private void Pepare()
@@ -34,9 +40,51 @@ namespace NETDBHelper.Drawing
             var step = new Step
             {
                 Pos = startPoint,
-                chooseDirection = fstDirection
+                chooseDirection = firstDirection
             };
             steps.Push(step);
+
+            if (destDirection != StepDirection.none)
+            {
+                switch (destDirection)
+                {
+                    case StepDirection.left:
+                        {
+                            secDestPoint = new Point(destPoint.X + 30, destPoint.Y);
+                            while (secDestPoint.X>destPoint.X)
+                            {
+                                if (!checkStepHasConflict(secDestPoint, destPoint,false))
+                                {
+                                    break;
+                                }
+                                secDestPoint.X -= 3;
+                            }
+                            break;
+                        }
+                    case StepDirection.right:
+                        {
+                            secDestPoint = new Point(destPoint.X - 30, destPoint.Y);
+                            while (secDestPoint.X < destPoint.X)
+                            {
+                                if (!checkStepHasConflict(secDestPoint, destPoint,false))
+                                {
+                                    break;
+                                }
+                                secDestPoint.X += 3;
+                            }
+                            break;
+                        }
+                    default:
+                        {
+                            secDestPoint = destPoint;
+                            break;
+                        }
+                }
+            }
+            else
+            {
+                secDestPoint = destPoint;
+            }
         }
 
         private bool ChooseDirection(Step current)
@@ -52,79 +100,79 @@ namespace NETDBHelper.Drawing
             }
 
             var seldirect = StepDirection.none;
-            if (destPoint.X == current.Pos.X && destPoint.Y == current.Pos.Y)
+            if (secDestPoint.X == current.Pos.X && secDestPoint.Y == current.Pos.Y)
             {
                 seldirect = StepDirection.same;
             }
             #region 基本转向
-            else if (destPoint.X > current.Pos.X && current.Directions.Contains(StepDirection.right))
+            else if (secDestPoint.X > current.Pos.X && current.Directions.Contains(StepDirection.right))
             {
                 seldirect = StepDirection.right;
             }
-            else if (destPoint.X < current.Pos.X && current.Directions.Contains(StepDirection.left))
+            else if (secDestPoint.X < current.Pos.X && current.Directions.Contains(StepDirection.left))
             {
                 seldirect = StepDirection.left;
             }
-            else if (destPoint.Y > current.Pos.Y && current.Directions.Contains(StepDirection.down))
+            else if (secDestPoint.Y > current.Pos.Y && current.Directions.Contains(StepDirection.down))
             {
                 seldirect = StepDirection.down;
             }
-            else if (destPoint.Y < current.Pos.Y && current.Directions.Contains(StepDirection.up))
+            else if (secDestPoint.Y < current.Pos.Y && current.Directions.Contains(StepDirection.up))
             {
                 seldirect = StepDirection.up;
             }
             #endregion
             #region 右转时优先上下方向 ，防止左转
-            else if (destPoint.X > current.Pos.X && (current.Directions.Contains(StepDirection.up)
+            else if (secDestPoint.X > current.Pos.X && (current.Directions.Contains(StepDirection.up)
                 || current.Directions.Contains(StepDirection.down)))
             {
-                if (destPoint.Y > current.Pos.Y && current.Directions.Contains(StepDirection.down))
+                if (secDestPoint.Y > current.Pos.Y && current.Directions.Contains(StepDirection.down))
                 {
                     seldirect = StepDirection.down;
                 }
-                else if (destPoint.Y < current.Pos.Y && current.Directions.Contains(StepDirection.up))
+                else if (secDestPoint.Y < current.Pos.Y && current.Directions.Contains(StepDirection.up))
                 {
                     seldirect = StepDirection.up;
                 }
             }
             #endregion
             #region 左转优先上下，防止右转
-            else if (destPoint.X < current.Pos.X && (current.Directions.Contains(StepDirection.down)
+            else if (secDestPoint.X < current.Pos.X && (current.Directions.Contains(StepDirection.down)
                 || current.Directions.Contains(StepDirection.up)))
             {
-                if (destPoint.Y > current.Pos.Y && current.Directions.Contains(StepDirection.down))
+                if (secDestPoint.Y > current.Pos.Y && current.Directions.Contains(StepDirection.down))
                 {
                     seldirect = StepDirection.down;
                 }
-                else if (destPoint.Y < current.Pos.Y && current.Directions.Contains(StepDirection.up))
+                else if (secDestPoint.Y < current.Pos.Y && current.Directions.Contains(StepDirection.up))
                 {
                     seldirect = StepDirection.up;
                 }
             }
             #endregion
             #region 下转防止向上
-            else if (destPoint.Y > current.Pos.Y && (current.Directions.Contains(StepDirection.left)
+            else if (secDestPoint.Y > current.Pos.Y && (current.Directions.Contains(StepDirection.left)
                 || current.Directions.Contains(StepDirection.right)))
             {
-                if (destPoint.X < current.Pos.X && current.Directions.Contains(StepDirection.left))
+                if (secDestPoint.X < current.Pos.X && current.Directions.Contains(StepDirection.left))
                 {
                     seldirect = StepDirection.left;
                 }
-                else if (destPoint.X > current.Pos.X && current.Directions.Contains(StepDirection.right))
+                else if (secDestPoint.X > current.Pos.X && current.Directions.Contains(StepDirection.right))
                 {
                     seldirect = StepDirection.right;
                 }
             }
             #endregion
             #region  上转防止向下
-            else if (destPoint.Y < current.Pos.Y && (current.Directions.Contains(StepDirection.left)
+            else if (secDestPoint.Y < current.Pos.Y && (current.Directions.Contains(StepDirection.left)
                 || current.Directions.Contains(StepDirection.right)))
             {
-                if (destPoint.X < current.Pos.X && current.Directions.Contains(StepDirection.left))
+                if (secDestPoint.X < current.Pos.X && current.Directions.Contains(StepDirection.left))
                 {
                     seldirect = StepDirection.left;
                 }
-                else if (destPoint.X > current.Pos.X && current.Directions.Contains(StepDirection.right))
+                else if (secDestPoint.X > current.Pos.X && current.Directions.Contains(StepDirection.right))
                 {
                     seldirect = StepDirection.right;
                 }
@@ -181,7 +229,7 @@ namespace NETDBHelper.Drawing
                     case StepDirection.left:
                         {
                             nextstep.Directions.Remove(StepDirection.right);
-                            var offsetx = nextstep.Pos.X - destPoint.X;
+                            var offsetx = nextstep.Pos.X - secDestPoint.X;
                             if (offsetx > 0 && offsetx < stepLen)
                             {
                                 stepLen = offsetx;
@@ -192,7 +240,7 @@ namespace NETDBHelper.Drawing
                     case StepDirection.right:
                         {
                             nextstep.Directions.Remove(StepDirection.left);
-                            var offsetx = destPoint.X - nextstep.Pos.X;
+                            var offsetx = secDestPoint.X - nextstep.Pos.X;
                             if (offsetx > 0 && offsetx < stepLen)
                             {
                                 stepLen = offsetx;
@@ -203,7 +251,7 @@ namespace NETDBHelper.Drawing
                     case StepDirection.up:
                         {
                             nextstep.Directions.Remove(StepDirection.down);
-                            var offsety = nextstep.Pos.Y - destPoint.Y;
+                            var offsety = nextstep.Pos.Y - secDestPoint.Y;
                             if (offsety > 0 && offsety < stepLen)
                             {
                                 stepLen = offsety;
@@ -214,7 +262,7 @@ namespace NETDBHelper.Drawing
                     case StepDirection.down:
                         {
                             nextstep.Directions.Remove(StepDirection.up);
-                            var offsety = destPoint.Y - nextstep.Pos.Y;
+                            var offsety = secDestPoint.Y - nextstep.Pos.Y;
                             if (offsety > 0 && offsety < stepLen)
                             {
                                 stepLen = offsety;
@@ -224,15 +272,13 @@ namespace NETDBHelper.Drawing
                         }
                 }
 
-                if (nextstep.Pos.X > 0 && nextstep.Pos.Y > 0 && (!checkStepHasConflict(currstep, nextstep)
+                if (nextstep.Pos.X > 0 && nextstep.Pos.Y > 0 && (!checkStepHasConflict(currstep.Pos, nextstep.Pos,true)
                     || (Math.Abs(nextstep.Pos.X - startPoint.X) <= 0 && Math.Abs(nextstep.Pos.Y - startPoint.Y) <= 30)
                     || (Math.Abs(nextstep.Pos.X - startPoint.X) <= 30 && Math.Abs(nextstep.Pos.Y - startPoint.Y) <= 0)
-                    || (Math.Abs(nextstep.Pos.X - destPoint.X)<=0 && Math.Abs(nextstep.Pos.Y - destPoint.Y)<=30)
-                    || (Math.Abs(nextstep.Pos.X - destPoint.X) <= 30 && Math.Abs(nextstep.Pos.Y - destPoint.Y) <= 0)))
+                    || (Math.Abs(nextstep.Pos.X - secDestPoint.X)<=0 && Math.Abs(nextstep.Pos.Y - secDestPoint.Y)<=30)
+                    || (Math.Abs(nextstep.Pos.X - secDestPoint.X) <= 30 && Math.Abs(nextstep.Pos.Y - secDestPoint.Y) <= 0)))
                 {
                     steps.Push(nextstep);
-                    //if (nextstep.Pos.X != destPoint.X && nextstep.Pos.Y != destPoint.Y)
-                     //   nextstep.chooseDirection = currstep.chooseDirection;
                 }
                 else
                 {
@@ -274,13 +320,50 @@ namespace NETDBHelper.Drawing
 
             List<Point> result = steplist.Select(p => p.Pos).ToList();
             result = CutResult(result);
+
+            if (secDestPoint.X != destPoint.X)
+            {
+                result.Add(destPoint);
+            }
+
             return result;
+        }
+
+        private StepDirection GetOpDirection(StepDirection direction)
+        {
+            var opDirection = StepDirection.none;
+            switch (direction)
+            {
+                case StepDirection.left:
+                    {
+                        opDirection = StepDirection.right;
+                        break;
+                    }
+                case StepDirection.right:
+                    {
+                        opDirection = StepDirection.left;
+                        break;
+                    }
+                case StepDirection.up:
+                    {
+                        opDirection = StepDirection.down;
+                        break;
+                    }
+                case StepDirection.down:
+                    {
+                        opDirection = StepDirection.up;
+                        break;
+                    }
+            }
+
+            return opDirection;
         }
 
         private List<Step> CutSteps(List<Step> steps)
         {
             if (steps.Count > 1)
             {
+                //去掉有回路的情况
                 var d = steps.First().chooseDirection;
                 var steparray = steps.ToArray();
                 for (int i = 1; i < steparray.Length; i++)
@@ -292,27 +375,11 @@ namespace NETDBHelper.Drawing
                     if (i < steparray.Length - 2)
                     {
                         var nextstep = steparray[i + 1];
-                        StepDirection opdirection = StepDirection.none;
-                        if (nextstep.chooseDirection == StepDirection.left)
-                        {
-                            opdirection = StepDirection.right;
-                        }
-                        if (nextstep.chooseDirection == StepDirection.right)
-                        {
-                            opdirection = StepDirection.left;
-                        }
-                        if (nextstep.chooseDirection == StepDirection.up)
-                        {
-                            opdirection = StepDirection.down;
-                        }
-                        if (nextstep.chooseDirection == StepDirection.down)
-                        {
-                            opdirection = StepDirection.up;
-                        }
+                        StepDirection opdirection = GetOpDirection(nextstep.chooseDirection);
                         for (var j = i + 2; j < steparray.Length; j++)
                         {
                             if (steparray[j].chooseDirection == opdirection
-                                && ((steparray[j].Pos.X == nextstep.Pos.X && Math.Abs(steparray[j].Pos.Y - nextstep.Pos.Y) <= 5)
+                                &&((steparray[j].Pos.X == nextstep.Pos.X && Math.Abs(steparray[j].Pos.Y - nextstep.Pos.Y) <= 5)
                                 || (steparray[j].Pos.Y == nextstep.Pos.Y && Math.Abs(steparray[j].Pos.X - nextstep.Pos.X) <= 5)))
                             {
                                 int k = -1;
@@ -320,7 +387,7 @@ namespace NETDBHelper.Drawing
                                 steparray = steps.Where(p =>
                                 {
                                     k++;
-                                    return k <= i || k > j;
+                                    return k <= i || k > j + 1;
                                 }).ToArray();
 
                             }
@@ -328,6 +395,7 @@ namespace NETDBHelper.Drawing
                     }
                 }
 
+                //相同方向的点只取第一个点和最后一个点，大大减少点数，提高绘图效率
                 List<Step> steps2 = new List<Step>();
                 steps2.Add(steparray[0]);
                 for (int i = 1; i < steparray.Length - 1; i++)
@@ -350,6 +418,152 @@ namespace NETDBHelper.Drawing
                     steparray = steps2.ToArray();
                 }
 
+                //继续整合，将线条撸直
+                for (var i = 1; i < steparray.Length; i++)
+                {
+                    if (steparray[i].chooseDirection == steparray[i - 1].chooseDirection)
+                    {
+                        continue;
+                    }
+
+                    var prestep = steparray[i - 1];
+                    for (int j = i + 1; j < steparray.Length; j++)
+                    {
+                        if (steparray[j].chooseDirection == prestep.chooseDirection)
+                        {
+                            for (int k = j + 1; k < steparray.Length; k++)
+                            {
+                                if (steparray[k].chooseDirection != prestep.chooseDirection)
+                                {
+                                    Step joinstep = new Step();
+                                    if (prestep.chooseDirection == StepDirection.left || prestep.chooseDirection == StepDirection.right)
+                                    {
+                                        joinstep.Pos = new Point(steparray[k].Pos.X, prestep.Pos.Y);
+
+                                        if (prestep.Pos.X < steparray[k].Pos.X)
+                                        {
+                                            joinstep.chooseDirection = StepDirection.right;
+                                        }
+                                        else
+                                        {
+                                            joinstep.chooseDirection = StepDirection.left;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (prestep.Pos.Y < steparray[k].Pos.Y)
+                                        {
+                                            joinstep.chooseDirection = StepDirection.down;
+                                        }
+                                        else
+                                        {
+                                            joinstep.chooseDirection = StepDirection.up;
+                                        }
+
+                                    }
+
+                                    if (!checkStepHasConflict(prestep.Pos, joinstep.Pos, true)
+                                            && !checkStepHasConflict(joinstep.Pos, steparray[k].Pos, true))
+                                    {
+                                        List<Step> list = new List<Step>();
+                                        for (var m = 0; m < i; m++)
+                                        {
+                                            list.Add(steparray[m]);
+                                        }
+                                        list.Add(joinstep);
+
+                                        for (var m = k; m < steparray.Length; m++)
+                                        {
+                                            list.Add(steparray[m]);
+                                        }
+                                        prestep = steparray[k];
+                                        steparray = list.ToArray();
+                                        goto next;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                next:
+                    continue;
+                }
+
+
+                var preDirection = steparray.First().chooseDirection;
+                for (var i = 1; i < steparray.Length; i++)
+                {
+                    if (steparray[i].chooseDirection == preDirection)
+                    {
+                        continue;
+                    }
+                    if (steparray[i].chooseDirection != preDirection)
+                    {
+                        var opDirection = GetOpDirection(preDirection);
+                        if (opDirection == StepDirection.none)
+                        {
+                            continue;
+                        }
+                        for (var j = i + 1; j < steparray.Length; j++)
+                        {
+                            if (steparray[j].chooseDirection == opDirection)
+                            {
+                                for (var k = j + 1; k < steparray.Length; k++)
+                                {
+                                    if (steparray[k].chooseDirection != opDirection)
+                                    {
+                                        Step joinstep = new Step();
+                                        if (preDirection == StepDirection.left || preDirection == StepDirection.right)
+                                        {
+                                            joinstep.Pos = new Point(steparray[k].Pos.X, steparray[i].Pos.Y);
+                                            if (steparray[i].Pos.Y < steparray[k].Pos.Y)
+                                            {
+                                                joinstep.chooseDirection = StepDirection.down;
+                                            }
+                                            else
+                                            {
+                                                joinstep.chooseDirection = StepDirection.up;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            joinstep.Pos = new Point(steparray[i].Pos.X, steparray[k].Pos.Y);
+                                            if (steparray[i].Pos.X < steparray[k].Pos.X)
+                                            {
+                                                joinstep.chooseDirection = StepDirection.right;
+                                            }
+                                            else
+                                            {
+                                                joinstep.chooseDirection = StepDirection.left;
+                                            }
+                                        }
+
+                                        if (!checkStepHasConflict(steparray[i - 1].Pos, joinstep.Pos, true) && !checkStepHasConflict(joinstep.Pos, steparray[k].Pos, true))
+                                        {
+                                            var list = new List<Step>();
+                                            for (var m = 0; m < i - 1; m++)
+                                            {
+                                                list.Add(steparray[m]);
+                                            }
+                                            list.Add(joinstep);
+                                            for (var m = k; m < steparray.Length; m++)
+                                            {
+                                                list.Add(steparray[m]);
+                                            }
+                                            preDirection = steparray[k].chooseDirection;
+                                            steparray = list.ToArray();
+                                            goto next;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                next:
+                    continue;
+                }
+
+
                 if (steparray.Length != steps.Count)
                 {
                     steps = steparray.ToList();
@@ -361,44 +575,44 @@ namespace NETDBHelper.Drawing
 
         private List<Point> CutResult(List<Point> points)
         {
-            if (points.Count > 0)
-            {
-                var gp = points.GroupBy(p => p);
-                int minfirst = points.Count, maxlast = -1;
-                foreach (var kv in gp.Where(p => p.Count() > 1))
-                {
-                    int first = 0, last = 0;
-                    for (int i = 0; i < points.Count; i++)
-                    {
-                        if (points[i].X == kv.Key.X && points[i].Y == kv.Key.Y)
-                        {
-                            if (first == 0)
-                            {
-                                first = i;
-                            }
-                            else
-                            {
-                                last = i;
-                            }
-                        }
-                    }
-                    if (first <= minfirst && last >= maxlast)
-                    {
-                        minfirst = first;
-                        maxlast = last;
-                    }
-                }
+            //if (points.Count > 0)
+            //{
+            //    var gp = points.GroupBy(p => p);
+            //    int minfirst = points.Count, maxlast = -1;
+            //    foreach (var kv in gp.Where(p => p.Count() > 1))
+            //    {
+            //        int first = 0, last = 0;
+            //        for (int i = 0; i < points.Count; i++)
+            //        {
+            //            if (points[i].X == kv.Key.X && points[i].Y == kv.Key.Y)
+            //            {
+            //                if (first == 0)
+            //                {
+            //                    first = i;
+            //                }
+            //                else
+            //                {
+            //                    last = i;
+            //                }
+            //            }
+            //        }
+            //        if (first <= minfirst && last >= maxlast)
+            //        {
+            //            minfirst = first;
+            //            maxlast = last;
+            //        }
+            //    }
 
-                if (maxlast > minfirst)
-                {
-                    int i = -1;
-                    points = points.Where(p =>
-                    {
-                        i++;
-                        return i <= minfirst || i > maxlast;
-                    }).ToList();
-                }
-            }
+            //    if (maxlast > minfirst)
+            //    {
+            //        int i = -1;
+            //        points = points.Where(p =>
+            //        {
+            //            i++;
+            //            return i <= minfirst || i > maxlast;
+            //        }).ToList();
+            //    }
+            //}
             return points;
         }
     }

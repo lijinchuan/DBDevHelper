@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using Entity;
 using Biz.Common.Data;
 using LJC.FrameWorkV3.Comm;
+using NETDBHelper.Drawing;
 
 namespace NETDBHelper.UC
 {
@@ -134,18 +135,35 @@ namespace NETDBHelper.UC
                   }
                   return lzTableList.Value.Where(p => !list.Contains(p)).ToList();
               }, v => { v.Location = location; AdjustLoaction(v); },
-              (step1,step2)=>
+              (p1,p2,b)=>
               {
-                  
-                  if (!this.ClientRectangle.Contains(step1.Pos) || !this.ClientRectangle.Contains(step2.Pos))
+
+                  if (!this.Bounds.Contains(p1) || !this.Bounds.Contains(p2))
                   {
                       return true;
                   }
+
+                  var line = new Line(p1, p2);
+
+                  var boo =b&& DrawingUtil.HasIntersect(ClientRectangle, line);
+                  if (boo)
+                  {
+                      return true;
+                  }
+
+
                   foreach (var tb in ucTableViews)
                   {
                       var rect = tb.Bounds;
                       var newrect = rect;//new Rectangle(rect.X - 15, rect.Y - 15, rect.Width + 30, rect.Height + 30);
-                      if (newrect.Contains(step1.Pos) || newrect.Contains(step2.Pos))
+
+                      if (newrect.Contains(p1) || newrect.Contains(p2))
+                      {
+                          return true;
+                      }
+
+                      boo = b&&DrawingUtil.HasIntersect(newrect, line);
+                      if (boo)
                       {
                           return true;
                       }

@@ -29,7 +29,7 @@ namespace NETDBHelper.UC
         private Point TitleDragStart = Point.Empty;
         private Point TitleDragEnd = Point.Empty;
 
-        private Func<Step, Step, bool> onCheckConflict;
+        private Func<Point, Point,bool, bool> onCheckConflict;
 
         public UCTableView()
         {
@@ -37,7 +37,7 @@ namespace NETDBHelper.UC
         }
 
         public UCTableView(DBSource dbSource, string dbname, string tbname, Func<List<string>> funcLoadTables, Action<UCTableView> onComplete,
-            Func<Step,Step,bool> checkConflict)
+            Func<Point,Point,bool,bool> checkConflict)
         {
             InitializeComponent();
             this.AutoSize = true;
@@ -113,9 +113,9 @@ namespace NETDBHelper.UC
                                 }
 
                                 //处理
-                                Point start = this.Parent.PointToClient(this.DGVColumns.PointToScreen(new Point(pic.Location.X + 20, pic.Location.Y)));
+                                Point start = this.Parent.PointToClient(this.DGVColumns.PointToScreen(new Point(pic.Location.X, pic.Location.Y)));
                                 Point dest = this.Parent.PointToClient(pic.PointToScreen(dragEnd));
-                                points = new StepSelector(start, dest, (s1, s2) => onCheckConflict(s1, s2)).Select();
+                                points = new StepSelector(start, dest, (s1, s2,b) => onCheckConflict(s1, s2,b), _destDirection: StepDirection.right).Select();
 
                                 using (var g = this.Parent.CreateGraphics())
                                 {

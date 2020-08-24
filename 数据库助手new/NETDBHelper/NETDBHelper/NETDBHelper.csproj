@@ -108,6 +108,8 @@
     <Compile Include="ConnSQLServer.Designer.cs">
       <DependentUpon>ConnSQLServer.cs</DependentUpon>
     </Compile>
+    <Compile Include="Drawing\DrawingUtil.cs" />
+    <Compile Include="Drawing\Line.cs" />
     <Compile Include="Drawing\Step.cs" />
     <Compile Include="Drawing\StepDirection.cs" />
     <Compile Include="Drawing\StepSelector.cs" />
