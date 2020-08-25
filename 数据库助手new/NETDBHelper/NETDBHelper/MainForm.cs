@@ -562,9 +562,9 @@ namespace NETDBHelper
             this.TabControl.SelectedTab = panel;
         }
 
-        private void ShowRelMap(DBSource dbSource,string dbname)
+        private void ShowRelMap(DBSource dbSource,string dbname,string tbname)
         {
-            var title = $"表关系图{dbname}.";
+            var title = $"表关系图{dbname}.{tbname}";
             foreach (TabPage page in this.TabControl.TabPages)
             {
                 if (page.Text == title)
@@ -574,7 +574,7 @@ namespace NETDBHelper
                 }
             }
 
-            UC.UCTableRelMap panel = new UCTableRelMap(dbSource, dbname);
+            UC.UCTableRelMap panel = new UCTableRelMap(dbSource, dbname,tbname);
             panel.Text = title;
             this.TabControl.TabPages.Add(panel);
             this.TabControl.SelectedTab = panel;

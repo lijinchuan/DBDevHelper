@@ -55,6 +55,7 @@
     <Compile Include="MarkObjectInfo.cs" />
     <Compile Include="MSSQLTypeEnum.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RelTable.cs" />
     <Compile Include="SPContent.cs" />
     <Compile Include="SPInfo.cs" />
     <Compile Include="SqlSaveEntity.cs" />

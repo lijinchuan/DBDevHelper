@@ -49,20 +49,24 @@ namespace NETDBHelper.UC
 
             DBSource = dbSource;
             DBName = dbname;
-            TBName = tbname;
 
             this.CBTables.SelectedIndexChanged += CBTables_SelectedIndexChanged;
+            this.FunLoadTables = funcLoadTables;
+            CBTables.DataSource = FunLoadTables();
+            TBName = tbname;
+            
             this.DGVColumns.BindingContextChanged += DGVColumns_BindingContextChanged;
             this.DGVColumns.DataBindingComplete += DGVColumns_DataBindingComplete;
             this.DGVColumns.CellClick += DGVColumns_CellClick;
 
-            this.FunLoadTables = funcLoadTables;
+            
 
             this.OnComplete = onComplete;
             this.BackColor = LBTabname.BackColor = Color.LightBlue;
             LBTabname.AutoSize = false;
             LBTabname.Height = 24;
             LBTabname.ForeColor = Color.Blue;
+            LBTabname.Text = tbname;
             this.BorderStyle = BorderStyle.FixedSingle;
             onCheckConflict = checkConflict;
 
@@ -217,14 +221,17 @@ namespace NETDBHelper.UC
         {
             if (CBTables.SelectedIndex != 1)
             {
+                CBTables.Visible = false;
+                LBTabname.Text = CBTables.Text;
+                LBTabname.Visible = true;
+                this.TBName = CBTables.Text;
+
                 var columns = SQLHelper.GetColumns(DBSource, DBName, CBTables.SelectedItem.ToString()).ToList();
                 DGVColumns.DataSource = columns.Select(p => new
                 {
                     p.Name
                 }).ToList();
-                CBTables.Visible = false;
-                LBTabname.Text = CBTables.Text;
-                LBTabname.Visible = true;
+                
                 InitLocLayout();
             }
         }
@@ -233,7 +240,7 @@ namespace NETDBHelper.UC
         {
             get
             {
-                return this.CBTables.SelectedItem.ToString();
+                return this.TBName;
             }
         }
 
@@ -242,16 +249,9 @@ namespace NETDBHelper.UC
             base.OnLoad(e);
             if (DBSource != null && DBName != null)
             {
-                if (FunLoadTables == null)
+                if (!string.IsNullOrWhiteSpace(TBName))
                 {
-                    var tbs = SQLHelper.GetTBs(DBSource, DBName);
-                    List<string> tablelist = new List<string>();
-                    tablelist.AddRange(tbs.AsEnumerable().Select(p => p.Field<string>("name")));
-                    CBTables.DataSource = tablelist;
-                }
-                else
-                {
-                    CBTables.DataSource = FunLoadTables();
+                    this.CBTables.SelectedItem = TBName;
                 }
             }
 
@@ -284,9 +284,12 @@ namespace NETDBHelper.UC
 
         private void LBTabname_DoubleClick(object sender, EventArgs e)
         {
-            this.LBTabname.Visible = false;
-            this.CBTables.Visible = true;
-            InitLocLayout();
+            if (string.IsNullOrWhiteSpace(this.TBName))
+            {
+                this.LBTabname.Visible = false;
+                this.CBTables.Visible = true;
+                InitLocLayout();
+            }
         }
 
         protected void OnLBTabnameMouseMove(object sender, MouseEventArgs e)

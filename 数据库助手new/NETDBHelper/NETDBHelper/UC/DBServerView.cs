@@ -29,7 +29,7 @@ namespace NETDBHelper
         public Action<DBSource,string, string> OnFilterProc;
         public Action<DBSource, string, string> OnExecutSql;
         public Action<DBSource, string, string, string> OnShowViewSql;
-        public Action<DBSource, string> OnShowRelMap;
+        public Action<DBSource, string,string> OnShowRelMap;
         private DBSourceCollection _dbServers;
         /// <summary>
         /// 实体命名空间
@@ -1695,6 +1695,10 @@ background-color: #ffffff;
 
                     foreach (var col in markedcolumns)
                     {
+                        if (string.IsNullOrWhiteSpace(col.ColumnName))
+                        {
+                            continue;
+                        }
                         if (!cols.Any(p => p.Name.Equals(col.ColumnName, StringComparison.OrdinalIgnoreCase)))
                         {
                             LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Delete<MarkObjectInfo>("MarkObjectInfo", col.ID);
@@ -2162,7 +2166,7 @@ background-color: #ffffff;
                 var dbname = selnode.Parent.Text;
                 if (this.OnShowRelMap != null)
                 {
-                    this.OnShowRelMap(dbsource, dbname);
+                    this.OnShowRelMap(dbsource, dbname,selnode.Text);
                 }
             }
         }
