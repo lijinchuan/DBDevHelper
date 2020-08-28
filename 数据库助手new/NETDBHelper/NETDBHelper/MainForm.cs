@@ -578,6 +578,7 @@ namespace NETDBHelper
             panel.Text = title;
             this.TabControl.TabPages.Add(panel);
             this.TabControl.SelectedTab = panel;
+            panel.Load();
         }
 
         private void 常用SQLToolStripMenuItem_Click(object sender, EventArgs e)

@@ -219,7 +219,7 @@ namespace NETDBHelper.UC
 
         private void CBTables_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (CBTables.SelectedIndex != 1)
+            if (CBTables.SelectedIndex != -1)
             {
                 CBTables.Visible = false;
                 LBTabname.Text = CBTables.Text;

@@ -1,0 +1,558 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Drawing;
+using System.Data;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using Entity;
+using Biz.Common.Data;
+using System.Drawing.Drawing2D;
+using NETDBHelper.Drawing;
+using LJC.FrameWork.CodeExpression;
+using System.Security.Policy;
+
+namespace NETDBHelper.UC
+{
+    public partial class UCTableView2 : UserControl
+    {
+        DBSource DBSource = null;
+        string DBName = null;
+        string TBName = null;
+
+        private List<TBColumn> ColumnsList = null;
+
+        private Func<List<string>> FunLoadTables = null;
+
+        private Action<UCTableView2> OnComplete;
+
+        private bool IsTitleDraging = false;
+        private Point TitleDragStart = Point.Empty;
+        private Point TitleDragEnd = Point.Empty;
+
+        private Func<Point, Point, bool, bool> onCheckConflict;
+
+        private List<List<Point>> relLineList = null;
+
+        public UCTableView2()
+        {
+            InitializeComponent();
+        }
+
+        public UCTableView2(DBSource dbSource, string dbname, string tbname, Func<List<string>> funcLoadTables, Action<UCTableView2> onComplete,
+            Func<Point, Point, bool, bool> checkConflict)
+        {
+            InitializeComponent();
+            //this.AutoSize = true;
+
+            DBSource = dbSource;
+            DBName = dbname;
+            TBName = tbname;
+
+            LBTabname.BackColor = Color.LightBlue;
+            LBTabname.Visible = false;
+            LBTabname.AutoSize = false;
+            LBTabname.Height = 20;
+            LBTabname.ForeColor = Color.Blue;
+            LBTabname.Text = tbname;
+            this.ColumnsPanel.Location = new Point(1, LBTabname.Height + 1);
+            this.ColumnsPanel.Width = LBTabname.Width - 2;
+            this.ColumnsPanel.Height = this.Height - this.LBTabname.Height - 2;
+
+            this.CBTables.Height = 20;
+            this.FunLoadTables = funcLoadTables;
+
+            this.OnComplete = onComplete;
+            this.BorderStyle = BorderStyle.None;
+
+            onCheckConflict = checkConflict;
+
+            CBCoumns.Visible = false;
+
+        }
+
+
+        private void CBTables_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (CBTables.SelectedIndex != -1)
+            {
+                this.TBName = LBTabname.Text = CBTables.Text;
+
+                this.LBTabname.Visible = true;
+                this.LBTabname.Location = new Point(1, 1);
+                this.LBTabname.Width = this.Width - 2;
+                this.CBTables.Visible = false;
+
+                ColumnsList = SQLHelper.GetColumns(DBSource, DBName, CBTables.SelectedItem.ToString()).ToList();
+                BindColumns();
+            }
+        }
+
+        public string TableName
+        {
+            get
+            {
+                return this.TBName;
+            }
+        }
+
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            base.OnPaint(e);
+
+            e.Graphics.DrawRectangle(Pens.DarkOliveGreen, 0, 0, this.Width - 1, this.Height - 1);
+        }
+
+        private void BindColumns()
+        {
+
+            var collist = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Scan<RelColumn>(nameof(RelColumn),
+                "SDTC", new[] { DBSource.ServerName.ToLower(), this.DBName.ToLower(), this.TBName.ToLower() },
+                new[] { DBSource.ServerName.ToLower(), this.DBName.ToLower(), this.TBName.ToLower() }, 1, int.MaxValue);
+
+            var relcollist = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Scan<RelColumn>(nameof(RelColumn),
+                "SDRTC", new[] { DBSource.ServerName.ToLower(), this.DBName.ToLower(), this.TBName.ToLower() },
+                new[] { DBSource.ServerName.ToLower(), this.DBName.ToLower(), this.TBName.ToLower() }, 1, int.MaxValue);
+
+            this.CBCoumns.Items.AddRange(ColumnsList.Where(p => !collist.Any(q => q.ColName.Equals(p.Name, StringComparison.OrdinalIgnoreCase))
+            && !relcollist.Any(q => q.RelColName.Equals(p.Name, StringComparison.OrdinalIgnoreCase))).ToArray());
+
+            this.CBCoumns.SelectedIndex = -1;
+            this.CBCoumns.Visible = true;
+            this.CBCoumns.DisplayMember = "Name";
+            this.CBCoumns.SelectedIndexChanged += CBCoumns_SelectedIndexChanged;
+
+            HashSet<string> ha = new HashSet<string>();
+            foreach (var item in collist)
+            {
+                if (!ha.Contains(item.ColName))
+                {
+                    ha.Add(item.ColName);
+
+                    var col = ColumnsList.FirstOrDefault(p => p.Name.Equals(item.ColName, StringComparison.OrdinalIgnoreCase));
+                    if (col != null)
+                    {
+                        AddColumnLable(col);
+                    }
+                }
+
+            }
+
+            foreach (var item in relcollist)
+            {
+                if (!ha.Contains(item.RelColName))
+                {
+                    ha.Add(item.RelColName);
+
+                    var col = ColumnsList.FirstOrDefault(p => p.Name.Equals(item.RelColName, StringComparison.OrdinalIgnoreCase));
+                    if (col != null)
+                    {
+                        AddColumnLable(col);
+                    }
+                }
+
+            }
+
+            if (this.OnComplete != null)
+            {
+                this.OnComplete(this);
+            }
+        }
+
+        public Point FindTBColumnScreenPos(string colname)
+        {
+            foreach (Control lb in this.ColumnsPanel.Controls)
+            {
+                if (lb is Label)
+                {
+                    var tag = (lb as Label).Tag;
+                    if (tag is TBColumn)
+                    {
+                        if ((tag as TBColumn).Name.Equals(colname, StringComparison.OrdinalIgnoreCase))
+                        {
+                            var loc = lb.Location;
+                            loc.Offset(0, lb.Height / 2);
+                            return lb.Parent.PointToScreen(loc);
+                        }
+                    }
+                }
+            }
+
+            return Point.Empty;
+        }
+
+        private void AddColumnLable(TBColumn tbcol)
+        {
+            var lb = new Label();
+            lb.AutoSize = false;
+            lb.Text = tbcol.Name;
+            lb.Location = CBCoumns.Location;
+            lb.Tag = tbcol;
+            lb.Height = 20;
+            var loc = lb.Location;
+            loc.Offset(0, lb.Height);
+            CBCoumns.Location = loc;
+
+            lb.Width = this.Width - 2;
+            ColumnsPanel.Controls.Add(lb);
+
+            if (this.ColumnsPanel.Height < this.CBCoumns.Location.Y + this.CBCoumns.Height + 10)
+            {
+                this.ColumnsPanel.Height = this.CBCoumns.Location.Y + this.CBCoumns.Height + 10;
+
+                //using (var g = this.CreateGraphics())
+                //{
+                //    using (var p = new Pen(this.BackColor, 1))
+                //    {
+                //        g.DrawRectangle(p, 0, 0, this.Width - 1, this.Height - 1);
+                //    }
+                //}
+
+                this.Height = this.ColumnsPanel.Location.Y + this.ColumnsPanel.Height + 1;
+                this.Invalidate();
+            }
+
+            bool isDraging = false;
+            Point dragStart = Point.Empty;
+            Point dragEnd = Point.Empty;
+            List<Point> points = null;
+            lb.MouseMove += (s, ee) =>
+            {
+                if (ee.Button == MouseButtons.Left)
+                {
+                    isDraging = Math.Abs(dragEnd.X - dragStart.X) > 10 || Math.Abs(dragEnd.Y - dragEnd.Y) > 10;
+
+                    dragEnd = new Point(ee.X, ee.Y);
+                    if (isDraging)
+                    {
+                        if (points != null)
+                        {
+                            using (var g = this.Parent.CreateGraphics())
+                            {
+                                //g.SmoothingMode = SmoothingMode.AntiAlias;
+                                using (var p = new Pen(this.Parent.BackColor, 2))
+                                {
+                                    //p.StartCap = LineCap.Round;
+                                    for (int i = 1; i <= points.Count - 1; i++)
+                                    {
+                                        if (i == points.Count - 1)
+                                        {
+                                            AdjustableArrowCap arrowCap = new AdjustableArrowCap(p.Width * 2 + 1, p.Width + 2 + 1, true);
+                                            p.CustomEndCap = arrowCap;
+                                        }
+                                        g.DrawLine(p, points[i - 1], points[i]);
+                                        //g.DrawPie(p, new RectangleF(points[i], new SizeF(5, 5)), 0, 360);
+                                    }
+                                }
+                            }
+                        }
+
+                        //处理
+                        Point start = this.Parent.PointToClient(this.ColumnsPanel.PointToScreen(new Point(lb.Location.X + lb.Width, lb.Location.Y + lb.Height / 2)));
+                        Point dest = this.Parent.PointToClient(lb.PointToScreen(dragEnd));
+                        points = new StepSelector(start, dest, (s1, s2, b) => onCheckConflict(s1, s2, b), _destDirection: StepDirection.right).Select();
+
+
+                        using (var g = this.Parent.CreateGraphics())
+                        {
+                            using (var p = new Pen(Color.Gray, 2))
+                            {
+                                //p.StartCap = LineCap.Round;
+                                //g.SmoothingMode = SmoothingMode.AntiAlias;
+                                for (int i = 1; i <= points.Count - 1; i++)
+                                {
+                                    if (i == points.Count - 1)
+                                    {
+                                        AdjustableArrowCap arrowCap = new AdjustableArrowCap(p.Width * 2 + 1, p.Width + 2 + 1, true);
+                                        p.CustomEndCap = arrowCap;
+                                    }
+                                    g.DrawLine(p, points[i - 1], points[i]);
+                                    //g.DrawPie(p, new RectangleF(points[i], new SizeF(5, 5)), 0, 360);
+                                }
+                            }
+                        }
+
+                        this.Invalidate();
+                    }
+                }
+            };
+
+            lb.MouseUp += (s, ee) =>
+            {
+                bool isdragendevent = false;
+                if (ee.Button == MouseButtons.Left)
+                {
+                    if (isDraging)
+                    {
+                        isdragendevent = true;
+                    }
+
+                    if (isdragendevent)
+                    {
+                        var col = (Util.FindParent<UCTableRelMap>(this))?.FindColumn(lb.PointToScreen(dragEnd));
+                        if (col != null)
+                        {
+                            var newrelcolumn = new RelColumn
+                            {
+                                ColName = (lb.Tag as TBColumn).Name.ToLower(),
+                                DBName = this.DBName.ToLower(),
+                                RelColName = col.Name.ToLower(),
+                                RelTBName = col.TBName.ToLower(),
+                                ServerName = DBSource.ServerName.ToLower(),
+                                TBName = this.TBName.ToLower()
+                            };
+                            var relcollist = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine
+                            .Scan<RelColumn>(nameof(RelColumn), "SDTC", new[] { newrelcolumn.ServerName, newrelcolumn.DBName, newrelcolumn.TBName },
+                            new[] { newrelcolumn.ServerName, newrelcolumn.DBName, newrelcolumn.TBName }, 1, int.MaxValue);
+
+                            if (!relcollist.Any(p => p.RelTBName.ToLower() == newrelcolumn.RelTBName && p.RelTBName.ToLower() == newrelcolumn.RelColName))
+                            {
+                                LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<RelColumn>(nameof(RelColumn), newrelcolumn);
+                            }
+                        }
+                        else
+                        {
+                            if (points != null)
+                            {
+                                using (var g = this.Parent.CreateGraphics())
+                                {
+                                    //g.SmoothingMode = SmoothingMode.AntiAlias;
+                                    using (var p = new Pen(this.Parent.BackColor, 2))
+                                    {
+                                        //p.StartCap = LineCap.Round;
+                                        for (int i = 1; i <= points.Count - 1; i++)
+                                        {
+                                            if (i == points.Count - 1)
+                                            {
+                                                AdjustableArrowCap arrowCap = new AdjustableArrowCap(p.Width * 2 + 1, p.Width + 2 + 1, true);
+                                                p.CustomEndCap = arrowCap;
+                                            }
+                                            g.DrawLine(p, points[i - 1], points[i]);
+                                            //g.DrawPie(p, new RectangleF(points[i], new SizeF(5, 5)), 0, 360);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        this.Invalidate();
+
+                        isDraging = false;
+                        //处理结束事件
+                    }
+                }
+
+                dragStart = Point.Empty;
+                dragEnd = Point.Empty;
+            };
+
+            lb.MouseDown += (s, ee) =>
+            {
+                if (ee.Button == MouseButtons.Left)
+                {
+                    dragStart = new Point(ee.X, ee.Y);
+                    dragEnd = new Point(ee.X, ee.Y);
+                }
+            };
+        }
+
+        private void CBCoumns_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (CBCoumns.SelectedIndex != -1)
+            {
+                AddColumnLable((TBColumn)CBCoumns.SelectedItem);
+                var selectedindex = CBCoumns.SelectedIndex;
+                CBCoumns.SelectedIndex = -1;
+                CBCoumns.Items.RemoveAt(selectedindex);
+            }
+        }
+
+        protected override void OnLoad(EventArgs e)
+        {
+            base.OnLoad(e);
+
+            if (string.IsNullOrWhiteSpace(TBName))
+            {
+                CBTables.DataSource = FunLoadTables();
+                CBTables.SelectedIndex = -1;
+                this.LBTabname.Visible = false;
+                this.CBTables.Visible = true;
+                this.CBTables.Location = new Point(1, 1);
+                this.CBTables.Width = this.Width - 2;
+                this.CBTables.SelectedIndexChanged += CBTables_SelectedIndexChanged;
+            }
+            else
+            {
+                this.LBTabname.Text = TBName;
+                this.LBTabname.Visible = true;
+                this.LBTabname.Location = new Point(1, 1);
+                this.LBTabname.Width = this.Width - 2;
+                this.CBTables.Visible = false;
+                ColumnsList = SQLHelper.GetColumns(DBSource, DBName, TBName).ToList();
+                BindColumns();
+
+            }
+
+            this.LBTabname.MouseMove += OnLBTabnameMouseMove;
+            this.LBTabname.MouseDown += OnLBTabnameMouseDown;
+            this.LBTabname.MouseUp += OnLBTabnameMouseUp;
+            this.LBTabname.DoubleClick += LBTabname_DoubleClick;
+        }
+
+        private void LBTabname_DoubleClick(object sender, EventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(this.TBName))
+            {
+                this.LBTabname.Visible = false;
+                this.CBTables.Visible = true;
+            }
+        }
+
+        protected void OnLBTabnameMouseMove(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                //var rect = new Rectangle(this.Location, this.Size);
+                //if (rect.Contains(e.Location))
+                {
+                    IsTitleDraging = Math.Abs(TitleDragEnd.X - TitleDragStart.X) > 10 || Math.Abs(TitleDragEnd.Y - TitleDragEnd.Y) > 10; //&& ((DragEnd.X > DragStart.X && dragSource != tabExDic.Last().Value) || (DragEnd.X < DragStart.X && dragSource != tabExDic.First().Value));
+
+                    TitleDragEnd = new Point(e.X, e.Y);
+                    if (IsTitleDraging)
+                    {
+                        OnTabDragOver(null);
+                    }
+                }
+
+            }
+        }
+
+        protected void OnLBTabnameMouseUp(object sender, MouseEventArgs e)
+        {
+            bool isdragendevent = false;
+            if (e.Button == MouseButtons.Left)
+            {
+                if (IsTitleDraging)
+                {
+                    isdragendevent = true;
+                }
+
+                if (isdragendevent)
+                {
+                    IsTitleDraging = false;
+                    OnTabDragEnd(null);
+                }
+
+                if (IsTitleDraging)
+                {
+                    IsTitleDraging = false;
+                    this.Invalidate();
+                }
+            }
+
+            TitleDragStart = Point.Empty;
+            TitleDragEnd = Point.Empty;
+        }
+
+        protected void OnLBTabnameMouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                //IsDraging = true;
+                TitleDragStart = new Point(e.X, e.Y);
+                TitleDragEnd = new Point(e.X, e.Y);
+            }
+        }
+
+        private void OnTabDragOver(DragEventArgs drgevent)
+        {
+            this.Invalidate();
+
+            var loc = this.Location;
+            loc.Offset(TitleDragEnd.X - TitleDragStart.X, TitleDragEnd.Y - TitleDragStart.Y);
+            this.Location = loc;
+        }
+
+        private void OnTabDragEnd(DragEventArgs drgevent)
+        {
+        }
+
+
+        public void LinkRelCols(Control parent, Graphics g)
+        {
+            if (this.TBName == null)
+            {
+                return;
+            }
+
+
+            if (relLineList == null)
+            {
+                lock (this)
+                {
+                    if (relLineList == null)
+                    {
+                        relLineList = new List<List<Point>>();
+
+                        var collist = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Scan<RelColumn>(nameof(RelColumn),
+                        "SDTC", new[] { DBSource.ServerName.ToLower(), this.DBName.ToLower(), this.TBName.ToLower() },
+                        new[] { DBSource.ServerName.ToLower(), this.DBName.ToLower(), this.TBName.ToLower() }, 1, int.MaxValue);
+
+                        var parentobj = Util.FindParent<UCTableRelMap>(this);
+                        foreach (Control ct in this.ColumnsPanel.Controls)
+                        {
+                            if (ct is Label)
+                            {
+                                var lb = ct as Label;
+                                if (lb.Tag is TBColumn)
+                                {
+                                    var tbcol = lb.Tag as TBColumn;
+                                    var linkptstart = new Point(lb.Location.X + lb.Width, lb.Location.Y + lb.Height / 2);
+                                    Point start = parent.PointToClient(lb.Parent.PointToScreen(linkptstart));
+
+                                    var li = collist.Where(p => p.ColName.Equals(tbcol.Name, StringComparison.OrdinalIgnoreCase)).ToList();
+                                    foreach (var item in li)
+                                    {
+                                        var dest = parent.PointToClient(parentobj.FindColumnScreenPoint(item.RelTBName, item.RelColName));
+                                        if (dest != Point.Empty)
+                                        {
+                                            var points = new StepSelector(start, dest, (s1, s2, b) => onCheckConflict(s1, s2, b), _destDirection: StepDirection.right).Select();
+                                            relLineList.Add(points);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (relLineList.Count > 0)
+            {
+
+                foreach (var points in relLineList)
+                {
+                    using (var p = new Pen(Color.Blue, 2))
+                    {
+                        //p.StartCap = LineCap.Round;
+                        //g.SmoothingMode = SmoothingMode.AntiAlias;
+                        for (int i = 1; i <= points.Count - 1; i++)
+                        {
+                            if (i == points.Count - 1)
+                            {
+                                AdjustableArrowCap arrowCap = new AdjustableArrowCap(p.Width * 2 + 1, p.Width + 2 + 1, true);
+                                p.CustomEndCap = arrowCap;
+                            }
+
+                            g.DrawLine(p, points[i - 1], points[i]);
+                            //g.DrawPie(p, new RectangleF(points[i], new SizeF(5, 5)), 0, 360);
+                        }
+                    }
+                }
+            }
+
+        }
+    }
+}

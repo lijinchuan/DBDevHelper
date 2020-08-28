@@ -309,6 +309,12 @@
     <Compile Include="UC\UCTableView.Designer.cs">
       <DependentUpon>UCTableView.cs</DependentUpon>
     </Compile>
+    <Compile Include="UC\UCTableView2.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UC\UCTableView2.Designer.cs">
+      <DependentUpon>UCTableView2.cs</DependentUpon>
+    </Compile>
     <Compile Include="UC\ViewTBData.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -420,6 +426,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="UC\UCTableView.resx">
       <DependentUpon>UCTableView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UC\UCTableView2.resx">
+      <DependentUpon>UCTableView2.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UC\ViewTBData.resx">
       <DependentUpon>ViewTBData.cs</DependentUpon>

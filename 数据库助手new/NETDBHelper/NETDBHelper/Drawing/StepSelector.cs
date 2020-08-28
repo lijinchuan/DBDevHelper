@@ -273,10 +273,10 @@ namespace NETDBHelper.Drawing
                 }
 
                 if (nextstep.Pos.X > 0 && nextstep.Pos.Y > 0 && (!checkStepHasConflict(currstep.Pos, nextstep.Pos,true)
-                    || (Math.Abs(nextstep.Pos.X - startPoint.X) <= 0 && Math.Abs(nextstep.Pos.Y - startPoint.Y) <= 30)
-                    || (Math.Abs(nextstep.Pos.X - startPoint.X) <= 30 && Math.Abs(nextstep.Pos.Y - startPoint.Y) <= 0)
-                    || (Math.Abs(nextstep.Pos.X - secDestPoint.X)<=0 && Math.Abs(nextstep.Pos.Y - secDestPoint.Y)<=30)
-                    || (Math.Abs(nextstep.Pos.X - secDestPoint.X) <= 30 && Math.Abs(nextstep.Pos.Y - secDestPoint.Y) <= 0)))
+                    || (Math.Abs(nextstep.Pos.X - startPoint.X) <= 0 && Math.Abs(nextstep.Pos.Y - startPoint.Y) <= 5)
+                    || (Math.Abs(nextstep.Pos.X - startPoint.X) <= 5 && Math.Abs(nextstep.Pos.Y - startPoint.Y) <= 0)
+                    || (Math.Abs(nextstep.Pos.X - secDestPoint.X)<=0 && Math.Abs(nextstep.Pos.Y - secDestPoint.Y)<=5)
+                    || (Math.Abs(nextstep.Pos.X - secDestPoint.X) <= 5 && Math.Abs(nextstep.Pos.Y - secDestPoint.Y) <= 0)))
                 {
                     steps.Push(nextstep);
                 }

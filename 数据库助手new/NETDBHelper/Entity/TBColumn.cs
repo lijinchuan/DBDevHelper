@@ -1,12 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Text;
 
 namespace Entity
 {
     public class TBColumn
     {
+        public string TBName
+        {
+            get;
+            set;
+        }
+
         public string Name
         {
             get;

@@ -39,6 +39,25 @@ namespace NETDBHelper
             }
         }
 
+        public static T FindParent<T>(Control ctl) where T : Control
+        {
+            if (ctl == null)
+            {
+                return null;
+            }
+
+            while (ctl.Parent != null)
+            {
+                if (ctl.Parent != null && ctl.Parent is T)
+                {
+                    return (T)ctl.Parent;
+                }
+                ctl = ctl.Parent;
+            }
+
+            return null;
+        }
+
         public static void PopMsg(int msgid,string title,string content)
         {
             PopMessageDlg dlg = null;

@@ -94,6 +94,7 @@ namespace Biz.Common.Data
                     prec=NumberHelper.CovertToInt(tb.Rows[i]["prec"]),
                     scale = NumberHelper.CovertToInt(tb.Rows[i]["scale"]),
                     Description=y==null?"":y.ToString(),
+                    TBName=tbName
                 };
             }
         }
@@ -124,6 +125,7 @@ namespace Biz.Common.Data
                     prec = NumberHelper.CovertToInt(tb.Rows[i]["prec"]),
                     scale = NumberHelper.CovertToInt(tb.Rows[i]["scale"]),
                     Description = y == null ? "" : y.ToString(),
+                    TBName=tbName
                 };
             }
         }

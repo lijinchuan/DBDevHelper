@@ -1,6 +1,7 @@
 ﻿using Entity;
 using LJC.FrameWorkV3.Data.EntityDataBase;
 using LJC.FrameWorkV3.EntityBuf;
+using NPOI.SS.Formula.Functions;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -197,6 +198,12 @@ namespace NETDBHelper
             {
                 b.AddIndex("SDT", p => p.Asc(q => q.ServerName).Asc(q => q.DBName).Asc(q => q.TBName));
                 b.AddIndex("SDRT", p => p.Asc(q => q.ServerName).Asc(q => q.DBName).Asc(q => q.RelTBName));
+            });
+
+            BigEntityTableEngine.LocalEngine.CreateTable<RelColumn>(p => p.Id, b =>
+            {
+                b.AddIndex("SDTC", p => p.Asc(q => q.ServerName).Asc(q => q.DBName).Asc(q => q.TBName));
+                b.AddIndex("SDRTC", p => p.Asc(q => q.ServerName).Asc(q => q.DBName).Asc(q => q.RelTBName));
             });
 
             Application.EnableVisualStyles();

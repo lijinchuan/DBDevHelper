@@ -13,6 +13,8 @@ using LJC.FrameWorkV3.Comm;
 using NETDBHelper.Drawing;
 using LJC.FrameWork.Data.EntityDataBase;
 using NPOI.SS.Formula;
+using System.Runtime.CompilerServices;
+using System.Threading;
 
 namespace NETDBHelper.UC
 {
@@ -22,7 +24,7 @@ namespace NETDBHelper.UC
         string DBName = null;
         string Tbname = null;
 
-        private List<UCTableView> ucTableViews = new List<UCTableView>();
+        private List<UCTableView2> ucTableViews = new List<UCTableView2>();
 
         private Lazy<List<string>> lzTableList = null;
 
@@ -50,8 +52,13 @@ namespace NETDBHelper.UC
                  tablelist.AddRange(tbs.AsEnumerable().Select(p => p.Field<string>("name")));
                  return tablelist;
              });
+        }
 
-            var location = new Point(20,30);
+        public void Load()
+        {
+            int pointstartx = 50;
+            int margin = 100;
+            var location = new Point(pointstartx, 30);
             List<string> reltblist = new List<string>();
             reltblist.Add(this.Tbname.ToLower());
 
@@ -67,52 +74,111 @@ namespace NETDBHelper.UC
             reltblist.AddRange(list.Select(p => p.TBName));
             reltblist = reltblist.Distinct().ToList();
 
+            int maxy = 0;
             foreach (var item in reltblist)
             {
-                UCTableView tv = new UCTableView(DBSource, DBName, item, () =>
+                UCTableView2 tv = new UCTableView2(DBSource, DBName, item, () =>
                 {
                     var tblist = new List<string>();
                     foreach (var tb in ucTableViews)
                     {
-                        tblist.Add(tb.TableName);
+                        tblist.Add(tb.TableName?.ToLower());
                     }
-                    return lzTableList.Value.Where(p => !tblist.Contains(p)).OrderBy(p => p).ToList();
+                    return lzTableList.Value.Where(p => !tblist.Contains(p.ToLower())).OrderBy(p => p).ToList();
                 }, v =>
                 {
-                    
                     AdjustLoaction(v);
                 },
                   Check);
                 tv.Location = location;
                 this.PanelMap.Controls.Add(tv);
 
-                location = new Point(location.X + 200 + 20, location.Y);
+                if (tv.Location.Y + tv.Height > maxy)
+                {
+                    maxy = tv.Location.Y + tv.Height;
+                }
+
+                if (location.X + tv.Width >= this.Width)
+                {
+                    location = new Point(pointstartx, maxy + margin);
+                }
+                else
+                {
+                    location = new Point(location.X + tv.Width + margin, location.Y);
+                }
+            }
+            this.DoubleBuffered = true;
+            this.PanelMap.Paint += PanelMap_Paint;
+
+        }
+
+        private void PanelMap_Paint(object sender, PaintEventArgs e)
+        {
+            foreach (var v in this.ucTableViews)
+            {
+                v.LinkRelCols(this.PanelMap, e.Graphics);
             }
         }
 
         private void PanelMap_ControlRemoved(object sender, ControlEventArgs e)
         {
-            if (e.Control is UCTableView)
+            if (e.Control is UCTableView2)
             {
                 
 
-                this.ucTableViews.Remove((UCTableView)e.Control);
+                this.ucTableViews.Remove((UCTableView2)e.Control);
             }
         }
 
         private void PanelMap_ControlAdded(object sender, ControlEventArgs e)
         {
-            if(e.Control is UCTableView)
+            if(e.Control is UCTableView2)
             {
-                this.ucTableViews.Add((UCTableView)e.Control);
+                this.ucTableViews.Add((UCTableView2)e.Control);
             }
         }
 
+        public Point FindColumnScreenPoint(string tbname, string colname)
+        {
+            foreach (var v in this.ucTableViews)
+            {
+                if (v.TableName.Equals(tbname, StringComparison.OrdinalIgnoreCase))
+                {
+                    var pt = v.FindTBColumnScreenPos(colname);
+                    pt.Offset(-10, -5);
+                    return pt;
+                }
+            }
 
-        private void AdjustLoaction(UCTableView view)
+            return Point.Empty;
+        }
+
+        public TBColumn FindColumn(Point screenpt)
+        {
+            foreach (var v in this.ucTableViews)
+            {
+                screenpt.Offset(5, 0);
+                var panel = v.Controls.Find("ColumnsPanel", false).FirstOrDefault();
+                if (panel != null)
+                {
+                    var ct = panel.GetChildAtPoint(panel.PointToClient(screenpt));
+                    if (ct is Label && ct.Tag is TBColumn)
+                    {
+                        var col = (ct.Tag as TBColumn);
+                        //MessageBox.Show(col.Name);
+                        return col;
+                    }
+                }
+            }
+
+            return null;
+        }
+
+
+        private void AdjustLoaction(UCTableView2 view)
         {
             //原则 调下不调上，调右不调左
-            List<UCTableView> adjustlist = new List<UCTableView>();
+            List<UCTableView2> adjustlist = new List<UCTableView2>();
             int paddingx = 20, paddingy = 30;
             var rect = new Rectangle(view.Location, view.Size);
             foreach(var v in ucTableViews)
@@ -184,14 +250,14 @@ namespace NETDBHelper.UC
         private void 添加表ToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var location = this.PanelMap.PointToClient(new Point(this.CMSOpMenu.Left, this.CMSOpMenu.Top));
-            UCTableView tv = new UCTableView(DBSource, DBName, null, () =>
+            UCTableView2 tv = new UCTableView2(DBSource, DBName, null, () =>
               {
                   var list = new List<string>();
                   foreach (var tb in ucTableViews)
                   {
-                      list.Add(tb.TableName);
+                      list.Add(tb.TableName?.ToLower());
                   }
-                  return lzTableList.Value.Where(p => !list.Contains(p)).OrderBy(p => p).ToList();
+                  return lzTableList.Value.Where(p => !list.Contains(p.ToLower())).OrderBy(p => p).ToList();
               }, v => { 
                   
                   if (!string.IsNullOrWhiteSpace(v.TableName) && !v.TableName.Equals(this.Tbname, StringComparison.OrdinalIgnoreCase))
@@ -225,12 +291,12 @@ namespace NETDBHelper.UC
         private void delStripMenuItem_Click(object sender, EventArgs e)
         {
             var ct = this.PanelMap.GetChildAtPoint(this.PanelMap.PointToClient(new Point(this.CMSOpMenu.Left, this.CMSOpMenu.Top)));
-            if (ct is UCTableView)
+            if (ct is UCTableView2)
             {
-                var view = ((UCTableView)ct);
+                var view = ((UCTableView2)ct);
                 if (view.TableName != this.Tbname)
                 {
-                    if (MessageBox.Show($"要删除和表{view.TableName}关联关系吗?", "询问", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+                    if (string.IsNullOrEmpty(view.TableName) || MessageBox.Show($"要删除和表{view.TableName}关联关系吗?", "询问", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
                     {
                         var v = view;
                         if (!string.IsNullOrWhiteSpace(v.TableName) && !v.TableName.Equals(this.Tbname, StringComparison.OrdinalIgnoreCase))
@@ -248,6 +314,11 @@ namespace NETDBHelper.UC
                     }
                 }
             }
+        }
+
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            base.OnPaint(e);
         }
     }
 }
