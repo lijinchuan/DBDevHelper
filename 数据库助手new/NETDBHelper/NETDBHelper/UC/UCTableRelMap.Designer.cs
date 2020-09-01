@@ -33,6 +33,7 @@
             this.CMSOpMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.添加表ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.delStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.TSMDelRelColumn = new System.Windows.Forms.ToolStripMenuItem();
             this.CMSOpMenu.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -49,28 +50,34 @@
             // 
             this.CMSOpMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.添加表ToolStripMenuItem,
-            this.delStripMenuItem});
+            this.delStripMenuItem,
+            this.TSMDelRelColumn});
             this.CMSOpMenu.Name = "CMSOpMenu";
-            this.CMSOpMenu.Size = new System.Drawing.Size(181, 70);
+            this.CMSOpMenu.Size = new System.Drawing.Size(149, 70);
             // 
             // 添加表ToolStripMenuItem
             // 
             this.添加表ToolStripMenuItem.Name = "添加表ToolStripMenuItem";
-            this.添加表ToolStripMenuItem.Size = new System.Drawing.Size(192, 22);
+            this.添加表ToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
             this.添加表ToolStripMenuItem.Text = "添加表";
             this.添加表ToolStripMenuItem.Click += new System.EventHandler(this.添加表ToolStripMenuItem_Click);
             // 
             // delStripMenuItem
             // 
             this.delStripMenuItem.Name = "delStripMenuItem";
-            this.delStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.delStripMenuItem.Size = new System.Drawing.Size(148, 22);
             this.delStripMenuItem.Text = "删除表";
             this.delStripMenuItem.Click += new System.EventHandler(this.delStripMenuItem_Click);
+            // 
+            // TSMDelRelColumn
+            // 
+            this.TSMDelRelColumn.Name = "TSMDelRelColumn";
+            this.TSMDelRelColumn.Size = new System.Drawing.Size(148, 22);
+            this.TSMDelRelColumn.Text = "删除字段关联";
             // 
             // UCTableRelMap
             // 
             this.Controls.Add(this.PanelMap);
-            this.Name = "UCTableRelMap";
             this.Size = new System.Drawing.Size(565, 412);
             this.CMSOpMenu.ResumeLayout(false);
             this.ResumeLayout(false);
@@ -83,5 +90,6 @@
         private System.Windows.Forms.ContextMenuStrip CMSOpMenu;
         private System.Windows.Forms.ToolStripMenuItem 添加表ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem delStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem TSMDelRelColumn;
     }
 }

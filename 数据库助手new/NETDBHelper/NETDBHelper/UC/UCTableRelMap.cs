@@ -15,6 +15,7 @@ using LJC.FrameWork.Data.EntityDataBase;
 using NPOI.SS.Formula;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using System.Drawing.Drawing2D;
 
 namespace NETDBHelper.UC
 {
@@ -24,9 +25,14 @@ namespace NETDBHelper.UC
         string DBName = null;
         string Tbname = null;
 
+        static Color[] colors = new Color[] { Color.LightBlue, Color.Red, Color.Green, Color.Gold, Color.BurlyWood,
+            Color.GreenYellow,Color.Black,Color.Brown,Color.Chocolate};
+
         private List<UCTableView2> ucTableViews = new List<UCTableView2>();
 
         private Lazy<List<string>> lzTableList = null;
+
+        List<RelColumnEx> relColumnIces = null;
 
         public UCTableRelMap()
         {
@@ -52,6 +58,53 @@ namespace NETDBHelper.UC
                  tablelist.AddRange(tbs.AsEnumerable().Select(p => p.Field<string>("name")));
                  return tablelist;
              });
+
+            this.CMSOpMenu.VisibleChanged += CMSOpMenu_VisibleChanged;
+            TSMDelRelColumn.DropDownItemClicked += TSMDelRelColumn_DropDownItemClicked;
+        }
+
+        private void CMSOpMenu_VisibleChanged(object sender, EventArgs e)
+        {
+            if (CMSOpMenu.Visible)
+            {
+                var location = new Point(this.CMSOpMenu.Left, this.CMSOpMenu.Top);
+                var col = this.FindColumn(location);
+                if (col != null)
+                {
+                    var collist = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Scan<RelColumn>(nameof(RelColumn),
+                "SDTC", new[] { DBSource.ServerName.ToLower(), this.DBName.ToLower(), col.TBName.ToLower() },
+                new[] { DBSource.ServerName.ToLower(), this.DBName.ToLower(), col.TBName.ToLower() }, 1, int.MaxValue);
+
+                    foreach (var c in collist.Where(p => p.ColName.Equals(col.Name, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        var ts = new ToolStripMenuItem();
+                        ts.Text = $"{c.RelTBName}.{c.RelColName}";
+                        ts.Tag = c;
+                        TSMDelRelColumn.DropDownItems.Add(ts);
+                    }
+                }
+                TSMDelRelColumn.Visible = TSMDelRelColumn.DropDownItems.Count > 0;
+            }
+            else
+            {
+                TSMDelRelColumn.DropDownItems.Clear();
+            }
+        }
+
+        private void TSMDelRelColumn_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+            if(e.ClickedItem.Tag is RelColumn)
+            {
+                var rc = e.ClickedItem.Tag as RelColumn;
+                if (MessageBox.Show("是否要删除关联", "提示", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                {
+                    if(LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Delete<RelColumn>(nameof(RelColumn),
+                        rc.Id))
+                    {
+                        TSMDelRelColumn.DropDownItems.Remove(e.ClickedItem);
+                    }
+                }
+            }
         }
 
         public void Load()
@@ -98,7 +151,7 @@ namespace NETDBHelper.UC
                     maxy = tv.Location.Y + tv.Height;
                 }
 
-                if (location.X + tv.Width >= this.Width)
+                if (location.X + 200 >= this.Width)
                 {
                     location = new Point(pointstartx, maxy + margin);
                 }
@@ -114,9 +167,139 @@ namespace NETDBHelper.UC
 
         private void PanelMap_Paint(object sender, PaintEventArgs e)
         {
-            foreach (var v in this.ucTableViews)
+            DrawLinkLine(this.PanelMap, e.Graphics);
+        }
+
+        private void DrawLinkLine(Control parent, Graphics g)
+        {
+            if (relColumnIces == null)
             {
-                v.LinkRelCols(this.PanelMap, e.Graphics);
+                lock (this)
+                {
+                    if (relColumnIces == null)
+                    {
+                        relColumnIces = new List<RelColumnEx>();
+
+                        var allrelcolumnlist = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<RelColumn>(nameof(RelColumn), r =>
+                         {
+                             return r.ServerName.Equals(DBSource.ServerName, StringComparison.OrdinalIgnoreCase)
+                             && r.DBName.Equals(this.DBName, StringComparison.OrdinalIgnoreCase)
+                             && (r.TBName.Equals(this.Tbname, StringComparison.OrdinalIgnoreCase)
+                             || r.RelTBName.Equals(this.Tbname, StringComparison.OrdinalIgnoreCase));
+                         }).ToList();
+
+                        foreach (var rc in allrelcolumnlist)
+                        {
+                            var startpt = this.FindColumnScreenStartPoint(rc.TBName, rc.ColName);
+                            var destpt = this.FindColumnScreenEndPoint(rc.RelTBName, rc.RelColName);
+                            if (!startpt.IsEmpty && !destpt.IsEmpty)
+                            {
+                                var ptlist = new StepSelector(parent.PointToClient(startpt), parent.PointToClient(destpt),
+                                    Check, StepDirection.right, StepDirection.right).Select();
+                                relColumnIces.Add(new RelColumnEx
+                                {
+                                    RelColumn = rc,
+                                    Dest = destpt,
+                                    Start = startpt,
+                                    LinkLines = ptlist.ToArray()
+                                });
+                            }
+                            else
+                            {
+                                relColumnIces.Add(new RelColumnEx
+                                {
+                                    RelColumn = rc,
+                                    Dest = destpt,
+                                    Start = startpt,
+                                    LinkLines = new Point[0]
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                //更新下
+                foreach (var item in relColumnIces)
+                {
+                    var oldstartpos = item.Start;
+                    var oldendpos = item.Dest;
+                    oldstartpos.Offset(-20, 0);
+                    oldendpos.Offset(20, 0);
+                    Point startpt = Point.Empty, destpt = Point.Empty;
+                    var col = FindColumn(oldstartpos);
+                    bool haschange = false;
+                    if (col == null || item.Start.IsEmpty || !col.Name.Equals(item.RelColumn.ColName, StringComparison.OrdinalIgnoreCase)
+                        || !col.TBName.Equals(item.RelColumn.TBName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        startpt = this.FindColumnScreenStartPoint(item.RelColumn.TBName, item.RelColumn.ColName);
+                        if (!startpt.IsEmpty)
+                        {
+                            item.Start = startpt;
+                        }
+                        haschange = true;
+                    }
+
+                    col = FindColumn(oldendpos);
+                    if (col == null || item.Dest.IsEmpty || !col.Name.Equals(item.RelColumn.RelColName, StringComparison.OrdinalIgnoreCase)
+                        || !col.TBName.Equals(item.RelColumn.RelTBName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        destpt = this.FindColumnScreenEndPoint(item.RelColumn.RelTBName, item.RelColumn.RelColName);
+                        if (!destpt.IsEmpty)
+                        {
+                            item.Dest = destpt;
+                        }
+                        haschange = true;
+                    }
+
+                    if (!haschange && item.LinkLines.Length < 2)
+                    {
+                        haschange = true;
+                    }
+
+                    if (haschange)
+                    {
+                        if (!item.Start.IsEmpty && !item.Dest.IsEmpty)
+                        {
+                            var ptlist = new StepSelector(parent.PointToClient(item.Start), parent.PointToClient(item.Dest),
+                                   Check, StepDirection.right, StepDirection.right).Select();
+                            item.LinkLines = ptlist.ToArray();
+                        }
+                        else
+                        {
+                            item.LinkLines = new Point[0];
+                        }
+                    }
+                }
+            }
+
+            
+            int colori = 0;
+            foreach (var item in relColumnIces)
+            {
+                if (item.LinkLines.Length > 0)
+                {
+                    if (colori == colors.Length)
+                    {
+                        colori = 0;
+                    }
+                    using (var p = new Pen(colors[colori++], 1))
+                    {
+                        var points = item.LinkLines;
+                        for (int i = 1; i <= points.Length - 1; i++)
+                        {
+                            if (i == points.Length - 1)
+                            {
+                                AdjustableArrowCap arrowCap = new AdjustableArrowCap(p.Width * 2 + 1, p.Width + 2 + 1, true);
+                                p.CustomEndCap = arrowCap;
+                            }
+
+                            g.DrawLine(p, points[i - 1], points[i]);
+                            //g.DrawPie(p, new RectangleF(points[i], new SizeF(5, 5)), 0, 360);
+                        }
+                    }
+                }
             }
         }
 
@@ -124,8 +307,6 @@ namespace NETDBHelper.UC
         {
             if (e.Control is UCTableView2)
             {
-                
-
                 this.ucTableViews.Remove((UCTableView2)e.Control);
             }
         }
@@ -138,15 +319,38 @@ namespace NETDBHelper.UC
             }
         }
 
-        public Point FindColumnScreenPoint(string tbname, string colname)
+        public Point FindColumnScreenStartPoint(string tbname, string colname)
         {
             foreach (var v in this.ucTableViews)
             {
                 if (v.TableName.Equals(tbname, StringComparison.OrdinalIgnoreCase))
                 {
-                    var pt = v.FindTBColumnScreenPos(colname);
-                    pt.Offset(-10, -5);
-                    return pt;
+                    var rect = v.FindTBColumnScreenRect(colname);
+                    if (!rect.IsEmpty)
+                    {
+                        var pt = rect.Location;
+                        pt.Offset(rect.Width + 2, rect.Height/2);
+                        return pt;
+                    }
+                }
+            }
+
+            return Point.Empty;
+        }
+
+        public Point FindColumnScreenEndPoint(string tbname, string colname)
+        {
+            foreach (var v in this.ucTableViews)
+            {
+                if (v.TableName.Equals(tbname, StringComparison.OrdinalIgnoreCase))
+                {
+                    var rect = v.FindTBColumnScreenRect(colname);
+                    if (!rect.IsEmpty)
+                    {
+                        var pt = rect.Location;
+                        pt.Offset(-10, rect.Height / 2);
+                        return pt;
+                    }
                 }
             }
 
@@ -214,18 +418,18 @@ namespace NETDBHelper.UC
 
         private bool Check(Point p1,Point p2,bool isline)
         {
-            if (!this.Bounds.Contains(p1) || !this.Bounds.Contains(p2))
-            {
-                return true;
-            }
+            //if (!this.Bounds.Contains(p1) || !this.Bounds.Contains(p2))
+            //{
+            //    return true;
+            //}
 
             var line = new Line(p1, p2);
 
-            var boo = isline && DrawingUtil.HasIntersect(ClientRectangle, line);
-            if (boo)
-            {
-                return true;
-            }
+            //var boo = isline && DrawingUtil.HasIntersect(Bounds, line);
+            //if (boo)
+            //{
+            //    return true;
+            //}
 
 
             foreach (var tb in ucTableViews)
@@ -238,12 +442,28 @@ namespace NETDBHelper.UC
                     return true;
                 }
 
-                boo = isline && DrawingUtil.HasIntersect(newrect, line);
+                var boo = isline && DrawingUtil.HasIntersect(newrect, line);
                 if (boo)
                 {
                     return true;
                 }
             }
+
+            if (relColumnIces != null)
+            {
+                foreach (var item in this.relColumnIces)
+                {
+                    for (int i = 1; i < item.LinkLines.Length; i++)
+                    {
+                        var subline = new Line(item.LinkLines[i - 1], item.LinkLines[i]);
+                        if (DrawingUtil.Isoverlap(line, subline))
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+
             return false;
         }
 

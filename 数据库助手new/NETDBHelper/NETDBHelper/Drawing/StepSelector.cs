@@ -1,4 +1,7 @@
-﻿using NPOI.SS.Formula.Functions;
+﻿using LJC.FrameWork.LogManager;
+using NPOI;
+using NPOI.OpenXmlFormats.Vml;
+using NPOI.SS.Formula.Functions;
 using NPOI.Util;
 using System;
 using System.Collections.Generic;
@@ -34,6 +37,20 @@ namespace NETDBHelper.Drawing
             destDirection = _destDirection;
         }
 
+        private bool Check(Point p1,Point p2,bool isline)
+        {
+            if (!isline)
+            {
+                if ((Math.Abs(p1.X - startPoint.X) < 10 && Math.Abs(p2.X - destPoint.X) < 10)
+                    || (Math.Abs(p1.X - startPoint.X) < 10 && Math.Abs(p2.X - destPoint.X) < 10))
+                {
+                    return false;
+                }
+            }
+
+            return checkStepHasConflict(p1, p2, isline);
+        }
+
         private void Pepare()
         {
             steps.Clear();
@@ -50,10 +67,10 @@ namespace NETDBHelper.Drawing
                 {
                     case StepDirection.left:
                         {
-                            secDestPoint = new Point(destPoint.X + 30, destPoint.Y);
+                            secDestPoint = new Point(destPoint.X + 20, destPoint.Y);
                             while (secDestPoint.X>destPoint.X)
                             {
-                                if (!checkStepHasConflict(secDestPoint, destPoint,false))
+                                if (!Check(secDestPoint, destPoint,false))
                                 {
                                     break;
                                 }
@@ -63,10 +80,10 @@ namespace NETDBHelper.Drawing
                         }
                     case StepDirection.right:
                         {
-                            secDestPoint = new Point(destPoint.X - 30, destPoint.Y);
+                            secDestPoint = new Point(destPoint.X - 20, destPoint.Y);
                             while (secDestPoint.X < destPoint.X)
                             {
-                                if (!checkStepHasConflict(secDestPoint, destPoint,false))
+                                if (!Check(secDestPoint, destPoint,false))
                                 {
                                     break;
                                 }
@@ -189,10 +206,11 @@ namespace NETDBHelper.Drawing
 
         public List<Point> Select()
         {
+            var st = DateTime.Now;
             this.Pepare();
             while (true)
             {
-                if (steps.Count > 100000)
+                if (steps.Count > 10000)
                 {
                     steps.Clear();
                     break;
@@ -272,11 +290,11 @@ namespace NETDBHelper.Drawing
                         }
                 }
 
-                if (nextstep.Pos.X > 0 && nextstep.Pos.Y > 0 && (!checkStepHasConflict(currstep.Pos, nextstep.Pos,true)
+                if (!Check(currstep.Pos, nextstep.Pos,true)
                     || (Math.Abs(nextstep.Pos.X - startPoint.X) <= 0 && Math.Abs(nextstep.Pos.Y - startPoint.Y) <= 5)
                     || (Math.Abs(nextstep.Pos.X - startPoint.X) <= 5 && Math.Abs(nextstep.Pos.Y - startPoint.Y) <= 0)
                     || (Math.Abs(nextstep.Pos.X - secDestPoint.X)<=0 && Math.Abs(nextstep.Pos.Y - secDestPoint.Y)<=5)
-                    || (Math.Abs(nextstep.Pos.X - secDestPoint.X) <= 5 && Math.Abs(nextstep.Pos.Y - secDestPoint.Y) <= 0)))
+                    || (Math.Abs(nextstep.Pos.X - secDestPoint.X) <= 5 && Math.Abs(nextstep.Pos.Y - secDestPoint.Y) <= 0))
                 {
                     steps.Push(nextstep);
                 }
@@ -321,10 +339,12 @@ namespace NETDBHelper.Drawing
             List<Point> result = steplist.Select(p => p.Pos).ToList();
             result = CutResult(result);
 
-            if (secDestPoint.X != destPoint.X)
+            if (secDestPoint.X != destPoint.X && result.Count > 0)
             {
                 result.Add(destPoint);
             }
+
+            LogHelper.Instance.Debug($"规划路线，用时：{DateTime.Now.Subtract(st).TotalMilliseconds}ms,start{startPoint.X},{startPoint.Y},end:{destPoint.X},{destPoint.Y}");
 
             return result;
         }
@@ -464,11 +484,11 @@ namespace NETDBHelper.Drawing
 
                                     }
 
-                                    if (!checkStepHasConflict(steparray[i - 1].Pos, joinstep.Pos, true)
-                                            && !checkStepHasConflict(joinstep.Pos, steparray[k].Pos, true))
+                                    if (!Check(steparray[i - 1].Pos, joinstep.Pos, true)
+                                            && !Check(joinstep.Pos, steparray[k].Pos, true))
                                     {
                                         List<Step> list = new List<Step>();
-                                        for (var m = 0; m < i; m++)
+                                        for (var m = 0; m < i ; m++)
                                         {
                                             list.Add(steparray[m]);
                                         }
@@ -476,11 +496,12 @@ namespace NETDBHelper.Drawing
 
                                         for (var m = k; m < steparray.Length; m++)
                                         {
-                                            list.Add(steparray[m]);
+                                            var s = steparray[m];
+                                            list.Add(s);
                                         }
-                                        
+
                                         steparray = list.ToArray();
-                                        
+
                                     }
                                 }
                             }
@@ -539,7 +560,7 @@ namespace NETDBHelper.Drawing
                                             }
                                         }
 
-                                        if (!checkStepHasConflict(steparray[i - 1].Pos, joinstep.Pos, true) && !checkStepHasConflict(joinstep.Pos, steparray[k].Pos, true))
+                                        if (!Check(steparray[i - 1].Pos, joinstep.Pos, true) && !Check(joinstep.Pos, steparray[k].Pos, true))
                                         {
                                             var list = new List<Step>();
                                             for (var m = 0; m < i - 1; m++)
@@ -549,7 +570,8 @@ namespace NETDBHelper.Drawing
                                             list.Add(joinstep);
                                             for (var m = k; m < steparray.Length; m++)
                                             {
-                                                list.Add(steparray[m]);
+                                                var s = steparray[m];
+                                                list.Add(s);
                                             }
 
                                             steparray = list.ToArray();

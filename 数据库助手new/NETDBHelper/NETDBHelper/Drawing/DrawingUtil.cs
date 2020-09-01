@@ -93,5 +93,30 @@ namespace NETDBHelper.Drawing
             return HasIntersect(new Line(p1, p2), line) || HasIntersect(new Line(p2, p3), line)
                 || HasIntersect(new Line(p3, p4), line) || HasIntersect(new Line(p1, p4), line);
         }
+
+        public static bool Isoverlap(Line line1, Line line2)
+        {
+            if (line1.Start.X == line1.End.X)
+            {
+                if (line2.Start.X != line2.End.X || line2.Start.X != line1.Start.X)
+                {
+                    return false;
+                }
+
+                return line2.Start.Y <= line1.End.Y && line2.End.Y >= line1.Start.Y;
+            }
+            else if (line1.Start.Y == line1.End.Y)
+            {
+                if (line2.Start.Y != line2.End.Y || line2.Start.Y != line1.Start.Y)
+                {
+                    return false;
+                }
+
+                return line2.Start.X <= line1.End.X && line2.End.X >= line1.Start.X;
+            }
+
+            return false;
+        }
+
     }
 }

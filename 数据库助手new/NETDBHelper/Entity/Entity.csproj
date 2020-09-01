@@ -33,6 +33,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -56,6 +57,7 @@
     <Compile Include="MSSQLTypeEnum.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RelColumn.cs" />
+    <Compile Include="RelColumnEx.cs" />
     <Compile Include="RelTable.cs" />
     <Compile Include="SPContent.cs" />
     <Compile Include="SPInfo.cs" />

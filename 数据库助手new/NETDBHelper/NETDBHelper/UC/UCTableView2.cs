@@ -161,7 +161,7 @@ namespace NETDBHelper.UC
             }
         }
 
-        public Point FindTBColumnScreenPos(string colname)
+        public Rectangle FindTBColumnScreenRect(string colname)
         {
             foreach (Control lb in this.ColumnsPanel.Controls)
             {
@@ -172,15 +172,13 @@ namespace NETDBHelper.UC
                     {
                         if ((tag as TBColumn).Name.Equals(colname, StringComparison.OrdinalIgnoreCase))
                         {
-                            var loc = lb.Location;
-                            loc.Offset(0, lb.Height / 2);
-                            return lb.Parent.PointToScreen(loc);
+                            return lb.Parent.RectangleToScreen(lb.Bounds);
                         }
                     }
                 }
             }
 
-            return Point.Empty;
+            return Rectangle.Empty;
         }
 
         private void AddColumnLable(TBColumn tbcol)
@@ -252,7 +250,7 @@ namespace NETDBHelper.UC
                         //处理
                         Point start = this.Parent.PointToClient(this.ColumnsPanel.PointToScreen(new Point(lb.Location.X + lb.Width, lb.Location.Y + lb.Height / 2)));
                         Point dest = this.Parent.PointToClient(lb.PointToScreen(dragEnd));
-                        points = new StepSelector(start, dest, (s1, s2, b) => onCheckConflict(s1, s2, b), _destDirection: StepDirection.right).Select();
+                        points = new StepSelector(start, dest, (s1, s2, b) => onCheckConflict(s1, s2, b),_firstDirection:StepDirection.right, _destDirection: StepDirection.right).Select();
 
 
                         using (var g = this.Parent.CreateGraphics())
@@ -307,7 +305,7 @@ namespace NETDBHelper.UC
                             .Scan<RelColumn>(nameof(RelColumn), "SDTC", new[] { newrelcolumn.ServerName, newrelcolumn.DBName, newrelcolumn.TBName },
                             new[] { newrelcolumn.ServerName, newrelcolumn.DBName, newrelcolumn.TBName }, 1, int.MaxValue);
 
-                            if (!relcollist.Any(p => p.RelTBName.ToLower() == newrelcolumn.RelTBName && p.RelTBName.ToLower() == newrelcolumn.RelColName))
+                            if (!relcollist.Any(p => p.RelTBName.ToLower() == newrelcolumn.RelTBName && p.RelColName.ToLower() == newrelcolumn.RelColName))
                             {
                                 LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<RelColumn>(nameof(RelColumn), newrelcolumn);
                             }
@@ -437,18 +435,18 @@ namespace NETDBHelper.UC
                 if (IsTitleDraging)
                 {
                     isdragendevent = true;
+                    
                 }
 
                 if (isdragendevent)
                 {
-                    IsTitleDraging = false;
-                    OnTabDragEnd(null);
+                    
                 }
 
                 if (IsTitleDraging)
                 {
+                    OnTabDragEnd(null);
                     IsTitleDraging = false;
-                    this.Invalidate();
                 }
             }
 
@@ -477,82 +475,7 @@ namespace NETDBHelper.UC
 
         private void OnTabDragEnd(DragEventArgs drgevent)
         {
-        }
-
-
-        public void LinkRelCols(Control parent, Graphics g)
-        {
-            if (this.TBName == null)
-            {
-                return;
-            }
-
-
-            if (relLineList == null)
-            {
-                lock (this)
-                {
-                    if (relLineList == null)
-                    {
-                        relLineList = new List<List<Point>>();
-
-                        var collist = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Scan<RelColumn>(nameof(RelColumn),
-                        "SDTC", new[] { DBSource.ServerName.ToLower(), this.DBName.ToLower(), this.TBName.ToLower() },
-                        new[] { DBSource.ServerName.ToLower(), this.DBName.ToLower(), this.TBName.ToLower() }, 1, int.MaxValue);
-
-                        var parentobj = Util.FindParent<UCTableRelMap>(this);
-                        foreach (Control ct in this.ColumnsPanel.Controls)
-                        {
-                            if (ct is Label)
-                            {
-                                var lb = ct as Label;
-                                if (lb.Tag is TBColumn)
-                                {
-                                    var tbcol = lb.Tag as TBColumn;
-                                    var linkptstart = new Point(lb.Location.X + lb.Width, lb.Location.Y + lb.Height / 2);
-                                    Point start = parent.PointToClient(lb.Parent.PointToScreen(linkptstart));
-
-                                    var li = collist.Where(p => p.ColName.Equals(tbcol.Name, StringComparison.OrdinalIgnoreCase)).ToList();
-                                    foreach (var item in li)
-                                    {
-                                        var dest = parent.PointToClient(parentobj.FindColumnScreenPoint(item.RelTBName, item.RelColName));
-                                        if (dest != Point.Empty)
-                                        {
-                                            var points = new StepSelector(start, dest, (s1, s2, b) => onCheckConflict(s1, s2, b), _destDirection: StepDirection.right).Select();
-                                            relLineList.Add(points);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            if (relLineList.Count > 0)
-            {
-
-                foreach (var points in relLineList)
-                {
-                    using (var p = new Pen(Color.Blue, 2))
-                    {
-                        //p.StartCap = LineCap.Round;
-                        //g.SmoothingMode = SmoothingMode.AntiAlias;
-                        for (int i = 1; i <= points.Count - 1; i++)
-                        {
-                            if (i == points.Count - 1)
-                            {
-                                AdjustableArrowCap arrowCap = new AdjustableArrowCap(p.Width * 2 + 1, p.Width + 2 + 1, true);
-                                p.CustomEndCap = arrowCap;
-                            }
-
-                            g.DrawLine(p, points[i - 1], points[i]);
-                            //g.DrawPie(p, new RectangleF(points[i], new SizeF(5, 5)), 0, 360);
-                        }
-                    }
-                }
-            }
-
+            this.Parent.Invalidate(true);
         }
     }
 }
