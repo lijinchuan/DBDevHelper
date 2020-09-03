@@ -337,12 +337,15 @@ namespace NETDBHelper.Drawing
             }
 
             List<Point> result = steplist.Select(p => p.Pos).ToList();
-            result = CutResult(result);
 
             if (secDestPoint.X != destPoint.X && result.Count > 0)
             {
                 result.Add(destPoint);
             }
+
+            result = CutResult(result);
+
+            
 
             LogHelper.Instance.Debug($"规划路线，用时：{DateTime.Now.Subtract(st).TotalMilliseconds}ms,start{startPoint.X},{startPoint.Y},end:{destPoint.X},{destPoint.Y}");
 
@@ -384,61 +387,26 @@ namespace NETDBHelper.Drawing
             if (steps.Count > 1)
             {
                 //去掉有回路的情况
-                var d = steps.First().chooseDirection;
                 var steparray = steps.ToArray();
-                for (int i = 1; i < steparray.Length; i++)
-                {
-                    if (steparray[i].chooseDirection == d)
-                    {
-                        continue;
-                    }
-                    if (i < steparray.Length - 2)
-                    {
-                        var nextstep = steparray[i + 1];
-                        StepDirection opdirection = GetOpDirection(nextstep.chooseDirection);
-                        for (var j = i + 2; j < steparray.Length; j++)
-                        {
-                            if (steparray[j].chooseDirection == opdirection
-                                &&((steparray[j].Pos.X == nextstep.Pos.X && Math.Abs(steparray[j].Pos.Y - nextstep.Pos.Y) <= 5)
-                                || (steparray[j].Pos.Y == nextstep.Pos.Y && Math.Abs(steparray[j].Pos.X - nextstep.Pos.X) <= 5)))
-                            {
-                                int k = -1;
-                                d = steparray[j].chooseDirection;
-                                steparray = steps.Where(p =>
-                                {
-                                    k++;
-                                    return k <= i || k > j + 1;
-                                }).ToArray();
-
-                            }
-                        }
-                    }
-                }
 
                 //相同方向的点只取第一个点和最后一个点，大大减少点数，提高绘图效率
                 List<Step> steps2 = new List<Step>();
                 steps2.Add(steparray[0]);
-                for (int i = 1; i < steparray.Length - 1; i++)
+                for (int i = 1; i < steparray.Length; i++)
                 {
                     if (steparray[i].chooseDirection != steparray[i - 1].chooseDirection)
                     {
-                        if (i > 1)
+                        if (i > 1 && i < steparray.Length - 1)
                         {
                             steps2.Add(steparray[i - 1]);
                         }
                         steps2.Add(steparray[i]);
                     }
                 }
-                if (steparray.Length > 2)
-                {
-                    steps2.Add(steparray[steparray.Length - 1]);
-                }
-                if (steparray.Length != steps2.Count)
-                {
-                    steparray = steps2.ToArray();
-                }
 
-                //继续整合，将线条撸直
+                steparray = steps2.ToArray();
+
+                //将线条撸直
                 var prestep = steparray.First();
                 for (var i = 1; i < steparray.Length; i++)
                 {
@@ -447,14 +415,18 @@ namespace NETDBHelper.Drawing
                         continue;
                     }
 
+                    //i是最后一个与起始方向一致的点的后一个点
+
                     for (int j = i + 1; j < steparray.Length; j++)
                     {
                         if (steparray[j].chooseDirection == prestep.chooseDirection)
                         {
+                            //j是后面与主方向一致的点
                             for (int k = j + 1; k < steparray.Length; k++)
                             {
                                 if (steparray[k].chooseDirection != prestep.chooseDirection)
                                 {
+                                    //k是后面与主方向不一致的点
                                     Step joinstep = new Step();
                                     if (prestep.chooseDirection == StepDirection.left || prestep.chooseDirection == StepDirection.right)
                                     {
@@ -481,14 +453,13 @@ namespace NETDBHelper.Drawing
                                         {
                                             joinstep.chooseDirection = StepDirection.up;
                                         }
-
                                     }
 
                                     if (!Check(steparray[i - 1].Pos, joinstep.Pos, true)
                                             && !Check(joinstep.Pos, steparray[k].Pos, true))
                                     {
                                         List<Step> list = new List<Step>();
-                                        for (var m = 0; m < i ; m++)
+                                        for (var m = 0; m < i; m++)
                                         {
                                             list.Add(steparray[m]);
                                         }
@@ -511,7 +482,7 @@ namespace NETDBHelper.Drawing
                     prestep = steparray[i];
                 }
 
-
+                //反向简化处理
                 var preDirection = steparray.First().chooseDirection;
                 for (var i = 1; i < steparray.Length; i++)
                 {
@@ -585,11 +556,11 @@ namespace NETDBHelper.Drawing
                     preDirection = steparray[i].chooseDirection;
                 }
 
-
                 if (steparray.Length != steps.Count)
                 {
                     steps = steparray.ToList();
                 }
+
             }
 
             return steps;
@@ -597,44 +568,29 @@ namespace NETDBHelper.Drawing
 
         private List<Point> CutResult(List<Point> points)
         {
-            //if (points.Count > 0)
-            //{
-            //    var gp = points.GroupBy(p => p);
-            //    int minfirst = points.Count, maxlast = -1;
-            //    foreach (var kv in gp.Where(p => p.Count() > 1))
-            //    {
-            //        int first = 0, last = 0;
-            //        for (int i = 0; i < points.Count; i++)
-            //        {
-            //            if (points[i].X == kv.Key.X && points[i].Y == kv.Key.Y)
-            //            {
-            //                if (first == 0)
-            //                {
-            //                    first = i;
-            //                }
-            //                else
-            //                {
-            //                    last = i;
-            //                }
-            //            }
-            //        }
-            //        if (first <= minfirst && last >= maxlast)
-            //        {
-            //            minfirst = first;
-            //            maxlast = last;
-            //        }
-            //    }
+            if (points.Count > 0)
+            {
+                var ps = points.ToArray();
+                //T形处理
+                for (var i = 1; i < ps.Length - 1; i++)
+                {
+                    if ((ps[i].X == ps[i - 1].X && ps[i].X == ps[i + 1].X
+                        && ps[i].Y > ps[i - 1].Y == ps[i].Y > ps[i + 1].Y)
+                        || (ps[i].Y == ps[i - 1].Y && ps[i].Y == ps[i + 1].Y
+                       && ps[i].X > ps[i - 1].X == ps[i].X > ps[i + 1].X))
+                    {
+                        var li = ps.ToList();
+                        li.RemoveAt(i);
+                        ps = li.ToArray();
+                        i--;
+                    }
+                }
 
-            //    if (maxlast > minfirst)
-            //    {
-            //        int i = -1;
-            //        points = points.Where(p =>
-            //        {
-            //            i++;
-            //            return i <= minfirst || i > maxlast;
-            //        }).ToList();
-            //    }
-            //}
+                if (ps.Length != points.Count)
+                {
+                    points = ps.ToList();
+                }
+            }
             return points;
         }
     }
