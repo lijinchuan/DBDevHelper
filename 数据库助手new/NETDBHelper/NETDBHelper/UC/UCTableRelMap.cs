@@ -180,13 +180,13 @@ namespace NETDBHelper.UC
                     if (relColumnIces == null)
                     {
                         relColumnIces = new List<RelColumnEx>();
-
+                        var othertables = ucTableViews.Where(p => !string.IsNullOrEmpty(p.TableName)).Select(p => p.TableName).Distinct().ToList();
                         var allrelcolumnlist = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<RelColumn>(nameof(RelColumn), r =>
                          {
                              return r.ServerName.Equals(DBSource.ServerName, StringComparison.OrdinalIgnoreCase)
                              && r.DBName.Equals(this.DBName, StringComparison.OrdinalIgnoreCase)
-                             && (r.TBName.Equals(this.Tbname, StringComparison.OrdinalIgnoreCase)
-                             || r.RelTBName.Equals(this.Tbname, StringComparison.OrdinalIgnoreCase));
+                             && (othertables.Any(p => p.Equals(r.TBName, StringComparison.OrdinalIgnoreCase))
+                             || othertables.Any(p => p.Equals(r.RelTBName, StringComparison.OrdinalIgnoreCase)));
                          }).ToList();
 
                         foreach (var rc in allrelcolumnlist)

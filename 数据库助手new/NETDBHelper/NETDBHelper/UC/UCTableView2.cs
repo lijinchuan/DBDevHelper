@@ -289,7 +289,9 @@ namespace NETDBHelper.UC
 
                     if (isdragendevent)
                     {
-                        var col = (Util.FindParent<UCTableRelMap>(this))?.FindColumn(lb.PointToScreen(dragEnd));
+                        var pt = dragEnd;
+                        pt.Offset(20, 0);
+                        var col = (Util.FindParent<UCTableRelMap>(this))?.FindColumn(lb.PointToScreen(pt));
                         if (col != null)
                         {
                             var newrelcolumn = new RelColumn
