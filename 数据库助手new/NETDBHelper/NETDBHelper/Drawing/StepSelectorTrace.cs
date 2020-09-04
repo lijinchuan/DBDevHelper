@@ -18,6 +18,12 @@ namespace NETDBHelper.Drawing
             Start = DateTime.Now;
         }
 
+        public  List<Step> FailSteps
+        {
+            get;
+            set;
+        }
+
         private int SelectCount
         {
             get;
@@ -68,7 +74,15 @@ namespace NETDBHelper.Drawing
             {
                 End = DateTime.Now;
             }
-            return $"规划路线，用时：{End.Subtract(Start).TotalMilliseconds}ms,start{startPoint.X},{startPoint.Y},end:{destPoint.X},{destPoint.Y},规划成功:{ResultCount > 1},原始步数:{SelectCount},整合输出步数:{ResultCount}";
+            StringBuilder sb = new StringBuilder();
+            if (FailSteps?.Count > 0)
+            {
+                foreach (var s in FailSteps)
+                {
+                    sb.AppendLine($"{s.Pos},选择方向:{s.chooseDirection.ToString()}");
+                }
+            }
+            return $"规划路线，用时：{End.Subtract(Start).TotalMilliseconds}ms,start{startPoint.X},{startPoint.Y},end:{destPoint.X},{destPoint.Y},规划成功:{ResultCount > 1},原始步数:{SelectCount},整合输出步数:{ResultCount},错误步骤:{sb.ToString()}";
 
         }
     }

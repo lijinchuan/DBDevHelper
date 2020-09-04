@@ -195,11 +195,40 @@ namespace NETDBHelper.Drawing
                 }
             }
             #endregion
-
+            
             if (seldirect == StepDirection.none)
             {
                 seldirect = current.Directions.First();
             }
+
+            #region
+            if (seldirect != StepDirection.same)
+            {
+                if (secDestPoint.Y == current.Pos.Y && Math.Abs(startPoint.X - current.Pos.X) >= 20)
+                {
+                    if (secDestPoint.X > current.Pos.X && seldirect == StepDirection.left)
+                    {
+                        seldirect = StepDirection.up;
+                    }
+                    else if (secDestPoint.X < current.Pos.X && seldirect == StepDirection.right)
+                    {
+                        seldirect = StepDirection.up;
+                    }
+                }
+                else if (secDestPoint.X == current.Pos.X && Math.Abs(startPoint.Y - current.Pos.Y) >= 20)
+                {
+                    if (secDestPoint.Y > current.Pos.Y && seldirect == StepDirection.up)
+                    {
+                        seldirect = StepDirection.right;
+                    }
+                    else if (secDestPoint.Y < current.Pos.Y && seldirect == StepDirection.down)
+                    {
+                        seldirect = StepDirection.right;
+                    }
+                }
+            }
+            #endregion
+
             current.chooseDirection = seldirect;
             return true;
         }
@@ -212,6 +241,7 @@ namespace NETDBHelper.Drawing
             {
                 if (steps.Count > 10000)
                 {
+                    trace.FailSteps = steps.Select(p => p).Reverse().ToList();
                     steps.Clear();
                     break;
                 }
