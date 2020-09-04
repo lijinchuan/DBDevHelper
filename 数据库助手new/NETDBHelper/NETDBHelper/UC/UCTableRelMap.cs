@@ -172,6 +172,7 @@ namespace NETDBHelper.UC
 
         private void DrawLinkLine(Control parent, Graphics g)
         {
+            //g.TranslateTransform(this.PanelMap.AutoScrollPosition.X, this.PanelMap.AutoScrollPosition.Y);
             if (relColumnIces == null)
             {
                 lock (this)
@@ -294,8 +295,11 @@ namespace NETDBHelper.UC
                                 AdjustableArrowCap arrowCap = new AdjustableArrowCap(p.Width * 2 + 1, p.Width + 2 + 1, true);
                                 p.CustomEndCap = arrowCap;
                             }
-
-                            g.DrawLine(p, points[i - 1], points[i]);
+                            var p1 = points[i - 1];
+                            p1.Offset(this.PanelMap.AutoScrollPosition.X, this.PanelMap.AutoScrollPosition.Y);
+                            var p2 = points[i];
+                            p2.Offset(this.PanelMap.AutoScrollPosition.X, this.PanelMap.AutoScrollPosition.Y);
+                            g.DrawLine(p, p1, p2);
                             //g.DrawPie(p, new RectangleF(points[i], new SizeF(5, 5)), 0, 360);
                         }
                     }
@@ -329,6 +333,7 @@ namespace NETDBHelper.UC
                     if (!rect.IsEmpty)
                     {
                         var pt = rect.Location;
+                        pt.Offset(-this.PanelMap.AutoScrollPosition.X, -this.PanelMap.AutoScrollPosition.Y);
                         pt.Offset(rect.Width + 2, rect.Height/2);
                         return pt;
                     }
@@ -348,6 +353,7 @@ namespace NETDBHelper.UC
                     if (!rect.IsEmpty)
                     {
                         var pt = rect.Location;
+                        pt.Offset(-this.PanelMap.AutoScrollPosition.X, -this.PanelMap.AutoScrollPosition.Y);
                         pt.Offset(-10, rect.Height / 2);
                         return pt;
                     }
@@ -359,6 +365,7 @@ namespace NETDBHelper.UC
 
         public TBColumn FindColumn(Point screenpt)
         {
+            screenpt.Offset(this.PanelMap.AutoScrollPosition.X, this.PanelMap.AutoScrollPosition.Y);
             foreach (var v in this.ucTableViews)
             {
                 var panel = v.Controls.Find("ColumnsPanel", false).FirstOrDefault();
