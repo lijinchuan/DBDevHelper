@@ -113,6 +113,7 @@
     <Compile Include="Drawing\Step.cs" />
     <Compile Include="Drawing\StepDirection.cs" />
     <Compile Include="Drawing\StepSelector.cs" />
+    <Compile Include="Drawing\StepSelectorTrace.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

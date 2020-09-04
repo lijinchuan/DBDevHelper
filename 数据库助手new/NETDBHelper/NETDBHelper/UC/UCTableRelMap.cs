@@ -274,7 +274,7 @@ namespace NETDBHelper.UC
                 }
             }
 
-            
+
             int colori = 0;
             foreach (var item in relColumnIces)
             {
@@ -361,7 +361,6 @@ namespace NETDBHelper.UC
         {
             foreach (var v in this.ucTableViews)
             {
-                screenpt.Offset(5, 0);
                 var panel = v.Controls.Find("ColumnsPanel", false).FirstOrDefault();
                 if (panel != null)
                 {

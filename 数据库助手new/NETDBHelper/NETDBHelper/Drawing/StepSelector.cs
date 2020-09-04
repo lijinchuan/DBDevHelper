@@ -206,8 +206,8 @@ namespace NETDBHelper.Drawing
 
         public List<Point> Select()
         {
-            var st = DateTime.Now;
             this.Pepare();
+            StepSelectorTrace trace = new StepSelectorTrace(this.startPoint, this.secDestPoint);
             while (true)
             {
                 if (steps.Count > 10000)
@@ -226,6 +226,7 @@ namespace NETDBHelper.Drawing
                 }
 
                 var boo = ChooseDirection(currstep);
+                trace.Select();
                 if (!boo)
                 {
                     steps.Pop();
@@ -329,7 +330,7 @@ namespace NETDBHelper.Drawing
             {
                 steplist.Add(steps.Pop());
             }
-
+            var orgstepcount = steplist.Count;
             if (steplist.Count > 1)
             {
                 steplist.Reverse();
@@ -345,9 +346,9 @@ namespace NETDBHelper.Drawing
 
             result = CutResult(result);
 
-            
+            trace.Result(result.Count);
 
-            LogHelper.Instance.Debug($"规划路线，用时：{DateTime.Now.Subtract(st).TotalMilliseconds}ms,start{startPoint.X},{startPoint.Y},end:{destPoint.X},{destPoint.Y}");
+            LogHelper.Instance.Debug(trace.ToString());
 
             return result;
         }
