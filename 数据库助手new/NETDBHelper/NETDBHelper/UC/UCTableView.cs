@@ -127,7 +127,8 @@ namespace NETDBHelper.UC
                                 //处理
                                 Point start = this.Parent.PointToClient(this.DGVColumns.PointToScreen(new Point(pic.Location.X, pic.Location.Y)));
                                 Point dest = this.Parent.PointToClient(pic.PointToScreen(dragEnd));
-                                points = new StepSelector(start, dest, (s1, s2,b) => onCheckConflict(s1, s2,b), _destDirection: StepDirection.right).Select();
+                                points = new StepSelector(this.Parent.Width - (this.Parent as Panel).AutoScrollPosition.X,
+                                    this.Parent.Height - (this.Parent as Panel).AutoScrollPosition.Y, start, dest, (s1, s2,b) => onCheckConflict(s1, s2,b), _destDirection: StepDirection.right).Select();
 
                                 using (var g = this.Parent.CreateGraphics())
                                 {

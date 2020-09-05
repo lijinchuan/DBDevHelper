@@ -151,7 +151,7 @@ namespace NETDBHelper.UC
                     maxy = tv.Location.Y + tv.Height;
                 }
 
-                if (location.X + 200 >= this.Width)
+                if (location.X + 2 * tv.Width + margin >= this.PanelMap.Width)
                 {
                     location = new Point(pointstartx, maxy + margin);
                 }
@@ -195,7 +195,9 @@ namespace NETDBHelper.UC
                             var destpt = this.FindColumnScreenEndPoint(rc.RelTBName, rc.RelColName);
                             if (!startpt.IsEmpty && !destpt.IsEmpty)
                             {
-                                var ptlist = new StepSelector(parent.PointToClient(startpt), parent.PointToClient(destpt),
+                                var ptlist = new StepSelector(this.PanelMap.Width - this.PanelMap.AutoScrollPosition.X,
+                                    this.PanelMap.Height - this.PanelMap.AutoScrollPosition.Y,
+                                    parent.PointToClient(startpt), parent.PointToClient(destpt),
                                     Check, StepDirection.right, StepDirection.right).Select();
                                 relColumnIces.Add(new RelColumnEx
                                 {
@@ -263,7 +265,9 @@ namespace NETDBHelper.UC
                     {
                         if (!item.Start.IsEmpty && !item.Dest.IsEmpty)
                         {
-                            var ptlist = new StepSelector(parent.PointToClient(item.Start), parent.PointToClient(item.Dest),
+                            var ptlist = new StepSelector(this.PanelMap.Width - this.PanelMap.AutoScrollPosition.X,
+                                    this.PanelMap.Height - this.PanelMap.AutoScrollPosition.Y, 
+                                    parent.PointToClient(item.Start), parent.PointToClient(item.Dest),
                                    Check, StepDirection.right, StepDirection.right).Select();
                             item.LinkLines = ptlist.ToArray();
                         }
@@ -327,7 +331,7 @@ namespace NETDBHelper.UC
         {
             foreach (var v in this.ucTableViews)
             {
-                if (v.TableName.Equals(tbname, StringComparison.OrdinalIgnoreCase))
+                if (v.TableName?.Equals(tbname, StringComparison.OrdinalIgnoreCase)==true)
                 {
                     var rect = v.FindTBColumnScreenRect(colname);
                     if (!rect.IsEmpty)
@@ -347,7 +351,7 @@ namespace NETDBHelper.UC
         {
             foreach (var v in this.ucTableViews)
             {
-                if (v.TableName.Equals(tbname, StringComparison.OrdinalIgnoreCase))
+                if (v.TableName?.Equals(tbname, StringComparison.OrdinalIgnoreCase) == true)
                 {
                     var rect = v.FindTBColumnScreenRect(colname);
                     if (!rect.IsEmpty)
@@ -398,7 +402,7 @@ namespace NETDBHelper.UC
                     continue;
                 }
                 var rect2 = new Rectangle(v.Location, v.Size);
-
+                rect2.Offset(this.PanelMap.AutoScrollPosition.X, this.PanelMap.AutoScrollPosition.Y);
                 if (rect.IntersectsWith(rect2))
                 {
                     if (Math.Abs(view.Location.X - v.Location.X) > view.Width / 2)
@@ -422,7 +426,7 @@ namespace NETDBHelper.UC
 
         }
 
-        private bool Check(Point p1,Point p2,bool isline)
+        private bool Check(Point p1, Point p2, bool isline)
         {
             //if (!this.Bounds.Contains(p1) || !this.Bounds.Contains(p2))
             //{
@@ -442,7 +446,7 @@ namespace NETDBHelper.UC
             {
                 var rect = tb.Bounds;
                 var newrect = rect;//new Rectangle(rect.X - 15, rect.Y - 15, rect.Width + 30, rect.Height + 30);
-
+                newrect.Offset(this.PanelMap.AutoScrollPosition.X, this.PanelMap.AutoScrollPosition.Y);
                 if (newrect.Contains(p1) || newrect.Contains(p2))
                 {
                     return true;

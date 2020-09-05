@@ -25,10 +25,15 @@ namespace NETDBHelper.Drawing
         private StepDirection destDirection;
         private StepDirection firstDirection;
 
-        public StepSelector(Point start,Point dest, Func<Point, Point,bool, bool> funcCheckStep, 
+        private int width = 1000, height = 1000;
+
+        public StepSelector(int _widht,int _height,Point start,Point dest, Func<Point, Point,bool, bool> funcCheckStep, 
             StepDirection _firstDirection=StepDirection.none,
             StepDirection _destDirection = StepDirection.none)
         {
+            width = _widht;
+            height = _height;
+
             startPoint = start;
             destPoint = dest;
             firstDirection = _firstDirection;
@@ -39,6 +44,16 @@ namespace NETDBHelper.Drawing
 
         private bool Check(Point p1,Point p2,bool isline)
         {
+            if (p1.X < 0 || p1.Y < 0 || p1.X > width || p1.Y > height)
+            {
+                return true;
+            }
+
+            if (p2.X < 0 || p2.Y < 0 || p2.X > width || p2.Y > height)
+            {
+                return true;
+            }
+
             if (!isline)
             {
                 if ((Math.Abs(p1.X - startPoint.X) < 10 && Math.Abs(p2.X - destPoint.X) < 10)
@@ -201,33 +216,33 @@ namespace NETDBHelper.Drawing
                 seldirect = current.Directions.First();
             }
 
-            #region
-            if (seldirect != StepDirection.same)
-            {
-                if (secDestPoint.Y == current.Pos.Y && Math.Abs(startPoint.X - current.Pos.X) >= 20)
-                {
-                    if (secDestPoint.X > current.Pos.X && seldirect == StepDirection.left)
-                    {
-                        seldirect = StepDirection.up;
-                    }
-                    else if (secDestPoint.X < current.Pos.X && seldirect == StepDirection.right)
-                    {
-                        seldirect = StepDirection.up;
-                    }
-                }
-                else if (secDestPoint.X == current.Pos.X && Math.Abs(startPoint.Y - current.Pos.Y) >= 20)
-                {
-                    if (secDestPoint.Y > current.Pos.Y && seldirect == StepDirection.up)
-                    {
-                        seldirect = StepDirection.right;
-                    }
-                    else if (secDestPoint.Y < current.Pos.Y && seldirect == StepDirection.down)
-                    {
-                        seldirect = StepDirection.right;
-                    }
-                }
-            }
-            #endregion
+            //#region
+            //if (seldirect != StepDirection.same)
+            //{
+            //    if (secDestPoint.Y == current.Pos.Y && Math.Abs(startPoint.X - current.Pos.X) >= 20)
+            //    {
+            //        if ((secDestPoint.X > current.Pos.X && seldirect == StepDirection.left)
+            //            || (secDestPoint.X < current.Pos.X && seldirect == StepDirection.right))
+            //        {
+            //            if (current.Directions.Contains(StepDirection.up))
+            //                seldirect = StepDirection.up;
+            //            else if (current.Directions.Contains(StepDirection.down))
+            //                seldirect = StepDirection.down;
+            //        }
+            //    }
+            //    else if (secDestPoint.X == current.Pos.X && Math.Abs(startPoint.Y - current.Pos.Y) >= 20)
+            //    {
+            //        if ((secDestPoint.Y > current.Pos.Y && seldirect == StepDirection.up)
+            //            || (secDestPoint.Y < current.Pos.Y && seldirect == StepDirection.down))
+            //        {
+            //            if (current.Directions.Contains(StepDirection.right))
+            //                seldirect = StepDirection.right;
+            //            else if (current.Directions.Contains(StepDirection.left))
+            //                seldirect = StepDirection.left;
+            //        }
+            //    }
+            //}
+            //#endregion
 
             current.chooseDirection = seldirect;
             return true;
