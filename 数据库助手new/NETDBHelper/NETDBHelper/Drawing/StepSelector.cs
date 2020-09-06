@@ -216,33 +216,33 @@ namespace NETDBHelper.Drawing
                 seldirect = current.Directions.First();
             }
 
-            //#region
-            //if (seldirect != StepDirection.same)
-            //{
-            //    if (secDestPoint.Y == current.Pos.Y && Math.Abs(startPoint.X - current.Pos.X) >= 20)
-            //    {
-            //        if ((secDestPoint.X > current.Pos.X && seldirect == StepDirection.left)
-            //            || (secDestPoint.X < current.Pos.X && seldirect == StepDirection.right))
-            //        {
-            //            if (current.Directions.Contains(StepDirection.up))
-            //                seldirect = StepDirection.up;
-            //            else if (current.Directions.Contains(StepDirection.down))
-            //                seldirect = StepDirection.down;
-            //        }
-            //    }
-            //    else if (secDestPoint.X == current.Pos.X && Math.Abs(startPoint.Y - current.Pos.Y) >= 20)
-            //    {
-            //        if ((secDestPoint.Y > current.Pos.Y && seldirect == StepDirection.up)
-            //            || (secDestPoint.Y < current.Pos.Y && seldirect == StepDirection.down))
-            //        {
-            //            if (current.Directions.Contains(StepDirection.right))
-            //                seldirect = StepDirection.right;
-            //            else if (current.Directions.Contains(StepDirection.left))
-            //                seldirect = StepDirection.left;
-            //        }
-            //    }
-            //}
-            //#endregion
+            #region
+            if (seldirect != StepDirection.same)
+            {
+                if (secDestPoint.Y == current.Pos.Y && Math.Abs(startPoint.X - current.Pos.X) >= 20)
+                {
+                    if ((secDestPoint.X > current.Pos.X && seldirect == StepDirection.left)
+                        || (secDestPoint.X < current.Pos.X && seldirect == StepDirection.right))
+                    {
+                        if (current.Directions.Contains(StepDirection.up))
+                            seldirect = StepDirection.up;
+                        else if (current.Directions.Contains(StepDirection.down))
+                            seldirect = StepDirection.down;
+                    }
+                }
+                else if (secDestPoint.X == current.Pos.X && Math.Abs(startPoint.Y - current.Pos.Y) >= 20)
+                {
+                    if ((secDestPoint.Y > current.Pos.Y && seldirect == StepDirection.up)
+                        || (secDestPoint.Y < current.Pos.Y && seldirect == StepDirection.down))
+                    {
+                        if (current.Directions.Contains(StepDirection.right))
+                            seldirect = StepDirection.right;
+                        else if (current.Directions.Contains(StepDirection.left))
+                            seldirect = StepDirection.left;
+                    }
+                }
+            }
+            #endregion
 
             current.chooseDirection = seldirect;
             return true;

@@ -102,7 +102,14 @@ namespace NETDBHelper.Drawing
                 {
                     return false;
                 }
-
+                if (line1.End.Y < line1.Start.Y)
+                {
+                    line1.Change();
+                }
+                if (line2.End.Y < line2.Start.Y)
+                {
+                    line2.Change();
+                }
                 return line2.Start.Y <= line1.End.Y && line2.End.Y >= line1.Start.Y;
             }
             else if (line1.Start.Y == line1.End.Y)
@@ -111,7 +118,14 @@ namespace NETDBHelper.Drawing
                 {
                     return false;
                 }
-
+                if (line1.End.X < line1.Start.X)
+                {
+                    line1.Change();
+                }
+                if (line2.End.X < line2.Start.X)
+                {
+                    line2.Change();
+                }
                 return line2.Start.X <= line1.End.X && line2.End.X >= line1.Start.X;
             }
 

@@ -400,6 +400,14 @@ namespace NETDBHelper.UC
             this.LBTabname.MouseDown += OnLBTabnameMouseDown;
             this.LBTabname.MouseUp += OnLBTabnameMouseUp;
             this.LBTabname.DoubleClick += LBTabname_DoubleClick;
+
+            ColumnsPanel.DoubleClick += ColumnsPanel_DoubleClick;
+            this.CBCoumns.Visible = false;
+        }
+
+        private void ColumnsPanel_DoubleClick(object sender, EventArgs e)
+        {
+            this.CBCoumns.Visible = !this.CBCoumns.Visible;
         }
 
         private void LBTabname_DoubleClick(object sender, EventArgs e)
