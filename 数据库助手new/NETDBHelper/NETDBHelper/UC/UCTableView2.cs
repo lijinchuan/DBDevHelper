@@ -34,6 +34,8 @@ namespace NETDBHelper.UC
 
         private Func<Point, Point, bool, bool> onCheckConflict;
 
+        public Action<RelColumn> OnAddNewRelColumn;
+
         private List<List<Point>> relLineList = null;
 
         public UCTableView2()
@@ -311,6 +313,11 @@ namespace NETDBHelper.UC
                             if (!relcollist.Any(p => p.RelTBName.ToLower() == newrelcolumn.RelTBName && p.RelColName.ToLower() == newrelcolumn.RelColName))
                             {
                                 LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<RelColumn>(nameof(RelColumn), newrelcolumn);
+                                //通知父控件
+                                if (OnAddNewRelColumn != null)
+                                {
+                                    OnAddNewRelColumn(newrelcolumn);
+                                }
                             }
                         }
                         else

@@ -102,7 +102,9 @@ namespace NETDBHelper.UC
                         rc.Id))
                     {
                         TSMDelRelColumn.DropDownItems.Remove(e.ClickedItem);
+                        this.relColumnIces.RemoveAll(p => p.RelColumn.Id == ((RelColumn)e.ClickedItem.Tag).Id);
                     }
+                    this.PanelMap.Invalidate();
                 }
             }
         }
@@ -143,6 +145,10 @@ namespace NETDBHelper.UC
                     AdjustLoaction(v);
                 },
                   Check);
+                tv.OnAddNewRelColumn = c => {
+                    this.relColumnIces.Add(new RelColumnEx() { RelColumn = c });
+                    this.PanelMap.Invalidate();
+                } ;
                 tv.Location = location;
                 this.PanelMap.Controls.Add(tv);
 
@@ -491,8 +497,9 @@ namespace NETDBHelper.UC
                       list.Add(tb.TableName?.ToLower());
                   }
                   return lzTableList.Value.Where(p => !list.Contains(p.ToLower())).OrderBy(p => p).ToList();
-              }, v => { 
-                  
+              }, v =>
+              {
+
                   if (!string.IsNullOrWhiteSpace(v.TableName) && !v.TableName.Equals(this.Tbname, StringComparison.OrdinalIgnoreCase))
                   {
                       var newreltable = new RelTable
@@ -517,6 +524,11 @@ namespace NETDBHelper.UC
                   AdjustLoaction(v);
               },
               Check);
+            tv.OnAddNewRelColumn = c =>
+            {
+                this.relColumnIces.Add(new RelColumnEx() { RelColumn = c });
+                this.PanelMap.Invalidate();
+            };
             tv.Location = location;
             this.PanelMap.Controls.Add(tv);
         }

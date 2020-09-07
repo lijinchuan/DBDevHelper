@@ -32,6 +32,6 @@ namespace Entity
         {
             get;
             set;
-        }
+        } = new Point[0];
     }
 }
