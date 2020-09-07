@@ -195,9 +195,10 @@ namespace NETDBHelper.UC
                             var destpt = this.FindColumnScreenEndPoint(rc.RelTBName, rc.RelColName);
                             if (!startpt.IsEmpty && !destpt.IsEmpty)
                             {
+                                var p1 = parent.PointToClient(startpt);
+                                var p2 = parent.PointToClient(destpt);
                                 var ptlist = new StepSelector(this.PanelMap.Width - this.PanelMap.AutoScrollPosition.X,
-                                    this.PanelMap.Height - this.PanelMap.AutoScrollPosition.Y,
-                                    parent.PointToClient(startpt), parent.PointToClient(destpt),
+                                    this.PanelMap.Height - this.PanelMap.AutoScrollPosition.Y, p1, p2,
                                     Check, StepDirection.right, StepDirection.right).Select();
                                 relColumnIces.Add(new RelColumnEx
                                 {
@@ -265,9 +266,11 @@ namespace NETDBHelper.UC
                     {
                         if (!item.Start.IsEmpty && !item.Dest.IsEmpty)
                         {
+                            var p1 = parent.PointToClient(item.Start);
+                            var p2 = parent.PointToClient(item.Dest);
                             var ptlist = new StepSelector(this.PanelMap.Width - this.PanelMap.AutoScrollPosition.X,
-                                    this.PanelMap.Height - this.PanelMap.AutoScrollPosition.Y, 
-                                    parent.PointToClient(item.Start), parent.PointToClient(item.Dest),
+                                    this.PanelMap.Height - this.PanelMap.AutoScrollPosition.Y,
+                                    p1, p2,
                                    Check, StepDirection.right, StepDirection.right).Select();
                             item.LinkLines = ptlist.ToArray();
                         }
@@ -402,7 +405,7 @@ namespace NETDBHelper.UC
                     continue;
                 }
                 var rect2 = new Rectangle(v.Location, v.Size);
-                rect2.Offset(this.PanelMap.AutoScrollPosition.X, this.PanelMap.AutoScrollPosition.Y);
+                //rect2.Offset(this.PanelMap.AutoScrollPosition.X, this.PanelMap.AutoScrollPosition.Y);
                 if (rect.IntersectsWith(rect2))
                 {
                     if (Math.Abs(view.Location.X - v.Location.X) > view.Width / 2)
@@ -446,7 +449,7 @@ namespace NETDBHelper.UC
             {
                 var rect = tb.Bounds;
                 var newrect = rect;//new Rectangle(rect.X - 15, rect.Y - 15, rect.Width + 30, rect.Height + 30);
-                newrect.Offset(this.PanelMap.AutoScrollPosition.X, this.PanelMap.AutoScrollPosition.Y);
+                newrect.Offset(-this.PanelMap.AutoScrollPosition.X, -this.PanelMap.AutoScrollPosition.Y);
                 if (newrect.Contains(p1) || newrect.Contains(p2))
                 {
                     return true;

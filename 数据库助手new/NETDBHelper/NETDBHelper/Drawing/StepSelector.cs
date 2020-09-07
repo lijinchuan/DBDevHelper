@@ -577,7 +577,7 @@ namespace NETDBHelper.Drawing
                                             }
                                         }
 
-                                        if ((i < 2 || !Check(steparray[i - 2].Pos, joinstep.Pos, true)) && !Check(joinstep.Pos, steparray[k].Pos, true))
+                                        if (!Check(steparray[i - 1].Pos, joinstep.Pos, true) && !Check(joinstep.Pos, steparray[k].Pos, true))
                                         {
                                             var list = new List<Step>();
                                             for (var m = 0; m < i - 1; m++)
