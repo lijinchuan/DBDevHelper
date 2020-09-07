@@ -102,15 +102,21 @@ namespace NETDBHelper.Drawing
                 {
                     return false;
                 }
+                var start1 = line1.Start.Y;
+                var end1 = line1.End.Y;
+                var start2 = line2.Start.Y;
+                var end2 = line2.End.Y;
                 if (line1.End.Y < line1.Start.Y)
                 {
-                    line1.Change();
+                    start1 = line1.End.Y;
+                    end1 = line1.Start.Y;
                 }
                 if (line2.End.Y < line2.Start.Y)
                 {
-                    line2.Change();
+                    start2 = line2.End.Y;
+                    end2 = line2.Start.Y;
                 }
-                return line2.Start.Y <= line1.End.Y && line2.End.Y >= line1.Start.Y;
+                return start2 <= end1 && end2 >= start1;
             }
             else if (line1.Start.Y == line1.End.Y)
             {
@@ -118,15 +124,21 @@ namespace NETDBHelper.Drawing
                 {
                     return false;
                 }
+                var start1 = line1.Start.X;
+                var end1 = line1.End.X;
+                var start2 = line2.Start.X;
+                var end2 = line2.End.X;
                 if (line1.End.X < line1.Start.X)
                 {
-                    line1.Change();
+                    start1 = line1.End.X;
+                    end1 = line1.Start.X;
                 }
                 if (line2.End.X < line2.Start.X)
                 {
-                    line2.Change();
+                    start2 = line2.End.X;
+                    end2 = line2.Start.X;
                 }
-                return line2.Start.X <= line1.End.X && line2.End.X >= line1.Start.X;
+                return start2 <= end1 && end2 >= start1;
             }
 
             return false;

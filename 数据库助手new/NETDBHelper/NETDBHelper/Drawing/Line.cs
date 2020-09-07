@@ -26,12 +26,5 @@ namespace NETDBHelper.Drawing
             this.Start = p1;
             this.End = p2;
         }
-
-        public void Change()
-        {
-            var end = this.End;
-            this.End = this.Start;
-            this.Start = end;
-        }
     }
 }
