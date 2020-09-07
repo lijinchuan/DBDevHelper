@@ -16,6 +16,8 @@ using NPOI.SS.Formula;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Drawing.Drawing2D;
+using System.IO;
+using System.Drawing.Imaging;
 
 namespace NETDBHelper.UC
 {
@@ -61,6 +63,16 @@ namespace NETDBHelper.UC
 
             this.CMSOpMenu.VisibleChanged += CMSOpMenu_VisibleChanged;
             TSMDelRelColumn.DropDownItemClicked += TSMDelRelColumn_DropDownItemClicked;
+        }
+
+        private int GetDrawWidth()
+        {
+            return Math.Max(this.PanelMap.Width, this.PanelMap.HorizontalScroll.Maximum);
+        }
+
+        private int GetDrawHeight()
+        {
+            return Math.Max(this.PanelMap.Height, this.PanelMap.VerticalScroll.Maximum);
         }
 
         private void CMSOpMenu_VisibleChanged(object sender, EventArgs e)
@@ -203,8 +215,8 @@ namespace NETDBHelper.UC
                             {
                                 var p1 = parent.PointToClient(startpt);
                                 var p2 = parent.PointToClient(destpt);
-                                var ptlist = new StepSelector(this.PanelMap.Width - this.PanelMap.AutoScrollPosition.X,
-                                    this.PanelMap.Height - this.PanelMap.AutoScrollPosition.Y, p1, p2,
+                                var ptlist = new StepSelector(GetDrawWidth(),
+                                    GetDrawHeight(), p1, p2,
                                     Check, StepDirection.right, StepDirection.right).Select();
                                 relColumnIces.Add(new RelColumnEx
                                 {
@@ -274,8 +286,8 @@ namespace NETDBHelper.UC
                         {
                             var p1 = parent.PointToClient(item.Start);
                             var p2 = parent.PointToClient(item.Dest);
-                            var ptlist = new StepSelector(this.PanelMap.Width - this.PanelMap.AutoScrollPosition.X,
-                                    this.PanelMap.Height - this.PanelMap.AutoScrollPosition.Y,
+                            var ptlist = new StepSelector(GetDrawWidth(),
+                                    GetDrawHeight(),
                                     p1, p2,
                                    Check, StepDirection.right, StepDirection.right).Select();
                             item.LinkLines = ptlist.ToArray();
@@ -564,6 +576,83 @@ namespace NETDBHelper.UC
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
+        }
+
+        private void TSMI_Export_Click(object sender, EventArgs e)
+        {
+            SubForm.InputStringDlg dlg = new SubForm.InputStringDlg("导出名称");
+            if (dlg.ShowDialog() == DialogResult.OK)
+            {
+                if (!string.IsNullOrWhiteSpace(dlg.InputString))
+                {
+                    var dir = Application.StartupPath + "\\temp\\";
+                    if (!Directory.Exists(dir))
+                    {
+                        Directory.CreateDirectory(dir);
+                    }
+
+                    var filename = $"{dir}\\{dlg.InputString}.png";
+                    if (System.IO.File.Exists(filename))
+                    {
+                        MessageBox.Show("文件名已存在");
+                        return;
+                    }
+                    var sx = PanelMap.HorizontalScroll.Value;
+                    var sy = PanelMap.VerticalScroll.Value;
+                    
+                    var w = Math.Max(PanelMap.Width, PanelMap.HorizontalScroll.Maximum);
+                    var h = Math.Max(PanelMap.Height, PanelMap.VerticalScroll.Maximum);
+                    using (var bm = new Bitmap(w, h))
+                    {
+                        using (Graphics g = Graphics.FromImage(bm))
+                        {
+                            int y = 0;
+                            PanelMap.VerticalScroll.Value = PanelMap.VerticalScroll.Minimum;
+                            while (y < h)
+                            {
+                                int x = 0;
+                                var yleft = Math.Min(PanelMap.Height, h - y);
+                                if (yleft == 0)
+                                {
+                                    break;
+                                }
+
+                                while (x < w)
+                                {
+                                    var xleft = Math.Min(PanelMap.Width, w - x);
+                                    if (xleft == 0)
+                                    {
+                                        break;
+                                    }
+                                    using (var bm1 = new Bitmap(PanelMap.Width, PanelMap.Height))
+                                    {
+                                        this.PanelMap.DrawToBitmap(bm1, new Rectangle(0, 0, bm1.Width, bm1.Height));
+                                        g.DrawImage(bm1, x, y, new Rectangle(bm1.Width - xleft, bm1.Height - yleft, xleft, yleft), GraphicsUnit.Pixel);
+                                    }
+                                    x += xleft;
+                                    if (x < PanelMap.HorizontalScroll.Maximum)
+                                    {
+                                        PanelMap.HorizontalScroll.Value = x;
+                                    }
+                                }
+
+
+                                y += yleft;
+                                if (y < PanelMap.VerticalScroll.Maximum)
+                                {
+                                    PanelMap.VerticalScroll.Value = y;
+                                }
+                            }
+
+                            bm.Save(filename, ImageFormat.Png);
+                            Util.SendMsg(this, $"文件已保存:{filename}");
+                            System.Diagnostics.Process.Start("explorer.exe", dir);
+                        }
+                    }
+                    PanelMap.HorizontalScroll.Value = sx;
+                    PanelMap.VerticalScroll.Value = sy;
+                }
+            }
         }
     }
 }
