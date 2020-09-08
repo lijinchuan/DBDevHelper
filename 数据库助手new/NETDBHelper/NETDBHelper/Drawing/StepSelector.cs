@@ -621,9 +621,9 @@ namespace NETDBHelper.Drawing
                 for (var i = 1; i < ps.Length - 1; i++)
                 {
                     if ((ps[i].X == ps[i - 1].X && ps[i].X == ps[i + 1].X
-                        && ps[i].Y > ps[i - 1].Y == ps[i].Y > ps[i + 1].Y)
+                        && ps[i].Y >= ps[i - 1].Y == ps[i].Y >= ps[i + 1].Y)
                         || (ps[i].Y == ps[i - 1].Y && ps[i].Y == ps[i + 1].Y
-                       && ps[i].X > ps[i - 1].X == ps[i].X > ps[i + 1].X))
+                       && ps[i].X >= ps[i - 1].X == ps[i].X >= ps[i + 1].X))
                     {
                         var li = ps.ToList();
                         li.RemoveAt(i);
