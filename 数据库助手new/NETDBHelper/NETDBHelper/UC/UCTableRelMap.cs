@@ -139,6 +139,18 @@ namespace NETDBHelper.UC
                 }).ToList();
             reltblist.AddRange(list.Select(p => p.RelTBName));
             reltblist.AddRange(list.Select(p => p.TBName));
+
+            var allrelcolumnlist = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<RelColumn>(nameof(RelColumn), r =>
+            {
+                return r.ServerName.Equals(DBSource.ServerName, StringComparison.OrdinalIgnoreCase)
+                && r.DBName.Equals(this.DBName, StringComparison.OrdinalIgnoreCase)
+                && (this.Tbname.Equals(r.TBName, StringComparison.OrdinalIgnoreCase)
+                || this.Tbname.Equals(r.RelTBName, StringComparison.OrdinalIgnoreCase));
+            }).ToList();
+
+            reltblist.AddRange(allrelcolumnlist.Select(p => p.TBName));
+            reltblist.AddRange(allrelcolumnlist.Select(p => p.RelTBName));
+
             reltblist = reltblist.Distinct().ToList();
 
             int maxy = 0;

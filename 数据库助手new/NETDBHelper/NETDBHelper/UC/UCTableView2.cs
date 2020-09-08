@@ -222,7 +222,7 @@ namespace NETDBHelper.UC
             {
                 if (ee.Button == MouseButtons.Left)
                 {
-                    isDraging = Math.Abs(dragEnd.X - dragStart.X) > 10 || Math.Abs(dragEnd.Y - dragEnd.Y) > 10;
+                    isDraging = Math.Abs(dragEnd.X - dragStart.X) > 10 || Math.Abs(dragEnd.Y - dragStart.Y) > 10;
 
                     dragEnd = new Point(ee.X, ee.Y);
                     if (isDraging)
@@ -433,9 +433,14 @@ namespace NETDBHelper.UC
                 //var rect = new Rectangle(this.Location, this.Size);
                 //if (rect.Contains(e.Location))
                 {
-                    IsTitleDraging = Math.Abs(TitleDragEnd.X - TitleDragStart.X) > 10 || Math.Abs(TitleDragEnd.Y - TitleDragEnd.Y) > 10; //&& ((DragEnd.X > DragStart.X && dragSource != tabExDic.Last().Value) || (DragEnd.X < DragStart.X && dragSource != tabExDic.First().Value));
+                    var pt = this.PointToScreen(e.Location);
+                    IsTitleDraging = Math.Abs(pt.X - TitleDragEnd.X) > 2 || Math.Abs(pt.Y - TitleDragEnd.Y) > 2; //&& ((DragEnd.X > DragStart.X && dragSource != tabExDic.Last().Value) || (DragEnd.X < DragStart.X && dragSource != tabExDic.First().Value));
+                    if (IsTitleDraging)
+                    {
+                        TitleDragStart = TitleDragEnd;
+                        TitleDragEnd = pt;
+                    }
 
-                    TitleDragEnd = new Point(e.X, e.Y);
                     if (IsTitleDraging)
                     {
                         OnTabDragOver(null);
@@ -450,20 +455,26 @@ namespace NETDBHelper.UC
             bool isdragendevent = false;
             if (e.Button == MouseButtons.Left)
             {
+                if (!IsTitleDraging && TitleDragStart != Point.Empty)
+                {
+                    var pt = this.PointToScreen(e.Location);
+                    IsTitleDraging = Math.Abs(pt.X - TitleDragStart.X) > 0 || Math.Abs(pt.Y - TitleDragStart.Y) > 0; //&& ((DragEnd.X > DragStart.X && dragSource != tabExDic.Last().Value) || (DragEnd.X < DragStart.X && dragSource != tabExDic.First().Value));
+                }
+
                 if (IsTitleDraging)
                 {
                     isdragendevent = true;
-                    
+
                 }
 
                 if (isdragendevent)
                 {
-                    
+                    OnTabDragEnd(null);
                 }
 
                 if (IsTitleDraging)
                 {
-                    OnTabDragEnd(null);
+
                     IsTitleDraging = false;
                 }
             }
@@ -477,18 +488,19 @@ namespace NETDBHelper.UC
             if (e.Button == MouseButtons.Left)
             {
                 //IsDraging = true;
-                TitleDragStart = new Point(e.X, e.Y);
-                TitleDragEnd = new Point(e.X, e.Y);
+                TitleDragStart = this.PointToScreen(new Point(e.X, e.Y));
+                TitleDragEnd = this.PointToScreen(new Point(e.X, e.Y));
             }
         }
 
         private void OnTabDragOver(DragEventArgs drgevent)
         {
-            this.Invalidate();
-
             var loc = this.Location;
             loc.Offset(TitleDragEnd.X - TitleDragStart.X, TitleDragEnd.Y - TitleDragStart.Y);
             this.Location = loc;
+
+            this.Invalidate();
+            //this.Parent.Invalidate(true);
         }
 
         private void OnTabDragEnd(DragEventArgs drgevent)
