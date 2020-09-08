@@ -14,6 +14,8 @@ namespace NETDBHelper
     {
         private static Dictionary<int, PopMessageDlg> PopDlgDic = new Dictionary<int, PopMessageDlg>();
 
+        private static string MsgType = "";
+
         public static void SendMsg(Control ctl,string msg)
         {
             var parent = ctl;
@@ -26,6 +28,40 @@ namespace NETDBHelper
                 }
 
                 parent = parent.Parent;
+            }
+        }
+
+        public static void SendMsg(Control ctl,string msgtype, string msg)
+        {
+            var parent = ctl;
+            while (parent != null)
+            {
+                if (parent is MainFrm)
+                {
+                    MsgType = msgtype;
+                    ((MainFrm)parent).SetMsg(msg);
+                    break;
+                }
+
+                parent = parent.Parent;
+            }
+        }
+
+        public static void ClearMsg(Control ctl, string msgtype)
+        {
+            if (msgtype == MsgType || string.IsNullOrWhiteSpace(MsgType))
+            {
+                var parent = ctl;
+                while (parent != null)
+                {
+                    if (parent is MainFrm)
+                    {
+                        ((MainFrm)parent).SetMsg("");
+                        break;
+                    }
+
+                    parent = parent.Parent;
+                }
             }
         }
 

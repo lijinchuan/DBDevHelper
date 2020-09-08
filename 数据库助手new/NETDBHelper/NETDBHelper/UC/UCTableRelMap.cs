@@ -203,6 +203,7 @@ namespace NETDBHelper.UC
         private void DrawLinkLine(Control parent, Graphics g)
         {
             //g.TranslateTransform(this.PanelMap.AutoScrollPosition.X, this.PanelMap.AutoScrollPosition.Y);
+            bool haserror = false;
             if (relColumnIces == null)
             {
                 lock (this)
@@ -237,6 +238,8 @@ namespace NETDBHelper.UC
                                     Start = startpt,
                                     LinkLines = ptlist.ToArray()
                                 });
+
+                                haserror = ptlist.Count == 0;
                             }
                             else
                             {
@@ -303,6 +306,8 @@ namespace NETDBHelper.UC
                                     p1, p2,
                                    Check, StepDirection.right, StepDirection.right).Select();
                             item.LinkLines = ptlist.ToArray();
+
+                            haserror = ptlist.Count == 0;
                         }
                         else
                         {
@@ -342,6 +347,16 @@ namespace NETDBHelper.UC
                     }
                 }
             }
+
+            if (haserror)
+            {
+                Util.SendMsg(this, "1", "画关系图有出错，可查看日志");
+
+            }
+            else
+            {
+                Util.ClearMsg(this, "1");
+            }
         }
 
         private void PanelMap_ControlRemoved(object sender, ControlEventArgs e)
@@ -371,7 +386,7 @@ namespace NETDBHelper.UC
                     {
                         var pt = rect.Location;
                         pt.Offset(-this.PanelMap.AutoScrollPosition.X, -this.PanelMap.AutoScrollPosition.Y);
-                        pt.Offset(rect.Width + 2, rect.Height/2);
+                        pt.Offset(rect.Width + 6, rect.Height/2);
                         return pt;
                     }
                 }

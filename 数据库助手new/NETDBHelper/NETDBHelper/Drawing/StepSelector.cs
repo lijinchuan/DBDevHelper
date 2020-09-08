@@ -252,6 +252,7 @@ namespace NETDBHelper.Drawing
         {
             this.Pepare();
             StepSelectorTrace trace = new StepSelectorTrace(this.startPoint, this.secDestPoint);
+            HashSet<Point> stephash = new HashSet<Point>();
             while (true)
             {
                 if (steps.Count > 10000)
@@ -337,12 +338,55 @@ namespace NETDBHelper.Drawing
                 }
 
                 if (!Check(currstep.Pos, nextstep.Pos,true)
-                    || (Math.Abs(nextstep.Pos.X - startPoint.X) <= 0 && Math.Abs(nextstep.Pos.Y - startPoint.Y) <= 5)
-                    || (Math.Abs(nextstep.Pos.X - startPoint.X) <= 5 && Math.Abs(nextstep.Pos.Y - startPoint.Y) <= 0)
-                    || (Math.Abs(nextstep.Pos.X - secDestPoint.X)<=0 && Math.Abs(nextstep.Pos.Y - secDestPoint.Y)<=5)
-                    || (Math.Abs(nextstep.Pos.X - secDestPoint.X) <= 5 && Math.Abs(nextstep.Pos.Y - secDestPoint.Y) <= 0))
+                    || (Math.Abs(nextstep.Pos.X - startPoint.X) <= 0 && Math.Abs(nextstep.Pos.Y - startPoint.Y) <= 20)
+                    || (Math.Abs(nextstep.Pos.X - startPoint.X) <= 20 && Math.Abs(nextstep.Pos.Y - startPoint.Y) <= 0)
+                    || (Math.Abs(nextstep.Pos.X - secDestPoint.X)<=0 && Math.Abs(nextstep.Pos.Y - secDestPoint.Y)<=20)
+                    || (Math.Abs(nextstep.Pos.X - secDestPoint.X) <= 20 && Math.Abs(nextstep.Pos.Y - secDestPoint.Y) <= 0))
                 {
-                    steps.Push(nextstep);
+                    if (!stephash.Contains(nextstep.Pos))
+                    {
+                        steps.Push(nextstep);
+                        stephash.Add(nextstep.Pos);
+                    }
+                    else
+                    {
+                        while (true)
+                        {
+                            if (steps.Count == 0)
+                            {
+                                break;
+                            }
+                            if (steps.Peek().Pos == nextstep.Pos)
+                            {
+                                var step = steps.Peek();
+                                step.Directions.Remove(step.chooseDirection);
+                                step.chooseDirection = StepDirection.none;
+                                if (step.Directions.Count == 0)
+                                {
+                                    stephash.Remove(steps.Pop().Pos);
+                                    while (steps.Count > 0)
+                                    {
+                                        var father = steps.Peek();
+                                        father.Directions.Remove(father.chooseDirection);
+                                        father.chooseDirection = StepDirection.none;
+                                        if (father.Directions.Count > 0)
+                                        {
+                                            break;
+                                        }
+                                        else
+                                        {
+                                            stephash.Remove(steps.Pop().Pos);
+                                        }
+                                    }
+                                }
+                                break;
+                            }
+                            else
+                            {
+                                stephash.Remove(steps.Pop().Pos);
+                            }
+                        }
+                    }
                 }
                 else
                 {
@@ -350,7 +394,7 @@ namespace NETDBHelper.Drawing
                     currstep.chooseDirection = StepDirection.none;
                     if (currstep.Directions.Count == 0)
                     {
-                        steps.Pop();
+                        stephash.Remove(steps.Pop().Pos);
                         while (steps.Count > 0)
                         {
                             var father = steps.Peek();
@@ -362,7 +406,7 @@ namespace NETDBHelper.Drawing
                             }
                             else
                             {
-                                steps.Pop();
+                                stephash.Remove(steps.Pop().Pos);
                             }
                         }
                     }
