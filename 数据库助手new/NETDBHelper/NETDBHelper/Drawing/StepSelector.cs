@@ -255,7 +255,7 @@ namespace NETDBHelper.Drawing
             HashSet<Point> stephash = new HashSet<Point>();
             while (true)
             {
-                if (steps.Count > 10000)
+                if (steps.Count > 10000 || trace.IsTimeOut())
                 {
                     trace.FailSteps = steps.Select(p => p).Reverse().ToList();
                     steps.Clear();
@@ -624,7 +624,7 @@ namespace NETDBHelper.Drawing
                                         if (!Check(steparray[i - 1].Pos, joinstep.Pos, true) && !Check(joinstep.Pos, steparray[k].Pos, true))
                                         {
                                             var list = new List<Step>();
-                                            for (var m = 0; m < i - 1; m++)
+                                            for (var m = 0; m < i; m++)
                                             {
                                                 list.Add(steparray[m]);
                                             }
@@ -672,7 +672,7 @@ namespace NETDBHelper.Drawing
                         var li = ps.ToList();
                         li.RemoveAt(i);
                         ps = li.ToArray();
-                        i--;
+                        i = 1;
                     }
                 }
 

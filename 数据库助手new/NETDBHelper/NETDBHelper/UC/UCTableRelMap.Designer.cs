@@ -55,39 +55,38 @@
             this.TSMDelRelColumn,
             this.TSMI_Export});
             this.CMSOpMenu.Name = "CMSOpMenu";
-            this.CMSOpMenu.Size = new System.Drawing.Size(181, 114);
+            this.CMSOpMenu.Size = new System.Drawing.Size(149, 92);
             // 
             // 添加表ToolStripMenuItem
             // 
             this.添加表ToolStripMenuItem.Name = "添加表ToolStripMenuItem";
-            this.添加表ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.添加表ToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
             this.添加表ToolStripMenuItem.Text = "添加表";
             this.添加表ToolStripMenuItem.Click += new System.EventHandler(this.添加表ToolStripMenuItem_Click);
             // 
             // delStripMenuItem
             // 
             this.delStripMenuItem.Name = "delStripMenuItem";
-            this.delStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.delStripMenuItem.Size = new System.Drawing.Size(148, 22);
             this.delStripMenuItem.Text = "删除表";
             this.delStripMenuItem.Click += new System.EventHandler(this.delStripMenuItem_Click);
             // 
             // TSMDelRelColumn
             // 
             this.TSMDelRelColumn.Name = "TSMDelRelColumn";
-            this.TSMDelRelColumn.Size = new System.Drawing.Size(180, 22);
+            this.TSMDelRelColumn.Size = new System.Drawing.Size(148, 22);
             this.TSMDelRelColumn.Text = "删除字段关联";
             // 
             // TSMI_Export
             // 
             this.TSMI_Export.Name = "TSMI_Export";
-            this.TSMI_Export.Size = new System.Drawing.Size(180, 22);
-            this.TSMI_Export.Text = "导出为逻辑图片";
+            this.TSMI_Export.Size = new System.Drawing.Size(148, 22);
+            this.TSMI_Export.Text = "导出为图片";
             this.TSMI_Export.Click += new System.EventHandler(this.TSMI_Export_Click);
             // 
             // UCTableRelMap
             // 
             this.Controls.Add(this.PanelMap);
-            this.Name = "UCTableRelMap";
             this.Size = new System.Drawing.Size(565, 412);
             this.CMSOpMenu.ResumeLayout(false);
             this.ResumeLayout(false);

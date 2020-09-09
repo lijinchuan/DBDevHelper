@@ -68,6 +68,11 @@ namespace NETDBHelper.Drawing
             ResultCount = resultcount;
         }
 
+        public bool IsTimeOut()
+        {
+            return DateTime.Now.Subtract(Start).TotalMilliseconds > 500;
+        }
+
         public override string ToString()
         {
             if (End == DateTime.MinValue)

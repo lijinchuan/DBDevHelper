@@ -350,12 +350,12 @@ namespace NETDBHelper.UC
 
             if (haserror)
             {
-                Util.SendMsg(this, "1", "画关系图有出错，可查看日志");
+                Util.SendMsg(this, "uctablerelmap", "绘制关系图出错，请尝试拖动表格重新绘制。");
 
             }
             else
             {
-                Util.ClearMsg(this, "1");
+                Util.ClearMsg(this, "uctablerelmap");
             }
         }
 
@@ -624,11 +624,13 @@ namespace NETDBHelper.UC
                         MessageBox.Show("文件名已存在");
                         return;
                     }
+                    
                     var sx = PanelMap.HorizontalScroll.Value;
                     var sy = PanelMap.VerticalScroll.Value;
                     
                     var w = Math.Max(PanelMap.Width, PanelMap.HorizontalScroll.Maximum);
                     var h = Math.Max(PanelMap.Height, PanelMap.VerticalScroll.Maximum);
+                    bool hashbar = w > PanelMap.Width, hasvbar = h > PanelMap.Height;
                     using (var bm = new Bitmap(w, h))
                     {
                         using (Graphics g = Graphics.FromImage(bm))
@@ -670,8 +672,18 @@ namespace NETDBHelper.UC
                                     PanelMap.VerticalScroll.Value = y;
                                 }
                             }
-
-                            bm.Save(filename, ImageFormat.Png);
+                            if (hashbar || hasvbar)
+                            {
+                                Rectangle rect = new Rectangle(0, 0, w - (hasvbar ? 25 : 0), h - (hashbar ? 25 : 0));
+                                using (var bmcopy = bm.Clone(rect, PixelFormat.Format32bppArgb))
+                                {
+                                    bmcopy.Save(filename, ImageFormat.Png);
+                                }
+                            }
+                            else
+                            {
+                                bm.Save(filename, ImageFormat.Png);
+                            }
                             Util.SendMsg(this, $"文件已保存:{filename}");
                             System.Diagnostics.Process.Start("explorer.exe", dir);
                         }
