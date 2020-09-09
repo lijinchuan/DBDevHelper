@@ -24,7 +24,7 @@ namespace NETDBHelper.UC
     public partial class UCTableRelMap : TabPage
     {
         DBSource DBSource = null;
-        string DBName = null;
+        string _DBName = null;
         string Tbname = null;
 
         static Color[] colors = new Color[] { Color.LightBlue, Color.Red, Color.Green, Color.Gold, Color.BurlyWood,
@@ -32,7 +32,7 @@ namespace NETDBHelper.UC
 
         private List<UCTableView2> ucTableViews = new List<UCTableView2>();
 
-        private Lazy<List<string>> lzTableList = null;
+        Dictionary<string, List<string>> tableColumnList = null;
 
         List<RelColumnEx> relColumnIces = null;
 
@@ -41,11 +41,11 @@ namespace NETDBHelper.UC
             InitializeComponent();
         }
 
-        public UCTableRelMap(DBSource dbSource,string dbname,string tbname)
+        public UCTableRelMap(DBSource dbSource, string dbname, string tbname)
         {
             InitializeComponent();
             this.DBSource = dbSource;
-            this.DBName = dbname;
+            this._DBName = dbname;
             this.Tbname = tbname;
 
             this.PanelMap.ContextMenuStrip = this.CMSOpMenu;
@@ -53,13 +53,10 @@ namespace NETDBHelper.UC
             this.PanelMap.ControlAdded += PanelMap_ControlAdded;
             this.PanelMap.ControlRemoved += PanelMap_ControlRemoved;
 
-            lzTableList = new Lazy<List<string>>(() =>
-             {
-                 var tbs = SQLHelper.GetTBs(this.DBSource, DBName);
-                 List<string> tablelist = new List<string>();
-                 tablelist.AddRange(tbs.AsEnumerable().Select(p => p.Field<string>("name")));
-                 return tablelist;
-             });
+            tableColumnList = new Dictionary<string, List<string>>();
+
+            var tbs = SQLHelper.GetTBs(this.DBSource, dbname);
+            tableColumnList.Add(dbname.ToLower(), tbs.AsEnumerable().Select(p => p.Field<string>("name").ToLower()).ToList());
 
             this.CMSOpMenu.VisibleChanged += CMSOpMenu_VisibleChanged;
             TSMDelRelColumn.DropDownItemClicked += TSMDelRelColumn_DropDownItemClicked;
@@ -84,13 +81,13 @@ namespace NETDBHelper.UC
                 if (col != null)
                 {
                     var collist = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Scan<RelColumn>(nameof(RelColumn),
-                "SDTC", new[] { DBSource.ServerName.ToLower(), this.DBName.ToLower(), col.TBName.ToLower() },
-                new[] { DBSource.ServerName.ToLower(), this.DBName.ToLower(), col.TBName.ToLower() }, 1, int.MaxValue);
+                "SDTC", new[] { DBSource.ServerName.ToLower(), this._DBName.ToLower(), col.TBName.ToLower() },
+                new[] { DBSource.ServerName.ToLower(), this._DBName.ToLower(), col.TBName.ToLower() }, 1, int.MaxValue);
 
                     foreach (var c in collist.Where(p => p.ColName.Equals(col.Name, StringComparison.OrdinalIgnoreCase)))
                     {
                         var ts = new ToolStripMenuItem();
-                        ts.Text = $"{c.RelTBName}.{c.RelColName}";
+                        ts.Text = $"{c.RelDBName}.{c.RelTBName}.{c.RelColName}";
                         ts.Tag = c;
                         TSMDelRelColumn.DropDownItems.Add(ts);
                     }
@@ -123,56 +120,74 @@ namespace NETDBHelper.UC
 
         public void Load()
         {
+            var dbs = SQLHelper.GetDBs(this.DBSource);
+            foreach (DataRow r in dbs.Select())
+            {
+                添加表ToolStripMenuItem.DropDownItems.Add((string)r["name"]);
+            }
+            添加表ToolStripMenuItem.DropDownItemClicked += 添加表ToolStripMenuItem_DropDownItemClicked;
+            添加表ToolStripMenuItem.Click += 添加表ToolStripMenuItem_Click;
+
             int pointstartx = 50;
             int margin = 100;
             var location = new Point(pointstartx, 30);
-            List<string> reltblist = new List<string>();
-            reltblist.Add(this.Tbname.ToLower());
+            List<Tuple<string, string>> reltblist = new List<Tuple<string, string>>();
+            reltblist.Add(new Tuple<string, string>(this._DBName.ToLower(), this.Tbname.ToLower()));
 
             var list = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<RelTable>(nameof(RelTable),
                 p =>
                 {
-                    return p.ServerName.Equals(this.DBSource.ServerName, StringComparison.OrdinalIgnoreCase)
-                            && p.DBName.Equals(this.DBName, StringComparison.OrdinalIgnoreCase)
+                    return p.DBName.Equals(this._DBName, StringComparison.OrdinalIgnoreCase)
                             && ((p.TBName.Equals(this.Tbname, StringComparison.OrdinalIgnoreCase)
                             || p.RelTBName.Equals(this.Tbname, StringComparison.OrdinalIgnoreCase)));
                 }).ToList();
-            reltblist.AddRange(list.Select(p => p.RelTBName));
-            reltblist.AddRange(list.Select(p => p.TBName));
+            reltblist.AddRange(list.Select(p => new Tuple<string, string>(p.RelDBName, p.RelTBName)));
+            reltblist.AddRange(list.Select(p => new Tuple<string, string>(p.DBName, p.TBName)));
 
             var allrelcolumnlist = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<RelColumn>(nameof(RelColumn), r =>
             {
-                return r.ServerName.Equals(DBSource.ServerName, StringComparison.OrdinalIgnoreCase)
-                && r.DBName.Equals(this.DBName, StringComparison.OrdinalIgnoreCase)
-                && (this.Tbname.Equals(r.TBName, StringComparison.OrdinalIgnoreCase)
-                || this.Tbname.Equals(r.RelTBName, StringComparison.OrdinalIgnoreCase));
+                return (this._DBName.Equals(r.DBName, StringComparison.OrdinalIgnoreCase)
+                && this.Tbname.Equals(r.TBName, StringComparison.OrdinalIgnoreCase))
+                || (this._DBName.Equals(r.RelDBName, StringComparison.OrdinalIgnoreCase)
+                && this.Tbname.Equals(r.RelTBName, StringComparison.OrdinalIgnoreCase));
             }).ToList();
 
-            reltblist.AddRange(allrelcolumnlist.Select(p => p.TBName));
-            reltblist.AddRange(allrelcolumnlist.Select(p => p.RelTBName));
+            reltblist.AddRange(allrelcolumnlist.Select(p => new Tuple<string, string>(p.DBName, p.TBName)));
+            reltblist.AddRange(allrelcolumnlist.Select(p => new Tuple<string, string>(p.RelDBName, p.RelTBName)));
 
             reltblist = reltblist.Distinct().ToList();
 
             int maxy = 0;
             foreach (var item in reltblist)
             {
-                UCTableView2 tv = new UCTableView2(DBSource, DBName, item, () =>
-                {
-                    var tblist = new List<string>();
-                    foreach (var tb in ucTableViews)
-                    {
-                        tblist.Add(tb.TableName?.ToLower());
-                    }
-                    return lzTableList.Value.Where(p => !tblist.Contains(p.ToLower())).OrderBy(p => p).ToList();
-                }, v =>
-                {
-                    AdjustLoaction(v);
-                },
+                UCTableView2 tv = new UCTableView2(DBSource, this._DBName.Equals(item.Item1, StringComparison.OrdinalIgnoreCase), item.Item1, item.Item2, () =>
+                  {
+                      var tblist = new List<Tuple<string, string>>();
+                      foreach (var tb in ucTableViews)
+                      {
+                          if (!string.IsNullOrWhiteSpace(tb.TableName))
+                          {
+                              tblist.Add(Tuple.Create<string, string>(tb.DataBaseName.ToLower(), tb.TableName.ToLower()));
+                          }
+                      }
+
+                      if (!tableColumnList.ContainsKey(item.Item1))
+                      {
+                          var tbs = SQLHelper.GetTBs(this.DBSource, item.Item1);
+                          tableColumnList.Add(item.Item1, tbs.AsEnumerable().Select(p => p.Field<string>("name").ToLower()).ToList());
+                      }
+
+                      return tableColumnList[item.Item1].Select(p => new Tuple<string, string>(item.Item1, p)).Where(p => !tblist.Contains(p)).OrderBy(p => p).ToList();
+                  }, v =>
+                  {
+                      AdjustLoaction(v);
+                  },
                   Check);
-                tv.OnAddNewRelColumn = c => {
+                tv.OnAddNewRelColumn = c =>
+                {
                     this.relColumnIces.Add(new RelColumnEx() { RelColumn = c });
                     this.PanelMap.Invalidate();
-                } ;
+                };
                 tv.Location = location;
                 this.PanelMap.Controls.Add(tv);
 
@@ -195,6 +210,18 @@ namespace NETDBHelper.UC
 
         }
 
+        private void 添加表ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.CMSOpMenu.Visible = false;
+            AddTable(this._DBName);
+        }
+
+        private void 添加表ToolStripMenuItem_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+            
+            AddTable(e.ClickedItem.Text);
+        }
+
         private void PanelMap_Paint(object sender, PaintEventArgs e)
         {
             DrawLinkLine(this.PanelMap, e.Graphics);
@@ -211,19 +238,18 @@ namespace NETDBHelper.UC
                     if (relColumnIces == null)
                     {
                         relColumnIces = new List<RelColumnEx>();
-                        var othertables = ucTableViews.Where(p => !string.IsNullOrEmpty(p.TableName)).Select(p => p.TableName).Distinct().ToList();
+                        var othertables = ucTableViews.Where(p => !string.IsNullOrEmpty(p.TableName)).Select(p => new Tuple<string, string>(p.DataBaseName, p.TableName)).Distinct().ToList();
                         var allrelcolumnlist = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<RelColumn>(nameof(RelColumn), r =>
                          {
-                             return r.ServerName.Equals(DBSource.ServerName, StringComparison.OrdinalIgnoreCase)
-                             && r.DBName.Equals(this.DBName, StringComparison.OrdinalIgnoreCase)
-                             && (othertables.Any(p => p.Equals(r.TBName, StringComparison.OrdinalIgnoreCase))
-                             || othertables.Any(p => p.Equals(r.RelTBName, StringComparison.OrdinalIgnoreCase)));
+                             return (r.DBName.Equals(this._DBName, StringComparison.OrdinalIgnoreCase) || r.RelDBName.Equals(this._DBName, StringComparison.OrdinalIgnoreCase))
+                             && (othertables.Any(p => p.Item1.Equals(r.DBName, StringComparison.OrdinalIgnoreCase) && p.Item2.Equals(r.TBName, StringComparison.OrdinalIgnoreCase))
+                             || othertables.Any(p => p.Item1.Equals(r.RelDBName, StringComparison.OrdinalIgnoreCase) && p.Item2.Equals(r.RelTBName, StringComparison.OrdinalIgnoreCase)));
                          }).ToList();
 
                         foreach (var rc in allrelcolumnlist)
                         {
-                            var startpt = this.FindColumnScreenStartPoint(rc.TBName, rc.ColName);
-                            var destpt = this.FindColumnScreenEndPoint(rc.RelTBName, rc.RelColName);
+                            var startpt = this.FindColumnScreenStartPoint(rc.DBName, rc.TBName, rc.ColName);
+                            var destpt = this.FindColumnScreenEndPoint(rc.RelDBName, rc.RelTBName, rc.RelColName);
                             if (!startpt.IsEmpty && !destpt.IsEmpty)
                             {
                                 var p1 = parent.PointToClient(startpt);
@@ -270,7 +296,7 @@ namespace NETDBHelper.UC
                     if (col == null || item.Start.IsEmpty || !col.Name.Equals(item.RelColumn.ColName, StringComparison.OrdinalIgnoreCase)
                         || !col.TBName.Equals(item.RelColumn.TBName, StringComparison.OrdinalIgnoreCase))
                     {
-                        startpt = this.FindColumnScreenStartPoint(item.RelColumn.TBName, item.RelColumn.ColName);
+                        startpt = this.FindColumnScreenStartPoint(item.RelColumn.DBName, item.RelColumn.TBName, item.RelColumn.ColName);
                         if (!startpt.IsEmpty)
                         {
                             item.Start = startpt;
@@ -282,7 +308,7 @@ namespace NETDBHelper.UC
                     if (col == null || item.Dest.IsEmpty || !col.Name.Equals(item.RelColumn.RelColName, StringComparison.OrdinalIgnoreCase)
                         || !col.TBName.Equals(item.RelColumn.RelTBName, StringComparison.OrdinalIgnoreCase))
                     {
-                        destpt = this.FindColumnScreenEndPoint(item.RelColumn.RelTBName, item.RelColumn.RelColName);
+                        destpt = this.FindColumnScreenEndPoint(item.RelColumn.RelDBName, item.RelColumn.RelTBName, item.RelColumn.RelColName);
                         if (!destpt.IsEmpty)
                         {
                             item.Dest = destpt;
@@ -375,18 +401,18 @@ namespace NETDBHelper.UC
             }
         }
 
-        public Point FindColumnScreenStartPoint(string tbname, string colname)
+        public Point FindColumnScreenStartPoint(string dbname,string tbname, string colname)
         {
             foreach (var v in this.ucTableViews)
             {
-                if (v.TableName?.Equals(tbname, StringComparison.OrdinalIgnoreCase)==true)
+                if (v.DataBaseName.Equals(dbname, StringComparison.OrdinalIgnoreCase) && v.TableName?.Equals(tbname, StringComparison.OrdinalIgnoreCase) == true)
                 {
                     var rect = v.FindTBColumnScreenRect(colname);
                     if (!rect.IsEmpty)
                     {
                         var pt = rect.Location;
                         pt.Offset(-this.PanelMap.AutoScrollPosition.X, -this.PanelMap.AutoScrollPosition.Y);
-                        pt.Offset(rect.Width + 6, rect.Height/2);
+                        pt.Offset(rect.Width + 6, rect.Height / 2);
                         return pt;
                     }
                 }
@@ -395,11 +421,11 @@ namespace NETDBHelper.UC
             return Point.Empty;
         }
 
-        public Point FindColumnScreenEndPoint(string tbname, string colname)
+        public Point FindColumnScreenEndPoint(string dbname, string tbname, string colname)
         {
             foreach (var v in this.ucTableViews)
             {
-                if (v.TableName?.Equals(tbname, StringComparison.OrdinalIgnoreCase) == true)
+                if (v.DataBaseName.Equals(dbname, StringComparison.OrdinalIgnoreCase) && v.TableName?.Equals(tbname, StringComparison.OrdinalIgnoreCase) == true)
                 {
                     var rect = v.FindTBColumnScreenRect(colname);
                     if (!rect.IsEmpty)
@@ -525,43 +551,49 @@ namespace NETDBHelper.UC
             return false;
         }
 
-        private void 添加表ToolStripMenuItem_Click(object sender, EventArgs e)
+        private void AddTable(string db)
         {
             var location = this.PanelMap.PointToClient(new Point(this.CMSOpMenu.Left, this.CMSOpMenu.Top));
-            UCTableView2 tv = new UCTableView2(DBSource, DBName, null, () =>
-              {
-                  var list = new List<string>();
-                  foreach (var tb in ucTableViews)
-                  {
-                      list.Add(tb.TableName?.ToLower());
-                  }
-                  return lzTableList.Value.Where(p => !list.Contains(p.ToLower())).OrderBy(p => p).ToList();
-              }, v =>
-              {
+            UCTableView2 tv = new UCTableView2(DBSource, _DBName.Equals(db, StringComparison.OrdinalIgnoreCase), db, null, () =>
+                {
+                    var list = new List<Tuple<string, string>>();
+                    foreach (var tb in ucTableViews)
+                    {
+                        list.Add(new Tuple<string, string>(tb.DataBaseName.ToLower(), tb.TableName?.ToLower()));
+                    }
+                    if (!tableColumnList.ContainsKey(db.ToLower()))
+                    {
+                        var tbs = SQLHelper.GetTBs(this.DBSource, db);
+                        tableColumnList.Add(db.ToLower(), tbs.AsEnumerable().Select(p => p.Field<string>("name").ToLower()).ToList());
+                    }
+                    return tableColumnList[db.ToLower()].Select(p => new Tuple<string, string>(db.ToLower(), p)).Where(p => !list.Contains(p)).OrderBy(p => p).ToList();
+                }, v =>
+                {
 
-                  if (!string.IsNullOrWhiteSpace(v.TableName) && !v.TableName.Equals(this.Tbname, StringComparison.OrdinalIgnoreCase))
-                  {
-                      var newreltable = new RelTable
-                      {
-                          ServerName = DBSource.ServerName.ToLower(),
-                          DBName = DBName.ToLower(),
-                          TBName = Tbname.ToLower(),
-                          RelTBName = v.TableName.ToLower()
-                      };
-                      var boo = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<RelTable>(nameof(RelTable),
-                              p => p.ServerName.Equals(newreltable.ServerName, StringComparison.OrdinalIgnoreCase)
-                                  && p.DBName.Equals(newreltable.DBName, StringComparison.OrdinalIgnoreCase)
-                                  && p.TBName.Equals(newreltable.TBName, StringComparison.OrdinalIgnoreCase)
-                                  && p.RelTBName.Equals(newreltable.RelTBName, StringComparison.OrdinalIgnoreCase)).Any();
-                      if (!boo)
-                      {
-                          LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<RelTable>(nameof(RelTable), newreltable);
-                      }
-                  }
+                    if (!string.IsNullOrWhiteSpace(v.TableName) && (!v.DataBaseName.Equals(_DBName, StringComparison.OrdinalIgnoreCase) || !v.TableName.Equals(this.Tbname, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        var newreltable = new RelTable
+                        {
+                            ServerName = DBSource.ServerName.ToLower(),
+                            DBName = this._DBName.ToLower(),
+                            TBName = Tbname.ToLower(),
+                            RelDBName = v.DataBaseName.ToLower(),
+                            RelTBName = v.TableName.ToLower()
+                        };
+                        var boo = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<RelTable>(nameof(RelTable),
+                                p => p.DBName.Equals(newreltable.DBName, StringComparison.OrdinalIgnoreCase)
+                                    && p.TBName.Equals(newreltable.TBName, StringComparison.OrdinalIgnoreCase)
+                                    && p.RelDBName.Equals(newreltable.RelDBName, StringComparison.OrdinalIgnoreCase)
+                                    && p.RelTBName.Equals(newreltable.RelTBName, StringComparison.OrdinalIgnoreCase)).Any();
+                        if (!boo)
+                        {
+                            LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<RelTable>(nameof(RelTable), newreltable);
+                        }
+                    }
 
-                  v.Location = location;
-                  AdjustLoaction(v);
-              },
+                    v.Location = location;
+                    AdjustLoaction(v);
+                },
               Check);
             tv.OnAddNewRelColumn = c =>
             {
@@ -586,9 +618,9 @@ namespace NETDBHelper.UC
                         if (!string.IsNullOrWhiteSpace(v.TableName) && !v.TableName.Equals(this.Tbname, StringComparison.OrdinalIgnoreCase))
                         {
                             foreach (var item in LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<RelTable>(nameof(RelTable),
-                                    p => p.ServerName.Equals(this.DBSource.ServerName, StringComparison.OrdinalIgnoreCase)
-                                        && p.DBName.Equals(this.DBName, StringComparison.OrdinalIgnoreCase)
+                                    p => p.DBName.Equals(this._DBName, StringComparison.OrdinalIgnoreCase)
                                         && p.TBName.Equals(this.Tbname, StringComparison.OrdinalIgnoreCase)
+                                        && p.RelDBName.Equals(v.DataBaseName, StringComparison.OrdinalIgnoreCase)
                                         && p.RelTBName.Equals(v.TableName, StringComparison.OrdinalIgnoreCase)).ToList())
                             {
                                 LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Delete<RelTable>(nameof(RelTable), item.Id);

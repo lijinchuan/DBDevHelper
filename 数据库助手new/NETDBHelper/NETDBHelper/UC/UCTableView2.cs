@@ -21,10 +21,11 @@ namespace NETDBHelper.UC
         DBSource DBSource = null;
         string DBName = null;
         string TBName = null;
+        bool issamedb = true;
 
         private List<TBColumn> ColumnsList = null;
 
-        private Func<List<string>> FunLoadTables = null;
+        private Func<List<Tuple<string, string>>> FunLoadTables = null;
 
         private Action<UCTableView2> OnComplete;
 
@@ -43,7 +44,7 @@ namespace NETDBHelper.UC
             InitializeComponent();
         }
 
-        public UCTableView2(DBSource dbSource, string dbname, string tbname, Func<List<string>> funcLoadTables, Action<UCTableView2> onComplete,
+        public UCTableView2(DBSource dbSource,bool samedb, string dbname, string tbname, Func<List<Tuple<string,string>>> funcLoadTables, Action<UCTableView2> onComplete,
             Func<Point, Point, bool, bool> checkConflict)
         {
             InitializeComponent();
@@ -52,13 +53,17 @@ namespace NETDBHelper.UC
             DBSource = dbSource;
             DBName = dbname;
             TBName = tbname;
+            issamedb = samedb;
 
             LBTabname.BackColor = Color.LightBlue;
             LBTabname.Visible = false;
             LBTabname.AutoSize = false;
             LBTabname.Height = 20;
             LBTabname.ForeColor = Color.Blue;
-            LBTabname.Text = tbname;
+            if (!string.IsNullOrWhiteSpace(tbname))
+            {
+                LBTabname.Text = issamedb ? $"{tbname}" : $"[{dbname}].{tbname}";
+            }
             this.ColumnsPanel.Location = new Point(1, LBTabname.Height + 1);
             this.ColumnsPanel.Width = LBTabname.Width - 2;
             this.ColumnsPanel.Height = this.Height - this.LBTabname.Height - 2;
@@ -80,7 +85,8 @@ namespace NETDBHelper.UC
         {
             if (CBTables.SelectedIndex != -1)
             {
-                this.TBName = LBTabname.Text = CBTables.Text;
+                this.TBName = CBTables.Text;
+                LBTabname.Text = issamedb ? $"{TBName}" : $"[{DBName}].{TBName}";
 
                 this.LBTabname.Visible = true;
                 this.LBTabname.Location = new Point(1, 1);
@@ -100,6 +106,14 @@ namespace NETDBHelper.UC
             }
         }
 
+        public string DataBaseName
+        {
+            get
+            {
+                return this.DBName;
+            }
+        }
+
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
@@ -111,12 +125,12 @@ namespace NETDBHelper.UC
         {
 
             var collist = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Scan<RelColumn>(nameof(RelColumn),
-                "SDTC", new[] { DBSource.ServerName.ToLower(), this.DBName.ToLower(), this.TBName.ToLower() },
-                new[] { DBSource.ServerName.ToLower(), this.DBName.ToLower(), this.TBName.ToLower() }, 1, int.MaxValue);
+                "SDTC", new[] { DBName.ToLower(), this.TBName.ToLower() },
+                new[] { DBName.ToLower(), this.TBName.ToLower() }, 1, int.MaxValue);
 
             var relcollist = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Scan<RelColumn>(nameof(RelColumn),
-                "SDRTC", new[] { DBSource.ServerName.ToLower(), this.DBName.ToLower(), this.TBName.ToLower() },
-                new[] { DBSource.ServerName.ToLower(), this.DBName.ToLower(), this.TBName.ToLower() }, 1, int.MaxValue);
+                "SDRTC", new[] { this.DBName.ToLower(), this.TBName.ToLower() },
+                new[] { this.DBName.ToLower(), this.TBName.ToLower() }, 1, int.MaxValue);
 
             this.CBCoumns.Items.AddRange(ColumnsList.Where(p => !collist.Any(q => q.ColName.Equals(p.Name, StringComparison.OrdinalIgnoreCase))
             && !relcollist.Any(q => q.RelColName.Equals(p.Name, StringComparison.OrdinalIgnoreCase))).ToArray());
@@ -302,15 +316,16 @@ namespace NETDBHelper.UC
                                 ColName = (lb.Tag as TBColumn).Name.ToLower(),
                                 DBName = this.DBName.ToLower(),
                                 RelColName = col.Name.ToLower(),
+                                RelDBName = col.DBName.ToLower(),
                                 RelTBName = col.TBName.ToLower(),
                                 ServerName = DBSource.ServerName.ToLower(),
                                 TBName = this.TBName.ToLower()
                             };
                             var relcollist = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine
-                            .Scan<RelColumn>(nameof(RelColumn), "SDTC", new[] { newrelcolumn.ServerName, newrelcolumn.DBName, newrelcolumn.TBName },
-                            new[] { newrelcolumn.ServerName, newrelcolumn.DBName, newrelcolumn.TBName }, 1, int.MaxValue);
+                            .Scan<RelColumn>(nameof(RelColumn), "SDTC", new[] { newrelcolumn.DBName, newrelcolumn.TBName },
+                            new[] { newrelcolumn.DBName, newrelcolumn.TBName }, 1, int.MaxValue);
 
-                            if (!relcollist.Any(p => p.RelTBName.ToLower() == newrelcolumn.RelTBName && p.RelColName.ToLower() == newrelcolumn.RelColName))
+                            if (!relcollist.Any(p => p.RelDBName.ToLower() == newrelcolumn.RelDBName && p.RelTBName.ToLower() == newrelcolumn.RelTBName && p.RelColName.ToLower() == newrelcolumn.RelColName))
                             {
                                 LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<RelColumn>(nameof(RelColumn), newrelcolumn);
                                 //通知父控件
@@ -383,7 +398,7 @@ namespace NETDBHelper.UC
 
             if (string.IsNullOrWhiteSpace(TBName))
             {
-                CBTables.DataSource = FunLoadTables();
+                CBTables.DataSource = FunLoadTables().Select(p => p.Item2).OrderBy(p => p).ToList();
                 CBTables.SelectedIndex = -1;
                 this.LBTabname.Visible = false;
                 this.CBTables.Visible = true;
@@ -393,7 +408,7 @@ namespace NETDBHelper.UC
             }
             else
             {
-                this.LBTabname.Text = TBName;
+                this.LBTabname.Text = issamedb ? $"{TBName}" : $"[{DBName}].{TBName}";
                 this.LBTabname.Visible = true;
                 this.LBTabname.Location = new Point(1, 1);
                 this.LBTabname.Width = this.Width - 2;

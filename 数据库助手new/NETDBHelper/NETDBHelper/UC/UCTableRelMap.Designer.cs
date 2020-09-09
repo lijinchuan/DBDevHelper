@@ -62,7 +62,6 @@
             this.添加表ToolStripMenuItem.Name = "添加表ToolStripMenuItem";
             this.添加表ToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
             this.添加表ToolStripMenuItem.Text = "添加表";
-            this.添加表ToolStripMenuItem.Click += new System.EventHandler(this.添加表ToolStripMenuItem_Click);
             // 
             // delStripMenuItem
             // 

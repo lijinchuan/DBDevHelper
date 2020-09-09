@@ -196,14 +196,14 @@ namespace NETDBHelper
 
             BigEntityTableEngine.LocalEngine.CreateTable<RelTable>(p => p.Id, b =>
             {
-                b.AddIndex("SDT", p => p.Asc(q => q.ServerName).Asc(q => q.DBName).Asc(q => q.TBName));
-                b.AddIndex("SDRT", p => p.Asc(q => q.ServerName).Asc(q => q.DBName).Asc(q => q.RelTBName));
+                b.AddIndex("SDT", p => p.Asc(q => q.DBName).Asc(q => q.TBName));
+                b.AddIndex("SDRT", p => p.Asc(q => q.RelDBName).Asc(q => q.RelTBName));
             });
 
             BigEntityTableEngine.LocalEngine.CreateTable<RelColumn>(p => p.Id, b =>
             {
-                b.AddIndex("SDTC", p => p.Asc(q => q.ServerName).Asc(q => q.DBName).Asc(q => q.TBName));
-                b.AddIndex("SDRTC", p => p.Asc(q => q.ServerName).Asc(q => q.DBName).Asc(q => q.RelTBName));
+                b.AddIndex("SDTC", p => p.Asc(q => q.DBName).Asc(q => q.TBName));
+                b.AddIndex("SDRTC", p => p.Asc(q => q.RelDBName).Asc(q => q.RelTBName));
             });
 
             Application.EnableVisualStyles();
