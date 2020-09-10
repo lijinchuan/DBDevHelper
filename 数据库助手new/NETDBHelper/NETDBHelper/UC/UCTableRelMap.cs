@@ -81,8 +81,8 @@ namespace NETDBHelper.UC
                 if (col != null)
                 {
                     var collist = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Scan<RelColumn>(nameof(RelColumn),
-                "SDTC", new[] { DBSource.ServerName.ToLower(), this._DBName.ToLower(), col.TBName.ToLower() },
-                new[] { DBSource.ServerName.ToLower(), this._DBName.ToLower(), col.TBName.ToLower() }, 1, int.MaxValue);
+                "SDTC", new[] { this._DBName.ToLower(), col.TBName.ToLower() },
+                new[] { this._DBName.ToLower(), col.TBName.ToLower() }, 1, int.MaxValue);
 
                     foreach (var c in collist.Where(p => p.ColName.Equals(col.Name, StringComparison.OrdinalIgnoreCase)))
                     {
