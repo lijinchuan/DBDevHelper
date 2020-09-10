@@ -36,6 +36,8 @@ namespace NETDBHelper.UC
 
         List<RelColumnEx> relColumnIces = null;
 
+        bool hashotline = false;
+
         public UCTableRelMap()
         {
             InitializeComponent();
@@ -52,6 +54,7 @@ namespace NETDBHelper.UC
             this.PanelMap.AutoScroll = true;
             this.PanelMap.ControlAdded += PanelMap_ControlAdded;
             this.PanelMap.ControlRemoved += PanelMap_ControlRemoved;
+            this.PanelMap.MouseClick += PanelMap_MouseClick;
 
             tableColumnList = new Dictionary<string, List<string>>();
 
@@ -60,6 +63,72 @@ namespace NETDBHelper.UC
 
             this.CMSOpMenu.VisibleChanged += CMSOpMenu_VisibleChanged;
             TSMDelRelColumn.DropDownItemClicked += TSMDelRelColumn_DropDownItemClicked;
+        }
+
+        private void PanelMap_MouseClick(object sender, MouseEventArgs e)
+        {
+            if (relColumnIces != null)
+            {
+                var pt = e.Location;
+                RelColumnEx relColumnEx = null;
+                //pt.Offset(-this.PanelMap.AutoScrollPosition.X, -this.PanelMap.AutoScrollPosition.Y);
+                foreach (var item in relColumnIces)
+                {
+                    
+                    if (item.LinkLines != null && item.LinkLines.Length > 0)
+                    {
+                        for(var i = 1; i < item.LinkLines.Length - 1; i++)
+                        {
+                            if (DrawingUtil.HasIntersect(new Rectangle(pt.X-1, pt.Y-1, 3, 3), new Line(item.LinkLines[i - 1], item.LinkLines[i])))
+                            {
+                                //points = item.LinkLines;
+                                relColumnEx = item;
+                                break;
+                            }
+                        }
+                    }
+                    if (relColumnEx != null)
+                    {
+                        break;
+                    }
+                }
+
+                if (relColumnEx != null)
+                {
+                    hashotline = true;
+                    MessageBox.Show(string.Join(",", relColumnEx.LinkLines.Select(p => p.X + " " + p.Y)));
+                    using (var g = this.PanelMap.CreateGraphics())
+                    {
+                        g.TranslateTransform(this.PanelMap.AutoScrollPosition.X, this.PanelMap.AutoScrollPosition.Y);
+                        using (var p = new Pen(relColumnEx.LineColor, 2))
+                        {
+                            var points = relColumnEx.LinkLines;
+                            for (var i = 1; i < points.Length; i++)
+                            {
+                                if (i != points.Length - 1)
+                                {
+                                    g.DrawPie(p, new Rectangle(points[i].X, points[i].Y, 3, 3), 0, 360);
+                                }
+                                else
+                                {
+                                    AdjustableArrowCap arrowCap = new AdjustableArrowCap(p.Width * 2 + 1, p.Width + 2 + 1, true);
+                                    p.CustomEndCap = arrowCap;
+                                }
+                                g.DrawLine(p, points[i - 1], points[i]);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    if (hashotline)
+                    {
+                        hashotline = false;
+                        this.PanelMap.Invalidate();
+                    }
+                }
+            }
+
         }
 
         private int GetDrawWidth()
@@ -353,9 +422,11 @@ namespace NETDBHelper.UC
                     {
                         colori = 0;
                     }
+                    item.LineColor = colors[colori];
                     using (var p = new Pen(colors[colori++], 1))
                     {
                         var points = item.LinkLines;
+                        
                         for (int i = 1; i <= points.Length - 1; i++)
                         {
                             if (i == points.Length - 1)

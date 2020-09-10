@@ -33,5 +33,11 @@ namespace Entity
             get;
             set;
         } = new Point[0];
+
+        public Color LineColor
+        {
+            get;
+            set;
+        }
     }
 }
