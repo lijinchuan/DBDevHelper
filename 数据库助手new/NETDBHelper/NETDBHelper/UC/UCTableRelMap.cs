@@ -488,14 +488,14 @@ namespace NETDBHelper.UC
 
                                 if (p1.X == p2.X)
                                 {
-                                    var rect = new Rectangle(p1.X, Math.Min(p1.Y, p2.Y), (int)sf.Height, (int)sf.Width);
+                                    var rect = new Rectangle(p1.X, Math.Min(p1.Y, p2.Y), (int)sf.Height, (int)sf.Width + 20);
                                     rect.Offset(-(int)(sf.Height / 2), (int)(Math.Abs(p1.Y - p2.Y) / 2 - sf.Width / 2));
                                     rect.Offset(this.PanelMap.AutoScrollPosition.X, this.PanelMap.AutoScrollPosition.Y);
                                     item.DescRect = rect;
                                 }
                                 else if (p1.Y == p2.Y)
                                 {
-                                    var rect = new Rectangle(Math.Min(p1.X, p2.X), p1.Y, (int)sf.Width, (int)sf.Height);
+                                    var rect = new Rectangle(Math.Min(p1.X, p2.X), p1.Y, (int)sf.Width + 20, (int)sf.Height);
                                     rect.Offset((int)(Math.Abs(p1.X - p2.X) / 2 - sf.Width / 2), -(int)(sf.Height / 2));
                                     rect.Offset(this.PanelMap.AutoScrollPosition.X, this.PanelMap.AutoScrollPosition.Y);
                                     item.DescRect = rect;
@@ -675,6 +675,15 @@ namespace NETDBHelper.UC
                     {
                         var subline = new Line(item.LinkLines[i - 1], item.LinkLines[i]);
                         if (DrawingUtil.Isoverlap(line, subline))
+                        {
+                            return true;
+                        }
+                    }
+
+                    if (item.DescRect != Rectangle.Empty)
+                    {
+                        var boo = isline && DrawingUtil.HasIntersect(item.DescRect, line);
+                        if (boo)
                         {
                             return true;
                         }
