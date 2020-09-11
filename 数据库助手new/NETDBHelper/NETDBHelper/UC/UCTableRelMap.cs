@@ -65,38 +65,46 @@ namespace NETDBHelper.UC
             TSMDelRelColumn.DropDownItemClicked += TSMDelRelColumn_DropDownItemClicked;
         }
 
+        private RelColumnEx FindHotLine(Point ptOnPanelMap)
+        {
+            var pt = ptOnPanelMap;
+            RelColumnEx relColumnEx = null;
+            //pt.Offset(-this.PanelMap.AutoScrollPosition.X, -this.PanelMap.AutoScrollPosition.Y);
+            foreach (var item in relColumnIces)
+            {
+
+                if (item.LinkLines != null && item.LinkLines.Length > 0)
+                {
+                    for (var i = 1; i < item.LinkLines.Length - 1; i++)
+                    {
+                        if (DrawingUtil.HasIntersect(new Rectangle(pt.X - 1, pt.Y - 1, 3, 3), new Line(item.LinkLines[i - 1], item.LinkLines[i])))
+                        {
+                            //points = item.LinkLines;
+                            relColumnEx = item;
+                            break;
+                        }
+                    }
+                }
+                if (relColumnEx != null)
+                {
+                    break;
+                }
+            }
+
+            return relColumnEx;
+        }
+
         private void PanelMap_MouseClick(object sender, MouseEventArgs e)
         {
             if (relColumnIces != null)
             {
                 var pt = e.Location;
-                RelColumnEx relColumnEx = null;
-                //pt.Offset(-this.PanelMap.AutoScrollPosition.X, -this.PanelMap.AutoScrollPosition.Y);
-                foreach (var item in relColumnIces)
-                {
-                    
-                    if (item.LinkLines != null && item.LinkLines.Length > 0)
-                    {
-                        for(var i = 1; i < item.LinkLines.Length - 1; i++)
-                        {
-                            if (DrawingUtil.HasIntersect(new Rectangle(pt.X-1, pt.Y-1, 3, 3), new Line(item.LinkLines[i - 1], item.LinkLines[i])))
-                            {
-                                //points = item.LinkLines;
-                                relColumnEx = item;
-                                break;
-                            }
-                        }
-                    }
-                    if (relColumnEx != null)
-                    {
-                        break;
-                    }
-                }
+                RelColumnEx relColumnEx = FindHotLine(pt);
 
                 if (relColumnEx != null)
                 {
                     hashotline = true;
-                    MessageBox.Show(string.Join(",", relColumnEx.LinkLines.Select(p => p.X + " " + p.Y)));
+                    //MessageBox.Show(string.Join(",", relColumnEx.LinkLines.Select(p => p.X + " " + p.Y)));
                     using (var g = this.PanelMap.CreateGraphics())
                     {
                         g.TranslateTransform(this.PanelMap.AutoScrollPosition.X, this.PanelMap.AutoScrollPosition.Y);
@@ -107,7 +115,7 @@ namespace NETDBHelper.UC
                             {
                                 if (i != points.Length - 1)
                                 {
-                                    g.DrawPie(p, new Rectangle(points[i].X, points[i].Y, 3, 3), 0, 360);
+                                    //g.DrawPie(p, new Rectangle(points[i].X, points[i].Y, 3, 3), 0, 360);
                                 }
                                 else
                                 {
@@ -145,27 +153,25 @@ namespace NETDBHelper.UC
         {
             if (CMSOpMenu.Visible)
             {
-                var location = new Point(this.CMSOpMenu.Left, this.CMSOpMenu.Top);
-                var col = this.FindColumn(location);
-                if (col != null)
+                TSMDelRelColumn.Visible = false;
+                if (hashotline)
                 {
-                    var collist = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Scan<RelColumn>(nameof(RelColumn),
-                "SDTC", new[] { this._DBName.ToLower(), col.TBName.ToLower() },
-                new[] { this._DBName.ToLower(), col.TBName.ToLower() }, 1, int.MaxValue);
-
-                    foreach (var c in collist.Where(p => p.ColName.Equals(col.Name, StringComparison.OrdinalIgnoreCase)))
+                    var location = new Point(this.CMSOpMenu.Left, this.CMSOpMenu.Top);
+                    var relColumnEx = this.FindHotLine(this.PanelMap.PointToClient(location));
+                    if (relColumnEx != null)
                     {
                         var ts = new ToolStripMenuItem();
-                        ts.Text = $"{c.RelDBName}.{c.RelTBName}.{c.RelColName}";
-                        ts.Tag = c;
+                        ts.Text = $"{relColumnEx.RelColumn.RelDBName}.{relColumnEx.RelColumn.RelTBName}.{relColumnEx.RelColumn.RelColName}";
+                        ts.Tag = relColumnEx.RelColumn;
                         TSMDelRelColumn.DropDownItems.Add(ts);
                     }
+                    TSMDelRelColumn.Visible = TSMDelRelColumn.DropDownItems.Count > 0;
                 }
-                TSMDelRelColumn.Visible = TSMDelRelColumn.DropDownItems.Count > 0;
             }
             else
             {
                 TSMDelRelColumn.DropDownItems.Clear();
+
             }
         }
 

@@ -18,6 +18,7 @@ namespace NETDBHelper.Drawing
     public class StepSelector
     {
         private Stack<Step> steps = new Stack<Step>();
+        HashSet<Point> stephash = new HashSet<Point>();
         private static int defaultStepLen = 5;
         private Func<Point, Point,bool, bool> checkStepHasConflict = null;
 
@@ -26,6 +27,7 @@ namespace NETDBHelper.Drawing
         private StepDirection firstDirection;
 
         private int width = 1000, height = 1000;
+
 
         public StepSelector(int _widht,int _height,Point start,Point dest, Func<Point, Point,bool, bool> funcCheckStep, 
             StepDirection _firstDirection=StepDirection.none,
@@ -62,6 +64,13 @@ namespace NETDBHelper.Drawing
                     return false;
                 }
             }
+            else
+            {
+                if (p1.X != p2.X && p1.Y != p2.Y)
+                {
+                    return true;
+                }
+            }
 
             return checkStepHasConflict(p1, p2, isline);
         }
@@ -69,6 +78,7 @@ namespace NETDBHelper.Drawing
         private void Pepare()
         {
             steps.Clear();
+            stephash.Clear();
             var step = new Step
             {
                 Pos = startPoint,
@@ -117,6 +127,19 @@ namespace NETDBHelper.Drawing
             {
                 secDestPoint = destPoint;
             }
+        }
+
+        private StepDirection GetLastDirection()
+        {
+            if (steps.Count > 1)
+            {
+                var laststep = steps.Pop();
+                var direction = steps.Peek().chooseDirection;
+                steps.Push(laststep);
+                return direction;
+            }
+
+            return StepDirection.none;
         }
 
         private bool ChooseDirection(Step current)
@@ -210,10 +233,19 @@ namespace NETDBHelper.Drawing
                 }
             }
             #endregion
-            
+
             if (seldirect == StepDirection.none)
             {
-                seldirect = current.Directions.First();
+                var lastdirection = GetLastDirection();
+                if (steps.Count > 0 && current.Directions.Contains(lastdirection))
+                {
+                    seldirect = lastdirection;
+                }
+
+                if (seldirect == StepDirection.none)
+                {
+                    seldirect = current.Directions.First();
+                }
             }
 
             #region
@@ -248,11 +280,39 @@ namespace NETDBHelper.Drawing
             return true;
         }
 
+        private void ResetTopStep()
+        {
+            if (steps.Count > 0)
+            {
+                var step = steps.Peek();
+                step.Directions.Remove(step.chooseDirection);
+                step.chooseDirection = StepDirection.none;
+                if (step.Directions.Count == 0)
+                {
+                    stephash.Remove(steps.Pop().Pos);
+                    while (steps.Count > 0)
+                    {
+                        var father = steps.Peek();
+                        father.Directions.Remove(father.chooseDirection);
+                        father.chooseDirection = StepDirection.none;
+                        if (father.Directions.Count > 0)
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            stephash.Remove(steps.Pop().Pos);
+                        }
+                    }
+                }
+            }
+        }
+
         public List<Point> Select()
         {
             this.Pepare();
             StepSelectorTrace trace = new StepSelectorTrace(this.startPoint, this.secDestPoint);
-            HashSet<Point> stephash = new HashSet<Point>();
+            
             while (true)
             {
                 if (steps.Count > 10000 || trace.IsTimeOut())
@@ -275,7 +335,8 @@ namespace NETDBHelper.Drawing
                 trace.Select();
                 if (!boo)
                 {
-                    steps.Pop();
+                    ResetTopStep();
+                    continue;
                 }
 
                 if (currstep.chooseDirection == StepDirection.same)
@@ -358,27 +419,7 @@ namespace NETDBHelper.Drawing
                             }
                             if (steps.Peek().Pos == nextstep.Pos)
                             {
-                                var step = steps.Peek();
-                                step.Directions.Remove(step.chooseDirection);
-                                step.chooseDirection = StepDirection.none;
-                                if (step.Directions.Count == 0)
-                                {
-                                    stephash.Remove(steps.Pop().Pos);
-                                    while (steps.Count > 0)
-                                    {
-                                        var father = steps.Peek();
-                                        father.Directions.Remove(father.chooseDirection);
-                                        father.chooseDirection = StepDirection.none;
-                                        if (father.Directions.Count > 0)
-                                        {
-                                            break;
-                                        }
-                                        else
-                                        {
-                                            stephash.Remove(steps.Pop().Pos);
-                                        }
-                                    }
-                                }
+                                ResetTopStep();
                                 break;
                             }
                             else
@@ -390,26 +431,7 @@ namespace NETDBHelper.Drawing
                 }
                 else
                 {
-                    currstep.Directions.Remove(currstep.chooseDirection);
-                    currstep.chooseDirection = StepDirection.none;
-                    if (currstep.Directions.Count == 0)
-                    {
-                        stephash.Remove(steps.Pop().Pos);
-                        while (steps.Count > 0)
-                        {
-                            var father = steps.Peek();
-                            father.Directions.Remove(father.chooseDirection);
-                            father.chooseDirection = StepDirection.none;
-                            if (father.Directions.Count > 0)
-                            {
-                                break;
-                            }
-                            else
-                            {
-                                stephash.Remove(steps.Pop().Pos);
-                            }
-                        }
-                    }
+                    ResetTopStep();
                 }
 
             }
@@ -470,6 +492,32 @@ namespace NETDBHelper.Drawing
             }
 
             return opDirection;
+        }
+
+        private void AdjustFirstDirection(Step stepfirst,Step steplast)
+        {
+            if (stepfirst.Pos.X == steplast.Pos.X)
+            {
+                if (stepfirst.Pos.Y < steplast.Pos.Y)
+                {
+                    stepfirst.chooseDirection = StepDirection.down;
+                }
+                else
+                {
+                    stepfirst.chooseDirection = StepDirection.up;
+                }
+            }
+            else
+            {
+                if (stepfirst.Pos.X < steplast.Pos.X)
+                {
+                    stepfirst.chooseDirection = StepDirection.right;
+                }
+                else
+                {
+                    stepfirst.chooseDirection = StepDirection.left;
+                }
+            }
         }
 
         private List<Step> CutSteps(List<Step> steps)
@@ -548,6 +596,7 @@ namespace NETDBHelper.Drawing
                                     if (!Check(steparray[i - 1].Pos, joinstep.Pos, true)
                                             && !Check(joinstep.Pos, steparray[k].Pos, true))
                                     {
+                                        AdjustFirstDirection(steparray[i - 1], joinstep);
                                         List<Step> list = new List<Step>();
                                         for (var m = 0; m < i; m++)
                                         {
@@ -562,6 +611,7 @@ namespace NETDBHelper.Drawing
                                         }
 
                                         steparray = list.ToArray();
+                                        i = 2;
 
                                     }
                                 }
@@ -573,8 +623,19 @@ namespace NETDBHelper.Drawing
                 }
 
                 //反向简化处理
+                int istart = 1;
                 var preDirection = steparray.First().chooseDirection;
                 for (var i = 1; i < steparray.Length; i++)
+                {
+                    if (steparray[i].chooseDirection == preDirection)
+                    {
+                        continue;
+                    }
+                    istart = i;
+                    preDirection = steparray[i].chooseDirection;
+                    break;
+                }
+                for (var i = istart + 1; i < steparray.Length; i++)
                 {
                     if (steparray[i].chooseDirection == preDirection)
                     {
@@ -623,6 +684,8 @@ namespace NETDBHelper.Drawing
 
                                         if (!Check(steparray[i - 1].Pos, joinstep.Pos, true) && !Check(joinstep.Pos, steparray[k].Pos, true))
                                         {
+                                            AdjustFirstDirection(steparray[i - 1], joinstep);
+
                                             var list = new List<Step>();
                                             for (var m = 0; m < i; m++)
                                             {
@@ -636,6 +699,7 @@ namespace NETDBHelper.Drawing
                                             }
 
                                             steparray = list.ToArray();
+                                            i = istart + 1;
                                         }
                                     }
                                 }
