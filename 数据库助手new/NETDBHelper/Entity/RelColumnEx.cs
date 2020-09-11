@@ -39,5 +39,14 @@ namespace Entity
             get;
             set;
         }
+
+        /// <summary>
+        /// 描述框架位置
+        /// </summary>
+        public Rectangle DescRect
+        {
+            get;
+            set;
+        }
     }
 }

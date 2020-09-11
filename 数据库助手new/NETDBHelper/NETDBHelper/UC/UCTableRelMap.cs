@@ -55,6 +55,7 @@ namespace NETDBHelper.UC
             this.PanelMap.ControlAdded += PanelMap_ControlAdded;
             this.PanelMap.ControlRemoved += PanelMap_ControlRemoved;
             this.PanelMap.MouseClick += PanelMap_MouseClick;
+            this.PanelMap.MouseDoubleClick += PanelMap_MouseDoubleClick;
 
             tableColumnList = new Dictionary<string, List<string>>();
 
@@ -63,6 +64,25 @@ namespace NETDBHelper.UC
 
             this.CMSOpMenu.VisibleChanged += CMSOpMenu_VisibleChanged;
             TSMDelRelColumn.DropDownItemClicked += TSMDelRelColumn_DropDownItemClicked;
+        }
+
+        private void PanelMap_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            if (hashotline)
+            {
+                var pt = e.Location;
+                RelColumnEx relColumnEx = FindHotLine(pt);
+                if (relColumnEx != null)
+                {
+                    SubForm.InputStringDlg dlg = new SubForm.InputStringDlg($"输入{relColumnEx.RelColumn.TBName}.{relColumnEx.RelColumn.ColName}和{relColumnEx.RelColumn.RelTBName}.{relColumnEx.RelColumn.RelColName}关系描述", relColumnEx.RelColumn.Desc ?? string.Empty);
+                    if (dlg.ShowDialog() == DialogResult.OK)
+                    {
+                        relColumnEx.RelColumn.Desc = dlg.InputString;
+                        LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Update<RelColumn>(nameof(RelColumn), relColumnEx.RelColumn);
+                        this.PanelMap.Invalidate();
+                    }
+                }
+            }
         }
 
         private RelColumnEx FindHotLine(Point ptOnPanelMap)
@@ -432,7 +452,7 @@ namespace NETDBHelper.UC
                     using (var p = new Pen(colors[colori++], 1))
                     {
                         var points = item.LinkLines;
-                        
+
                         for (int i = 1; i <= points.Length - 1; i++)
                         {
                             if (i == points.Length - 1)
@@ -446,6 +466,43 @@ namespace NETDBHelper.UC
                             p2.Offset(this.PanelMap.AutoScrollPosition.X, this.PanelMap.AutoScrollPosition.Y);
                             g.DrawLine(p, p1, p2);
                             //g.DrawPie(p, new RectangleF(points[i], new SizeF(5, 5)), 0, 360);
+                        }
+
+
+                        //找一个好的点添加描述文字
+                        if (!string.IsNullOrWhiteSpace(item.RelColumn.Desc))
+                        {
+                            List<Tuple<Point, Point>> linelist = new List<Tuple<Point, Point>>();
+                            for (int i = 1; i <= points.Length - 1; i++)
+                            {
+                                linelist.Add(Tuple.Create<Point, Point>(points[i - 1], points[i]));
+                            }
+                            linelist = linelist.OrderByDescending(q => Math.Max(Math.Abs(q.Item1.X - q.Item2.X), Math.Abs(q.Item1.Y - q.Item2.Y))).ToList();
+                            var p1 = linelist.First().Item1;
+                            //p1.Offset(this.PanelMap.AutoScrollPosition.X, this.PanelMap.AutoScrollPosition.Y);
+                            var p2 = linelist.First().Item2;
+                            //p2.Offset(this.PanelMap.AutoScrollPosition.X, this.PanelMap.AutoScrollPosition.Y);
+                            using (var f = new Font("宋体", 9))
+                            {
+                                var sf = g.MeasureString(item.RelColumn.Desc, f);
+
+                                if (p1.X == p2.X)
+                                {
+                                    var rect = new Rectangle(p1.X, Math.Min(p1.Y, p2.Y), (int)sf.Height, (int)sf.Width);
+                                    rect.Offset(-(int)(sf.Height / 2), (int)(Math.Abs(p1.Y - p2.Y) / 2 - sf.Width / 2));
+                                    rect.Offset(this.PanelMap.AutoScrollPosition.X, this.PanelMap.AutoScrollPosition.Y);
+                                    item.DescRect = rect;
+                                }
+                                else if (p1.Y == p2.Y)
+                                {
+                                    var rect = new Rectangle(Math.Min(p1.X, p2.X), p1.Y, (int)sf.Width, (int)sf.Height);
+                                    rect.Offset((int)(Math.Abs(p1.X - p2.X) / 2 - sf.Width / 2), -(int)(sf.Height / 2));
+                                    rect.Offset(this.PanelMap.AutoScrollPosition.X, this.PanelMap.AutoScrollPosition.Y);
+                                    item.DescRect = rect;
+                                }
+
+                                g.DrawString(item.RelColumn.Desc, f, new SolidBrush(p.Color), item.DescRect);
+                            }
                         }
                     }
                 }
