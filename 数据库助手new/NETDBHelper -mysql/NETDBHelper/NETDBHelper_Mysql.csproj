@@ -127,6 +127,12 @@
     <Compile Include="ConnSQLServer.Designer.cs">
       <DependentUpon>ConnSQLServer.cs</DependentUpon>
     </Compile>
+    <Compile Include="Drawing\DrawingUtil.cs" />
+    <Compile Include="Drawing\Line.cs" />
+    <Compile Include="Drawing\Step.cs" />
+    <Compile Include="Drawing\StepDirection.cs" />
+    <Compile Include="Drawing\StepSelector.cs" />
+    <Compile Include="Drawing\StepSelectorTrace.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -341,6 +347,18 @@
     <Compile Include="UC\UCCreateCodeCallSP.Designer.cs">
       <DependentUpon>UCCreateCodeCallSP.cs</DependentUpon>
     </Compile>
+    <Compile Include="UC\UCTableRelMap.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="UC\UCTableRelMap.Designer.cs">
+      <DependentUpon>UCTableRelMap.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UC\UCTableView2.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UC\UCTableView2.Designer.cs">
+      <DependentUpon>UCTableView2.cs</DependentUpon>
+    </Compile>
     <Compile Include="UC\ViewTBData.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -457,6 +475,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="UC\UCCreateCodeCallSP.resx">
       <DependentUpon>UCCreateCodeCallSP.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UC\UCTableRelMap.resx">
+      <DependentUpon>UCTableRelMap.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UC\UCTableView2.resx">
+      <DependentUpon>UCTableView2.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UC\ViewTBData.resx">
       <DependentUpon>ViewTBData.cs</DependentUpon>

@@ -85,6 +85,8 @@ namespace Biz.Common.Data
                     prec = NumberHelper.CovertToInt(tb.Rows[i]["numeric_precision"]),
                     scale = NumberHelper.CovertToInt(tb.Rows[i]["numeric_scale"]),
                     Description = tb.Rows[i]["column_comment"].ToString(),
+                    DBName = dbName,
+                    TBName = tbName
                 };
             }
         }

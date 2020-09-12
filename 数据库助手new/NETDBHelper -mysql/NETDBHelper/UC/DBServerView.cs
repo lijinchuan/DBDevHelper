@@ -28,6 +28,7 @@ namespace NETDBHelper
         public Action<DBSource, string, string, string> OnShowDataDic;
         public Action<DBSource, string, string> OnViewTable;
         public Action<DBSource, string, string> OnViewCloumns;
+        public Action<DBSource, string, string> OnShowRelMap;
         private DBSourceCollection _dbServers;
         /// <summary>
         /// 实体命名空间
@@ -737,6 +738,7 @@ namespace NETDBHelper
                                 item.Visible = true;
                                 ExpdataToolStripMenuItem.Visible = false;
                             }
+                            表关系图ToolStripMenuItem.Visible = node.Level == 3;
                         }
                         TTSM_CreateIndex.Visible = node.Level == 3;
                         TTSM_DelIndex.Visible = node.Level == 5 && node.Parent.Text.Equals("索引");
@@ -1854,6 +1856,20 @@ background-color: #ffffff;
                 sb.Append("</html>");
 
                 this.OnFilterProc(dbsource, dbname, sb.ToString());
+            }
+        }
+
+        private void 表关系图ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var selnode = tv_DBServers.SelectedNode;
+            if (selnode != null && selnode.Level == 3)
+            {
+                var dbsource = GetDBSource(selnode);
+                var dbname = selnode.Parent.Text;
+                if (this.OnShowRelMap != null)
+                {
+                    this.OnShowRelMap(dbsource, dbname, selnode.Text);
+                }
             }
         }
     }

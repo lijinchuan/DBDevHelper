@@ -40,6 +40,8 @@ namespace NETDBHelper
             this.TSCBServer.Alignment = ToolStripItemAlignment.Right;
 
             this.MspPanel.TextAlign = ContentAlignment.TopLeft;
+
+            this.dbServerView1.OnShowRelMap += this.ShowRelMap;
         }
 
         protected void CreateSelectSql(string sqlname, string s)
@@ -513,6 +515,25 @@ namespace NETDBHelper
             this.TabControl.TabPages.Add(logview);
             this.TabControl.SelectedTab = logview;
             logview.BindData();
+        }
+
+        private void ShowRelMap(DBSource dbSource, string dbname, string tbname)
+        {
+            var title = $"表关系图{dbname}.{tbname}";
+            foreach (TabPage page in this.TabControl.TabPages)
+            {
+                if (page.Text == title)
+                {
+                    TabControl.SelectedTab = page;
+                    return;
+                }
+            }
+
+            UC.UCTableRelMap panel = new UCTableRelMap(dbSource, dbname, tbname);
+            panel.Text = title;
+            this.TabControl.TabPages.Add(panel);
+            this.TabControl.SelectedTab = panel;
+            panel.Load();
         }
 
 

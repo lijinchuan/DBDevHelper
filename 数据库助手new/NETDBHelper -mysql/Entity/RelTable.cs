@@ -5,8 +5,20 @@ using System.Text;
 
 namespace Entity
 {
-    public class TBColumn
+    public class RelTableV1
     {
+        public int Id
+        {
+            get;
+            set;
+        }
+
+        public string ServerName
+        {
+            get;
+            set;
+        }
+
         public string DBName
         {
             get;
@@ -19,60 +31,62 @@ namespace Entity
             set;
         }
 
-        public string Name
+        public string RelTBName
         {
             get;
             set;
         }
 
-        public int Length
+        public string Desc
+        {
+            get;
+            set;
+        }
+    }
+
+    /// <summary>
+    /// 相关表
+    /// </summary>
+    public class RelTable
+    {
+        public int Id
         {
             get;
             set;
         }
 
-        public bool IsKey
-        {
-            get;
-            set;
-        }
-        /// <summary>
-        /// 是否是自增
-        /// </summary>
-        public bool IsID
+        public string ServerName
         {
             get;
             set;
         }
 
-        public string TypeName
+        public string DBName
         {
             get;
             set;
         }
 
-        public bool IsNullAble
+        public string TBName
+        {
+            get;
+            set;
+        
+        }
+
+        public string RelDBName
         {
             get;
             set;
         }
 
-        public int prec
+        public string RelTBName
         {
             get;
             set;
         }
 
-        public int scale
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// 字段描述
-        /// </summary>
-        public string Description
+        public string Desc
         {
             get;
             set;
