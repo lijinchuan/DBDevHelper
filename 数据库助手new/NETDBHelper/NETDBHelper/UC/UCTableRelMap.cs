@@ -89,7 +89,7 @@ namespace NETDBHelper.UC
         {
             var pt = ptOnPanelMap;
             RelColumnEx relColumnEx = null;
-            //pt.Offset(-this.PanelMap.AutoScrollPosition.X, -this.PanelMap.AutoScrollPosition.Y);
+            pt.Offset(-this.PanelMap.AutoScrollPosition.X, -this.PanelMap.AutoScrollPosition.Y);
             foreach (var item in relColumnIces)
             {
 
@@ -484,24 +484,30 @@ namespace NETDBHelper.UC
                             //p2.Offset(this.PanelMap.AutoScrollPosition.X, this.PanelMap.AutoScrollPosition.Y);
                             using (var f = new Font("宋体", 9))
                             {
-                                var sf = g.MeasureString(item.RelColumn.Desc, f);
+                                
 
                                 if (p1.X == p2.X)
                                 {
-                                    var rect = new Rectangle(p1.X, Math.Min(p1.Y, p2.Y), (int)sf.Height, (int)sf.Width + 20);
-                                    rect.Offset(-(int)(sf.Height / 2), (int)(Math.Abs(p1.Y - p2.Y) / 2 - sf.Width / 2));
+                                    var desc = item.RelColumn.Desc;
+                                    StringFormat strF = new StringFormat();
+                                    strF.FormatFlags = StringFormatFlags.DirectionVertical;
+                                    var sf = g.MeasureString(desc, f, 20, strF);
+
+                                    var rect = new Rectangle(p1.X, Math.Min(p1.Y, p2.Y), (int)sf.Width + 5, (int)sf.Height + 20);
+                                    rect.Offset(-(int)(sf.Width / 2), (int)(Math.Abs(p1.Y - p2.Y) / 2 - sf.Height / 2));
                                     rect.Offset(this.PanelMap.AutoScrollPosition.X, this.PanelMap.AutoScrollPosition.Y);
                                     item.DescRect = rect;
+                                    g.DrawString(desc, f, new SolidBrush(p.Color), item.DescRect, strF);
                                 }
                                 else if (p1.Y == p2.Y)
                                 {
+                                    var sf = g.MeasureString(item.RelColumn.Desc, f);
                                     var rect = new Rectangle(Math.Min(p1.X, p2.X), p1.Y, (int)sf.Width + 20, (int)sf.Height);
                                     rect.Offset((int)(Math.Abs(p1.X - p2.X) / 2 - sf.Width / 2), -(int)(sf.Height / 2));
                                     rect.Offset(this.PanelMap.AutoScrollPosition.X, this.PanelMap.AutoScrollPosition.Y);
                                     item.DescRect = rect;
+                                    g.DrawString(item.RelColumn.Desc, f, new SolidBrush(p.Color), item.DescRect);
                                 }
-
-                                g.DrawString(item.RelColumn.Desc, f, new SolidBrush(p.Color), item.DescRect);
                             }
                         }
                     }
