@@ -13,6 +13,8 @@ using System.Drawing.Drawing2D;
 using NETDBHelper.Drawing;
 using LJC.FrameWork.CodeExpression;
 using System.Security.Policy;
+using Biz.Common;
+using NETDBHelper.Resources;
 
 namespace NETDBHelper.UC
 {
@@ -201,14 +203,32 @@ namespace NETDBHelper.UC
         {
             var lb = new Label();
             lb.AutoSize = false;
-            lb.Text = tbcol.Name;
+            lb.ImageAlign = ContentAlignment.MiddleLeft;
+            if (tbcol.IsString())
+            {
+                lb.Image = SQLTypeRs.CHAR;
+            }
+            else if (tbcol.IsDateTime())
+            {
+                lb.Image = SQLTypeRs.DATE;
+            }
+            else if (tbcol.IsNumber())
+            {
+                lb.Image = SQLTypeRs.NUMBER;
+            }
+            else if (tbcol.IsBoolean())
+            {
+                lb.Image = SQLTypeRs.BOOL;
+            }
+            lb.UseMnemonic = true;
+
+            lb.Text = "   " + tbcol.Name;
             lb.Location = CBCoumns.Location;
             lb.Tag = tbcol;
             lb.Height = 20;
             var loc = lb.Location;
             loc.Offset(0, lb.Height);
             CBCoumns.Location = loc;
-
             lb.Width = this.Width - 2;
             ColumnsPanel.Controls.Add(lb);
 

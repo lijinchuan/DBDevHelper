@@ -124,6 +124,11 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resource1.resx</DependentUpon>
     </Compile>
+    <Compile Include="Resources\SQLTypeRs.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>SQLTypeRs.resx</DependentUpon>
+    </Compile>
     <Compile Include="SubForm\AddTaskInfoDlg.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -335,6 +340,10 @@
       <LastGenOutput>Resource1.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </EmbeddedResource>
+    <EmbeddedResource Include="Resources\SQLTypeRs.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>SQLTypeRs.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
     <EmbeddedResource Include="SubForm\AddTaskInfoDlg.resx">
       <DependentUpon>AddTaskInfoDlg.cs</DependentUpon>
     </EmbeddedResource>
@@ -450,14 +459,21 @@
     <Content Include="Resources\bullet_tick.png" />
     <Content Include="Resources\computer_link.png" />
     <Content Include="Resources\connect.png" />
+    <None Include="Resources\text_bold.png" />
+    <None Include="Resources\text_uppercase.png" />
     <None Include="Resources\cross.png" />
     <None Include="Resources\cross1.png" />
     <None Include="Resources\link.png" />
+    <None Include="Resources\date.png" />
     <Content Include="Resources\loading2.gif" />
     <Content Include="Resources\msg.png" />
     <None Include="Resources\script_code_no.png" />
     <None Include="Resources\script_code_red_no.png" />
     <None Include="Resources\SQLSerTop.jpg" />
+    <None Include="Resources\pilcrow.png" />
+    <None Include="Resources\pill.png" />
+    <None Include="Resources\rainbow.png" />
+    <None Include="Resources\number.png" />
     <Content Include="Resources\table.png" />
     <Content Include="Resources\tbview.png" />
     <None Include="packages.config" />

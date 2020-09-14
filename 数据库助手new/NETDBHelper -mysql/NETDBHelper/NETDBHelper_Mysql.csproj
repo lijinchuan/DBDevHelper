@@ -143,6 +143,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resource1.resx</DependentUpon>
     </Compile>
+    <Compile Include="Resources\SQLTypeRs.Designer.cs" />
     <Compile Include="SubForm\AddTaskInfoDlg.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -383,6 +384,7 @@
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Resource1.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <EmbeddedResource Include="Resources\SQLTypeRs.resx" />
     <EmbeddedResource Include="SubForm\AddTaskInfoDlg.resx">
       <DependentUpon>AddTaskInfoDlg.cs</DependentUpon>
     </EmbeddedResource>
@@ -506,9 +508,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Resources\text_bold.png" />
+    <Content Include="Resources\text_uppercase.png" />
     <None Include="packages.config" />
     <None Include="Resources\table.png" />
-    <None Include="Resources\新建位图图像.bmp" />
     <None Include="Resources\tbview.png" />
     <None Include="Resources\tags_red.png" />
     <None Include="Resources\tags_grey.png" />
@@ -526,6 +529,7 @@
     <None Include="Resources\computer_link.png" />
     <None Include="Resources\connect.png" />
     <None Include="Resources\cross.png" />
+    <Content Include="Resources\date.png" />
     <Content Include="Resources\DB1.png" />
     <None Include="Resources\DB16.png" />
     <Content Include="Resources\DB2.png" />
@@ -539,6 +543,7 @@
     <None Include="Resources\loading.gif" />
     <None Include="Resources\loading2.gif" />
     <None Include="Resources\msg.png" />
+    <Content Include="Resources\number.png" />
     <Content Include="Resources\OpenServer.jpg" />
     <Content Include="Resources\OpenServer.png" />
     <None Include="Resources\page.png" />
@@ -547,7 +552,10 @@
     <None Include="Resources\shapes_many.png" />
     <Content Include="Resources\page1.png" />
     <None Include="Resources\page2.png" />
+    <Content Include="Resources\pilcrow.png" />
+    <Content Include="Resources\pill.png" />
     <Content Include="Resources\plugin_add.png" />
+    <Content Include="Resources\rainbow.png" />
     <Content Include="Resources\report1.png" />
     <None Include="Resources\report2.png" />
     <Content Include="Resources\report_key1.png" />

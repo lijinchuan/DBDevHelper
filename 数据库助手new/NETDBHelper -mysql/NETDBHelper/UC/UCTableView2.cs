@@ -13,6 +13,8 @@ using System.Drawing.Drawing2D;
 using NETDBHelper.Drawing;
 using LJC.FrameWork.CodeExpression;
 using System.Security.Policy;
+using NETDBHelper.Resources;
+using Biz.Common;
 
 namespace NETDBHelper.UC
 {
@@ -200,8 +202,26 @@ namespace NETDBHelper.UC
         private void AddColumnLable(TBColumn tbcol)
         {
             var lb = new Label();
-            lb.AutoSize = false;
-            lb.Text = tbcol.Name;
+            lb.ImageAlign = ContentAlignment.MiddleLeft;
+            if (tbcol.IsString())
+            {
+                lb.Image = SQLTypeRs.CHAR;
+            }
+            else if (tbcol.IsDateTime())
+            {
+                lb.Image = SQLTypeRs.DATE;
+            }
+            else if (tbcol.IsNumber())
+            {
+                lb.Image = SQLTypeRs.NUMBER;
+            }
+            else if (tbcol.IsBoolean())
+            {
+                lb.Image = SQLTypeRs.BOOL;
+            }
+            lb.UseMnemonic = true;
+
+            lb.Text = "   " + tbcol.Name;
             lb.Location = CBCoumns.Location;
             lb.Tag = tbcol;
             lb.Height = 20;

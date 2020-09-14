@@ -478,36 +478,152 @@ namespace NETDBHelper.UC
                                 linelist.Add(Tuple.Create<Point, Point>(points[i - 1], points[i]));
                             }
                             linelist = linelist.OrderByDescending(q => Math.Max(Math.Abs(q.Item1.X - q.Item2.X), Math.Abs(q.Item1.Y - q.Item2.Y))).ToList();
-                            var p1 = linelist.First().Item1;
-                            //p1.Offset(this.PanelMap.AutoScrollPosition.X, this.PanelMap.AutoScrollPosition.Y);
-                            var p2 = linelist.First().Item2;
-                            //p2.Offset(this.PanelMap.AutoScrollPosition.X, this.PanelMap.AutoScrollPosition.Y);
-                            using (var f = new Font("宋体", 9))
+                            for(var x=0; x<linelist.Count; x++)
                             {
-                                
+                                var line = linelist[x];
+                                var p1 = line.Item1;
+                                var p2 = line.Item2;
 
-                                if (p1.X == p2.X)
+                                var p3 = Point.Empty;
+                                var p4 = Point.Empty;
+                                //找最近与他平行的线
+                                foreach (var item2 in relColumnIces)
                                 {
-                                    var desc = item.RelColumn.Desc;
-                                    StringFormat strF = new StringFormat();
-                                    strF.FormatFlags = StringFormatFlags.DirectionVertical;
-                                    var sf = g.MeasureString(desc, f, 20, strF);
+                                    if (item2 == item || item2.LinkLines == null || item2.LinkLines.Length == 0)
+                                    {
+                                        continue;
+                                    }
 
-                                    var rect = new Rectangle(p1.X, Math.Min(p1.Y, p2.Y), (int)sf.Width + 5, (int)sf.Height + 20);
-                                    rect.Offset(-(int)(sf.Width / 2), (int)(Math.Abs(p1.Y - p2.Y) / 2 - sf.Height / 2));
-                                    rect.Offset(this.PanelMap.AutoScrollPosition.X, this.PanelMap.AutoScrollPosition.Y);
-                                    item.DescRect = rect;
-                                    g.DrawString(desc, f, new SolidBrush(p.Color), item.DescRect, strF);
+                                    for (int j = 1; j < item2.LinkLines.Length - 1; j++)
+                                    {
+                                        if (p1.X == p2.X)
+                                        {
+                                            if (item2.LinkLines[j - 1].X != item2.LinkLines[j].X)
+                                            {
+                                                continue;
+                                            }
+                                            if (p3 == Point.Empty ||
+                                            Math.Abs(item2.LinkLines[j - 1].X - p1.X) < Math.Abs(p3.X - p1.X))
+                                            {
+                                                p3 = item2.LinkLines[j - 1];
+                                                p4 = item2.LinkLines[j];
+                                            }
+                                        }
+                                        else if (p1.Y == p2.Y)
+                                        {
+                                            if (item2.LinkLines[j - 1].Y != item2.LinkLines[j].Y)
+                                            {
+                                                continue;
+                                            }
+                                            if (p3 == Point.Empty ||
+                                            Math.Abs(item2.LinkLines[j - 1].Y - p1.Y) < Math.Abs(p3.Y - p1.Y))
+                                            {
+                                                p3 = item2.LinkLines[j - 1];
+                                                p4 = item2.LinkLines[j];
+                                            }
+                                        }
+                                        
+                                    }
                                 }
-                                else if (p1.Y == p2.Y)
+
+                                using (var f = new Font("宋体", 9))
                                 {
-                                    var sf = g.MeasureString(item.RelColumn.Desc, f);
-                                    var rect = new Rectangle(Math.Min(p1.X, p2.X), p1.Y, (int)sf.Width + 20, (int)sf.Height);
-                                    rect.Offset((int)(Math.Abs(p1.X - p2.X) / 2 - sf.Width / 2), -(int)(sf.Height / 2));
-                                    rect.Offset(this.PanelMap.AutoScrollPosition.X, this.PanelMap.AutoScrollPosition.Y);
-                                    item.DescRect = rect;
-                                    g.DrawString(item.RelColumn.Desc, f, new SolidBrush(p.Color), item.DescRect);
+                                    if (p1.X == p2.X)
+                                    {
+                                        var desc = item.RelColumn.Desc;
+                                        StringFormat strF = new StringFormat();
+                                        strF.FormatFlags = StringFormatFlags.DirectionVertical;
+                                        var sf = g.MeasureString(desc, f, 20, strF);
+
+                                        var ystart = Math.Min(p1.Y, p2.Y);
+                                        var yend = Math.Max(p1.Y, p2.Y);
+                                        if (p3 != Point.Empty)
+                                        {
+                                            if (Math.Abs(p1.X - p3.X) < sf.Width / 2)
+                                            {
+                                                var ystart2 = Math.Min(p3.Y, p4.Y);
+                                                var yend2 = Math.Max(p3.Y, p4.Y);
+                                                if (ystart2 <= ystart && yend2 >= yend)
+                                                {
+                                                    if (x == linelist.Count - 1)
+                                                    {
+                                                        ystart = Math.Min(linelist.First().Item1.Y, linelist.First().Item2.Y);
+                                                        yend = Math.Max(linelist.First().Item1.Y, linelist.First().Item2.Y);
+                                                    }
+                                                    else
+                                                    {
+                                                        continue;
+                                                    }
+                                                }
+                                                if (yend2 >= ystart || ystart2 <= yend)
+                                                {
+                                                    if (ystart2 - ystart > yend - yend2 && ystart2 - ystart > sf.Height)
+                                                    {
+                                                        yend = ystart2;
+                                                    }
+                                                    else if (yend - yend2 > ystart2 - ystart && yend - yend2 > sf.Height)
+                                                    {
+                                                        ystart = yend2;
+                                                    }
+                                                }
+                                            }
+                                        }
+
+                                        var rect = new Rectangle(p1.X, ystart, (int)sf.Width + 5, (int)sf.Height + 20);
+                                        rect.Offset(-(int)(sf.Width / 2), (int)(Math.Abs(yend - ystart) / 2 - sf.Height / 2));
+                                        rect.Offset(this.PanelMap.AutoScrollPosition.X, this.PanelMap.AutoScrollPosition.Y);
+                                        item.DescRect = rect;
+                                        g.DrawString(desc, f, new SolidBrush(p.Color), item.DescRect, strF);
+                                    }
+                                    else if (p1.Y == p2.Y)
+                                    {
+                                        var sf = g.MeasureString(item.RelColumn.Desc, f);
+
+                                        var xstart = Math.Min(p1.X, p2.X);
+                                        var xend = Math.Max(p1.X, p2.X);
+                                        if (p3 != Point.Empty)
+                                        {
+                                            if (Math.Abs(p1.Y - p3.Y) < sf.Height / 2)
+                                            {
+                                                var xstart2 = Math.Min(p3.X, p4.X);
+                                                var xend2 = Math.Max(p3.X, p4.X);
+                                                if (xstart2 <= xstart && xend2 >= xend)
+                                                {
+                                                    if (x == linelist.Count - 1)
+                                                    {
+                                                        xstart = Math.Min(linelist.First().Item1.X, linelist.First().Item2.X);
+                                                        xend = Math.Max(linelist.First().Item1.X, linelist.First().Item2.X);
+                                                    }
+                                                    else
+                                                    {
+                                                        continue;
+                                                    }
+                                                }
+                                                if (xend2 >= xstart || xstart2 <= xend)
+                                                {
+                                                    if (xstart2 - xstart > xend - xend2 && xstart2 - xstart > sf.Width)
+                                                    {
+                                                        xend = xstart2;
+                                                    }
+                                                    else if (xend - xend2 > xstart2 - xstart && xend - xend2 > sf.Width)
+                                                    {
+                                                        xstart = xend2;
+                                                    }
+                                                }
+                                            }
+                                        }
+
+                                        
+                                        var rect = new Rectangle(xstart, p1.Y, (int)sf.Width + 20, (int)sf.Height);
+                                        rect.Offset((int)(Math.Abs(xend - xstart) / 2 - sf.Width / 2), -(int)(sf.Height / 2));
+                                        rect.Offset(this.PanelMap.AutoScrollPosition.X, this.PanelMap.AutoScrollPosition.Y);
+                                        item.DescRect = rect;
+                                        g.DrawString(item.RelColumn.Desc, f, new SolidBrush(p.Color), item.DescRect);
+                                    }
                                 }
+
+                                break;
+
                             }
                         }
                     }
