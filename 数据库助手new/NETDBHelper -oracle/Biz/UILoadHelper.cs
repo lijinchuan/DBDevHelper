@@ -33,6 +33,8 @@ namespace Biz
 
         public static void LoadDBsAnsy(Form parent, TreeNode serverNode, DBSource server)
         {
+            serverNode.Nodes.Add(new TreeNode("加载中...", 17, 17));
+            serverNode.Expand();
             new Action<Form, TreeNode, DBSource>(LoadDBs).BeginInvoke(parent, serverNode, server, null, null);
         }
 
@@ -389,10 +391,14 @@ namespace Biz
                 TreeNode newNode = new TreeNode(string.Concat(col.Name.ToLower(), "(",Common.Data.Common.OracleTypeToNetType(col.TypeName), ")"), imgIdx, imgIdx);
                 newNode.Name = col.Name;
                 newNode.Tag = col;
-                newNode.ToolTipText = string.IsNullOrWhiteSpace(col.Description) ? gettip(col) : col.Description;
+                newNode.ToolTipText = gettip(col);
+                if (string.IsNullOrWhiteSpace(newNode.ToolTipText))
+                {
+                    newNode.ToolTipText = col.Description;
+                }
                 if (!col.IsKey && string.IsNullOrWhiteSpace(newNode.ToolTipText))
                 {
-                    newNode.ImageIndex = newNode.SelectedImageIndex = 16;
+                    newNode.ImageIndex = newNode.SelectedImageIndex = 18;
                 }
                 treeNodes.Add(newNode);
             }

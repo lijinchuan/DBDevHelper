@@ -49,6 +49,7 @@ namespace NETDBHelper.UC
             this.Text = string.Format("{0}-{1}",table,proceType);
             this.dbSource = dbSource;
             this.connDB = connDB;
+            this.editTextBox1.DBName = connDB;
             this.table = table;
             this.tableID = tableID;
             this.proceType = proceType;

@@ -101,11 +101,35 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resource1.resx</DependentUpon>
     </Compile>
+    <Compile Include="SubForm\FindDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SubForm\FindDlg.designer.cs">
+      <DependentUpon>FindDlg.cs</DependentUpon>
+    </Compile>
+    <Compile Include="SubForm\MultiInputDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SubForm\MultiInputDlg.designer.cs">
+      <DependentUpon>MultiInputDlg.cs</DependentUpon>
+    </Compile>
     <Compile Include="SubForm\PopMessageDlg.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="SubForm\PopMessageDlg.designer.cs">
       <DependentUpon>PopMessageDlg.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UC\LoadingBox.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UC\LoadingBox.designer.cs">
+      <DependentUpon>LoadingBox.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UC\LogViewTab.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="UC\LogViewTab.designer.cs">
+      <DependentUpon>LogViewTab.cs</DependentUpon>
     </Compile>
     <Compile Include="UC\WebTab.cs">
       <SubType>Component</SubType>
@@ -114,8 +138,20 @@
       <DependentUpon>WebTab.cs</DependentUpon>
     </Compile>
     <Compile Include="Util.cs" />
+    <EmbeddedResource Include="SubForm\FindDlg.resx">
+      <DependentUpon>FindDlg.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SubForm\MultiInputDlg.resx">
+      <DependentUpon>MultiInputDlg.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="SubForm\PopMessageDlg.resx">
       <DependentUpon>PopMessageDlg.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UC\LoadingBox.resx">
+      <DependentUpon>LoadingBox.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UC\LogViewTab.resx">
+      <DependentUpon>LogViewTab.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UC\WebTab.resx">
       <DependentUpon>WebTab.cs</DependentUpon>

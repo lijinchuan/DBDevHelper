@@ -55,7 +55,7 @@ namespace NETDBHelper.UC
             }
             foreach (KeyValuePair<int, Point> kv in _lineNos)
             {
-                e.Graphics.DrawString(kv.Key.ToString(), this.Font, new SolidBrush(Color.Red), kv.Value);
+                e.Graphics.DrawString(kv.Key.ToString(), this.Font, new SolidBrush(Color.Gray), kv.Value);
             }
 
         }

@@ -26,6 +26,7 @@ namespace NETDBHelper
             this.dbServerView1.OnShowProc += this.ShowProc;
             this.dbServerView1.OnShowDataDic += this.ShowDataDic;
             this.TabControl.DrawMode = TabDrawMode.OwnerDrawFixed;
+            this.dbServerView1.OnViewTable += this.ShowTables;
             this.TabControl.Selected += new TabControlEventHandler(TabControl_Selected);
         }
 
@@ -71,9 +72,34 @@ namespace NETDBHelper
         private void CreateProcSql(DBSource dbSource, string dbName, string tableID, string table,CreateProceEnum createProcType)
         {
             UC.CreateProc cp = new CreateProc(dbSource, dbName, table, tableID, createProcType);
-            this.TabControl.TabPages.Add(cp);
             cp.Create();
+            this.TabControl.TabPages.Add(cp);
+            TabControl.SelectedTab = cp;
         }
+
+        private void ShowTables(string dbname, string html)
+        {
+            var tit = $"查看{dbname}的库表";
+            foreach (TabPage tab in this.TabControl.TabPages)
+            {
+                if (tab.Text.Equals(tit))
+                {
+                    (tab as UC.WebTab).SetHtml(html);
+                    TabControl.SelectedTab = tab;
+                    return;
+                }
+            }
+            UC.WebTab panel = new WebTab(null,null);
+            panel.SetHtml(html);
+            panel.Text = tit;
+            //panel.OnSearch += (w) =>
+            //{
+
+            //};
+            this.TabControl.TabPages.Add(panel);
+            this.TabControl.SelectedTab = panel;
+        }
+
 
         protected void CreateEntity(string entityName,string s)
         {
@@ -219,10 +245,10 @@ namespace NETDBHelper
         }
 
 
-        private void ShowProc(DBSource dBSource, string procname, string procbody)
+        private void ShowProc(DBSource dBSource, string dbname, string procname, string procbody)
         {
             UC.SQLCodePanel panel = new SQLCodePanel();
-            panel.SetCode("", procbody);
+            panel.SetCode(dbname, procbody);
             panel.Text = $"存储过程-{procname}";
             this.TabControl.TabPages.Add(panel);
             this.TabControl.SelectedTab = panel;
@@ -245,6 +271,25 @@ namespace NETDBHelper
             panel.Text = tit;
             this.TabControl.TabPages.Add(panel);
             this.TabControl.SelectedTab = panel;
+        }
+
+        private void 查看日志ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            foreach (TabPage page in this.TabControl.TabPages)
+            {
+                if (page.Text == "查看日志")
+                {
+                    TabControl.SelectedTab = page;
+                    (page as LogViewTab).BindData();
+                    return;
+                }
+            }
+            LogViewTab logview = new LogViewTab();
+            logview.Text = "查看日志";
+
+            this.TabControl.TabPages.Add(logview);
+            this.TabControl.SelectedTab = logview;
+            logview.BindData();
         }
 
     }

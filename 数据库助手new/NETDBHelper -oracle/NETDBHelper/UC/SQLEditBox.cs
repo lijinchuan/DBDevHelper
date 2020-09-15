@@ -30,6 +30,8 @@ namespace NETDBHelper.UC
             dic.Add("*", Color.Gray);
             dic.Add("from", Color.Blue);
             dic.Add("delete", Color.Blue);
+            dic.Add("update", Color.Blue);
+            dic.Add("insert", Color.Blue);
             dic.Add("where", Color.Blue);
             dic.Add("distinct", Color.Blue);
             dic.Add("top", Color.Blue);
@@ -37,6 +39,8 @@ namespace NETDBHelper.UC
             dic.Add("with", Color.Blue);
             dic.Add("order", Color.Green);
             dic.Add("by", Color.Green);
+            dic.Add("desc", Color.Blue);
+            dic.Add("asc", Color.Blue);
             dic.Add("between", Color.Green);
             dic.Add("and", Color.Green);
             dic.Add("or", Color.Green);

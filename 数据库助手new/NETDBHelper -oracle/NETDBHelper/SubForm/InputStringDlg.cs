@@ -29,6 +29,7 @@ namespace NETDBHelper.SubForm
             base()
         {
             InitializeComponent();
+            this.TopMost = true;
             this.Text = caption;
             this.tbInput.Text = oldText;
             if (!string.IsNullOrWhiteSpace(inputTest))

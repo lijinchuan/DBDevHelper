@@ -70,6 +70,8 @@
             this.查看语句ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.TSMI_MulMarkLocal = new System.Windows.Forms.ToolStripMenuItem();
             this.备注本地ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.TSMI_ViewTableList = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.DBServerviewContextMenuStrip.SuspendLayout();
             this.toolStrip1.SuspendLayout();
             this.CommMenuStrip.SuspendLayout();
@@ -308,17 +310,19 @@
             this.CommMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.ToolStripMenuItemReload,
             this.CommSubMenuitem_ViewConnsql,
+            this.TSMI_ViewTableList,
             this.复制对象名ToolStripMenuItem,
             this.subMenuItemAddEntityTB,
+            this.备注本地ToolStripMenuItem,
+            this.TSMI_MulMarkLocal,
+            this.toolStripSeparator3,
             this.CommSubMenuItem_Delete,
             this.CommSubMenuitem_add,
             this.SqlExecuterToolStripMenuItem,
             this.性能分析工具ToolStripMenuItem,
-            this.查看语句ToolStripMenuItem,
-            this.TSMI_MulMarkLocal,
-            this.备注本地ToolStripMenuItem});
+            this.查看语句ToolStripMenuItem});
             this.CommMenuStrip.Name = "CommMenuStrip";
-            this.CommMenuStrip.Size = new System.Drawing.Size(181, 268);
+            this.CommMenuStrip.Size = new System.Drawing.Size(181, 296);
             // 
             // ToolStripMenuItemReload
             // 
@@ -390,6 +394,17 @@
             this.备注本地ToolStripMenuItem.Text = "备注（本地）";
             this.备注本地ToolStripMenuItem.Click += new System.EventHandler(this.备注本地ToolStripMenuItem_Click);
             // 
+            // TSMI_ViewTableList
+            // 
+            this.TSMI_ViewTableList.Name = "TSMI_ViewTableList";
+            this.TSMI_ViewTableList.Size = new System.Drawing.Size(180, 22);
+            this.TSMI_ViewTableList.Text = "查看表";
+            // 
+            // toolStripSeparator3
+            // 
+            this.toolStripSeparator3.Name = "toolStripSeparator3";
+            this.toolStripSeparator3.Size = new System.Drawing.Size(177, 6);
+            // 
             // DBServerView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -454,5 +469,7 @@
         private System.Windows.Forms.ToolStripMenuItem 修改用户密码ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem TSMI_MulMarkLocal;
         private System.Windows.Forms.ToolStripMenuItem 备注本地ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem TSMI_ViewTableList;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
     }
 }

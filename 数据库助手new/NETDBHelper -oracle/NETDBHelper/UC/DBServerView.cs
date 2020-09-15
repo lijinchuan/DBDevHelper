@@ -22,8 +22,9 @@ namespace NETDBHelper
         public Action<string, string> OnCreateSelectSql;
         public Action<DBSource, string, string, string,CreateProceEnum> OnCreatePorcSQL;
         public Action<DBSource,string,string> OnAddSqlExecuter;
-        public Action<DBSource, string, string> OnShowProc;
+        public Action<DBSource, string, string, string> OnShowProc;
         public Action<DBSource, string, string, string> OnShowDataDic;
+        public Action<string, string> OnViewTable;
         private DBSourceCollection _dbServers;
         /// <summary>
         /// 实体命名空间
@@ -128,6 +129,17 @@ namespace NETDBHelper
                                         ReLoadDBObj(delnode.Parent);
                                     }
                                 }
+
+                                LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<HLogEntity>("HLog", new HLogEntity
+                                {
+                                    TypeName = delnode.Text,
+                                    LogTime = DateTime.Now,
+                                    LogType = LogTypeEnum.db,
+                                    DB = delnode.Text,
+                                    Sever = GetDBSource(delnode).ServerName,
+                                    Info = "删除",
+                                    Valid = true
+                                });
                             }
                         }
                         break;
@@ -139,6 +151,17 @@ namespace NETDBHelper
                             {
                                 Biz.Common.Data.MySQLHelper.CreateDataBase(GetDBSource(selnode), selnode.FirstNode.Text, dlg.InputString);
                                 ReLoadDBObj(selnode);
+
+                                LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<HLogEntity>("HLog", new HLogEntity
+                                {
+                                    TypeName = dlg.InputString,
+                                    LogTime = DateTime.Now,
+                                    LogType = LogTypeEnum.db,
+                                    DB = dlg.InputString,
+                                    Sever = GetDBSource(selnode).ServerName,
+                                    Info = "新增",
+                                    Valid = true
+                                });
                             }
                             break;
                         }
@@ -175,6 +198,10 @@ namespace NETDBHelper
                                 TextBoxWin win = new TextBoxWin("序列[" + selnode.Name + "]", body);
                                 win.ShowDialog();
                             }
+                            break;
+                        }case "查看表":
+                        {
+                            OnViewTables();
                             break;
                         }
                 }
@@ -231,11 +258,46 @@ namespace NETDBHelper
             else if (selNode.Level == 3)
             {
                 var dbname = GetDBName(selNode).ToUpper();
+                var dbsource = GetDBSource(selNode);
+                var synccolumnmark = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.
+                    Find<ColumnMarkSyncRecord>("ColumnMarkSyncRecord", "keys", new[] { dbname, selNode.Text.ToUpper() }).FirstOrDefault() != null;
                 Biz.UILoadHelper.LoadColumnsAnsy(this.ParentForm, selNode, GetDBSource(selNode), (col) =>
                 {
                     var mark = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkColumnInfo>("MarkColumnInfo", "keys", new
                                 [] { dbname, selNode.Text.ToUpper(), col.Name.ToUpper() }).FirstOrDefault();
+                    if (mark == null && !synccolumnmark && !string.IsNullOrWhiteSpace(col.Description))
+                    {
+                        LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<MarkColumnInfo>("MarkColumnInfo", new MarkColumnInfo
+                        {
+                            DBName = dbname.ToUpper(),
+                            ColumnName = col.Name.ToUpper(),
+                            Servername = dbsource.ServerName,
+                            TBName = selNode.Text.ToUpper(),
+                            MarkInfo = col.Description
+                        });
+                    }
+
                     return mark == null ? string.Empty : mark.MarkInfo;
+                });
+                if (!synccolumnmark)
+                {
+                    LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<ColumnMarkSyncRecord>("ColumnMarkSyncRecord",
+                        new ColumnMarkSyncRecord
+                        {
+                            DBName = dbname.ToUpper(),
+                            SyncDate = DateTime.Now,
+                            TBName = selNode.Text.ToUpper()
+                        });
+                }
+
+                LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<HLogEntity>("HLog", new HLogEntity
+                {
+                    TypeName = selNode.Text,
+                    LogTime = DateTime.Now,
+                    LogType = LogTypeEnum.table,
+                    DB = dbname,
+                    Sever = GetDBSource(selNode).ServerName,
+                    Valid = true
                 });
             }
             else if (selNode.Level == 4 && selNode.Parent.Text.Equals("视图"))
@@ -311,6 +373,18 @@ namespace NETDBHelper
                             MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
                         {
                             var node = tv_DBServers.SelectedNode;
+
+                            LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<HLogEntity>("HLog", new HLogEntity
+                            {
+                                TypeName = node.Text,
+                                LogTime = DateTime.Now,
+                                LogType = LogTypeEnum.table,
+                                DB = node.Parent.Text,
+                                Sever = GetDBSource(node).ServerName,
+                                Info = "删除",
+                                Valid = true
+                            });
+
                             Biz.Common.Data.OracleHelper.DeleteTable(GetDBSource(node), node.Parent.Text, node.Text);
                             ReLoadDBObj(node.Parent);
                         }
@@ -331,6 +405,17 @@ namespace NETDBHelper
                             Biz.Common.Data.OracleHelper.ReNameTableName(GetDBSource(_node), _node.Parent.Text,
                                 oldname, dlg.InputString);
                             ReLoadDBObj(_node.Parent);
+
+                            LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<HLogEntity>("HLog", new HLogEntity
+                            {
+                                TypeName = dlg.InputString,
+                                LogTime = DateTime.Now,
+                                LogType = LogTypeEnum.table,
+                                DB = _node.Parent.Text,
+                                Sever = GetDBSource(_node).ServerName,
+                                Info = string.Format("重命名：{0}-{1}", oldname, dlg.InputString),
+                                Valid = true
+                            });
                         }
                         break;
                     case "InsertOrUpdate":
@@ -605,6 +690,16 @@ namespace NETDBHelper
                                  [] { GetDBName(e.Node).ToUpper(), name.ToUpper(), string.Empty }).FirstOrDefault();
                     return mark == null ? string.Empty : mark.MarkInfo;
                 });
+
+                LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<HLogEntity>("HLog", new HLogEntity
+                {
+                    TypeName = e.Node.Text,
+                    LogTime = DateTime.Now,
+                    LogType = LogTypeEnum.db,
+                    DB = e.Node.Text,
+                    Sever = GetDBSource(e.Node).ServerName,
+                    Valid = true
+                });
             }
             if (e.Node.Level == 3)
             {
@@ -650,11 +745,46 @@ namespace NETDBHelper
                 else
                 {
                     var dbname = GetDBName(e.Node).ToUpper();
+                    var dbsource = GetDBSource(e.Node);
+                    var synccolumnmark = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.
+                       Find<ColumnMarkSyncRecord>("ColumnMarkSyncRecord", "keys", new[] { dbname, e.Node.Text.ToUpper() }).FirstOrDefault() != null;
                     Biz.UILoadHelper.LoadColumnsAnsy(this.ParentForm, e.Node, GetDBSource(e.Node), (col) =>
                     {
                         var mark = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkColumnInfo>("MarkColumnInfo", "keys", new
                                     [] { dbname, e.Node.Text.ToUpper(), col.Name.ToUpper() }).FirstOrDefault();
+                        if (mark == null && !synccolumnmark && !string.IsNullOrWhiteSpace(col.Description))
+                        {
+                            LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<MarkColumnInfo>("MarkColumnInfo", new MarkColumnInfo
+                            {
+                                DBName = dbname.ToUpper(),
+                                ColumnName = col.Name.ToUpper(),
+                                Servername = dbsource.ServerName,
+                                TBName = e.Node.Text.ToUpper(),
+                                MarkInfo = col.Description
+                            });
+                        }
                         return mark == null ? string.Empty : mark.MarkInfo;
+                    });
+
+                    if (!synccolumnmark)
+                    {
+                        LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<ColumnMarkSyncRecord>("ColumnMarkSyncRecord",
+                            new ColumnMarkSyncRecord
+                            {
+                                DBName = dbname.ToUpper(),
+                                SyncDate = DateTime.Now,
+                                TBName = e.Node.Text.ToUpper()
+                            });
+                    }
+
+                    LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<HLogEntity>("HLog", new HLogEntity
+                    {
+                        TypeName = e.Node.Text,
+                        LogTime = DateTime.Now,
+                        LogType = LogTypeEnum.table,
+                        DB = dbname,
+                        Sever = GetDBSource(e.Node).ServerName,
+                        Valid = true
                     });
                 }
             }
@@ -801,6 +931,7 @@ namespace NETDBHelper
                         CommSubMenuItem_Delete.Visible = IsCanDelete(node);
                         CommSubMenuitem_add.Visible = node.Level == 1;
                         CommSubMenuitem_ViewConnsql.Visible = node.Level == 2;
+                        TSMI_ViewTableList.Visible = node.Level == 2;
                         性能分析工具ToolStripMenuItem.Visible = node.Level == 1;
                         SqlExecuterToolStripMenuItem.Visible = node.Level == 2;
                         查看语句ToolStripMenuItem.Visible = node.Level > 1
@@ -816,6 +947,12 @@ namespace NETDBHelper
         private void toolStripDropDownButton1_Click(object sender, EventArgs e)
         {
             string serchkey = ts_serchKey.Text;
+
+            bool matchall = serchkey.StartsWith("'");
+            if (matchall)
+            {
+                serchkey = serchkey.Trim('\'');
+            }
             if (!ts_serchKey.Items.Contains(serchkey))
             {
                 ts_serchKey.Items.Add(serchkey);
@@ -824,24 +961,44 @@ namespace NETDBHelper
             {
                 tv_DBServers.SelectedNode = tv_DBServers.Nodes[0];
             }
+            if (!tv_DBServers.Focused)
+            {
+                this.tv_DBServers.Focus();
+            }
             bool boo = false;
             if (tv_DBServers.SelectedNode.Nodes.Count > 0)
-                boo=SearchNode(tv_DBServers.SelectedNode.Nodes[0], serchkey);
+                boo = SearchNode(tv_DBServers.SelectedNode.Nodes[0], serchkey, matchall, true);
             else if (tv_DBServers.SelectedNode.NextNode != null)
-                boo=SearchNode(tv_DBServers.SelectedNode.NextNode, serchkey);
+                boo = SearchNode(tv_DBServers.SelectedNode.NextNode, serchkey, matchall, true);
+            else
+            {
+                var parent = tv_DBServers.SelectedNode.Parent;
+                while (parent != null && parent.NextNode == null)
+                {
+                    parent = parent.Parent;
+                }
+                if (parent != null)
+                {
+                    if (parent.NextNode != null)
+                    {
+                        boo = SearchNode(parent.NextNode, serchkey, matchall, true);
+                    }
+                }
+            }
             if (!boo)
             {
                 tv_DBServers.SelectedNode = tv_DBServers.Nodes[0];
             }
         }
 
-        private bool SearchNode(TreeNode nodeStart, string txt)
+        private bool SearchNode(TreeNode nodeStart, string txt, bool matchall, bool maxsearch)
         {
             if (nodeStart == null)
             {
                 return false;
             }
-            if (nodeStart.Text.IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1)
+            var find = matchall ? nodeStart.Text.Equals(txt, StringComparison.OrdinalIgnoreCase) : nodeStart.Text.IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1;
+            if (find)
             {
                 tv_DBServers.SelectedNode = nodeStart;
                 return true;
@@ -850,26 +1007,32 @@ namespace NETDBHelper
             {
                 foreach (TreeNode node in nodeStart.Nodes)
                 {
-                    if (SearchNode(node, txt))
+                    if (SearchNode(node, txt, matchall, false))
                         return true;
                 }
             }
-            if (nodeStart.NextNode != null)
+            if (maxsearch)
             {
-                return SearchNode(nodeStart.NextNode,txt);
-            }
-            if (nodeStart.Parent != null)
-            {
-                if (nodeStart.Parent.NextNode != null)
+                if (nodeStart.NextNode != null)
                 {
-                    return SearchNode(nodeStart.Parent.NextNode, txt);
+                    return SearchNode(nodeStart.NextNode, txt, matchall, true);
+                }
+                else
+                {
+                    if (maxsearch)
+                    {
+                        var parent = nodeStart.Parent;
+                        while (parent != null && parent.NextNode == null)
+                        {
+                            parent = parent.Parent;
+                        }
+                        if (parent != null)
+                        {
+                            return SearchNode(parent.NextNode, txt, matchall, true);
+                        }
+                    }
                 }
             }
-            //if (tv_DBServers.Nodes.Count > 0)
-            //{
-            //    tv_DBServers.SelectedNode=tv_DBServers.Nodes[0];
-            //}
-            //return true;
 
             return false;
         }
@@ -931,10 +1094,23 @@ namespace NETDBHelper
             }
             else if (node != null && node.Level == 4 && node.Parent.Text.Equals("存储过程"))
             {
-                var body = Biz.Common.Data.OracleHelper.GetProcedureBody(GetDBSource(node), node.Name);
-                //TextBoxWin win = new TextBoxWin("存储过程[" + node.Text + "]", body);
-                //win.ShowDialog();
-                OnShowProc(GetDBSource(node), node.Text, body);
+                if (OnShowProc != null)
+                {
+                    var body = Biz.Common.Data.OracleHelper.GetProcedureBody(GetDBSource(node), node.Name);
+                    //TextBoxWin win = new TextBoxWin("存储过程[" + node.Text + "]", "drop PROCEDURE if exists " + node.Text + ";\r\n\r\n" + body.Replace("\n","\r\n"));
+                    //win.ShowDialog();
+                    OnShowProc(GetDBSource(node), node.Parent.Parent.Text, node.Text, body);
+
+                    LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<HLogEntity>("HLog", new HLogEntity
+                    {
+                        TypeName = node.Text,
+                        LogTime = DateTime.Now,
+                        LogType = LogTypeEnum.proc,
+                        DB = node.Parent.Parent.Text,
+                        Sever = GetDBSource(node).ServerName,
+                        Valid = true
+                    });
+                }
             }
             
         }
@@ -1076,6 +1252,9 @@ namespace NETDBHelper
                 string tbname = string.Format("[{0}].[{1}]", selnode.Parent.Text, selnode.Text);
 
                 var tbclumns = Biz.Common.Data.OracleHelper.GetColumns(this.GetDBSource(selnode), selnode.Parent.Text, selnode.Text).ToList();
+                var tbmark = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkColumnInfo>("MarkColumnInfo", "keys", new
+                   [] { selnode.Parent.Text.ToUpper(), selnode.Text.ToUpper(), string.Empty }).FirstOrDefault();
+                var tbdesc = tbmark == null ? selnode.Text : tbmark.MarkInfo;
 
                 DataTable resulttb = new DataTable();
                 resulttb.Columns.AddRange(new string[][] { 
@@ -1108,47 +1287,57 @@ namespace NETDBHelper
                     newrow["line"] = idx++;
 
                     var col = node.Tag as TBColumn;
+                    if (string.IsNullOrWhiteSpace(col.Description))
+                    {
+                        var mark = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkColumnInfo>("MarkColumnInfo", "keys", new
+                            [] { GetDBName(selnode).ToUpper(), GetTBName(selnode).ToUpper(), col.Name.ToUpper() }).FirstOrDefault();
+                        if (mark != null)
+                        {
+                            col.Description = mark.MarkInfo;
+                        }
+
+                    }
                     newrow["desc"] = string.IsNullOrWhiteSpace(col.Description) ? "-" : col.Description;
                     newrow["name"] = col.Name.ToLowerInvariant();
                     newrow["type"] = col.TypeName;
 
                     bool iskey = col.IsKey;
-                    newrow["iskey"] = iskey ? "<font color='red'>Y</font>" : "N";
+                    newrow["iskey"] = iskey ? "√" : "✕";
 
                     newrow["len"] = col.prec != 0 ? col.prec.ToString() : (col.Length > 0 ? col.Length.ToString() : "&nbsp;");
-                    newrow["null"] = col.IsNullAble ? "是" : "否";
+                    newrow["null"] = col.IsNullAble ? "√" : "✕";
 
                     resulttb.Rows.Add(newrow);
                 }
 
-                SubForm.WinWebBroswer web = new WinWebBroswer();
-                web.Width=(int)(this.Parent.Width*0.8);
-                web.Height = (int)(this.Parent.Height * 0.8);
-
-                var stylehtml = string.Format(@"<style>
-table{{
-   border-right:solid 1px #ccc;
-   border-bottom:solid 1px #ccc;
-   width:{0}px;
-}}
-table th{{
-   background-color:#ddd
-}}
-table td,th{{
-  border-left:solid 1px #ccc;
-  border-top:solid 1px #ccc;
-  height:28px;
-  line-height:28px;
-}}
-body{{
-  width:{1}px;
-  margin:0px auto;
-}}
-</style>",(int)(web.Width*0.99),web.Width);
                 //生成HTML
                 StringBuilder sb = new StringBuilder();
-                sb.AppendFormat(@"<html><head><title>数据字典-{0}</title></head>{1}<body><table cellpadding='1' cellspacing='0' border='1'>", tbname, stylehtml);
-                sb.Append("<tr>");
+                sb.AppendFormat(@"<html><head><title>数据字典-{0}</title><style>
+p{{font-size:11px;}}
+ table {{
+width:98%;
+font-family: verdana,arial,sans-serif;
+font-size:11px;
+color:#333333;
+border-width: 1px;
+border-color: #666666;
+border-collapse: collapse;
+}}
+table th {{
+border-width: 1px;
+padding: 8px;
+border-style: solid;
+border-color: #666666;
+background-color: #dedede;
+}}
+table td {{
+border-width: 1px;
+padding: 8px;
+border-style: solid;
+border-color: #666666;
+background-color: #ffffff;
+}}</style></head><body><p>表名：{0}</p><p>表说明：{1}</p><table cellpadding='0' cellspacing='0' border='1'>", tbname, tbdesc);
+                sb.Append("</tr>");
                 foreach (DataColumn col in resulttb.Columns)
                 {
                     sb.AppendFormat("<th>{0}</th>", col.Caption);
@@ -1382,6 +1571,174 @@ body{{
                     }
                 }
             }
+        }
+
+
+
+        private void TSMI_MulMarkLocal_Click(object sender, EventArgs e)
+        {
+            var currnode = tv_DBServers.SelectedNode;
+            if (currnode == null)
+            {
+                return;
+            }
+            MultiInputDlg dlg = new MultiInputDlg();
+            dlg.Text = "批量注释";
+            dlg.Moke = "每行一个，示例：列名#####说明文字";
+            if (dlg.ShowDialog() != DialogResult.OK)
+            {
+                return;
+            }
+
+            var tbname = GetTBName(currnode)?.ToUpper();
+            if (string.IsNullOrWhiteSpace(tbname))
+            {
+                return;
+            }
+
+            var dbname = GetDBName(currnode).ToUpper();
+
+            var allnodes = currnode.Parent.Nodes;
+            var dic = new Dictionary<string, TreeNode>();
+            foreach (TreeNode node in allnodes)
+            {
+                if (node.Tag is TBColumn)
+                {
+                    if (string.IsNullOrWhiteSpace(node.ToolTipText))
+                    {
+                        var colinfo = (TBColumn)node.Tag;
+                        dic.Add(colinfo.Name.ToUpper(), node);
+                    }
+                }
+            }
+
+            int scount = 0;
+
+            foreach (var ln in dlg.InputString.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries))
+            {
+                var arr = ln.Split(new[] { "#####" }, StringSplitOptions.RemoveEmptyEntries);
+                if (arr.Length > 1)
+                {
+                    var mark = arr[1];
+                    if (string.IsNullOrWhiteSpace(arr[1]))
+                    {
+                        continue;
+                    }
+                    var column = arr[0].Trim().ToUpper();
+
+                    if (dic.ContainsKey(column))
+                    {
+                        var tb = (TBColumn)dic[column].Tag;
+                        var item = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkColumnInfo>("MarkColumnInfo", "keys", new[] { dbname, tbname, column }).FirstOrDefault();
+
+                        if (item == null)
+                        {
+                            item = new MarkColumnInfo { ColumnName = column, DBName = dbname, TBName = tbname, Servername = GetDBSource(currnode).ServerName, MarkInfo = string.Empty };
+                        }
+
+                        item.MarkInfo = mark;
+                        LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Upsert<MarkColumnInfo>("MarkColumnInfo", item);
+                        dic[column].ToolTipText = mark;
+
+                        if (dic[column].ImageIndex == 18)
+                        {
+                            dic[column].ImageIndex = dic[column].SelectedImageIndex = 5;
+                        }
+
+                        scount++;
+                        //MessageBox.Show("备注成功");
+
+                    }
+                }
+            }
+
+
+            MessageBox.Show($"备注成功{scount}条");
+        }
+
+
+        private void OnViewTables()
+        {
+            var selnode = tv_DBServers.SelectedNode;
+            if (this.OnViewTable != null && selnode != null)
+            {
+                var dbname = GetDBName(selnode);
+                DataTable tb = Biz.Common.Data.MySQLHelper.GetTBs(GetDBSource(selnode), dbname);
+
+                StringBuilder sb = new StringBuilder("<html>");
+                sb.Append("<head>");
+                sb.Append($"<title>查看{dbname}的库表</title>");
+                sb.Append(@"<style>
+ table {{
+width:98%;
+font-family: verdana,arial,sans-serif;
+font-size:11px;
+color:#333333;
+border-width: 1px;
+border-color: #666666;
+border-collapse: collapse;
+}}
+table th {{
+border-width: 1px;
+padding: 8px;
+border-style: solid;
+border-color: #666666;
+background-color: #dedede;
+}}
+table td {{
+border-width: 1px;
+padding: 8px;
+border-style: solid;
+border-color: #666666;
+background-color: #ffffff;
+}}</style>");
+                sb.Append("</head>");
+                sb.Append(@"<body>
+                  <script>
+                      function k(){
+                          if (event.keyCode == 13) s();
+                      }
+                      function s(){
+                       var w=document.getElementById('w').value
+                       if(/^\s*$/.test(w)){
+                           var idx=1
+                           var trs= document.getElementsByTagName('tr');
+                           for(var i=0;i<trs.length;i++){
+                               trs[i].style.display=''
+                               if(trs[i].firstChild.tagName=='TD')
+                                   trs[i].firstChild.innerText=idx++
+                            }
+                           return
+                       }
+                       var idx=1;
+                       var tds= document.getElementsByTagName('td');
+                       w=w.toUpperCase();
+                       for(var i=0;i<tds.length;i+=3){
+                           var boo=tds[i+1].innerText.toUpperCase().indexOf(w)>-1||tds[i+2].innerText.toUpperCase().indexOf(w)>-1
+                           tds[i].parentNode.style.display=boo?'':'none'
+                           if(boo) tds[i].innerText=idx++
+                       }
+                   }
+                  </script>");
+                sb.Append("<input id='w' type='text' style='height:23px; line-height:23px;' onkeypress='k()' value=''/><input type='button' style='font-size:12px; height:23px; line-height:18px;' value='搜索'  onclick='s()'/>");
+                sb.Append("<p/>");
+                sb.Append("<table>");
+                sb.Append("<tr><th>序号</th><th>表名</th><th>描述</th></tr>");
+                int i = 1;
+                foreach (DataRow row in tb.Rows)
+                {
+                    var name = (string)row["name"];
+                    var item = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkColumnInfo>("MarkColumnInfo", "keys", new[] { dbname.ToUpper(), name.ToUpper(), string.Empty }).FirstOrDefault();
+
+                    sb.Append($"<tr><td>{i++}</td><td>{name}</td><td>{(item == null ? string.Empty : item.MarkInfo)}</td></tr>");
+                }
+                sb.Append("</table>");
+                sb.Append("</body>");
+                sb.Append("</html>");
+
+                this.OnViewTable(dbname, sb.ToString());
+            }
+
         }
     }
 }
