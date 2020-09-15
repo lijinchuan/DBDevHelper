@@ -112,7 +112,7 @@ namespace NETDBHelper.UC
 
             if (ThinkInfoLib == null)
             {
-                var markColumnInfoList = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.List<MarkColumnInfo>("MarkColumnInfo", 1, int.MaxValue);
+                var markColumnInfoList = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.List<MarkObjectInfo>("MarkObjectInfo", 1, int.MaxValue);
                 ThinkInfoLib = new List<ThinkInfo>();
 
                 foreach (var o in SQLKeyWordHelper.GetKeyWordList())
@@ -143,7 +143,12 @@ namespace NETDBHelper.UC
                                 ThinkInfoLib.Add(new ThinkInfo { Type = 1, ObjectName = m.TBName.ToLower(), Tag = null, Desc = string.Empty });
                             }
 
-                            ThinkInfoLib.Add(new ThinkInfo { Type = 2, Desc = m.MarkInfo, ObjectName = m.ColumnName.ToLower(), Tag = m });
+                            string desc = m.ColumnType;
+                            if (!string.IsNullOrWhiteSpace(m.MarkInfo))
+                            {
+                                desc += $",{m.MarkInfo}";
+                            }
+                            ThinkInfoLib.Add(new ThinkInfo { Type = 2, Desc = desc, ObjectName = m.ColumnName.ToLower(), Tag = m });
                         }
                     }
 
@@ -165,7 +170,7 @@ namespace NETDBHelper.UC
             List<ThinkInfo> thinkresut = new List<ThinkInfo>();
             foreach (var item in ThinkInfoLib)
             {
-                if (!string.IsNullOrEmpty(searchtable) && (item.Type != 2 || !searchtable.Equals((item.Tag as MarkColumnInfo).TBName, StringComparison.OrdinalIgnoreCase)))
+                if (!string.IsNullOrEmpty(searchtable) && (item.Type != 2 || !searchtable.Equals((item.Tag as MarkObjectInfo).TBName, StringComparison.OrdinalIgnoreCase)))
                 {
                     continue;
                 }
@@ -217,7 +222,7 @@ namespace NETDBHelper.UC
             {
                 if (p.Type == 2)
                 {
-                    if (!TableSet.Contains((p.Tag as MarkColumnInfo).TBName, StringComparer.OrdinalIgnoreCase))
+                    if (!TableSet.Contains((p.Tag as MarkObjectInfo).TBName, StringComparer.OrdinalIgnoreCase))
                     {
                         return false;
                     }
@@ -238,7 +243,7 @@ namespace NETDBHelper.UC
                 string objectname = null;
                 if (p.Type == 2)
                 {
-                    var markcolumn = (p.Tag as MarkColumnInfo);
+                    var markcolumn = (p.Tag as MarkObjectInfo);
                     objectname = $"{markcolumn.TBName.ToLower()}.{p.ObjectName}";
                 }
                 else
@@ -452,10 +457,10 @@ namespace NETDBHelper.UC
 
             if (keys.Count > 0)
             {
-                var marklist = new List<MarkColumnInfo>();
+                var marklist = new List<MarkObjectInfo>();
                 foreach (var key in keys)
                 {
-                    var findresult = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkColumnInfo>("MarkColumnInfo", "keys", key).FirstOrDefault();
+                    var findresult = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys", key).FirstOrDefault();
                     if (findresult != null)
                     {
                         marklist.Add(findresult);
@@ -465,9 +470,11 @@ namespace NETDBHelper.UC
                 if (marklist.Count > 0)
                 {
                     (view.Tag as ViewContext).DataType = 1;
-                    view.DataSource = marklist.Select(p => new
-                    {
-                        提示 = p.DBName.ToLower() + "." + p.TBName.ToLower() + "." + p.ColumnName.ToLower() + ":" + p.MarkInfo
+                    view.DataSource = marklist.Select(p => {
+                        return new
+                        {
+                            提示 = $"{p.DBName.ToLower()}.{p.TBName.ToLower()}.{p.ColumnName.ToLower()}({p.ColumnType}):{p.MarkInfo}"
+                        };
                     }).ToList();
                     var padding = view.Columns[0].DefaultCellStyle.Padding;
                     padding.Left = 1;
@@ -490,8 +497,11 @@ namespace NETDBHelper.UC
 
         private void RichText_MouseMove(object sender, MouseEventArgs e)
         {
-            _currpt = e.Location;
-            _pointtiptime = DateTime.Now;
+            if (_currpt != e.Location)
+            {
+                _currpt = e.Location;
+                _pointtiptime = DateTime.Now;
+            }
         }
 
         private void RichText_MouseClick(object sender, MouseEventArgs e)

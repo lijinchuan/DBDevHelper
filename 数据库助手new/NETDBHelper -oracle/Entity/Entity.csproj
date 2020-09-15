@@ -52,7 +52,7 @@
     <Compile Include="IDataExport.cs" />
     <Compile Include="IDType.cs" />
     <Compile Include="IndexEntry.cs" />
-    <Compile Include="MarkColumnInfo.cs" />
+    <Compile Include="MarkObjectInfo.cs" />
     <Compile Include="MSSQLTypeEnum.cs" />
     <Compile Include="OracleDataType.cs" />
     <Compile Include="ProcessListInfo.cs" />

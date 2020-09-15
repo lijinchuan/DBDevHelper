@@ -16,7 +16,7 @@ namespace NETDBHelper
         [STAThread]
         static void Main(string[] args)
         {
-            BigEntityTableEngine.LocalEngine.CreateTable("MarkColumnInfo", "ID", true, typeof(MarkColumnInfo), new IndexInfo[]
+            BigEntityTableEngine.LocalEngine.CreateTable("MarkObjectInfo", "ID", true, typeof(MarkObjectInfo), new IndexInfo[]
             {
                 new IndexInfo
                 {
