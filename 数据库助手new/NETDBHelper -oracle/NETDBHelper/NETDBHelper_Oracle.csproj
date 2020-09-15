@@ -131,6 +131,12 @@
     <Compile Include="UC\LogViewTab.designer.cs">
       <DependentUpon>LogViewTab.cs</DependentUpon>
     </Compile>
+    <Compile Include="UC\SqlSaveViewTab.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="UC\SqlSaveViewTab.designer.cs">
+      <DependentUpon>SqlSaveViewTab.cs</DependentUpon>
+    </Compile>
     <Compile Include="UC\WebTab.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -152,6 +158,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="UC\LogViewTab.resx">
       <DependentUpon>LogViewTab.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UC\SqlSaveViewTab.resx">
+      <DependentUpon>SqlSaveViewTab.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UC\WebTab.resx">
       <DependentUpon>WebTab.cs</DependentUpon>

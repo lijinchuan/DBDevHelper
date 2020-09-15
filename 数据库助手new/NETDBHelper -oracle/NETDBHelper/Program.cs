@@ -42,6 +42,9 @@ namespace NETDBHelper
                 }
              });
 
+
+            BigEntityTableEngine.LocalEngine.CreateTable("SqlSave", "ID", true, typeof(SqlSaveEntity));
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new MainFrm());

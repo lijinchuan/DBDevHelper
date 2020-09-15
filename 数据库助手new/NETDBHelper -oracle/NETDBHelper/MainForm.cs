@@ -292,5 +292,23 @@ namespace NETDBHelper
             logview.BindData();
         }
 
+        private void 常用SQLToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            foreach (TabPage page in this.TabControl.TabPages)
+            {
+                if (page.Text == "常用SQL")
+                {
+                    TabControl.SelectedTab = page;
+                    (page as SqlSaveViewTab).BindData();
+                    return;
+                }
+            }
+            SqlSaveViewTab view = new SqlSaveViewTab();
+            view.Text = "常用SQL";
+
+            this.TabControl.TabPages.Add(view);
+            this.TabControl.SelectedTab = view;
+            view.BindData();
+        }
     }
 }
