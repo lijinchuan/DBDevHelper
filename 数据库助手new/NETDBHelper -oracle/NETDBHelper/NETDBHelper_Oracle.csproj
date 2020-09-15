@@ -55,6 +55,9 @@
     <Reference Include="CalculateModel">
       <HintPath>..\..\Lib\CalculateModel.dll</HintPath>
     </Reference>
+    <Reference Include="ICSharpCode.SharpZipLib, Version=1.0.0.999, Culture=neutral, PublicKeyToken=1b03e6acf1164f73, processorArchitecture=MSIL">
+      <HintPath>..\packages\SharpZipLib.1.0.0\lib\net45\ICSharpCode.SharpZipLib.dll</HintPath>
+    </Reference>
     <Reference Include="LJC.FrameWork">
       <HintPath>..\..\Lib\LJC.FrameWork.dll</HintPath>
     </Reference>
@@ -68,6 +71,18 @@
     <Reference Include="MySql.Data, Version=6.4.4.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\Lib\MySql.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="NPOI, Version=2.4.1.0, Culture=neutral, PublicKeyToken=0df73ec7942b34e1, processorArchitecture=MSIL">
+      <HintPath>..\packages\NPOI.2.4.1\lib\net45\NPOI.dll</HintPath>
+    </Reference>
+    <Reference Include="NPOI.OOXML, Version=2.4.1.0, Culture=neutral, PublicKeyToken=0df73ec7942b34e1, processorArchitecture=MSIL">
+      <HintPath>..\packages\NPOI.2.4.1\lib\net45\NPOI.OOXML.dll</HintPath>
+    </Reference>
+    <Reference Include="NPOI.OpenXml4Net, Version=2.4.1.0, Culture=neutral, PublicKeyToken=0df73ec7942b34e1, processorArchitecture=MSIL">
+      <HintPath>..\packages\NPOI.2.4.1\lib\net45\NPOI.OpenXml4Net.dll</HintPath>
+    </Reference>
+    <Reference Include="NPOI.OpenXmlFormats, Version=2.4.1.0, Culture=neutral, PublicKeyToken=0df73ec7942b34e1, processorArchitecture=MSIL">
+      <HintPath>..\packages\NPOI.2.4.1\lib\net45\NPOI.OpenXmlFormats.dll</HintPath>
     </Reference>
     <Reference Include="Oracle.ManagedDataAccess, Version=4.122.18.3, Culture=neutral, PublicKeyToken=89b483f429c47342, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -131,6 +146,12 @@
     <Compile Include="UC\LogViewTab.designer.cs">
       <DependentUpon>LogViewTab.cs</DependentUpon>
     </Compile>
+    <Compile Include="UC\SqlExcuter.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="UC\SqlExcuter.designer.cs">
+      <DependentUpon>SqlExcuter.cs</DependentUpon>
+    </Compile>
     <Compile Include="UC\SqlSaveViewTab.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -159,12 +180,16 @@
     <EmbeddedResource Include="UC\LogViewTab.resx">
       <DependentUpon>LogViewTab.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="UC\SqlExcuter.resx">
+      <DependentUpon>SqlExcuter.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="UC\SqlSaveViewTab.resx">
       <DependentUpon>SqlSaveViewTab.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UC\WebTab.resx">
       <DependentUpon>WebTab.cs</DependentUpon>
     </EmbeddedResource>
+    <None Include="packages.config" />
     <None Include="Resources\SQLTypeRs.Designer.cs" />
     <Compile Include="SubForm\AuthDlg.cs">
       <SubType>Form</SubType>

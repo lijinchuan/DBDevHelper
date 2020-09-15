@@ -46,6 +46,7 @@
             this.dbServerView1 = new NETDBHelper.DBServerView();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.MspPanel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.TSCBServer = new System.Windows.Forms.ToolStripLabel();
             this.mainMenuBar.SuspendLayout();
             this.panel1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
@@ -168,7 +169,8 @@
             // toolStrip1
             // 
             this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsb_Excute});
+            this.tsb_Excute,
+            this.TSCBServer});
             this.toolStrip1.Location = new System.Drawing.Point(0, 25);
             this.toolStrip1.Name = "toolStrip1";
             this.toolStrip1.Size = new System.Drawing.Size(830, 25);
@@ -209,6 +211,11 @@
             // 
             this.MspPanel.Name = "MspPanel";
             this.MspPanel.Size = new System.Drawing.Size(0, 17);
+            // 
+            // TSCBServer
+            // 
+            this.TSCBServer.Name = "TSCBServer";
+            this.TSCBServer.Size = new System.Drawing.Size(0, 22);
             // 
             // MainFrm
             // 
@@ -256,6 +263,7 @@
         private System.Windows.Forms.ToolStripMenuItem SubItemModelCreateTableTool;
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripStatusLabel MspPanel;
+        private System.Windows.Forms.ToolStripLabel TSCBServer;
     }
 }
 

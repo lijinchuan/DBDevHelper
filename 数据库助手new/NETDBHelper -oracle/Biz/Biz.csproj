@@ -64,6 +64,7 @@
     <Compile Include="Common\Ext.cs" />
     <Compile Include="Common\NumberHelper.cs" />
     <Compile Include="Common\ReflectionHelper.cs" />
+    <Compile Include="Common\SQLKeyWord.cs" />
     <Compile Include="Common\StringHelper.cs" />
     <Compile Include="Common\WatchTimer.cs" />
     <Compile Include="Common\XMLHelper.cs" />

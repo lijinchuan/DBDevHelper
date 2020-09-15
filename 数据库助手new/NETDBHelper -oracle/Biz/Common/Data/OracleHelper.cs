@@ -102,6 +102,31 @@ namespace Biz.Common.Data
             }
         }
 
+        public static DataSet ExecuteDataSet(DBSource dbSource, string connDB, string sql, OracleInfoMessageEventHandler onmsg, params OracleParameter[] sqlParams)
+        {
+            using (var conn = new OracleConnection(GetConnstringFromDBSource(dbSource, connDB)))
+            {
+                conn.InfoMessage += onmsg;
+
+                using (OracleCommand cmd = new OracleCommand())
+                {
+                    cmd.Connection = conn;
+                    cmd.CommandText = sql;
+                    cmd.CommandType = CommandType.Text;
+                    cmd.CommandTimeout = 180;
+                    if (sqlParams != null)
+                    {
+                        cmd.Parameters.AddRange(sqlParams);
+                    }
+                    OracleDataAdapter ada = new OracleDataAdapter(cmd);
+                    DataSet ts = new DataSet();
+                    ada.Fill(ts);
+
+                    return ts;
+                }
+            }
+        }
+
         public static DataTable GetDBs(DBSource dbSource)
         {
             var dt = ExecuteDBTable(dbSource, null, OracleHelperConsts.GetDBs, null);
