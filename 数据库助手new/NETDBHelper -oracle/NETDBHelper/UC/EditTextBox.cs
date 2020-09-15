@@ -11,6 +11,7 @@ using Biz.Common;
 using LJC.FrameWork.CodeExpression.KeyWordMatch;
 using Entity;
 using LJC.FrameWork.Data.EntityDataBase;
+using System.Threading;
 
 namespace NETDBHelper.UC
 {
@@ -80,9 +81,12 @@ namespace NETDBHelper.UC
         //internal KeyWordManager keywordman = new KeyWordManager();
         private KeyWordManager _keyWords = new KeyWordManager();
         private WatchTimer _timer = new WatchTimer(3);
+        private System.Threading.Timer backtimer = null;
         private List<int> _markedLines = new List<int>();
         private int _lastMarketedLines = -1;
         private int _lastInputChar = '\0';
+        private Point _currpt = Point.Empty;
+        private DateTime _pointtiptime = DateTime.MaxValue;
 
         private DataGridView view = new DataGridView();
 
@@ -277,6 +281,8 @@ namespace NETDBHelper.UC
 
             this.RichText.TextChanged += new EventHandler(RichText_TextChanged);
             this.RichText.MouseClick += RichText_MouseClick;
+            this.RichText.MouseMove += RichText_MouseMove;
+            this.RichText.MouseLeave += RichText_MouseLeave;
             defaultSelectionColor = this.RichText.SelectionColor;
 
             view.Visible = false;
@@ -304,7 +310,190 @@ namespace NETDBHelper.UC
             this.RichText.ImeMode = ImeMode.On;
 
             this.RichText.HideSelection = false;
+
+            backtimer = new System.Threading.Timer(new System.Threading.TimerCallback((o) =>
+            {
+                if (this.Visible && !view.Visible && _currpt != Point.Empty && DateTime.Now.Subtract(_pointtiptime).TotalMilliseconds >= 1500)
+                {
+                    _pointtiptime = DateTime.MaxValue;
+                    backtimer.Change(0, Timeout.Infinite);
+                    this.BeginInvoke(new Action(() =>
+                    {
+                        try
+                        {
+                            showTip();
+                        }
+                        catch (Exception ex)
+                        {
+                            Util.SendMsg(this, ex.ToString());
+                        }
+                        finally
+                        {
+                            backtimer.Change(0, 100);
+                        }
+                    }));
+                }
+            }), null, 0, 100);
         }
+        private void showTip()
+        {
+            if (string.IsNullOrWhiteSpace(DBName))
+            {
+                return;
+            }
+
+            var seltext = GetTipCurrWord();
+            if (string.IsNullOrWhiteSpace(seltext) || seltext.IndexOf('\n') > -1 || seltext.Length > 30)
+            {
+                return;
+            }
+
+            seltext = seltext.Trim().ToUpper();
+            var subtexts = seltext.Split('.').Select(p => p.Trim('[', ']').Trim()).ToArray();
+            List<string[]> keys = new List<string[]>();
+            if (subtexts.Length > 2)
+            {
+                keys.Add(new string[] { subtexts[subtexts.Length - 3], subtexts[subtexts.Length - 2], subtexts.Last() });
+            }
+            else if (subtexts.Length > 1)
+            {
+                keys.Add(new string[] { DBName.ToUpper(), subtexts[subtexts.Length - 2], subtexts.Last() });
+            }
+            else
+            {
+                //[\s\n]+from[\s\r\n]+(?:(?:[\w\.\[\]]{1,})[\s\r\n]+(?:as)?(?:\w+)?(?:\,(?:[\w\.\[\]]{1,})[\s\r\n]+(?:as)?(?:\s+\w+)?)*)
+                //[\s\n]+from[\s\r\n]+((?:[\w\.\[\]]{1,}(?:\s?=\w+)?(?:\,?=[\w\.\[\]]{1,}(?:\s?=\w+)?))*)|[\s\n]+join[\s\n]+([\w\.\[\]]{1,})|(?:^?|\s+)update|insert\s+([\w\.\[\]]+)
+                HashSet<Tuple<string, string>> tablenamehash = new HashSet<Tuple<string, string>>();
+                foreach (Match m in Regex.Matches(this.RichText.Text, @"[\s\r\n]+from[\s\r\n]+(?:([\w\.\[\]]{1,})[\s\r\n]+(?:as)?(?:\w+)?(?:\,[\r\n\s]*(?:[\w\.\[\]]{1,})[\s\r\n]+(?:as)?(?:[\s\r\n]+\w+)?)*)|[\s\n\r]+join[\s\n\r]+([\w\.\[\]]{1,})|(?:^?|\s+)update[\s\r\n]+([\w\.\[\]]{1,})|insert[\s\r\n]+into[\s\r\n]+([\w\.\[\]]+)|delete[\s\r\n]+from[\s\r\n]+([\w\.\[\]]+)",
+                    RegexOptions.IgnoreCase | RegexOptions.Multiline))
+                {
+                    if (!string.IsNullOrWhiteSpace(m.Groups[0].Value))
+                    {
+                        foreach (Match n in Regex.Matches(m.Groups[0].Value, @",[\s\r\n]*([\w\.\[\]]{1,})[\s\r\n]+(?:as)?(?:[\s\r\n]+\w+)?", RegexOptions.IgnoreCase | RegexOptions.Multiline))
+                        {
+                            var t = GetTableName(n.Groups[1].Value, DBName);
+
+                            if (!tablenamehash.Contains(t))
+                            {
+                                tablenamehash.Add(t);
+                            }
+                        }
+                    }
+
+                    //select
+                    if (!string.IsNullOrEmpty(m.Groups[1].Value))
+                    {
+                        var t1 = GetTableName(m.Groups[1].Value, DBName);
+
+                        if (!tablenamehash.Contains(t1))
+                        {
+                            tablenamehash.Add(t1);
+                        }
+
+                    }
+
+                    //join
+                    if (!string.IsNullOrEmpty(m.Groups[2].Value))
+                    {
+                        var t2 = GetTableName(m.Groups[2].Value, DBName);
+
+                        if (!tablenamehash.Contains(t2))
+                        {
+                            tablenamehash.Add(t2);
+                        }
+
+                    }
+
+                    //update
+                    if (!string.IsNullOrEmpty(m.Groups[3].Value))
+                    {
+                        var t = GetTableName(m.Groups[3].Value, DBName);
+
+                        if (!tablenamehash.Contains(t))
+                        {
+                            tablenamehash.Add(t);
+                        }
+
+                    }
+
+                    //insert
+                    if (!string.IsNullOrEmpty(m.Groups[4].Value))
+                    {
+                        var t = GetTableName(m.Groups[4].Value, DBName);
+
+                        if (!tablenamehash.Contains(t))
+                        {
+                            tablenamehash.Add(t);
+                        }
+
+                    }
+                    //delete
+                    if (!string.IsNullOrEmpty(m.Groups[5].Value))
+                    {
+                        var t = GetTableName(m.Groups[5].Value, DBName);
+
+                        if (!tablenamehash.Contains(t))
+                        {
+                            tablenamehash.Add(t);
+                        }
+
+                    }
+                }
+
+                if (tablenamehash.Count > 0)
+                {
+                    foreach (var it in tablenamehash)
+                    {
+                        keys.Add(new string[] { it.Item1, it.Item2, subtexts.Last() });
+                    }
+                }
+
+            }
+
+            if (keys.Count > 0)
+            {
+                var marklist = new List<MarkColumnInfo>();
+                foreach (var key in keys)
+                {
+                    var findresult = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkColumnInfo>("MarkColumnInfo", "keys", key).FirstOrDefault();
+                    if (findresult != null)
+                    {
+                        marklist.Add(findresult);
+                    }
+
+                }
+                if (marklist.Count > 0)
+                {
+                    (view.Tag as ViewContext).DataType = 1;
+                    view.DataSource = marklist.Select(p => new
+                    {
+                        提示 = p.DBName.ToLower() + "." + p.TBName.ToLower() + "." + p.ColumnName.ToLower() + ":" + p.MarkInfo
+                    }).ToList();
+                    var padding = view.Columns[0].DefaultCellStyle.Padding;
+                    padding.Left = 1;
+                    view.Columns[0].DefaultCellStyle.Padding = padding;
+                    view.Visible = true;
+
+                    view.BringToFront();
+                    view.Height = (view.Rows.GetRowsHeight(DataGridViewElementStates.Visible) / marklist.Count) * marklist.Count + view.ColumnHeadersHeight;
+
+                    view.Location = PointToClient(Control.MousePosition);
+                }
+            }
+        }
+
+        private void RichText_MouseLeave(object sender, EventArgs e)
+        {
+            this._pointtiptime = DateTime.MaxValue;
+            this._currpt = Point.Empty;
+        }
+
+        private void RichText_MouseMove(object sender, MouseEventArgs e)
+        {
+            _currpt = e.Location;
+            _pointtiptime = DateTime.Now;
+        }
+
         private void RichText_MouseClick(object sender, MouseEventArgs e)
         {
             if (view.Visible)
@@ -319,6 +508,7 @@ namespace NETDBHelper.UC
 
         private void View_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
         {
+
             if ((view.Tag as ViewContext).DataType == 2)
             {
                 view.Columns["Type"].Visible = false;
@@ -326,35 +516,51 @@ namespace NETDBHelper.UC
 
             var ajustviewwith = 0;
             int icount = 0;
+            List<int> maxwidthlist = new List<int>();
             foreach (DataGridViewColumn col in view.Columns)
             {
                 if (!col.Visible)
                 {
                     continue;
                 }
-                icount++;
-                int maxwith = 0;
+
+                int maxwidth = 0;
                 foreach (DataGridViewRow row in view.Rows)
                 {
                     using (var g = view.CreateGraphics())
                     {
-                        var mwidth = col.DefaultCellStyle.Padding.Left + (int)g.MeasureString(row.Cells[col.Name].Value.ToString() + col.Name, view.Font).Width + 30;
-                        if (mwidth > maxwith)
+                        var mwidth = col.DefaultCellStyle.Padding.Left + (int)g.MeasureString(row.Cells[col.Name].Value.ToString() + col.Name, view.Font).Width + 20;
+                        if (mwidth > maxwidth)
                         {
-                            maxwith = mwidth;
+                            maxwidth = mwidth;
                         }
                     }
                 }
-                ajustviewwith += maxwith;
+                ajustviewwith += maxwidth;
                 if (icount < view.DisplayedColumnCount(false))
                 {
-                    col.Width = maxwith;
+                    maxwidthlist.Add(maxwidth);
                 }
+                icount++;
             }
 
-            var width = Math.Min(ajustviewwith, (int)(view.Parent?.Width ?? 800 * 0.7));
+            var limitwidth = (int)(view.Parent?.Width ?? 800 * 0.7);
+            var width = Math.Min(ajustviewwith, limitwidth);
 
             view.Width = width;
+
+            var rate = width < ajustviewwith ? ((width * 1.0 / ajustviewwith)) : 1.0;
+            icount = 0;
+            foreach (DataGridViewColumn col in view.Columns)
+            {
+                if (!col.Visible)
+                {
+                    continue;
+                }
+                col.Width = (int)(maxwidthlist[icount] * rate);
+                icount++;
+            }
+
         }
 
         private void View_RowPostPaint(object sender, DataGridViewRowPostPaintEventArgs e)
@@ -418,12 +624,73 @@ namespace NETDBHelper.UC
                 }
             }
         }
+        private string GetTipCurrWord()
+        {
+            var curindex = this.RichText.GetCharIndexFromPosition(_currpt);
+            var realpt = this.RichText.GetPositionFromCharIndex(curindex);
+            if (_currpt.X - realpt.X < -10 || _currpt.X - realpt.X > 15)
+            {
+                return string.Empty;
+            }
+            if (_currpt.Y - realpt.Y < -10 || _currpt.Y - realpt.Y > 15)
+            {
+                return string.Empty;
+            }
+            var currline = this.RichText.GetLineFromCharIndex(curindex);
+
+            var charstartindex = this.RichText.GetFirstCharIndexFromLine(currline);
+            var tippt = this.RichText.GetPositionFromCharIndex(curindex);
+            tippt.Offset(0, 20);
+            string pre = "", last = "";
+            int pi = curindex - charstartindex - 1;
+            while (pi >= 0)
+            {
+
+                var ch = this.RichText.Lines[currline][pi];
+
+                if ((ch >= 'A' && ch <= 'Z') || (ch >= 48 && ch <= 57) || (ch >= 'a' && ch <= 'z')
+                    || ch == '_' || ch == '.'
+                    || (ch >= '\u4E00' && ch <= '\u9FA5'))
+                {
+                    pre = ch + pre;
+                    pi--;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            pi = curindex - charstartindex;
+            if (this.RichText.Lines.Length > currline)
+            {
+                while (pi < this.RichText.Lines[currline].Length)
+                {
+                    var ch = this.RichText.Lines[currline][pi];
+
+                    if ((ch >= 'A' && ch <= 'Z') || (ch >= 48 && ch <= 57) || (ch >= 'a' && ch <= 'z')
+                        || ch == '_' || ch == '.'
+                        || (ch >= '\u4E00' && ch <= '\u9FA5'))
+                    {
+                        last += ch;
+                        pi++;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+            }
+
+            var keyword = pre + last;
+            return keyword;
+        }
 
         private int GetCurrWord(out string word)
         {
             var curindex = this.RichText.SelectionStart;
             var currline = this.RichText.GetLineFromCharIndex(curindex);
-            var charstartindex = this.RichText.GetFirstCharIndexOfCurrentLine();
+            //var charstartindex = this.RichText.GetFirstCharIndexOfCurrentLine();
+            var charstartindex = this.RichText.GetFirstCharIndexFromLine(currline);
             var tippt = this.RichText.GetPositionFromCharIndex(curindex);
             tippt.Offset(0, 20);
             string pre = "", last = "";
@@ -935,149 +1202,6 @@ namespace NETDBHelper.UC
 
         private void RichText_SelectionChanged(object sender, EventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(DBName))
-            {
-                return;
-            }
-
-            var seltext = this.RichText.SelectedText;
-            if (string.IsNullOrWhiteSpace(seltext) || seltext.IndexOf('\n') > -1 || seltext.Length > 30)
-            {
-                return;
-            }
-
-            seltext = seltext.Trim().ToUpper();
-            var subtexts = seltext.Split('.').Select(p => p.Trim('[', ']').Trim()).ToArray();
-            List<string[]> keys = new List<string[]>();
-            if (subtexts.Length > 2)
-            {
-                keys.Add(new string[] { subtexts[subtexts.Length - 3], subtexts[subtexts.Length - 2], subtexts.Last() });
-            }
-            else if (subtexts.Length > 1)
-            {
-                keys.Add(new string[] { DBName.ToUpper(), subtexts[subtexts.Length - 2], subtexts.Last() });
-            }
-            else
-            {
-                //[\s\n]+from[\s\r\n]+(?:(?:[\w\.\[\]]{1,})[\s\r\n]+(?:as)?(?:\w+)?(?:\,(?:[\w\.\[\]]{1,})[\s\r\n]+(?:as)?(?:\s+\w+)?)*)
-                //[\s\n]+from[\s\r\n]+((?:[\w\.\[\]]{1,}(?:\s?=\w+)?(?:\,?=[\w\.\[\]]{1,}(?:\s?=\w+)?))*)|[\s\n]+join[\s\n]+([\w\.\[\]]{1,})|(?:^?|\s+)update|insert\s+([\w\.\[\]]+)
-                HashSet<Tuple<string, string>> tablenamehash = new HashSet<Tuple<string, string>>();
-                foreach (Match m in Regex.Matches(this.RichText.Text, @"[\s\r\n]+from[\s\r\n]+(?:([\w\.\[\]]{1,})[\s\r\n]+(?:as)?(?:\w+)?(?:\,[\r\n\s]*(?:[\w\.\[\]]{1,})[\s\r\n]+(?:as)?(?:[\s\r\n]+\w+)?)*)|[\s\n\r]+join[\s\n\r]+([\w\.\[\]]{1,})|(?:^?|\s+)update[\s\r\n]+([\w\.\[\]]{1,})|insert[\s\r\n]+into[\s\r\n]+([\w\.\[\]]+)|delete[\s\r\n]+from[\s\r\n]+([\w\.\[\]]+)",
-                    RegexOptions.IgnoreCase | RegexOptions.Multiline))
-                {
-                    if (!string.IsNullOrWhiteSpace(m.Groups[0].Value))
-                    {
-                        foreach (Match n in Regex.Matches(m.Groups[0].Value, @",[\s\r\n]*([\w\.\[\]]{1,})[\s\r\n]+(?:as)?(?:[\s\r\n]+\w+)?", RegexOptions.IgnoreCase | RegexOptions.Multiline))
-                        {
-                            var t = GetTableName(n.Groups[1].Value, DBName);
-
-                            if (!tablenamehash.Contains(t))
-                            {
-                                tablenamehash.Add(t);
-                            }
-                        }
-                    }
-
-                    //select
-                    if (!string.IsNullOrEmpty(m.Groups[1].Value))
-                    {
-                        var t1 = GetTableName(m.Groups[1].Value, DBName);
-
-                        if (!tablenamehash.Contains(t1))
-                        {
-                            tablenamehash.Add(t1);
-                        }
-
-                    }
-
-                    //join
-                    if (!string.IsNullOrEmpty(m.Groups[2].Value))
-                    {
-                        var t2 = GetTableName(m.Groups[2].Value, DBName);
-
-                        if (!tablenamehash.Contains(t2))
-                        {
-                            tablenamehash.Add(t2);
-                        }
-
-                    }
-
-                    //update
-                    if (!string.IsNullOrEmpty(m.Groups[3].Value))
-                    {
-                        var t = GetTableName(m.Groups[3].Value, DBName);
-
-                        if (!tablenamehash.Contains(t))
-                        {
-                            tablenamehash.Add(t);
-                        }
-
-                    }
-
-                    //insert
-                    if (!string.IsNullOrEmpty(m.Groups[4].Value))
-                    {
-                        var t = GetTableName(m.Groups[4].Value, DBName);
-
-                        if (!tablenamehash.Contains(t))
-                        {
-                            tablenamehash.Add(t);
-                        }
-
-                    }
-                    //delete
-                    if (!string.IsNullOrEmpty(m.Groups[5].Value))
-                    {
-                        var t = GetTableName(m.Groups[5].Value, DBName);
-
-                        if (!tablenamehash.Contains(t))
-                        {
-                            tablenamehash.Add(t);
-                        }
-
-                    }
-                }
-
-                if (tablenamehash.Count > 0)
-                {
-                    foreach (var it in tablenamehash)
-                    {
-                        keys.Add(new string[] { it.Item1, it.Item2, subtexts.Last() });
-                    }
-                }
-
-            }
-
-            if (keys.Count > 0)
-            {
-                var marklist = new List<MarkColumnInfo>();
-                foreach (var key in keys)
-                {
-                    var findresult = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkColumnInfo>("MarkColumnInfo", "keys", key).FirstOrDefault();
-                    if (findresult != null)
-                    {
-                        marklist.Add(findresult);
-                    }
-
-                }
-                if (marklist.Count > 0)
-                {
-                    (view.Tag as ViewContext).DataType = 1;
-                    view.DataSource = marklist.Select(p => new
-                    {
-                        提示 = p.DBName.ToLower() + "." + p.TBName.ToLower() + "." + p.ColumnName.ToLower() + ":" + p.MarkInfo
-                    }).ToList();
-                    var padding = view.Columns[0].DefaultCellStyle.Padding;
-                    padding.Left = 1;
-                    view.Columns[0].DefaultCellStyle.Padding = padding;
-                    view.Visible = true;
-
-                    view.BringToFront();
-                    view.Height = (view.Rows.GetRowsHeight(DataGridViewElementStates.Visible) / marklist.Count) * marklist.Count + view.ColumnHeadersHeight;
-
-                    view.Location = PointToClient(Control.MousePosition);
-                }
-            }
         }
 
         private void 搜索ToolStripMenuItem_Click(object sender, EventArgs e)
