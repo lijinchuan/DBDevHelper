@@ -690,7 +690,7 @@ namespace NETDBHelper.UC
                                                     {
                                                         yend = ystart2;
                                                     }
-                                                    else if (yend - yend2 > ystart2 - ystart && yend - yend2 > sf.Height)
+                                                    else if (yend - yend2 > ystart2 - ystart)
                                                     {
                                                         ystart = yend2;
                                                     }
@@ -734,7 +734,7 @@ namespace NETDBHelper.UC
                                                     {
                                                         xend = xstart2;
                                                     }
-                                                    else if (xend - xend2 > xstart2 - xstart && xend - xend2 > sf.Width)
+                                                    else if (xend - xend2 > xstart2 - xstart)
                                                     {
                                                         xstart = xend2;
                                                     }
