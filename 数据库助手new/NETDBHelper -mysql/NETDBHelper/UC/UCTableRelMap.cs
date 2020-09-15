@@ -322,6 +322,40 @@ namespace NETDBHelper.UC
             DrawLinkLine(this.PanelMap, e.Graphics);
         }
 
+        private Point GetMax(Point p1, Point p2)
+        {
+            if (p1.X < p2.X)
+            {
+                return p2;
+            }
+            if (p1.X > p2.X)
+            {
+                return p1;
+            }
+            if (p1.Y < p2.Y)
+            {
+                return p2;
+            }
+            return p1;
+        }
+
+        private Point GetMin(Point p1, Point p2)
+        {
+            if (p1.X > p2.X)
+            {
+                return p2;
+            }
+            if (p1.X < p2.X)
+            {
+                return p1;
+            }
+            if (p1.Y > p2.Y)
+            {
+                return p2;
+            }
+            return p1;
+        }
+
         private void DrawLinkLine(Control parent, Graphics g)
         {
             //g.TranslateTransform(this.PanelMap.AutoScrollPosition.X, this.PanelMap.AutoScrollPosition.Y);
@@ -498,31 +532,126 @@ namespace NETDBHelper.UC
                                     {
                                         if (p1.X == p2.X)
                                         {
-                                            if (item2.LinkLines[j - 1].X != item2.LinkLines[j].X)
+                                            if (item2.LinkLines[j - 1].X != item2.LinkLines[j].X
+                                                || Math.Abs(item2.LinkLines[j - 1].X - p1.X) > 10)
                                             {
                                                 continue;
                                             }
-                                            if (p3 == Point.Empty ||
-                                            Math.Abs(item2.LinkLines[j - 1].X - p1.X) < Math.Abs(p3.X - p1.X))
+                                            var minpoint = GetMin(item2.LinkLines[j - 1], item2.LinkLines[j]);
+                                            var maxpoint = GetMax(item2.LinkLines[j - 1], item2.LinkLines[j]);
+                                            if (maxpoint.Y >= GetMin(p1, p2).Y && minpoint.Y <= GetMax(p1, p2).Y)
                                             {
-                                                p3 = item2.LinkLines[j - 1];
-                                                p4 = item2.LinkLines[j];
+                                                if (p3 == Point.Empty || p3.Y > minpoint.Y)
+                                                {
+                                                    p3 = minpoint;
+                                                }
+                                                if (p4 == Point.Empty || p4.Y < maxpoint.Y)
+                                                {
+                                                    p4 = maxpoint;
+                                                }
+                                            }
+
+                                        }
+                                        else if (p1.Y == p2.Y)
+                                        {
+                                            if (item2.LinkLines[j - 1].Y != item2.LinkLines[j].Y
+                                                || Math.Abs(item2.LinkLines[j - 1].Y - p1.Y) > 10)
+                                            {
+                                                continue;
+                                            }
+                                            var minpoint = GetMin(item2.LinkLines[j - 1], item2.LinkLines[j]);
+                                            var maxpoint = GetMax(item2.LinkLines[j - 1], item2.LinkLines[j]);
+                                            if (maxpoint.X >= GetMin(p1, p2).X && minpoint.X <= GetMax(p1, p2).X)
+                                            {
+                                                if (p3 == Point.Empty || p3.X > minpoint.X)
+                                                {
+                                                    p3 = minpoint;
+                                                }
+                                                if (p4 == Point.Empty || p4.X < maxpoint.X)
+                                                {
+                                                    p4 = maxpoint;
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    foreach (var tb in ucTableViews)
+                                    {
+                                        var rect = tb.Bounds;
+                                        var newrect = rect;//new Rectangle(rect.X - 15, rect.Y - 15, rect.Width + 30, rect.Height + 30);
+                                        newrect.Offset(-this.PanelMap.AutoScrollPosition.X, -this.PanelMap.AutoScrollPosition.Y);
+                                        if (p1.X == p2.X)
+                                        {
+                                            if (Math.Abs(newrect.X - p1.X) < 10)
+                                            {
+                                                var minpoint = new Point(newrect.X, newrect.Y);
+                                                var maxpoint = new Point(newrect.X, newrect.Y + newrect.Height);
+                                                if (maxpoint.Y >= GetMin(p1, p2).Y && minpoint.Y <= GetMax(p1, p2).Y)
+                                                {
+                                                    if (p3 == Point.Empty || p3.Y > minpoint.Y)
+                                                    {
+                                                        p3 = minpoint;
+                                                    }
+                                                    if (p4 == Point.Empty || p4.Y < maxpoint.Y)
+                                                    {
+                                                        p4 = maxpoint;
+                                                    }
+                                                }
+                                            }
+
+                                            if (Math.Abs(newrect.X + newrect.Width - p1.X) < 10)
+                                            {
+                                                var minpoint = new Point(newrect.X + newrect.Width, newrect.Y);
+                                                var maxpoint = new Point(newrect.X + newrect.Width, newrect.Y + newrect.Height);
+                                                if (maxpoint.Y >= GetMin(p1, p2).Y && minpoint.Y <= GetMax(p1, p2).Y)
+                                                {
+                                                    if (p3 == Point.Empty || p3.Y > minpoint.Y)
+                                                    {
+                                                        p3 = minpoint;
+                                                    }
+                                                    if (p4 == Point.Empty || p4.Y < maxpoint.Y)
+                                                    {
+                                                        p4 = maxpoint;
+                                                    }
+                                                }
                                             }
                                         }
                                         else if (p1.Y == p2.Y)
                                         {
-                                            if (item2.LinkLines[j - 1].Y != item2.LinkLines[j].Y)
+                                            if (Math.Abs(newrect.Y - p1.Y) <= 10)
                                             {
-                                                continue;
+                                                var minpoint = new Point(newrect.X, newrect.Y);
+                                                var maxpoint = new Point(newrect.X + newrect.Width, newrect.Y);
+                                                if (maxpoint.X >= GetMin(p1, p2).X && minpoint.X <= GetMax(p1, p2).X)
+                                                {
+                                                    if (p3 == Point.Empty || p3.X > minpoint.X)
+                                                    {
+                                                        p3 = minpoint;
+                                                    }
+                                                    if (p4 == Point.Empty || p4.X < maxpoint.X)
+                                                    {
+                                                        p4 = maxpoint;
+                                                    }
+                                                }
                                             }
-                                            if (p3 == Point.Empty ||
-                                            Math.Abs(item2.LinkLines[j - 1].Y - p1.Y) < Math.Abs(p3.Y - p1.Y))
+
+                                            if (Math.Abs(newrect.Y + newrect.Height - p1.Y) <= 10)
                                             {
-                                                p3 = item2.LinkLines[j - 1];
-                                                p4 = item2.LinkLines[j];
+                                                var minpoint = new Point(newrect.X + newrect.Width, newrect.Y);
+                                                var maxpoint = new Point(newrect.X + newrect.Width, newrect.Y + newrect.Height);
+                                                if (maxpoint.X >= GetMin(p1, p2).X && minpoint.X <= GetMax(p1, p2).X)
+                                                {
+                                                    if (p3 == Point.Empty || p3.X > minpoint.X)
+                                                    {
+                                                        p3 = minpoint;
+                                                    }
+                                                    if (p4 == Point.Empty || p4.X < maxpoint.X)
+                                                    {
+                                                        p4 = maxpoint;
+                                                    }
+                                                }
                                             }
                                         }
-
                                     }
                                 }
 
@@ -555,7 +684,7 @@ namespace NETDBHelper.UC
                                                         continue;
                                                     }
                                                 }
-                                                if (yend2 >= ystart || ystart2 <= yend)
+                                                if (yend2 >= ystart && ystart2 <= yend)
                                                 {
                                                     if (ystart2 - ystart > yend - yend2 && ystart2 - ystart > sf.Height)
                                                     {
@@ -599,7 +728,7 @@ namespace NETDBHelper.UC
                                                         continue;
                                                     }
                                                 }
-                                                if (xend2 >= xstart || xstart2 <= xend)
+                                                if (xend2 >= xstart && xstart2 <= xend)
                                                 {
                                                     if (xstart2 - xstart > xend - xend2 && xstart2 - xstart > sf.Width)
                                                     {
