@@ -49,10 +49,13 @@
     <Compile Include="GlobalStatusInfo.cs" />
     <Compile Include="IDType.cs" />
     <Compile Include="IndexEntry.cs" />
+    <Compile Include="MarkColumnInfo.cs" />
     <Compile Include="MSSQLTypeEnum.cs" />
     <Compile Include="OracleDataType.cs" />
     <Compile Include="ProcessListInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SPInfo.cs" />
+    <Compile Include="TableInfo.cs" />
     <Compile Include="TBColumn.cs" />
   </ItemGroup>
   <ItemGroup>

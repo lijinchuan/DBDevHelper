@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>NETDBHelper</RootNamespace>
     <AssemblyName>NETDBOracleHelper</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
@@ -39,6 +39,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -48,6 +49,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="CalculateModel">
@@ -55,6 +57,9 @@
     </Reference>
     <Reference Include="LJC.FrameWork">
       <HintPath>..\..\Lib\LJC.FrameWork.dll</HintPath>
+    </Reference>
+    <Reference Include="LJC.FrameWorkV3">
+      <HintPath>..\..\Lib\LJC.FrameWorkV3.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.SqlServer.Smo, Version=10.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -96,6 +101,26 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resource1.resx</DependentUpon>
     </Compile>
+    <Compile Include="SubForm\PopMessageDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SubForm\PopMessageDlg.designer.cs">
+      <DependentUpon>PopMessageDlg.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UC\WebTab.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="UC\WebTab.designer.cs">
+      <DependentUpon>WebTab.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Util.cs" />
+    <EmbeddedResource Include="SubForm\PopMessageDlg.resx">
+      <DependentUpon>PopMessageDlg.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UC\WebTab.resx">
+      <DependentUpon>WebTab.cs</DependentUpon>
+    </EmbeddedResource>
+    <None Include="Resources\SQLTypeRs.Designer.cs" />
     <Compile Include="SubForm\AuthDlg.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -224,6 +249,12 @@
     <Compile Include="UC\Scale.Designer.cs">
       <DependentUpon>Scale.cs</DependentUpon>
     </Compile>
+    <Compile Include="UC\SQLCodePanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="UC\SQLCodePanel.designer.cs">
+      <DependentUpon>SQLCodePanel.cs</DependentUpon>
+    </Compile>
     <Compile Include="UC\SQLEditBox.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -269,6 +300,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resource1.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="Resources\SQLTypeRs.resx" />
     <EmbeddedResource Include="SubForm\AuthDlg.resx">
       <DependentUpon>AuthDlg.cs</DependentUpon>
     </EmbeddedResource>
@@ -326,6 +358,9 @@
     <EmbeddedResource Include="UC\Scale.resx">
       <DependentUpon>Scale.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="UC\SQLCodePanel.resx">
+      <DependentUpon>SQLCodePanel.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="UC\SqlProceCodePanel.resx">
       <DependentUpon>SqlProceCodePanel.cs</DependentUpon>
     </EmbeddedResource>
@@ -359,13 +394,31 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resources\tags_red1.png" />
+    <None Include="Resources\tags_grey1.png" />
+    <None Include="Resources\text_uppercase.png" />
+    <None Include="Resources\text_bold.png" />
+    <None Include="Resources\tbview.png" />
+    <None Include="Resources\tags_red.png" />
+    <None Include="Resources\tags_grey.png" />
+    <None Include="Resources\table.png" />
     <None Include="Resources\user_b.png" />
     <None Include="Resources\time_green.png" />
     <None Include="Map\新建位图图像.bmp" />
     <None Include="Map\新建位图图像 %282%29.bmp" />
     <None Include="Resources\application_cascade.png" />
+    <None Include="Resources\application_form_magnify.png" />
+    <None Include="Resources\bullet_eject.png" />
+    <None Include="Resources\bullet_tick.png" />
     <Content Include="Resources\CloseServer.jpg" />
+    <None Include="Resources\colq.png" />
+    <None Include="Resources\computer_link.png" />
+    <None Include="Resources\connect.png" />
+    <None Include="Resources\cross.png" />
+    <None Include="Resources\date.png" />
+    <None Include="Resources\colq1.png" />
     <Content Include="Resources\DB1.png" />
+    <None Include="Resources\DB16.png" />
     <Content Include="Resources\DB2.png" />
     <Content Include="Resources\DB3.png" />
     <Content Include="Resources\DB4.png" />
@@ -375,6 +428,10 @@
     <None Include="Resources\MysqlLogo.jpg" />
     <Content Include="Resources\key_add.png" />
     <None Include="Resources\lightning.png" />
+    <None Include="Resources\loading.gif" />
+    <None Include="Resources\loading2.gif" />
+    <None Include="Resources\msg.png" />
+    <None Include="Resources\number.png" />
     <Content Include="Resources\OpenServer.jpg" />
     <Content Include="Resources\OpenServer.png" />
     <None Include="Resources\page.png" />
@@ -382,8 +439,21 @@
     <None Include="Resources\report_key.png" />
     <None Include="Resources\shapes_many.png" />
     <Content Include="Resources\oracle.gif" />
+    <None Include="Resources\page1.png" />
+    <None Include="Resources\page2.png" />
+    <None Include="Resources\pilcrow.png" />
+    <None Include="Resources\pill.png" />
     <Content Include="Resources\plugin_add.png" />
     <None Include="Resources\script_save.png" />
+    <None Include="Resources\report_key1.png" />
+    <None Include="Resources\report1.png" />
+    <None Include="Resources\shapes_many1.png" />
+    <None Include="Resources\rainbow.png" />
+    <None Include="Resources\report2.png" />
+    <None Include="Resources\script_code.png" />
+    <None Include="Resources\script_code_no.png" />
+    <None Include="Resources\script_code_red.png" />
+    <None Include="Resources\script_code_red_no.png" />
     <Content Include="Resources\SQLSerTop.jpg" />
   </ItemGroup>
   <ItemGroup>

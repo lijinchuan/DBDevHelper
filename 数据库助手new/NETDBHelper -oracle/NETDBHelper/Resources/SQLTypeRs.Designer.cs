@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace NETDBHelper.Properties {
+namespace NETDBHelper.Resources {
     using System;
     
     
@@ -22,14 +22,14 @@ namespace NETDBHelper.Properties {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class Resources {
+    internal class SQLTypeRs {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
         private static global::System.Globalization.CultureInfo resourceCulture;
         
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-        internal Resources() {
+        internal SQLTypeRs() {
         }
         
         /// <summary>
@@ -39,7 +39,7 @@ namespace NETDBHelper.Properties {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("NETDBHelper.Properties.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("NETDBHelper.Resources.SQLTypeRs", typeof(SQLTypeRs).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -63,9 +63,9 @@ namespace NETDBHelper.Properties {
         /// <summary>
         ///   查找 System.Drawing.Bitmap 类型的本地化资源。
         /// </summary>
-        internal static System.Drawing.Bitmap 新建位图图像 {
+        internal static System.Drawing.Bitmap BOOL {
             get {
-                object obj = ResourceManager.GetObject("新建位图图像", resourceCulture);
+                object obj = ResourceManager.GetObject("BOOL", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -73,9 +73,29 @@ namespace NETDBHelper.Properties {
         /// <summary>
         ///   查找 System.Drawing.Bitmap 类型的本地化资源。
         /// </summary>
-        internal static System.Drawing.Bitmap 新建位图图像__2_ {
+        internal static System.Drawing.Bitmap CHAR {
             get {
-                object obj = ResourceManager.GetObject("新建位图图像 (2)", resourceCulture);
+                object obj = ResourceManager.GetObject("CHAR", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        /// </summary>
+        internal static System.Drawing.Bitmap DATE {
+            get {
+                object obj = ResourceManager.GetObject("DATE", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        /// </summary>
+        internal static System.Drawing.Bitmap NUMBER {
+            get {
+                object obj = ResourceManager.GetObject("NUMBER", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

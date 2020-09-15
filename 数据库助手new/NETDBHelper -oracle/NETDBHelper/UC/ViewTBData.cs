@@ -206,7 +206,14 @@ namespace NETDBHelper.UC
 
         public void Execute()
         {
-            this.SQLString = this.tb_sql.Text;
+            if (string.IsNullOrEmpty(this.tb_sql.SelectedText))
+            {
+                this.SQLString = this.tb_sql.Text;
+            }
+            else
+            {
+                this.SQLString = this.tb_sql.SelectedText;
+            }
         }
 
         private void MenuItem_DelItem_Click(object sender, EventArgs e)

@@ -23,6 +23,8 @@ namespace NETDBHelper
             this.dbServerView1.OnCreateSelectSql += this.CreateSelectSql;
             this.dbServerView1.OnCreatePorcSQL += this.CreateProcSql;
             this.dbServerView1.OnAddSqlExecuter += this.AddSqlExecute;
+            this.dbServerView1.OnShowProc += this.ShowProc;
+            this.dbServerView1.OnShowDataDic += this.ShowDataDic;
             this.TabControl.DrawMode = TabDrawMode.OwnerDrawFixed;
             this.TabControl.Selected += new TabControlEventHandler(TabControl_Selected);
         }
@@ -102,47 +104,30 @@ namespace NETDBHelper
 
         private void OnNewTableAdd(DBSource db,string dbName)
         {
-            Biz.UILoadHelper.LoadTBsAnsy(this, dbServerView1.FindNode(db.ServerName, dbName), db);
+            Biz.UILoadHelper.LoadTBsAnsy(this, dbServerView1.FindNode(db.ServerName, dbName), db, null);
         }
 
-        public void ShowTableData(DBSource db,string dbName,string tbName, string sql)
+        public void ShowTableData(DBSource db, string dbName, string tbName, string sql)
         {
-            var text=string.Format("{0}-查询数据",tbName);
-
-            ViewTBData viewTb = null;
-            foreach (TabPage page in TabControl.TabPages)
+            var title = $"[查询数据 {tbName} -{db.ServerName}]";
+            foreach (TabPage page in this.TabControl.TabPages)
             {
-                if (page is ViewTBData&& page.Text == text)
+                if (page.Text == title)
                 {
-                    viewTb = page as ViewTBData;
-                    if (viewTb.DBSource == db && viewTb.DBName == dbName && viewTb.TBName == tbName)
-                    {
-                        TabControl.SelectedTab = viewTb;
-                        viewTb.SQLString = sql;
-                        TabControl.Invalidate();
-                        viewTb.Invalidate();
-                        tsb_Excute.Enabled = true;
-                        break;
-                    }
-                    else
-                    {
-                        viewTb = null;
-                    }
+                    TabControl.SelectedTab = page;
+                    return;
                 }
             }
 
-            if (viewTb == null)
-            {
-                viewTb = new ViewTBData();
-                viewTb.Text = text;
-                this.TabControl.TabPages.Add(viewTb);
-                TabControl.SelectedTab = viewTb;
-                tsb_Excute.Enabled = true;
-                viewTb.DBSource = db;
-                viewTb.DBName = dbName;
-                viewTb.TBName = tbName;
-                viewTb.SQLString = sql;
-            }
+            ViewTBData viewTb = new ViewTBData();
+            viewTb.Text = title;
+            this.TabControl.TabPages.Add(viewTb);
+            TabControl.SelectedTab = viewTb;
+            tsb_Excute.Enabled = true;
+            viewTb.DBSource = db;
+            viewTb.DBName = dbName;
+            viewTb.TBName = tbName;
+            viewTb.SQLString = sql;
         }
 
         public void AddSqlExecute(DBSource db,string dbName,string tbname)
@@ -232,5 +217,35 @@ namespace NETDBHelper
             }
             Instance.SetMsg(msg);
         }
+
+
+        private void ShowProc(DBSource dBSource, string procname, string procbody)
+        {
+            UC.SQLCodePanel panel = new SQLCodePanel();
+            panel.SetCode("", procbody);
+            panel.Text = $"存储过程-{procname}";
+            this.TabControl.TabPages.Add(panel);
+            this.TabControl.SelectedTab = panel;
+        }
+
+        private void ShowDataDic(DBSource dBSource, string dbname, string tbname, string html)
+        {
+            var tit = $"数据字典-[{dbname}].[{tbname}]";
+            foreach (TabPage tab in this.TabControl.TabPages)
+            {
+                if (tab.Text.Equals(tit))
+                {
+                    (tab as UC.WebTab).SetHtml(html);
+                    TabControl.SelectedTab = tab;
+                    return;
+                }
+            }
+            UC.WebTab panel = new WebTab(null, null);
+            panel.SetHtml(html);
+            panel.Text = tit;
+            this.TabControl.TabPages.Add(panel);
+            this.TabControl.SelectedTab = panel;
+        }
+
     }
 }

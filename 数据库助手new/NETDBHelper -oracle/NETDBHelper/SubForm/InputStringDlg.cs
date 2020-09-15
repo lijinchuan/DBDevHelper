@@ -17,6 +17,14 @@ namespace NETDBHelper.SubForm
             get;
             set;
         }
+
+        protected override void OnLoad(EventArgs e)
+        {
+            base.OnLoad(e);
+
+            this.tbInput.ImeMode = ImeMode.On;
+        }
+
         public InputStringDlg(string caption,string oldText="",string inputTest=""):
             base()
         {
