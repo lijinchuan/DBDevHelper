@@ -89,15 +89,6 @@ namespace NETDBHelper.UC
         private DateTime _pointtiptime = DateTime.MaxValue;
 
         private DataGridView view = new DataGridView();
-
-        public KeyWordManager KeyWords
-        {
-            get
-            {
-                return _keyWords;
-            }
-        }
-
         /// <summary>
         /// 备选库
         /// </summary>
@@ -174,7 +165,7 @@ namespace NETDBHelper.UC
                 {
                     continue;
                 }
-
+                var desc = (item.Tag as MarkObjectInfo)?.MarkInfo;
                 if (item.ObjectName.Equals(keys, StringComparison.OrdinalIgnoreCase)
                     || (item.ObjectName.Equals(keys, StringComparison.OrdinalIgnoreCase) == true))
                 {
@@ -184,7 +175,7 @@ namespace NETDBHelper.UC
                 }
 
                 if (item.ObjectName.StartsWith(keys, StringComparison.OrdinalIgnoreCase)
-                    || (item.Desc?.StartsWith(keys, StringComparison.OrdinalIgnoreCase)) == true)
+                    || (desc?.StartsWith(keys, StringComparison.OrdinalIgnoreCase)) == true)
                 {
                     item.Score = byte.MaxValue - 1;
                     thinkresut.Add(item);
@@ -200,7 +191,7 @@ namespace NETDBHelper.UC
                 }
                 else
                 {
-                    pos = item.Desc?.IndexOf(keys, StringComparison.OrdinalIgnoreCase) ?? -1;
+                    pos = desc?.IndexOf(keys, StringComparison.OrdinalIgnoreCase) ?? -1;
                     if (pos > -1)
                     {
                         item.Score = Math.Max((byte)(byte.MaxValue - (byte)item.Desc.Length - (byte)pos), (byte)0);
@@ -271,6 +262,46 @@ namespace NETDBHelper.UC
                 _dbname = value;
             }
         }
+        public KeyWordManager KeyWords
+        {
+            get
+            {
+                return _keyWords;
+            }
+        }
+
+        public override string Text
+        {
+            get
+            {
+                return RichText.Text;
+            }
+            set
+            {
+                this.RichText.Text = value;
+                this.SetLineNo();
+            }
+        }
+
+        public int SelectionLength
+        {
+            get
+            {
+                return this.RichText.SelectionLength;
+            }
+        }
+
+        public string SelectedText
+        {
+            get
+            {
+                return this.RichText.SelectedText;
+            }
+            set
+            {
+                this.RichText.Text = value;
+            }
+        }
 
         public EditTextBox()
         {
@@ -288,6 +319,7 @@ namespace NETDBHelper.UC
             this.RichText.MouseClick += RichText_MouseClick;
             this.RichText.MouseMove += RichText_MouseMove;
             this.RichText.MouseLeave += RichText_MouseLeave;
+            this.RichText.DoubleClick += RichText_DoubleClick;
             defaultSelectionColor = this.RichText.SelectionColor;
 
             view.Visible = false;
@@ -305,6 +337,8 @@ namespace NETDBHelper.UC
             view.CellClick += View_CellClick;
             view.RowPostPaint += View_RowPostPaint;
             view.DataBindingComplete += View_DataBindingComplete;
+
+            剪切ToolStripMenuItem.Enabled = false;
             view.Tag = new ViewContext
             {
                 DataType = 0
@@ -326,7 +360,7 @@ namespace NETDBHelper.UC
                     {
                         try
                         {
-                            showTip();
+                            ShowTip();
                         }
                         catch (Exception ex)
                         {
@@ -340,14 +374,25 @@ namespace NETDBHelper.UC
                 }
             }), null, 0, 100);
         }
-        private void showTip()
+        private void RichText_DoubleClick(object sender, EventArgs e)
+        {
+            int st;
+            var seltext = GetTipCurrWord(out st);
+            if (string.IsNullOrWhiteSpace(seltext) || seltext.IndexOf('\n') > -1)
+            {
+                return;
+            }
+            this.RichText.Select(st - seltext.Length, seltext.Length);
+        }
+
+        private void ShowTip()
         {
             if (string.IsNullOrWhiteSpace(DBName))
             {
                 return;
             }
-
-            var seltext = GetTipCurrWord();
+            int st;
+            var seltext = GetTipCurrWord(out st);
             if (string.IsNullOrWhiteSpace(seltext) || seltext.IndexOf('\n') > -1 || seltext.Length > 30)
             {
                 return;
@@ -634,8 +679,9 @@ namespace NETDBHelper.UC
                 }
             }
         }
-        private string GetTipCurrWord()
+        private string GetTipCurrWord(out int start)
         {
+            start = -1;
             var curindex = this.RichText.GetCharIndexFromPosition(_currpt);
             var realpt = this.RichText.GetPositionFromCharIndex(curindex);
             if (_currpt.X - realpt.X < -10 || _currpt.X - realpt.X > 15)
@@ -692,6 +738,7 @@ namespace NETDBHelper.UC
             }
 
             var keyword = pre + last;
+            start = pi + charstartindex;
             return keyword;
         }
 
@@ -1028,27 +1075,6 @@ namespace NETDBHelper.UC
             });
         }
 
-        public override string Text
-        {
-            get
-            {
-                return RichText.Text;
-            }
-            set
-            {
-                this.RichText.Text = value;
-                this.SetLineNo();
-            }
-        }
-
-        public string SelectedText
-        {
-            get
-            {
-                return this.RichText.SelectedText;
-            }
-        }
-
         public void AppendText(string text)
         {
             this.RichText.AppendText(text);
@@ -1212,6 +1238,7 @@ namespace NETDBHelper.UC
 
         private void RichText_SelectionChanged(object sender, EventArgs e)
         {
+            this.剪切ToolStripMenuItem.Enabled = this.SelectionLength > 0;
         }
 
         private void 搜索ToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1266,6 +1293,15 @@ namespace NETDBHelper.UC
                 {
                     MessageBox.Show("保存失败");
                 }
+            }
+        }
+
+        private void 剪切ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (this.SelectionLength > 0)
+            {
+                Clipboard.SetData(DataFormats.Rtf, this.RichText.SelectedRtf);
+                this.RichText.SelectedRtf = string.Empty;
             }
         }
     }
