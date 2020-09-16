@@ -265,7 +265,7 @@ namespace NETDBHelper
                 {
                     var mark = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys", new
                                 [] { dbname, selNode.Text.ToUpper(), col.Name.ToUpper() }).FirstOrDefault();
-                    if (mark == null && !synccolumnmark && !string.IsNullOrWhiteSpace(col.Description))
+                    if (mark == null && !synccolumnmark)
                     {
                         LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<MarkObjectInfo>("MarkObjectInfo", new MarkObjectInfo
                         {
@@ -1105,8 +1105,8 @@ namespace NETDBHelper
                 if (OnShowProc != null)
                 {
                     var body = Biz.Common.Data.OracleHelper.GetProcedureBody(GetDBSource(node), node.Name);
-                    //TextBoxWin win = new TextBoxWin("存储过程[" + node.Text + "]", "drop PROCEDURE if exists " + node.Text + ";\r\n\r\n" + body.Replace("\n","\r\n"));
-                    //win.ShowDialog();
+                    body = Regex.Replace(body, @"\\n", "\r\n");
+                    body = Regex.Replace(body, "(?!\n);", "\r\n");
                     OnShowProc(GetDBSource(node), node.Parent.Parent.Text, node.Text, body);
 
                     LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<HLogEntity>("HLog", new HLogEntity

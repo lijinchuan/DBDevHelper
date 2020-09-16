@@ -702,12 +702,21 @@ namespace NETDBHelper.UC
 
             //判断是否是注释部分
             var nodeindex = this.RichText.Lines[currline]?.IndexOf("--");
+            if (nodeindex == -1)
+            {
+                nodeindex = this.RichText.Lines[currline]?.IndexOf("#");
+            }
             if (nodeindex > -1 && pi >= nodeindex)
             {
                 start = -1;
                 return string.Empty;
             }
-
+            nodeindex = this.RichText.Lines[currline]?.IndexOf("#");
+            if (nodeindex > -1 && pi >= nodeindex)
+            {
+                start = -1;
+                return string.Empty;
+            }
             while (pi >= 0)
             {
 
@@ -764,6 +773,10 @@ namespace NETDBHelper.UC
 
             //判断是否是注释部分
             var nodeindex = this.RichText.Lines[currline]?.IndexOf("--");
+            if (nodeindex == -1)
+            {
+                nodeindex = this.RichText.Lines[currline]?.IndexOf("#");
+            }
             if (nodeindex > -1 && pi >= nodeindex)
             {
                 word = string.Empty;
@@ -1167,7 +1180,11 @@ namespace NETDBHelper.UC
                     if (!_markedLines.Contains(l))
                     {
                         _markedLines.Add(l);
-                        var nodeindex = express.IndexOf("--");
+                        var nodeindex = express.IndexOf("-- ");
+                        if (nodeindex == -1)
+                        {
+                            nodeindex = express.IndexOf("#");
+                        }
                         if (nodeindex > -1)
                         {
                             DataRow row = tb.NewRow();

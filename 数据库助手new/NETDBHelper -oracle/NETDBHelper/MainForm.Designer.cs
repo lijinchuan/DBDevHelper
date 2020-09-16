@@ -43,10 +43,11 @@
             this.TabControl = new NETDBHelper.UC.MyTabControl();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.tsb_Excute = new System.Windows.Forms.ToolStripButton();
+            this.TSCBServer = new System.Windows.Forms.ToolStripLabel();
             this.dbServerView1 = new NETDBHelper.DBServerView();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.MspPanel = new System.Windows.Forms.ToolStripStatusLabel();
-            this.TSCBServer = new System.Windows.Forms.ToolStripLabel();
+            this.TSL_ClearMsg = new System.Windows.Forms.ToolStripStatusLabel();
             this.mainMenuBar.SuspendLayout();
             this.panel1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
@@ -186,6 +187,11 @@
             this.tsb_Excute.Size = new System.Drawing.Size(52, 22);
             this.tsb_Excute.Text = "执行";
             // 
+            // TSCBServer
+            // 
+            this.TSCBServer.Name = "TSCBServer";
+            this.TSCBServer.Size = new System.Drawing.Size(0, 22);
+            // 
             // dbServerView1
             // 
             this.dbServerView1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -200,7 +206,8 @@
             // statusStrip1
             // 
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.MspPanel});
+            this.MspPanel,
+            this.TSL_ClearMsg});
             this.statusStrip1.Location = new System.Drawing.Point(0, 531);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Size = new System.Drawing.Size(830, 22);
@@ -212,10 +219,12 @@
             this.MspPanel.Name = "MspPanel";
             this.MspPanel.Size = new System.Drawing.Size(0, 17);
             // 
-            // TSCBServer
+            // TSL_ClearMsg
             // 
-            this.TSCBServer.Name = "TSCBServer";
-            this.TSCBServer.Size = new System.Drawing.Size(0, 22);
+            this.TSL_ClearMsg.Image = global::NETDBHelper.Properties.Resources.cross;
+            this.TSL_ClearMsg.Name = "TSL_ClearMsg";
+            this.TSL_ClearMsg.Size = new System.Drawing.Size(16, 17);
+            this.TSL_ClearMsg.Click += new System.EventHandler(this.TSL_ClearMsg_Click);
             // 
             // MainFrm
             // 
@@ -264,6 +273,7 @@
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripStatusLabel MspPanel;
         private System.Windows.Forms.ToolStripLabel TSCBServer;
+        private System.Windows.Forms.ToolStripStatusLabel TSL_ClearMsg;
     }
 }
 
