@@ -303,7 +303,7 @@ namespace Biz.Common.Data
                     Cmd = (string)(row["COMMAND"] == DBNull.Value ? string.Empty : row["COMMAND"]),
                     DB = (string)(row["DB"] == DBNull.Value ? string.Empty : row["DB"]),
                     Host = (string)(row["HOST"] == DBNull.Value ? string.Empty : row["HOST"]),
-                    ID=(long)row["ID"],
+                    ID = long.Parse(row["ID"].ToString()),
                     User = (string)(row["USER"] == DBNull.Value ? string.Empty : row["USER"]),
                     Info = (string)(row["INFO"] == DBNull.Value ? string.Empty : row["INFO"]),
                     State = (string)(row["STATE"] == DBNull.Value ? string.Empty : row["STATE"]),
