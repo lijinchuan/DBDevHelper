@@ -753,5 +753,13 @@ namespace Biz.Common.Data
 
             return ExecuteNoQuery(dbsource, string.Empty, sql, null)>0;
         }
+
+        public static void CreateDataBase(DBSource dbSource, string dbName, string newDBName)
+        {
+            if (dbSource == null)
+                return;
+            string sql = "create database " + newDBName;
+            ExecuteNoQuery(dbSource, dbName, sql, null);
+        }
     }
 }
