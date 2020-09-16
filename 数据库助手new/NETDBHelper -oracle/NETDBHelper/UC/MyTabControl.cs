@@ -26,6 +26,10 @@ namespace NETDBHelper.UC
         private ListBox morelistbox = null;
         private List<TabTableTabEx> moretabtablelist = new List<TabTableTabEx>();
 
+        private ContextMenuStrip TagPageContextMenuStrip = new ContextMenuStrip();
+        private bool IsDraging = false;
+        private Point DragStart = Point.Empty;
+        private Point DragEnd = Point.Empty;
 
         public MyTabControl()
         {
@@ -48,7 +52,52 @@ namespace NETDBHelper.UC
             morelistbox.ItemHeight = 22;
 
             morelistbox.DoubleClick += Morelistbox_DoubleClick;
-
+            TagPageContextMenuStrip.Items.Add("关闭其它");
+            TagPageContextMenuStrip.Items.Add("重命名");
+            TagPageContextMenuStrip.ItemClicked += TagPageContextMenuStrip_ItemClicked;
+        }
+        private void TagPageContextMenuStrip_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+            TagPageContextMenuStrip.Visible = false;
+            switch (e.ClickedItem.Text)
+            {
+                case "关闭其它":
+                    {
+                        if (MessageBox.Show("确认要关闭其它选项页吗？", "询问", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
+                        {
+                            break;
+                        }
+                        List<TabPage> tbpages = new List<TabPage>();
+                        foreach (var tab in tabExDic)
+                        {
+                            if (this.SelectedIndex != tab.Key)
+                            {
+                                tbpages.Add(tab.Value.TabPage);
+                            }
+                        }
+                        moretabtablelist.Clear();
+                        morelistbox.DataSource = moretabtablelist;
+                        //morelistbox.Visible = false;
+                        foreach (var tab in tbpages)
+                        {
+                            this.TabPages.Remove(tab);
+                        }
+                        break;
+                    }
+                case "重命名":
+                    {
+                        SubForm.InputStringDlg inputStringDlg = new SubForm.InputStringDlg("重命名", this.SelectedTab.Text);
+                        if (inputStringDlg.ShowDialog() == DialogResult.OK)
+                        {
+                            if (!string.IsNullOrWhiteSpace(inputStringDlg.InputString))
+                            {
+                                this.SelectedTab.Text = inputStringDlg.InputString;
+                                this.Invalidate();
+                            }
+                        }
+                        break;
+                    }
+            }
         }
 
         private void Morelistbox_DoubleClick(object sender, EventArgs e)
@@ -83,12 +132,134 @@ namespace NETDBHelper.UC
         {
             base.OnParentChanged(e);
             this.Parent.MouseClick += Parent_MouseClick;
-
+            this.Parent.MouseDown += Parent_MouseDown;
+            this.Parent.MouseMove += Parent_MouseMove;
+            this.Parent.MouseUp += Parent_MouseUp;
             if (!this.Parent.Controls.Contains(morelistbox))
             {
                 this.Parent.Controls.Add(morelistbox);
             }
         }
+        private void OnTabDragOver(DragEventArgs drgevent)
+        {
+            //foreach (var item in this.tabExDic)
+            //{
+            //    if (item.Value.StripRect.Contains(DragStart))
+            //    {
+            //        item.Value.TabPage.Invalidate();
+            //        break;
+            //    }
+            //}
+
+            this.Invalidate();
+        }
+
+        private void OnTabDragEnd(DragEventArgs drgevent)
+        {
+            KeyValuePair<int, TabTableTabEx>? dragsourcetab = null;
+            KeyValuePair<int, TabTableTabEx>? dragtargettab = null;
+            foreach (var item in this.tabExDic)
+            {
+                if (item.Value.StripRect.Contains(DragStart))
+                {
+                    dragsourcetab = item;
+                }
+                else if (item.Value.StripRect.Contains(DragEnd))
+                {
+                    dragtargettab = item;
+                }
+            }
+
+            if (dragsourcetab != null && dragtargettab != null &&
+                dragsourcetab.Value.Value != dragtargettab.Value.Value)
+            {
+                tabExDic[dragsourcetab.Value.Key] = dragtargettab.Value.Value;
+                dragtargettab.Value.Value.TabIndex = dragsourcetab.Value.Key;
+                tabExDic[dragtargettab.Value.Key] = dragsourcetab.Value.Value;
+                dragsourcetab.Value.Value.TabIndex = dragtargettab.Value.Key;
+            }
+
+            this.Invalidate();
+        }
+
+        private void Parent_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                TabTableTabEx dragSource = null;
+                foreach (var tab in tabExDic)
+                {
+                    if (tab.Value.StripRect.Contains(DragStart.X, DragStart.Y))
+                    {
+                        dragSource = tab.Value;
+                        break;
+                    }
+                }
+                IsDraging = Math.Abs(DragEnd.X - DragStart.X) > 10; //&& ((DragEnd.X > DragStart.X && dragSource != tabExDic.Last().Value) || (DragEnd.X < DragStart.X && dragSource != tabExDic.First().Value));
+
+
+                foreach (var tab in tabExDic)
+                {
+                    if (tab.Value.StripRect.Contains(e.X, e.Y))
+                    {
+                        DragEnd = new Point(e.X, e.Y);
+                        if (IsDraging)
+                        {
+                            OnTabDragOver(null);
+                        }
+                        break;
+
+                    }
+                }
+
+            }
+        }
+
+        private void Parent_MouseUp(object sender, MouseEventArgs e)
+        {
+            bool isdragendevent = false;
+            if (e.Button == MouseButtons.Left)
+            {
+                foreach (var tab in tabExDic)
+                {
+                    if (tab.Value.StripRect.Contains(e.X, e.Y))
+                    {
+                        if (IsDraging)
+                        {
+                            isdragendevent = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (isdragendevent)
+                {
+                    OnTabDragEnd(null);
+                }
+            }
+
+            IsDraging = false;
+            DragStart = Point.Empty;
+            DragEnd = Point.Empty;
+        }
+
+        private void Parent_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+
+                foreach (var tab in tabExDic)
+                {
+                    if (tab.Value.StripRect.Contains(e.X, e.Y))
+                    {
+                        //IsDraging = true;
+                        DragStart = new Point(e.X, e.Y);
+                        DragEnd = new Point(e.X, e.Y);
+                    }
+                }
+            }
+        }
+
 
         void Parent_MouseClick(object sender, MouseEventArgs e)
         {
@@ -124,21 +295,40 @@ namespace NETDBHelper.UC
                 }
                 else
                 {
-
-                    foreach (var tab in tabExDic)
+                    if (!IsDraging)
+                    {
+                        foreach (var tab in tabExDic)
+                        {
+                            if (tab.Value.StripRect.Contains(e.X, e.Y))
+                            {
+                                if (this.SelectedIndex != tab.Key)
+                                {
+                                    this.SelectedIndex = tab.Key;
+                                    this.Invalidate();
+                                }
+                                else if (tab.Value.CloseButtonBand.Contains(e.X, e.Y))
+                                {
+                                    this.TabPages.Remove(tab.Value.TabPage);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            else if (e.Button == MouseButtons.Right)
+            {
+                foreach (var tab in tabExDic)
+                {
+                    if (this.SelectedIndex == tab.Key)
                     {
                         if (tab.Value.StripRect.Contains(e.X, e.Y))
                         {
-                            if (this.SelectedIndex != tab.Key)
-                            {
-                                this.SelectedIndex = tab.Key;
-                                this.Invalidate();
-                            }
-                            else if (tab.Value.CloseButtonBand.Contains(e.X, e.Y))
-                            {
-                                this.TabPages.Remove(tab.Value.TabPage);
-                                break;
-                            }
+                            this.TagPageContextMenuStrip.Visible = true;
+                            var pt = PointToScreen(new Point(e.X, e.Y));
+                            this.TagPageContextMenuStrip.Left = pt.X;
+                            this.TagPageContextMenuStrip.Top = pt.Y;
+                            break;
                         }
                     }
                 }
@@ -256,6 +446,7 @@ namespace NETDBHelper.UC
             float currwidth = 0;
             moretabtablelist.Clear();
             var isfull = false;
+            KeyValuePair<int, TabTableTabEx>? dragtab = null;
             foreach (var item in this.tabExDic)
             {
 
@@ -273,8 +464,19 @@ namespace NETDBHelper.UC
                 }
                 else
                 {
-                    MyTabControl_DrawItem_Tab(item.Key, e.Graphics);
+                    if (item.Value.StripRect.Contains(DragStart) && IsDraging)
+                    {
+                        dragtab = item;
+                    }
+                    else
+                    {
+                        MyTabControl_DrawItem_Tab(item.Key, e.Graphics);
+                    }
                 }
+            }
+            if (dragtab != null)
+            {
+                MyTabControl_DrawItem_Tab(dragtab.Value.Key, e.Graphics);
             }
             if (isfull)
             {
@@ -307,7 +509,21 @@ namespace NETDBHelper.UC
                 OnCalcTabPage(g, currentItem, sf, ref buttonRect);
                 tabExDic[tabindex].StripRect = buttonRect;
             }
-
+            Rectangle closeButtonBounds = Rectangle.Empty;
+            if (currentItem == SelectedTab)
+            {
+                closeButtonBounds = tabExDic[tabindex].CloseButtonBand;
+                if (closeButtonBounds == Rectangle.Empty)
+                {
+                    tabExDic[tabindex].CloseButtonBand =
+                        closeButtonBounds = new Rectangle((int)buttonRect.Right - 20, mtop, 16, 16);
+                }
+            }
+            if (buttonRect.Contains(DragStart) && IsDraging)
+            {
+                buttonRect.Offset(DragEnd.X - DragStart.X, 0);
+                closeButtonBounds.Offset(DragEnd.X - DragStart.X, 0);
+            }
             currentItem.BorderStyle = BorderStyle.None;
             bool isFirstTab = buttonRect.X < 50;
 
@@ -443,12 +659,6 @@ namespace NETDBHelper.UC
             //关闭符号
             if (currentItem == SelectedTab)
             {
-                var closeButtonBounds = tabExDic[tabindex].CloseButtonBand;
-                if (closeButtonBounds == Rectangle.Empty)
-                {
-                    tabExDic[tabindex].CloseButtonBand =
-                        closeButtonBounds = new Rectangle((int)buttonRect.Right - 20, mtop, 16, 16);
-                }
                 DrawCross(closeButtonBounds, false, g);
             }
         }
