@@ -7,6 +7,18 @@ namespace Entity
 {
     public class TBColumn
     {
+        public string DBName
+        {
+            get;
+            set;
+        }
+
+        public string TBName
+        {
+            get;
+            set;
+        }
+
         public string Name
         {
             get;

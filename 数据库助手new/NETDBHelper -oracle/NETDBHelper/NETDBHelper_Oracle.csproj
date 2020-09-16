@@ -106,6 +106,12 @@
     <Compile Include="ConnSQLServer.Designer.cs">
       <DependentUpon>ConnSQLServer.cs</DependentUpon>
     </Compile>
+    <Compile Include="Drawing\DrawingUtil.cs" />
+    <Compile Include="Drawing\Line.cs" />
+    <Compile Include="Drawing\Step.cs" />
+    <Compile Include="Drawing\StepDirection.cs" />
+    <Compile Include="Drawing\StepSelector.cs" />
+    <Compile Include="Drawing\StepSelectorTrace.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -115,6 +121,11 @@
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Resource1.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Resources\SQLTypeRs2.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>SQLTypeRs.resx</DependentUpon>
     </Compile>
     <Compile Include="SubForm\AddTaskInfoDlg.cs">
       <SubType>Form</SubType>
@@ -176,6 +187,18 @@
     <Compile Include="UC\SqlSaveViewTab.designer.cs">
       <DependentUpon>SqlSaveViewTab.cs</DependentUpon>
     </Compile>
+    <Compile Include="UC\UCTableRelMap.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="UC\UCTableRelMap.designer.cs">
+      <DependentUpon>UCTableRelMap.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UC\UCTableView2.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UC\UCTableView2.designer.cs">
+      <DependentUpon>UCTableView2.cs</DependentUpon>
+    </Compile>
     <Compile Include="UC\WebTab.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -212,6 +235,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="UC\SqlSaveViewTab.resx">
       <DependentUpon>SqlSaveViewTab.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UC\UCTableRelMap.resx">
+      <DependentUpon>UCTableRelMap.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UC\UCTableView2.resx">
+      <DependentUpon>UCTableView2.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UC\WebTab.resx">
       <DependentUpon>WebTab.cs</DependentUpon>
@@ -397,7 +426,6 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resource1.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <None Include="Resources\SQLTypeRs.resx" />
     <EmbeddedResource Include="SubForm\AuthDlg.resx">
       <DependentUpon>AuthDlg.cs</DependentUpon>
     </EmbeddedResource>
@@ -491,6 +519,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resources\SQLTypeRs.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>SQLTypeRs2.Designer.cs</LastGenOutput>
+    </None>
     <None Include="Resources\tags_red1.png" />
     <None Include="Resources\tags_grey1.png" />
     <None Include="Resources\text_uppercase.png" />

@@ -191,6 +191,8 @@ namespace Biz.Common.Data
                     prec = NumberHelper.CovertToInt(tb.Rows[i]["DATA_PRECISION"]),
                     scale = NumberHelper.CovertToInt(tb.Rows[i]["DATA_SCALE"]),
                     Description = desc,
+                    DBName = dbName,
+                    TBName = tbName
                 };
             }
         }
