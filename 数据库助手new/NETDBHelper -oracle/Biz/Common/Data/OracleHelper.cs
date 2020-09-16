@@ -761,5 +761,28 @@ namespace Biz.Common.Data
             string sql = "create database " + newDBName;
             ExecuteNoQuery(dbSource, dbName, sql, null);
         }
+
+        public static object ExecuteScalar(DBSource dbSource, string connDB, string sql, params OracleParameter[] sqlParams)
+        {
+            var conn = new OracleConnection(GetConnstringFromDBSource(dbSource, connDB));
+            OracleCommand cmd = conn.CreateCommand();
+            cmd.CommandText = sql;
+            cmd.CommandType = CommandType.Text;
+            if (sqlParams != null && sqlParams.Count() > 0)
+            {
+                cmd.Parameters.AddRange(sqlParams);
+            }
+            try
+            {
+                conn.Open();
+                return cmd.ExecuteScalar();
+            }
+            finally
+            {
+                if (conn.State == ConnectionState.Open)
+                    conn.Close();
+            }
+
+        }
     }
 }

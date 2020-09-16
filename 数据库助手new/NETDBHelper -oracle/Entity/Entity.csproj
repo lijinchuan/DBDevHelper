@@ -63,6 +63,8 @@
     <Compile Include="TableInfo.cs" />
     <Compile Include="TBColumn.cs" />
     <Compile Include="TBSearchColumn.cs" />
+    <Compile Include="WatchTask\WatchTaskInfo.cs" />
+    <Compile Include="WatchTask\WatchTaskLog.cs" />
   </ItemGroup>
   <ItemGroup>
     <WebReferences Include="Web References\" />

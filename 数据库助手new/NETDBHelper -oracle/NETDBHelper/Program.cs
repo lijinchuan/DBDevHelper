@@ -119,6 +119,8 @@ namespace NETDBHelper
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new MainFrm());
             //Application.Run(new SubForm.TestForm());
+
+            LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.ShutDown();
         }
     }
 }

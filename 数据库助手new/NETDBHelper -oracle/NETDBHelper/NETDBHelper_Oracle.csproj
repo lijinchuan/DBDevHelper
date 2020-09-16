@@ -116,6 +116,12 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resource1.resx</DependentUpon>
     </Compile>
+    <Compile Include="SubForm\AddTaskInfoDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SubForm\AddTaskInfoDlg.designer.cs">
+      <DependentUpon>AddTaskInfoDlg.cs</DependentUpon>
+    </Compile>
     <Compile Include="SubForm\FindDlg.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -133,6 +139,18 @@
     </Compile>
     <Compile Include="SubForm\PopMessageDlg.designer.cs">
       <DependentUpon>PopMessageDlg.cs</DependentUpon>
+    </Compile>
+    <Compile Include="SubForm\WatchTaskList.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SubForm\WatchTaskList.designer.cs">
+      <DependentUpon>WatchTaskList.cs</DependentUpon>
+    </Compile>
+    <Compile Include="SubForm\WatchTaskLogDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SubForm\WatchTaskLogDlg.designer.cs">
+      <DependentUpon>WatchTaskLogDlg.cs</DependentUpon>
     </Compile>
     <Compile Include="UC\LoadingBox.cs">
       <SubType>UserControl</SubType>
@@ -165,6 +183,9 @@
       <DependentUpon>WebTab.cs</DependentUpon>
     </Compile>
     <Compile Include="Util.cs" />
+    <EmbeddedResource Include="SubForm\AddTaskInfoDlg.resx">
+      <DependentUpon>AddTaskInfoDlg.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="SubForm\FindDlg.resx">
       <DependentUpon>FindDlg.cs</DependentUpon>
     </EmbeddedResource>
@@ -173,6 +194,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="SubForm\PopMessageDlg.resx">
       <DependentUpon>PopMessageDlg.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SubForm\WatchTaskList.resx">
+      <DependentUpon>WatchTaskList.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SubForm\WatchTaskLogDlg.resx">
+      <DependentUpon>WatchTaskLogDlg.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UC\LoadingBox.resx">
       <DependentUpon>LoadingBox.cs</DependentUpon>
