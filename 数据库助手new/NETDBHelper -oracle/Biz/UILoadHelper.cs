@@ -391,7 +391,7 @@ namespace Biz
                 TreeNode newNode = new TreeNode(string.Concat(col.Name.ToLower(), "(",Common.Data.Common.OracleTypeToNetType(col.TypeName), ")"), imgIdx, imgIdx);
                 newNode.Name = col.Name;
                 newNode.Tag = col;
-                newNode.ToolTipText = gettip(col);
+                newNode.ToolTipText = gettip?.Invoke(col);
                 if (string.IsNullOrWhiteSpace(newNode.ToolTipText))
                 {
                     newNode.ToolTipText = col.Description;

@@ -88,6 +88,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Oracle.ManagedDataAccess.18.3.0\lib\net40\Oracle.ManagedDataAccess.dll</HintPath>
     </Reference>
+    <Reference Include="protobuf-net">
+      <HintPath>..\..\Lib\protobuf-net.2.0.0.668\lib\net40\protobuf-net.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -539,7 +542,9 @@
     <None Include="Resources\application_form_magnify.png" />
     <None Include="Resources\bullet_eject.png" />
     <None Include="Resources\bullet_tick.png" />
-    <Content Include="Json2.js" />
+    <Content Include="Json2.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Resources\CloseServer.jpg" />
     <None Include="Resources\colq.png" />
     <None Include="Resources\computer_link.png" />
