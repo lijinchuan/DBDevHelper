@@ -480,6 +480,7 @@
     <None Include="Resources\application_form_magnify.png" />
     <None Include="Resources\bullet_eject.png" />
     <None Include="Resources\bullet_tick.png" />
+    <Content Include="Json2.js" />
     <Content Include="Resources\CloseServer.jpg" />
     <None Include="Resources\colq.png" />
     <None Include="Resources\computer_link.png" />

@@ -44,6 +44,76 @@ namespace NETDBHelper
 
 
             BigEntityTableEngine.LocalEngine.CreateTable("SqlSave", "ID", true, typeof(SqlSaveEntity));
+            BigEntityTableEngine.LocalEngine.CreateTable("SPInfo", "ID", true, typeof(SPInfo), new IndexInfo[]
+{
+                new IndexInfo
+                {
+                    IndexName="DBName_SPName",
+                    Indexs=new IndexItem[]
+                    {
+                        new IndexItem
+                        {
+                            Field="DBName",
+                            FieldType=EntityType.STRING,
+                        },
+                        new IndexItem
+                        {
+                            Field="SPName",
+                            FieldType=EntityType.STRING,
+                        }
+                    }
+                },
+                new IndexInfo
+                {
+                    IndexName="SPName",
+                    Indexs=new IndexItem[]
+                    {
+                        new IndexItem
+                        {
+                            Field="SPName",
+                            FieldType=EntityType.STRING,
+                        }
+                    }
+                }
+});
+
+            BigEntityTableEngine.LocalEngine.CreateTable("SPContent", "ID", true, typeof(SPContent), new IndexInfo[]{
+                  new IndexInfo
+                  {
+                      IndexName="SPName",
+                      Indexs=new IndexItem[]
+                      {
+                          new IndexItem
+                          {
+                              Field="SPName",
+                              FieldType=EntityType.STRING
+                          }
+                      }
+                  }
+                });
+
+
+            //TBSearchColumn
+            BigEntityTableEngine.LocalEngine.CreateTable("TBSearchColumn", "ID", true, typeof(TBSearchColumn), new IndexInfo[]{
+                  new IndexInfo
+                  {
+                      IndexName="DBName_TBName",
+                      Indexs=new IndexItem[]
+                      {
+                          new IndexItem
+                          {
+                              Field="DBName",
+                              FieldType=EntityType.STRING
+                          },
+                          new IndexItem
+                          {
+                              Field="TBName",
+                              FieldType=EntityType.STRING
+                          }
+                      }
+                  }
+                });
+
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
