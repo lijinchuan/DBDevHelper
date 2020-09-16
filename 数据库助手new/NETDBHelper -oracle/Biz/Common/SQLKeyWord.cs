@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 
@@ -18,7 +19,11 @@ namespace Biz.Common
             get;
             set;
         }
-
+        public Color HighColor
+        {
+            get;
+            internal set;
+        }
 
         public bool Equals(SQLKeyWord x, SQLKeyWord y)
         {

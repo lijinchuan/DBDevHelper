@@ -33,6 +33,37 @@ namespace NETDBHelper.UC
                 OnWndProc(m);
             }
         }
+        public new void Undo()
+        {
+            while (this.CanUndo)
+            {
+                if (this.UndoActionName != "未知" && !"UnKnown".Equals(this.UndoActionName, StringComparison.OrdinalIgnoreCase))
+                {
+                    base.Undo();
+                    break;
+                }
+                else
+                {
+                    base.Undo();
+                }
+            }
+        }
+
+        public new void Redo()
+        {
+            while (this.CanRedo)
+            {
+                if (this.RedoActionName != "未知" && !"UnKnown".Equals(this.RedoActionName, StringComparison.OrdinalIgnoreCase))
+                {
+                    base.Redo();
+                    break;
+                }
+                else
+                {
+                    base.Redo();
+                }
+            }
+        }
 
         public void DoMessage(Message m)
         {

@@ -377,7 +377,7 @@ namespace NETDBHelper.UC
         private void RichText_DoubleClick(object sender, EventArgs e)
         {
             int st;
-            var seltext = GetTipCurrWord(out st);
+            var seltext = GetTipCurrWord(false, out st);
             if (string.IsNullOrWhiteSpace(seltext) || seltext.IndexOf('\n') > -1)
             {
                 return;
@@ -392,7 +392,7 @@ namespace NETDBHelper.UC
                 return;
             }
             int st;
-            var seltext = GetTipCurrWord(out st);
+            var seltext = GetTipCurrWord(true, out st);
             if (string.IsNullOrWhiteSpace(seltext) || seltext.IndexOf('\n') > -1 || seltext.Length > 30)
             {
                 return;
@@ -642,6 +642,20 @@ namespace NETDBHelper.UC
 
         private void RichText_KeyDown(object sender, KeyEventArgs e)
         {
+            if (e.Control && e.KeyData == (Keys.Control | Keys.Z))
+            {
+                e.Handled = true;
+                RichText.Undo();
+                return;
+            }
+
+            if (e.Control && e.KeyData == (Keys.Control | Keys.R))
+            {
+                e.Handled = true;
+                RichText.Redo();
+                return;
+            }
+
             if (e.KeyCode == Keys.Down
                 || e.KeyCode == Keys.Up)
             {
@@ -679,7 +693,7 @@ namespace NETDBHelper.UC
                 }
             }
         }
-        private string GetTipCurrWord(out int start)
+        private string GetTipCurrWord(bool includedot, out int start)
         {
             start = -1;
             var curindex = this.RichText.GetCharIndexFromPosition(_currpt);
@@ -723,7 +737,7 @@ namespace NETDBHelper.UC
                 var ch = this.RichText.Lines[currline][pi];
 
                 if ((ch >= 'A' && ch <= 'Z') || (ch >= 48 && ch <= 57) || (ch >= 'a' && ch <= 'z')
-                    || ch == '_' || ch == '@'
+                    || ch == '_' || ch == '@' || (includedot && ch == '.')
                     || (ch >= '\u4E00' && ch <= '\u9FA5'))
                 {
                     pre = ch + pre;
@@ -742,7 +756,7 @@ namespace NETDBHelper.UC
                     var ch = this.RichText.Lines[currline][pi];
 
                     if ((ch >= 'A' && ch <= 'Z') || (ch >= 48 && ch <= 57) || (ch >= 'a' && ch <= 'z')
-                        || ch == '_' || ch == '@'
+                        || ch == '_' || ch == '@' || (includedot && ch == '.')
                         || (ch >= '\u4E00' && ch <= '\u9FA5'))
                     {
                         last += ch;

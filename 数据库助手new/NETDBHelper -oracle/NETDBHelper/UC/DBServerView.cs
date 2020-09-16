@@ -470,7 +470,7 @@ namespace NETDBHelper
                             }
                             break;
                         }
-                    case "清理无效字段":
+                    case "清理本地缓存":
                         {
                             ClearMarkResource();
                             break;
@@ -1671,7 +1671,7 @@ background-color: #ffffff;
             {
                 if (currnode.Tag != null && currnode.Tag is TableInfo)
                 {
-                    if (MessageBox.Show("要清理无效字段吗？", "询问", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.No)
+                    if (MessageBox.Show("要清理本地缓存吗？", "询问", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.No)
                     {
                         return;
                     }
@@ -1692,7 +1692,7 @@ background-color: #ffffff;
                     {
                         LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Delete<ColumnMarkSyncRecord>("ColumnMarkSyncRecord", rec.ID);
                     }
-
+                    ReLoadDBObj(currnode);
                     MessageBox.Show("清理成功");
                 }
             }
