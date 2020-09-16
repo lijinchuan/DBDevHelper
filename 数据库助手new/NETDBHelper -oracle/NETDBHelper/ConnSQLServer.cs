@@ -35,8 +35,7 @@ namespace NETDBHelper
             this.cb_ServerType.ValueMember = "key";
 
             panel_yz.Enabled = true;
-            dbs = dbs ?? (Biz.Common.XMLHelper.DeSerializeFromFile<DBSourceCollection>(Application.StartupPath + Resources.Resource1.DbServersFile) ?? new DBSourceCollection());
-            this.cb_servers.SelectedIndexChanged += new EventHandler(cb_Servers_SelectedIndexChanged);
+            dbs = dbs ?? (Biz.Common.XMLHelper.DeSerializeFromFile<DBSourceCollection>(Resources.Resource1.DbServersFile) ?? new DBSourceCollection()); this.cb_servers.SelectedIndexChanged += new EventHandler(cb_Servers_SelectedIndexChanged);
 
             if (dbs.Count > 0)
             {
