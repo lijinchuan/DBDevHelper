@@ -9,7 +9,7 @@ namespace Biz.Common.Data
     {
         public const string GetDBs = "select name from v$database";//"SELECT table_name FROM user_tables;";
 
-        public const string GetTBs = @"select table_name as name,user from user_tables where /*TABLESPACE_NAME is not null and*/  user=:u ";
+        public const string GetTBs = @"select table_name as name,user from user_tables where TABLESPACE_NAME is not null /*and  user=:u */";
 
         public const string GetColumns = @"select * 
                    from user_tab_columns 

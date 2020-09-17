@@ -398,7 +398,7 @@ namespace Biz
                 }
                 if (!col.IsKey && string.IsNullOrWhiteSpace(newNode.ToolTipText))
                 {
-                    newNode.ImageIndex = newNode.SelectedImageIndex = 18;
+                    newNode.ImageIndex = newNode.SelectedImageIndex = 23;
                 }
                 treeNodes.Add(newNode);
             }

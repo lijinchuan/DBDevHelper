@@ -552,7 +552,7 @@ namespace NETDBHelper
                 List<KeyValuePair<string, bool>> cols = new List<KeyValuePair<string, bool>>();
                 foreach (TreeNode node in tv_DBServers.SelectedNode.Nodes)
                 {
-                    if (node.Text == "索引" || node.Text=="触发器")
+                    if (node.Text == "索引" || node.Text == "触发器")
                     {
                         continue;
                     }
@@ -566,10 +566,10 @@ namespace NETDBHelper
                 sb.Append(tv_DBServers.SelectedNode.Name);
                 sb.Append(" t where rownum<=100 ");
                 sb.AppendLine();
-                
+
                 if (this.OnShowTableData != null)
                 {
-                    OnShowTableData(this.tv_DBServers.SelectedNode.Parent.Parent.Tag as DBSource,this.tv_DBServers.SelectedNode.Parent.Name,this.tv_DBServers.SelectedNode.Name, sb.ToString());
+                    OnShowTableData(this.tv_DBServers.SelectedNode.Parent.Parent.Tag as DBSource, GetDBName(this.tv_DBServers.SelectedNode), this.tv_DBServers.SelectedNode.Name, sb.ToString());
                 }
             }
         }
@@ -1318,7 +1318,7 @@ namespace NETDBHelper
                     var col = node.Tag as TBColumn;
                     if (string.IsNullOrWhiteSpace(col.Description))
                     {
-                        var mark = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkObjectInfo>("MarkColumnInfo", "keys", new
+                        var mark = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys", new
                             [] { GetDBName(selnode).ToUpper(), GetTBName(selnode).ToUpper(), col.Name.ToUpper() }).FirstOrDefault();
                         if (mark != null)
                         {

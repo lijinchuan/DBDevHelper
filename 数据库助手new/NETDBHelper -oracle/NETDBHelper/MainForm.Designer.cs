@@ -38,6 +38,7 @@
             this.ToolStripMenuItem_callsp = new System.Windows.Forms.ToolStripMenuItem();
             this.实体建表ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.SubItemModelCreateTableTool = new System.Windows.Forms.ToolStripMenuItem();
+            this.监控任务ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.SubItemHelp = new System.Windows.Forms.ToolStripMenuItem();
             this.panel1 = new System.Windows.Forms.Panel();
             this.TabControl = new NETDBHelper.UC.MyTabControl();
@@ -48,7 +49,6 @@
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.MspPanel = new System.Windows.Forms.ToolStripStatusLabel();
             this.TSL_ClearMsg = new System.Windows.Forms.ToolStripStatusLabel();
-            this.监控任务ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mainMenuBar.SuspendLayout();
             this.panel1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
@@ -120,7 +120,7 @@
             // ToolStripMenuItem_callsp
             // 
             this.ToolStripMenuItem_callsp.Name = "ToolStripMenuItem_callsp";
-            this.ToolStripMenuItem_callsp.Size = new System.Drawing.Size(180, 22);
+            this.ToolStripMenuItem_callsp.Size = new System.Drawing.Size(148, 22);
             this.ToolStripMenuItem_callsp.Text = "存储过程调用";
             this.ToolStripMenuItem_callsp.Click += new System.EventHandler(this.ToolStripMenuItem_callsp_Click);
             // 
@@ -129,7 +129,7 @@
             this.实体建表ToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.SubItemModelCreateTableTool});
             this.实体建表ToolStripMenuItem.Name = "实体建表ToolStripMenuItem";
-            this.实体建表ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.实体建表ToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
             this.实体建表ToolStripMenuItem.Text = "建表工具";
             // 
             // SubItemModelCreateTableTool
@@ -138,6 +138,13 @@
             this.SubItemModelCreateTableTool.Size = new System.Drawing.Size(124, 22);
             this.SubItemModelCreateTableTool.Text = "根据模型";
             this.SubItemModelCreateTableTool.Click += new System.EventHandler(this.SubItemModelCreateTableTool_Click);
+            // 
+            // 监控任务ToolStripMenuItem
+            // 
+            this.监控任务ToolStripMenuItem.Name = "监控任务ToolStripMenuItem";
+            this.监控任务ToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
+            this.监控任务ToolStripMenuItem.Text = "监控任务";
+            this.监控任务ToolStripMenuItem.Click += new System.EventHandler(this.监控任务ToolStripMenuItem_Click);
             // 
             // SubItemHelp
             // 
@@ -226,14 +233,8 @@
             this.TSL_ClearMsg.Image = global::NETDBHelper.Properties.Resources.cross;
             this.TSL_ClearMsg.Name = "TSL_ClearMsg";
             this.TSL_ClearMsg.Size = new System.Drawing.Size(16, 17);
+            this.TSL_ClearMsg.Visible = false;
             this.TSL_ClearMsg.Click += new System.EventHandler(this.TSL_ClearMsg_Click);
-            // 
-            // 监控任务ToolStripMenuItem
-            // 
-            this.监控任务ToolStripMenuItem.Name = "监控任务ToolStripMenuItem";
-            this.监控任务ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.监控任务ToolStripMenuItem.Text = "监控任务";
-            this.监控任务ToolStripMenuItem.Click += new System.EventHandler(this.监控任务ToolStripMenuItem_Click);
             // 
             // MainFrm
             // 

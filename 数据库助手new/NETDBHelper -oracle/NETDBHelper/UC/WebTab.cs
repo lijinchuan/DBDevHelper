@@ -69,7 +69,7 @@ namespace NETDBHelper.UC
         {
             try
             {
-                var procbody = Biz.Common.Data.MySQLHelper.GetProcedureBody(this._dbSource, this._dbName, procname);
+                var procbody = Biz.Common.Data.OracleHelper.GetProcedureBody(this._dbSource, procname);
                 SubForm.TextBoxWin win = new SubForm.TextBoxWin($"查看存储过程 {procname}", procbody);
                 win.ShowDialog();
             }
