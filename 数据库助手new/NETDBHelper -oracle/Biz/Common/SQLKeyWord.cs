@@ -80,21 +80,6 @@ namespace Biz.Common
             });
             KeyWordDic.Add(new SQLKeyWord
             {
-                KeyWord = "@@error",
-                Desc = "全局错误"
-            });
-            KeyWordDic.Add(new SQLKeyWord
-            {
-                KeyWord = "@@fetch_status",
-                Desc = "游标状态"
-            });
-            KeyWordDic.Add(new SQLKeyWord
-            {
-                KeyWord = "@@rowcount",
-                Desc = "行数"
-            });
-            KeyWordDic.Add(new SQLKeyWord
-            {
                 KeyWord = "[",
                 Desc = ""
             });
@@ -215,6 +200,11 @@ namespace Biz.Common
             });
             KeyWordDic.Add(new SQLKeyWord
             {
+                KeyWord = "comment",
+                Desc = "给字段或表注释"
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
                 KeyWord = "convert",
                 Desc = ""
             });
@@ -232,6 +222,11 @@ namespace Biz.Common
             {
                 KeyWord = "cursor",
                 Desc = "游标"
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
+                KeyWord = "currval",
+                Desc = "序列当前值"
             });
             KeyWordDic.Add(new SQLKeyWord
             {
@@ -310,6 +305,11 @@ namespace Biz.Common
             });
             KeyWordDic.Add(new SQLKeyWord
             {
+                KeyWord = "dual",
+                Desc = "dual虚表"
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
                 KeyWord = "else",
                 Desc = ""
             });
@@ -357,11 +357,6 @@ namespace Biz.Common
             {
                 KeyWord = "for",
                 Desc = ""
-            });
-            KeyWordDic.Add(new SQLKeyWord
-            {
-                KeyWord = "foreign key(C) references T",
-                Desc = "外键，括号中为外键，references后为外键的表"
             });
             KeyWordDic.Add(new SQLKeyWord
             {
@@ -500,13 +495,8 @@ namespace Biz.Common
             });
             KeyWordDic.Add(new SQLKeyWord
             {
-                KeyWord = "nocount",
-                Desc = ""
-            });
-            KeyWordDic.Add(new SQLKeyWord
-            {
-                KeyWord = "nolock",
-                Desc = ""
+                KeyWord = "nextval",
+                Desc = "序列下一个值"
             });
             KeyWordDic.Add(new SQLKeyWord
             {
@@ -660,6 +650,11 @@ namespace Biz.Common
             });
             KeyWordDic.Add(new SQLKeyWord
             {
+                KeyWord = "rownum",
+                Desc = "行号"
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
                 KeyWord = "rtrim",
                 Desc = ""
             });
@@ -667,6 +662,11 @@ namespace Biz.Common
             {
                 KeyWord = "select",
                 Desc = "查询"
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
+                KeyWord= "sequence",
+                Desc="序列"
             });
             KeyWordDic.Add(new SQLKeyWord
             {
@@ -720,6 +720,11 @@ namespace Biz.Common
             });
             KeyWordDic.Add(new SQLKeyWord
             {
+                KeyWord = "sysdate",
+                Desc = "系统时间"
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
                 KeyWord = "table",
                 Desc = "表"
             });
@@ -746,11 +751,6 @@ namespace Biz.Common
             KeyWordDic.Add(new SQLKeyWord
             {
                 KeyWord = "tinyint",
-                Desc = ""
-            });
-            KeyWordDic.Add(new SQLKeyWord
-            {
-                KeyWord = "top",
                 Desc = ""
             });
             KeyWordDic.Add(new SQLKeyWord

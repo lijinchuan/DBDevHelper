@@ -6,6 +6,7 @@ using System.Windows.Forms;
 using Entity;
 using System.Data;
 using System.Threading;
+using Biz.Common.Data;
 
 namespace Biz
 {
@@ -40,7 +41,7 @@ namespace Biz
 
         private static void LoadDBs(Form parent, TreeNode serverNode, DBSource server)
         {
-            var tb= Biz.Common.Data.MySQLHelper.GetDBs(server);
+            var tb = OracleHelper.GetDBs(server);
             if (parent.InvokeRequired)
             {
                 parent.Invoke(new Action(() =>
