@@ -39,7 +39,7 @@ namespace NETDBHelper.UC
 
         public Action<RelColumn> OnAddNewRelColumn;
 
-        private List<List<Point>> relLineList = null;
+        private int LbIdx = 0;
 
         public UCTableView2()
         {
@@ -221,6 +221,12 @@ namespace NETDBHelper.UC
                 lb.Image = SQLTypeRs.BOOL;
             }
             lb.UseMnemonic = true;
+
+            if (LbIdx % 2 == 1)
+            {
+                lb.BackColor = Color.LightYellow;
+            }
+            LbIdx++;
 
             lb.Text = "   " + tbcol.Name;
             lb.Location = CBCoumns.Location;
