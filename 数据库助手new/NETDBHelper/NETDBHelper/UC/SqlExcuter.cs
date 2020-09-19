@@ -13,6 +13,7 @@ using System.IO;
 using System.Threading;
 using NPOI.SS.UserModel;
 using NPOI.HSSF.UserModel;
+using Biz.Common.Data;
 
 namespace NETDBHelper.UC
 {
@@ -66,6 +67,7 @@ namespace NETDBHelper.UC
             datastrip.Items.Add("查看文本");
             datastrip.Items.Add("复制标题");
             datastrip.Items.Add("复制标题+内容");
+            datastrip.Items.Add("转换为JSON格式数据");
             datastrip.Items.Add("统计条数");
             datastrip.Items.Add("选择这一列");
             datastrip.Items.Add(new ToolStripSeparator());
@@ -108,6 +110,10 @@ namespace NETDBHelper.UC
             else if (e.ClickedItem.Text == "表重命名")
             {
                 RenameViewName();
+            }
+            else if (e.ClickedItem.Text == "转换为JSON格式数据")
+            {
+                ViewJSONData();
             }
             else if (e.ClickedItem.Text == "统计条数")
             {
@@ -659,6 +665,43 @@ namespace NETDBHelper.UC
                     sb.Remove(sb.Length - 1, 1);
                     Clipboard.SetText(sb.ToString());
                     Util.SendMsg(this, $"标题已复制到剪贴板");
+                    break;
+                }
+            }
+        }
+
+        public void ViewJSONData()
+        {
+            foreach (var ctl in tabControl1.SelectedTab.Controls)
+            {
+                if (ctl is DataGridView)
+                {
+                    var view = (DataGridView)ctl;
+                    if (view.SelectedCells.Count == 0)
+                    {
+                        return;
+                    }
+
+                    List<Dictionary<string, object>> datalist = new List<Dictionary<string, object>>();
+                    List<DataGridViewCell> list = new List<DataGridViewCell>();
+                    foreach (DataGridViewCell cell in view.SelectedCells)
+                    {
+                        list.Add(cell);
+                    }
+
+                    foreach (var row in list.GroupBy(p => p.RowIndex).OrderBy(p => p.Key))
+                    {
+                        Dictionary<string, object> dic = new Dictionary<string, object>();
+                        foreach (var cell in row.OrderBy(p => p.ColumnIndex))
+                        {
+                            dic.Add(view.Columns[cell.ColumnIndex].Name, cell.Value);
+                        }
+                        datalist.Add(dic);
+                    }
+
+                    //Clipboard.SetText(sb.ToString());
+                    new SubForm.TextBoxWin("查看JSON文本", Newtonsoft.Json.JsonConvert.SerializeObject(datalist, Newtonsoft.Json.Formatting.Indented)).ShowDialog();
+                    //Util.SendMsg(this, $"内容和标题已复制到剪贴板");
                     break;
                 }
             }
