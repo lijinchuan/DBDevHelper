@@ -797,7 +797,8 @@ namespace NETDBHelper.UC
                     {
                         var pt = rect.Location;
                         pt.Offset(-this.PanelMap.AutoScrollPosition.X, -this.PanelMap.AutoScrollPosition.Y);
-                        pt.Offset(rect.Width + 6, rect.Height / 2);
+                        var offsetx = new Random(Guid.NewGuid().GetHashCode()).Next(2, rect.Height - 2);
+                        pt.Offset(rect.Width + 6, offsetx);
                         return pt;
                     }
                 }
