@@ -388,7 +388,7 @@ namespace NETDBHelper.UC
                             }
                         }
 
-                        this.Invalidate();
+                        this.Parent.Invalidate();
 
                         isDraging = false;
                         //处理结束事件

@@ -987,7 +987,7 @@ namespace NETDBHelper.UC
                             LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<RelTable>(nameof(RelTable), newreltable);
                         }
                     }
-
+                    this.PanelMap.Invalidate();
                     v.Location = location;
                     AdjustLoaction(v);
                 },
