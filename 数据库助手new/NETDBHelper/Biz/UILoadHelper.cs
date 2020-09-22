@@ -125,7 +125,10 @@ namespace Biz
                     orderby x["name"]
                     select x;
             if (y.Count() == 0)
+            {
+                parent.Invoke(new Action(() => serverNode.Nodes.Clear()));
                 return;
+            }
             var tb2= y.CopyToDataTable();
             for (int i = 0; i < tb2.Rows.Count; i++)
             {
