@@ -31,7 +31,8 @@ namespace Entity
         {
             if (item == null)
                 return;
-            DBSource db = container.FirstOrDefault(p => p.ServerName.Equals(item.ServerName,StringComparison.OrdinalIgnoreCase));
+            DBSource db = container.FirstOrDefault(p => p.ServerName.Equals(item.ServerName, StringComparison.OrdinalIgnoreCase)
+            && p.Port == item.Port && p.LoginName.Equals(item.LoginName, StringComparison.OrdinalIgnoreCase));
             if (db == null)
             {
                 db = item;
@@ -39,7 +40,10 @@ namespace Entity
             }
             else
             {
-                db = item;
+                if (db.LoginPassword != item.LoginPassword)
+                {
+                    db.LoginPassword = item.LoginPassword;
+                }
             }
         }
 
@@ -52,7 +56,8 @@ namespace Entity
         {
             if (item == null)
                 return true;
-            return container.Exists(p => p.ServerName.Equals(item.ServerName,StringComparison.OrdinalIgnoreCase));
+            return container.Exists(p => p.ServerName.Equals(item.ServerName, StringComparison.OrdinalIgnoreCase)
+            && p.Port == item.Port && p.LoginName.Equals(item.LoginName, StringComparison.OrdinalIgnoreCase));
         }
 
         public void CopyTo(DBSource[] array, int arrayIndex)
@@ -85,7 +90,8 @@ namespace Entity
         {
             if (item == null)
                 return false;
-            var db = container.FirstOrDefault(p => p.ServerName.Equals(item.ServerName, StringComparison.OrdinalIgnoreCase));
+            var db = container.FirstOrDefault(p => p.ServerName.Equals(item.ServerName, StringComparison.OrdinalIgnoreCase)
+            && p.Port == item.Port && p.LoginName.Equals(item.LoginName, StringComparison.OrdinalIgnoreCase));
             if (db == null)
                 return false;
             return container.Remove(db);

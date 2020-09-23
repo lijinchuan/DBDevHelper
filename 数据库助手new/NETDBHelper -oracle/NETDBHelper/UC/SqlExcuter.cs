@@ -64,6 +64,7 @@ namespace NETDBHelper.UC
             datastrip.Items.Add("转换为JSON格式数据");
             datastrip.Items.Add("统计条数");
             datastrip.Items.Add("选择这一列");
+            datastrip.Items.Add("锁定这一列");
             datastrip.Items.Add(new ToolStripSeparator());
             datastrip.Items.Add("表重命名");
             datastrip.Items.Add("导出表格数据");
@@ -126,6 +127,10 @@ namespace NETDBHelper.UC
                         //MessageBox.Show("记录数:" + view.RowCount + "条");
                     }
                 }
+            }
+            else if (e.ClickedItem.Text == "锁定这一列")
+            {
+                LockColumn();
             }
 
         }
@@ -737,6 +742,29 @@ namespace NETDBHelper.UC
 
                     Clipboard.SetText(sb.ToString());
                     Util.SendMsg(this, $"内容和标题已复制到剪贴板");
+                    break;
+                }
+            }
+        }
+
+        public void LockColumn()
+        {
+            foreach (var ctl in tabControl1.SelectedTab.Controls)
+            {
+                if (ctl is DataGridView)
+                {
+                    var view = (DataGridView)ctl;
+                    foreach (DataGridViewColumn col in view.Columns)
+                    {
+                        if (col.Frozen)
+                        {
+                            col.Frozen = false;
+                        }
+                    }
+                    if (view.CurrentCell != null)
+                    {
+                        view.Columns[view.CurrentCell.ColumnIndex].Frozen = true;
+                    }
                     break;
                 }
             }
