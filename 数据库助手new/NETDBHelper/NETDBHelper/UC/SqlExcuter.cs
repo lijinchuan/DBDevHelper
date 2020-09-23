@@ -17,11 +17,11 @@ using Biz.Common.Data;
 
 namespace NETDBHelper.UC
 {
-    public partial class SqlExcuter : TabPage,IDataExport
+    public partial class SqlExcuter : TabPage, IDataExport
     {
         UC.LoadingBox loadbox = new LoadingBox();
         bool isexecuting = false;
-        
+
         public SqlExcuter()
         {
             InitializeComponent();
@@ -46,7 +46,7 @@ namespace NETDBHelper.UC
 
         ContextMenuStrip datastrip = null;
 
-        public SqlExcuter(DBSource server,string db,string sql)
+        public SqlExcuter(DBSource server, string db, string sql)
         {
             InitializeComponent();
 
@@ -54,7 +54,7 @@ namespace NETDBHelper.UC
             this.DB = db;
             this.sqlEditBox1.DBName = db;
             this.sqlEditBox1.Text = sql;
-            
+
             this.TBInfo.ScrollBars = ScrollBars.Both;
             this.TBInfo.ContextMenuStrip = contextMenuStrip1;
 
@@ -70,6 +70,7 @@ namespace NETDBHelper.UC
             datastrip.Items.Add("转换为JSON格式数据");
             datastrip.Items.Add("统计条数");
             datastrip.Items.Add("选择这一列");
+            datastrip.Items.Add("锁定这一列");
             datastrip.Items.Add(new ToolStripSeparator());
             datastrip.Items.Add("表重命名");
             datastrip.Items.Add("导出表格数据");
@@ -128,6 +129,10 @@ namespace NETDBHelper.UC
                     }
                 }
             }
+            else if (e.ClickedItem.Text == "锁定这一列")
+            {
+                LockColumn();
+            }
 
         }
 
@@ -141,7 +146,7 @@ namespace NETDBHelper.UC
                     th.Abort();
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
 
             }
@@ -218,7 +223,7 @@ namespace NETDBHelper.UC
                             var tb = ts.Tables[i];
                             TabPage page = new TabPage(tb.TableName ?? "未命名表");
                             page.ImageIndex = 0;
-                            
+
                             var dgv = new DataGridView();
                             dgv.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.DisplayedCells;
                             dgv.AllowUserToResizeRows = true;
@@ -248,7 +253,7 @@ namespace NETDBHelper.UC
                             {
                                 e.Cancel = true;
                             };
-                            
+
                             dgv.GridColor = Color.LightBlue;
                             dgv.Dock = DockStyle.Fill;
                             dgv.BackgroundColor = Color.White;
@@ -261,7 +266,7 @@ namespace NETDBHelper.UC
                             dgv.RowStateChanged += (s, e) =>
                             {
                                 e.Row.HeaderCell.Value = string.Format("{0}", e.Row.Index + 1);
-                                
+
                             };
 
                             this.Invoke(new Action(() =>
@@ -302,7 +307,7 @@ namespace NETDBHelper.UC
                         this.Invoke(new Action(() => this.Controls.Remove(loadbox)));
                     }
                 }
-            
+
             }));
             this.loadbox.tag = exthread;
             this.loadbox.OnStop += Stop;
@@ -346,7 +351,7 @@ namespace NETDBHelper.UC
         {
             foreach (var ctl in tabControl1.SelectedTab.Controls)
             {
-                if(ctl is DataGridView)
+                if (ctl is DataGridView)
                 {
                     var gv = (DataGridView)ctl;
                     var dir = Application.StartupPath + "\\temp\\";
@@ -476,18 +481,18 @@ namespace NETDBHelper.UC
                                 var colcount = 0;
                                 foreach (DataGridViewColumn col in gv.Columns)
                                 {
-                                    var cell = row.CreateCell(colcount,CellType.String);
+                                    var cell = row.CreateCell(colcount, CellType.String);
                                     cell.SetCellValue(col.Name);
                                     cell.CellStyle = CreateHeaderStyle(book);
                                     AjustColWidth(sheet, 0, colcount);
                                     colcount++;
                                 }
-                                
+
 
                                 foreach (DataGridViewRow gvrow in gv.Rows)
                                 {
                                     row = sheet.CreateRow(rowidx++);
-                                    for(int i = 0; i < colcount; i++)
+                                    for (int i = 0; i < colcount; i++)
                                     {
                                         var cell = row.CreateCell(i);
                                         //cell.CellStyle = CreateCellStyle(book);
@@ -528,7 +533,7 @@ namespace NETDBHelper.UC
                 using (var fs = new System.IO.FileStream(filename, FileMode.Create))
                 {
                     book.Write(fs);
-                    
+
                     Util.SendMsg(this, $"文件已保存:{filename}");
                     System.Diagnostics.Process.Start("explorer.exe", dir);
                 }
@@ -550,13 +555,13 @@ namespace NETDBHelper.UC
                     StringBuilder sb = new StringBuilder();
 
                     List<DataGridViewCell> list = new List<DataGridViewCell>();
-                    foreach(DataGridViewCell cell in view.SelectedCells)
+                    foreach (DataGridViewCell cell in view.SelectedCells)
                     {
                         list.Add(cell);
                     }
-                    foreach (var row in list.GroupBy(p => p.RowIndex).OrderBy(p=>p.Key))
+                    foreach (var row in list.GroupBy(p => p.RowIndex).OrderBy(p => p.Key))
                     {
-                        foreach (var cell in row.OrderBy(p=>p.ColumnIndex))
+                        foreach (var cell in row.OrderBy(p => p.ColumnIndex))
                         {
                             if (cell.Value != null)
                             {
@@ -630,7 +635,7 @@ namespace NETDBHelper.UC
                     {
                         return;
                     }
-                    foreach(DataGridViewRow row in view.Rows)
+                    foreach (DataGridViewRow row in view.Rows)
                     {
                         row.Cells[currentcell.ColumnIndex].Selected = true;
                     }
@@ -657,7 +662,7 @@ namespace NETDBHelper.UC
                         list.Add(cell);
                     }
 
-                    foreach (DataGridViewCell cell in list.GroupBy(p => p.RowIndex).First().OrderBy(p=>p.ColumnIndex))
+                    foreach (DataGridViewCell cell in list.GroupBy(p => p.RowIndex).First().OrderBy(p => p.ColumnIndex))
                     {
                         sb.Append(view.Columns[cell.ColumnIndex].Name.ToString());
                         sb.Append("\t");
@@ -726,16 +731,16 @@ namespace NETDBHelper.UC
                         list.Add(cell);
                     }
 
-                    foreach (DataGridViewCell cell in list.GroupBy(p=>p.RowIndex).First().OrderBy(p=>p.ColumnIndex))
+                    foreach (DataGridViewCell cell in list.GroupBy(p => p.RowIndex).First().OrderBy(p => p.ColumnIndex))
                     {
                         sb.Append(view.Columns[cell.ColumnIndex].Name.ToString());
                         sb.Append("\t");
                     }
                     sb.Remove(sb.Length - 1, 1);
                     sb.AppendLine();
-                    foreach (var row in list.GroupBy(p => p.RowIndex).OrderBy(p=>p.Key))
+                    foreach (var row in list.GroupBy(p => p.RowIndex).OrderBy(p => p.Key))
                     {
-                        foreach (var cell in row.OrderBy(p=>p.ColumnIndex))
+                        foreach (var cell in row.OrderBy(p => p.ColumnIndex))
                         {
                             if (cell.Value != null)
                             {
@@ -749,6 +754,29 @@ namespace NETDBHelper.UC
 
                     Clipboard.SetText(sb.ToString());
                     Util.SendMsg(this, $"内容和标题已复制到剪贴板");
+                    break;
+                }
+            }
+        }
+
+        public void LockColumn()
+        {
+            foreach (var ctl in tabControl1.SelectedTab.Controls)
+            {
+                if (ctl is DataGridView)
+                {
+                    var view = (DataGridView)ctl;
+                    foreach (DataGridViewColumn col in view.Columns)
+                    {
+                        if (col.Frozen)
+                        {
+                            col.Frozen = false;
+                        }
+                    }
+                    if (view.CurrentCell != null)
+                    {
+                        view.Columns[view.CurrentCell.ColumnIndex].Frozen = true;
+                    }
                     break;
                 }
             }
