@@ -5,21 +5,15 @@ using System.Text;
 
 namespace Entity
 {
-    public class TableInfo: INodeContents
+    public class DBInfo : INodeContents
     {
-        public string DBName
+        public string Name
         {
             get;
             set;
         }
 
-        public string TBId
-        {
-            get;
-            set;
-        }
-
-        public string TBName
+        public DBSource DBSource
         {
             get;
             set;
@@ -27,7 +21,7 @@ namespace Entity
 
         public NodeContentType GetNodeContentType()
         {
-            return NodeContentType.TB;
+            return NodeContentType.DB;
         }
     }
 }

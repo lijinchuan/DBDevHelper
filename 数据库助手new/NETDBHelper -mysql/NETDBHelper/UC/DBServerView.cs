@@ -181,11 +181,11 @@ namespace NETDBHelper
             TSMI_FilterProc.Visible = false;
             TSMI_ViewColumnList.Visible = false;
 
-            if (selNode.Level == 1)
+            if (selNode.Tag is ServerInfo)
             {
                 Biz.UILoadHelper.LoadDBsAnsy(this.ParentForm, selNode, GetDBSource(selNode));
             }
-            else if (selNode.Level == 2)
+            else if (selNode.Tag is DBInfo)
             {
                 var dbname = GetDBName(selNode).ToUpper();
                 Biz.UILoadHelper.LoadTBsAnsy(this.ParentForm, selNode, GetDBSource(selNode), name =>
@@ -196,7 +196,7 @@ namespace NETDBHelper
                 });
                 TSMI_ViewColumnList.Visible = true;
             }
-            else if (selNode.Level == 3 && !selNode.Text.Equals("存储过程"))
+            else if (selNode.Tag is TableInfo)
             {
                 var dbname = GetDBName(selNode).ToUpper();
                 var dbsource = GetDBSource(selNode);
@@ -215,7 +215,7 @@ namespace NETDBHelper
                             ColumnName = col.Name.ToUpper(),
                             Servername = dbsource.ServerName,
                             TBName = selNode.Text.ToUpper(),
-                            ColumnType=col.TypeToString(),
+                            ColumnType = col.TypeToString(),
                             MarkInfo = col.Description
                         });
                     }
@@ -243,12 +243,12 @@ namespace NETDBHelper
                     Valid = true
                 });
             }
-            else if (selNode.Level == 3 && selNode.Text.Equals("存储过程"))
+            else if (selNode.Tag is INodeContents && (selNode.Tag as INodeContents).GetNodeContentType() == NodeContentType.PROCParent)
             {
                 Biz.UILoadHelper.LoadProcedureAnsy(this.ParentForm, selNode, GetDBSource(selNode));
                 TSMI_FilterProc.Visible = true;
             }
-            else if (selNode.Level == 4 && selNode.Text.Equals("索引"))
+            else if (selNode.Tag is INodeContents && (selNode.Tag as INodeContents).GetNodeContentType() == NodeContentType.INDEXParent)
             {
                 Biz.UILoadHelper.LoadIndexAnsy(this.ParentForm, selNode, GetDBSource(selNode));
             }
@@ -525,8 +525,10 @@ namespace NETDBHelper
                 return null;
             if (node.Level < 1)
                 return null;
-            if (node.Level == 1)
-                return DBServers.FirstOrDefault(p => p.ServerName.Equals(node.Text));
+            if(node.Tag is ServerInfo)
+            {
+                return (node.Tag as ServerInfo).DBSource;
+            }
             return GetDBSource(node.Parent);
         }
 
@@ -666,14 +668,10 @@ namespace NETDBHelper
                 if (tv_DBServers.Nodes[0].Nodes.ContainsKey(s.ServerName))
                     continue;
                TreeNode node = new TreeNode(s.ServerName,1,1);
-               node.Tag = s;
+                var serverinfo = new ServerInfo { DBSource = s };
+                node.Tag = serverinfo;
                tv_DBServers.Nodes[0].Nodes.Add(node);
-               DataTable table= Biz.Common.Data.MySQLHelper.GetDBs(s);
-               for (int i = 0; i < table.Rows.Count; i++)
-               {
-                   TreeNode tbNode = new TreeNode(table.Rows[i]["Name"].ToString(), 2, 2);
-                   node.Nodes.Add(tbNode);
-               }
+               ReLoadDBObj(node);
             }
         }
 
@@ -1289,8 +1287,8 @@ background-color: #ffffff;
                 return null;
             if (node.Level < 1)
                 return null;
-            if (node.Level == 2)
-                return node.Text;
+            if (node.Tag is DBInfo)
+                return (node.Tag as DBInfo).Name;
             return GetDBName(node.Parent);
         }
 
@@ -1322,11 +1320,11 @@ background-color: #ffffff;
                     MessageBox.Show("备注成功");
                 }
             }
-            else if (selnode.Parent.Text.Equals("存储过程"))
+            else if (selnode.Tag is ProcInfo)
             {
                 var servername = GetDBSource(selnode).ServerName;
                 var dbname = GetDBName(selnode);
-                var spname = selnode.Text;
+                var spname = (selnode.Tag as ProcInfo).Name;
                 var item = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<SPInfo>("SPInfo", "DBName_SPName", new[] { dbname.ToUpper(), spname.ToUpper() }).FirstOrDefault();
 
                 if (item == null)

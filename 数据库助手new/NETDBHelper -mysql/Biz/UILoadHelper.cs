@@ -39,30 +39,19 @@ namespace Biz
 
         private static void LoadDBs(Form parent, TreeNode serverNode, DBSource server)
         {
-            var tb= Biz.Common.Data.MySQLHelper.GetDBs(server);
-            if (parent.InvokeRequired)
-            {
-                parent.Invoke(new Action(() =>
-                    {
-                        serverNode.Nodes.Clear();
-                        for (int i = 0; i < tb.Rows.Count; i++)
-                        {
-                            TreeNode tbNode = new TreeNode(tb.Rows[i]["Name"].ToString(), 2, 2);
-                            serverNode.Nodes.Add(tbNode);
-                        }
-                        
-                        
-                    }));
-            }
-            else
-            {
-                serverNode.Nodes.Clear();
-                for (int i = 0; i < tb.Rows.Count; i++)
+            var tb = Biz.Common.Data.MySQLHelper.GetDBs(server);
+
+            parent.Invoke(new Action(() =>
                 {
-                    TreeNode tbNode = new TreeNode(tb.Rows[i]["Name"].ToString(), 2, 2);
-                    serverNode.Nodes.Add(tbNode);
-                }
-            }
+                    serverNode.Nodes.Clear();
+                    for (int i = 0; i < tb.Rows.Count; i++)
+                    {
+                        DBInfo dbInfo = new DBInfo { DBSource = server, Name = tb.Rows[i]["Name"].ToString() };
+                        TreeNode tbNode = new TreeNode(dbInfo.Name, 2, 2);
+                        tbNode.Tag = dbInfo;
+                        serverNode.Nodes.Add(tbNode);
+                    }
+                }));
         }
 
         public static void LoadTBsAnsy(Form parent, TreeNode dbNode, DBSource server, Func<string, string> gettip)
@@ -106,28 +95,33 @@ namespace Biz
             foreach (var item in list)
             {
                 var imageindex = item.IndexName.Equals("primary", StringComparison.OrdinalIgnoreCase) ? 8 : 7;
-                TreeNode newNode = new TreeNode(item.IndexName, item.Cols.Select(p => new TreeNode
+
+                TreeNode newNode = new TreeNode(item.IndexName, item.Cols.Select(p =>
                 {
-                    Text = p,
-                    ImageIndex = imageindex,
-                    SelectedImageIndex = imageindex
+                    var node = new TreeNode
+                    {
+                        Text = p,
+                        ImageIndex = imageindex,
+                        SelectedImageIndex = imageindex
+                    };
+
+                    node.Tag = new IndexColumnInfo
+                    {
+                        Name = p
+                    };
+
+                    return node;
+
                 }).ToArray());
+
+                newNode.Tag = item;
 
                 newNode.ImageIndex = newNode.SelectedImageIndex = 6;
 
                 treeNodes.Add(newNode);
             }
 
-            if (parent.InvokeRequired)
-            {
-                parent.Invoke(new Action(() => { tbNode.Nodes.Clear(); tbNode.Nodes.AddRange(treeNodes.ToArray()); tbNode.Expand(); }));
-            }
-            else
-            {
-                tbNode.Nodes.Clear();
-                tbNode.Nodes.AddRange(treeNodes.ToArray());
-                tbNode.Expand();
-            }
+            parent.Invoke(new Action(() => { tbNode.Nodes.Clear(); tbNode.Nodes.AddRange(treeNodes.ToArray()); tbNode.Expand(); }));
         }
 
         private static void InsertRange(TreeNode node, IEnumerable<TreeNode> nodes)
@@ -164,21 +158,16 @@ namespace Biz
                 }
                 treeNodes.Add(newNode);
             }
-            if (parent.InvokeRequired)
+
+            parent.Invoke(new Action(() =>
             {
-                parent.Invoke(new Action(() =>
-                {
-                    tbNode.Nodes.Clear(); InsertRange(tbNode, treeNodes.ToArray());
-                    tbNode.Nodes.Add("INDEXS", "索引", 1, 1); tbNode.Expand();
-                }));
-            }
-            else
-            {
-                tbNode.Nodes.Clear();
-                tbNode.Nodes.AddRange(treeNodes.ToArray());
-                tbNode.Nodes.Add("INDEXS", "索引", 1, 1);
+                tbNode.Nodes.Clear(); 
+                InsertRange(tbNode, treeNodes.ToArray());
+                var indexnode = new TreeNode("索引", 1, 1);
+                indexnode.Tag = new NodeContents(NodeContentType.INDEXParent);
+                tbNode.Nodes.Add(indexnode); 
                 tbNode.Expand();
-            }
+            }));
         }
 
         private static void LoadProcedure(Form parent, TreeNode tbNode, DBSource server)
@@ -189,20 +178,12 @@ namespace Biz
             foreach (string col in Biz.Common.Data.MySQLHelper.GetProcedures(server, tbNode.Parent.Text).ToList())
             {
                 //int imgIdx = col.IsKey ? 4 : 5;
+                ProcInfo procInfo = new ProcInfo { Name = col };
                 TreeNode newNode = new TreeNode(col, 13, 14);
-                newNode.Tag = col;
+                newNode.Tag = procInfo;
                 treeNodes.Add(newNode);
             }
-            if (parent.InvokeRequired)
-            {
-                parent.Invoke(new Action(() => { tbNode.Nodes.Clear(); tbNode.Nodes.AddRange(treeNodes.ToArray()); tbNode.Expand(); }));
-            }
-            else
-            {
-                tbNode.Nodes.Clear();
-                tbNode.Nodes.AddRange(treeNodes.ToArray());
-                tbNode.Expand();
-            }
+            parent.Invoke(new Action(() => { tbNode.Nodes.Clear(); tbNode.Nodes.AddRange(treeNodes.ToArray()); tbNode.Expand(); }));
         }
 
         private static void LoadTBs(Form parent, TreeNode serverNode, DBSource server, Func<string, string> gettip)
@@ -217,34 +198,32 @@ namespace Biz
                     select x;
             if (y.Count() == 0)
                 return;
-            var tb2= y.CopyToDataTable();
+            var tb2 = y.CopyToDataTable();
             for (int i = 0; i < tb2.Rows.Count; i++)
             {
-                TreeNode newNode = new TreeNode(tb2.Rows[i]["name"].ToString(), 3, 3);
-                newNode.Name = tb2.Rows[i]["name"].ToString();
-                newNode.Tag = new TableInfo
+                var tbinfo = new TableInfo
                 {
-                    DBName = serverNode.Text,
-                    //TBId = tb2.Rows[i]["id"].ToString(),
-                    TBName = tb2.Rows[i]["name"].ToString()
+                    DBName=serverNode.Name,
+                    TBName= tb2.Rows[i]["name"].ToString()
                 };
+                TreeNode newNode = new TreeNode(tbinfo.TBName, 3, 3);
+                newNode.Name = tbinfo.TBName;
+                newNode.Tag = tbinfo;
                 if (gettip != null)
                 {
-                    newNode.ToolTipText = gettip(tb2.Rows[i]["name"].ToString());
+                    newNode.ToolTipText = gettip(tbinfo.TBName);
                 }
                 treeNodes.Add(newNode);
             }
-            if (parent.InvokeRequired)
-            {
-                parent.Invoke(new Action(() => { serverNode.Nodes.Clear(); serverNode.Nodes.AddRange(treeNodes.ToArray()); serverNode.Nodes.Add("PROCEDURE", "存储过程", 1, 1); serverNode.Expand(); }));
-            }
-            else
-            {
-                serverNode.Nodes.Clear();
+
+            parent.Invoke(new Action(() => { 
+                serverNode.Nodes.Clear(); 
                 serverNode.Nodes.AddRange(treeNodes.ToArray());
-                serverNode.Nodes.Add("PROCEDURE", "存储过程", 1, 1);
-                serverNode.Expand();
-            }
+                var procparentnode = new TreeNode("存储过程", 1, 1);
+                procparentnode.Tag = new NodeContents(NodeContentType.PROCParent);
+                serverNode.Nodes.Add(procparentnode);
+                serverNode.Expand(); }));
+
         }
     }
 }

@@ -5,15 +5,9 @@ using System.Text;
 
 namespace Entity
 {
-    public class IndexEntry:INodeContents
+    public class ServerInfo : INodeContents
     {
-        public string IndexName
-        {
-            get;
-            set;
-        }
-
-        public string[] Cols
+        public DBSource DBSource
         {
             get;
             set;
@@ -21,7 +15,7 @@ namespace Entity
 
         public NodeContentType GetNodeContentType()
         {
-            return NodeContentType.INDEX;
+            return NodeContentType.SEVER;
         }
     }
 }

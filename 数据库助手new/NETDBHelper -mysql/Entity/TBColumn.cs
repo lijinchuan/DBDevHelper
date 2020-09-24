@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Entity
 {
-    public class TBColumn
+    public class TBColumn: INodeContents
     {
         public string DBName
         {
@@ -76,6 +76,11 @@ namespace Entity
         {
             get;
             set;
+        }
+
+        public NodeContentType GetNodeContentType()
+        {
+            return NodeContentType.COLUMN;
         }
     }
 }
