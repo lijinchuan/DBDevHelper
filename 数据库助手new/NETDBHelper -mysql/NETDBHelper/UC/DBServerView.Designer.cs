@@ -258,6 +258,9 @@
             this.toolStrip1.AutoSize = false;
             this.toolStrip1.Dock = System.Windows.Forms.DockStyle.None;
             this.toolStrip1.Font = new System.Drawing.Font("微软雅黑", 8F);
+            this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.ts_serchKey,
+            this.toolStripDropDownButton1});
             this.toolStrip1.Location = new System.Drawing.Point(5, 22);
             this.toolStrip1.Name = "toolStrip1";
             this.toolStrip1.Size = new System.Drawing.Size(247, 22);
