@@ -47,18 +47,30 @@ namespace Biz
                     for (int i = 0; i < tb.Rows.Count; i++)
                     {
                         DBInfo dbInfo = new DBInfo { DBSource = server, Name = tb.Rows[i]["Name"].ToString() };
-                        TreeNode tbNode = new TreeNode(dbInfo.Name, 2, 2);
-                        tbNode.Tag = dbInfo;
-                        serverNode.Nodes.Add(tbNode);
+                        TreeNode dbNode = new TreeNode(dbInfo.Name, 2, 2);
+                        dbNode.Tag = dbInfo;
+                        serverNode.Nodes.Add(dbNode);
+
+                        var tbnode = new TreeNode("表", 1, 1);
+                        tbnode.Tag = new NodeContents(NodeContentType.TBParent);
+                        dbNode.Nodes.Add(tbnode);
+                        var viewnode = new TreeNode("视图", 1, 1);
+                        viewnode.Tag = new NodeContents(NodeContentType.VIEWParent);
+                        dbNode.Nodes.Add(viewnode);
+                        var procnode = new TreeNode("存储过程", 1, 1);
+                        procnode.Tag = new NodeContents(NodeContentType.PROCParent);
+                        dbNode.Nodes.Add(procnode);
+
+                        serverNode.Expand();
                     }
                 }));
         }
 
-        public static void LoadTBsAnsy(Form parent, TreeNode dbNode, DBSource server, Func<string, string> gettip)
+        public static void LoadTBsAnsy(Form parent, TreeNode dbNode, DBSource server, string dbname,Func<string, string> gettip)
         {
             dbNode.Nodes.Add(new TreeNode("加载中...", 17, 17));
             dbNode.Expand();
-            new Action<Form, TreeNode, DBSource, Func<string, string>>(LoadTBs).BeginInvoke(parent, dbNode, server,gettip, null, null);
+            new Action<Form, TreeNode, DBSource, string, Func<string, string>>(LoadTBs).BeginInvoke(parent, dbNode, server, dbname, gettip, null, null);
         }
 
         public static void LoadColumnsAnsy(Form parent, TreeNode tbNode, DBSource server, Func<TBColumn, string> gettip)
@@ -75,21 +87,21 @@ namespace Biz
             new Action<Form, TreeNode, DBSource>(LoadProcedure).BeginInvoke(parent, procedureNode, server, null, null);
         }
 
-        public static void LoadIndexAnsy(Form parent, TreeNode tbNode, DBSource server)
+        public static void LoadIndexAnsy(Form parent, TreeNode tbNode, DBSource server, string dbname)
         {
             tbNode.Nodes.Add(new TreeNode("加载中...", 17, 17));
             tbNode.Expand();
-            new Action<Form, TreeNode, DBSource>(LoadIndexs).BeginInvoke(parent, tbNode, server, null, null);
+            new Action<Form, TreeNode, DBSource, string>(LoadIndexs).BeginInvoke(parent, tbNode, server, dbname, null, null);
         }
 
-        private static void LoadIndexs(Form parent, TreeNode tbNode, DBSource server)
+        private static void LoadIndexs(Form parent, TreeNode tbNode, DBSource server, string dbname)
         {
             if (server == null)
             {
                 return;
             }
 
-            var list = Biz.Common.Data.MySQLHelper.GetIndexs(server, tbNode.Parent.Parent.Text, tbNode.Parent.Text);
+            var list = Biz.Common.Data.MySQLHelper.GetIndexs(server, dbname, tbNode.Parent.Text);
             List<TreeNode> treeNodes = new List<TreeNode>();
 
             foreach (var item in list)
@@ -100,14 +112,14 @@ namespace Biz
                 {
                     var node = new TreeNode
                     {
-                        Text = p,
+                        Text = p.Col,
                         ImageIndex = imageindex,
                         SelectedImageIndex = imageindex
                     };
 
                     node.Tag = new IndexColumnInfo
                     {
-                        Name = p
+                        Name = p.Col
                     };
 
                     return node;
@@ -142,7 +154,8 @@ namespace Biz
             if (server == null)
                 return;
             List<TreeNode> treeNodes = new List<TreeNode>();
-            foreach (TBColumn col in Biz.Common.Data.MySQLHelper.GetColumns(server, tbNode.Parent.Text, tbNode.Text))
+            var tb = tbNode.Tag as TableInfo;
+            foreach (TBColumn col in Biz.Common.Data.MySQLHelper.GetColumns(server, tb.DBName, tb.TBName))
             {
                 int imgIdx = (col.IsID && col.IsKey) ? 9 : (col.IsKey ? 4 : (col.IsID ? 10 : 5));
                 TreeNode newNode = new TreeNode(string.Concat(col.Name, "(", col.TypeName, ")"), imgIdx, imgIdx);
@@ -178,7 +191,7 @@ namespace Biz
             foreach (string col in Biz.Common.Data.MySQLHelper.GetProcedures(server, tbNode.Parent.Text).ToList())
             {
                 //int imgIdx = col.IsKey ? 4 : 5;
-                ProcInfo procInfo = new ProcInfo { Name = col };
+                ProcInfo procInfo = new ProcInfo { Name = col, ProcParamInfos = new List<ProcParamInfo>() };
                 TreeNode newNode = new TreeNode(col, 13, 14);
                 newNode.Tag = procInfo;
                 treeNodes.Add(newNode);
@@ -186,25 +199,31 @@ namespace Biz
             parent.Invoke(new Action(() => { tbNode.Nodes.Clear(); tbNode.Nodes.AddRange(treeNodes.ToArray()); tbNode.Expand(); }));
         }
 
-        private static void LoadTBs(Form parent, TreeNode serverNode, DBSource server, Func<string, string> gettip)
+        private static void LoadTBs(Form parent, TreeNode serverNode, DBSource server, string dbname, Func<string, string> gettip)
         {
             //var server = DBServers.FirstOrDefault(p => p.ServerName.Equals(e.Node.Parent.Text));
             if (server == null)
                 return;
             List<TreeNode> treeNodes = new List<TreeNode>();
-            DataTable tb = Biz.Common.Data.MySQLHelper.GetTBs(server, serverNode.Text);
+            DataTable tb = Biz.Common.Data.MySQLHelper.GetTBs(server, dbname);
             var y = from x in tb.AsEnumerable()
                     orderby x["name"]
                     select x;
             if (y.Count() == 0)
+            {
+                parent.Invoke(new Action(() =>
+                {
+                    serverNode.Nodes.Clear();
+                }));
                 return;
+            }
             var tb2 = y.CopyToDataTable();
             for (int i = 0; i < tb2.Rows.Count; i++)
             {
                 var tbinfo = new TableInfo
                 {
-                    DBName=serverNode.Name,
-                    TBName= tb2.Rows[i]["name"].ToString()
+                    DBName = dbname,
+                    TBName = tb2.Rows[i]["name"].ToString()
                 };
                 TreeNode newNode = new TreeNode(tbinfo.TBName, 3, 3);
                 newNode.Name = tbinfo.TBName;
@@ -216,13 +235,12 @@ namespace Biz
                 treeNodes.Add(newNode);
             }
 
-            parent.Invoke(new Action(() => { 
-                serverNode.Nodes.Clear(); 
+            parent.Invoke(new Action(() =>
+            {
+                serverNode.Nodes.Clear();
                 serverNode.Nodes.AddRange(treeNodes.ToArray());
-                var procparentnode = new TreeNode("存储过程", 1, 1);
-                procparentnode.Tag = new NodeContents(NodeContentType.PROCParent);
-                serverNode.Nodes.Add(procparentnode);
-                serverNode.Expand(); }));
+                serverNode.Expand();
+            }));
 
         }
     }

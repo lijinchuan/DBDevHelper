@@ -7,13 +7,39 @@ namespace Entity
 {
     public class IndexEntry:INodeContents
     {
+        public class IndexCol : INodeContents
+        {
+            public string Col
+            {
+                get;
+                set;
+            }
+
+            public bool IsDesc
+            {
+                get;
+                set;
+            }
+
+            public bool IsInclude
+            {
+                get;
+                set;
+            }
+
+            public NodeContentType GetNodeContentType()
+            {
+                return NodeContentType.INDEXCOLUMN;
+            }
+        }
+
         public string IndexName
         {
             get;
             set;
         }
 
-        public string[] Cols
+        public IndexCol[] Cols
         {
             get;
             set;

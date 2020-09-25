@@ -6,6 +6,7 @@ using MySql.Data.MySqlClient;
 using System.Data;
 using Entity;
 using System.Text.RegularExpressions;
+using static Entity.IndexEntry;
 
 namespace Biz.Common.Data
 {
@@ -298,7 +299,7 @@ namespace Biz.Common.Data
             if (dbSource == null)
                 return;
 
-            string delSql = "drop table [" + tabName + "]";
+            string delSql = "drop table " + tabName + "";
             ExecuteNoQuery(dbSource, dbName, delSql, null);
         }
 
@@ -551,11 +552,15 @@ namespace Biz.Common.Data
 
             var tb= ExecuteDBTable(dbSource, dbName, sql);
 
-            var x = from row in tb.AsEnumerable() group row by row.Field<string>("Key_name") into pp
+            var x = from row in tb.AsEnumerable()
+                    group row by row.Field<string>("Key_name") into pp
                     select new IndexEntry
                     {
-                        IndexName=pp.Key,
-                        Cols=pp.OrderBy(c=>c.Field<object>("Seq_in_index")).Select(c=>c.Field<string>("Column_name")).ToArray()
+                        IndexName = pp.Key,
+                        Cols = pp.OrderBy(c => c.Field<object>("Seq_in_index")).Select(c => new IndexCol
+                        {
+                            Col = c.Field<string>("Column_name")
+                        }).ToArray()
                     };
 
             return x.ToList();

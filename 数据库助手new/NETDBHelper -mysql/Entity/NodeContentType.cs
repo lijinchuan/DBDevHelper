@@ -14,11 +14,14 @@ namespace Entity
         TB,
         PROCParent,
         PROC,
-        COLUMNParent,
+        PROCParam,
         COLUMN,
         INDEXParent,
         INDEX,
         INDEXCOLUMN,
+        VIEWParent,
+        VIEW,
+        VIEWCOLUMN,
         UNKNOWN = 999
     }
 }

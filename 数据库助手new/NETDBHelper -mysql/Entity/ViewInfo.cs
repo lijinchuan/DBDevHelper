@@ -5,11 +5,12 @@ using System.Text;
 
 namespace Entity
 {
-    public class ProcInfo : INodeContents
+    public class ViewInfo : INodeContents
     {
-        public NodeContentType GetNodeContentType()
+        public string DBName
         {
-            return NodeContentType.PROC;
+            get;
+            set;
         }
 
         public string Name
@@ -18,10 +19,9 @@ namespace Entity
             set;
         }
 
-        public List<ProcParamInfo> ProcParamInfos
+        public NodeContentType GetNodeContentType()
         {
-            get;
-            set;
+            return NodeContentType.VIEW;
         }
     }
 }
