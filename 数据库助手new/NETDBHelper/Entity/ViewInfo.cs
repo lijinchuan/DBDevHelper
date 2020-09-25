@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Entity
 {
-    public class TableInfo : INodeContents
+    public class ViewInfo : INodeContents
     {
         public string DBName
         {
@@ -13,13 +13,7 @@ namespace Entity
             set;
         }
 
-        public string TBId
-        {
-            get;
-            set;
-        }
-
-        public string TBName
+        public string Name
         {
             get;
             set;
@@ -27,7 +21,7 @@ namespace Entity
 
         public NodeContentType GetNodeContentType()
         {
-            return NodeContentType.TB;
+            return NodeContentType.VIEW;
         }
     }
 }

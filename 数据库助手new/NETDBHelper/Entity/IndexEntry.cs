@@ -5,9 +5,9 @@ using System.Text;
 
 namespace Entity
 {
-    public class IndexEntry
+    public class IndexEntry : INodeContents
     {
-        public class IndexCol
+        public class IndexCol:INodeContents
         {
             public string Col
             {
@@ -25,6 +25,11 @@ namespace Entity
             {
                 get;
                 set;
+            }
+
+            public NodeContentType GetNodeContentType()
+            {
+                return NodeContentType.INDEXCOLUMN;
             }
         }
 
@@ -53,6 +58,11 @@ namespace Entity
         {
             get;
             set;
+        }
+
+        public NodeContentType GetNodeContentType()
+        {
+            return NodeContentType.INDEX;
         }
     }
 }

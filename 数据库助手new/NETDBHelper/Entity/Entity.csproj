@@ -45,6 +45,7 @@
     <Compile Include="CreateProceEnum.cs" />
     <Compile Include="DBFieldMapAttribute.cs" />
     <Compile Include="DBHelperException.cs" />
+    <Compile Include="DBInfo.cs" />
     <Compile Include="DBMapAttribute.cs" />
     <Compile Include="DBSource.cs" />
     <Compile Include="DBSourceCollection.cs" />
@@ -52,19 +53,27 @@
     <Compile Include="IDataExport.cs" />
     <Compile Include="IDType.cs" />
     <Compile Include="IndexEntry.cs" />
+    <Compile Include="INodeContents.cs" />
     <Compile Include="MarkColumnInfo.cs" />
     <Compile Include="MarkObjectInfo.cs" />
     <Compile Include="MSSQLTypeEnum.cs" />
+    <Compile Include="NodeContents.cs" />
+    <Compile Include="NodeContentType.cs" />
+    <Compile Include="ProcInfo.cs" />
+    <Compile Include="ProcParamInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RelColumn.cs" />
     <Compile Include="RelColumnEx.cs" />
     <Compile Include="RelTable.cs" />
+    <Compile Include="ServerInfo.cs" />
     <Compile Include="SPContent.cs" />
     <Compile Include="SPInfo.cs" />
     <Compile Include="SqlSaveEntity.cs" />
     <Compile Include="TableInfo.cs" />
     <Compile Include="TBColumn.cs" />
     <Compile Include="TBSearchColumn.cs" />
+    <Compile Include="ViewColumn.cs" />
+    <Compile Include="ViewInfo.cs" />
     <Compile Include="WatchTask\WatchTaskInfo.cs" />
     <Compile Include="WatchTask\WatchTaskLog.cs" />
   </ItemGroup>

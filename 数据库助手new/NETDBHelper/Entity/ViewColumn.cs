@@ -1,13 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection.Emit;
 using System.Text;
 
 namespace Entity
 {
-    public class TBColumn : INodeContents
+    public class ViewColumn : INodeContents
     {
+        public NodeContentType GetNodeContentType()
+        {
+            return NodeContentType.VIEWCOLUMN;
+        }
+
         public string DBName
         {
             get;
@@ -77,11 +81,6 @@ namespace Entity
         {
             get;
             set;
-        }
-
-        public NodeContentType GetNodeContentType()
-        {
-            return NodeContentType.COLUMN;
         }
     }
 }
