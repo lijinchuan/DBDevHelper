@@ -706,6 +706,7 @@ namespace NETDBHelper
                     if (nctype == NodeContentType.TB
                         || nctype == NodeContentType.PROC
                         || nctype == NodeContentType.VIEW
+                        || nctype == NodeContentType.INDEXParent
                         || nctype == NodeContentType.INDEX)
                     {
                         this.tv_DBServers.ContextMenuStrip = this.DBServerviewContextMenuStrip;
@@ -732,7 +733,8 @@ namespace NETDBHelper
                             || nctype == NodeContentType.PROC
                             || nctype == NodeContentType.TB;
                         创建语句ToolStripMenuItem.Visible = 
-                            ExpdataToolStripMenuItem.Visible = nctype == NodeContentType.TB;
+                            ExpdataToolStripMenuItem.Visible = nctype == NodeContentType.TB
+                            || nctype == NodeContentType.PROC;
                         生成实体类ToolStripMenuItem.Visible = nctype == NodeContentType.VIEW
                             || nctype == NodeContentType.TB;
                         复制表名ToolStripMenuItem.Visible = nctype == NodeContentType.VIEW
@@ -747,9 +749,10 @@ namespace NETDBHelper
                         修改表名ToolStripMenuItem.Visible = nctype == NodeContentType.TB;
                         删除表ToolStripMenuItem.Visible = nctype == NodeContentType.TB;
                         SubMenuItem_Proc.Visible = nctype == NodeContentType.TB;
-                        TSM_ManIndex.Visible = nctype == NodeContentType.INDEX;
+                        TSM_ManIndex.Visible = nctype == NodeContentType.INDEX
+                            || nctype == NodeContentType.INDEXParent;
                         TTSM_CreateIndex.Visible = nctype == NodeContentType.INDEXParent;
-
+                        TTSM_DelIndex.Visible = nctype == NodeContentType.INDEX;
                     }
                     else
                     {
@@ -1246,7 +1249,7 @@ background-color: #ffffff;
         {
             var _node = tv_DBServers.SelectedNode;
             var ds = GetDBSource(_node);
-            var tb = _node.Tag as TableInfo;
+            var tb = _node.Parent.Tag as TableInfo;
             var cols = Biz.Common.Data.MySQLHelper.GetColumns(ds, tb.DBName, tb.TBName).ToList();
             WinCreateIndex win = new WinCreateIndex(cols);
             if (win.ShowDialog() == DialogResult.OK && MessageBox.Show("要创建索引吗？") == DialogResult.OK)
@@ -1255,6 +1258,7 @@ background-color: #ffffff;
                 {
                     Biz.Common.Data.MySQLHelper.CreateIndex(ds, tb.DBName, tb.TBName, win.IndexName, win.IsUnique(), win.IsPrimaryKey(), win.IsAutoIncr(), win.IndexColumns);
                     MessageBox.Show("创建索引成功");
+                    ReLoadDBObj(_node);
                 }
                 catch (Exception ex)
                 {
@@ -1292,8 +1296,8 @@ background-color: #ffffff;
                 return null;
             if (node.Level < 2)
                 return null;
-            if (node.Level == 3)
-                return node.Text;
+            if (node.Tag is TableInfo)
+                return (node.Tag as TableInfo).TBName;
             return GetTBName(node.Parent);
         }
 
