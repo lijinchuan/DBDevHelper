@@ -310,19 +310,19 @@ namespace NETDBHelper
                             MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
                         {
                             var node = tv_DBServers.SelectedNode;
-
+                            var tableinfo = node.Tag as TableInfo;
                             LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<HLogEntity>("HLog", new HLogEntity
                             {
-                                TypeName = node.Text,
+                                TypeName = tableinfo.TBName,
                                 LogTime = DateTime.Now,
                                 LogType = LogTypeEnum.table,
-                                DB = node.Parent.Text,
+                                DB = tableinfo.DBName,
                                 Sever = GetDBSource(node).ServerName,
                                 Info = "删除",
                                 Valid = true
                             });
 
-                            Biz.Common.Data.SQLHelper.DeleteTable(GetDBSource(node), node.Parent.Text, node.Text);
+                            Biz.Common.Data.SQLHelper.DeleteTable(GetDBSource(node), tableinfo.DBName, tableinfo.TBName);
                             ReLoadDBObj(node.Parent);
 
 
@@ -333,15 +333,17 @@ namespace NETDBHelper
                         break;
                     case "修改表名":
                         var _node = tv_DBServers.SelectedNode;
-                        var oldname = _node.Text;
-                        var dlg = new SubForm.InputStringDlg("修改表名:", _node.Text);
+                        var tb = _node.Tag as TableInfo;
+                        var oldname = tb.TBName;
+                        var dlg = new SubForm.InputStringDlg("修改表名:", tb.TBName);
                         if (dlg.ShowDialog() == DialogResult.OK)
                         {
                             if (string.Equals(dlg.InputString, oldname, StringComparison.OrdinalIgnoreCase))
                             {
                                 return;
                             }
-                            Biz.Common.Data.SQLHelper.ReNameTableName(GetDBSource(_node), _node.Parent.Text,
+                            
+                            Biz.Common.Data.SQLHelper.ReNameTableName(GetDBSource(_node), tb.DBName,
                                 oldname, dlg.InputString);
                             ReLoadDBObj(_node.Parent);
 
@@ -350,7 +352,7 @@ namespace NETDBHelper
                                 TypeName = dlg.InputString,
                                 LogTime = DateTime.Now,
                                 LogType = LogTypeEnum.table,
-                                DB = _node.Parent.Text,
+                                DB = tb.DBName,
                                 Sever = GetDBSource(_node).ServerName,
                                 Info = string.Format("重命名：{0}-{1}", oldname, dlg.InputString),
                                 Valid = true
@@ -363,7 +365,7 @@ namespace NETDBHelper
                             if (_node.Tag is TableInfo && this.OnCreatePorcSQL != null)
                             {
                                 var tableinfo = _node.Tag as TableInfo;
-                                this.OnCreatePorcSQL(GetDBSource(_node), _node.Parent.Text, tableinfo.TBId, tableinfo.TBName, CreateProceEnum.Insert);
+                                this.OnCreatePorcSQL(GetDBSource(_node), tableinfo.DBName, tableinfo.TBId, tableinfo.TBName, CreateProceEnum.Insert);
                             }
                             break;
                         }
@@ -373,7 +375,7 @@ namespace NETDBHelper
                             if (_node.Tag is TableInfo && this.OnCreatePorcSQL != null)
                             {
                                 var tableinfo = _node.Tag as TableInfo;
-                                this.OnCreatePorcSQL(GetDBSource(_node), _node.Parent.Text, tableinfo.TBId, tableinfo.TBName, CreateProceEnum.BatchInsert);
+                                this.OnCreatePorcSQL(GetDBSource(_node), tableinfo.DBName, tableinfo.TBId, tableinfo.TBName, CreateProceEnum.BatchInsert);
                             }
                             break;
                         }
@@ -535,7 +537,7 @@ namespace NETDBHelper
                 string dbname = GetDBName(tv_DBServers.SelectedNode);
                 var tid = (tv_DBServers.SelectedNode.Tag as TableInfo)?.TBId;
 
-                var classcode = DataHelper.CreateTableEntity(dbsource, dbname, tbname, tid, DefaultEntityNamespace, tv_DBServers.SelectedNode.Parent.Text == "视图",
+                var classcode = DataHelper.CreateTableEntity(dbsource, dbname, tbname, tid, DefaultEntityNamespace, tv_DBServers.SelectedNode.Tag is ViewInfo,
                     isSupportProtobuf, isSupportDBMapperAttr, isSupportJsonproterty, isSupportMvcDisplay, name =>
                      {
                          var mark = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys", new
@@ -971,21 +973,21 @@ namespace NETDBHelper
             if (this.OnCreatePorcSQL != null)
             {
                 var tableinfo = _node.Tag as TableInfo;
-                this.OnCreatePorcSQL(GetDBSource(_node), _node.Parent.Text, tableinfo.TBId, tableinfo.TBName, CreateProceEnum.Insert);
+                this.OnCreatePorcSQL(GetDBSource(_node), tableinfo.DBName, tableinfo.TBId, tableinfo.TBName, CreateProceEnum.Insert);
             }
         }
 
         private void 创建语句ToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var node = this.tv_DBServers.SelectedNode;
-            if (node == null || node.Level != 3)
+            if (node == null || !(node.Tag is TableInfo))
             {
                 return;
             }
             StringBuilder sb = new StringBuilder(string.Format("CREATE TABLE `{0}`(", node.Text));
             sb.AppendLine();
             var tableinfo = node.Tag as TableInfo;
-            foreach (TBColumn col in Biz.Common.Data.SQLHelper.GetColumns(GetDBSource(node), node.Parent.Text, tableinfo.TBId, tableinfo.TBName))
+            foreach (TBColumn col in Biz.Common.Data.SQLHelper.GetColumns(GetDBSource(node), tableinfo.DBName, tableinfo.TBId, tableinfo.TBName))
             {
                 sb.AppendFormat("`{0}` {1} {2} {3},", col.Name, Biz.Common.Data.Common.GetDBType(col), (col.IsID || col.IsKey) ? "NOT NULL" : (col.IsNullAble ? "NULL" : "NOT NULL"), col.IsID ? "AUTO_INCREMENT" : "");
                 if (col.IsID)
@@ -1012,7 +1014,7 @@ namespace NETDBHelper
                 return;
             }
             var tableinfo = node.Tag as TableInfo;
-            var cols = Biz.Common.Data.SQLHelper.GetColumns(GetDBSource(node), node.Parent.Text, tableinfo.TBId, tableinfo.TBName);
+            var cols = Biz.Common.Data.SQLHelper.GetColumns(GetDBSource(node), tableinfo.DBName, tableinfo.TBId, tableinfo.TBName);
             if (isNotExportKey)
             {
                 cols = cols.Where(p => !p.IsID);
@@ -1020,7 +1022,7 @@ namespace NETDBHelper
             cols = cols.OrderBy(p => p.IsID ? 0 : 1);
 
             string sqltext = string.Format("select {0} from {1} with(nolock)", string.Join(",", cols.Select(p => string.Concat("[", p.Name, "]"))), string.Concat("[", node.Text, "]"));
-            var datas = Biz.Common.Data.SQLHelper.ExecuteDBTable(GetDBSource(node), node.Parent.Text, sqltext, null);
+            var datas = Biz.Common.Data.SQLHelper.ExecuteDBTable(GetDBSource(node), tableinfo.DBName, sqltext, null);
             StringBuilder sb = new StringBuilder();
             if (!isNotExportKey)
             {
@@ -1080,7 +1082,7 @@ namespace NETDBHelper
             }
             var tableinfo = node.Tag as TableInfo;
             DBSource dbsource = GetDBSource(node);
-            string dbname = node.Parent.Text,
+            string dbname = tableinfo.DBName,
             tbname = tableinfo.TBName, tid = tableinfo.TBId;
 
             var cols = Biz.Common.Data.SQLHelper.GetColumns(dbsource, dbname, tid, tbname).ToList();
@@ -1113,7 +1115,7 @@ namespace NETDBHelper
             if (node != null && node.Tag is TableInfo)
             {
                 var tableinfo = node.Tag as TableInfo;
-                StringBuilder sb = new StringBuilder(string.Format("Use [{0}]", node.Parent.Text));
+                StringBuilder sb = new StringBuilder(string.Format("Use [{0}]", tableinfo.DBName));
                 sb.AppendLine();
                 sb.AppendLine("Go");
                 sb.Append(@"SET ANSI_NULLS ON
@@ -1128,7 +1130,7 @@ GO");
                 sb.AppendLine(string.Format("CREATE TABLE dbo.[{0}](", node.Text));
                 //sb.AppendLine();
                 List<string> keys = new List<string>();
-                foreach (TBColumn col in Biz.Common.Data.SQLHelper.GetColumns(GetDBSource(node), node.Parent.Text, tableinfo.TBId, tableinfo.TBName))
+                foreach (TBColumn col in Biz.Common.Data.SQLHelper.GetColumns(GetDBSource(node), tableinfo.DBName, tableinfo.TBId, tableinfo.TBName))
                 {
                     sb.AppendFormat("[{0}] {1} {2} {3},", col.Name, Biz.Common.Data.Common.GetDBType(col), (col.IsID || col.IsKey) ? "NOT NULL" : (col.IsNullAble ? "NULL" : "NOT NULL"), col.IsID ? "IDENTITY(1,1)" : "");
                     sb.AppendLine();
@@ -1148,46 +1150,49 @@ GO");
                 TextBoxWin win = new TextBoxWin("创建表" + node.Text, sb.ToString());
                 win.Show();
             }
-            else if (node != null && node.Level == 4 && node.Parent.Text.Equals("存储过程"))
+            else if (node != null && node.Tag is ProcInfo)
             {
                 if (OnShowProc != null)
                 {
-                    var body = Biz.Common.Data.SQLHelper.GetProcedureBody(GetDBSource(node), node.Parent.Parent.Text, node.Text);
+                    var procinfo = node.Tag as ProcInfo;
+                    var dbname = GetDBName(node);
+                    var body = Biz.Common.Data.SQLHelper.GetProcedureBody(GetDBSource(node), dbname, procinfo.Name);
                     //TextBoxWin win = new TextBoxWin("存储过程[" + node.Text + "]", body);
                     //win.Show();
-                    OnShowProc(GetDBSource(node), node.Parent.Parent.Text, node.Text, body);
+                    OnShowProc(GetDBSource(node), dbname, procinfo.Name, body);
 
                     LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<HLogEntity>("HLog", new HLogEntity
                     {
                         TypeName = node.Text,
                         LogTime = DateTime.Now,
                         LogType = LogTypeEnum.proc,
-                        DB = node.Parent.Parent.Text,
+                        DB = dbname,
                         Sever = GetDBSource(node).ServerName,
                         Valid = true
                     });
                 }
 
             }
-            else if (node != null && node.Level == 4 && node.Parent.Text.Equals("视图"))
+            else if (node != null && node.Tag is ViewInfo)
             {
                 var dbsource = GetDBSource(node);
                 var dbname = GetDBName(node);
-                var body = Biz.Common.Data.SQLHelper.GetViewCreateSql(dbsource, dbname, node.Text);
+                var viewinfo = node.Tag as ViewInfo;
+                var body = Biz.Common.Data.SQLHelper.GetViewCreateSql(dbsource, dbname, viewinfo.Name);
                 //TextBoxWin win = new TextBoxWin("视图[" + node.Text + "]", body);
                 //win.Show();
 
                 if (OnShowViewSql != null)
                 {
-                    OnShowViewSql(dbsource, dbname, node.Text, body);
+                    OnShowViewSql(dbsource, dbname, viewinfo.Name, body);
                 }
 
                 LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<HLogEntity>("HLog", new HLogEntity
                 {
-                    TypeName = node.Text,
+                    TypeName = viewinfo.Name,
                     LogTime = DateTime.Now,
                     LogType = LogTypeEnum.view,
-                    DB = node.Parent.Parent.Text,
+                    DB = dbname,
                     Sever = GetDBSource(node).ServerName,
                     Valid = true
                 });
@@ -1216,7 +1221,7 @@ GO");
             int topNum = 1000;
             int.TryParse(dlg.InputString, out topNum);
 
-            var cols = Biz.Common.Data.SQLHelper.GetColumns(GetDBSource(node), node.Parent.Text, tableinfo.TBId, tableinfo.TBName);
+            var cols = Biz.Common.Data.SQLHelper.GetColumns(GetDBSource(node), tableinfo.DBName, tableinfo.TBId, tableinfo.TBName);
             if (cols.ToList().Exists(p => p.IsID))
             {
                 if (MessageBox.Show("是否要导出自增列数据，如果导出会删除原来的数据。", "提示", MessageBoxButtons.YesNo, MessageBoxIcon.Question,
@@ -1232,7 +1237,7 @@ GO");
             cols = cols.OrderBy(p => p.IsID ? 0 : 1);
 
             string sqltext = string.Format("select top {2} {0} from {1} with(nolock)", string.Join(",", cols.Select(p => string.Concat("[", p.Name, "]"))), string.Concat("[", node.Text, "]"), topNum);
-            var datas = Biz.Common.Data.SQLHelper.ExecuteDBTable(GetDBSource(node), node.Parent.Text, sqltext, null);
+            var datas = Biz.Common.Data.SQLHelper.ExecuteDBTable(GetDBSource(node), tableinfo.DBName, sqltext, null);
             StringBuilder sb = new StringBuilder();
             if (!notExportId)
             {
@@ -1308,13 +1313,13 @@ GO");
             {
                 var tableinfo = selnode.Tag as TableInfo;
                 //库名
-                string tbname = string.Format("[{0}].[{1}]", selnode.Parent.Text, tableinfo.TBName);
+                string tbname = string.Format("[{0}].[{1}]", tableinfo.DBName, tableinfo.TBName);
 
-                var tbclumns = Biz.Common.Data.SQLHelper.GetColumns(this.GetDBSource(selnode), selnode.Parent.Text, tableinfo.TBId, tableinfo.TBName).ToList();
+                var tbclumns = Biz.Common.Data.SQLHelper.GetColumns(this.GetDBSource(selnode), tableinfo.DBName, tableinfo.TBId, tableinfo.TBName).ToList();
 
                 var tbmark = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys", new
-                                 [] { selnode.Parent.Text.ToUpper(), selnode.Text.ToUpper(), string.Empty }).FirstOrDefault();
-                var tbdesc = tbmark == null ? selnode.Text : tbmark.MarkInfo;
+                                 [] { tableinfo.DBName.ToUpper(), tableinfo.TBName.ToUpper(), string.Empty }).FirstOrDefault();
+                var tbdesc = tbmark == null ? tableinfo.TBName : tbmark.MarkInfo;
 
                 DataTable resulttb = new DataTable();
                 resulttb.Columns.AddRange(new string[][] {
@@ -1330,8 +1335,7 @@ GO");
                         Caption = s[1],
                     }).ToArray());
 
-                var tbDesc = Biz.Common.Data.SQLHelper.GetTableColsDescription(GetDBSource(tv_DBServers.SelectedNode), tv_DBServers.SelectedNode.Parent.Text,
-                    tv_DBServers.SelectedNode.Text);
+                var tbDesc = Biz.Common.Data.SQLHelper.GetTableColsDescription(GetDBSource(tv_DBServers.SelectedNode), tableinfo.DBName,tableinfo.TBName);
 
                 Regex rg = new Regex(@"(\w+)\s*\((\w+)\)");
 
@@ -1339,7 +1343,7 @@ GO");
                 int idx = 1;
                 foreach (TreeNode node in selNode.Nodes)
                 {
-                    if (node.Text == "索引")
+                    if (!(node.Tag is TBColumn))
                     {
                         continue;
                     }
@@ -1481,7 +1485,7 @@ background-color: #ffffff;
             if (this.OnCreatePorcSQL != null)
             {
                 var tabeinfo = _node.Tag as TableInfo;
-                this.OnCreatePorcSQL(GetDBSource(_node), _node.Parent.Text, tabeinfo.TBId, tabeinfo.TBName, CreateProceEnum.BatchInsert);
+                this.OnCreatePorcSQL(GetDBSource(_node), tabeinfo.DBName, tabeinfo.TBId, tabeinfo.TBName, CreateProceEnum.BatchInsert);
             }
         }
 
@@ -1491,7 +1495,7 @@ background-color: #ffffff;
             if (this.OnCreatePorcSQL != null)
             {
                 var tabeinfo = _node.Tag as TableInfo;
-                this.OnCreatePorcSQL(GetDBSource(_node), _node.Parent.Text, tabeinfo.TBId, tabeinfo.TBName, CreateProceEnum.Update);
+                this.OnCreatePorcSQL(GetDBSource(_node), tabeinfo.DBName, tabeinfo.TBId, tabeinfo.TBName, CreateProceEnum.Update);
             }
         }
 
@@ -1501,7 +1505,7 @@ background-color: #ffffff;
             if (this.OnCreatePorcSQL != null)
             {
                 var tabeinfo = _node.Tag as TableInfo;
-                this.OnCreatePorcSQL(GetDBSource(_node), _node.Parent.Text, tabeinfo.TBId, tabeinfo.TBName, CreateProceEnum.Delete);
+                this.OnCreatePorcSQL(GetDBSource(_node), tabeinfo.DBName, tabeinfo.TBId, tabeinfo.TBName, CreateProceEnum.Delete);
             }
         }
 
@@ -1511,7 +1515,7 @@ background-color: #ffffff;
             if (this.OnCreatePorcSQL != null)
             {
                 var tabeinfo = _node.Tag as TableInfo;
-                this.OnCreatePorcSQL(GetDBSource(_node), _node.Parent.Text, tabeinfo.TBId, tabeinfo.TBName, CreateProceEnum.Upsert);
+                this.OnCreatePorcSQL(GetDBSource(_node), tabeinfo.DBName, tabeinfo.TBId, tabeinfo.TBName, CreateProceEnum.Upsert);
             }
         }
 
@@ -1570,28 +1574,12 @@ background-color: #ffffff;
 
         private void SyncTableData()
         {
-            if (tv_DBServers.SelectedNode != null && tv_DBServers.SelectedNode.Level == 3)
+            var node = tv_DBServers.SelectedNode;
+            if (node != null && node.Tag is TableInfo)
             {
-                var node = tv_DBServers.SelectedNode;
-                string conndb = string.Empty;
-                if (node.Level < 2)
-                    return;
+                var tableinfo = node.Tag as TableInfo;
 
-                if (node.Level == 2)
-                {
-                    conndb = node.Text;
-                }
-                else
-                {
-                    var pnode = node.Parent;
-                    while (pnode.Level != 2)
-                    {
-                        pnode = pnode.Parent;
-                    }
-                    conndb = pnode.Text;
-                }
-
-                var dlg = new SubForm.SyncDataWin(GetDBSource(node), conndb, node.Text);
+                var dlg = new SubForm.SyncDataWin(GetDBSource(node), tableinfo.DBName, tableinfo.TBName);
                 dlg.Show();
             }
         }
@@ -1624,7 +1612,7 @@ background-color: #ffffff;
                         MessageBox.Show("备注成功");
                     }
                 }
-                else if (currnode.Parent.Text.Equals("存储过程"))
+                else if (currnode.Tag is ProcInfo)
                 {
                     var servername = GetDBSource(currnode).ServerName;
                     var dbname = GetDBName(currnode);
@@ -1660,9 +1648,9 @@ background-color: #ffffff;
                     {
                         return;
                     }
-                    var tableinfo = currnode.Tag as TableInfo;
-                    var cols = SQLHelper.GetColumns(GetDBSource(currnode), currnode.Parent.Text, tableinfo.TBName, currnode.Text).ToList();
                     var tb = (TableInfo)currnode.Tag;
+                    var cols = SQLHelper.GetColumns(GetDBSource(currnode), tb.DBName, tb.TBId, tb.TBName).ToList();
+                    
                     var markedcolumns = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Scan<MarkObjectInfo>("MarkObjectInfo", "keys", new[] { tb.DBName.ToUpper(), tb.TBName.ToUpper(), LJC.FrameWorkV3.Data.EntityDataBase.Consts.STRINGCOMPAIRMIN },
                         new[] { tb.DBName.ToUpper(), tb.TBName.ToUpper(), LJC.FrameWorkV3.Data.EntityDataBase.Consts.STRINGCOMPAIRMAX }, 1, int.MaxValue);
 
