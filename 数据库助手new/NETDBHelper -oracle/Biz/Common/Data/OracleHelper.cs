@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Text;
+using static Entity.IndexEntry;
 
 namespace Biz.Common.Data
 {
@@ -238,7 +239,10 @@ namespace Biz.Common.Data
                     indexs.Add(new IndexEntry
                     {
                         IndexName = indexname,
-                        Cols=tbcols.AsEnumerable().Select(p=>p["COLUMN_NAME"].ToString()).ToArray()
+                        Cols=tbcols.AsEnumerable().Select(p=> new IndexCol
+                        {
+                            Col=p["COLUMN_NAME"].ToString()
+                        }).ToArray()
                     });
                 }
             }

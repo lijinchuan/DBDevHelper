@@ -5,8 +5,13 @@ using System.Text;
 
 namespace Entity
 {
-    public class TBColumn : INodeContents
+    public class ViewColumn : INodeContents
     {
+        public NodeContentType GetNodeContentType()
+        {
+            return NodeContentType.VIEWCOLUMN;
+        }
+
         public string DBName
         {
             get;
@@ -76,39 +81,6 @@ namespace Entity
         {
             get;
             set;
-        }
-
-        public NodeContentType GetNodeContentType()
-        {
-            return NodeContentType.COLUMN;
-        }
-    }
-
-    public class TBColumnIndex : TBColumn
-    {
-        public TBColumnIndex(TBColumn column)
-        {
-            this.Description = column.Description;
-            this.IsID = column.IsID;
-            this.IsKey = column.IsKey;
-            this.IsNullAble = column.IsNullAble;
-            this.Length = column.Length;
-            this.Name = column.Name;
-            this.prec = column.prec;
-            this.scale = column.scale;
-            this.TypeName = column.TypeName;
-        }
-
-        public int Direction
-        {
-            get;
-            set;
-        }
-
-        public TBColumnIndex SetDirection(int direction)
-        {
-            this.Direction = direction;
-            return this;
         }
     }
 }

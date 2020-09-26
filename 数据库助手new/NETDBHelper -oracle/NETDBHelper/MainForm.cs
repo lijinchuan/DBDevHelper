@@ -181,7 +181,20 @@ namespace NETDBHelper
 
         private void OnNewTableAdd(DBSource db,string dbName)
         {
-            Biz.UILoadHelper.LoadTBsAnsy(this, dbServerView1.FindNode(db.ServerName, dbName), db, null);
+            var node = dbServerView1.FindNode(db.ServerName, dbName);
+            TreeNode pnode = null;
+            foreach (TreeNode n in node.Nodes)
+            {
+                var c = n.Tag as Entity.INodeContents;
+                if (c.GetNodeContentType() == NodeContentType.TBParent)
+                {
+                    pnode = n;
+                    break;
+                }
+
+            }
+            if (pnode != null)
+                Biz.UILoadHelper.LoadTBsAnsy(this, pnode, db, dbName, null);
         }
 
         public void ShowTableData(DBSource db, string dbName, string tbName, string sql)

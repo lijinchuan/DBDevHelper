@@ -42,36 +42,54 @@ namespace Biz
         private static void LoadDBs(Form parent, TreeNode serverNode, DBSource server)
         {
             var tb = OracleHelper.GetDBs(server);
-            if (parent.InvokeRequired)
-            {
-                parent.Invoke(new Action(() =>
-                    {
-                        serverNode.Nodes.Clear();
-                        for (int i = 0; i < tb.Rows.Count; i++)
-                        {
-                            TreeNode tbNode = new TreeNode(tb.Rows[i]["Name"].ToString(), 2, 2);
-                            serverNode.Nodes.Add(tbNode);
-                        }
-                        
-                        
-                    }));
-            }
-            else
-            {
-                serverNode.Nodes.Clear();
-                for (int i = 0; i < tb.Rows.Count; i++)
+            parent.Invoke(new Action(() =>
                 {
-                    TreeNode tbNode = new TreeNode(tb.Rows[i]["Name"].ToString(), 2, 2);
-                    serverNode.Nodes.Add(tbNode);
-                }
-            }
+                    serverNode.Nodes.Clear();
+                    for (int i = 0; i < tb.Rows.Count; i++)
+                    {
+                        DBInfo dbInfo = new DBInfo { DBSource = server, Name = tb.Rows[i]["Name"].ToString() };
+                        TreeNode dbNode = new TreeNode(dbInfo.Name, 2, 2);
+                        dbNode.Tag = dbInfo;
+                        serverNode.Nodes.Add(dbNode);
+
+                        var tbnode = new TreeNode("表", 1, 1);
+                        tbnode.Tag = new NodeContents(NodeContentType.TBParent);
+                        dbNode.Nodes.Add(tbnode);
+
+                        var seqparentnode = new TreeNode("序列", 1, 1);
+                        seqparentnode.Tag = new NodeContents(NodeContentType.SEQUENCEParent);
+                        serverNode.Nodes.Insert(4, seqparentnode);
+
+                        var viewparentnode = new TreeNode("视图", 1, 1);
+                        viewparentnode.Tag = new NodeContents(NodeContentType.VIEWParent);
+                        serverNode.Nodes.Insert(1, viewparentnode);
+
+                        var rviewparentnode = new TreeNode("物化视图", 1, 1);
+                        rviewparentnode.Tag = new NodeContents(NodeContentType.RVIEWParent);
+                        serverNode.Nodes.Insert(2, rviewparentnode);
+
+                        var procparentnode = new TreeNode("存储过程", 1, 1);
+                        procparentnode.Tag = new NodeContents(NodeContentType.PROCParent);
+                        serverNode.Nodes.Insert(0, procparentnode);
+
+                        var jobparentnode = new TreeNode("作业", 1, 1);
+                        jobparentnode.Tag = new NodeContents(NodeContentType.JOBParent);
+                        serverNode.Nodes.Insert(3, jobparentnode);
+
+                        var userparentnode = new TreeNode("用户", 1, 1);
+                        userparentnode.Tag = new NodeContents(NodeContentType.USERParent);
+                        serverNode.Nodes.Insert(5, userparentnode);
+
+                        serverNode.Expand();
+                    }
+                }));
         }
 
-        public static void LoadTBsAnsy(Form parent, TreeNode dbNode, DBSource server, Func<string, string> gettip)
+        public static void LoadTBsAnsy(Form parent, TreeNode dbNode, DBSource server, string dbname, Func<string, string> gettip)
         {
             dbNode.Nodes.Add(new TreeNode("加载中..."));
             Thread.Sleep(100);
-            new Action<Form, TreeNode, DBSource, Func<string, string>>(LoadTBs).BeginInvoke(parent, dbNode, server,gettip, null, null);
+            new Action<Form, TreeNode, DBSource, string, Func<string, string>>(LoadTBs).BeginInvoke(parent, dbNode, server, dbname, gettip, null, null);
         }
 
         public static void LoadColumnsAnsy(Form parent, TreeNode tbNode, DBSource server, Func<TBColumn, string> gettip)
@@ -88,50 +106,50 @@ namespace Biz
             new Action<Form, TreeNode, DBSource>(LoadProcedure).BeginInvoke(parent, procedureNode, server, null, null);
         }
 
-        public static void LoadIndexAnsy(Form parent, TreeNode tbNode, DBSource server)
+        public static void LoadIndexAnsy(Form parent, TreeNode tbNode, DBSource server, string dbname)
         {
             tbNode.Nodes.Add(new TreeNode("加载中..."));
             Thread.Sleep(100);
-            new Action<Form, TreeNode, DBSource>(LoadIndexs).BeginInvoke(parent, tbNode, server, null, null);
+            new Action<Form, TreeNode, DBSource,string>(LoadIndexs).BeginInvoke(parent, tbNode, server,dbname, null, null);
         }
 
-        private static void LoadIndexs(Form parent, TreeNode tbNode, DBSource server)
+        private static void LoadIndexs(Form parent, TreeNode tbNode, DBSource server, string dbname)
         {
             if (server == null)
             {
                 return;
             }
 
-            var list = Biz.Common.Data.OracleHelper.GetIndexs(server, tbNode.Parent.Parent.Name, tbNode.Parent.Name);
+            var list = Biz.Common.Data.OracleHelper.GetIndexs(server, dbname, tbNode.Parent.Name);
             List<TreeNode> treeNodes = new List<TreeNode>();
 
             foreach (var item in list)
             {
                 var imageindex = item.IndexName.Equals("primary", StringComparison.OrdinalIgnoreCase) ? 8 : 7;
-                TreeNode newNode = new TreeNode(item.IndexName.ToLower(), item.Cols.Select(p => new TreeNode
+                TreeNode newNode = new TreeNode(item.IndexName.ToLower(), item.Cols.Select(p =>
                 {
-                    Text = p.ToLower(),
-                    ImageIndex = imageindex,
-                    SelectedImageIndex = imageindex,
-                    Name=p
+                    var node = new TreeNode
+                    {
+                        Text = p.Col.ToLower(),
+                        ImageIndex = imageindex,
+                        SelectedImageIndex = imageindex,
+                        Name = p.Col
+                    };
+                    node.Tag = new IndexColumnInfo
+                    {
+                        Name = p.Col
+                    };
+                    return node;
                 }).ToArray());
                 newNode.Name = item.IndexName;
+                newNode.Tag = item;
 
                 newNode.ImageIndex = newNode.SelectedImageIndex = 6;
 
                 treeNodes.Add(newNode);
             }
 
-            if (parent.InvokeRequired)
-            {
-                parent.Invoke(new Action(() => { tbNode.Nodes.Clear(); tbNode.Nodes.AddRange(treeNodes.ToArray()); tbNode.Expand(); }));
-            }
-            else
-            {
-                tbNode.Nodes.Clear();
-                tbNode.Nodes.AddRange(treeNodes.ToArray());
-                tbNode.Expand();
-            }
+            parent.Invoke(new Action(() => { tbNode.Nodes.Clear(); tbNode.Nodes.AddRange(treeNodes.ToArray()); tbNode.Expand(); }));
         }
 
         public static void LoadTriggersAnsy(Form parent, TreeNode tbNode, DBSource server)
@@ -386,10 +404,11 @@ namespace Biz
             if (server == null)
                 return;
             List<TreeNode> treeNodes = new List<TreeNode>();
-            foreach (TBColumn col in Biz.Common.Data.OracleHelper.GetColumns(server, tbNode.Parent.Name, tbNode.Name))
+            var tb = tbNode.Tag as TableInfo;
+            foreach (TBColumn col in Biz.Common.Data.OracleHelper.GetColumns(server, tb.DBName, tb.TBName))
             {
                 int imgIdx = (col.IsID && col.IsKey) ? 9 : (col.IsKey ? 4 : (col.IsID ? 10 : 5));
-                TreeNode newNode = new TreeNode(string.Concat(col.Name.ToLower(), "(",Common.Data.Common.OracleTypeToNetType(col.TypeName), ")"), imgIdx, imgIdx);
+                TreeNode newNode = new TreeNode(string.Concat(col.Name.ToLower(), "(", Common.Data.Common.OracleTypeToNetType(col.TypeName), ")"), imgIdx, imgIdx);
                 newNode.Name = col.Name;
                 newNode.Tag = col;
                 newNode.ToolTipText = gettip?.Invoke(col);
@@ -403,30 +422,20 @@ namespace Biz
                 }
                 treeNodes.Add(newNode);
             }
-            if (parent.InvokeRequired)
-            {
-                parent.Invoke(new Action(() =>
-                {
-                    tbNode.Nodes.Clear(); InsertRange(tbNode, treeNodes.ToArray());
-                    if (tbNode.Level == 3)
-                    {
-                        tbNode.Nodes.Add("INDEXS", "索引", 1, 1);
-                        tbNode.Nodes.Add("TRIGGER", "触发器", 1, 1);
-                    }
-                    tbNode.Expand();
-                }));
-            }
-            else
+
+            parent.Invoke(new Action(() =>
             {
                 tbNode.Nodes.Clear();
-                tbNode.Nodes.AddRange(treeNodes.ToArray());
-                if (tbNode.Level == 3)
-                {
-                    tbNode.Nodes.Add("INDEXS", "索引", 1, 1);
-                    tbNode.Nodes.Add("TRIGGER", "触发器", 1, 1);
-                }
+                InsertRange(tbNode, treeNodes.ToArray());
+                var indexnode = new TreeNode("索引", 1, 1);
+                indexnode.Tag = new NodeContents(NodeContentType.INDEXParent);
+                tbNode.Nodes.Add(indexnode);
+                var triggernode = new TreeNode("触发器", 1, 1);
+                triggernode.Tag = new NodeContents(NodeContentType.TRIGGERParent);
+                tbNode.Nodes.Add(triggernode);
                 tbNode.Expand();
-            }
+            }));
+
         }
 
         private static void LoadProcedure(Form parent, TreeNode tbNode, DBSource server)
@@ -437,30 +446,22 @@ namespace Biz
             foreach (string col in Biz.Common.Data.OracleHelper.GetProcList(server).ToList())
             {
                 //int imgIdx = col.IsKey ? 4 : 5;
+                ProcInfo procInfo = new ProcInfo { Name = col, ProcParamInfos = new List<ProcParamInfo>() };
                 TreeNode newNode = new TreeNode(col, 12, 12);
-                newNode.Tag = col;
-                newNode.Name = col;
+                newNode.Tag = procInfo;
                 treeNodes.Add(newNode);
             }
-            if (parent.InvokeRequired)
-            {
-                parent.Invoke(new Action(() => { tbNode.Nodes.Clear(); tbNode.Nodes.AddRange(treeNodes.ToArray()); tbNode.Expand(); }));
-            }
-            else
-            {
-                tbNode.Nodes.Clear();
-                tbNode.Nodes.AddRange(treeNodes.ToArray());
-                tbNode.Expand();
-            }
+            parent.Invoke(new Action(() => { tbNode.Nodes.Clear(); tbNode.Nodes.AddRange(treeNodes.ToArray()); tbNode.Expand(); }));
+
         }
 
-        private static void LoadTBs(Form parent, TreeNode serverNode, DBSource server, Func<string, string> gettip)
+        private static void LoadTBs(Form parent, TreeNode serverNode, DBSource server, string dbname, Func<string, string> gettip)
         {
             //var server = DBServers.FirstOrDefault(p => p.ServerName.Equals(e.Node.Parent.Text));
             if (server == null)
                 return;
             List<TreeNode> treeNodes = new List<TreeNode>();
-            DataTable tb = Biz.Common.Data.OracleHelper.GetTBs(server, serverNode.Text);
+            DataTable tb = Biz.Common.Data.OracleHelper.GetTBs(server, dbname);
             var y = from x in tb.AsEnumerable()
                     orderby x["name"]
                     select x;
@@ -469,44 +470,30 @@ namespace Biz
                 var tb2 = y.CopyToDataTable();
                 for (int i = 0; i < tb2.Rows.Count; i++)
                 {
-                    TreeNode newNode = new TreeNode(tb2.Rows[i]["name"].ToString().ToLower(), 3, 3);
-                    newNode.Name = tb2.Rows[i]["name"].ToString();
-                    newNode.Tag = new TableInfo
+                    var tbinfo = new TableInfo
                     {
-                        DBName = serverNode.Text,
-                        //TBId = tb2.Rows[i]["id"].ToString(),
+                        DBName = dbname,
                         TBName = tb2.Rows[i]["name"].ToString()
                     };
+
+                    TreeNode newNode = new TreeNode(tbinfo.TBName.ToLower(), 3, 3);
+                    newNode.Tag = tbinfo;
                     if (gettip != null)
                     {
-                        newNode.ToolTipText = gettip(tb2.Rows[i]["name"].ToString());
+                        newNode.ToolTipText = gettip(tbinfo.TBName);
                     }
                     treeNodes.Add(newNode);
                 }
             }
-            if (parent.InvokeRequired)
+
+            parent.Invoke(new Action(() =>
             {
-                parent.Invoke(new Action(() => { serverNode.Nodes.Clear(); serverNode.Nodes.AddRange(treeNodes.ToArray());
-                    serverNode.Nodes.Insert(0,"PROCEDURE", "存储过程", 1, 1);
-                    serverNode.Nodes.Insert(1,"VIEW", "视图", 1, 1);
-                    serverNode.Nodes.Insert(2,"MVIEW", "物化视图", 1, 1);
-                    serverNode.Nodes.Insert(3,"JOBS", "作业", 1, 1);
-                    serverNode.Nodes.Insert(4, "SEQUENCE", "序列", 1, 1);
-                    serverNode.Nodes.Insert(5, "USERS", "用户", 1, 1);
-                    serverNode.Expand(); }));
-            }
-            else
-            {
-                serverNode.Nodes.Clear();
+                serverNode.Nodes.Clear(); 
                 serverNode.Nodes.AddRange(treeNodes.ToArray());
-                serverNode.Nodes.Insert(0, "PROCEDURE", "存储过程", 1, 1);
-                serverNode.Nodes.Insert(1, "VIEW", "视图", 1, 1);
-                serverNode.Nodes.Insert(2, "MVIEW", "物化视图", 1, 1);
-                serverNode.Nodes.Insert(3, "JOBS", "作业", 1, 1);
-                serverNode.Nodes.Insert(4, "SEQUENCE", "序列", 1, 1);
-                serverNode.Nodes.Insert(5, "USERS", "用户", 1, 1);
+
                 serverNode.Expand();
-            }
+            }));
+
         }
     }
 }
