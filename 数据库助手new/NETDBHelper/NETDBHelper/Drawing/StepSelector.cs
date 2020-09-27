@@ -19,7 +19,7 @@ namespace NETDBHelper.Drawing
     {
         private Stack<Step> steps = new Stack<Step>();
         HashSet<Point> stephash = new HashSet<Point>();
-        private static int defaultStepLen = 5;
+        private static List<int> defaultStepLens = new List<int> { 20, 10, 2 };
         private Func<Point, Point,bool, bool> checkStepHasConflict = null;
 
         private Point startPoint, secDestPoint,destPoint;
@@ -82,7 +82,8 @@ namespace NETDBHelper.Drawing
             var step = new Step
             {
                 Pos = startPoint,
-                chooseDirection = firstDirection
+                chooseDirection = firstDirection,
+                StepLens = defaultStepLens.Select(p => p).ToList()
             };
             steps.Push(step);
 
@@ -285,23 +286,32 @@ namespace NETDBHelper.Drawing
             if (steps.Count > 0)
             {
                 var step = steps.Peek();
-                step.Directions.Remove(step.chooseDirection);
-                step.chooseDirection = StepDirection.none;
-                if (step.Directions.Count == 0)
+                if (step.StepLens.Count > 0)
                 {
-                    stephash.Remove(steps.Pop().Pos);
-                    while (steps.Count > 0)
+                    step.StepLens.RemoveAt(0);
+                }
+
+                if (step.StepLens.Count == 0)
+                {
+                    step.Directions.Remove(step.chooseDirection);
+
+                    step.chooseDirection = StepDirection.none;
+                    if (step.Directions.Count == 0)
                     {
-                        var father = steps.Peek();
-                        father.Directions.Remove(father.chooseDirection);
-                        father.chooseDirection = StepDirection.none;
-                        if (father.Directions.Count > 0)
+                        stephash.Remove(steps.Pop().Pos);
+                        while (steps.Count > 0)
                         {
-                            break;
-                        }
-                        else
-                        {
-                            stephash.Remove(steps.Pop().Pos);
+                            var father = steps.Peek();
+                            father.Directions.Remove(father.chooseDirection);
+                            father.chooseDirection = StepDirection.none;
+                            if (father.Directions.Count > 0)
+                            {
+                                break;
+                            }
+                            else
+                            {
+                                stephash.Remove(steps.Pop().Pos);
+                            }
                         }
                     }
                 }
@@ -348,8 +358,21 @@ namespace NETDBHelper.Drawing
                 {
                     Pos = currstep.Pos
                 };
+
+                if (Math.Abs(nextstep.Pos.X - secDestPoint.X) < 20 || Math.Abs(nextstep.Pos.Y - secDestPoint.Y) < 20)
+                {
+                    nextstep.StepLens = new List<int> { defaultStepLens.Min() };
+                }
+                else
+                {
+                    nextstep.StepLens = defaultStepLens.Select(p => p).ToList();
+                }
+
                 nextstep.SetFirst(currstep.chooseDirection);
-                int stepLen = defaultStepLen;
+
+
+                int stepLen = nextstep.StepLens.First();
+                
                 switch (currstep.chooseDirection)
                 {
                     case StepDirection.left:
@@ -358,6 +381,7 @@ namespace NETDBHelper.Drawing
                             var offsetx = nextstep.Pos.X - secDestPoint.X;
                             if (offsetx > 0 && offsetx < stepLen)
                             {
+                                nextstep.StepLens.RemoveAll(p => p > offsetx);
                                 stepLen = offsetx;
                             }
                             nextstep.Offset(-stepLen, 0);
@@ -369,6 +393,7 @@ namespace NETDBHelper.Drawing
                             var offsetx = secDestPoint.X - nextstep.Pos.X;
                             if (offsetx > 0 && offsetx < stepLen)
                             {
+                                nextstep.StepLens.RemoveAll(p => p > offsetx);
                                 stepLen = offsetx;
                             }
                             nextstep.Offset(stepLen, 0);
@@ -380,6 +405,7 @@ namespace NETDBHelper.Drawing
                             var offsety = nextstep.Pos.Y - secDestPoint.Y;
                             if (offsety > 0 && offsety < stepLen)
                             {
+                                nextstep.StepLens.RemoveAll(p => p > offsety);
                                 stepLen = offsety;
                             }
                             nextstep.Offset(0, -stepLen);
@@ -391,6 +417,7 @@ namespace NETDBHelper.Drawing
                             var offsety = secDestPoint.Y - nextstep.Pos.Y;
                             if (offsety > 0 && offsety < stepLen)
                             {
+                                nextstep.StepLens.RemoveAll(p => p > offsety);
                                 stepLen = offsety;
                             }
                             nextstep.Offset(0, stepLen);
@@ -611,7 +638,7 @@ namespace NETDBHelper.Drawing
                                         }
 
                                         steparray = list.ToArray();
-                                        i = 2;
+                                        //i = 2;
 
                                     }
                                 }

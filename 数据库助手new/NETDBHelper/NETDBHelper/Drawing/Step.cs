@@ -39,6 +39,15 @@ namespace NETDBHelper.Drawing
             }
         }
 
+        /// <summary>
+        /// 步长
+        /// </summary>
+        public List<int> StepLens
+        {
+            get;
+            set;
+        }
+
         public StepDirection chooseDirection
         {
             get;

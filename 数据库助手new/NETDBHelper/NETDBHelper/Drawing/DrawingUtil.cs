@@ -79,9 +79,45 @@ namespace NETDBHelper.Drawing
 
         private static bool HasIntersect(Line line1, Line line2)
         {
-            Point ret = Point.Empty;
-            var retval = GetIntersection(line1.Start, line1.End, line2.Start, line2.End, ref ret);
-            return retval == 1;
+            //Point ret = Point.Empty;
+            //var retval = GetIntersection(line1.Start, line1.End, line2.Start, line2.End, ref ret);
+            //return retval == 1;
+
+            if (line1.Start.X == line1.End.X)
+            {
+                if (line2.Start.X == line2.End.X)
+                {
+                    return Isoverlap(line1, line2);
+                }
+                else
+                {
+                    var max2x = Math.Max(line2.Start.X, line2.End.X);
+                    var min2x = Math.Min(line2.Start.X, line2.End.X);
+                    var max1y = Math.Max(line1.Start.Y, line1.End.Y);
+                    var min1y = Math.Min(line1.Start.Y, line1.End.Y);
+
+                    return min2x <= line1.Start.X && max2x >= line1.Start.X &&
+                        min1y <= line2.Start.Y && max1y >= line2.Start.Y;
+                }
+            }
+            else if (line1.Start.Y == line1.End.Y)
+            {
+                if (line2.Start.Y == line2.End.Y)
+                {
+                    return Isoverlap(line1, line2);
+                }
+                else
+                {
+                    var max1x = Math.Max(line1.Start.X, line1.End.X);
+                    var min1x = Math.Min(line1.Start.X, line1.End.X);
+                    var max2y = Math.Max(line2.Start.Y, line2.End.Y);
+                    var min2y = Math.Min(line2.Start.Y, line2.End.Y);
+
+                    return min1x <= line2.Start.X && max1x >= line2.Start.X &&
+                        min2y <= line1.Start.Y && max2y >= line1.Start.Y;
+                }
+            }
+            return false;
         }
 
         public static bool HasIntersect(Rectangle rectangle, Line line)
