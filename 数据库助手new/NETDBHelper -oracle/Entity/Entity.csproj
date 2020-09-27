@@ -58,6 +58,8 @@
     <Compile Include="INodeContents.cs" />
     <Compile Include="MarkObjectInfo.cs" />
     <Compile Include="MSSQLTypeEnum.cs" />
+    <Compile Include="MViewColumn.cs" />
+    <Compile Include="MViewInfo.cs" />
     <Compile Include="NodeContents.cs" />
     <Compile Include="NodeContentType.cs" />
     <Compile Include="OracleDataType.cs" />
@@ -68,6 +70,7 @@
     <Compile Include="RelColumn.cs" />
     <Compile Include="RelColumnEx.cs" />
     <Compile Include="RelTable.cs" />
+    <Compile Include="SeqInfo.cs" />
     <Compile Include="ServerInfo.cs" />
     <Compile Include="SPContent.cs" />
     <Compile Include="SPInfo.cs" />
@@ -75,6 +78,7 @@
     <Compile Include="TableInfo.cs" />
     <Compile Include="TBColumn.cs" />
     <Compile Include="TBSearchColumn.cs" />
+    <Compile Include="TriggerInfo.cs" />
     <Compile Include="ViewColumn.cs" />
     <Compile Include="ViewInfo.cs" />
     <Compile Include="WatchTask\WatchTaskInfo.cs" />

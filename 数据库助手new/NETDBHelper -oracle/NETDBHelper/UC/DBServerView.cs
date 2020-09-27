@@ -117,19 +117,21 @@ namespace NETDBHelper
                             var delnode = tv_DBServers.SelectedNode;
                             if (delnode != null)
                             {
-                                if (delnode.Parent.Text == "序列")
+                                if (delnode.Tag is SeqInfo)
                                 {
-                                    if (MessageBox.Show("要删删除序列：" + delnode.Text + " 吗?", "询问", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                                    var seq = delnode.Tag as SeqInfo;
+                                    if (MessageBox.Show("要删删除序列：" + seq.Name + " 吗?", "询问", MessageBoxButtons.YesNo) == DialogResult.Yes)
                                     {
-                                        OracleHelper.DropSeq(GetDBSource(delnode), delnode.Text);
+                                        OracleHelper.DropSeq(GetDBSource(delnode), seq.Name);
                                         ReLoadDBObj(delnode.Parent);
                                     }
                                 }
-                                else if (delnode.Parent.Text == "触发器")
+                                else if (delnode.Tag is TriggerInfo)
                                 {
-                                    if (MessageBox.Show("要删删除触发器：" + delnode.Text + " 吗?", "询问", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                                    var trigger = delnode.Tag as TriggerInfo;
+                                    if (MessageBox.Show("要删删除触发器：" + trigger.Name + " 吗?", "询问", MessageBoxButtons.YesNo) == DialogResult.Yes)
                                     {
-                                        OracleHelper.DropTrigger(GetDBSource(delnode), delnode.Text);
+                                        OracleHelper.DropTrigger(GetDBSource(delnode), trigger.Name);
                                         ReLoadDBObj(delnode.Parent);
                                     }
                                 }
@@ -257,11 +259,11 @@ namespace NETDBHelper
             }
             else if (selNode.Tag is INodeContents && (selNode.Tag as INodeContents).GetNodeContentType() == NodeContentType.VIEWParent)
             {
-                Biz.UILoadHelper.LoadViewAnsy(this.ParentForm, selNode, GetDBSource(selNode));
+                Biz.UILoadHelper.LoadViewAnsy(this.ParentForm, selNode, GetDBSource(selNode),GetDBName(selNode));
             }
-            else if (selNode.Tag is INodeContents && (selNode.Tag as INodeContents).GetNodeContentType() == NodeContentType.RVIEWParent)
+            else if (selNode.Tag is INodeContents && (selNode.Tag as INodeContents).GetNodeContentType() == NodeContentType.MVIEWParent)
             {
-                Biz.UILoadHelper.LoadMViewAnsy(this.ParentForm, selNode, GetDBSource(selNode));
+                Biz.UILoadHelper.LoadMViewAnsy(this.ParentForm, selNode, GetDBSource(selNode), GetDBName(selNode));
             }
             else if (selNode.Tag is INodeContents && (selNode.Tag as INodeContents).GetNodeContentType() == NodeContentType.JOBParent)
             {
@@ -324,11 +326,11 @@ namespace NETDBHelper
             }
             else if ((selNode.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.VIEW)
             {
-                Biz.UILoadHelper.LoadColumnsAnsy(this.ParentForm, selNode, GetDBSource(selNode),null);
+                Biz.UILoadHelper.LoadViewColumnsAnsy(this.ParentForm, selNode, GetDBSource(selNode),null);
             }
-            else if ((selNode.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.RVIEW)
+            else if ((selNode.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.MVIEW)
             {
-                Biz.UILoadHelper.LoadColumnsAnsy(this.ParentForm, selNode, GetDBSource(selNode),null);
+                Biz.UILoadHelper.LoadMViewColumnsAnsy(this.ParentForm, selNode, GetDBSource(selNode),null);
             }
             else if ((selNode.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.INDEXParent)
             {
@@ -358,7 +360,7 @@ namespace NETDBHelper
                 return true;
             }
 
-            if (node.Parent.Text == "序列"||node.Parent.Text=="触发器")
+            if (node.Tag is SeqInfo ||node.Tag is TriggerInfo)
             {
                 return true;
             }
@@ -475,8 +477,9 @@ namespace NETDBHelper
                     case "新增字段":
                         {
                             var node = tv_DBServers.SelectedNode;
+                            var tb = node.Tag as TableInfo;
                             SubForm.ClumnAddSubForm subform = new ClumnAddSubForm();
-                            subform.TableName = node.Name;
+                            subform.TableName = tb.TBName;
                             if (subform.ShowDialog() == DialogResult.Yes)
                             {
                                 var innsesql=string.Empty;
@@ -486,7 +489,7 @@ namespace NETDBHelper
                                     foreach (var sql in subform.GetSql())
                                     {
                                         innsesql=sql;
-                                        Biz.Common.Data.OracleHelper.ExecuteNoQuery(GetDBSource(node), node.Parent.Text, sql);
+                                        Biz.Common.Data.OracleHelper.ExecuteNoQuery(GetDBSource(node), tb.DBName, sql);
                                     }
                                     ReLoadDBObj(node);
                                 }
@@ -554,7 +557,7 @@ namespace NETDBHelper
 
         void ShowTop100Data()
         {
-            if (tv_DBServers.SelectedNode != null && tv_DBServers.Tag is TableInfo)
+            if (tv_DBServers.SelectedNode != null && tv_DBServers.SelectedNode.Tag is TableInfo)
             {
                 var tb = tv_DBServers.SelectedNode.Tag as TableInfo;
                 List<KeyValuePair<string, bool>> cols = new List<KeyValuePair<string, bool>>();
@@ -580,6 +583,60 @@ namespace NETDBHelper
                     OnShowTableData(GetDBSource(this.tv_DBServers.SelectedNode), tb.DBName, tb.TBName, sb.ToString());
                 }
             }
+            else if (tv_DBServers.SelectedNode != null && tv_DBServers.SelectedNode.Tag is ViewInfo)
+            {
+                var tb = tv_DBServers.SelectedNode.Tag as ViewInfo;
+                List<KeyValuePair<string, bool>> cols = new List<KeyValuePair<string, bool>>();
+                foreach (TreeNode node in tv_DBServers.SelectedNode.Nodes)
+                {
+                    var col = node.Tag as ViewColumn;
+                    if (col != null)
+                    {
+                        cols.Add(new KeyValuePair<string, bool>(col.Name, col.IsKey));
+                    }
+                }
+                StringBuilder sb = new StringBuilder();
+                sb.AppendLine("select");
+                sb.Append(string.Join(",\r\n", cols.Select(p => "t." + p.Key)));
+                sb.AppendLine("");
+                sb.Append(" from ");
+                sb.Append(tb.Name);
+                sb.Append(" t where rownum<=100 ");
+                sb.AppendLine();
+
+                if (this.OnShowTableData != null)
+                {
+                    OnShowTableData(GetDBSource(this.tv_DBServers.SelectedNode), tb.DBName, tb.Name, sb.ToString());
+                }
+            }
+            else if (tv_DBServers.SelectedNode != null && tv_DBServers.SelectedNode.Tag is MViewInfo)
+            {
+                var tb = tv_DBServers.SelectedNode.Tag as MViewInfo;
+                List<KeyValuePair<string, bool>> cols = new List<KeyValuePair<string, bool>>();
+                foreach (TreeNode node in tv_DBServers.SelectedNode.Nodes)
+                {
+                    var col = node.Tag as MViewColumn;
+                    if (col != null)
+                    {
+                        cols.Add(new KeyValuePair<string, bool>(col.Name, col.IsKey));
+                    }
+                }
+                StringBuilder sb = new StringBuilder();
+                sb.AppendLine("select");
+                sb.Append(string.Join(",\r\n", cols.Select(p => "t." + p.Key)));
+                sb.AppendLine("");
+                sb.Append(" from ");
+                sb.Append(tb.Name);
+                sb.Append(" t where rownum<=100 ");
+                sb.AppendLine();
+
+                if (this.OnShowTableData != null)
+                {
+                    OnShowTableData(GetDBSource(this.tv_DBServers.SelectedNode), tb.DBName, tb.Name, sb.ToString());
+                }
+            }
+
+
         }
 
         void CreateEntityClass()
@@ -738,13 +795,13 @@ namespace NETDBHelper
             {
                 if (e.Node.Nodes.Count > 0)
                     return;
-                Biz.UILoadHelper.LoadViewAnsy(this.ParentForm, e.Node, GetDBSource(e.Node));
+                Biz.UILoadHelper.LoadViewAnsy(this.ParentForm, e.Node, GetDBSource(e.Node),GetDBName(e.Node));
             }
-            else if ((e.Node.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.RVIEWParent)
+            else if ((e.Node.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.MVIEWParent)
             {
                 if (e.Node.Nodes.Count > 0)
                     return;
-                Biz.UILoadHelper.LoadMViewAnsy(this.ParentForm, e.Node, GetDBSource(e.Node));
+                Biz.UILoadHelper.LoadMViewAnsy(this.ParentForm, e.Node, GetDBSource(e.Node), GetDBName(e.Node));
             }
             else if ((e.Node.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.JOBParent)
             {
@@ -828,13 +885,13 @@ namespace NETDBHelper
             {
                 if (e.Node.Nodes.Count > 0)
                     return;
-                Biz.UILoadHelper.LoadColumnsAnsy(this.ParentForm, e.Node, GetDBSource(e.Node), null);
+                Biz.UILoadHelper.LoadViewColumnsAnsy(this.ParentForm, e.Node, GetDBSource(e.Node), null);
             }
-            else if ((e.Node.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.RVIEW)
+            else if ((e.Node.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.MVIEW)
             {
                 if (e.Node.Nodes.Count > 0)
                     return;
-                Biz.UILoadHelper.LoadColumnsAnsy(this.ParentForm, e.Node, GetDBSource(e.Node), null);
+                Biz.UILoadHelper.LoadMViewColumnsAnsy(this.ParentForm, e.Node, GetDBSource(e.Node), null);
             }
         }
 
@@ -912,8 +969,12 @@ namespace NETDBHelper
                     if (nctype == NodeContentType.TB
                         || nctype == NodeContentType.PROC
                         || nctype == NodeContentType.VIEW
+                        || nctype == NodeContentType.MVIEW
                         || nctype == NodeContentType.INDEXParent
-                        || nctype == NodeContentType.INDEX)
+                        || nctype == NodeContentType.INDEX
+                        || nctype == NodeContentType.JOBParent
+                        || nctype == NodeContentType.JOB
+                        || nctype == NodeContentType.SEQUENCEParent)
                     {
                         this.tv_DBServers.ContextMenuStrip = this.DBServerviewContextMenuStrip;
                         foreach (ToolStripItem item in DBServerviewContextMenuStrip.Items)
@@ -947,7 +1008,8 @@ namespace NETDBHelper
                             || nctype == NodeContentType.TB
                             || nctype == NodeContentType.INDEX;
                         显示前100条数据ToolStripMenuItem.Visible = nctype == NodeContentType.VIEW
-                            || nctype == NodeContentType.TB;
+                            || nctype == NodeContentType.TB
+                            || nctype == NodeContentType.MVIEW;
                         表关系图ToolStripMenuItem.Visible = nctype == NodeContentType.TB;
                         生成数据字典ToolStripMenuItem.Visible = nctype == NodeContentType.TB;
                         修改表名ToolStripMenuItem.Visible = nctype == NodeContentType.TB;
@@ -971,14 +1033,15 @@ namespace NETDBHelper
                         CommSubMenuItem_Delete.Visible = IsCanDelete(node);
                         CommSubMenuitem_add.Visible = nctype == NodeContentType.SEVER;
                         CommSubMenuitem_ViewConnsql.Visible = nctype == NodeContentType.DB;
-                        备注本地ToolStripMenuItem.Visible = nctype == NodeContentType.COLUMN;
+                        备注本地ToolStripMenuItem.Visible = nctype == NodeContentType.COLUMN
+                            || nctype == NodeContentType.PROC;
                         TSMI_MulMarkLocal.Visible = nctype == NodeContentType.COLUMN;
                         TSMI_FilterProc.Visible = nctype == NodeContentType.PROCParent;
-                        性能分析工具ToolStripMenuItem.Visible = nctype == NodeContentType.SEVER;
+                        性能分析工具ToolStripMenuItem.Visible = false;
                         SqlExecuterToolStripMenuItem.Visible = nctype == NodeContentType.DB;
                         查看语句ToolStripMenuItem.Visible = nctype == NodeContentType.TRIGGER
                             || nctype == NodeContentType.VIEW
-                            || nctype == NodeContentType.RVIEW
+                            || nctype == NodeContentType.MVIEW
                             || nctype == NodeContentType.JOB
                             || nctype == NodeContentType.SEQUENCE;
                     }

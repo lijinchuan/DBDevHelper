@@ -315,7 +315,7 @@ namespace Biz.Common.Data
             return sb.ToString();
         }
 
-        public static List<string> GetViews(DBSource dbSource, string dbName, string tabname)
+        public static List<string> GetViews(DBSource dbSource, string dbName)
         {
             var result = new List<string>();
             //string sql = string.Format("show index from `{0}`", tabname);
@@ -343,7 +343,7 @@ namespace Biz.Common.Data
             return sb.ToString();
         }
 
-        public static List<string> GetMViews(DBSource dbSource, string dbName, string tabname)
+        public static List<string> GetMViews(DBSource dbSource, string dbName)
         {
             var result = new List<string>();
             //string sql = string.Format("show index from `{0}`", tabname);
@@ -591,7 +591,7 @@ namespace Biz.Common.Data
 
             foreach (var col in conditioncols)
             {
-                sb.AppendLine(string.Format("var_{0} varchar2(200);"));
+                sb.AppendLine(string.Format("var_{0} varchar2(200);", col.Name));
             }
 
             sb.AppendLine("BEGIN");

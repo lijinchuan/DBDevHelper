@@ -58,27 +58,27 @@ namespace Biz
 
                         var seqparentnode = new TreeNode("序列", 1, 1);
                         seqparentnode.Tag = new NodeContents(NodeContentType.SEQUENCEParent);
-                        serverNode.Nodes.Insert(4, seqparentnode);
+                        dbNode.Nodes.Insert(4, seqparentnode);
 
                         var viewparentnode = new TreeNode("视图", 1, 1);
                         viewparentnode.Tag = new NodeContents(NodeContentType.VIEWParent);
-                        serverNode.Nodes.Insert(1, viewparentnode);
+                        dbNode.Nodes.Insert(1, viewparentnode);
 
                         var rviewparentnode = new TreeNode("物化视图", 1, 1);
-                        rviewparentnode.Tag = new NodeContents(NodeContentType.RVIEWParent);
-                        serverNode.Nodes.Insert(2, rviewparentnode);
+                        rviewparentnode.Tag = new NodeContents(NodeContentType.MVIEWParent);
+                        dbNode.Nodes.Insert(2, rviewparentnode);
 
                         var procparentnode = new TreeNode("存储过程", 1, 1);
                         procparentnode.Tag = new NodeContents(NodeContentType.PROCParent);
-                        serverNode.Nodes.Insert(0, procparentnode);
+                        dbNode.Nodes.Insert(0, procparentnode);
 
                         var jobparentnode = new TreeNode("作业", 1, 1);
                         jobparentnode.Tag = new NodeContents(NodeContentType.JOBParent);
-                        serverNode.Nodes.Insert(3, jobparentnode);
+                        dbNode.Nodes.Insert(3, jobparentnode);
 
                         var userparentnode = new TreeNode("用户", 1, 1);
                         userparentnode.Tag = new NodeContents(NodeContentType.USERParent);
-                        serverNode.Nodes.Insert(5, userparentnode);
+                        dbNode.Nodes.Insert(5, userparentnode);
 
                         serverNode.Expand();
                     }
@@ -97,6 +97,20 @@ namespace Biz
             tbNode.Nodes.Add(new TreeNode("加载中..."));
             Thread.Sleep(100);
             new Action<Form, TreeNode, DBSource, Func<TBColumn, string>>(LoadColumns).BeginInvoke(parent, tbNode, server, gettip, null, null);
+        }
+
+        public static void LoadViewColumnsAnsy(Form parent, TreeNode tbNode, DBSource server, Func<TBColumn, string> gettip)
+        {
+            tbNode.Nodes.Add(new TreeNode("加载中..."));
+            Thread.Sleep(100);
+            new Action<Form, TreeNode, DBSource, Func<TBColumn, string>>(LoadViewColumns).BeginInvoke(parent, tbNode, server, gettip, null, null);
+        }
+
+        public static void LoadMViewColumnsAnsy(Form parent, TreeNode tbNode, DBSource server, Func<TBColumn, string> gettip)
+        {
+            tbNode.Nodes.Add(new TreeNode("加载中..."));
+            Thread.Sleep(100);
+            new Action<Form, TreeNode, DBSource, Func<TBColumn, string>>(LoadMViewColumns).BeginInvoke(parent, tbNode, server, gettip, null, null);
         }
 
         public static void LoadProcedureAnsy(Form parent,TreeNode procedureNode,DBSource server)
@@ -176,6 +190,11 @@ namespace Biz
 
                 newNode.ImageIndex = newNode.SelectedImageIndex = 11;
 
+                newNode.Tag = new TriggerInfo
+                {
+                    Name=item
+                };
+
                 treeNodes.Add(newNode);
             }
 
@@ -191,21 +210,21 @@ namespace Biz
             }
         }
 
-        public static void LoadViewAnsy(Form parent, TreeNode tbNode, DBSource server)
+        public static void LoadViewAnsy(Form parent, TreeNode tbNode, DBSource server, string dbname)
         {
             tbNode.Nodes.Add(new TreeNode("加载中..."));
             Thread.Sleep(100);
-            new Action<Form, TreeNode, DBSource>(LoadView).BeginInvoke(parent, tbNode, server, null, null);
+            new Action<Form, TreeNode, DBSource, string>(LoadView).BeginInvoke(parent, tbNode, server, dbname, null, null);
         }
 
-        private static void LoadView(Form parent, TreeNode tbNode, DBSource server)
+        private static void LoadView(Form parent, TreeNode tbNode, DBSource server,string dbname)
         {
             if (server == null)
             {
                 return;
             }
 
-            var list = Biz.Common.Data.OracleHelper.GetViews(server, tbNode.Parent.Parent.Name, tbNode.Parent.Name);
+            var list = Biz.Common.Data.OracleHelper.GetViews(server,dbname);
             List<TreeNode> treeNodes = new List<TreeNode>();
             //MessageBox.Show(list.Count().ToString());
             foreach (var item in list)
@@ -215,6 +234,12 @@ namespace Biz
 
                 newNode.ImageIndex = newNode.SelectedImageIndex = 3;
 
+                newNode.Tag = new ViewInfo
+                {
+                   DBName=dbname,
+                   Name=item
+                };
+
                 treeNodes.Add(newNode);
             }
 
@@ -230,21 +255,21 @@ namespace Biz
             }
         }
 
-        public static void LoadMViewAnsy(Form parent, TreeNode tbNode, DBSource server)
+        public static void LoadMViewAnsy(Form parent, TreeNode tbNode, DBSource server, string dbname)
         {
             tbNode.Nodes.Add(new TreeNode("加载中..."));
             Thread.Sleep(100);
-            new Action<Form, TreeNode, DBSource>(LoadMView).BeginInvoke(parent, tbNode, server, null, null);
+            new Action<Form, TreeNode, DBSource, string>(LoadMView).BeginInvoke(parent, tbNode, server, dbname, null, null);
         }
 
-        private static void LoadMView(Form parent, TreeNode tbNode, DBSource server)
+        private static void LoadMView(Form parent, TreeNode tbNode, DBSource server,string dbname)
         {
             if (server == null)
             {
                 return;
             }
 
-            var list = Biz.Common.Data.OracleHelper.GetMViews(server, tbNode.Parent.Parent.Name, tbNode.Parent.Name);
+            var list = Biz.Common.Data.OracleHelper.GetMViews(server, dbname);
             List<TreeNode> treeNodes = new List<TreeNode>();
             //MessageBox.Show(list.Count().ToString());
             foreach (var item in list)
@@ -254,19 +279,16 @@ namespace Biz
 
                 newNode.ImageIndex = newNode.SelectedImageIndex = 3;
 
+                newNode.Tag = new MViewInfo
+                {
+                    DBName=dbname,
+                    Name=item
+                };
+
                 treeNodes.Add(newNode);
             }
 
-            if (parent.InvokeRequired)
-            {
-                parent.Invoke(new Action(() => { tbNode.Nodes.Clear(); tbNode.Nodes.AddRange(treeNodes.ToArray()); tbNode.Expand(); }));
-            }
-            else
-            {
-                tbNode.Nodes.Clear();
-                tbNode.Nodes.AddRange(treeNodes.ToArray());
-                tbNode.Expand();
-            }
+            parent.Invoke(new Action(() => { tbNode.Nodes.Clear(); tbNode.Nodes.AddRange(treeNodes.ToArray()); tbNode.Expand(); }));
         }
 
         public static void LoadJobsAnsy(Form parent, TreeNode tbNode, DBSource server)
@@ -331,7 +353,10 @@ namespace Biz
                 newNode.Name = item;
 
                 newNode.ImageIndex = newNode.SelectedImageIndex = 14;
-
+                newNode.Tag = new SeqInfo
+                {
+                    Name=item
+                };
                 treeNodes.Add(newNode);
             }
 
@@ -433,6 +458,98 @@ namespace Biz
                 var triggernode = new TreeNode("触发器", 1, 1);
                 triggernode.Tag = new NodeContents(NodeContentType.TRIGGERParent);
                 tbNode.Nodes.Add(triggernode);
+                tbNode.Expand();
+            }));
+
+        }
+
+        private static void LoadViewColumns(Form parent, TreeNode tbNode, DBSource server, Func<TBColumn, string> gettip)
+        {
+            if (server == null)
+                return;
+            List<TreeNode> treeNodes = new List<TreeNode>();
+            var tb = tbNode.Tag as ViewInfo;
+            foreach (TBColumn col in Biz.Common.Data.OracleHelper.GetColumns(server, tb.DBName, tb.Name))
+            {
+                int imgIdx = (col.IsID && col.IsKey) ? 9 : (col.IsKey ? 4 : (col.IsID ? 10 : 5));
+                TreeNode newNode = new TreeNode(string.Concat(col.Name.ToLower(), "(", Common.Data.Common.OracleTypeToNetType(col.TypeName), ")"), imgIdx, imgIdx);
+                newNode.Name = col.Name;
+                newNode.Tag = new ViewColumn
+                {
+                    IsID=col.IsKey,
+                    DBName=tb.DBName,
+                    Description=col.Description,
+                    IsNullAble=col.IsNullAble,
+                    IsKey=col.IsKey,
+                    Length=col.Length,
+                    Name=col.Name,
+                    prec=col.prec,
+                    scale=col.scale,
+                    TBName=tb.Name,
+                    TypeName=col.TypeName
+                };
+                newNode.ToolTipText = gettip?.Invoke(col);
+                if (string.IsNullOrWhiteSpace(newNode.ToolTipText))
+                {
+                    newNode.ToolTipText = col.Description;
+                }
+                if (!col.IsKey && string.IsNullOrWhiteSpace(newNode.ToolTipText))
+                {
+                    newNode.ImageIndex = newNode.SelectedImageIndex = 23;
+                }
+                treeNodes.Add(newNode);
+            }
+
+            parent.Invoke(new Action(() =>
+            {
+                tbNode.Nodes.Clear();
+                InsertRange(tbNode, treeNodes.ToArray());
+                tbNode.Expand();
+            }));
+
+        }
+
+        private static void LoadMViewColumns(Form parent, TreeNode tbNode, DBSource server, Func<TBColumn, string> gettip)
+        {
+            if (server == null)
+                return;
+            List<TreeNode> treeNodes = new List<TreeNode>();
+            var tb = tbNode.Tag as MViewInfo;
+            foreach (TBColumn col in Biz.Common.Data.OracleHelper.GetColumns(server, tb.DBName, tb.Name))
+            {
+                int imgIdx = (col.IsID && col.IsKey) ? 9 : (col.IsKey ? 4 : (col.IsID ? 10 : 5));
+                TreeNode newNode = new TreeNode(string.Concat(col.Name.ToLower(), "(", Common.Data.Common.OracleTypeToNetType(col.TypeName), ")"), imgIdx, imgIdx);
+                newNode.Name = col.Name;
+                newNode.Tag = new MViewColumn
+                {
+                    IsID = col.IsKey,
+                    DBName = tb.DBName,
+                    Description = col.Description,
+                    IsNullAble = col.IsNullAble,
+                    IsKey = col.IsKey,
+                    Length = col.Length,
+                    Name = col.Name,
+                    prec = col.prec,
+                    scale = col.scale,
+                    TBName = tb.Name,
+                    TypeName = col.TypeName
+                };
+                newNode.ToolTipText = gettip?.Invoke(col);
+                if (string.IsNullOrWhiteSpace(newNode.ToolTipText))
+                {
+                    newNode.ToolTipText = col.Description;
+                }
+                if (!col.IsKey && string.IsNullOrWhiteSpace(newNode.ToolTipText))
+                {
+                    newNode.ImageIndex = newNode.SelectedImageIndex = 23;
+                }
+                treeNodes.Add(newNode);
+            }
+
+            parent.Invoke(new Action(() =>
+            {
+                tbNode.Nodes.Clear();
+                InsertRange(tbNode, treeNodes.ToArray());
                 tbNode.Expand();
             }));
 
