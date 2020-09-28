@@ -77,6 +77,7 @@ namespace NETDBHelper.UC
                 RelColumnEx relColumnEx = FindHotLine(pt);
                 if (relColumnEx != null)
                 {
+                    //Util.SendMsg(this, $"[{relColumnEx.RelColumn.DBName}].[{relColumnEx.RelColumn.TBName}].[{relColumnEx.RelColumn.ColName}] -> [{relColumnEx.RelColumn.RelDBName}].[{relColumnEx.RelColumn.RelTBName}].[{relColumnEx.RelColumn.RelColName}]:{relColumnEx.RelColumn.Desc}");
                     SubForm.InputStringDlg dlg = new SubForm.InputStringDlg($"输入{relColumnEx.RelColumn.TBName}.{relColumnEx.RelColumn.ColName}和{relColumnEx.RelColumn.RelTBName}.{relColumnEx.RelColumn.RelColName}关系描述", relColumnEx.RelColumn.Desc ?? string.Empty);
                     if (dlg.ShowDialog() == DialogResult.OK)
                     {
@@ -127,7 +128,9 @@ namespace NETDBHelper.UC
                 if (relColumnEx != null)
                 {
                     hashotline = true;
-                    Util.SendMsg(this, string.Join(",", relColumnEx.LinkLines.Select(p => p.X + " " + p.Y)));
+                    //Util.SendMsg(this, string.Join(",", relColumnEx.LinkLines.Select(p => p.X + " " + p.Y)));
+                    Util.SendMsg(this, $"[{relColumnEx.RelColumn.DBName}].[{relColumnEx.RelColumn.TBName}].[{relColumnEx.RelColumn.ColName}] -> [{relColumnEx.RelColumn.RelDBName}].[{relColumnEx.RelColumn.RelTBName}].[{relColumnEx.RelColumn.RelColName}]:{relColumnEx.RelColumn.Desc}");
+
                     using (var g = this.PanelMap.CreateGraphics())
                     {
                         g.TranslateTransform(this.PanelMap.AutoScrollPosition.X, this.PanelMap.AutoScrollPosition.Y);

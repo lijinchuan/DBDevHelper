@@ -420,7 +420,7 @@ namespace NETDBHelper.Drawing
 
                 if (Math.Abs(nextstep.Pos.X - secDestPoint.X) < 30 || Math.Abs(nextstep.Pos.Y - secDestPoint.Y) < 30)
                 {
-                    nextstep.StepLens = new List<int> { defaultStepLens.Min() };
+                    nextstep.StepLens = new List<int> { defalutStep };
                 }
                 else
                 {
@@ -714,16 +714,6 @@ namespace NETDBHelper.Drawing
             //反向简化处理
             int istart = 0;
             var preDirection = steparray.First().chooseDirection;
-            //for (var i = 1; i < steparray.Length; i++)
-            //{
-            //    if (steparray[i].chooseDirection == preDirection)
-            //    {
-            //        continue;
-            //    }
-            //    istart = i;
-            //    preDirection = steparray[i].chooseDirection;
-            //    break;
-            //}
             for (var i = istart + 1; i < steparray.Length; i++)
             {
                 if (steparray[i].chooseDirection == preDirection)
@@ -859,6 +849,26 @@ namespace NETDBHelper.Drawing
                         li.RemoveAt(i);
                         ps = li.ToArray();
                         i = 1;
+                    }
+                }
+
+                //起点处理
+                if (ps.Length > 2)
+                {
+                    if (firstDirection == StepDirection.right)
+                    {
+                        if (ps[1].X < ps[0].X && ps[2].Y != ps[1].Y)
+                        {
+                            var temp = ps[0];
+                            ps[0] = ps[1];
+                            for(var i = 1; i < ps.Length; i++)
+                            {
+                                if (ps[i].X == ps[0].X)
+                                {
+                                    ps[i].X = temp.X;
+                                }
+                            }
+                        }
                     }
                 }
 
