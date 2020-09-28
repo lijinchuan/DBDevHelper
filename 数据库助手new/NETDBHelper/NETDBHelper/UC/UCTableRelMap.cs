@@ -127,7 +127,7 @@ namespace NETDBHelper.UC
                 if (relColumnEx != null)
                 {
                     hashotline = true;
-                    //Util.SendMsg(this, string.Join(",", relColumnEx.LinkLines.Select(p => p.X + " " + p.Y)));
+                    Util.SendMsg(this, string.Join(",", relColumnEx.LinkLines.Select(p => p.X + " " + p.Y)));
                     using (var g = this.PanelMap.CreateGraphics())
                     {
                         g.TranslateTransform(this.PanelMap.AutoScrollPosition.X, this.PanelMap.AutoScrollPosition.Y);
