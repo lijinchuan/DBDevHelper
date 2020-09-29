@@ -492,6 +492,7 @@
     <None Include="Resources\pill.png" />
     <None Include="Resources\rainbow.png" />
     <None Include="Resources\number.png" />
+    <None Include="Resources\sitemap.png" />
     <Content Include="Resources\table.png" />
     <Content Include="Resources\tbview.png" />
     <None Include="packages.config" />

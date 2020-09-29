@@ -31,6 +31,7 @@ namespace NETDBHelper
         public Action<DBSource, string, string, string> OnShowViewSql;
         public Action<DBSource, string,string> OnShowRelMap;
         public Action<DBSource, string, LogicMap> OnAddNewLogicMap;
+        public Action<string, LogicMap> OnDeleteLogicMap;
         private DBSourceCollection _dbServers;
         /// <summary>
         /// 实体命名空间
@@ -71,6 +72,7 @@ namespace NETDBHelper
             tv_DBServers.ImageList.Images.Add(Resources.Resource1.ColQ); //18
             tv_DBServers.ImageList.Images.Add(Resources.Resource1.script_code_no);
             tv_DBServers.ImageList.Images.Add(Resources.Resource1.script_code_red_no);
+            tv_DBServers.ImageList.Images.Add(Resources.Resource1.logic);
             tv_DBServers.Nodes.Add("0", "资源管理器", 0);
             tv_DBServers.NodeMouseClick += new TreeNodeMouseClickEventHandler(tv_DBServers_NodeMouseClick);
             tv_DBServers.NodeMouseDoubleClick += Tv_DBServers_NodeMouseDoubleClick;
@@ -790,7 +792,8 @@ namespace NETDBHelper
                         || nctype == NodeContentType.PROC
                         || nctype == NodeContentType.VIEW
                         || nctype == NodeContentType.INDEX
-                        || nctype == NodeContentType.LOGICMAPParent)
+                        || nctype == NodeContentType.LOGICMAPParent
+                        ||nctype==NodeContentType.LOGICMAP)
                     {
                         this.tv_DBServers.ContextMenuStrip = this.DBServerviewContextMenuStrip;
                         foreach (ToolStripItem item in DBServerviewContextMenuStrip.Items)
@@ -810,7 +813,8 @@ namespace NETDBHelper
                             || nctype == NodeContentType.VIEW
                             || nctype == NodeContentType.VIEWParent
                             || nctype == NodeContentType.PROCParent
-                            || nctype == NodeContentType.PROC;
+                            || nctype == NodeContentType.PROC
+                            || nctype == NodeContentType.LOGICMAPParent;
 
                         导出ToolStripMenuItem.Visible = nctype == NodeContentType.VIEW
                             || nctype == NodeContentType.PROC
@@ -824,7 +828,8 @@ namespace NETDBHelper
                             || nctype == NodeContentType.TB;
                         复制表名ToolStripMenuItem.Visible = nctype == NodeContentType.VIEW
                             || nctype == NodeContentType.TB
-                            || nctype == NodeContentType.INDEX;
+                            || nctype == NodeContentType.INDEX
+                            || nctype == NodeContentType.LOGICMAP;
                         显示前100条数据ToolStripMenuItem.Visible = nctype == NodeContentType.VIEW
                             || nctype == NodeContentType.TB;
                         清理备注ToolStripMenuItem.Visible = nctype == NodeContentType.TB;
@@ -838,6 +843,7 @@ namespace NETDBHelper
                         删除表ToolStripMenuItem.Visible = nctype == NodeContentType.TB;
                         SubMenuItem_Proc.Visible = nctype == NodeContentType.TB;
                         新增逻辑关系图ToolStripMenuItem.Visible = nctype == NodeContentType.LOGICMAPParent;
+                        删除逻辑关系图ToolStripMenuItem.Visible = nctype == NodeContentType.LOGICMAP;
                     }
                     else
                     {
@@ -2197,6 +2203,24 @@ background-color: #ffffff;
                     break;
                 }
 
+            }
+        }
+
+        private void 删除逻辑关系图ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var currnode = this.tv_DBServers.SelectedNode;
+            if(currnode!=null&&currnode.Tag is LogicMap)
+            {
+                var logicmap = currnode.Tag as LogicMap;
+                if (MessageBox.Show($"要删除逻辑关系图【{logicmap.LogicName}】吗？", "", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                {
+                    BigEntityTableEngine.LocalEngine.Delete<LogicMap>(nameof(LogicMap), logicmap.ID);
+                    if (this.OnDeleteLogicMap != null)
+                    {
+                        this.OnDeleteLogicMap(GetDBName(currnode), logicmap);
+                    }
+                    ReLoadDBObj(currnode.Parent);
+                }
             }
         }
     }

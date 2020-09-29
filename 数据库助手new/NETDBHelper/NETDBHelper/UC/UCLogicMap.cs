@@ -71,6 +71,8 @@ namespace NETDBHelper.UC
 
             this.CMSOpMenu.VisibleChanged += CMSOpMenu_VisibleChanged;
             TSMDelRelColumn.DropDownItemClicked += TSMDelRelColumn_DropDownItemClicked;
+            TSMI_Export.Click += TSMI_Export_Click;
+            delStripMenuItem.Click += delStripMenuItem_Click;
         }
 
         private void PanelMap_MouseDoubleClick(object sender, MouseEventArgs e)
@@ -1031,11 +1033,6 @@ namespace NETDBHelper.UC
                     }
 
                     var filename = $"{dir}\\{dlg.InputString}.png";
-                    if (System.IO.File.Exists(filename))
-                    {
-                        MessageBox.Show("文件名已存在");
-                        return;
-                    }
 
                     var sx = PanelMap.HorizontalScroll.Value;
                     var sy = PanelMap.VerticalScroll.Value;

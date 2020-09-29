@@ -39,6 +39,7 @@ namespace NETDBHelper
             this.dbServerView1.OnShowViewSql += this.ShowViewSql;
             this.dbServerView1.OnShowRelMap += this.ShowRelMap;
             this.dbServerView1.OnAddNewLogicMap += this.AddNewLogicMap;
+            this.dbServerView1.OnDeleteLogicMap += this.DeleteLogicMap;
 
 
             this.TabControl.Selected += new TabControlEventHandler(TabControl_Selected);
@@ -599,6 +600,19 @@ namespace NETDBHelper
             this.TabControl.TabPages.Add(panel);
             this.TabControl.SelectedTab = panel;
             panel.Load();
+        }
+
+        public void DeleteLogicMap(string dbname, LogicMap logicMap)
+        {
+            var title = $"{dbname}逻辑关系图{logicMap.LogicName}";
+            foreach (TabPage page in this.TabControl.TabPages)
+            {
+                if (page.Text == title)
+                {
+                    this.TabControl.TabPages.Remove(page);
+                    return;
+                }
+            }
         }
 
         private void 常用SQLToolStripMenuItem_Click(object sender, EventArgs e)
