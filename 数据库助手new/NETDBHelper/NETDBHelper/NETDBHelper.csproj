@@ -303,6 +303,18 @@
     <Compile Include="UC\UCCreateCodeCallSP.Designer.cs">
       <DependentUpon>UCCreateCodeCallSP.cs</DependentUpon>
     </Compile>
+    <Compile Include="UC\UCLogicMap.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="UC\UCLogicMap.Designer.cs">
+      <DependentUpon>UCLogicMap.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UC\UCLogicTableView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UC\UCLogicTableView.Designer.cs">
+      <DependentUpon>UCLogicTableView.cs</DependentUpon>
+    </Compile>
     <Compile Include="UC\UCTableRelMap.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -424,6 +436,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="UC\UCCreateCodeCallSP.resx">
       <DependentUpon>UCCreateCodeCallSP.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UC\UCLogicMap.resx">
+      <DependentUpon>UCLogicMap.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UC\UCLogicTableView.resx">
+      <DependentUpon>UCLogicTableView.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UC\UCTableRelMap.resx">
       <DependentUpon>UCTableRelMap.cs</DependentUpon>

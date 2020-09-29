@@ -38,6 +38,7 @@ namespace NETDBHelper
             this.dbServerView1.OnExecutSql += this.ExecutSql;
             this.dbServerView1.OnShowViewSql += this.ShowViewSql;
             this.dbServerView1.OnShowRelMap += this.ShowRelMap;
+            this.dbServerView1.OnAddNewLogicMap += this.AddNewLogicMap;
 
 
             this.TabControl.Selected += new TabControlEventHandler(TabControl_Selected);
@@ -575,6 +576,25 @@ namespace NETDBHelper
             }
 
             UC.UCTableRelMap panel = new UCTableRelMap(dbSource, dbname,tbname);
+            panel.Text = title;
+            this.TabControl.TabPages.Add(panel);
+            this.TabControl.SelectedTab = panel;
+            panel.Load();
+        }
+
+        public void AddNewLogicMap(DBSource dbSource, string dbname, LogicMap logicMap)
+        {
+            var title = $"{dbname}逻辑关系图{logicMap.LogicName}";
+            foreach (TabPage page in this.TabControl.TabPages)
+            {
+                if (page.Text == title)
+                {
+                    TabControl.SelectedTab = page;
+                    return;
+                }
+            }
+
+            UC.UCLogicMap panel = new UCLogicMap(dbSource, logicMap.ID);
             panel.Text = title;
             this.TabControl.TabPages.Add(panel);
             this.TabControl.SelectedTab = panel;

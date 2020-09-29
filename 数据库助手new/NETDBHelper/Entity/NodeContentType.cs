@@ -22,6 +22,8 @@ namespace Entity
         VIEWParent,
         VIEW,
         VIEWCOLUMN,
+        LOGICMAPParent,
+        LOGICMAP,
         UNKNOWN = 999
     }
 }
