@@ -463,7 +463,7 @@ namespace NETDBHelper.UC
                       && p.TBName.Equals(tbcol.TBName, StringComparison.OrdinalIgnoreCase) && p.ColName.Equals(tbcol.Name, StringComparison.OrdinalIgnoreCase)
                       && p.RelColName == string.Empty);
                     var logiccoldesc = logiccol?.Desc ?? string.Empty;
-                    var dlg = new SubForm.InputStringDlg("逻辑备注", logiccoldesc);
+                    var dlg = new SubForm.InputStringDlg($"逻辑备注{tbcol.TBName}.{tbcol.Name}", logiccoldesc);
                     if (dlg.ShowDialog() == DialogResult.OK)
                     {
                         if (logiccol != null)

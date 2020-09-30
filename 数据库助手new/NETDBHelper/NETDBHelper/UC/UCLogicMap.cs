@@ -203,6 +203,7 @@ namespace NETDBHelper.UC
                 }
                 else
                 {
+                    location.Offset(-this.PanelMap.AutoScrollPosition.X, -this.PanelMap.AutoScrollPosition.Y);
                     var col = this.FindColumn(location);
                     if (col != null)
                     {
@@ -242,6 +243,7 @@ namespace NETDBHelper.UC
             }
 
             var location = new Point(this.CMSOpMenu.Left, this.CMSOpMenu.Top);
+            location.Offset(-this.PanelMap.AutoScrollPosition.X, -this.PanelMap.AutoScrollPosition.Y);
 
             var col = this.FindColumn(location);
             if (col != null)
