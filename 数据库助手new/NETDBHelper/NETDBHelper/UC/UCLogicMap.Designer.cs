@@ -78,15 +78,15 @@
             this.PanelMap.Dock = System.Windows.Forms.DockStyle.Fill;
             this.PanelMap.Location = new System.Drawing.Point(0, 0);
             this.PanelMap.Name = "PanelMap";
-            this.PanelMap.Size = new System.Drawing.Size(565, 412);
+            this.PanelMap.Size = new System.Drawing.Size(200, 100);
             this.PanelMap.TabIndex = 0;
-            this.Controls.Add(this.PanelMap);
             // 
             // UCLogicMap
             // 
-            this.Name = "UCLogicMap";
+            this.Controls.Add(this.PanelMap);
             this.CMSOpMenu.ResumeLayout(false);
             this.ResumeLayout(false);
+
         }
 
         #endregion

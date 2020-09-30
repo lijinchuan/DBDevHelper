@@ -71,6 +71,7 @@ namespace NETDBHelper.UC
 
             this.CMSOpMenu.VisibleChanged += CMSOpMenu_VisibleChanged;
             TSMDelRelColumn.DropDownItemClicked += TSMDelRelColumn_DropDownItemClicked;
+            TSMDelRelColumn.Click += TSMDelRelColumn_Click;
             TSMI_Export.Click += TSMI_Export_Click;
             delStripMenuItem.Click += delStripMenuItem_Click;
         }
@@ -183,12 +184,13 @@ namespace NETDBHelper.UC
 
         private void CMSOpMenu_VisibleChanged(object sender, EventArgs e)
         {
+            
             if (CMSOpMenu.Visible)
             {
-                TSMDelRelColumn.Visible = false;
+                TSMDelRelColumn.Enabled = false;
+                var location = new Point(this.CMSOpMenu.Left, this.CMSOpMenu.Top);
                 if (hashotline)
                 {
-                    var location = new Point(this.CMSOpMenu.Left, this.CMSOpMenu.Top);
                     var relColumnEx = this.FindHotLine(this.PanelMap.PointToClient(location));
                     if (relColumnEx != null)
                     {
@@ -197,13 +199,20 @@ namespace NETDBHelper.UC
                         ts.Tag = relColumnEx.RelColumn;
                         TSMDelRelColumn.DropDownItems.Add(ts);
                     }
-                    TSMDelRelColumn.Visible = TSMDelRelColumn.DropDownItems.Count > 0;
+                    TSMDelRelColumn.Enabled = TSMDelRelColumn.DropDownItems.Count > 0;
+                }
+                else
+                {
+                    var col = this.FindColumn(location);
+                    if (col != null)
+                    {
+                        TSMDelRelColumn.Enabled = true;
+                    }
                 }
             }
             else
             {
                 TSMDelRelColumn.DropDownItems.Clear();
-
             }
         }
 
@@ -214,13 +223,47 @@ namespace NETDBHelper.UC
                 var rc = e.ClickedItem.Tag as LogicMapRelColumn;
                 if (MessageBox.Show("是否要删除关联", "提示", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                 {
-                    if (LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Delete<LogicMapRelColumn>(nameof(LogicMapRelColumn),
+                    if (BigEntityTableEngine.LocalEngine.Delete<LogicMapRelColumn>(nameof(LogicMapRelColumn),
                         rc.ID))
                     {
                         TSMDelRelColumn.DropDownItems.Remove(e.ClickedItem);
                         this.relColumnIces.RemoveAll(p => p.RelColumn.ID == ((LogicMapRelColumn)e.ClickedItem.Tag).ID);
                     }
                     this.PanelMap.Invalidate();
+                }
+            }
+        }
+
+        private void TSMDelRelColumn_Click(object sender, EventArgs e)
+        {
+            if (TSMDelRelColumn.DropDownItems.Count > 0)
+            {
+                return;
+            }
+
+            var location = new Point(this.CMSOpMenu.Left, this.CMSOpMenu.Top);
+
+            var col = this.FindColumn(location);
+            if (col != null)
+            {
+                this.CMSOpMenu.Visible = false;
+                if (MessageBox.Show($"要删除字段【{col.Name}】吗", "询问", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                {
+                    long total = 0;
+                    var logiccollist= BigEntityTableEngine.LocalEngine.Scan<LogicMapRelColumn>(nameof(LogicMapRelColumn), "LogicID",
+                        new object[] { _logicMapId }, new object[] { _logicMapId }, 1, int.MaxValue, ref total).ToList();
+                    var logiccol = logiccollist.FirstOrDefault(p => p.DBName.Equals(col.DBName, StringComparison.OrdinalIgnoreCase)
+                      && p.TBName.Equals(col.TBName, StringComparison.OrdinalIgnoreCase)
+                      && p.ColName.Equals(col.Name, StringComparison.OrdinalIgnoreCase) && p.RelColName == string.Empty);
+                    if (logiccol != null)
+                    {
+                        BigEntityTableEngine.LocalEngine.Delete<LogicMapRelColumn>(nameof(LogicMapRelColumn), logiccol.ID);
+                        Util.SendMsg(this, $"操作成功");
+                    }
+                    else
+                    {
+                        Util.SendMsg(this, $"未作任何操作");
+                    }
                 }
             }
         }
@@ -235,8 +278,6 @@ namespace NETDBHelper.UC
             添加表ToolStripMenuItem.DropDownItemClicked += 添加表ToolStripMenuItem_DropDownItemClicked;
             添加表ToolStripMenuItem.Click += 添加表ToolStripMenuItem_Click;
 
-            int pointstartx = 50;
-            int margin = 100;
             List<Tuple<string, string>> reltblist = new List<Tuple<string, string>>();
 
             var list = BigEntityTableEngine.LocalEngine.Find<LogicMapTable>(nameof(LogicMapTable),

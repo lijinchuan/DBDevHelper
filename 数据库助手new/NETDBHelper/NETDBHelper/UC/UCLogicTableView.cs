@@ -13,6 +13,7 @@ using Biz.Common;
 using NETDBHelper.Resources;
 using System.Drawing.Drawing2D;
 using NETDBHelper.Drawing;
+using LJC.FrameWorkV3.Data.EntityDataBase;
 
 namespace NETDBHelper.UC
 {
@@ -150,6 +151,7 @@ namespace NETDBHelper.UC
             this.CBCoumns.SelectedIndexChanged += CBCoumns_SelectedIndexChanged;
 
             HashSet<string> ha = new HashSet<string>();
+            List<LogicMapRelColumn> logicMapRelColumns = null;
             foreach (var item in collist)
             {
                 if (!ha.Contains(item.ColName))
@@ -159,7 +161,7 @@ namespace NETDBHelper.UC
                     var col = ColumnsList.FirstOrDefault(p => p.Name.Equals(item.ColName, StringComparison.OrdinalIgnoreCase));
                     if (col != null)
                     {
-                        AddColumnLable(col);
+                        AddColumnLable(col,ref logicMapRelColumns);
                     }
                 }
 
@@ -174,7 +176,7 @@ namespace NETDBHelper.UC
                     var col = ColumnsList.FirstOrDefault(p => p.Name.Equals(item.RelColName, StringComparison.OrdinalIgnoreCase));
                     if (col != null)
                     {
-                        AddColumnLable(col);
+                        AddColumnLable(col,ref logicMapRelColumns);
                     }
                 }
 
@@ -206,7 +208,7 @@ namespace NETDBHelper.UC
             return Rectangle.Empty;
         }
 
-        private void AddColumnLable(TBColumn tbcol)
+        private void AddColumnLable(TBColumn tbcol,ref List<LogicMapRelColumn> logicMapRelColumns)
         {
             var lb = new Label();
             lb.AutoSize = false;
@@ -259,6 +261,42 @@ namespace NETDBHelper.UC
 
                 this.Height = this.ColumnsPanel.Location.Y + this.ColumnsPanel.Height + 1;
                 this.Invalidate();
+            }
+
+            //加到库
+            if (_logicMapId > 0)
+            {
+                long total = 0;
+                if (logicMapRelColumns == null)
+                {
+                    logicMapRelColumns = BigEntityTableEngine.LocalEngine.Scan<LogicMapRelColumn>(nameof(LogicMapRelColumn), "LogicID",
+                        new object[] { this._logicMapId }, new object[] { this._logicMapId }, 1, int.MaxValue, ref total);
+                }
+                if (!logicMapRelColumns.Any(p => p.DBName.Equals(tbcol.DBName, StringComparison.OrdinalIgnoreCase) && p.TBName.Equals(tbcol.TBName, StringComparison.OrdinalIgnoreCase) && p.ColName.Equals(tbcol.Name, StringComparison.OrdinalIgnoreCase))
+                    && !logicMapRelColumns.Any(p => p.RelDBName.Equals(tbcol.DBName, StringComparison.OrdinalIgnoreCase) && p.RelTBName.Equals(tbcol.TBName, StringComparison.OrdinalIgnoreCase) && p.RelColName.Equals(tbcol.Name, StringComparison.OrdinalIgnoreCase)))
+                {
+                    BigEntityTableEngine.LocalEngine.Insert(nameof(LogicMapRelColumn), new LogicMapRelColumn
+                    {
+                        LogicID = _logicMapId,
+                        ColName = tbcol.Name.ToLower(),
+                        DBName = tbcol.DBName.ToLower(),
+                        TBName = tbcol.TBName.ToLower(),
+                        RelColName = string.Empty,
+                        RelDBName = string.Empty,
+                        RelTBName = string.Empty
+                    });
+                }
+                else
+                {
+                    var logiccol = logicMapRelColumns.FirstOrDefault(p => p.DBName.Equals(tbcol.DBName, StringComparison.OrdinalIgnoreCase)
+                      && p.TBName.Equals(tbcol.TBName, StringComparison.OrdinalIgnoreCase) && p.ColName.Equals(tbcol.Name, StringComparison.OrdinalIgnoreCase)
+                      && p.RelColName == string.Empty);
+
+                    if (logiccol != null && logiccol.Desc != null)
+                    {
+                        lb.Text = $"   {tbcol.Name}({logiccol.Desc})";
+                    }
+                }
             }
 
             bool isDraging = false;
@@ -412,13 +450,53 @@ namespace NETDBHelper.UC
                     dragEnd = new Point(ee.X, ee.Y);
                 }
             };
+
+
+            lb.DoubleClick += (s,ee)=>
+            {
+                if (_logicMapId > 0)
+                {
+                    long total = 0;
+                    var allcols = BigEntityTableEngine.LocalEngine.Scan<LogicMapRelColumn>(nameof(LogicMapRelColumn), "LogicID",
+                        new object[] { this._logicMapId }, new object[] { this._logicMapId }, 1, int.MaxValue, ref total);
+                    var logiccol = allcols.FirstOrDefault(p => p.DBName.Equals(tbcol.DBName, StringComparison.OrdinalIgnoreCase)
+                      && p.TBName.Equals(tbcol.TBName, StringComparison.OrdinalIgnoreCase) && p.ColName.Equals(tbcol.Name, StringComparison.OrdinalIgnoreCase)
+                      && p.RelColName == string.Empty);
+                    var logiccoldesc = logiccol?.Desc ?? string.Empty;
+                    var dlg = new SubForm.InputStringDlg("逻辑备注", logiccoldesc);
+                    if (dlg.ShowDialog() == DialogResult.OK)
+                    {
+                        if (logiccol != null)
+                        {
+                            logiccol.Desc = dlg.InputString;
+                            BigEntityTableEngine.LocalEngine.Update<LogicMapRelColumn>(nameof(LogicMapRelColumn), logiccol);
+                        }
+                        else
+                        {
+                            BigEntityTableEngine.LocalEngine.Insert(nameof(LogicMapRelColumn), new LogicMapRelColumn
+                            {
+                                LogicID = _logicMapId,
+                                ColName = tbcol.Name.ToLower(),
+                                DBName = tbcol.DBName.ToLower(),
+                                TBName = tbcol.TBName.ToLower(),
+                                RelColName = string.Empty,
+                                RelDBName = string.Empty,
+                                RelTBName = string.Empty,
+                                Desc=dlg.InputString
+                            });
+                        }
+                        lb.Text = $"   {tbcol.Name}({dlg.InputString})";
+                    }
+                }
+            };
         }
 
         private void CBCoumns_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (CBCoumns.SelectedIndex != -1)
             {
-                AddColumnLable((TBColumn)CBCoumns.SelectedItem);
+                List<LogicMapRelColumn> logicMapRelColumns = null;
+                AddColumnLable((TBColumn)CBCoumns.SelectedItem,ref logicMapRelColumns);
                 var selectedindex = CBCoumns.SelectedIndex;
                 CBCoumns.SelectedIndex = -1;
                 CBCoumns.Items.RemoveAt(selectedindex);
