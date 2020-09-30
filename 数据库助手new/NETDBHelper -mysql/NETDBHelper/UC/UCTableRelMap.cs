@@ -27,8 +27,11 @@ namespace NETDBHelper.UC
         string _DBName = null;
         string Tbname = null;
 
-        static Color[] colors = new Color[] { Color.LightBlue, Color.Red, Color.Green, Color.Gold, Color.BurlyWood,
-            Color.GreenYellow,Color.Black,Color.Brown,Color.Chocolate};
+        static Color[] colors = new Color[] { Color.FromArgb(255,0x19,0x7f,0x96),
+            Color.Red, Color.Green, Color.FromArgb(255,0x9d,0x1d,0x60),
+            Color.FromArgb(255,0x07,0x52,0x96),
+            Color.FromArgb(255,0x41,0x1f,0x98),
+            Color.Black,Color.Brown,Color.Chocolate};
 
         private List<UCTableView2> ucTableViews = new List<UCTableView2>();
 
@@ -125,6 +128,8 @@ namespace NETDBHelper.UC
                 {
                     hashotline = true;
                     //MessageBox.Show(string.Join(",", relColumnEx.LinkLines.Select(p => p.X + " " + p.Y)));
+                    Util.SendMsg(this, $"[{relColumnEx.RelColumn.DBName}].[{relColumnEx.RelColumn.TBName}].[{relColumnEx.RelColumn.ColName}] -> [{relColumnEx.RelColumn.RelDBName}].[{relColumnEx.RelColumn.RelTBName}].[{relColumnEx.RelColumn.RelColName}]:{relColumnEx.RelColumn.Desc}");
+
                     using (var g = this.PanelMap.CreateGraphics())
                     {
                         g.TranslateTransform(this.PanelMap.AutoScrollPosition.X, this.PanelMap.AutoScrollPosition.Y);

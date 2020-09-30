@@ -38,6 +38,14 @@ namespace NETDBHelper.Drawing
                 Directions.Insert(0, stepDirection);
             }
         }
+        /// <summary>
+        /// 步长
+        /// </summary>
+        public List<int> StepLens
+        {
+            get;
+            set;
+        }
 
         public StepDirection chooseDirection
         {
