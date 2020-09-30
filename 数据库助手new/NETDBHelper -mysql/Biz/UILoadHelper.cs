@@ -61,6 +61,10 @@ namespace Biz
                         procnode.Tag = new NodeContents(NodeContentType.PROCParent);
                         dbNode.Nodes.Add(procnode);
 
+                        var logicmapnode = new TreeNode("逻辑关系图", 1, 1);
+                        logicmapnode.Tag = new NodeContents(NodeContentType.LOGICMAPParent);
+                        dbNode.Nodes.Add(logicmapnode);
+
                         serverNode.Expand();
                     }
                 }));
@@ -241,6 +245,37 @@ namespace Biz
                 serverNode.Nodes.AddRange(treeNodes.ToArray());
                 serverNode.Expand();
             }));
+
+        }
+
+
+        public static void LoadLogicMapsAnsy(Form parent, TreeNode tbNode, string dbname)
+        {
+            tbNode.Nodes.Add(new TreeNode("加载中...", 17, 17));
+            tbNode.Expand();
+            new Action<Form, TreeNode, string>(LoadLogicMaps).BeginInvoke(parent, tbNode, dbname, null, null);
+        }
+
+        public static void LoadLogicMaps(Form parent, TreeNode tbNode, string dbname)
+        {
+            var logicmaplist = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<LogicMap>(nameof(LogicMap),
+                p => p.DBName.Equals(dbname, StringComparison.OrdinalIgnoreCase)).ToList();
+
+
+            List<TreeNode> treeNodes = new List<TreeNode>();
+
+            foreach (var item in logicmaplist)
+            {
+                TreeNode newNode = new TreeNode(item.LogicName);
+
+                newNode.ImageIndex = newNode.SelectedImageIndex = 15;
+
+                newNode.Tag = item;
+
+                treeNodes.Add(newNode);
+            }
+
+            parent.Invoke(new Action(() => { tbNode.Nodes.Clear(); tbNode.Nodes.AddRange(treeNodes.ToArray()); tbNode.Expand(); }));
 
         }
     }

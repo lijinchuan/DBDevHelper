@@ -22,7 +22,7 @@ namespace NETDBHelper.Resources {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class Resource1 {
+    public class Resource1 {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
@@ -36,7 +36,7 @@ namespace NETDBHelper.Resources {
         ///   返回此类使用的缓存的 ResourceManager 实例。
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Resources.ResourceManager ResourceManager {
+        public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
                     global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("NETDBHelper.Resources.Resource1", typeof(Resource1).Assembly);
@@ -51,7 +51,7 @@ namespace NETDBHelper.Resources {
         ///   重写当前线程的 CurrentUICulture 属性。
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Globalization.CultureInfo Culture {
+        public static global::System.Globalization.CultureInfo Culture {
             get {
                 return resourceCulture;
             }
@@ -63,7 +63,7 @@ namespace NETDBHelper.Resources {
         /// <summary>
         ///   查找 System.Drawing.Bitmap 类型的本地化资源。
         /// </summary>
-        internal static System.Drawing.Bitmap bullet_eject {
+        public static System.Drawing.Bitmap bullet_eject {
             get {
                 object obj = ResourceManager.GetObject("bullet_eject", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
@@ -73,7 +73,7 @@ namespace NETDBHelper.Resources {
         /// <summary>
         ///   查找 System.Drawing.Bitmap 类型的本地化资源。
         /// </summary>
-        internal static System.Drawing.Bitmap bullet_tick {
+        public static System.Drawing.Bitmap bullet_tick {
             get {
                 object obj = ResourceManager.GetObject("bullet_tick", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
@@ -83,7 +83,7 @@ namespace NETDBHelper.Resources {
         /// <summary>
         ///   查找 System.Drawing.Bitmap 类型的本地化资源。
         /// </summary>
-        internal static System.Drawing.Bitmap CloseServer {
+        public static System.Drawing.Bitmap CloseServer {
             get {
                 object obj = ResourceManager.GetObject("CloseServer", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
@@ -93,7 +93,7 @@ namespace NETDBHelper.Resources {
         /// <summary>
         ///   查找 System.Drawing.Bitmap 类型的本地化资源。
         /// </summary>
-        internal static System.Drawing.Bitmap ColQ {
+        public static System.Drawing.Bitmap ColQ {
             get {
                 object obj = ResourceManager.GetObject("ColQ", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
@@ -103,7 +103,7 @@ namespace NETDBHelper.Resources {
         /// <summary>
         ///   查找 System.Drawing.Bitmap 类型的本地化资源。
         /// </summary>
-        internal static System.Drawing.Bitmap computer_link {
+        public static System.Drawing.Bitmap computer_link {
             get {
                 object obj = ResourceManager.GetObject("computer_link", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
@@ -113,7 +113,7 @@ namespace NETDBHelper.Resources {
         /// <summary>
         ///   查找 System.Drawing.Bitmap 类型的本地化资源。
         /// </summary>
-        internal static System.Drawing.Bitmap connect {
+        public static System.Drawing.Bitmap connect {
             get {
                 object obj = ResourceManager.GetObject("connect", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
@@ -123,7 +123,7 @@ namespace NETDBHelper.Resources {
         /// <summary>
         ///   查找 System.Drawing.Bitmap 类型的本地化资源。
         /// </summary>
-        internal static System.Drawing.Bitmap DB1 {
+        public static System.Drawing.Bitmap DB1 {
             get {
                 object obj = ResourceManager.GetObject("DB1", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
@@ -133,7 +133,7 @@ namespace NETDBHelper.Resources {
         /// <summary>
         ///   查找 System.Drawing.Bitmap 类型的本地化资源。
         /// </summary>
-        internal static System.Drawing.Bitmap DB10 {
+        public static System.Drawing.Bitmap DB10 {
             get {
                 object obj = ResourceManager.GetObject("DB10", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
@@ -143,7 +143,7 @@ namespace NETDBHelper.Resources {
         /// <summary>
         ///   查找 System.Drawing.Bitmap 类型的本地化资源。
         /// </summary>
-        internal static System.Drawing.Bitmap DB11 {
+        public static System.Drawing.Bitmap DB11 {
             get {
                 object obj = ResourceManager.GetObject("DB11", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
@@ -153,7 +153,7 @@ namespace NETDBHelper.Resources {
         /// <summary>
         ///   查找 System.Drawing.Bitmap 类型的本地化资源。
         /// </summary>
-        internal static System.Drawing.Bitmap DB16 {
+        public static System.Drawing.Bitmap DB16 {
             get {
                 object obj = ResourceManager.GetObject("DB16", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
@@ -163,7 +163,7 @@ namespace NETDBHelper.Resources {
         /// <summary>
         ///   查找 System.Drawing.Bitmap 类型的本地化资源。
         /// </summary>
-        internal static System.Drawing.Bitmap DB161 {
+        public static System.Drawing.Bitmap DB161 {
             get {
                 object obj = ResourceManager.GetObject("DB161", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
@@ -173,7 +173,7 @@ namespace NETDBHelper.Resources {
         /// <summary>
         ///   查找 System.Drawing.Bitmap 类型的本地化资源。
         /// </summary>
-        internal static System.Drawing.Bitmap DB2 {
+        public static System.Drawing.Bitmap DB2 {
             get {
                 object obj = ResourceManager.GetObject("DB2", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
@@ -183,7 +183,7 @@ namespace NETDBHelper.Resources {
         /// <summary>
         ///   查找 System.Drawing.Bitmap 类型的本地化资源。
         /// </summary>
-        internal static System.Drawing.Bitmap DB3 {
+        public static System.Drawing.Bitmap DB3 {
             get {
                 object obj = ResourceManager.GetObject("DB3", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
@@ -193,7 +193,7 @@ namespace NETDBHelper.Resources {
         /// <summary>
         ///   查找 System.Drawing.Bitmap 类型的本地化资源。
         /// </summary>
-        internal static System.Drawing.Bitmap DB4 {
+        public static System.Drawing.Bitmap DB4 {
             get {
                 object obj = ResourceManager.GetObject("DB4", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
@@ -203,7 +203,7 @@ namespace NETDBHelper.Resources {
         /// <summary>
         ///   查找 System.Drawing.Bitmap 类型的本地化资源。
         /// </summary>
-        internal static System.Drawing.Bitmap DB5 {
+        public static System.Drawing.Bitmap DB5 {
             get {
                 object obj = ResourceManager.GetObject("DB5", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
@@ -213,7 +213,7 @@ namespace NETDBHelper.Resources {
         /// <summary>
         ///   查找 System.Drawing.Bitmap 类型的本地化资源。
         /// </summary>
-        internal static System.Drawing.Bitmap DB6 {
+        public static System.Drawing.Bitmap DB6 {
             get {
                 object obj = ResourceManager.GetObject("DB6", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
@@ -223,7 +223,7 @@ namespace NETDBHelper.Resources {
         /// <summary>
         ///   查找 System.Drawing.Bitmap 类型的本地化资源。
         /// </summary>
-        internal static System.Drawing.Bitmap DB7 {
+        public static System.Drawing.Bitmap DB7 {
             get {
                 object obj = ResourceManager.GetObject("DB7", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
@@ -233,7 +233,7 @@ namespace NETDBHelper.Resources {
         /// <summary>
         ///   查找 System.Drawing.Bitmap 类型的本地化资源。
         /// </summary>
-        internal static System.Drawing.Bitmap DB71 {
+        public static System.Drawing.Bitmap DB71 {
             get {
                 object obj = ResourceManager.GetObject("DB71", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
@@ -243,7 +243,7 @@ namespace NETDBHelper.Resources {
         /// <summary>
         ///   查找 System.Drawing.Bitmap 类型的本地化资源。
         /// </summary>
-        internal static System.Drawing.Bitmap DB8 {
+        public static System.Drawing.Bitmap DB8 {
             get {
                 object obj = ResourceManager.GetObject("DB8", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
@@ -253,7 +253,7 @@ namespace NETDBHelper.Resources {
         /// <summary>
         ///   查找 System.Drawing.Bitmap 类型的本地化资源。
         /// </summary>
-        internal static System.Drawing.Bitmap DB81 {
+        public static System.Drawing.Bitmap DB81 {
             get {
                 object obj = ResourceManager.GetObject("DB81", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
@@ -263,7 +263,7 @@ namespace NETDBHelper.Resources {
         /// <summary>
         ///   查找 System.Drawing.Bitmap 类型的本地化资源。
         /// </summary>
-        internal static System.Drawing.Bitmap DB9 {
+        public static System.Drawing.Bitmap DB9 {
             get {
                 object obj = ResourceManager.GetObject("DB9", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
@@ -273,7 +273,7 @@ namespace NETDBHelper.Resources {
         /// <summary>
         ///   查找 System.Drawing.Bitmap 类型的本地化资源。
         /// </summary>
-        internal static System.Drawing.Bitmap DB91 {
+        public static System.Drawing.Bitmap DB91 {
             get {
                 object obj = ResourceManager.GetObject("DB91", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
@@ -283,7 +283,7 @@ namespace NETDBHelper.Resources {
         /// <summary>
         ///   查找类似 dbservers.xml 的本地化字符串。
         /// </summary>
-        internal static string DbServersFile {
+        public static string DbServersFile {
             get {
                 return ResourceManager.GetString("DbServersFile", resourceCulture);
             }
@@ -292,7 +292,7 @@ namespace NETDBHelper.Resources {
         /// <summary>
         ///   查找 System.Drawing.Bitmap 类型的本地化资源。
         /// </summary>
-        internal static System.Drawing.Bitmap Index {
+        public static System.Drawing.Bitmap Index {
             get {
                 object obj = ResourceManager.GetObject("Index", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
@@ -302,7 +302,7 @@ namespace NETDBHelper.Resources {
         /// <summary>
         ///   查找 System.Drawing.Bitmap 类型的本地化资源。
         /// </summary>
-        internal static System.Drawing.Bitmap Index1 {
+        public static System.Drawing.Bitmap Index1 {
             get {
                 object obj = ResourceManager.GetObject("Index1", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
@@ -312,7 +312,7 @@ namespace NETDBHelper.Resources {
         /// <summary>
         ///   查找 System.Drawing.Bitmap 类型的本地化资源。
         /// </summary>
-        internal static System.Drawing.Bitmap loading {
+        public static System.Drawing.Bitmap loading {
             get {
                 object obj = ResourceManager.GetObject("loading", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
@@ -322,7 +322,7 @@ namespace NETDBHelper.Resources {
         /// <summary>
         ///   查找 System.Drawing.Bitmap 类型的本地化资源。
         /// </summary>
-        internal static System.Drawing.Bitmap loading2 {
+        public static System.Drawing.Bitmap loading2 {
             get {
                 object obj = ResourceManager.GetObject("loading2", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
@@ -332,7 +332,17 @@ namespace NETDBHelper.Resources {
         /// <summary>
         ///   查找 System.Drawing.Bitmap 类型的本地化资源。
         /// </summary>
-        internal static System.Drawing.Bitmap msg {
+        public static System.Drawing.Bitmap logic {
+            get {
+                object obj = ResourceManager.GetObject("logic", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        /// </summary>
+        public static System.Drawing.Bitmap msg {
             get {
                 object obj = ResourceManager.GetObject("msg", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
@@ -342,7 +352,7 @@ namespace NETDBHelper.Resources {
         /// <summary>
         ///   查找 System.Drawing.Bitmap 类型的本地化资源。
         /// </summary>
-        internal static System.Drawing.Bitmap OpenServer {
+        public static System.Drawing.Bitmap OpenServer {
             get {
                 object obj = ResourceManager.GetObject("OpenServer", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
@@ -352,7 +362,7 @@ namespace NETDBHelper.Resources {
         /// <summary>
         ///   查找 System.Drawing.Bitmap 类型的本地化资源。
         /// </summary>
-        internal static System.Drawing.Bitmap OpenServer1 {
+        public static System.Drawing.Bitmap OpenServer1 {
             get {
                 object obj = ResourceManager.GetObject("OpenServer1", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
@@ -362,7 +372,7 @@ namespace NETDBHelper.Resources {
         /// <summary>
         ///   查找 System.Drawing.Bitmap 类型的本地化资源。
         /// </summary>
-        internal static System.Drawing.Bitmap param {
+        public static System.Drawing.Bitmap param {
             get {
                 object obj = ResourceManager.GetObject("param", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
@@ -372,7 +382,7 @@ namespace NETDBHelper.Resources {
         /// <summary>
         ///   查找 System.Drawing.Bitmap 类型的本地化资源。
         /// </summary>
-        internal static System.Drawing.Bitmap paramout {
+        public static System.Drawing.Bitmap paramout {
             get {
                 object obj = ResourceManager.GetObject("paramout", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
@@ -382,7 +392,7 @@ namespace NETDBHelper.Resources {
         /// <summary>
         ///   查找 System.Drawing.Bitmap 类型的本地化资源。
         /// </summary>
-        internal static System.Drawing.Bitmap script_code {
+        public static System.Drawing.Bitmap script_code {
             get {
                 object obj = ResourceManager.GetObject("script_code", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
@@ -392,7 +402,7 @@ namespace NETDBHelper.Resources {
         /// <summary>
         ///   查找 System.Drawing.Bitmap 类型的本地化资源。
         /// </summary>
-        internal static System.Drawing.Bitmap script_code_no {
+        public static System.Drawing.Bitmap script_code_no {
             get {
                 object obj = ResourceManager.GetObject("script_code_no", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
@@ -402,7 +412,7 @@ namespace NETDBHelper.Resources {
         /// <summary>
         ///   查找 System.Drawing.Bitmap 类型的本地化资源。
         /// </summary>
-        internal static System.Drawing.Bitmap script_code_red {
+        public static System.Drawing.Bitmap script_code_red {
             get {
                 object obj = ResourceManager.GetObject("script_code_red", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
@@ -412,7 +422,7 @@ namespace NETDBHelper.Resources {
         /// <summary>
         ///   查找 System.Drawing.Bitmap 类型的本地化资源。
         /// </summary>
-        internal static System.Drawing.Bitmap script_code_red_no {
+        public static System.Drawing.Bitmap script_code_red_no {
             get {
                 object obj = ResourceManager.GetObject("script_code_red_no", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
@@ -422,7 +432,7 @@ namespace NETDBHelper.Resources {
         /// <summary>
         ///   查找 System.Drawing.Bitmap 类型的本地化资源。
         /// </summary>
-        internal static System.Drawing.Bitmap Search {
+        public static System.Drawing.Bitmap Search {
             get {
                 object obj = ResourceManager.GetObject("Search", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
@@ -432,7 +442,7 @@ namespace NETDBHelper.Resources {
         /// <summary>
         ///   查找 System.Drawing.Bitmap 类型的本地化资源。
         /// </summary>
-        internal static System.Drawing.Bitmap SQLSerTop {
+        public static System.Drawing.Bitmap SQLSerTop {
             get {
                 object obj = ResourceManager.GetObject("SQLSerTop", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
@@ -442,7 +452,7 @@ namespace NETDBHelper.Resources {
         /// <summary>
         ///   查找 System.Drawing.Bitmap 类型的本地化资源。
         /// </summary>
-        internal static System.Drawing.Bitmap SQLSerTopold {
+        public static System.Drawing.Bitmap SQLSerTopold {
             get {
                 object obj = ResourceManager.GetObject("SQLSerTopold", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
@@ -452,7 +462,7 @@ namespace NETDBHelper.Resources {
         /// <summary>
         ///   查找 System.Drawing.Bitmap 类型的本地化资源。
         /// </summary>
-        internal static System.Drawing.Bitmap table {
+        public static System.Drawing.Bitmap table {
             get {
                 object obj = ResourceManager.GetObject("table", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
@@ -462,7 +472,7 @@ namespace NETDBHelper.Resources {
         /// <summary>
         ///   查找 System.Drawing.Bitmap 类型的本地化资源。
         /// </summary>
-        internal static System.Drawing.Bitmap tbview {
+        public static System.Drawing.Bitmap tbview {
             get {
                 object obj = ResourceManager.GetObject("tbview", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));

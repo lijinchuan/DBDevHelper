@@ -35,6 +35,7 @@
             this.生成实体类ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.生成数据字典ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.表关系图ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.新增逻辑关系图ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.显示前100条数据ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.复制表名ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.备注ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -70,7 +71,9 @@
             this.SqlExecuterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.性能分析工具ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.TSMI_FilterProc = new System.Windows.Forms.ToolStripMenuItem();
+            this.删除逻辑关系图ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.DBServerviewContextMenuStrip.SuspendLayout();
+            this.toolStrip1.SuspendLayout();
             this.CommMenuStrip.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -101,6 +104,8 @@
             this.生成实体类ToolStripMenuItem,
             this.生成数据字典ToolStripMenuItem,
             this.表关系图ToolStripMenuItem,
+            this.新增逻辑关系图ToolStripMenuItem,
+            this.删除逻辑关系图ToolStripMenuItem,
             this.显示前100条数据ToolStripMenuItem,
             this.复制表名ToolStripMenuItem,
             this.备注ToolStripMenuItem,
@@ -112,7 +117,7 @@
             this.导出ToolStripMenuItem,
             this.TSM_ManIndex});
             this.DBServerviewContextMenuStrip.Name = "DBServerviewContextMenuStrip";
-            this.DBServerviewContextMenuStrip.Size = new System.Drawing.Size(181, 312);
+            this.DBServerviewContextMenuStrip.Size = new System.Drawing.Size(181, 356);
             // 
             // 生成实体类ToolStripMenuItem
             // 
@@ -133,6 +138,13 @@
             this.表关系图ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.表关系图ToolStripMenuItem.Text = "表关系图";
             this.表关系图ToolStripMenuItem.Click += new System.EventHandler(this.表关系图ToolStripMenuItem_Click);
+            // 
+            // 新增逻辑关系图ToolStripMenuItem
+            // 
+            this.新增逻辑关系图ToolStripMenuItem.Name = "新增逻辑关系图ToolStripMenuItem";
+            this.新增逻辑关系图ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.新增逻辑关系图ToolStripMenuItem.Text = "新增逻辑关系图";
+            this.新增逻辑关系图ToolStripMenuItem.Click += new System.EventHandler(this.新增逻辑关系图ToolStripMenuItem_Click);
             // 
             // 显示前100条数据ToolStripMenuItem
             // 
@@ -270,7 +282,7 @@
             // ts_serchKey
             // 
             this.ts_serchKey.Name = "ts_serchKey";
-            this.ts_serchKey.Size = new System.Drawing.Size(100, 25);
+            this.ts_serchKey.Size = new System.Drawing.Size(100, 22);
             this.ts_serchKey.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.ts_serchKey_KeyPress);
             // 
             // toolStripDropDownButton1
@@ -391,6 +403,13 @@
             this.TSMI_FilterProc.Size = new System.Drawing.Size(160, 22);
             this.TSMI_FilterProc.Text = "筛选存储过程";
             // 
+            // 删除逻辑关系图ToolStripMenuItem
+            // 
+            this.删除逻辑关系图ToolStripMenuItem.Name = "删除逻辑关系图ToolStripMenuItem";
+            this.删除逻辑关系图ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.删除逻辑关系图ToolStripMenuItem.Text = "删除逻辑关系图";
+            this.删除逻辑关系图ToolStripMenuItem.Click += new System.EventHandler(this.删除逻辑关系图ToolStripMenuItem_Click);
+            // 
             // DBServerView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -404,6 +423,8 @@
             this.Size = new System.Drawing.Size(251, 488);
             this.Load += new System.EventHandler(this.DBServerView_Load);
             this.DBServerviewContextMenuStrip.ResumeLayout(false);
+            this.toolStrip1.ResumeLayout(false);
+            this.toolStrip1.PerformLayout();
             this.CommMenuStrip.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -453,5 +474,7 @@
         private System.Windows.Forms.ToolStripMenuItem TSMI_FilterProc;
         private System.Windows.Forms.ToolStripMenuItem TSMI_ViewColumnList;
         private System.Windows.Forms.ToolStripMenuItem 表关系图ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 新增逻辑关系图ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 删除逻辑关系图ToolStripMenuItem;
     }
 }

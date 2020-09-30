@@ -181,12 +181,19 @@ namespace NETDBHelper
                 b.AddIndex("SDRTC", p => p.Asc(q => q.RelDBName).Asc(q => q.RelTBName));
             });
 
+            BigEntityTableEngine.LocalEngine.CreateTable<LogicMap>(p => p.ID, p => p.AddIndex("DB_LogicName", m => m.Asc(f => f.DBName).Asc(f => f.LogicName)));
+            BigEntityTableEngine.LocalEngine.CreateTable<LogicMapTable>(p => p.ID, p => p.AddIndex("LogicID", m => m.Asc(f => f.LogicID)));
+            BigEntityTableEngine.LocalEngine.CreateTable<LogicMapRelColumn>(p => p.ID, p => p.AddIndex("LogicID", m => m.Asc(f => f.LogicID))
+            .AddIndex("LSDTC", m => m.Asc(f => f.LogicID).Asc(f => f.DBName).Asc(f => f.TBName))
+            .AddIndex("LSDRTC", m => m.Asc(f => f.LogicID).Asc(f => f.RelDBName).Asc(f => f.RelTBName)));
+
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new MainFrm());
             //Application.Run(new SubForm.TestForm());
 
-            LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.ShutDown();
+            BigEntityTableEngine.LocalEngine.ShutDown();
         }
     }
 }
