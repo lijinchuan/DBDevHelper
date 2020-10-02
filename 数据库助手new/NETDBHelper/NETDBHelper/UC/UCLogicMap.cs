@@ -203,7 +203,7 @@ namespace NETDBHelper.UC
                 }
                 else
                 {
-                    location.Offset(-this.PanelMap.AutoScrollPosition.X, -this.PanelMap.AutoScrollPosition.Y);
+                    //location.Offset(-this.PanelMap.AutoScrollPosition.X, -this.PanelMap.AutoScrollPosition.Y);
                     var col = this.FindColumn(location);
                     if (col != null)
                     {
@@ -243,7 +243,7 @@ namespace NETDBHelper.UC
             }
 
             var location = new Point(this.CMSOpMenu.Left, this.CMSOpMenu.Top);
-            location.Offset(-this.PanelMap.AutoScrollPosition.X, -this.PanelMap.AutoScrollPosition.Y);
+            //location.Offset(-this.PanelMap.AutoScrollPosition.X, -this.PanelMap.AutoScrollPosition.Y);
 
             var col = this.FindColumn(location);
             if (col != null)
@@ -301,6 +301,12 @@ namespace NETDBHelper.UC
 
             foreach (var item in reltblist)
             {
+                var tbleinfo = list.Find(p => p.DBName.Equals(item.Item1, StringComparison.OrdinalIgnoreCase) && p.TBName.Equals(item.Item2, StringComparison.OrdinalIgnoreCase));
+                if (tbleinfo == null)
+                {
+                    continue;
+                }
+
                 UCLogicTableView tv = new UCLogicTableView(DBSource, this._DBName.Equals(item.Item1, StringComparison.OrdinalIgnoreCase), item.Item1, item.Item2,this._logicMapId, () =>
                 {
                     var tblist = new List<Tuple<string, string>>();
@@ -329,7 +335,6 @@ namespace NETDBHelper.UC
                     this.relColumnIces.Add(new LogicMapRelColumnEx() { RelColumn = c });
                     this.PanelMap.Invalidate();
                 };
-                var tbleinfo = list.Find(p => p.DBName.Equals(tv.DataBaseName, StringComparison.OrdinalIgnoreCase) && p.TBName.Equals(tv.TableName, StringComparison.OrdinalIgnoreCase));
                 tv.Location = new Point(tbleinfo.Posx, tbleinfo.Posy);
                 tv.LogicMapTableId = tbleinfo.ID;
                 this.PanelMap.Controls.Add(tv);
@@ -450,6 +455,7 @@ namespace NETDBHelper.UC
                     oldstartpos.Offset(-20, 0);
                     oldendpos.Offset(20, 0);
                     Point startpt = Point.Empty, destpt = Point.Empty;
+                    oldstartpos.Offset(this.PanelMap.AutoScrollPosition.X, this.PanelMap.AutoScrollPosition.Y);
                     var col = FindColumn(oldstartpos);
                     bool haschange = false;
                     if (col == null || item.Start.IsEmpty || !col.Name.Equals(item.RelColumn.ColName, StringComparison.OrdinalIgnoreCase)
@@ -462,7 +468,7 @@ namespace NETDBHelper.UC
                         }
                         haschange = true;
                     }
-
+                    oldendpos.Offset(this.PanelMap.AutoScrollPosition.X, this.PanelMap.AutoScrollPosition.Y);
                     col = FindColumn(oldendpos);
                     if (col == null || item.Dest.IsEmpty || !col.Name.Equals(item.RelColumn.RelColName, StringComparison.OrdinalIgnoreCase)
                         || !col.TBName.Equals(item.RelColumn.RelTBName, StringComparison.OrdinalIgnoreCase))
@@ -861,7 +867,6 @@ namespace NETDBHelper.UC
 
         public TBColumn FindColumn(Point screenpt)
         {
-            screenpt.Offset(this.PanelMap.AutoScrollPosition.X, this.PanelMap.AutoScrollPosition.Y);
             foreach (var v in this.ucTableViews)
             {
                 var panel = v.Controls.Find("ColumnsPanel", false).FirstOrDefault();
