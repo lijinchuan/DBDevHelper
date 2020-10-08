@@ -30,6 +30,14 @@ namespace NETDBHelper.Drawing
             StepDirection.down
         };
 
+        /// <summary>
+        /// 步长
+        /// </summary>
+        public List<int> StepLens
+        {
+            get;
+            set;
+        }
         public void SetFirst(StepDirection stepDirection)
         {
             if (Directions.Contains(stepDirection))
