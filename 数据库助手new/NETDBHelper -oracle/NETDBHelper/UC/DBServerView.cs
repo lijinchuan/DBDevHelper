@@ -29,6 +29,8 @@ namespace NETDBHelper
         public Action<DBSource, string, string> OnViewTable;
         public Action<DBSource, string, string> OnViewCloumns;
         public Action<DBSource, string, string> OnShowRelMap;
+        public Action<DBSource, string, LogicMap> OnAddNewLogicMap;
+        public Action<string, LogicMap> OnDeleteLogicMap;
         private DBSourceCollection _dbServers;
         /// <summary>
         /// 实体命名空间
@@ -66,19 +68,20 @@ namespace NETDBHelper
 
             tv_DBServers.ImageList.Images.Add(Resources.Resource1.param);
             tv_DBServers.ImageList.Images.Add(Resources.Resource1.paramout);
-            tv_DBServers.ImageList.Images.Add(Resources.Resource1.script_code); //13
+            tv_DBServers.ImageList.Images.Add(Resources.Resource1.script_code); //18
             tv_DBServers.ImageList.Images.Add(Resources.Resource1.script_code_red);
             tv_DBServers.ImageList.Images.Add(Resources.Resource1.DB16);
-            tv_DBServers.ImageList.Images.Add(Resources.Resource1.DB161); //16
+            tv_DBServers.ImageList.Images.Add(Resources.Resource1.DB161); //21
             tv_DBServers.ImageList.Images.Add(Resources.Resource1.loading);
-            tv_DBServers.ImageList.Images.Add(Resources.Resource1.ColQ); //18
+            tv_DBServers.ImageList.Images.Add(Resources.Resource1.ColQ); //23
             tv_DBServers.ImageList.Images.Add(Resources.Resource1.script_code_no);
             tv_DBServers.ImageList.Images.Add(Resources.Resource1.script_code_red_no);
             tv_DBServers.ImageList.Images.Add(Resources.Resource1.DB16);
             tv_DBServers.ImageList.Images.Add(Resources.Resource1.DB161);
+            tv_DBServers.ImageList.Images.Add(Resources.Resource1.logic);//28
             tv_DBServers.Nodes.Add("0", "资源管理器", 0);
             tv_DBServers.NodeMouseClick += new TreeNodeMouseClickEventHandler(tv_DBServers_NodeMouseClick);
-
+            tv_DBServers.NodeMouseDoubleClick += Tv_DBServers_NodeMouseDoubleClick;
             this.DBServerviewContextMenuStrip.ItemClicked += new ToolStripItemClickedEventHandler(OnMenuStrip_ItemClicked);
             
             this.CommMenuStrip.ItemClicked += new ToolStripItemClickedEventHandler(CommMenuStrip_ItemClicked);
@@ -340,7 +343,10 @@ namespace NETDBHelper
             {
                 Biz.UILoadHelper.LoadTriggersAnsy(this.ParentForm, selNode, GetDBSource(selNode));
             }
-            
+            else if (selNode.Tag is INodeContents && (selNode.Tag as INodeContents).GetNodeContentType() == NodeContentType.LOGICMAPParent)
+            {
+                Biz.UILoadHelper.LoadLogicMapsAnsy(this.ParentForm, selNode, GetDBName(selNode));
+            }
         }
 
         private bool IsTableNode(TreeNode node)
@@ -893,6 +899,21 @@ namespace NETDBHelper
                     return;
                 Biz.UILoadHelper.LoadMViewColumnsAnsy(this.ParentForm, e.Node, GetDBSource(e.Node), null);
             }
+            else if ((e.Node.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.LOGICMAPParent)
+            {
+                if (e.Node.Nodes.Count > 0)
+                    return;
+                Biz.UILoadHelper.LoadLogicMapsAnsy(this.ParentForm, e.Node, GetDBName(e.Node));
+            }
+        }
+
+
+        private void Tv_DBServers_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
+        {
+            if ((e.Node.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.LOGICMAP)
+            {
+                OnAddNewLogicMap(GetDBSource(e.Node), GetDBName(e.Node), e.Node.Tag as LogicMap);
+            }
         }
 
         public void Bind()
@@ -974,7 +995,9 @@ namespace NETDBHelper
                         || nctype == NodeContentType.INDEX
                         || nctype == NodeContentType.JOBParent
                         || nctype == NodeContentType.JOB
-                        || nctype == NodeContentType.SEQUENCEParent)
+                        || nctype == NodeContentType.SEQUENCEParent
+                        || nctype == NodeContentType.LOGICMAPParent
+                        || nctype == NodeContentType.LOGICMAP)
                     {
                         this.tv_DBServers.ContextMenuStrip = this.DBServerviewContextMenuStrip;
                         foreach (ToolStripItem item in DBServerviewContextMenuStrip.Items)
@@ -994,7 +1017,8 @@ namespace NETDBHelper
                             || nctype == NodeContentType.VIEW
                             || nctype == NodeContentType.VIEWParent
                             || nctype == NodeContentType.PROCParent
-                            || nctype == NodeContentType.PROC;
+                            || nctype == NodeContentType.PROC
+                            || nctype == NodeContentType.LOGICMAPParent;
 
                         导出ToolStripMenuItem.Visible = nctype == NodeContentType.VIEW
                             || nctype == NodeContentType.PROC
@@ -1006,7 +1030,8 @@ namespace NETDBHelper
                             || nctype == NodeContentType.TB;
                         复制表名ToolStripMenuItem.Visible = nctype == NodeContentType.VIEW
                             || nctype == NodeContentType.TB
-                            || nctype == NodeContentType.INDEX;
+                            || nctype == NodeContentType.INDEX
+                            || nctype == NodeContentType.LOGICMAP;
                         显示前100条数据ToolStripMenuItem.Visible = nctype == NodeContentType.VIEW
                             || nctype == NodeContentType.TB
                             || nctype == NodeContentType.MVIEW;
@@ -1022,7 +1047,8 @@ namespace NETDBHelper
                         TTSM_DelIndex.Visible = nctype == NodeContentType.INDEX;
                         新增字段ToolStripMenuItem.Visible = IsTableNode(node);
                         授权ToolStripMenuItem.Visible = IsTableNode(node);
-
+                        新增逻辑关系图ToolStripMenuItem.Visible = nctype == NodeContentType.LOGICMAPParent;
+                        删除逻辑关系图ToolStripMenuItem.Visible = nctype == NodeContentType.LOGICMAP;
                     }
                     else
                     {
@@ -2183,6 +2209,70 @@ background-color: #ffffff;
                 if (this.OnShowRelMap != null)
                 {
                     this.OnShowRelMap(dbsource, tb.DBName, tb.TBName);
+                }
+            }
+        }
+
+
+        private void 新增逻辑关系图ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var currnode = this.tv_DBServers.SelectedNode;
+            if (currnode == null)
+            {
+                return;
+            }
+
+            while (true)
+            {
+                SubForm.InputStringDlg dlg = new InputStringDlg("输入逻辑关系图名称");
+                if (dlg.ShowDialog() == DialogResult.OK)
+                {
+                    var db = GetDBName(currnode).ToUpper();
+                    var name = dlg.InputString.ToUpper();
+                    long total = 0;
+                    if (BigEntityTableEngine.LocalEngine.Scan<LogicMap>(nameof(LogicMap), "DB_LogicName",
+                        new[] { db, name }, new[] { db, name }, 1, 1, ref total).Count > 0)
+                    {
+                        MessageBox.Show("名称不能重复");
+                    }
+                    else
+                    {
+                        var logicmap = new LogicMap
+                        {
+                            DBName = db,
+                            LogicName = dlg.InputString
+                        };
+                        BigEntityTableEngine.LocalEngine.Insert<LogicMap>(nameof(LogicMap), logicmap);
+                        ReLoadDBObj(currnode);
+                        if (OnAddNewLogicMap != null)
+                        {
+                            OnAddNewLogicMap(GetDBSource(currnode), db, logicmap);
+                        }
+                        break;
+                    }
+                }
+                else
+                {
+                    break;
+                }
+
+            }
+        }
+
+        private void 删除逻辑关系图ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var currnode = this.tv_DBServers.SelectedNode;
+            if (currnode != null && currnode.Tag is LogicMap)
+            {
+                var logicmap = currnode.Tag as LogicMap;
+                if (MessageBox.Show($"要删除逻辑关系图【{logicmap.LogicName}】吗？", "", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                {
+                    BigEntityTableEngine.LocalEngine.Delete<LogicMap>(nameof(LogicMap), logicmap.ID);
+                    if (this.OnDeleteLogicMap != null)
+                    {
+                        this.OnDeleteLogicMap(GetDBName(currnode), logicmap);
+                    }
+                    ReLoadDBObj(currnode.Parent);
                 }
             }
         }

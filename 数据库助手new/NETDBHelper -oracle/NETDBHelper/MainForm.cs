@@ -42,6 +42,8 @@ namespace NETDBHelper
             this.MspPanel.TextAlign = ContentAlignment.TopLeft;
 
             this.dbServerView1.OnShowRelMap += this.ShowRelMap;
+            this.dbServerView1.OnAddNewLogicMap += this.AddNewLogicMap;
+            this.dbServerView1.OnDeleteLogicMap += this.DeleteLogicMap;
         }
 
         protected void CreateSelectSql(string sqlname, string s)
@@ -548,7 +550,18 @@ namespace NETDBHelper
             this.TabControl.SelectedTab = panel;
             panel.Load();
         }
-
+        public void DeleteLogicMap(string dbname, LogicMap logicMap)
+        {
+            var title = $"{dbname}逻辑关系图{logicMap.LogicName}";
+            foreach (TabPage page in this.TabControl.TabPages)
+            {
+                if (page.Text == title)
+                {
+                    this.TabControl.TabPages.Remove(page);
+                    return;
+                }
+            }
+        }
 
         private void 常用SQLToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -567,6 +580,24 @@ namespace NETDBHelper
             this.TabControl.TabPages.Add(view);
             this.TabControl.SelectedTab = view;
             view.BindData();
+        }
+        public void AddNewLogicMap(DBSource dbSource, string dbname, LogicMap logicMap)
+        {
+            var title = $"{dbname}逻辑关系图{logicMap.LogicName}";
+            foreach (TabPage page in this.TabControl.TabPages)
+            {
+                if (page.Text == title)
+                {
+                    TabControl.SelectedTab = page;
+                    return;
+                }
+            }
+
+            UC.UCLogicMap panel = new UCLogicMap(dbSource, logicMap.ID);
+            panel.Text = title;
+            this.TabControl.TabPages.Add(panel);
+            this.TabControl.SelectedTab = panel;
+            panel.Load();
         }
 
         private void TSL_ClearMsg_Click(object sender, EventArgs e)

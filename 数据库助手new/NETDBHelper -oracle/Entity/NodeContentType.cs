@@ -33,6 +33,8 @@ namespace Entity
         USER,
         TRIGGERParent,
         TRIGGER,
+        LOGICMAPParent,
+        LOGICMAP,
         UNKNOWN = 999
     }
 }
