@@ -191,11 +191,57 @@ namespace Biz.Common.Data
             MongoDB.Driver.MongoClient mongoClient = new MongoDB.Driver.MongoClient(GetConnstringFromDBSource(dbSource, null));
             var db = mongoClient.GetDatabase(connDB);
             //var cmd = BsonDocument.Create(sql);
-            var result = db.RunCommand<BsonDocument>(sql);
-            
+            var cmd = new MongoDB.Driver.BsonDocumentCommand<BsonDocument>(new BsonDocument("eval", sql));
+            var result = db.RunCommand<BsonDocument>(cmd);
+
             //MongoDB.Driver.Builders
+            var retval = result.GetElement("retval").Value;
+            HashSet<string> colhash = new HashSet<string>();
+            if (retval?.IsBsonArray==true)
+            {
+                var table = new DataTable();
+                foreach(var item in retval.AsBsonArray)
+                {
+                    if (item.IsBsonDocument)
+                    {
+                        var bd = item.AsBsonDocument;
+                        if (table.Columns.Count == 0)
+                        {
+                            foreach (var c in bd.Elements)
+                            {
+                                table.Columns.Add(c.Name, typeof(object));
+                                colhash.Add(c.Name);
+                            }
+                        }
+                        else
+                        {
+                            foreach (var c in bd.Elements)
+                            {
+                                if (!colhash.Contains(c.Name))
+                                {
+                                    table.Columns.Add(c.Name, typeof(object));
+                                    colhash.Add(c.Name);
+                                }
+                            }
+                        }
+
+                        var newrow = table.NewRow();
+                        foreach (var c in bd.Elements)
+                        {
+                            newrow[c.Name] = c.Value;
+                        }
+                        table.Rows.Add(newrow);
+                    }
+                }
+                ds.Tables.Add(table);
+            }
             
             return ds;
+        }
+
+        public static DataTable GetTableColsDescription(DBSource dbSource, string dbName, string tbName)
+        {
+            return new DataTable();
         }
     }
 }

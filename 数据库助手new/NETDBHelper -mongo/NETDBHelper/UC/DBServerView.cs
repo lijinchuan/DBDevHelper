@@ -399,10 +399,7 @@ namespace NETDBHelper
                         cols.Add(new KeyValuePair<string, bool>(col.Name, col.IsKey));
                     }
                 }
-                StringBuilder sb = new StringBuilder("{");
-
-                sb.AppendLine($"query:{{db[\"{tb.TBName}\"].find()}}");
-                sb.AppendLine("}");
+                StringBuilder sb = new StringBuilder($"db.getCollection(\"{tb.TBName}\").find().limit(100).toArray()");
                 if (this.OnShowTableData != null)
                 {
                     OnShowTableData(GetDBSource(tv_DBServers.SelectedNode), tb.DBName, tb.TBName, sb.ToString());
@@ -416,7 +413,7 @@ namespace NETDBHelper
             {
                 bool hasKey = false;
                 var tb = tv_DBServers.SelectedNode.Tag as TableInfo;
-                var tbDesc = Biz.Common.Data.MySQLHelper.GetTableColsDescription(GetDBSource(tv_DBServers.SelectedNode),tb.DBName,tb.TBName);
+                var tbDesc = Biz.Common.Data.MongoDBHelper.GetTableColsDescription(GetDBSource(tv_DBServers.SelectedNode),tb.DBName,tb.TBName);
 
                 Regex rg = new Regex(@"(\w+)\s*\((\w+)\)");
                 string format = @"        {4}public {0} {1}
@@ -1114,7 +1111,7 @@ namespace NETDBHelper
                 //库名
                 string tbname = string.Format("[{0}].[{1}]", tb.DBName, tb.TBName);
 
-                var tbclumns = Biz.Common.Data.MySQLHelper.GetColumns(this.GetDBSource(selnode), tb.DBName, tb.TBName).ToList();
+                var tbclumns = Biz.Common.Data.MongoDBHelper.GetColumns(this.GetDBSource(selnode), tb.DBName, tb.TBName).ToList();
                 var tbmark = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys", new
                   [] { tb.DBName.ToUpper(), tb.TBName.ToUpper(), string.Empty }).FirstOrDefault();
                 var tbdesc = tbmark == null ? tb.TBName : tbmark.MarkInfo;
@@ -1133,7 +1130,7 @@ namespace NETDBHelper
                         Caption = s[1],
                     }).ToArray());
 
-                var tbDesc = Biz.Common.Data.MySQLHelper.GetTableColsDescription(GetDBSource(tv_DBServers.SelectedNode), tb.DBName, tb.TBName);
+                var tbDesc = Biz.Common.Data.MongoDBHelper.GetTableColsDescription(GetDBSource(tv_DBServers.SelectedNode), tb.DBName, tb.TBName); ;
 
                 Regex rg = new Regex(@"(\w+)\s*\((\w+)\)");
 
