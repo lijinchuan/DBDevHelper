@@ -292,7 +292,7 @@ namespace NETDBHelper.UC
                     {
                         objectname = $"{markcolumn.DBName.ToLower()}.{markcolumn.TBName.ToLower()}.{p.ObjectName}";
                     }
-                    replaceobjectname= $"{markcolumn.TBName.ToLower()}.{p.ObjectName}";
+                    replaceobjectname= $"\"{p.ObjectName}\":";
                 }
                 else if (p.Type == 1)
                 {
@@ -808,17 +808,7 @@ namespace NETDBHelper.UC
             int pi = curindex - charstartindex - 1;
 
             //判断是否是注释部分
-            var nodeindex = this.RichText.Lines[currline]?.IndexOf("-- ");
-            if (nodeindex == -1)
-            {
-                nodeindex = this.RichText.Lines[currline]?.IndexOf("#");
-            }
-            if (nodeindex > -1 && pi >= nodeindex)
-            {
-                start = -1;
-                return string.Empty;
-            }
-            nodeindex = this.RichText.Lines[currline]?.IndexOf("#");
+            var nodeindex = this.RichText.Lines[currline]?.IndexOf("--");
             if (nodeindex > -1 && pi >= nodeindex)
             {
                 start = -1;
@@ -832,7 +822,7 @@ namespace NETDBHelper.UC
                 var ch = this.RichText.Lines[currline][pi];
 
                 if ((ch >= 'A' && ch <= 'Z') || (ch >= 48 && ch <= 57) || (ch >= 'a' && ch <= 'z')
-                    || ch == '_' || ch == '@' || (includedot && ch == '.')
+                    || ch == '_' || ch == '$' || (includedot && ch == '.')
                     || (ch >= '\u4E00' && ch <= '\u9FA5'))
                 {
                     pre = ch + pre;
@@ -851,7 +841,7 @@ namespace NETDBHelper.UC
                     var ch = this.RichText.Lines[currline][pi];
 
                     if ((ch >= 'A' && ch <= 'Z') || (ch >= 48 && ch <= 57) || (ch >= 'a' && ch <= 'z')
-                        || ch == '_' || ch == '@' || (includedot && ch == '.')
+                        || ch == '_' || ch == '$' || (includedot && ch == '.')
                         || (ch >= '\u4E00' && ch <= '\u9FA5'))
                     {
                         last += ch;
@@ -881,11 +871,8 @@ namespace NETDBHelper.UC
             int pi = curindex - charstartindex - 1;
 
             //判断是否是注释部分
-            var nodeindex = this.RichText.Lines[currline]?.IndexOf("-- ");
-            if (nodeindex == -1)
-            {
-                nodeindex = this.RichText.Lines[currline]?.IndexOf("#");
-            }
+            var nodeindex = this.RichText.Lines[currline]?.IndexOf("--");
+
             if (nodeindex > -1 && pi >= nodeindex)
             {
                 word = string.Empty;
@@ -898,7 +885,7 @@ namespace NETDBHelper.UC
                 var ch = this.RichText.Lines[currline][pi];
 
                 if ((ch >= 'A' && ch <= 'Z') || (ch >= 48 && ch <= 57) || (ch >= 'a' && ch <= 'z') 
-                    || ch == '_' || ch == '.' || ch == '@'
+                    || ch == '_' || ch == '$'
                     || (ch>= '\u4E00'&&ch<='\u9FA5'))
                 {
                     pre = ch + pre;
@@ -917,7 +904,7 @@ namespace NETDBHelper.UC
                     var ch = this.RichText.Lines[currline][pi];
 
                     if ((ch >= 'A' && ch <= 'Z') || (ch >= 48 && ch <= 57) || (ch >= 'a' && ch <= 'z')
-                        || ch == '_' || ch == '.' || ch == '@'
+                        || ch == '_' || ch == '$'
                         || (ch >= '\u4E00' && ch <= '\u9FA5'))
                     {
                         last += ch;
@@ -954,14 +941,9 @@ namespace NETDBHelper.UC
                     this.RichText.Select(keywordindex - keyword.Length, keyword.Length);
                     //this.RichText.Text.Remove(this.RichText.SelectionStart - keyword.Length, keyword.Length);
 
-                    if (keyword.IndexOf('.') > -1 || sender?.Equals(Keys.Right) == true || !Issamedb)
-                    {
-                        this.RichText.SelectedText = val;
-                    }
-                    else
-                    {
-                        this.RichText.SelectedText = val.Split('.').Last();
-                    }
+
+                    this.RichText.SelectedText = val;
+
                     //this.RichText.SelectionStart += val.Length - keyword.Length;
                     view.Visible = false;
                     this.RichText.LockPaint = false;
@@ -1290,11 +1272,7 @@ namespace NETDBHelper.UC
                     {
                         _markedLines.Add(l);
 
-                        var nodeindex = express.IndexOf("-- ");
-                        if (nodeindex == -1)
-                        {
-                            nodeindex = express.IndexOf("#");
-                        }
+                        var nodeindex = express.IndexOf("--");
                         if (nodeindex > -1)
                         {
                             DataRow row = tb.NewRow();
@@ -1306,8 +1284,8 @@ namespace NETDBHelper.UC
                         }
                         foreach (var m in this.KeyWords.MatchKeyWord(express.ToLower()))
                         {
-                            if ((m.PostionStart == 0 || "[]{},|%#!<>=();+-*/\r\n 　".IndexOf(express[m.PostionStart - 1]) > -1)
-                                && (m.PostionEnd == express.Length - 1 || "[]{},|%#!<>=();+-*/\r\n 　".IndexOf(express[m.PostionEnd + 1]) > -1))
+                            if ((m.PostionStart == 0 || "[]{},|%!<>=();+-*/\r\n. 　".IndexOf(express[m.PostionStart - 1]) > -1)
+                                && (m.PostionEnd == express.Length - 1 || "[]{},|%!<>=();+-*/\r\n. 　".IndexOf(express[m.PostionEnd + 1]) > -1))
                             {
                                 DataRow row = tb.NewRow();
                                 row[0] = totalIndex + m.PostionStart;

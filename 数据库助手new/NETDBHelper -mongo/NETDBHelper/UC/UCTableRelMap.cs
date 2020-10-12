@@ -62,7 +62,7 @@ namespace NETDBHelper.UC
 
             tableColumnList = new Dictionary<string, List<string>>();
 
-            var tbs = MySQLHelper.GetTBs(this.DBSource, dbname);
+            var tbs = MongoDBHelper.GetTBs(this.DBSource, dbname);
             tableColumnList.Add(dbname.ToLower(), tbs.AsEnumerable().Select(p => p.Field<string>("name").ToLower()).ToList());
 
             this.CMSOpMenu.VisibleChanged += CMSOpMenu_VisibleChanged;
@@ -220,7 +220,7 @@ namespace NETDBHelper.UC
 
         public void Load()
         {
-            var dbs = MySQLHelper.GetDBs(this.DBSource);
+            var dbs = MongoDBHelper.GetDBs(this.DBSource);
             foreach (DataRow r in dbs.Select())
             {
                 添加表ToolStripMenuItem.DropDownItems.Add((string)r["name"]);
@@ -273,7 +273,7 @@ namespace NETDBHelper.UC
 
                       if (!tableColumnList.ContainsKey(item.Item1))
                       {
-                          var tbs = MySQLHelper.GetTBs(this.DBSource, item.Item1);
+                          var tbs = MongoDBHelper.GetTBs(this.DBSource, item.Item1);
                           tableColumnList.Add(item.Item1, tbs.AsEnumerable().Select(p => p.Field<string>("name").ToLower()).ToList());
                       }
 
@@ -965,7 +965,7 @@ namespace NETDBHelper.UC
                     }
                     if (!tableColumnList.ContainsKey(db.ToLower()))
                     {
-                        var tbs = MySQLHelper.GetTBs(this.DBSource, db);
+                        var tbs = MongoDBHelper.GetTBs(this.DBSource, db);
                         tableColumnList.Add(db.ToLower(), tbs.AsEnumerable().Select(p => p.Field<string>("name").ToLower()).ToList());
                     }
                     return tableColumnList[db.ToLower()].Select(p => new Tuple<string, string>(db.ToLower(), p)).Where(p => !list.Contains(p)).OrderBy(p => p).ToList();

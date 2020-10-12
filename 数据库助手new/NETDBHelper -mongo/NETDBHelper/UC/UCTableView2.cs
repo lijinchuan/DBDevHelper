@@ -97,7 +97,7 @@ namespace NETDBHelper.UC
                 this.LBTabname.Width = this.Width - 2;
                 this.CBTables.Visible = false;
 
-                ColumnsList = MySQLHelper.GetColumns(DBSource, DBName, CBTables.SelectedItem.ToString()).ToList();
+                ColumnsList = MongoDBHelper.GetColumns(DBSource, DBName, CBTables.SelectedItem.ToString()).ToList();
                 BindColumns();
             }
         }
@@ -441,7 +441,7 @@ namespace NETDBHelper.UC
                 this.LBTabname.Location = new Point(1, 1);
                 this.LBTabname.Width = this.Width - 2;
                 this.CBTables.Visible = false;
-                ColumnsList = MySQLHelper.GetColumns(DBSource, DBName, TBName).ToList();
+                ColumnsList = MongoDBHelper.GetColumns(DBSource, DBName, TBName).ToList();
                 BindColumns();
 
             }

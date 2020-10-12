@@ -299,7 +299,7 @@ namespace NETDBHelper
                                     Valid = true
                                 });
 
-                                Biz.Common.Data.MySQLHelper.DeleteTable(GetDBSource(node), tb.DBName, tb.TBName);
+                                Biz.Common.Data.MongoDBHelper.DeleteTable(GetDBSource(node), tb.DBName, tb.TBName);
                                 ReLoadDBObj(node.Parent);
                             }
                             break;
@@ -319,7 +319,7 @@ namespace NETDBHelper
                                 {
                                     return;
                                 }
-                                Biz.Common.Data.MySQLHelper.ReNameTableName(GetDBSource(_node), tb.DBName,
+                                Biz.Common.Data.MongoDBHelper.ReNameTableName(GetDBSource(_node), tb.DBName,
                                     oldname, dlg.InputString);
                                 ReLoadDBObj(_node.Parent);
 
@@ -399,7 +399,10 @@ namespace NETDBHelper
                         cols.Add(new KeyValuePair<string, bool>(col.Name, col.IsKey));
                     }
                 }
-                StringBuilder sb = new StringBuilder($"db.getCollection(\"{tb.TBName}\").find().limit(100).toArray()");
+                StringBuilder sb = new StringBuilder($"db.getCollection(\"{tb.TBName}\").find({{");
+                sb.AppendLine($"}})");
+                sb.AppendLine($".limit(100)");
+                sb.AppendLine($".toArray()");
                 if (this.OnShowTableData != null)
                 {
                     OnShowTableData(GetDBSource(tv_DBServers.SelectedNode), tb.DBName, tb.TBName, sb.ToString());
@@ -746,12 +749,6 @@ namespace NETDBHelper
                             || nctype == NodeContentType.PROC
                             || nctype == NodeContentType.LOGICMAPParent;
 
-                        导出ToolStripMenuItem.Visible = nctype == NodeContentType.VIEW
-                            || nctype == NodeContentType.PROC
-                            || nctype == NodeContentType.TB;
-                        创建语句ToolStripMenuItem.Visible = 
-                            ExpdataToolStripMenuItem.Visible = nctype == NodeContentType.TB
-                            || nctype == NodeContentType.PROC;
                         生成实体类ToolStripMenuItem.Visible = nctype == NodeContentType.VIEW
                             || nctype == NodeContentType.TB;
                         复制表名ToolStripMenuItem.Visible = nctype == NodeContentType.VIEW
@@ -766,7 +763,6 @@ namespace NETDBHelper
                         生成数据字典ToolStripMenuItem.Visible = nctype == NodeContentType.TB;
                         修改表名ToolStripMenuItem.Visible = nctype == NodeContentType.TB;
                         删除表ToolStripMenuItem.Visible = nctype == NodeContentType.TB;
-                        SubMenuItem_Proc.Visible = nctype == NodeContentType.TB;
                         TSM_ManIndex.Visible = nctype == NodeContentType.INDEX
                             || nctype == NodeContentType.INDEXParent;
                         TTSM_CreateIndex.Visible = nctype == NodeContentType.INDEXParent;
@@ -1271,13 +1267,13 @@ background-color: #ffffff;
             var _node = tv_DBServers.SelectedNode;
             var ds = GetDBSource(_node);
             var tb = _node.Parent.Tag as TableInfo;
-            var cols = Biz.Common.Data.MySQLHelper.GetColumns(ds, tb.DBName, tb.TBName).ToList();
+            var cols = Biz.Common.Data.MongoDBHelper.GetColumns(ds, tb.DBName, tb.TBName).ToList();
             WinCreateIndex win = new WinCreateIndex(cols);
             if (win.ShowDialog() == DialogResult.OK && MessageBox.Show("要创建索引吗？") == DialogResult.OK)
             {
                 try
                 {
-                    Biz.Common.Data.MySQLHelper.CreateIndex(ds, tb.DBName, tb.TBName, win.IndexName, win.IsUnique(), win.IsPrimaryKey(), win.IsAutoIncr(), win.IndexColumns);
+                    Biz.Common.Data.MongoDBHelper.CreateIndex(ds, tb.DBName, tb.TBName, win.IndexName, win.IsUnique(), win.IsPrimaryKey(), win.IsAutoIncr(), win.IndexColumns);
                     MessageBox.Show("创建索引成功");
                     ReLoadDBObj(_node);
                 }
@@ -1299,7 +1295,7 @@ background-color: #ffffff;
                     var ds = GetDBSource(_node);
                     try
                     {
-                        Biz.Common.Data.MySQLHelper.DropIndex(ds, GetDBName(_node), GetTBName(_node), idx.IndexName.Equals("primary", StringComparison.OrdinalIgnoreCase), idx.IndexName);
+                        Biz.Common.Data.MongoDBHelper.DropIndex(ds, GetDBName(_node), GetTBName(_node), idx.IndexName.Equals("primary", StringComparison.OrdinalIgnoreCase), idx.IndexName);
                         MessageBox.Show("删除成功");
                         ReLoadDBObj(_node.Parent);
                     }

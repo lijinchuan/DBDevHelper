@@ -12,7 +12,7 @@ namespace Biz.Common
         private static readonly string coltypes = "";
         private static bool IsSupport(TBColumn column)
         {
-            MSSQLTypeEnum outEnum;
+            MongoTypeEnum outEnum;
             if (Enum.TryParse(column.TypeName,true, out outEnum))
             {
                 return true;
@@ -31,85 +31,53 @@ namespace Biz.Common
         public static bool IsString(this TBColumn column)
         {
             CheckIsSupport(column);
-            var colEnum = Enum.Parse(typeof(MSSQLTypeEnum), column.TypeName, true);
+            var colEnum = Enum.Parse(typeof(MongoTypeEnum), column.TypeName, true);
 
-            return colEnum.Equals(MSSQLTypeEnum.Xml)
-                   || colEnum.Equals(MSSQLTypeEnum.Char)
-                   || colEnum.Equals(MSSQLTypeEnum.NChar)
-                   || colEnum.Equals(MSSQLTypeEnum.NText)
-                   || colEnum.Equals(MSSQLTypeEnum.NVarChar)
-                   || colEnum.Equals(MSSQLTypeEnum.Text)
-                   || colEnum.Equals(MSSQLTypeEnum.Varchar)
-                   || colEnum.Equals(MSSQLTypeEnum.Json)
-                   || colEnum.Equals(MSSQLTypeEnum.LongText)
-                   || colEnum.Equals(MSSQLTypeEnum.MediumText)
-                   || colEnum.Equals(MSSQLTypeEnum.TinyText)
-                   || colEnum.Equals(MSSQLTypeEnum.Blob)
-                   || colEnum.Equals(MSSQLTypeEnum.TinyBlob)
-                   || colEnum.Equals(MSSQLTypeEnum.MediumBlob)
-                   || colEnum.Equals(MSSQLTypeEnum.LongBlob)
-                   || colEnum.Equals(MSSQLTypeEnum.Set);
+            return colEnum.Equals(MongoTypeEnum.String)
+                   || colEnum.Equals(MongoTypeEnum.Objectid);
         }
 
         public static bool IsEnum(this TBColumn column)
         {
             CheckIsSupport(column);
-            var colEnum = Enum.Parse(typeof(MSSQLTypeEnum), column.TypeName, true);
+            var colEnum = Enum.Parse(typeof(MongoTypeEnum), column.TypeName, true);
 
-            return colEnum.Equals(MSSQLTypeEnum.Enum);
+            return colEnum.Equals(MongoTypeEnum.Enum);
         }
 
         public static bool IsNumber(this TBColumn column)
         {
             CheckIsSupport(column);
-            var colEnum = Enum.Parse(typeof(MSSQLTypeEnum), column.TypeName, true);
-            return colEnum.Equals(MSSQLTypeEnum.Bigint)
-                || colEnum.Equals(MSSQLTypeEnum.Decimal)
-                || colEnum.Equals(MSSQLTypeEnum.Float)
-                || colEnum.Equals(MSSQLTypeEnum.Int)
-                || colEnum.Equals(MSSQLTypeEnum.Money)
-                || colEnum.Equals(MSSQLTypeEnum.Numeric)
-                || colEnum.Equals(MSSQLTypeEnum.Real)
-                || colEnum.Equals(MSSQLTypeEnum.SmallInt)
-                || colEnum.Equals(MSSQLTypeEnum.MediumInt)
-                || colEnum.Equals(MSSQLTypeEnum.Smallmoney)
-                || colEnum.Equals(MSSQLTypeEnum.Tinyint)
-                || colEnum.Equals(MSSQLTypeEnum.Year);
+            var colEnum = Enum.Parse(typeof(MongoTypeEnum), column.TypeName, true);
+            return colEnum.Equals(MongoTypeEnum.Double)
+                || colEnum.Equals(MongoTypeEnum.Integer)
+                || colEnum.Equals(MongoTypeEnum.Timestamp);
         }
 
         public static bool IsBoolean(this TBColumn column)
         {
             CheckIsSupport(column);
-            var colEnum = Enum.Parse(typeof(MSSQLTypeEnum), column.TypeName, true);
-            return colEnum.Equals(MSSQLTypeEnum.Bit);
+            var colEnum = Enum.Parse(typeof(MongoTypeEnum), column.TypeName, true);
+            return colEnum.Equals(MongoTypeEnum.Boolean);
         }
 
         public static bool IsDateTime(this TBColumn column)
         {
             CheckIsSupport(column);
-            var colEnum = Enum.Parse(typeof(MSSQLTypeEnum), column.TypeName, true);
-            return colEnum.Equals(MSSQLTypeEnum.Datetime)
-                || colEnum.Equals(MSSQLTypeEnum.Datetime2)
-                || colEnum.Equals(MSSQLTypeEnum.Smalldatetime)
-                || colEnum.Equals(MSSQLTypeEnum.Time)
-                || colEnum.Equals(MSSQLTypeEnum.Date);
+            var colEnum = Enum.Parse(typeof(MongoTypeEnum), column.TypeName, true);
+            return colEnum.Equals(MongoTypeEnum.Date);
         }
 
         public static string TypeToString(this TBColumn column)
         {
             CheckIsSupport(column);
-            var colEnum = Enum.Parse(typeof(MSSQLTypeEnum), column.TypeName, true);
-            if (colEnum.Equals(MSSQLTypeEnum.Char)
-                || colEnum.Equals(MSSQLTypeEnum.Datetime2)
-                || colEnum.Equals(MSSQLTypeEnum.NChar)
-                || colEnum.Equals(MSSQLTypeEnum.NVarChar)
-                || colEnum.Equals(MSSQLTypeEnum.Time)
-                || colEnum.Equals(MSSQLTypeEnum.Varchar))
+            var colEnum = Enum.Parse(typeof(MongoTypeEnum), column.TypeName, true);
+            if (colEnum.Equals(MongoTypeEnum.String))
             {
                 return string.Format("{0}({1})", column.TypeName, column.Length);
             }
-            else if (colEnum.Equals(MSSQLTypeEnum.Decimal)
-               || colEnum.Equals(MSSQLTypeEnum.Numeric))
+            else if (colEnum.Equals(MongoTypeEnum.Double)
+               || colEnum.Equals(MongoTypeEnum.Integer))
             {
                 return string.Format("{0}({1},{2})", column.TypeName, column.prec, column.scale);
             }

@@ -60,6 +60,7 @@
     <Compile Include="LogicMapRelColumnEx.cs" />
     <Compile Include="LogicMapTable.cs" />
     <Compile Include="MarkObjectInfo.cs" />
+    <Compile Include="MongoTypeEnum.cs" />
     <Compile Include="MSSQLTypeEnum.cs" />
     <Compile Include="INodeContents.cs" />
     <Compile Include="NodeContents.cs" />

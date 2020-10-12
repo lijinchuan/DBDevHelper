@@ -1,10 +1,12 @@
 ﻿using Entity;
 using MongoDB.Bson;
+using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using static Entity.IndexEntry;
 
@@ -19,7 +21,7 @@ namespace Biz.Common.Data
                 return false;
             try
             {
-                MongoDB.Driver.MongoClient mongoClient = new MongoDB.Driver.MongoClient(GetConnstringFromDBSource(dbSource, null));
+                MongoClient mongoClient = new MongoDB.Driver.MongoClient(GetConnstringFromDBSource(dbSource, null));
                 var boo = mongoClient.ListDatabaseNames().MoveNext();
                 return true;
             }
@@ -50,7 +52,7 @@ namespace Biz.Common.Data
         {
             DataTable table = new DataTable();
             table.Columns.Add("Name", typeof(string));
-            MongoDB.Driver.MongoClient mongoClient = new MongoDB.Driver.MongoClient(GetConnstringFromDBSource(dbSource, null));
+            MongoClient mongoClient = new MongoClient(GetConnstringFromDBSource(dbSource, null));
             var cur = mongoClient.ListDatabaseNames();
             while (cur.MoveNext())
             {
@@ -64,12 +66,28 @@ namespace Biz.Common.Data
             return table;
         }
 
+        private static string AdjustDBName(MongoClient mongoClient, string dbname)
+        {
+            var dblist = mongoClient.ListDatabaseNames().ToList();
+
+            var db = dblist.FirstOrDefault(p => p.Equals(dbname, StringComparison.OrdinalIgnoreCase));
+            return db;
+        }
+
+        private static string AdjustTBName(MongoClient mongoClient, string dbname,string tbname)
+        {
+            var tblist = mongoClient.GetDatabase(dbname).ListCollectionNames().ToList();
+
+            var tb = tblist.FirstOrDefault(p => p.Equals(tbname, StringComparison.OrdinalIgnoreCase));
+            return tb;
+        }
+
         public static DataTable GetTBs(DBSource dbSource, string dbName)
         {
             DataTable table = new DataTable();
             table.Columns.Add("Name", typeof(string));
-            MongoDB.Driver.MongoClient mongoClient = new MongoDB.Driver.MongoClient(GetConnstringFromDBSource(dbSource, null));
-
+            MongoClient mongoClient = new MongoDB.Driver.MongoClient(GetConnstringFromDBSource(dbSource, null));
+            dbName = AdjustDBName(mongoClient, dbName);
             var cur = mongoClient.GetDatabase(dbName).ListCollectionNames();
             while (cur.MoveNext())
             {
@@ -99,14 +117,16 @@ namespace Biz.Common.Data
             tb.Columns.Add("numeric_scale", typeof(int));
             tb.Columns.Add("column_comment", typeof(string));
 
-            MongoDB.Driver.MongoClient mongoClient = new MongoDB.Driver.MongoClient(GetConnstringFromDBSource(dbSource, null));
-
+            MongoClient mongoClient = new MongoDB.Driver.MongoClient(GetConnstringFromDBSource(dbSource, null));
+            dbName = AdjustDBName(mongoClient, dbName);
+            tbName = AdjustTBName(mongoClient, dbName, tbName);
             BsonDocument firstDoc = null;
             var db = mongoClient.GetDatabase(dbName);
             var docs =db.GetCollection<BsonDocument>(tbName).FindAsync<BsonDocument>(new BsonDocument(),
-                new MongoDB.Driver.FindOptions<BsonDocument, BsonDocument>
+                new FindOptions<BsonDocument, BsonDocument>
                 {
-                    BatchSize=1
+                    BatchSize=1,
+                    Sort= BsonDocument.Parse("{\"_id\":-1}")
                 }).Result;
             if (docs.MoveNext())
             {
@@ -157,12 +177,14 @@ namespace Biz.Common.Data
             }
         }
 
-        public static List<IndexEntry> GetIndexs(DBSource dbSource, string dbName, string tabname)
+        public static List<IndexEntry> GetIndexs(DBSource dbSource, string dbName, string tbName)
         {
             var indexs = new List<IndexEntry>();
 
-            MongoDB.Driver.MongoClient mongoClient = new MongoDB.Driver.MongoClient(GetConnstringFromDBSource(dbSource, null));
-            var indexcur = mongoClient.GetDatabase(dbName).GetCollection<BsonDocument>(tabname).Indexes.List();
+            MongoClient mongoClient = new MongoClient(GetConnstringFromDBSource(dbSource, null));
+            dbName = AdjustDBName(mongoClient, dbName);
+            tbName = AdjustTBName(mongoClient, dbName, tbName);
+            var indexcur = mongoClient.GetDatabase(dbName).GetCollection<BsonDocument>(tbName).Indexes.List();
             while (indexcur.MoveNext())
             {
                 var indexlist = indexcur.Current.ToList();
@@ -185,13 +207,22 @@ namespace Biz.Common.Data
             return indexs;
         }
 
+        private static string TrimSql(string sql)
+        {
+            sql = Regex.Replace(sql, $"\r|\n", "");
+
+            return sql;
+        }
+
         public static DataSet ExecuteDataSet(DBSource dbSource, string connDB, string sql)
         {
+            sql = TrimSql(sql);
             var ds = new DataSet();
-            MongoDB.Driver.MongoClient mongoClient = new MongoDB.Driver.MongoClient(GetConnstringFromDBSource(dbSource, null));
+            MongoClient mongoClient = new MongoClient(GetConnstringFromDBSource(dbSource, null));
+            connDB = AdjustDBName(mongoClient, connDB);
             var db = mongoClient.GetDatabase(connDB);
             //var cmd = BsonDocument.Create(sql);
-            var cmd = new MongoDB.Driver.BsonDocumentCommand<BsonDocument>(new BsonDocument("eval", sql));
+            var cmd = new BsonDocumentCommand<BsonDocument>(new BsonDocument("eval", sql));
             var result = db.RunCommand<BsonDocument>(cmd);
 
             //MongoDB.Driver.Builders
@@ -242,6 +273,70 @@ namespace Biz.Common.Data
         public static DataTable GetTableColsDescription(DBSource dbSource, string dbName, string tbName)
         {
             return new DataTable();
+        }
+
+        public static void CreateIndex(DBSource dbSource, string dbName, string tbName, string indexname, bool unique, bool primarykey, bool autoIncr, List<TBColumn> cols)
+        {
+            MongoClient mongoClient = new MongoClient(GetConnstringFromDBSource(dbSource, null));
+            dbName = AdjustDBName(mongoClient, dbName);
+            tbName = AdjustTBName(mongoClient, dbName, tbName);
+            var collection = mongoClient.GetDatabase(dbName).GetCollection<BsonDocument>(tbName);
+
+            IndexKeysDefinitionBuilder<BsonDocument> builder = new IndexKeysDefinitionBuilder<BsonDocument>();
+            List<IndexKeysDefinition<BsonDocument>> list = new List<IndexKeysDefinition<BsonDocument>>();
+            foreach (var col in cols)
+            {
+                var m = Regex.Match(indexname, $"{col.Name}_(\\d)", RegexOptions.IgnoreCase);
+                if (m.Success && m.Groups[1].Value == "2")
+                {
+                    list.Add(new IndexKeysDefinitionBuilder<BsonDocument>().Descending(col.Name));
+                }
+                else
+                {
+                    list.Add(new IndexKeysDefinitionBuilder<BsonDocument>().Ascending(col.Name));
+                }
+            }
+            var indexmodel = new CreateIndexModel<BsonDocument>(builder.Combine(list),
+                new CreateIndexOptions
+                {
+                    Name = indexname
+                });
+            collection.Indexes.CreateOne(indexmodel);
+        }
+
+        public static void DropIndex(DBSource dbSource, string dbName, string tbName, bool primarykey, string indexName)
+        {
+            MongoClient mongoClient = new MongoClient(GetConnstringFromDBSource(dbSource, null));
+            dbName = AdjustDBName(mongoClient, dbName);
+            tbName = AdjustTBName(mongoClient, dbName, tbName);
+            var collection = mongoClient.GetDatabase(dbName).GetCollection<BsonDocument>(tbName);
+
+            collection.Indexes.DropOne(indexName);
+        }
+
+        /// <summary>
+        /// 修改表名
+        /// </summary>
+        /// <param name="dbSource"></param>
+        /// <param name="dbName"></param>
+        /// <param name="oldName"></param>
+        /// <param name="newName"></param>
+        public static void ReNameTableName(DBSource dbSource, string dbName, string oldName, string newName)
+        {
+            MongoClient mongoClient = new MongoClient(GetConnstringFromDBSource(dbSource, null));
+            dbName = AdjustDBName(mongoClient, dbName);
+            var db = mongoClient.GetDatabase("admin");
+            var sql = $"{{ renameCollection: \"{dbName}.{oldName}\", to: \"{dbName}.{newName}\" }}";
+            //var cmd = new BsonDocumentCommand<BsonDocument>(new BsonDocument("eval", sql));
+            var result = db.RunCommand<BsonDocument>(sql);
+            //ok
+        }
+
+        public static void DeleteTable(DBSource dbSource, string dbName, string tabName)
+        {
+            MongoClient mongoClient = new MongoClient(GetConnstringFromDBSource(dbSource, null));
+            var db = mongoClient.GetDatabase(dbName);
+            db.DropCollection(tabName);
         }
     }
 }
