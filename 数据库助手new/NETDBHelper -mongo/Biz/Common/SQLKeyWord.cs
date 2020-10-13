@@ -267,6 +267,14 @@ namespace Biz.Common
                 HighColor = Color.Red
             });
 
+            //stats
+            KeyWordDic.Add(new SQLKeyWord
+            {
+                KeyWord = "stats",
+                Desc = "服务器状态",
+                HighColor = Color.Red
+            });
+
             KeyWordDic.Add(new SQLKeyWord
             {
                 KeyWord = "toArray",

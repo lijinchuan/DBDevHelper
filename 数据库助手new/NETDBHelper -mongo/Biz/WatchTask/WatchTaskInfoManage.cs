@@ -187,7 +187,7 @@ namespace Biz.WatchTask
                     {
                         bool haserror = false;
 
-                        var obj = Biz.Common.Data.MySQLHelper.ExecuteScalar(item.DBServer, item.ConnDB, item.Sql);
+                        var obj = Biz.Common.Data.MongoDBHelper.ExecuteScalar(item.DBServer, item.ConnDB, item.Sql);
 
                         if (obj == null && item.NullError)
                         {

@@ -280,7 +280,7 @@ namespace Biz.Common.Data
         public static List<GlobalStatusInfo> GetMysqlGlobalStatus(DBSource dbSource)
         {
             List<GlobalStatusInfo> list = new List<GlobalStatusInfo>();
-            var dataTable = MySQLHelper.ExecuteDBTable(dbSource, "", "show global Status;");
+            var dataTable = MongoDBHelper.ExecuteDBTable(dbSource, "admin", "db.system.profile.find().sort({$natural:-1}).toArray()");
             var dt = DateTime.Now;
             foreach(DataRow row in dataTable.AsEnumerable())
             {

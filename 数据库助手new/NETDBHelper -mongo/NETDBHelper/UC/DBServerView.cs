@@ -116,7 +116,7 @@ namespace NETDBHelper
                             MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
                         {
                             var node = tv_DBServers.SelectedNode;
-                            Biz.Common.Data.MySQLHelper.DeleteDataBase(GetDBSource(node), node.Text);
+                            Biz.Common.Data.MongoDBHelper.DeleteDataBase(GetDBSource(node), node.Text);
                             ReLoadDBObj(node.Parent);
 
 
@@ -137,7 +137,7 @@ namespace NETDBHelper
                         var dlg = new SubForm.InputStringDlg("请输入库名：");
                         if (dlg.ShowDialog() == DialogResult.OK)
                         {
-                            Biz.Common.Data.MySQLHelper.CreateDataBase(GetDBSource(selnode),selnode.FirstNode.Text, dlg.InputString);
+                            Biz.Common.Data.MongoDBHelper.CreateDataBase(GetDBSource(selnode),selnode.FirstNode.Text, dlg.InputString);
                             ReLoadDBObj(selnode);
                         }
 
@@ -1081,9 +1081,9 @@ namespace NETDBHelper
                 conndb = pnode.Text;
             }
             
-            var connsql = MySQLHelper.GetConnstringFromDBSource(GetDBSource(node), conndb);
+            var connsql =MongoDBHelper.GetConnstringFromDBSource(GetDBSource(node), conndb);
             SubForm.WinWebBroswer web = new WinWebBroswer();
-            web.SetHtml(string.Format("<html><head><title>连接串_{1}</title></head><body><br/>&lt;add name=\"ConndbDB${1}\" connectionString=\"{0}\" providerName=\"MySql.Data.MySqlClient\"/&gt;</body></html>", connsql, conndb));
+            web.SetHtml(string.Format("<html><head><title>连接串_{1}</title></head><body><br/>{0}</body></html>", connsql, conndb));
             web.Show();
         }
 

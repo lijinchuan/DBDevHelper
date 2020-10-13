@@ -71,7 +71,7 @@ namespace Biz.Common.Data
             var dblist = mongoClient.ListDatabaseNames().ToList();
 
             var db = dblist.FirstOrDefault(p => p.Equals(dbname, StringComparison.OrdinalIgnoreCase));
-            return db;
+            return db ?? dbname;
         }
 
         private static string AdjustTBName(MongoClient mongoClient, string dbname,string tbname)
@@ -228,10 +228,25 @@ namespace Biz.Common.Data
             //MongoDB.Driver.Builders
             var retval = result.GetElement("retval").Value;
             HashSet<string> colhash = new HashSet<string>();
-            if (retval?.IsBsonArray==true)
+            BsonArray bsonArray = null;
+            if (retval?.IsBsonArray == true)
+            {
+                bsonArray = retval.AsBsonArray;
+            }
+            else if (retval?.IsBsonDocument == true)
+            {
+                bsonArray =new BsonArray();
+                bsonArray.Add(retval.AsBsonDocument);
+            }
+            else if(retval!=null)
+            {
+                bsonArray = new BsonArray();
+                bsonArray.Add(retval);
+            }
+            if (bsonArray!=null)
             {
                 var table = new DataTable();
-                foreach(var item in retval.AsBsonArray)
+                foreach(var item in bsonArray)
                 {
                     if (item.IsBsonDocument)
                     {
@@ -261,6 +276,18 @@ namespace Biz.Common.Data
                         {
                             newrow[c.Name] = c.Value;
                         }
+                        table.Rows.Add(newrow);
+                    }
+                    else
+                    {
+                        var datacol = "data";
+                        var newrow = table.NewRow();
+                        if (!colhash.Contains(datacol))
+                        {
+                            table.Columns.Add(datacol, typeof(object));
+                            colhash.Add(datacol);
+                        }
+                        newrow[datacol] = item;
                         table.Rows.Add(newrow);
                     }
                 }
@@ -337,6 +364,55 @@ namespace Biz.Common.Data
             MongoClient mongoClient = new MongoClient(GetConnstringFromDBSource(dbSource, null));
             var db = mongoClient.GetDatabase(dbName);
             db.DropCollection(tabName);
+        }
+
+        public static void ExecuteNoQuery(DBSource dbSource, string connDB, string sql)
+        {
+            sql = TrimSql(sql);
+            var ds = new DataSet();
+            MongoClient mongoClient = new MongoClient(GetConnstringFromDBSource(dbSource, null));
+            connDB = AdjustDBName(mongoClient, connDB);
+            var db = mongoClient.GetDatabase(connDB);
+            //var cmd = BsonDocument.Create(sql);
+            var cmd = new BsonDocumentCommand<BsonDocument>(new BsonDocument("eval", sql));
+            var result = db.RunCommand<BsonDocument>(cmd);
+        }
+
+        public static DataTable ExecuteDBTable(DBSource dbSource, string connDB, string sql)
+        {
+
+            var tbs = ExecuteDataSet(dbSource, connDB, sql).Tables;
+            if (tbs.Count > 0)
+            {
+                return tbs[0];
+            }
+            else
+            {
+                return new DataTable();
+            }
+        }
+
+        public static void CreateDataBase(DBSource dbSource, string dbName, string newDBName)
+        {
+            MongoClient mongoClient = new MongoClient(GetConnstringFromDBSource(dbSource, null));
+            mongoClient.GetDatabase(newDBName).ListCollectionNames().ToList();
+        }
+
+        public static void DeleteDataBase(DBSource dbSource, string database)
+        {
+            MongoClient mongoClient = new MongoClient(GetConnstringFromDBSource(dbSource, null));
+            mongoClient.DropDatabase(database);
+        }
+
+        public static object ExecuteScalar(DBSource dbSource, string connDB, string sql)
+        {
+            var tb = ExecuteDBTable(dbSource, connDB, sql);
+
+            if (tb.Rows.Count == 0)
+            {
+                return null;
+            }
+            return tb.Rows[0][0];
         }
     }
 }

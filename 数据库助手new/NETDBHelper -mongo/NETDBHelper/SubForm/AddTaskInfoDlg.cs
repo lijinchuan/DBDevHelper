@@ -52,7 +52,7 @@ namespace NETDBHelper.SubForm
             this.DBSource = info.DBServer;
             try
             {
-                var dbs = Biz.Common.Data.MySQLHelper.GetDBs(DBSource);
+                var dbs = Biz.Common.Data.MongoDBHelper.GetDBs(DBSource);
                 this.CBDB.DataSource = dbs.AsEnumerable().Select(p => new
                 {
                     name = p.Field<string>(0)
@@ -83,7 +83,7 @@ namespace NETDBHelper.SubForm
                 this.DBSource = connsqlserver.DBSource;
                 try
                 {
-                    var dbs = Biz.Common.Data.MySQLHelper.GetDBs(DBSource);
+                    var dbs = Biz.Common.Data.MongoDBHelper.GetDBs(DBSource);
                     this.CBDB.DataSource = dbs.AsEnumerable().Select(p => new
                     {
                         name = p.Field<string>(0)
