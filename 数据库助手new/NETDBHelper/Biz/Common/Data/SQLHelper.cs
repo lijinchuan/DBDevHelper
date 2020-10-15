@@ -42,6 +42,14 @@ namespace Biz.Common.Data
             return ExecuteDBTable(dbSource, dbName, SQLHelperConsts.GetTBs, null);
         }
 
+        public static DataTable GetTBsDesc(DBSource dbSource, string dbName,string tablename)
+        {
+            object name = tablename;
+            if (name == null)
+                name = DBNull.Value;
+            return ExecuteDBTable(dbSource, dbName, SQLHelperConsts.SQL_GetTBsDesc, new SqlParameter("@tablename", name));
+        }
+
         public static DataTable GetKeys(DBSource dbSource, string dbName, string tbName)
         {
             return ExecuteDBTable(dbSource, dbName, SQLHelperConsts.GetKeyColumn, new SqlParameter("@TABLE_NAME", tbName));

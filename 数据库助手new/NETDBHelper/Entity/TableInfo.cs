@@ -25,6 +25,12 @@ namespace Entity
             set;
         }
 
+        public string Desc
+        {
+            get;
+            set;
+        }
+
         public NodeContentType GetNodeContentType()
         {
             return NodeContentType.TB;

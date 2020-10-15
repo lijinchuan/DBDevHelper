@@ -135,6 +135,8 @@ namespace Biz
                 parent.Invoke(new Action(() => serverNode.Nodes.Clear()));
                 return;
             }
+            var tbdesc = Biz.Common.Data.SQLHelper.GetTBsDesc(server, dbname, null);
+
             var tb2 = y.CopyToDataTable();
             for (int i = 0; i < tb2.Rows.Count; i++)
             {
@@ -144,12 +146,17 @@ namespace Biz
                     TBId = tb2.Rows[i]["id"].ToString(),
                     TBName = tb2.Rows[i]["name"].ToString()
                 };
+
+                tbinfo.Desc = tbdesc.AsEnumerable().
+                    FirstOrDefault(p => p.Field<string>("tablename").Equals(tbinfo.TBName, StringComparison.OrdinalIgnoreCase))
+                    ?.Field<object>("desc").ToString();
+
                 TreeNode newNode = new TreeNode(tbinfo.TBName, 3, 3);
 
                 newNode.Tag = tbinfo;
                 if (gettip != null)
                 {
-                    newNode.ToolTipText = gettip(tbinfo.TBName);
+                    newNode.ToolTipText =tbinfo.Desc?? gettip(tbinfo.TBName);
                 }
                 treeNodes.Add(newNode);
             }

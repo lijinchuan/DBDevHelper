@@ -36,9 +36,6 @@
             this.SubItemEdit = new System.Windows.Forms.ToolStripMenuItem();
             this.SubItemView = new System.Windows.Forms.ToolStripMenuItem();
             this.SubItemTool = new System.Windows.Forms.ToolStripMenuItem();
-            this.ToolStripMenuItem_callsp = new System.Windows.Forms.ToolStripMenuItem();
-            this.实体建表ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.SubItemModelCreateTableTool = new System.Windows.Forms.ToolStripMenuItem();
             this.查看日志ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.常用SQLToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.监控任务ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -113,8 +110,6 @@
             // SubItemTool
             // 
             this.SubItemTool.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.ToolStripMenuItem_callsp,
-            this.实体建表ToolStripMenuItem,
             this.查看日志ToolStripMenuItem,
             this.常用SQLToolStripMenuItem,
             this.监控任务ToolStripMenuItem});
@@ -122,46 +117,24 @@
             this.SubItemTool.Size = new System.Drawing.Size(44, 21);
             this.SubItemTool.Text = "工具";
             // 
-            // ToolStripMenuItem_callsp
-            // 
-            this.ToolStripMenuItem_callsp.Name = "ToolStripMenuItem_callsp";
-            this.ToolStripMenuItem_callsp.Size = new System.Drawing.Size(148, 22);
-            this.ToolStripMenuItem_callsp.Text = "存储过程调用";
-            this.ToolStripMenuItem_callsp.Click += new System.EventHandler(this.ToolStripMenuItem_callsp_Click);
-            // 
-            // 实体建表ToolStripMenuItem
-            // 
-            this.实体建表ToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.SubItemModelCreateTableTool});
-            this.实体建表ToolStripMenuItem.Name = "实体建表ToolStripMenuItem";
-            this.实体建表ToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
-            this.实体建表ToolStripMenuItem.Text = "建表工具";
-            // 
-            // SubItemModelCreateTableTool
-            // 
-            this.SubItemModelCreateTableTool.Name = "SubItemModelCreateTableTool";
-            this.SubItemModelCreateTableTool.Size = new System.Drawing.Size(124, 22);
-            this.SubItemModelCreateTableTool.Text = "根据模型";
-            this.SubItemModelCreateTableTool.Click += new System.EventHandler(this.SubItemModelCreateTableTool_Click);
-            // 
             // 查看日志ToolStripMenuItem
             // 
             this.查看日志ToolStripMenuItem.Name = "查看日志ToolStripMenuItem";
-            this.查看日志ToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
+            this.查看日志ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.查看日志ToolStripMenuItem.Text = "查看日志";
             this.查看日志ToolStripMenuItem.Click += new System.EventHandler(this.查看日志ToolStripMenuItem_Click);
             // 
             // 常用SQLToolStripMenuItem
             // 
             this.常用SQLToolStripMenuItem.Name = "常用SQLToolStripMenuItem";
-            this.常用SQLToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
+            this.常用SQLToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.常用SQLToolStripMenuItem.Text = "常用SQL";
             this.常用SQLToolStripMenuItem.Click += new System.EventHandler(this.常用SQLToolStripMenuItem_Click);
             // 
             // 监控任务ToolStripMenuItem
             // 
             this.监控任务ToolStripMenuItem.Name = "监控任务ToolStripMenuItem";
-            this.监控任务ToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
+            this.监控任务ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.监控任务ToolStripMenuItem.Text = "监控任务";
             this.监控任务ToolStripMenuItem.Click += new System.EventHandler(this.监控任务ToolStripMenuItem_Click);
             // 
@@ -295,11 +268,8 @@
         private DBServerView dbServerView1;
         private System.Windows.Forms.Panel panel1;
         private UC.MyTabControl TabControl;
-        private System.Windows.Forms.ToolStripMenuItem ToolStripMenuItem_callsp;
         private System.Windows.Forms.ToolStrip toolStrip1;
         private System.Windows.Forms.ToolStripButton tsb_Excute;
-        private System.Windows.Forms.ToolStripMenuItem 实体建表ToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem SubItemModelCreateTableTool;
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripStatusLabel MspPanel;
         private System.Windows.Forms.ToolStripMenuItem 查看日志ToolStripMenuItem;

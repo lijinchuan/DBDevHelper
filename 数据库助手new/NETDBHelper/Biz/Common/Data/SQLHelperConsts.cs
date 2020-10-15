@@ -84,5 +84,7 @@ namespace Biz.Common.Data
                  INNER JOIN sys.columns AS e    with(nolock)        ON e.object_id = d.object_id AND e.column_id = d.column_id
                  INNER JOIN sys.data_spaces AS f   with(nolock)     ON f.data_space_id = c.data_space_id
                  where a.name='{0}' and c.is_hypothetical=0 and c.type_desc<>'HEAP' --and d.partition_ordinal=0";
+
+        public const string SQL_GetTBsDesc = @"select objname tablename,value [desc] from fn_listextendedproperty(null,'SCHEMA','dbo','table',@tablename,null,null)";
     }
 }

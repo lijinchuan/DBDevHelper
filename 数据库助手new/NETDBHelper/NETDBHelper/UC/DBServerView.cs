@@ -1348,7 +1348,7 @@ GO");
 
                 var tbmark = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys", new
                                  [] { tableinfo.DBName.ToUpper(), tableinfo.TBName.ToUpper(), string.Empty }).FirstOrDefault();
-                var tbdesc = tbmark == null ? tableinfo.TBName : tbmark.MarkInfo;
+                var tbdesc = tbmark == null ? (tableinfo.Desc ?? tableinfo.TBName) : tbmark.MarkInfo;
 
                 DataTable resulttb = new DataTable();
                 resulttb.Columns.AddRange(new string[][] {
