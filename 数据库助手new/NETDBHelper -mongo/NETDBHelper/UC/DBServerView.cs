@@ -203,6 +203,7 @@ namespace NETDBHelper
             {
                 var dbname = GetDBName(selNode).ToUpper();
                 var dbsource = GetDBSource(selNode);
+                var tb = selNode.Tag as TableInfo;
                 var synccolumnmark = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.
                     Find<ColumnMarkSyncRecord>("ColumnMarkSyncRecord", "keys", new[] { dbname, selNode.Text.ToUpper() }).FirstOrDefault() != null;
                 Biz.UILoadHelper.LoadColumnsAnsy(this.ParentForm, selNode, dbsource, (col) =>
@@ -217,9 +218,12 @@ namespace NETDBHelper
                             DBName = dbname.ToUpper(),
                             ColumnName = col.Name.ToUpper(),
                             Servername = dbsource.ServerName,
-                            TBName = selNode.Text.ToUpper(),
+                            TBName = tb.TBName.ToUpper(),
                             ColumnType = col.TypeToString(),
-                            MarkInfo = col.Description
+                            MarkInfo = col.Description,
+                            _ColumnName=col.Name,
+                            _DBName=tb.DBName,
+                            _TBName=tb.TBName
                         });
                     }
 
@@ -599,7 +603,10 @@ namespace NETDBHelper
                             Servername = dbsource.ServerName,
                             TBName = e.Node.Text.ToUpper(),
                             ColumnType = col.TypeToString(),
-                            MarkInfo = col.Description
+                            MarkInfo = col.Description,
+                            _ColumnName=col.Name,
+                            _TBName=col.TBName,
+                            _DBName=dbname
                         });
                     }
                     return mark == null ? string.Empty : mark.MarkInfo;
@@ -1342,7 +1349,7 @@ background-color: #ffffff;
 
                 if (item == null)
                 {
-                    item = new MarkObjectInfo { ColumnName = col.ToUpper(), DBName = dbname.ToUpper(), TBName = tbname.ToUpper(), Servername = servername };
+                    item = new MarkObjectInfo { ColumnName = col.ToUpper(), DBName = dbname.ToUpper(), TBName = tbname.ToUpper(), Servername = servername, _ColumnName=col, _DBName=dbname, _TBName=tbname };
                 }
                 InputStringDlg dlg = new InputStringDlg($"备注字段[{tbname}.{col}]", item.MarkInfo);
                 if (dlg.ShowDialog() == DialogResult.OK)
@@ -1403,7 +1410,7 @@ background-color: #ffffff;
 
                     if (item == null)
                     {
-                        item = new MarkObjectInfo { ColumnName = string.Empty, DBName = tb.DBName.ToUpper(), TBName = tb.TBName.ToUpper(), Servername = GetDBSource(currnode).ServerName, MarkInfo = string.Empty };
+                        item = new MarkObjectInfo { ColumnName = string.Empty, DBName = tb.DBName.ToUpper(), TBName = tb.TBName.ToUpper(), Servername = GetDBSource(currnode).ServerName, MarkInfo = string.Empty, _ColumnName=string.Empty, _DBName=tb.DBName, _TBName=tb.TBName };
                     }
                     InputStringDlg dlg = new InputStringDlg($"备注:{tb.TBName}", item.MarkInfo);
                     if (dlg.ShowDialog() == DialogResult.OK)
@@ -1433,13 +1440,15 @@ background-color: #ffffff;
                 return;
             }
 
-            var tbname = GetTBName(currnode)?.ToUpper();
+            var orgtbname = GetTBName(currnode) ?? string.Empty;
+            var tbname = orgtbname?.ToUpper();
             if (string.IsNullOrWhiteSpace(tbname))
             {
                 return;
             }
 
-            var dbname = GetDBName(currnode).ToUpper();
+            var orgdbname = GetDBName(currnode);
+            var dbname = orgdbname.ToUpper();
 
             var allnodes = currnode.Parent.Nodes;
             var dic = new Dictionary<string, TreeNode>();
@@ -1467,7 +1476,8 @@ background-color: #ffffff;
                     {
                         continue;
                     }
-                    var column = arr[0].Trim().ToUpper();
+                    var orgColumn = arr[0].Trim();
+                    var column = orgColumn.ToUpper();
 
                     if (dic.ContainsKey(column))
                     {
@@ -1476,7 +1486,7 @@ background-color: #ffffff;
 
                         if (item == null)
                         {
-                            item = new MarkObjectInfo { ColumnName = column, DBName = dbname, TBName = tbname, Servername = GetDBSource(currnode).ServerName, MarkInfo = string.Empty };
+                            item = new MarkObjectInfo { ColumnName = column, DBName = dbname, TBName = tbname, Servername = GetDBSource(currnode).ServerName, MarkInfo = string.Empty, _ColumnName=orgColumn, _DBName= orgdbname, _TBName=orgtbname };
                         }
 
                         item.MarkInfo = mark;

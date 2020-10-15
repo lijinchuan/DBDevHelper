@@ -128,7 +128,7 @@ namespace NETDBHelper.UC
                     if (string.IsNullOrWhiteSpace(m.ColumnName))
                     {
                         ThinkInfoLib.RemoveAll(p => p.Type == 1 &&((MarkObjectInfo)p.Tag)?.DBName.Equals(m.DBName,StringComparison.OrdinalIgnoreCase)==true&& p.ObjectName.Equals(m.TBName, StringComparison.OrdinalIgnoreCase));
-                        ThinkInfoLib.Add(new ThinkInfo { Type = 1, ObjectName = m.TBName.ToLower(), Tag = m, Desc = m.MarkInfo });
+                        ThinkInfoLib.Add(new ThinkInfo { Type = 1, ObjectName = m._TBName, Tag = m, Desc = m.MarkInfo });
                     }
                     else
                     {
@@ -136,9 +136,9 @@ namespace NETDBHelper.UC
                         {
                             ThinkInfoLib.Add(new ThinkInfo { Type = 1, ObjectName = m.TBName.ToLower(), Tag = new MarkObjectInfo
                             {
-                                DBName=m.DBName,
+                                DBName=m._DBName,
                                 Servername=m.Servername,
-                                TBName=m.TBName
+                                TBName=m._TBName
                             }, Desc = string.Empty });
                         }
                         string desc = m.ColumnType;
@@ -146,7 +146,7 @@ namespace NETDBHelper.UC
                         {
                             desc += $",{m.MarkInfo}";
                         }
-                        ThinkInfoLib.Add(new ThinkInfo { Type = 2, Desc = desc, ObjectName = m.ColumnName.ToLower(), Tag = m });
+                        ThinkInfoLib.Add(new ThinkInfo { Type = 2, Desc = desc, ObjectName = m._ColumnName, Tag = m });
                     }
 
                     if (count == 20)
@@ -240,11 +240,11 @@ namespace NETDBHelper.UC
                     var tablename = string.Empty;
                     if (!markcolumn.DBName.Equals(_dbname, StringComparison.OrdinalIgnoreCase))
                     {
-                        tablename = $"{markcolumn.DBName.ToLower()}.{markcolumn.TBName}";
+                        tablename = $"{markcolumn._DBName}.{markcolumn._TBName}";
                     }
                     else
                     {
-                        tablename = markcolumn.TBName;
+                        tablename = markcolumn._TBName;
                     }
                     if (!TableSet.Contains(tablename, StringComparer.OrdinalIgnoreCase))
                     {
@@ -262,7 +262,7 @@ namespace NETDBHelper.UC
                     var tablename = string.Empty;
                     if (!markcolumn.DBName.Equals(_dbname, StringComparison.OrdinalIgnoreCase))
                     {
-                        tablename = $"{markcolumn.DBName.ToLower()}.{ p.ObjectName}";
+                        tablename = $"{markcolumn._DBName}.{ p.ObjectName}";
                     }
                     else
                     {
@@ -286,11 +286,11 @@ namespace NETDBHelper.UC
                     issamedb = markcolumn.DBName.Equals(_dbname, StringComparison.OrdinalIgnoreCase);
                     if (issamedb)
                     {
-                        objectname = $"{markcolumn.TBName.ToLower()}.{p.ObjectName}";
+                        objectname = $"{markcolumn._TBName}.{p.ObjectName}";
                     }
                     else
                     {
-                        objectname = $"{markcolumn.DBName.ToLower()}.{markcolumn.TBName.ToLower()}.{p.ObjectName}";
+                        objectname = $"{markcolumn._DBName}.{markcolumn._TBName}.{p.ObjectName}";
                     }
                     replaceobjectname= $"\"{p.ObjectName}\":";
                 }
@@ -305,8 +305,8 @@ namespace NETDBHelper.UC
                     }
                     else
                     {
-                        objectname = $"{markcolumn.DBName.ToLower()}.{p.ObjectName}";
-                        replaceobjectname = $"{markcolumn.DBName.ToLower()}.{p.ObjectName}";
+                        objectname = $"{markcolumn._DBName}.{p.ObjectName}";
+                        replaceobjectname = $"{markcolumn._DBName}.{p.ObjectName}";
                     }
                 }
                 else
@@ -598,14 +598,14 @@ namespace NETDBHelper.UC
                         {
                             return new
                             {
-                                提示 = $"{p.TBName.ToLower()}.{p.ColumnName.ToLower()}({p.ColumnType}):{p.MarkInfo}"
+                                提示 = $"{p._TBName}.{p._ColumnName}({p.ColumnType}):{p.MarkInfo}"
                             };
                         }
                         else
                         {
                             return new
                             {
-                                提示 = $"{p.DBName.ToLower()}.{p.TBName.ToLower()}.{p.ColumnName.ToLower()}({p.ColumnType}):{p.MarkInfo}"
+                                提示 = $"{p._DBName}.{p._TBName}.{p._ColumnName}({p.ColumnType}):{p.MarkInfo}"
                             };
                         }
                     }).ToList();

@@ -274,7 +274,14 @@ namespace Biz.Common.Data
                         var newrow = table.NewRow();
                         foreach (var c in bd.Elements)
                         {
-                            newrow[c.Name] = c.Value;
+                            if (c.Value.IsObjectId)
+                            {
+                                newrow[c.Name] = $"ObjectId(\"{c.Value.ToString()}\")";
+                            }
+                            else
+                            {
+                                newrow[c.Name] = c.Value;
+                            }
                         }
                         table.Rows.Add(newrow);
                     }
@@ -287,7 +294,14 @@ namespace Biz.Common.Data
                             table.Columns.Add(datacol, typeof(object));
                             colhash.Add(datacol);
                         }
-                        newrow[datacol] = item;
+                        if (item.IsObjectId)
+                        {
+                            newrow[datacol] = $"ObjectId(\"{item.ToString()}\")";
+                        }
+                        else
+                        {
+                            newrow[datacol] = item;
+                        }
                         table.Rows.Add(newrow);
                     }
                 }

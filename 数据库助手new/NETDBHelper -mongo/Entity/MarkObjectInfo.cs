@@ -48,5 +48,23 @@ namespace Entity
             get;
             set;
         }
+
+        public string _DBName
+        {
+            get;
+            set;
+        }
+
+        public string _TBName
+        {
+            get;
+            set;
+        }
+
+        public string _ColumnName
+        {
+            get;
+            set;
+        }
     }
 }

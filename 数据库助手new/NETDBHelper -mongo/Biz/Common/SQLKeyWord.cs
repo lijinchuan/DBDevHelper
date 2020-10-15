@@ -199,6 +199,20 @@ namespace Biz.Common
 
             KeyWordDic.Add(new SQLKeyWord
             {
+                KeyWord = "deleteMany ",
+                Desc = "删除多条 ",
+                HighColor = Color.Red
+            });
+
+            KeyWordDic.Add(new SQLKeyWord
+            {
+                KeyWord = "deleteOne",
+                Desc = "删除一条 ",
+                HighColor = Color.Red
+            });
+
+            KeyWordDic.Add(new SQLKeyWord
+            {
                 KeyWord = "find",
                 Desc = "查询",
                 HighColor = Color.Red
@@ -215,6 +229,13 @@ namespace Biz.Common
             {
                 KeyWord = "getCollection",
                 Desc = "取集合",
+                HighColor = Color.Red
+            });
+
+            KeyWordDic.Add(new SQLKeyWord
+            {
+                KeyWord = "insert",
+                Desc = "插入数据",
                 HighColor = Color.Red
             });
 
@@ -251,6 +272,13 @@ namespace Biz.Common
                 KeyWord= "ObjectId",
                 Desc="主键ID",
                 HighColor=Color.Red
+            });
+
+            KeyWordDic.Add(new SQLKeyWord
+            {
+                KeyWord = "remove",
+                Desc = "删除",
+                HighColor = Color.Red
             });
 
             KeyWordDic.Add(new SQLKeyWord
