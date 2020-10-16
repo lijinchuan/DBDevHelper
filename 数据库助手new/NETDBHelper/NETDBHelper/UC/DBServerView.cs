@@ -792,6 +792,7 @@ namespace NETDBHelper
                         || nctype == NodeContentType.PROC
                         || nctype == NodeContentType.VIEW
                         || nctype == NodeContentType.INDEX
+                        || nctype == NodeContentType.INDEXParent
                         || nctype == NodeContentType.LOGICMAPParent
                         ||nctype==NodeContentType.LOGICMAP)
                     {
@@ -844,6 +845,11 @@ namespace NETDBHelper
                         SubMenuItem_Proc.Visible = nctype == NodeContentType.TB;
                         新增逻辑关系图ToolStripMenuItem.Visible = nctype == NodeContentType.LOGICMAPParent;
                         删除逻辑关系图ToolStripMenuItem.Visible = nctype == NodeContentType.LOGICMAP;
+
+                        TSM_ManIndex.Visible = nctype == NodeContentType.INDEX
+                        || nctype == NodeContentType.INDEXParent;
+                        TTSM_CreateIndex.Visible = nctype == NodeContentType.INDEXParent;
+                        TTSM_DelIndex.Visible = nctype == NodeContentType.INDEX;
                     }
                     else
                     {
@@ -2220,6 +2226,51 @@ background-color: #ffffff;
                         this.OnDeleteLogicMap(GetDBName(currnode), logicmap);
                     }
                     ReLoadDBObj(currnode.Parent);
+                }
+            }
+        }
+
+        private void TTSM_CreateIndex_Click(object sender, EventArgs e)
+        {
+            var _node = tv_DBServers.SelectedNode;
+            var ds = GetDBSource(_node);
+            var tb = _node.Parent.Tag as TableInfo;
+            var cols = Biz.Common.Data.SQLHelper.GetColumns(ds, tb.DBName, tb.TBName).ToList();
+            WinCreateIndex win = new WinCreateIndex(cols);
+            if (win.ShowDialog() == DialogResult.OK && MessageBox.Show("要创建索引吗？") == DialogResult.OK)
+            {
+                try
+                {
+                    Biz.Common.Data.SQLHelper.CreateIndex(ds, tb.DBName, tb.TBName, win.IndexName, win.IsUnique(), win.IsPrimaryKey(), win.IsAutoIncr(), win.IsClustered(), win.IndexColumns);
+                    MessageBox.Show("创建索引成功");
+                    ReLoadDBObj(_node);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message, "创建索引出错", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+
+        private void TTSM_DelIndex_Click(object sender, EventArgs e)
+        {
+            var _node = tv_DBServers.SelectedNode;
+            if (_node.Tag is IndexEntry)
+            {
+                var idx = _node.Tag as IndexEntry;
+                if (MessageBox.Show("要删除索引\"" + idx.IndexName + "\"吗?", "删除", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                {
+                    var ds = GetDBSource(_node);
+                    try
+                    {
+                        Biz.Common.Data.SQLHelper.DropIndex(ds, GetDBName(_node), GetTBName(_node), idx.IndexName.Equals("primary", StringComparison.OrdinalIgnoreCase), idx.IndexName);
+                        MessageBox.Show("删除成功");
+                        ReLoadDBObj(_node.Parent);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(ex.Message, "删除索引失败", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
                 }
             }
         }

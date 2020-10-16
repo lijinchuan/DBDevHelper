@@ -189,6 +189,12 @@
     <Compile Include="SubForm\WatchTaskLogDlg.Designer.cs">
       <DependentUpon>WatchTaskLogDlg.cs</DependentUpon>
     </Compile>
+    <Compile Include="SubForm\WinCreateIndex.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SubForm\WinCreateIndex.Designer.cs">
+      <DependentUpon>WinCreateIndex.cs</DependentUpon>
+    </Compile>
     <Compile Include="SubForm\WinCreateSelectSpNav.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -232,6 +238,12 @@
     </Compile>
     <Compile Include="UC\EntityCodePanel.Designer.cs">
       <DependentUpon>EntityCodePanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UC\LabCombox.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UC\LabCombox.Designer.cs">
+      <DependentUpon>LabCombox.cs</DependentUpon>
     </Compile>
     <Compile Include="UC\LoadingBox.cs">
       <SubType>UserControl</SubType>
@@ -386,6 +398,9 @@
     <EmbeddedResource Include="SubForm\WatchTaskLogDlg.resx">
       <DependentUpon>WatchTaskLogDlg.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="SubForm\WinCreateIndex.resx">
+      <DependentUpon>WinCreateIndex.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="SubForm\WinCreateSelectSpNav.resx">
       <DependentUpon>WinCreateSelectSpNav.cs</DependentUpon>
     </EmbeddedResource>
@@ -406,6 +421,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="UC\EntityCodePanel.resx">
       <DependentUpon>EntityCodePanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UC\LabCombox.resx">
+      <DependentUpon>LabCombox.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UC\LoadingBox.resx">
       <DependentUpon>LoadingBox.cs</DependentUpon>
@@ -493,6 +511,9 @@
     <None Include="Resources\rainbow.png" />
     <None Include="Resources\number.png" />
     <None Include="Resources\sitemap.png" />
+    <None Include="Resources\sort_descending.png" />
+    <None Include="Resources\sort_ascending.png" />
+    <None Include="Resources\plugin.png" />
     <Content Include="Resources\table.png" />
     <Content Include="Resources\tbview.png" />
     <None Include="packages.config" />

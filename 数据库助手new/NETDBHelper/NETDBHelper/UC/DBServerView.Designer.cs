@@ -58,6 +58,8 @@
             this.修改表名ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.删除表ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.新增逻辑关系图ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.删除逻辑关系图ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.TSM_ManIndex = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.ts_serchKey = new System.Windows.Forms.ToolStripComboBox();
             this.toolStripDropDownButton1 = new System.Windows.Forms.ToolStripButton();
@@ -77,7 +79,8 @@
             this.CommSubMenuitem_add = new System.Windows.Forms.ToolStripMenuItem();
             this.CommSubMenuItem_Delete = new System.Windows.Forms.ToolStripMenuItem();
             this.TSMI_FilterProc = new System.Windows.Forms.ToolStripMenuItem();
-            this.删除逻辑关系图ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.TTSM_CreateIndex = new System.Windows.Forms.ToolStripMenuItem();
+            this.TTSM_DelIndex = new System.Windows.Forms.ToolStripMenuItem();
             this.DBServerviewContextMenuStrip.SuspendLayout();
             this.toolStrip1.SuspendLayout();
             this.CommMenuStrip.SuspendLayout();
@@ -123,9 +126,10 @@
             this.修改表名ToolStripMenuItem,
             this.删除表ToolStripMenuItem,
             this.新增逻辑关系图ToolStripMenuItem,
-            this.删除逻辑关系图ToolStripMenuItem});
+            this.删除逻辑关系图ToolStripMenuItem,
+            this.TSM_ManIndex});
             this.DBServerviewContextMenuStrip.Name = "DBServerviewContextMenuStrip";
-            this.DBServerviewContextMenuStrip.Size = new System.Drawing.Size(181, 384);
+            this.DBServerviewContextMenuStrip.Size = new System.Drawing.Size(181, 406);
             // 
             // 生成实体类ToolStripMenuItem
             // 
@@ -307,6 +311,22 @@
             this.新增逻辑关系图ToolStripMenuItem.Text = "新增逻辑关系图";
             this.新增逻辑关系图ToolStripMenuItem.Click += new System.EventHandler(this.新增逻辑关系图ToolStripMenuItem_Click);
             // 
+            // 删除逻辑关系图ToolStripMenuItem
+            // 
+            this.删除逻辑关系图ToolStripMenuItem.Name = "删除逻辑关系图ToolStripMenuItem";
+            this.删除逻辑关系图ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.删除逻辑关系图ToolStripMenuItem.Text = "删除逻辑关系图";
+            this.删除逻辑关系图ToolStripMenuItem.Click += new System.EventHandler(this.删除逻辑关系图ToolStripMenuItem_Click);
+            // 
+            // TSM_ManIndex
+            // 
+            this.TSM_ManIndex.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.TTSM_CreateIndex,
+            this.TTSM_DelIndex});
+            this.TSM_ManIndex.Name = "TSM_ManIndex";
+            this.TSM_ManIndex.Size = new System.Drawing.Size(180, 22);
+            this.TSM_ManIndex.Text = "索引管理";
+            // 
             // toolStrip1
             // 
             this.toolStrip1.AutoSize = false;
@@ -452,12 +472,19 @@
             this.TSMI_FilterProc.Size = new System.Drawing.Size(160, 22);
             this.TSMI_FilterProc.Text = "筛选存储过程";
             // 
-            // 删除逻辑关系图ToolStripMenuItem
+            // TTSM_CreateIndex
             // 
-            this.删除逻辑关系图ToolStripMenuItem.Name = "删除逻辑关系图ToolStripMenuItem";
-            this.删除逻辑关系图ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.删除逻辑关系图ToolStripMenuItem.Text = "删除逻辑关系图";
-            this.删除逻辑关系图ToolStripMenuItem.Click += new System.EventHandler(this.删除逻辑关系图ToolStripMenuItem_Click);
+            this.TTSM_CreateIndex.Name = "TTSM_CreateIndex";
+            this.TTSM_CreateIndex.Size = new System.Drawing.Size(180, 22);
+            this.TTSM_CreateIndex.Text = "创建索引";
+            this.TTSM_CreateIndex.Click += new System.EventHandler(this.TTSM_CreateIndex_Click);
+            // 
+            // TTSM_DelIndex
+            // 
+            this.TTSM_DelIndex.Name = "TTSM_DelIndex";
+            this.TTSM_DelIndex.Size = new System.Drawing.Size(180, 22);
+            this.TTSM_DelIndex.Text = "删除索引";
+            this.TTSM_DelIndex.Click += new System.EventHandler(this.TTSM_DelIndex_Click);
             // 
             // DBServerView
             // 
@@ -531,5 +558,8 @@
         private System.Windows.Forms.ToolStripMenuItem 表关系图ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 新增逻辑关系图ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 删除逻辑关系图ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem TSM_ManIndex;
+        private System.Windows.Forms.ToolStripMenuItem TTSM_CreateIndex;
+        private System.Windows.Forms.ToolStripMenuItem TTSM_DelIndex;
     }
 }

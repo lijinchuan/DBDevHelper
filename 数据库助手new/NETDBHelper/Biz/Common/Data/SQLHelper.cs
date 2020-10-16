@@ -452,5 +452,35 @@ where a.Table_NAME='"+viewname+"' and a.TABLE_NAME=b.TABLE_NAME ORDER BY A.TABLE
 
             return sb.ToString();
         }
+
+        public static void CreateIndex(DBSource dbSource, string dbName, string tbname, string indexname, bool unique, bool primarykey, bool autoIncr, bool isclustered, List<IndexTBColumn> cols)
+        {
+            if (!cols.Any(p => !p.Include))
+            {
+                throw new Exception("缺少列");
+            }
+
+            StringBuilder sb = new StringBuilder();
+
+            sb.AppendFormat("create {0} {1} index {2}", unique ? "unique" : "", isclustered ? "clustered" : "nonclustered", indexname);
+            sb.AppendLine();
+            sb.AppendFormat("on {0}({1})", tbname, string.Join(",", cols.Where(p => !p.Include).Select(p => p.Name)));
+            sb.AppendLine();
+            if (cols.Any(p => p.Include))
+            {
+                sb.AppendFormat("include ({0})", string.Join(",", cols.Where(p => p.Include).Select(p => p.Name)));
+            }
+
+            var sql = sb.ToString();
+
+            ExecuteNoQuery(dbSource, dbName, sql);
+        }
+
+        public static void DropIndex(DBSource dbSource, string dbName, string tbName, bool primarykey, string indexName)
+        {
+            string sql = string.Format("drop index {0} on [{1}]", indexName, tbName);
+
+            ExecuteNoQuery(dbSource, dbName, sql);
+        }
     }
 }

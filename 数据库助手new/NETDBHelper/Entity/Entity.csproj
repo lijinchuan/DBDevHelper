@@ -53,6 +53,7 @@
     <Compile Include="IDataExport.cs" />
     <Compile Include="IDType.cs" />
     <Compile Include="IndexEntry.cs" />
+    <Compile Include="IndexTBColumn.cs" />
     <Compile Include="INodeContents.cs" />
     <Compile Include="LogicMap.cs" />
     <Compile Include="LogicMapRelColumn.cs" />
