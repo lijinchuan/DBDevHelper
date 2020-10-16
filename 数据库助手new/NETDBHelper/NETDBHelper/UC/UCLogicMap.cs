@@ -74,6 +74,7 @@ namespace NETDBHelper.UC
             TSMDelRelColumn.Click += TSMDelRelColumn_Click;
             TSMI_Export.Click += TSMI_Export_Click;
             delStripMenuItem.Click += delStripMenuItem_Click;
+            TSMI_CopyTableName.Click += TSMI_CopyTableName_Click;
         }
 
         private void PanelMap_MouseDoubleClick(object sender, MouseEventArgs e)
@@ -1058,6 +1059,20 @@ namespace NETDBHelper.UC
                         }
                         this.PanelMap.Controls.Remove(ct);
                     }
+                }
+            }
+        }
+
+        private void TSMI_CopyTableName_Click(object sender, EventArgs e)
+        {
+            var ct = this.PanelMap.GetChildAtPoint(this.PanelMap.PointToClient(new Point(this.CMSOpMenu.Left, this.CMSOpMenu.Top)));
+            if (ct is UCLogicTableView)
+            {
+                var view = ((UCLogicTableView)ct);
+                if (!string.IsNullOrWhiteSpace(view.TableName))
+                {
+                    Clipboard.SetText(view.TableName);
+                    Util.SendMsg(this, "表名复制成功");
                 }
             }
         }
