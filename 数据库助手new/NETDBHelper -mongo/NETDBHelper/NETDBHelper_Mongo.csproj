@@ -574,6 +574,9 @@
     <Content Include="Core\Compression\Snappy\lib\win\snappy64.dll" />
     <Content Include="Core\Compression\Zstandard\lib\win\libzstd.dll" />
     <Content Include="mongo.ico" />
+    <None Include="Resources\sort_ascending.png" />
+    <None Include="Resources\sort_descending.png" />
+    <None Include="Resources\plugin.png" />
     <Content Include="Resources\text_bold.png" />
     <Content Include="Resources\text_uppercase.png" />
     <None Include="packages.config" />

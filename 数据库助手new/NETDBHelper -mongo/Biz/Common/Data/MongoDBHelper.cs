@@ -193,12 +193,12 @@ namespace Biz.Common.Data
                 {
                     indexs.Add(new IndexEntry
                     {
-                        IndexName=index["name"].AsString,
-                        Cols=index["key"].AsBsonDocument.Elements.Select(p=>new IndexCol
+                        IndexName = index["name"].AsString,
+                        Cols = index["key"].AsBsonDocument.Elements.Select(p => new IndexCol
                         {
-                            Col=p.Name,
-                            IsDesc=p.Value.AsInt32==1,
-                            IsInclude=false
+                            Col = p.Name,
+                            IsDesc = p.Value.AsInt32 == -1,
+                            IsInclude = false
                         }).ToArray()
                     });
                 }
@@ -316,7 +316,7 @@ namespace Biz.Common.Data
             return new DataTable();
         }
 
-        public static void CreateIndex(DBSource dbSource, string dbName, string tbName, string indexname, bool unique, bool primarykey, bool autoIncr, List<TBColumn> cols)
+        public static void CreateIndex(DBSource dbSource, string dbName, string tbName, string indexname, bool unique, bool primarykey, bool autoIncr, List<IndexTBColumn> cols)
         {
             MongoClient mongoClient = new MongoClient(GetConnstringFromDBSource(dbSource, null));
             dbName = AdjustDBName(mongoClient, dbName);
@@ -327,8 +327,7 @@ namespace Biz.Common.Data
             List<IndexKeysDefinition<BsonDocument>> list = new List<IndexKeysDefinition<BsonDocument>>();
             foreach (var col in cols)
             {
-                var m = Regex.Match(indexname, $"{col.Name}_(\\d)", RegexOptions.IgnoreCase);
-                if (m.Success && m.Groups[1].Value == "2")
+                if (col.Order==-1)
                 {
                     list.Add(new IndexKeysDefinitionBuilder<BsonDocument>().Descending(col.Name));
                 }
