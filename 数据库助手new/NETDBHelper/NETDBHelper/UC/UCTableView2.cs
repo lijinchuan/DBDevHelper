@@ -342,6 +342,7 @@ namespace NETDBHelper.UC
                     if (isdragendevent)
                     {
                         var pt = dragEnd;
+                        pt.Offset(-(this.Parent as Panel).AutoScrollPosition.X, -(this.Parent as Panel).AutoScrollPosition.Y);
                         pt.Offset(20, 0);
                         var col = (Util.FindParent<UCTableRelMap>(this))?.FindColumn(lb.PointToScreen(pt));
                         if (col != null)
