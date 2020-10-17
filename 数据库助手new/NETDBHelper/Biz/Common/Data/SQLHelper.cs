@@ -464,7 +464,7 @@ where a.Table_NAME='"+viewname+"' and a.TABLE_NAME=b.TABLE_NAME ORDER BY A.TABLE
 
             sb.AppendFormat("create {0} {1} index {2}", unique ? "unique" : "", isclustered ? "clustered" : "nonclustered", indexname);
             sb.AppendLine();
-            sb.AppendFormat("on {0}({1})", tbname, string.Join(",", cols.Where(p => !p.Include).Select(p => p.Name)));
+            sb.AppendFormat("on {0}({1})", tbname, string.Join(",", cols.Where(p => !p.Include).Select(p => p.Name+ (p.Order==-1?" desc":""))));
             sb.AppendLine();
             if (cols.Any(p => p.Include))
             {

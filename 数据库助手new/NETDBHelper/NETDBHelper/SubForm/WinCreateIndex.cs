@@ -177,8 +177,9 @@ namespace NETDBHelper.SubForm
                     {
                         IndexColumns.Remove(idxcol);
                     }
-
+                    
                     BindIndexCol();
+                    
                 };
                 if (linewidth + cb.Width > ctlContainer.Width)
                 {
@@ -193,6 +194,8 @@ namespace NETDBHelper.SubForm
 
         private void BindIndexCol()
         {
+            var selitem = LbxColumn.SelectedItem;
+
             this.TBIndexName.Text = GetIndexName();
 
             IndexColumns = IndexColumns.OrderBy(p =>
@@ -207,6 +210,11 @@ namespace NETDBHelper.SubForm
             this.LbxColumn.DataSource = IndexColumns;
             this.LbxColumn.DisplayMember = "Name";
             this.LbxColumn.ValueMember = "Name";
+
+            if (selitem != null && LbxColumn.Items.Contains(selitem))
+            {
+                LbxColumn.SelectedItem = selitem;
+            }
         }
 
         private void BtnAdd_Click(object sender, EventArgs e)

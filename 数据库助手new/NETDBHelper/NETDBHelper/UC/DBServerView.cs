@@ -73,6 +73,9 @@ namespace NETDBHelper
             tv_DBServers.ImageList.Images.Add(Resources.Resource1.script_code_no);
             tv_DBServers.ImageList.Images.Add(Resources.Resource1.script_code_red_no);
             tv_DBServers.ImageList.Images.Add(Resources.Resource1.logic);
+            tv_DBServers.ImageList.Images.Add("ASC", Resources.Resource1.ASC);
+            tv_DBServers.ImageList.Images.Add("DESC", Resources.Resource1.DESC);
+            tv_DBServers.ImageList.Images.Add("plugin", Resources.Resource1.plugin);
             tv_DBServers.Nodes.Add("0", "资源管理器", 0);
             tv_DBServers.NodeMouseClick += new TreeNodeMouseClickEventHandler(tv_DBServers_NodeMouseClick);
             tv_DBServers.NodeMouseDoubleClick += Tv_DBServers_NodeMouseDoubleClick;
@@ -811,6 +814,7 @@ namespace NETDBHelper
                             || nctype == NodeContentType.DB
                             || nctype == NodeContentType.TBParent
                             || nctype == NodeContentType.TB
+                            || nctype == NodeContentType.INDEXParent
                             || nctype == NodeContentType.VIEW
                             || nctype == NodeContentType.VIEWParent
                             || nctype == NodeContentType.PROCParent

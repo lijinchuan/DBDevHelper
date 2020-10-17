@@ -244,15 +244,29 @@ namespace Biz
 
             foreach (var item in list)
             {
-                var imageindex = item.IsPri ? 8 : 7;
                 TreeNode newNode = new TreeNode($"{item.IndexName}{(item.IsClustered ? "(聚集)" : "")}", item.Cols.Select(p =>
                 {
                     var node = new TreeNode
                     {
-                        Text = $"{p.Col}{(p.IsDesc ? "(倒序)" : "")}{(p.IsInclude ? "(包含)" : "")}",
-                        ImageIndex = imageindex,
-                        SelectedImageIndex = imageindex
+                        Text = $"{p.Col}",
                     };
+
+                    if (p.IsInclude)
+                    {
+                        node.ImageKey = node.SelectedImageKey = "plugin";
+                    }
+                    else if (item.IsPri)
+                    {
+                        node.ImageIndex = node.SelectedImageIndex = 8;
+                    }
+                    else if (p.IsDesc)
+                    {
+                        node.ImageKey = node.SelectedImageKey = "DESC";
+                    }
+                    else
+                    {
+                        node.ImageKey = node.SelectedImageKey = "ASC";
+                    }
 
                     node.Tag = p;
 
