@@ -79,6 +79,9 @@ namespace NETDBHelper
             tv_DBServers.ImageList.Images.Add(Resources.Resource1.DB16);
             tv_DBServers.ImageList.Images.Add(Resources.Resource1.DB161);
             tv_DBServers.ImageList.Images.Add(Resources.Resource1.logic);//28
+            tv_DBServers.ImageList.Images.Add("ASC", Resources.Resource1.ASC);
+            tv_DBServers.ImageList.Images.Add("DESC", Resources.Resource1.DESC);
+            tv_DBServers.ImageList.Images.Add("plugin", Resources.Resource1.plugin);
             tv_DBServers.Nodes.Add("0", "资源管理器", 0);
             tv_DBServers.NodeMouseClick += new TreeNodeMouseClickEventHandler(tv_DBServers_NodeMouseClick);
             tv_DBServers.NodeMouseDoubleClick += Tv_DBServers_NodeMouseDoubleClick;
@@ -337,7 +340,7 @@ namespace NETDBHelper
             }
             else if ((selNode.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.INDEXParent)
             {
-                Biz.UILoadHelper.LoadIndexAnsy(this.ParentForm, selNode, GetDBSource(selNode), GetDBName(selNode));
+                Biz.UILoadHelper.LoadIndexAnsy(this.ParentForm, selNode, GetDBSource(selNode), GetDBName(selNode),GetTBName(selNode));
             }
             else if ((selNode.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.TRIGGERParent)
             {
@@ -879,7 +882,7 @@ namespace NETDBHelper
             {
                 if (e.Node.Nodes.Count > 0)
                     return;
-                Biz.UILoadHelper.LoadIndexAnsy(this.ParentForm, e.Node, GetDBSource(e.Node), GetDBName(e.Node));
+                Biz.UILoadHelper.LoadIndexAnsy(this.ParentForm, e.Node, GetDBSource(e.Node), GetDBName(e.Node),GetTBName(e.Node));
             }
             else if ((e.Node.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.TRIGGERParent)
             {
@@ -1528,7 +1531,7 @@ background-color: #ffffff;
             var ds = GetDBSource(_node);
             var tb = _node.Parent.Tag as TableInfo;
             var cols = Biz.Common.Data.OracleHelper.GetColumns(ds, tb.DBName, tb.TBName).ToList();
-            WinCreateIndex win = new WinCreateIndex(tb.TBName,cols);
+            WinCreateIndex win = new WinCreateIndex(cols);
             win.StartPosition = FormStartPosition.CenterParent;
             if (win.ShowDialog() == DialogResult.OK && MessageBox.Show("要创建索引吗？") == DialogResult.OK)
             {

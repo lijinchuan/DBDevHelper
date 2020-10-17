@@ -14,27 +14,34 @@ namespace NETDBHelper.SubForm
     public partial class WinCreateIndex : Form
     {
         private List<TBColumn> TBColumnList = new List<TBColumn>();
-        public List<TBColumnIndex> IndexColumns = new List<TBColumnIndex>();
-        private string _tablename = string.Empty;
+        public List<IndexTBColumn> IndexColumns = new List<IndexTBColumn>();
+        private ImageList imageList = new ImageList();
 
         public WinCreateIndex()
         {
             InitializeComponent();
         }
 
-        public WinCreateIndex(string tablename,List<TBColumn> columns)
+        public WinCreateIndex(List<TBColumn> columns)
         {
             InitializeComponent();
 
             this.TBColumnList = columns;
-            this._tablename = tablename;
+
+            LbxColumn.Font = new Font("宋体", 12);
+            LbxColumn.DrawMode = DrawMode.OwnerDrawVariable;
+            LbxColumn.MeasureItem += LbxColumn_MeasureItem;
+            LbxColumn.DrawItem += LbxColumn_DrawItem;
+            imageList.Images.Add(Resources.Resource1.ASC);
+            imageList.Images.Add(Resources.Resource1.DESC);
+            imageList.Images.Add(Resources.Resource1.plugin);
         }
 
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
 
-            InitCheckBoxGroup(this.IndexColumns, this.panItmes);
+            InitCheckBoxGroup(this.panItmes);
         }
 
         public string IndexName
@@ -53,19 +60,19 @@ namespace NETDBHelper.SubForm
                 return string.Empty;
             }
 
-            StringBuilder sb = new StringBuilder(this._tablename);
-            foreach (var ctl in this.panItmes.Controls)
+            StringBuilder sb = new StringBuilder();
+            foreach (var idx in this.IndexColumns)
             {
-                if (ctl is LabCombox)
+                if (!idx.Include)
                 {
-                    LabCombox lc = (LabCombox)ctl;
-                    if (lc.SelectedIndex != 0)
-                    {
-                        sb.AppendFormat("_{0}_{1}", lc.Text,lc.SelectedIndex);
-                    }
+                    sb.AppendFormat("_{0}_{1}", idx.Name, idx.Order == -1 ? 2 : idx.Order);
                 }
             }
-            return sb.Remove(0, 1).ToString();
+            if (sb.Length == 0)
+            {
+                return string.Empty;
+            }
+            return "ix_" + sb.Remove(0, 1).ToString();
         }
 
         public bool IsUnique()
@@ -83,16 +90,20 @@ namespace NETDBHelper.SubForm
             return CB_AutoIncr.Checked;
         }
 
-        private void InitCheckBoxGroup(List<TBColumnIndex> colContainer, Control ctlContainer)
+        public bool IsClustered()
         {
-            if (colContainer == null || ctlContainer == null)
-                return;
+            return CBClustered.Checked;
+        }
+
+        private void InitCheckBoxGroup(Control ctlContainer)
+        {
 
             int linewidth = 20;
             int lineIndex = 0;
             int margintop = 5;
             int marginright = 10;
-            var items=new[] { "不选", "顺序", "倒序" };
+            var items=new[] { "不选", "顺序", "倒序","包含" };
+
             for (int i = 0; i < TBColumnList.Count; i++)
             {
                 var col = TBColumnList[i];
@@ -104,16 +115,71 @@ namespace NETDBHelper.SubForm
                 cb.Tag = col;
                 cb.SelectedIndexChanged += (o, ex) =>
                 {
-                    if (cb.SelectedIndex!=0)
+                    var idxcol = IndexColumns.Find(p => p.Name.Equals(col.Name, StringComparison.OrdinalIgnoreCase));
+                    if (cb.SelectedIndex==1)
                     {
-                        colContainer.Add(new TBColumnIndex(col).SetDirection(cb.SelectedIndex));
+                        if (idxcol == null)
+                        {
+                            IndexColumns.Add(new IndexTBColumn
+                            {
+                                Name = col.Name,
+                                TypeName = col.TypeName,
+                                Order = 1,
+                                IsID=col.IsID,
+                                IsKey=col.IsKey
+                            });
+                        }
+                        else
+                        {
+                            idxcol.Order = 1;
+                            idxcol.Include = false;
+                        }
+                    }
+                    else if (cb.SelectedIndex == 2)
+                    {
+                        if (idxcol == null)
+                        {
+                            IndexColumns.Add(new IndexTBColumn
+                            {
+                                Name = col.Name,
+                                TypeName = col.TypeName,
+                                Order = -1,
+                                IsID = col.IsID,
+                                IsKey = col.IsKey
+                            });
+                        }
+                        else
+                        {
+                            idxcol.Order = -1;
+                            idxcol.Include = false;
+                        }
+                    }
+                    else if(cb.SelectedIndex==3)
+                    {
+                        if (idxcol == null)
+                        {
+                            IndexColumns.Add(new IndexTBColumn
+                            {
+                                Name = col.Name,
+                                TypeName = col.TypeName,
+                                Include = true,
+                                IsID = col.IsID,
+                                IsKey = col.IsKey
+                            });
+                        }
+                        else
+                        {
+                            idxcol.Order = 0;
+                            idxcol.Include = true;
+                        }
                     }
                     else
                     {
-                        colContainer.Remove(new TBColumnIndex(col).SetDirection(cb.SelectedIndex));
+                        IndexColumns.Remove(idxcol);
                     }
-
-                    this.TBIndexName.Text = GetIndexName();
+                    
+                    BindIndexCol();
+                    
                 };
                 if (linewidth + cb.Width > ctlContainer.Width)
                 {
@@ -123,6 +189,31 @@ namespace NETDBHelper.SubForm
                 cb.Location = new Point(linewidth, lineIndex * cb.Height + margintop + 15);
                 linewidth += cb.Width + marginright;
                 ctlContainer.Controls.Add(cb);
+            }
+        }
+
+        private void BindIndexCol()
+        {
+            var selitem = LbxColumn.SelectedItem;
+
+            this.TBIndexName.Text = GetIndexName();
+
+            IndexColumns = IndexColumns.OrderBy(p =>
+            {
+                if (p.Include)
+                {
+                    return 1;
+                }
+                return 0;
+            }).ToList();
+
+            this.LbxColumn.DataSource = IndexColumns;
+            this.LbxColumn.DisplayMember = "Name";
+            this.LbxColumn.ValueMember = "Name";
+
+            if (selitem != null && LbxColumn.Items.Contains(selitem))
+            {
+                LbxColumn.SelectedItem = selitem;
             }
         }
 
@@ -154,7 +245,7 @@ namespace NETDBHelper.SubForm
                     return;
                 }
 
-                if (!this.IndexColumns[0].TypeName.Equals("NUMBER", StringComparison.OrdinalIgnoreCase) && !this.IndexColumns[0].TypeName.Equals("INTEGER", StringComparison.OrdinalIgnoreCase))
+                if (!this.IndexColumns[0].TypeName.Equals("int", StringComparison.OrdinalIgnoreCase) && !this.IndexColumns[0].TypeName.Equals("bigint", StringComparison.OrdinalIgnoreCase))
                 {
                     MessageBox.Show("自增长键必须是数字类型");
                     return;
@@ -165,18 +256,127 @@ namespace NETDBHelper.SubForm
                     MessageBox.Show("已经是自增主键");
                     return;
                 }
-
-                this.IndexColumns[0].IsID = true;
-            }
-            else
-            {
-                foreach (var col in this.IndexColumns)
-                {
-                    col.IsID = false;
-                }
             }
 
             this.DialogResult = DialogResult.OK;
+        }
+
+        private void LbxColumn_MeasureItem(object sender, MeasureItemEventArgs e)
+        {
+            e.ItemHeight = 20;
+        }
+
+        private void LbxColumn_DrawItem(object sender, DrawItemEventArgs e)
+        {
+            if (e.Index == -1)
+            {
+                return;
+            }
+            Brush myBrush = Brushes.Black;
+            Color RowBackColorSel = Color.FromArgb(150, 200, 250);//选择项目颜色
+            if ((e.State & DrawItemState.Selected) == DrawItemState.Selected)
+            {
+                myBrush = new SolidBrush(RowBackColorSel);
+            }
+            else
+            {
+                myBrush = new SolidBrush(Color.White);
+            }
+            e.Graphics.FillRectangle(myBrush, e.Bounds);
+            e.DrawFocusRectangle();//焦点框
+
+            //绘制图标
+            var col = this.IndexColumns[e.Index];
+            var imgindex = 2;
+            if (col.Order == 1)
+            {
+                imgindex = 0;
+            }
+            else if (col.Order == -1)
+            {
+                imgindex = 1;
+            }
+            Image image = imageList.Images[imgindex];
+            Graphics graphics = e.Graphics;
+            Rectangle bound = e.Bounds;
+            Rectangle imgRec = new Rectangle(
+                bound.X,
+                bound.Y,
+                bound.Height,
+                bound.Height);
+            Rectangle textRec = new Rectangle(
+                imgRec.Right,
+                bound.Y,
+                bound.Width - imgRec.Right,
+                bound.Height);
+            if (image != null)
+            {
+                e.Graphics.DrawImage(
+                    image,
+                    imgRec,
+                    0,
+                    0,
+                    image.Width,
+                    image.Height,
+                    GraphicsUnit.Pixel);
+                //绘制字体
+                StringFormat stringFormat = new StringFormat();
+                stringFormat.Alignment = StringAlignment.Near;
+                e.Graphics.DrawString(col.Name, e.Font, new SolidBrush(Color.Black), textRec, stringFormat);
+            }
+        }
+
+        private void BtnDown_Click(object sender, EventArgs e)
+        {
+            if (LbxColumn.SelectedItem != null)
+            {
+                var idxcol = LbxColumn.SelectedItem as IndexTBColumn;
+                
+                var colindex = IndexColumns.FindIndex(p => p.Name.Equals(idxcol.Name, StringComparison.OrdinalIgnoreCase));
+
+                if (colindex < IndexColumns.Count - 1)
+                {
+                    if (!idxcol.Include && IndexColumns[colindex + 1].Include)
+                    {
+                        return;
+                    }
+                    var nextcol = IndexColumns[colindex + 1];
+                    IndexColumns[colindex + 1] = IndexColumns[colindex];
+                    IndexColumns[colindex] = nextcol;
+
+                    BindIndexCol();
+
+                    LbxColumn.SelectedIndex = colindex + 1;
+                }
+            }
+        }
+
+        private void BtnUp_Click(object sender, EventArgs e)
+        {
+            if (LbxColumn.SelectedItem != null)
+            {
+                var idxcol = LbxColumn.SelectedItem as IndexTBColumn;
+
+                var colindex = IndexColumns.FindIndex(p => p.Name.Equals(idxcol.Name, StringComparison.OrdinalIgnoreCase));
+
+                if (colindex > 0)
+                {
+                    if (idxcol.Include && !IndexColumns[colindex - 1].Include)
+                    {
+                        return;
+                    }
+                    var nextcol = IndexColumns[colindex - 1];
+                    IndexColumns[colindex - 1] = IndexColumns[colindex];
+                    IndexColumns[colindex] = nextcol;
+
+                    
+
+                    BindIndexCol();
+
+                    LbxColumn.SelectedIndex = colindex - 1;
+                }
+
+            }
         }
     }
 }

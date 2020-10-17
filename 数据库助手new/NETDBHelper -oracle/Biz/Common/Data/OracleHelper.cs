@@ -241,7 +241,8 @@ namespace Biz.Common.Data
                         IndexName = indexname,
                         Cols=tbcols.AsEnumerable().Select(p=> new IndexCol
                         {
-                            Col=p["COLUMN_NAME"].ToString()
+                            Col=p["COLUMN_NAME"].ToString(),
+                            IsDesc=p["DESCEND"].Equals("DESC")
                         }).ToArray()
                     });
                 }
@@ -466,7 +467,7 @@ namespace Biz.Common.Data
             return true;
         }
 
-        public static void CreateIndex(DBSource dbSource, string dbName, string tabname, string indexname, bool unique, bool primarykey, bool autoIncr, List<TBColumnIndex> cols)
+        public static void CreateIndex(DBSource dbSource, string dbName, string tabname, string indexname, bool unique, bool primarykey, bool autoIncr, List<IndexTBColumn> cols)
         {
             string sql = string.Empty;
 
@@ -514,13 +515,13 @@ namespace Biz.Common.Data
                 }
                 else if (unique)
                 {
-                    sql = string.Format("create UNIQUE index {0} on {1}({2})", indexname, tabname, string.Join(",", cols.Select(p => p.Name + " " + (p.Direction == 1 ? "ASC" : "DESC"))));
+                    sql = string.Format("create UNIQUE index {0} on {1}({2})", indexname, tabname, string.Join(",", cols.Select(p => p.Name + " " + (p.Order == -1 ? "DESC" : ""))));
                 }
                 else
                 {
                     //sql = string.Format("ALTER TABLE `{0}`.`{1}` ADD INDEX {2}({3}) ", dbName, tabname, indexname, string.Join(",", cols.Select(p => "`" + p.Name + "`")));
 
-                    sql = string.Format("create index {0} on {1}({2})", indexname, tabname, string.Join(",", cols.Select(p => p.Name + " " + (p.Direction == 1 ? "ASC" : "DESC"))));
+                    sql = string.Format("create index {0} on {1}({2})", indexname, tabname, string.Join(",", cols.Select(p => p.Name + " " + (p.Order == -1 ? "DESC" : ""))));
                 }
 
                 //System.Windows.Forms.MessageBox.Show(sql);

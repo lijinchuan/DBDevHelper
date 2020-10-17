@@ -604,6 +604,7 @@
     <None Include="Resources\page2.png" />
     <None Include="Resources\pilcrow.png" />
     <None Include="Resources\pill.png" />
+    <None Include="Resources\plugin.png" />
     <Content Include="Resources\plugin_add.png" />
     <None Include="Resources\script_save.png" />
     <None Include="Resources\report_key1.png" />
@@ -616,6 +617,8 @@
     <None Include="Resources\script_code_red.png" />
     <None Include="Resources\script_code_red_no.png" />
     <None Include="Resources\sitemap.png" />
+    <None Include="Resources\sort_descending.png" />
+    <None Include="Resources\sort_ascending.png" />
     <Content Include="Resources\SQLSerTop.jpg" />
   </ItemGroup>
   <ItemGroup>

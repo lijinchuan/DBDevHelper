@@ -125,35 +125,48 @@ namespace Biz
             new Action<Form, TreeNode, DBSource>(LoadProcedure).BeginInvoke(parent, procedureNode, server, null, null);
         }
 
-        public static void LoadIndexAnsy(Form parent, TreeNode tbNode, DBSource server, string dbname)
+        public static void LoadIndexAnsy(Form parent, TreeNode tbNode, DBSource server, string dbname,string tbname)
         {
             tbNode.Nodes.Add(new TreeNode("加载中..."));
             Thread.Sleep(100);
-            new Action<Form, TreeNode, DBSource,string>(LoadIndexs).BeginInvoke(parent, tbNode, server,dbname, null, null);
+            new Action<Form, TreeNode, DBSource, string, string>(LoadIndexs).BeginInvoke(parent, tbNode, server, dbname, tbname, null, null);
         }
 
-        private static void LoadIndexs(Form parent, TreeNode tbNode, DBSource server, string dbname)
+        private static void LoadIndexs(Form parent, TreeNode tbNode, DBSource server, string dbname,string tbname)
         {
             if (server == null)
             {
                 return;
             }
 
-            var list = Biz.Common.Data.OracleHelper.GetIndexs(server, dbname, tbNode.Parent.Name);
+            var list = Biz.Common.Data.OracleHelper.GetIndexs(server, dbname, tbname);
             List<TreeNode> treeNodes = new List<TreeNode>();
 
             foreach (var item in list)
             {
-                var imageindex = item.IndexName.Equals("primary", StringComparison.OrdinalIgnoreCase) ? 8 : 7;
                 TreeNode newNode = new TreeNode(item.IndexName.ToLower(), item.Cols.Select(p =>
                 {
                     var node = new TreeNode
                     {
                         Text = p.Col.ToLower(),
-                        ImageIndex = imageindex,
-                        SelectedImageIndex = imageindex,
                         Name = p.Col
                     };
+                    if (p.IsInclude)
+                    {
+                        node.ImageKey = node.SelectedImageKey = "plugin";
+                    }
+                    else if (item.IndexName.Equals("primary", StringComparison.OrdinalIgnoreCase))
+                    {
+                        node.ImageIndex = node.SelectedImageIndex = 8;
+                    }
+                    else if (p.IsDesc)
+                    {
+                        node.ImageKey = node.SelectedImageKey = "DESC";
+                    }
+                    else
+                    {
+                        node.ImageKey = node.SelectedImageKey = "ASC";
+                    }
                     node.Tag = new IndexColumnInfo
                     {
                         Name = p.Col
