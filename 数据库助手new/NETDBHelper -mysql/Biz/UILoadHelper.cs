@@ -110,16 +110,29 @@ namespace Biz
 
             foreach (var item in list)
             {
-                var imageindex = item.IndexName.Equals("primary", StringComparison.OrdinalIgnoreCase) ? 8 : 7;
-
                 TreeNode newNode = new TreeNode(item.IndexName, item.Cols.Select(p =>
                 {
                     var node = new TreeNode
                     {
-                        Text = p.Col,
-                        ImageIndex = imageindex,
-                        SelectedImageIndex = imageindex
+                        Text = p.Col
                     };
+                    if (p.IsInclude)
+                    {
+                        node.ImageKey = node.SelectedImageKey = "plugin";
+                    }
+                    else if (item.IndexName.Equals("primary", StringComparison.OrdinalIgnoreCase))
+                    {
+                        node.ImageIndex = node.SelectedImageIndex = 8;
+                    }
+                    else if (p.IsDesc)
+                    {
+                        node.ImageKey = node.SelectedImageKey = "DESC";
+                    }
+                    else
+                    {
+                        node.ImageKey = node.SelectedImageKey = "ASC";
+                    }
+
 
                     node.Tag = new IndexColumnInfo
                     {

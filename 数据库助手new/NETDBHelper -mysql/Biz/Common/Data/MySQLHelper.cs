@@ -479,7 +479,7 @@ namespace Biz.Common.Data
             return sb.ToString();
         }
 
-        public static void CreateIndex(DBSource dbSource, string dbName, string tabname, string indexname,bool unique,bool primarykey,bool autoIncr, List<TBColumn> cols)
+        public static void CreateIndex(DBSource dbSource, string dbName, string tabname, string indexname,bool unique,bool primarykey,bool autoIncr, List<IndexTBColumn> cols)
         {
             string sql = string.Empty;
 
@@ -513,7 +513,7 @@ namespace Biz.Common.Data
                 }
                 else
                 {
-                    sql = string.Format("ALTER TABLE `{0}`.`{1}` ADD INDEX {2}({3}) ", dbName, tabname, indexname, string.Join(",", cols.Select(p => "`" + p.Name + "`")));
+                    sql = string.Format("ALTER TABLE `{0}`.`{1}` ADD INDEX {2}({3}) ", dbName, tabname, indexname, string.Join(",", cols.Select(p => "`" + p.Name + "`" + (p.Order == -1 ? " DESC" : ""))));
                 }
 
                 ExecuteNoQuery(dbSource, dbName, sql, null);
@@ -559,7 +559,8 @@ namespace Biz.Common.Data
                         IndexName = pp.Key,
                         Cols = pp.OrderBy(c => c.Field<object>("Seq_in_index")).Select(c => new IndexCol
                         {
-                            Col = c.Field<string>("Column_name")
+                            Col = c.Field<string>("Column_name"),
+                            IsDesc=c.Field<string>("Collation")!="A"
                         }).ToArray()
                     };
 

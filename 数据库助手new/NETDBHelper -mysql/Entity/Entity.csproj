@@ -55,6 +55,7 @@
     <Compile Include="IDType.cs" />
     <Compile Include="IndexColumnInfo.cs" />
     <Compile Include="IndexEntry.cs" />
+    <Compile Include="IndexTBColumn.cs" />
     <Compile Include="LogicMap.cs" />
     <Compile Include="LogicMapRelColumn.cs" />
     <Compile Include="LogicMapRelColumnEx.cs" />
