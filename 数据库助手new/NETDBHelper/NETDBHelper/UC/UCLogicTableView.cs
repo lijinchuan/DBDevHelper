@@ -327,7 +327,11 @@ namespace NETDBHelper.UC
                                             AdjustableArrowCap arrowCap = new AdjustableArrowCap(p.Width * 2 + 1, p.Width + 2 + 1, true);
                                             p.CustomEndCap = arrowCap;
                                         }
-                                        g.DrawLine(p, points[i - 1], points[i]);
+                                        var pt1 = points[i - 1];
+                                        var pt2 = points[i];
+                                        pt1.Offset((this.Parent as Panel).AutoScrollPosition.X, (this.Parent as Panel).AutoScrollPosition.Y);
+                                        pt2.Offset((this.Parent as Panel).AutoScrollPosition.X, (this.Parent as Panel).AutoScrollPosition.Y);
+                                        g.DrawLine(p, pt1, pt2);
                                         //g.DrawPie(p, new RectangleF(points[i], new SizeF(5, 5)), 0, 360);
                                     }
                                 }
@@ -337,9 +341,10 @@ namespace NETDBHelper.UC
                         //处理
                         Point start = this.Parent.PointToClient(this.ColumnsPanel.PointToScreen(new Point(lb.Location.X + lb.Width, lb.Location.Y + lb.Height / 2)));
                         Point dest = this.Parent.PointToClient(lb.PointToScreen(dragEnd));
+                        start.Offset(-(this.Parent as Panel).AutoScrollPosition.X, -(this.Parent as Panel).AutoScrollPosition.Y);
+                        dest.Offset(-(this.Parent as Panel).AutoScrollPosition.X, -(this.Parent as Panel).AutoScrollPosition.Y);
                         points = new StepSelector(Math.Max(this.Parent.Width, (this.Parent as Panel).HorizontalScroll.Maximum),
                                     Math.Max(this.Parent.Height, (this.Parent as Panel).VerticalScroll.Maximum), start, dest, (s1, s2, b) => onCheckConflict(s1, s2, b), _firstDirection: StepDirection.right, _destDirection: StepDirection.right).Select();
-
 
                         using (var g = this.Parent.CreateGraphics())
                         {
@@ -354,7 +359,11 @@ namespace NETDBHelper.UC
                                         AdjustableArrowCap arrowCap = new AdjustableArrowCap(p.Width * 2 + 1, p.Width + 2 + 1, true);
                                         p.CustomEndCap = arrowCap;
                                     }
-                                    g.DrawLine(p, points[i - 1], points[i]);
+                                    var pt1 = points[i - 1];
+                                    var pt2 = points[i];
+                                    pt1.Offset((this.Parent as Panel).AutoScrollPosition.X, (this.Parent as Panel).AutoScrollPosition.Y);
+                                    pt2.Offset((this.Parent as Panel).AutoScrollPosition.X, (this.Parent as Panel).AutoScrollPosition.Y);
+                                    g.DrawLine(p, pt1, pt2);
                                     //g.DrawPie(p, new RectangleF(points[i], new SizeF(5, 5)), 0, 360);
                                 }
                             }
@@ -423,7 +432,11 @@ namespace NETDBHelper.UC
                                                 AdjustableArrowCap arrowCap = new AdjustableArrowCap(p.Width * 2 + 1, p.Width + 2 + 1, true);
                                                 p.CustomEndCap = arrowCap;
                                             }
-                                            g.DrawLine(p, points[i - 1], points[i]);
+                                            var pt1 = points[i - 1];
+                                            var pt2 = points[i];
+                                            pt1.Offset((this.Parent as Panel).AutoScrollPosition.X, (this.Parent as Panel).AutoScrollPosition.Y);
+                                            pt2.Offset((this.Parent as Panel).AutoScrollPosition.X, (this.Parent as Panel).AutoScrollPosition.Y);
+                                            g.DrawLine(p, pt1, pt2);
                                             //g.DrawPie(p, new RectangleF(points[i], new SizeF(5, 5)), 0, 360);
                                         }
                                     }
