@@ -75,6 +75,7 @@ namespace NETDBHelper.UC
             TSMI_Export.Click += TSMI_Export_Click;
             delStripMenuItem.Click += delStripMenuItem_Click;
             TSMI_CopyTableName.Click += TSMI_CopyTableName_Click;
+            TSMI_CopyColName.Click += TSMI_CopyColName_Click;
         }
 
         private void PanelMap_MouseDoubleClick(object sender, MouseEventArgs e)
@@ -185,7 +186,7 @@ namespace NETDBHelper.UC
 
         private void CMSOpMenu_VisibleChanged(object sender, EventArgs e)
         {
-            
+
             if (CMSOpMenu.Visible)
             {
                 TSMDelRelColumn.Enabled = false;
@@ -211,6 +212,11 @@ namespace NETDBHelper.UC
                         TSMDelRelColumn.Enabled = true;
                     }
                 }
+
+
+                var ct = this.PanelMap.GetChildAtPoint(this.PanelMap.PointToClient(new Point(this.CMSOpMenu.Left, this.CMSOpMenu.Top)));
+                TSMI_CopyTableName.Enabled = ct is UCLogicTableView;
+                TSMI_CopyColName.Enabled = FindColumn(location) != null;
             }
             else
             {
@@ -1072,8 +1078,18 @@ namespace NETDBHelper.UC
                 if (!string.IsNullOrWhiteSpace(view.TableName))
                 {
                     Clipboard.SetText(view.TableName);
-                    Util.SendMsg(this, "表名复制成功");
+                    Util.SendMsg(this, "已复制表名");
                 }
+            }
+        }
+
+        private void TSMI_CopyColName_Click(object sender, EventArgs e)
+        {
+            var col = FindColumn(new Point(this.CMSOpMenu.Left, this.CMSOpMenu.Top));
+            if (col != null)
+            {
+                Clipboard.SetText(col.Name);
+                Util.SendMsg(this, "已复制字段名");
             }
         }
 
