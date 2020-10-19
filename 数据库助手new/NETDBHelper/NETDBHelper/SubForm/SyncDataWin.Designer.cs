@@ -48,6 +48,10 @@
             this.label1 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
             this.CBByCol = new System.Windows.Forms.ComboBox();
+            this.BtnSelectServer = new System.Windows.Forms.Button();
+            this.label7 = new System.Windows.Forms.Label();
+            this.label8 = new System.Windows.Forms.Label();
+            this.CBDestDB = new System.Windows.Forms.ComboBox();
             this.SuspendLayout();
             // 
             // BtnSave
@@ -61,7 +65,7 @@
             // 
             // TBAutoSyncMS
             // 
-            this.TBAutoSyncMS.Location = new System.Drawing.Point(145, 272);
+            this.TBAutoSyncMS.Location = new System.Drawing.Point(145, 326);
             this.TBAutoSyncMS.Name = "TBAutoSyncMS";
             this.TBAutoSyncMS.Size = new System.Drawing.Size(100, 21);
             this.TBAutoSyncMS.TabIndex = 46;
@@ -70,7 +74,7 @@
             // label10
             // 
             this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(29, 278);
+            this.label10.Location = new System.Drawing.Point(29, 332);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(113, 12);
             this.label10.TabIndex = 45;
@@ -78,7 +82,7 @@
             // 
             // BtnCheckDest
             // 
-            this.BtnCheckDest.Location = new System.Drawing.Point(330, 216);
+            this.BtnCheckDest.Location = new System.Drawing.Point(330, 270);
             this.BtnCheckDest.Name = "BtnCheckDest";
             this.BtnCheckDest.Size = new System.Drawing.Size(75, 23);
             this.BtnCheckDest.TabIndex = 44;
@@ -142,7 +146,7 @@
             // 
             // TBDest
             // 
-            this.TBDest.Location = new System.Drawing.Point(145, 217);
+            this.TBDest.Location = new System.Drawing.Point(145, 271);
             this.TBDest.Name = "TBDest";
             this.TBDest.Size = new System.Drawing.Size(179, 21);
             this.TBDest.TabIndex = 31;
@@ -157,7 +161,7 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(89, 220);
+            this.label4.Location = new System.Drawing.Point(89, 274);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(53, 12);
             this.label4.TabIndex = 29;
@@ -174,15 +178,15 @@
             // 
             // TBDestConnStr
             // 
-            this.TBDestConnStr.Location = new System.Drawing.Point(145, 184);
+            this.TBDestConnStr.Location = new System.Drawing.Point(145, 228);
             this.TBDestConnStr.Name = "TBDestConnStr";
-            this.TBDestConnStr.Size = new System.Drawing.Size(626, 21);
+            this.TBDestConnStr.Size = new System.Drawing.Size(593, 21);
             this.TBDestConnStr.TabIndex = 27;
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(29, 188);
+            this.label2.Location = new System.Drawing.Point(29, 232);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(113, 12);
             this.label2.TabIndex = 26;
@@ -221,11 +225,51 @@
             this.CBByCol.Size = new System.Drawing.Size(121, 20);
             this.CBByCol.TabIndex = 49;
             // 
+            // BtnSelectServer
+            // 
+            this.BtnSelectServer.Location = new System.Drawing.Point(145, 195);
+            this.BtnSelectServer.Name = "BtnSelectServer";
+            this.BtnSelectServer.Size = new System.Drawing.Size(26, 23);
+            this.BtnSelectServer.TabIndex = 50;
+            this.BtnSelectServer.Text = "...";
+            this.BtnSelectServer.UseVisualStyleBackColor = true;
+            this.BtnSelectServer.Click += new System.EventHandler(this.BtnSelectServer_Click);
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(65, 200);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(77, 12);
+            this.label7.TabIndex = 51;
+            this.label7.Text = "目标服务器：";
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(188, 200);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(53, 12);
+            this.label8.TabIndex = 52;
+            this.label8.Text = "数据库：";
+            // 
+            // CBDestDB
+            // 
+            this.CBDestDB.FormattingEnabled = true;
+            this.CBDestDB.Location = new System.Drawing.Point(247, 197);
+            this.CBDestDB.Name = "CBDestDB";
+            this.CBDestDB.Size = new System.Drawing.Size(173, 20);
+            this.CBDestDB.TabIndex = 53;
+            // 
             // SyncDataWin
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.CBDestDB);
+            this.Controls.Add(this.label8);
+            this.Controls.Add(this.label7);
+            this.Controls.Add(this.BtnSelectServer);
             this.Controls.Add(this.CBByCol);
             this.Controls.Add(this.label6);
             this.Controls.Add(this.BtnSave);
@@ -278,5 +322,9 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.ComboBox CBByCol;
+        private System.Windows.Forms.Button BtnSelectServer;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.ComboBox CBDestDB;
     }
 }

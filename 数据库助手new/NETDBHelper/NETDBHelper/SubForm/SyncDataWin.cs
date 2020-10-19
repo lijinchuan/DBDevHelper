@@ -60,8 +60,22 @@ namespace NETDBHelper.SubForm
 
             this.TBSourceConnStr.ReadOnly = this.TBSource.ReadOnly = true;
 
+            this.CBDestDB.SelectedIndexChanged += CBDestDB_SelectedIndexChanged;
+
             BtnLoadFields_Click(null, null);
 
+        }
+
+        private void CBDestDB_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (CBDestDB.SelectedIndex == -1)
+            {
+                TBDestConnStr.Text = string.Empty;
+            }
+            else
+            {
+                TBDestConnStr.Text = Biz.Common.Data.SQLHelper.GetConnstringFromDBSource((DBSource)CBDestDB.Tag, CBDestDB.SelectedValue.ToString());
+            }
         }
 
         private string GetSourceConnStr
@@ -403,6 +417,21 @@ namespace NETDBHelper.SubForm
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void BtnSelectServer_Click(object sender, EventArgs e)
+        {
+            var connsqlserver = new ConnSQLServer();
+            if (connsqlserver.ShowDialog() == DialogResult.OK)
+            {
+                this.DBSource = connsqlserver.DBSource;
+
+                this.CBDestDB.DataSource = SQLHelper.GetDBs(connsqlserver.DBSource);
+                this.CBDestDB.Tag = connsqlserver.DBSource;
+                this.CBDestDB.DisplayMember = "name";
+                this.CBDestDB.ValueMember = "name";
+                this.CBDestDB.SelectedIndex = -1;
             }
         }
     }
