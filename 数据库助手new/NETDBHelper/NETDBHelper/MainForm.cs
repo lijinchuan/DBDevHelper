@@ -41,7 +41,6 @@ namespace NETDBHelper
             this.dbServerView1.OnAddNewLogicMap += this.AddNewLogicMap;
             this.dbServerView1.OnDeleteLogicMap += this.DeleteLogicMap;
 
-
             this.TabControl.Selected += new TabControlEventHandler(TabControl_Selected);
 
             this.TSCBServer.ForeColor = Color.HotPink;
@@ -62,13 +61,48 @@ namespace NETDBHelper
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
-            连接对象资源管理器ToolStripMenuItem_Click(null, null);
-            Biz.WatchTask.WatchTaskInfoManage.OnTiggerError += (s, o) =>
+
+            try
             {
-                this.BeginInvoke(new Action(() => {
-                    Util.PopMsg(s.ID, s.Name, s.ErrorMsg);
-                }));
-            };
+                var dbs = Biz.RecoverManager.GetDBSources().ToList();
+
+                if (dbs.Count > 0)
+                {
+                    foreach (var ds in dbs)
+                    {
+                        if (!this.dbServerView1.DBServers.Contains(ds))
+                        {
+                            this.dbServerView1.DBServers.Add(ds);
+                        }
+                    }
+                    this.dbServerView1.Bind();
+                }
+                foreach (var page in Biz.RecoverManager.Recove())
+                {
+                    this.TabControl.TabPages.Add((TabPage)page);
+                }
+                this.TabControl.SelectedIndex = -1;
+                if (this.TabControl.TabPages.Count > 0)
+                {
+                    this.TabControl.SelectedIndex = 0;
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            if (this.TabControl.TabPages.Count == 0)
+            {
+                连接对象资源管理器ToolStripMenuItem_Click(null, null);
+                Biz.WatchTask.WatchTaskInfoManage.OnTiggerError += (s, o) =>
+                {
+                    this.BeginInvoke(new Action(() =>
+                    {
+                        Util.PopMsg(s.ID, s.Name, s.ErrorMsg);
+                    }));
+                };
+            }
             Biz.WatchTask.WatchTaskInfoManage.OnErrorDisappear += (s) =>
             {
                 this.BeginInvoke(new Action(() => {
@@ -96,6 +130,23 @@ namespace NETDBHelper
                 tasktimer.Stop();
                 tasktimer.Close();
             }
+
+            try
+            {
+                foreach (TabPage tab in this.TabControl.TabPages)
+                {
+                    if (tab is IRecoverAble)
+                    {
+                        Biz.RecoverManager.AddRecoverInstance(tab as IRecoverAble);
+                    }
+                }
+                Biz.RecoverManager.SaveRecoverInstance();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
         }
 
         void TabControl_Selected(object sender, TabControlEventArgs e)

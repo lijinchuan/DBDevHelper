@@ -210,6 +210,7 @@ namespace NETDBHelper
             if (selNode.Tag is ServerInfo)
             {
                 Biz.UILoadHelper.LoadDBsAnsy(this.ParentForm, selNode, GetDBSource(selNode));
+                selNode.Parent.Expand();
             }
             else if ((selNode.Tag as INodeContents).GetNodeContentType() == NodeContentType.TBParent)
             {
