@@ -84,6 +84,12 @@ namespace NETDBHelper
 
         protected override void OnClosing(CancelEventArgs e)
         {
+            if (MessageBox.Show("要退出吗？", "询问", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.No)
+            {
+                e.Cancel = true;
+                return;
+            }
+
             base.OnClosing(e);
             if (tasktimer != null)
             {
