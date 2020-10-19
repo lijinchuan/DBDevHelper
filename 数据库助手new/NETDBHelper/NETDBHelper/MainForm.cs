@@ -77,14 +77,26 @@ namespace NETDBHelper
                     }
                     this.dbServerView1.Bind();
                 }
-                foreach (var page in Biz.RecoverManager.Recove())
+                TabPage selecedpage = null;
+                foreach (var tp in Biz.RecoverManager.Recove())
                 {
-                    this.TabControl.TabPages.Add((TabPage)page);
+                    this.TabControl.TabPages.Add(tp.Item1);
+                    if (tp.Item2 == true)
+                    {
+                        selecedpage = tp.Item1;
+                    }
                 }
                 this.TabControl.SelectedIndex = -1;
-                if (this.TabControl.TabPages.Count > 0)
+                if (selecedpage != null)
                 {
-                    this.TabControl.SelectedIndex = 0;
+                    this.TabControl.SelectedTab = selecedpage;
+                }
+                else
+                {
+                    if (this.TabControl.TabPages.Count > 0)
+                    {
+                        this.TabControl.SelectedIndex = 0;
+                    }
                 }
             }
             catch (Exception ex)
@@ -135,9 +147,10 @@ namespace NETDBHelper
             {
                 foreach (TabPage tab in this.TabControl.TabPages)
                 {
+                    bool isSelected = this.TabControl.SelectedTab == tab;
                     if (tab is IRecoverAble)
                     {
-                        Biz.RecoverManager.AddRecoverInstance(tab as IRecoverAble);
+                        Biz.RecoverManager.AddRecoverInstance(tab, isSelected);
                     }
                 }
                 Biz.RecoverManager.SaveRecoverInstance();

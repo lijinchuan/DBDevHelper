@@ -5,17 +5,22 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace Biz
 {
     public static class RecoverManager
     {
-        private static List<Tuple<Type, object[]>> iRecoverAbleLs = new List<Tuple<Type, object[]>>();
+        private static List<Tuple<Type,bool, object[]>> iRecoverAbleLs = new List<Tuple<Type,bool, object[]>>();
         private static string recoverpath = "__recover.bin";
 
-        public static void AddRecoverInstance(IRecoverAble recoverAble)
+        public static void AddRecoverInstance(TabPage page, bool isSelected)
         {
-            iRecoverAbleLs.Add(new Tuple<Type, object[]>(recoverAble.GetType(), recoverAble.GetRecoverData()));
+            if (page is IRecoverAble)
+            {
+                var recoverAble = page as IRecoverAble;
+                iRecoverAbleLs.Add(new Tuple<Type,bool, object[]>(recoverAble.GetType(), isSelected, recoverAble.GetRecoverData()));
+            }
         }
 
         public static void SaveRecoverInstance()
@@ -33,37 +38,37 @@ namespace Biz
             }
         }
 
-        public static IEnumerable<IRecoverAble> Recove()
+        public static IEnumerable<Tuple<TabPage, bool>> Recove()
         {
             if (File.Exists(recoverpath))
             {
-                iRecoverAbleLs = (List<Tuple<Type, object[]>>)LJC.FrameWorkV3.Comm.SerializerHelper.BinaryGet(recoverpath);
-                foreach(var r in iRecoverAbleLs)
+                iRecoverAbleLs = (List<Tuple<Type, bool, object[]>>)LJC.FrameWorkV3.Comm.SerializerHelper.BinaryGet(recoverpath);
+                foreach (var r in iRecoverAbleLs)
                 {
                     var ctor = r.Item1.GetConstructor(new Type[0]);
                     if (ctor != null)
                     {
-                        yield return (ctor.Invoke(new Type[0]) as IRecoverAble).Recover(r.Item2);
+                        yield return new Tuple<TabPage, bool>((TabPage)(ctor.Invoke(new Type[0]) as IRecoverAble).Recover(r.Item3), r.Item2);
                     }
                 }
                 iRecoverAbleLs.Clear();
             }
-            
+
         }
 
         public static IEnumerable<DBSource> GetDBSources()
         {
             if (File.Exists(recoverpath))
             {
-                iRecoverAbleLs = (List<Tuple<Type, object[]>>)LJC.FrameWorkV3.Comm.SerializerHelper.BinaryGet(recoverpath);
+                iRecoverAbleLs = (List<Tuple<Type, bool, object[]>>)LJC.FrameWorkV3.Comm.SerializerHelper.BinaryGet(recoverpath);
                 foreach (var r in iRecoverAbleLs)
                 {
                     var ctor = r.Item1.GetConstructor(new Type[0]);
                     if (ctor != null)
                     {
-                        foreach(var p in r.Item2)
+                        foreach (var p in r.Item3)
                         {
-                            if(p is DBSource)
+                            if (p is DBSource)
                             {
                                 yield return p as DBSource;
                             }
