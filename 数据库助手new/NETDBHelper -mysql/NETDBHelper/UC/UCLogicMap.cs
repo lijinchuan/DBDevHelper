@@ -74,6 +74,8 @@ namespace NETDBHelper.UC
             TSMDelRelColumn.Click += TSMDelRelColumn_Click;
             TSMI_Export.Click += TSMI_Export_Click;
             delStripMenuItem.Click += delStripMenuItem_Click;
+            TSMI_CopyTableName.Click += TSMI_CopyTableName_Click;
+            TSMI_CopyColName.Click += TSMI_CopyColName_Click;
         }
 
         private void PanelMap_MouseDoubleClick(object sender, MouseEventArgs e)
@@ -210,6 +212,10 @@ namespace NETDBHelper.UC
                         TSMDelRelColumn.Enabled = true;
                     }
                 }
+
+                var ct = this.PanelMap.GetChildAtPoint(this.PanelMap.PointToClient(new Point(this.CMSOpMenu.Left, this.CMSOpMenu.Top)));
+                TSMI_CopyTableName.Enabled = ct is UCLogicTableView;
+                TSMI_CopyColName.Enabled = FindColumn(location) != null;
             }
             else
             {
@@ -1036,6 +1042,29 @@ namespace NETDBHelper.UC
             };
             tv.Location = location;
             this.PanelMap.Controls.Add(tv);
+        }
+
+        private void TSMI_CopyTableName_Click(object sender, EventArgs e)
+        {
+            var ct = this.PanelMap.GetChildAtPoint(this.PanelMap.PointToClient(new Point(this.CMSOpMenu.Left, this.CMSOpMenu.Top)));
+            if (ct is UCLogicTableView)
+            {
+                var view = ((UCLogicTableView)ct);
+                if (!string.IsNullOrWhiteSpace(view.TableName))
+                {
+                    Clipboard.SetText(view.TableName);
+                    Util.SendMsg(this, "已复制表名");
+                }
+            }
+        }
+        private void TSMI_CopyColName_Click(object sender, EventArgs e)
+        {
+            var col = FindColumn(new Point(this.CMSOpMenu.Left, this.CMSOpMenu.Top));
+            if (col != null)
+            {
+                Clipboard.SetText(col.Name);
+                Util.SendMsg(this, "已复制字段名");
+            }
         }
 
         private void delStripMenuItem_Click(object sender, EventArgs e)
