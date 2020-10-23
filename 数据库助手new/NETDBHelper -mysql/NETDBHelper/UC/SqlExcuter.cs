@@ -16,7 +16,7 @@ using NPOI.HSSF.UserModel;
 
 namespace NETDBHelper.UC
 {
-    public partial class SqlExcuter : TabPage,IDataExport
+    public partial class SqlExcuter : TabPage,IDataExport, IRecoverAble
     {
         UC.LoadingBox loadbox = new LoadingBox();
         bool isexecuting = false;
@@ -771,6 +771,45 @@ namespace NETDBHelper.UC
                     break;
                 }
             }
+        }
+
+
+        public object[] GetRecoverData()
+        {
+            return new object[] { this.Text, this.Server, this.DB, this.sqlEditBox1.Text };
+        }
+
+        public IRecoverAble Recover(object[] recoverData)
+        {
+            this.Text = (string)recoverData[0];
+            this.Server = (DBSource)recoverData[1];
+            this.DB = (string)recoverData[2];
+            this.sqlEditBox1.DBName = (string)recoverData[2];
+            this.sqlEditBox1.Text = (string)recoverData[3];
+
+            this.TBInfo.ScrollBars = ScrollBars.Both;
+            this.TBInfo.ContextMenuStrip = contextMenuStrip1;
+
+            this.imageList1.Images.Add(Resources.Resource1.tbview);
+            this.imageList1.Images.Add(Resources.Resource1.msg);
+            this.tabControl1.TabPages[0].ImageIndex = 1;
+
+            datastrip = new ContextMenuStrip();
+            datastrip.Items.Add("复制内容");
+            datastrip.Items.Add("查看文本");
+            datastrip.Items.Add("复制标题");
+            datastrip.Items.Add("复制标题+内容");
+            datastrip.Items.Add("转换为JSON格式数据");
+            datastrip.Items.Add("统计条数");
+            datastrip.Items.Add("选择这一列");
+            datastrip.Items.Add("锁定这一列");
+            datastrip.Items.Add(new ToolStripSeparator());
+            datastrip.Items.Add("表重命名");
+            datastrip.Items.Add("导出表格数据");
+            datastrip.Items.Add("导出全部表格数据");
+            datastrip.ItemClicked += Datastrip_ItemClicked;
+
+            return this;
         }
     }
 }

@@ -89,6 +89,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Common\Data\SQLHelper.cs" />
     <Compile Include="Common\Data\SQLHelperConsts.cs" />
+    <Compile Include="RecoverManager.cs" />
     <Compile Include="UILoadHelper.cs" />
     <Compile Include="WatchTask\WatchTaskInfoManage.cs" />
   </ItemGroup>
