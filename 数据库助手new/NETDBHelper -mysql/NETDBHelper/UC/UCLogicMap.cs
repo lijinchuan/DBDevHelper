@@ -214,8 +214,9 @@ namespace NETDBHelper.UC
                 }
 
                 var ct = this.PanelMap.GetChildAtPoint(this.PanelMap.PointToClient(new Point(this.CMSOpMenu.Left, this.CMSOpMenu.Top)));
-                TSMI_CopyTableName.Enabled = ct is UCLogicTableView;
+                delStripMenuItem.Enabled = TSMI_CopyTableName.Enabled = ct is UCLogicTableView;
                 TSMI_CopyColName.Enabled = FindColumn(location) != null;
+                添加表ToolStripMenuItem.Enabled = !TSMI_CopyTableName.Enabled;
             }
             else
             {
