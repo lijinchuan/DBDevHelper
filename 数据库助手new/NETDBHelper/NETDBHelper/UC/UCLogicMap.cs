@@ -76,6 +76,39 @@ namespace NETDBHelper.UC
             delStripMenuItem.Click += delStripMenuItem_Click;
             TSMI_CopyTableName.Click += TSMI_CopyTableName_Click;
             TSMI_CopyColName.Click += TSMI_CopyColName_Click;
+            TSMI_CopyTable.Click += TSMI_CopyTable_Click;
+        }
+
+        private void TSMI_CopyTable_Click(object sender, EventArgs e)
+        {
+            var ct = this.PanelMap.GetChildAtPoint(this.PanelMap.PointToClient(new Point(this.CMSOpMenu.Left, this.CMSOpMenu.Top)));
+            if (ct is UCLogicTableView)
+            {
+                var view = ((UCLogicTableView)ct);
+                if (!string.IsNullOrWhiteSpace(view.RpTableName))
+                {
+                    string name2 = string.Empty;
+                    int i = 2;
+                    for(; i < 1000; i++)
+                    {
+                        name2 = view.RpTableName + "*" + i;
+                        if(ucTableViews.Any(p=>p.DataBaseName.Equals(view.DataBaseName,StringComparison.OrdinalIgnoreCase)
+                        && p.TableName.Equals(name2, StringComparison.OrdinalIgnoreCase)))
+                        {
+                            continue;
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+
+                    if (i < 1000)
+                    {
+                        AddTable(view.DataBaseName, name2, false);
+                    }
+                }
+            }
         }
 
         private void PanelMap_MouseDoubleClick(object sender, MouseEventArgs e)
@@ -87,7 +120,7 @@ namespace NETDBHelper.UC
                 if (relColumnEx != null)
                 {
                     //Util.SendMsg(this, $"[{relColumnEx.RelColumn.DBName}].[{relColumnEx.RelColumn.TBName}].[{relColumnEx.RelColumn.ColName}] -> [{relColumnEx.RelColumn.RelDBName}].[{relColumnEx.RelColumn.RelTBName}].[{relColumnEx.RelColumn.RelColName}]:{relColumnEx.RelColumn.Desc}");
-                    SubForm.InputStringDlg dlg = new SubForm.InputStringDlg($"输入{relColumnEx.RelColumn.TBName}.{relColumnEx.RelColumn.ColName}和{relColumnEx.RelColumn.RelTBName}.{relColumnEx.RelColumn.RelColName}关系描述", relColumnEx.RelColumn.Desc ?? string.Empty);
+                    SubForm.InputStringDlg dlg = new SubForm.InputStringDlg($"输入{relColumnEx.RelColumn.TBName.Split('*')[0]}.{relColumnEx.RelColumn.ColName}和{relColumnEx.RelColumn.RelTBName.Split('*')[0]}.{relColumnEx.RelColumn.RelColName}关系描述", relColumnEx.RelColumn.Desc ?? string.Empty);
                     if (dlg.ShowDialog() == DialogResult.OK)
                     {
                         relColumnEx.RelColumn.Desc = dlg.InputString;
@@ -215,7 +248,7 @@ namespace NETDBHelper.UC
 
 
                 var ct = this.PanelMap.GetChildAtPoint(this.PanelMap.PointToClient(new Point(this.CMSOpMenu.Left, this.CMSOpMenu.Top)));
-                delStripMenuItem.Enabled = TSMI_CopyTableName.Enabled = ct is UCLogicTableView;
+                delStripMenuItem.Enabled = TSMI_CopyTableName.Enabled = TSMI_CopyTable.Enabled = ct is UCLogicTableView;
                 TSMI_CopyColName.Enabled = FindColumn(location) != null;
                 添加表ToolStripMenuItem.Enabled = !TSMI_CopyTableName.Enabled;
             }
@@ -355,13 +388,13 @@ namespace NETDBHelper.UC
         private void 添加表ToolStripMenuItem_Click(object sender, EventArgs e)
         {
             this.CMSOpMenu.Visible = false;
-            AddTable(this._DBName);
+            AddTable(this._DBName,null);
         }
 
         private void 添加表ToolStripMenuItem_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e)
         {
 
-            AddTable(e.ClickedItem.Text);
+            AddTable(e.ClickedItem.Text,null);
         }
 
         private void PanelMap_Paint(object sender, PaintEventArgs e)
@@ -991,10 +1024,10 @@ namespace NETDBHelper.UC
             return false;
         }
 
-        private void AddTable(string db)
+        private void AddTable(string db,string tbname,bool adjustLoaction=true)
         {
             var location = this.PanelMap.PointToClient(new Point(this.CMSOpMenu.Left, this.CMSOpMenu.Top));
-            UCLogicTableView tv = new UCLogicTableView(DBSource, _DBName.Equals(db, StringComparison.OrdinalIgnoreCase), db, null,this._logicMapId, () =>
+            UCLogicTableView tv = new UCLogicTableView(DBSource, _DBName.Equals(db, StringComparison.OrdinalIgnoreCase), db, tbname,this._logicMapId, () =>
             {
                 var list = new List<Tuple<string, string>>();
                 foreach (var tb in ucTableViews)
@@ -1033,7 +1066,10 @@ namespace NETDBHelper.UC
                 }
                 this.PanelMap.Invalidate();
                 v.Location = location;
-                AdjustLoaction(v);
+                if (adjustLoaction)
+                {
+                    AdjustLoaction(v);
+                }
                 
             },
               Check);
@@ -1052,9 +1088,9 @@ namespace NETDBHelper.UC
             if (ct is UCLogicTableView)
             {
                 var view = ((UCLogicTableView)ct);
-                if (!string.IsNullOrWhiteSpace(view.TableName))
+                if (!string.IsNullOrWhiteSpace(view.RpTableName))
                 {
-                    if (string.IsNullOrEmpty(view.TableName) || MessageBox.Show($"要删除和表{view.TableName}关联关系吗?", "询问", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+                    if (string.IsNullOrEmpty(view.TableName) || MessageBox.Show($"要删除和表{view.RpTableName}关联关系吗?", "询问", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
                     {
                         var v = view;
 
@@ -1076,9 +1112,9 @@ namespace NETDBHelper.UC
             if (ct is UCLogicTableView)
             {
                 var view = ((UCLogicTableView)ct);
-                if (!string.IsNullOrWhiteSpace(view.TableName))
+                if (!string.IsNullOrWhiteSpace(view.RpTableName))
                 {
-                    Clipboard.SetText(view.TableName);
+                    Clipboard.SetText(view.RpTableName);
                     Util.SendMsg(this, "已复制表名");
                 }
             }

@@ -107,6 +107,12 @@ namespace Biz.Common
 
             KeyWordDic.Add(new SQLKeyWord
             {
+                KeyWord= "$exists",
+                Desc="字段是否存在"
+            });
+
+            KeyWordDic.Add(new SQLKeyWord
+            {
                 KeyWord = "$gte",
                 Desc = "大于等于"
             });
