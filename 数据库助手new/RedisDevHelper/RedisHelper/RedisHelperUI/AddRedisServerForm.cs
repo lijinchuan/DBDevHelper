@@ -71,5 +71,11 @@ namespace RedisHelperUI
 
             this.DialogResult = DialogResult.OK;
         }
+
+        private void label4_Click(object sender, EventArgs e)
+        {
+            Clipboard.SetText(label4.Text);
+            MessageBox.Show("复制成功");
+        }
     }
 }

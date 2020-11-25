@@ -33,12 +33,15 @@
             this.TSM_NewRedis = new System.Windows.Forms.ToolStripMenuItem();
             this.TSMDel = new System.Windows.Forms.ToolStripMenuItem();
             this.日志ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.查看连接串ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.复制连接串ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.TSMEdit = new System.Windows.Forms.ToolStripMenuItem();
             this.TSMSearch = new System.Windows.Forms.ToolStripMenuItem();
             this.TSMSearchKey = new System.Windows.Forms.ToolStripMenuItem();
             this.PanelLeft = new System.Windows.Forms.Panel();
             this.TVServerList = new System.Windows.Forms.TreeView();
             this.PanelRight = new System.Windows.Forms.Panel();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.menuStrip1.SuspendLayout();
             this.PanelLeft.SuspendLayout();
             this.SuspendLayout();
@@ -59,8 +62,11 @@
             // 
             this.TSM_File.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.TSM_NewRedis,
-            this.TSMDel,
-            this.日志ToolStripMenuItem});
+            this.查看连接串ToolStripMenuItem,
+            this.复制连接串ToolStripMenuItem,
+            this.日志ToolStripMenuItem,
+            this.toolStripSeparator1,
+            this.TSMDel});
             this.TSM_File.Name = "TSM_File";
             this.TSM_File.Size = new System.Drawing.Size(44, 21);
             this.TSM_File.Text = "文件";
@@ -68,23 +74,37 @@
             // TSM_NewRedis
             // 
             this.TSM_NewRedis.Name = "TSM_NewRedis";
-            this.TSM_NewRedis.Size = new System.Drawing.Size(165, 22);
+            this.TSM_NewRedis.Size = new System.Drawing.Size(180, 22);
             this.TSM_NewRedis.Text = "添加redis服务器";
             this.TSM_NewRedis.Click += new System.EventHandler(this.TSM_NewRedis_Click);
             // 
             // TSMDel
             // 
             this.TSMDel.Name = "TSMDel";
-            this.TSMDel.Size = new System.Drawing.Size(165, 22);
+            this.TSMDel.Size = new System.Drawing.Size(180, 22);
             this.TSMDel.Text = "删除";
             this.TSMDel.Click += new System.EventHandler(this.TSMDel_Click);
             // 
             // 日志ToolStripMenuItem
             // 
             this.日志ToolStripMenuItem.Name = "日志ToolStripMenuItem";
-            this.日志ToolStripMenuItem.Size = new System.Drawing.Size(165, 22);
-            this.日志ToolStripMenuItem.Text = "备忘录";
+            this.日志ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.日志ToolStripMenuItem.Text = "日志";
             this.日志ToolStripMenuItem.Click += new System.EventHandler(this.日志ToolStripMenuItem_Click);
+            // 
+            // 查看连接串ToolStripMenuItem
+            // 
+            this.查看连接串ToolStripMenuItem.Name = "查看连接串ToolStripMenuItem";
+            this.查看连接串ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.查看连接串ToolStripMenuItem.Text = "查看连接串";
+            this.查看连接串ToolStripMenuItem.Click += new System.EventHandler(this.查看连接串ToolStripMenuItem_Click);
+            // 
+            // 复制连接串ToolStripMenuItem
+            // 
+            this.复制连接串ToolStripMenuItem.Name = "复制连接串ToolStripMenuItem";
+            this.复制连接串ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.复制连接串ToolStripMenuItem.Text = "复制连接串";
+            this.复制连接串ToolStripMenuItem.Click += new System.EventHandler(this.复制连接串ToolStripMenuItem_Click);
             // 
             // TSMEdit
             // 
@@ -134,6 +154,11 @@
             this.PanelRight.Size = new System.Drawing.Size(699, 508);
             this.PanelRight.TabIndex = 2;
             // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(177, 6);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -167,6 +192,9 @@
         private System.Windows.Forms.ToolStripMenuItem TSMSearch;
         private System.Windows.Forms.ToolStripMenuItem TSMSearchKey;
         private System.Windows.Forms.ToolStripMenuItem 日志ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 查看连接串ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 复制连接串ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
     }
 }
 

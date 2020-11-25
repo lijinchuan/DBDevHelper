@@ -227,5 +227,55 @@ namespace RedisHelperUI
                     }
                 };
         }
+
+        private void 查看连接串ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var currentnodel = TVServerList.SelectedNode;
+            if (currentnodel == null)
+            {
+                return;
+            }
+            if (currentnodel.Level == 2)
+            {
+                var server = currentnodel.Parent.Tag as RedisServerEntity;
+                if (server != null)
+                {
+                    MessageBox.Show(server.ConnStr);
+                }
+            }
+            else
+            {
+                if(currentnodel.Tag is RedisServerEntity)
+                {
+                    MessageBox.Show((currentnodel.Tag as RedisServerEntity).ConnStr);
+                }
+            }
+        }
+
+        private void 复制连接串ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var currentnodel = TVServerList.SelectedNode;
+            if (currentnodel == null)
+            {
+                return;
+            }
+            if (currentnodel.Level == 2)
+            {
+                var server = currentnodel.Parent.Tag as RedisServerEntity;
+                if (server != null)
+                {
+                    Clipboard.SetText(server.ConnStr);
+                    MessageBox.Show("复制成功");
+                }
+            }
+            else
+            {
+                if (currentnodel.Tag is RedisServerEntity)
+                {
+                    Clipboard.SetText((currentnodel.Tag as RedisServerEntity).ConnStr);
+                    MessageBox.Show("复制成功");
+                }
+            }
+        }
     }
 }
