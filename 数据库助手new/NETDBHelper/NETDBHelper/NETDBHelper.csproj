@@ -495,6 +495,8 @@
     <Content Include="Resources\bullet_tick.png" />
     <Content Include="Resources\computer_link.png" />
     <Content Include="Resources\connect.png" />
+    <None Include="Resources\text_underline.png" />
+    <None Include="Resources\text_ab.png" />
     <None Include="Resources\text_bold.png" />
     <None Include="Resources\text_uppercase.png" />
     <None Include="Resources\cross.png" />

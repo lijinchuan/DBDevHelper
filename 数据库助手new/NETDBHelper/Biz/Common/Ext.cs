@@ -42,6 +42,13 @@ namespace Biz.Common
                    || colEnum.Equals(MSSQLTypeEnum.Varchar);
         }
 
+        public static bool IsUnique(this TBColumn column)
+        {
+            CheckIsSupport(column);
+            var colEnum = Enum.Parse(typeof(MSSQLTypeEnum), column.TypeName, true);
+            return colEnum.Equals(MSSQLTypeEnum.Uniqueidentifier);
+        }
+
         public static bool IsNumber(this TBColumn column)
         {
             CheckIsSupport(column);
@@ -72,6 +79,7 @@ namespace Biz.Common
             return colEnum.Equals(MSSQLTypeEnum.Datetime)
                 || colEnum.Equals(MSSQLTypeEnum.Datetime2)
                 || colEnum.Equals(MSSQLTypeEnum.Smalldatetime)
+                || colEnum.Equals(MSSQLTypeEnum.Date)
                 || colEnum.Equals(MSSQLTypeEnum.Time);
         }
 
