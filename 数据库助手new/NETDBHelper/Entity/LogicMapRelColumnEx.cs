@@ -46,5 +46,14 @@ namespace Entity
             get;
             set;
         }
+
+        /// <summary>
+        /// 是否是热点
+        /// </summary>
+        public bool IsHotLine
+        {
+            get;
+            set;
+        }
     }
 }
