@@ -1,0 +1,69 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30204.135
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "APIHelper", "APIHelper\APIHelper.csproj", "{2F8F92EA-19E2-48DD-8403-FF7E05A54D1B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Biz", "Biz\Biz.csproj", "{80E2E780-E046-40FB-AC95-42A11EE49AE3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Entity", "Entity\Entity.csproj", "{F1D389C9-C0A7-48DE-A163-6B2A969859BD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{7396D3BB-5AC0-4FFB-9F9D-33FB87DEF72C}"
+	ProjectSection(SolutionItems) = preProject
+		APIHelper.vsmdi = APIHelper.vsmdi
+		Local.testsettings = Local.testsettings
+		TraceAndTestImpact.testsettings = TraceAndTestImpact.testsettings
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|Mixed Platforms = Debug|Mixed Platforms
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|Mixed Platforms = Release|Mixed Platforms
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2F8F92EA-19E2-48DD-8403-FF7E05A54D1B}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{2F8F92EA-19E2-48DD-8403-FF7E05A54D1B}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{2F8F92EA-19E2-48DD-8403-FF7E05A54D1B}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{2F8F92EA-19E2-48DD-8403-FF7E05A54D1B}.Debug|x86.ActiveCfg = Debug|x86
+		{2F8F92EA-19E2-48DD-8403-FF7E05A54D1B}.Debug|x86.Build.0 = Debug|x86
+		{2F8F92EA-19E2-48DD-8403-FF7E05A54D1B}.Release|Any CPU.ActiveCfg = Release|x86
+		{2F8F92EA-19E2-48DD-8403-FF7E05A54D1B}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{2F8F92EA-19E2-48DD-8403-FF7E05A54D1B}.Release|Mixed Platforms.Build.0 = Release|x86
+		{2F8F92EA-19E2-48DD-8403-FF7E05A54D1B}.Release|x86.ActiveCfg = Release|x86
+		{2F8F92EA-19E2-48DD-8403-FF7E05A54D1B}.Release|x86.Build.0 = Release|x86
+		{80E2E780-E046-40FB-AC95-42A11EE49AE3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{80E2E780-E046-40FB-AC95-42A11EE49AE3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{80E2E780-E046-40FB-AC95-42A11EE49AE3}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{80E2E780-E046-40FB-AC95-42A11EE49AE3}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{80E2E780-E046-40FB-AC95-42A11EE49AE3}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{80E2E780-E046-40FB-AC95-42A11EE49AE3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{80E2E780-E046-40FB-AC95-42A11EE49AE3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{80E2E780-E046-40FB-AC95-42A11EE49AE3}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{80E2E780-E046-40FB-AC95-42A11EE49AE3}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{80E2E780-E046-40FB-AC95-42A11EE49AE3}.Release|x86.ActiveCfg = Release|Any CPU
+		{F1D389C9-C0A7-48DE-A163-6B2A969859BD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F1D389C9-C0A7-48DE-A163-6B2A969859BD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F1D389C9-C0A7-48DE-A163-6B2A969859BD}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{F1D389C9-C0A7-48DE-A163-6B2A969859BD}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{F1D389C9-C0A7-48DE-A163-6B2A969859BD}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{F1D389C9-C0A7-48DE-A163-6B2A969859BD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F1D389C9-C0A7-48DE-A163-6B2A969859BD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F1D389C9-C0A7-48DE-A163-6B2A969859BD}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{F1D389C9-C0A7-48DE-A163-6B2A969859BD}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{F1D389C9-C0A7-48DE-A163-6B2A969859BD}.Release|x86.ActiveCfg = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {4D7008D8-46B8-4725-883F-42C63A1FC91B}
+	EndGlobalSection
+	GlobalSection(TestCaseManagementSettings) = postSolution
+		CategoryFile = APIHelper.vsmdi
+	EndGlobalSection
+EndGlobal

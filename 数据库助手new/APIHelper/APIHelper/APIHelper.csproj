@@ -1,0 +1,402 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{2F8F92EA-19E2-48DD-8403-FF7E05A54D1B}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>APIHelper</RootNamespace>
+    <AssemblyName>APIHelper</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
+    <FileAlignment>512</FileAlignment>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>dbs_sqlserver2.ico</ApplicationIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="CalculateModel">
+      <HintPath>..\..\Lib\CalculateModel.dll</HintPath>
+    </Reference>
+    <Reference Include="ICSharpCode.SharpZipLib, Version=1.0.0.999, Culture=neutral, PublicKeyToken=1b03e6acf1164f73, processorArchitecture=MSIL">
+      <HintPath>..\packages\SharpZipLib.1.0.0\lib\net45\ICSharpCode.SharpZipLib.dll</HintPath>
+    </Reference>
+    <Reference Include="LJC.FrameWork">
+      <HintPath>..\..\Lib\LJC.FrameWork.dll</HintPath>
+    </Reference>
+    <Reference Include="LJC.FrameWorkV3">
+      <HintPath>..\..\Lib\LJC.FrameWorkV3.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.SqlServer.Smo, Version=10.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Lib\Microsoft.SqlServer.Smo.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Lib\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="NPOI, Version=2.4.1.0, Culture=neutral, PublicKeyToken=0df73ec7942b34e1, processorArchitecture=MSIL">
+      <HintPath>..\packages\NPOI.2.4.1\lib\net45\NPOI.dll</HintPath>
+    </Reference>
+    <Reference Include="NPOI.OOXML, Version=2.4.1.0, Culture=neutral, PublicKeyToken=0df73ec7942b34e1, processorArchitecture=MSIL">
+      <HintPath>..\packages\NPOI.2.4.1\lib\net45\NPOI.OOXML.dll</HintPath>
+    </Reference>
+    <Reference Include="NPOI.OpenXml4Net, Version=2.4.1.0, Culture=neutral, PublicKeyToken=0df73ec7942b34e1, processorArchitecture=MSIL">
+      <HintPath>..\packages\NPOI.2.4.1\lib\net45\NPOI.OpenXml4Net.dll</HintPath>
+    </Reference>
+    <Reference Include="NPOI.OpenXmlFormats, Version=2.4.1.0, Culture=neutral, PublicKeyToken=0df73ec7942b34e1, processorArchitecture=MSIL">
+      <HintPath>..\packages\NPOI.2.4.1\lib\net45\NPOI.OpenXmlFormats.dll</HintPath>
+    </Reference>
+    <Reference Include="protobuf-net">
+      <HintPath>..\..\Lib\protobuf-net.2.0.0.668\lib\net40\protobuf-net.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Drawing\DrawingUtil.cs" />
+    <Compile Include="Drawing\Line.cs" />
+    <Compile Include="Drawing\Step.cs" />
+    <Compile Include="Drawing\StepDirection.cs" />
+    <Compile Include="Drawing\StepSelector.cs" />
+    <Compile Include="Drawing\StepSelectorTrace.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Resources\Resource1.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resource1.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Resources\SQLTypeRs.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>SQLTypeRs.resx</DependentUpon>
+    </Compile>
+    <Compile Include="SubForm\AddTaskInfoDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SubForm\AddTaskInfoDlg.Designer.cs">
+      <DependentUpon>AddTaskInfoDlg.cs</DependentUpon>
+    </Compile>
+    <Compile Include="SubForm\CreateEntityNavDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SubForm\CreateEntityNavDlg.Designer.cs">
+      <DependentUpon>CreateEntityNavDlg.cs</DependentUpon>
+    </Compile>
+    <Compile Include="SubForm\FindDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SubForm\FindDlg.Designer.cs">
+      <DependentUpon>FindDlg.cs</DependentUpon>
+    </Compile>
+    <Compile Include="SubForm\InputStringDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SubForm\InputStringDlg.Designer.cs">
+      <DependentUpon>InputStringDlg.cs</DependentUpon>
+    </Compile>
+    <Compile Include="SubForm\MultiInputDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SubForm\MultiInputDlg.Designer.cs">
+      <DependentUpon>MultiInputDlg.cs</DependentUpon>
+    </Compile>
+    <Compile Include="SubForm\PopMessageDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SubForm\PopMessageDlg.Designer.cs">
+      <DependentUpon>PopMessageDlg.cs</DependentUpon>
+    </Compile>
+    <Compile Include="SubForm\WatchTaskList.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SubForm\WatchTaskList.Designer.cs">
+      <DependentUpon>WatchTaskList.cs</DependentUpon>
+    </Compile>
+    <Compile Include="SubForm\WatchTaskLogDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SubForm\WatchTaskLogDlg.Designer.cs">
+      <DependentUpon>WatchTaskLogDlg.cs</DependentUpon>
+    </Compile>
+    <Compile Include="SubForm\WinWebBroswer.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SubForm\WinWebBroswer.Designer.cs">
+      <DependentUpon>WinWebBroswer.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UC\DBServerView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UC\DBServerView.Designer.cs">
+      <DependentUpon>DBServerView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="MainForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MainForm.Designer.cs">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UC\LabCombox.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UC\LabCombox.Designer.cs">
+      <DependentUpon>LabCombox.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UC\LoadingBox.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UC\LoadingBox.Designer.cs">
+      <DependentUpon>LoadingBox.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UC\MyRichTextBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="UC\MyRichTextBox.Designer.cs">
+      <DependentUpon>MyRichTextBox.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UC\MyTabControl.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="UC\MyTabControl.Designer.cs">
+      <DependentUpon>MyTabControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UC\Scale.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UC\Scale.Designer.cs">
+      <DependentUpon>Scale.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UC\TabTableTabEx.cs" />
+    <Compile Include="Util.cs" />
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\Resource1.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resource1.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\SQLTypeRs.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>SQLTypeRs.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SubForm\AddTaskInfoDlg.resx">
+      <DependentUpon>AddTaskInfoDlg.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SubForm\CreateEntityNavDlg.resx">
+      <DependentUpon>CreateEntityNavDlg.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SubForm\FindDlg.resx">
+      <DependentUpon>FindDlg.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SubForm\InputStringDlg.resx">
+      <DependentUpon>InputStringDlg.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SubForm\MultiInputDlg.resx">
+      <DependentUpon>MultiInputDlg.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SubForm\PopMessageDlg.resx">
+      <DependentUpon>PopMessageDlg.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SubForm\WatchTaskList.resx">
+      <DependentUpon>WatchTaskList.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SubForm\WatchTaskLogDlg.resx">
+      <DependentUpon>WatchTaskLogDlg.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SubForm\WinWebBroswer.resx">
+      <DependentUpon>WinWebBroswer.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UC\DBServerView.resx">
+      <DependentUpon>DBServerView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MainForm.resx">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UC\LabCombox.resx">
+      <DependentUpon>LabCombox.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UC\LoadingBox.resx">
+      <DependentUpon>LoadingBox.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UC\MyTabControl.resx">
+      <DependentUpon>MyTabControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UC\Scale.resx">
+      <DependentUpon>Scale.cs</DependentUpon>
+    </EmbeddedResource>
+    <None Include="app.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <WebReferences Include="Web References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Biz\Biz.csproj">
+      <Project>{80E2E780-E046-40FB-AC95-42A11EE49AE3}</Project>
+      <Name>Biz</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Entity\Entity.csproj">
+      <Project>{F1D389C9-C0A7-48DE-A163-6B2A969859BD}</Project>
+      <Name>Entity</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Json2.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\bullet_tick.png" />
+    <Content Include="Resources\computer_link.png" />
+    <Content Include="Resources\connect.png" />
+    <None Include="Resources\text_underline.png" />
+    <None Include="Resources\text_ab.png" />
+    <None Include="Resources\text_bold.png" />
+    <None Include="Resources\text_uppercase.png" />
+    <None Include="Resources\cross.png" />
+    <None Include="Resources\cross1.png" />
+    <None Include="Resources\link.png" />
+    <None Include="Resources\date.png" />
+    <Content Include="Resources\loading2.gif" />
+    <Content Include="Resources\msg.png" />
+    <None Include="Resources\script_code_no.png" />
+    <None Include="Resources\script_code_red_no.png" />
+    <None Include="Resources\SQLSerTop.jpg" />
+    <None Include="Resources\pilcrow.png" />
+    <None Include="Resources\pill.png" />
+    <None Include="Resources\rainbow.png" />
+    <None Include="Resources\number.png" />
+    <None Include="Resources\sitemap.png" />
+    <None Include="Resources\sort_descending.png" />
+    <None Include="Resources\sort_ascending.png" />
+    <None Include="Resources\plugin.png" />
+    <Content Include="Resources\table.png" />
+    <Content Include="Resources\tbview.png" />
+    <None Include="packages.config" />
+    <None Include="Resources\tags_red.png" />
+    <None Include="Resources\tags_grey.png" />
+    <None Include="Map\新建位图图像.bmp" />
+    <None Include="Map\新建位图图像 %282%29.bmp" />
+    <None Include="Resources\application_form_magnify.png" />
+    <None Include="Resources\bullet_eject.png" />
+    <Content Include="dbs_sqlserver.ico" />
+    <Content Include="dbs_sqlserver2.ico" />
+    <Content Include="Resources\CloseServer.jpg" />
+    <Content Include="Resources\ColQ.png" />
+    <Content Include="Resources\DB1.png" />
+    <None Include="Resources\DB16.png" />
+    <Content Include="Resources\DB2.png" />
+    <Content Include="Resources\DB3.png" />
+    <Content Include="Resources\DB4.png" />
+    <Content Include="Resources\DB5.png" />
+    <Content Include="Resources\DB6.png" />
+    <Content Include="Resources\dbs_sqlserver2.ico" />
+    <Content Include="Resources\key_add.png" />
+    <None Include="Resources\key_add1.png" />
+    <Content Include="Resources\loading.gif" />
+    <Content Include="Resources\MYSQLICON.jpg" />
+    <Content Include="Resources\MysqlLogo.jpg" />
+    <Content Include="Resources\OpenServer.jpg" />
+    <Content Include="Resources\OpenServer.png" />
+    <Content Include="Resources\page.png" />
+    <None Include="Resources\page1.png" />
+    <None Include="Resources\page2.png" />
+    <Content Include="Resources\plugin_add.png" />
+    <None Include="Resources\plugin_add1.png" />
+    <Content Include="Resources\report.png" />
+    <None Include="Resources\report1.png" />
+    <None Include="Resources\report2.png" />
+    <Content Include="Resources\report_key.png" />
+    <None Include="Resources\report_key1.png" />
+    <None Include="Resources\report_key2.png" />
+    <None Include="Resources\script_code_red.png" />
+    <None Include="Resources\script_code.png" />
+    <Content Include="Resources\shapes_many.png" />
+    <None Include="Resources\shapes_many1.png" />
+    <None Include="Resources\shapes_many2.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include=".NETFramework,Version=v4.0">
+      <Visible>False</Visible>
+      <ProductName>Microsoft .NET Framework 4 %28x86 和 x64%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
