@@ -117,14 +117,14 @@
             // 查看日志ToolStripMenuItem
             // 
             this.查看日志ToolStripMenuItem.Name = "查看日志ToolStripMenuItem";
-            this.查看日志ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.查看日志ToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
             this.查看日志ToolStripMenuItem.Text = "查看日志";
             this.查看日志ToolStripMenuItem.Click += new System.EventHandler(this.查看日志ToolStripMenuItem_Click);
             // 
             // 监控任务ToolStripMenuItem
             // 
             this.监控任务ToolStripMenuItem.Name = "监控任务ToolStripMenuItem";
-            this.监控任务ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.监控任务ToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
             this.监控任务ToolStripMenuItem.Text = "监控任务";
             this.监控任务ToolStripMenuItem.Click += new System.EventHandler(this.监控任务ToolStripMenuItem_Click);
             // 
@@ -234,8 +234,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.mainMenuBar;
             this.Name = "MainFrm";
-            this.ShowIcon = false;
-            this.Text = "数据库助手(SQL Server)";
+            this.Text = "接口管理工具";
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.mainMenuBar.ResumeLayout(false);
             this.mainMenuBar.PerformLayout();

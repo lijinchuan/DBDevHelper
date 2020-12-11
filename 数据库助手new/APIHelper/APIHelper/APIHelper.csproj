@@ -52,7 +52,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>dbs_sqlserver2.ico</ApplicationIcon>
+    <ApplicationIcon>api.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="CalculateModel">
@@ -123,6 +123,18 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>SQLTypeRs.resx</DependentUpon>
     </Compile>
+    <Compile Include="SubForm\AddAPISource.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SubForm\AddAPISource.Designer.cs">
+      <DependentUpon>AddAPISource.cs</DependentUpon>
+    </Compile>
+    <Compile Include="SubForm\AddAPIStep1Dlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SubForm\AddAPIStep1Dlg.Designer.cs">
+      <DependentUpon>AddAPIStep1Dlg.cs</DependentUpon>
+    </Compile>
     <Compile Include="SubForm\AddTaskInfoDlg.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -177,6 +189,24 @@
     <Compile Include="SubForm\WinWebBroswer.Designer.cs">
       <DependentUpon>WinWebBroswer.cs</DependentUpon>
     </Compile>
+    <Compile Include="UC\Auth\UCApiKey.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UC\Auth\UCApiKey.Designer.cs">
+      <DependentUpon>UCApiKey.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UC\Auth\UCBearToken.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UC\Auth\UCBearToken.Designer.cs">
+      <DependentUpon>UCBearToken.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UC\Auth\UCNoAuth.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UC\Auth\UCNoAuth.Designer.cs">
+      <DependentUpon>UCNoAuth.cs</DependentUpon>
+    </Compile>
     <Compile Include="UC\DBServerView.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -222,6 +252,24 @@
       <DependentUpon>Scale.cs</DependentUpon>
     </Compile>
     <Compile Include="UC\TabTableTabEx.cs" />
+    <Compile Include="UC\UCAddAPI.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="UC\UCAddAPI.Designer.cs">
+      <DependentUpon>UCAddAPI.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UC\UCApiResult.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UC\UCApiResult.Designer.cs">
+      <DependentUpon>UCApiResult.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UC\UCParamsTable.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UC\UCParamsTable.Designer.cs">
+      <DependentUpon>UCParamsTable.cs</DependentUpon>
+    </Compile>
     <Compile Include="Util.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -235,6 +283,12 @@
     <EmbeddedResource Include="Resources\SQLTypeRs.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>SQLTypeRs.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SubForm\AddAPISource.resx">
+      <DependentUpon>AddAPISource.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SubForm\AddAPIStep1Dlg.resx">
+      <DependentUpon>AddAPIStep1Dlg.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="SubForm\AddTaskInfoDlg.resx">
       <DependentUpon>AddTaskInfoDlg.cs</DependentUpon>
@@ -263,6 +317,12 @@
     <EmbeddedResource Include="SubForm\WinWebBroswer.resx">
       <DependentUpon>WinWebBroswer.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="UC\Auth\UCApiKey.resx">
+      <DependentUpon>UCApiKey.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UC\Auth\UCBearToken.resx">
+      <DependentUpon>UCBearToken.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="UC\DBServerView.resx">
       <DependentUpon>DBServerView.cs</DependentUpon>
     </EmbeddedResource>
@@ -281,6 +341,15 @@
     <EmbeddedResource Include="UC\Scale.resx">
       <DependentUpon>Scale.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="UC\UCAddAPI.resx">
+      <DependentUpon>UCAddAPI.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UC\UCApiResult.resx">
+      <DependentUpon>UCApiResult.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UC\UCParamsTable.resx">
+      <DependentUpon>UCParamsTable.cs</DependentUpon>
+    </EmbeddedResource>
     <None Include="app.config" />
   </ItemGroup>
   <ItemGroup>
@@ -297,6 +366,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="api.ico" />
     <Content Include="Json2.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -311,6 +381,8 @@
     <None Include="Resources\cross1.png" />
     <None Include="Resources\link.png" />
     <None Include="Resources\date.png" />
+    <None Include="Resources\folder.png" />
+    <None Include="Resources\folder_database.png" />
     <Content Include="Resources\loading2.gif" />
     <Content Include="Resources\msg.png" />
     <None Include="Resources\script_code_no.png" />

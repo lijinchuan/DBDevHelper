@@ -34,6 +34,13 @@ namespace APIHelper
                 }
             }
 
+            BigEntityTableEngine.LocalEngine.CreateTable<APISource>(p => p.Id, null);
+
+            BigEntityTableEngine.LocalEngine.CreateTable<APIUrl>(p => p.Id, b => b.AddIndex("SourceId", p => p.Asc(q => q.SourceId))
+            .AddIndex("SourceId_APIName", p => p.Asc(q => q.SourceId).Asc(q => q.APIName)));
+
+            BigEntityTableEngine.LocalEngine.CreateTable<APIEnv>(p => p.Id, b => b.AddIndex("SourceId", p => p.Asc(q => q.SourceId)));
+
             //BigEntityTableEngine.LocalEngine.CreateTable("MarkColumnInfo", "ID",true, typeof(MarkColumnInfo), new IndexInfo[]
             //{
             //    new IndexInfo
@@ -92,6 +99,9 @@ namespace APIHelper
             BigEntityTableEngine.LocalEngine.CreateTable<LogicMapRelColumn>(p => p.ID, p => p.AddIndex("LogicID", m => m.Asc(f => f.LogicID))
             .AddIndex("LSDTC", m => m.Asc(f => f.LogicID).Asc(f => f.DBName).Asc(f => f.TBName))
             .AddIndex("LSDRTC", m => m.Asc(f => f.LogicID).Asc(f => f.RelDBName).Asc(f => f.RelTBName)));
+
+
+            BigEntityTableEngine.LocalEngine.CreateTable<APIData>(p => p.Id, p => p.AddIndex("ApiId", q => q.Asc(m => m.ApiId)));
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);

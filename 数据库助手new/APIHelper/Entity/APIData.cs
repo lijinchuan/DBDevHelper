@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Entity
 {
-    public class APIUrl:INodeContents
+    public class APIData
     {
         public int Id
         {
@@ -13,57 +13,67 @@ namespace Entity
             set;
         }
 
-        public string APIName
+        public int ApiId
         {
             get;
             set;
         }
 
-        public int SourceId
+        public List<ParamInfo> Params
         {
             get;
             set;
         }
 
-        public string Path
+        public List<ParamInfo> Headers
         {
             get;
             set;
         }
 
-        public APIMethod APIMethod
+        public List<ParamInfo> FormDatas
         {
             get;
             set;
         }
 
-        public BodyDataType BodyDataType
+        public List<ParamInfo> XWWWFormUrlEncoded
         {
             get;
             set;
         }
 
-        public ApplicationType ApplicationType
+        /// <summary>
+        /// raw请求的报文
+        /// </summary>
+        public string RawText
         {
             get;
             set;
         }
 
-        public AuthType AuthType
+        public string BearToken
         {
             get;
             set;
         }
 
-        public string Desc
+        public string ApiKeyName
         {
             get;
             set;
         }
 
-        public NodeContentType GetNodeContentType()
+        public string ApiKeyValue
         {
-            return NodeContentType.API;
+            get;
+            set;
+        }
+
+        public int ApiKeyAddTo
+        {
+            get;
+            set;
         }
     }
 }

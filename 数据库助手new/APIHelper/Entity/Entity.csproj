@@ -41,10 +41,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="APIData.cs" />
     <Compile Include="APIEnv.cs" />
     <Compile Include="APIMethod.cs" />
     <Compile Include="APISource.cs" />
     <Compile Include="APIUrl.cs" />
+    <Compile Include="ApplicationType.cs" />
+    <Compile Include="AuthType.cs" />
+    <Compile Include="BodyDataType.cs" />
     <Compile Include="INodeContents.cs" />
     <Compile Include="IRecoverAble.cs" />
     <Compile Include="LogicMap.cs" />
@@ -54,6 +58,7 @@
     <Compile Include="MarkObjectInfo.cs" />
     <Compile Include="NodeContents.cs" />
     <Compile Include="NodeContentType.cs" />
+    <Compile Include="ParamInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WatchTask\WatchTaskInfo.cs" />
     <Compile Include="WatchTask\WatchTaskLog.cs" />

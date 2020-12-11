@@ -6,29 +6,18 @@ using System.Windows.Forms;
 using Entity;
 using System.Data;
 using System.Threading;
+using LJC.FrameWorkV3.Data.EntityDataBase;
 
 namespace Biz
 {
     public static class UILoadHelper
     {
-        private static DataTable SQLServersTB;
-        private static void LoadServer(Form parentForm, Action<DataTable> onLoadComplete)
+        public static void LoadApiAsync(Form parent, TreeNode tbNode, int apiResourceId)
         {
-            if (onLoadComplete != null)
-            {
-                if (SQLServersTB == null)
-                {
-                    SQLServersTB = Microsoft.SqlServer.Management.Smo.SmoApplication.EnumAvailableSqlServers();
-                }
-                DataTable tb = SQLServersTB;
-                if (!parentForm.IsDisposed)
-                    parentForm.Invoke(onLoadComplete, tb);
-            }
+            tbNode.Nodes.Add(new TreeNode("加载中...", 17, 17));
+            tbNode.Expand();
 
-        }
-        public static void LoadSqlServer(Form parentForm, Action<DataTable> onLoadComplete)
-        {
-            new Action<Form, Action<DataTable>>(LoadServer).BeginInvoke(parentForm, onLoadComplete, null, null);
+            new Action<Form, TreeNode, int>(LoadApi).BeginInvoke(parent, tbNode, apiResourceId, null, null);
         }
 
         public static void LoadLogicMapsAnsy(Form parent, TreeNode tbNode, string dbname)
@@ -59,6 +48,71 @@ namespace Biz
 
             parent.Invoke(new Action(() => { tbNode.Nodes.Clear(); tbNode.Nodes.AddRange(treeNodes.ToArray()); tbNode.Expand(); }));
 
+        }
+
+        public static void LoadApi(Form parent, TreeNode tbNode,int apiSourceId)
+        {
+
+            var apilist = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<APIUrl>(nameof(APIUrl),
+                "SourceId", new object[] { apiSourceId }).ToList();
+
+            List<TreeNode> treeNodes = new List<TreeNode>();
+
+            foreach (var item in apilist)
+            {
+                TreeNode newNode = new TreeNode(item.APIName);
+
+                newNode.ImageIndex = newNode.SelectedImageIndex = 21;
+
+                newNode.Tag = item;
+
+                treeNodes.Add(newNode);
+            }
+
+            parent.Invoke(new Action(() => { tbNode.Nodes.Clear(); tbNode.Nodes.AddRange(treeNodes.ToArray()); tbNode.Expand(); }));
+        }
+
+        public static void LoadApiResurceAsync(Form parent, TreeNode tbNode)
+        {
+            tbNode.Nodes.Add(new TreeNode("加载中...", 17, 17));
+            tbNode.Expand();
+
+            new Action<Form, TreeNode>(LoadApiResurce).BeginInvoke(parent, tbNode, null, null);
+        }
+
+        public static void LoadApiResurce(Form parent,TreeNode pnode)
+        {
+            List<TreeNode> treeNodes = new List<TreeNode>();
+            var aPISources = BigEntityTableEngine.LocalEngine.List<APISource>(nameof(APISource), 1, int.MaxValue);
+            foreach (var s in aPISources)
+            {
+                TreeNode node = new TreeNodeEx(s.SourceName, 0, 2,0,2);
+                var serverinfo = s;
+                node.Tag = serverinfo;
+
+                node.Nodes.Add(new TreeNodeEx
+                {
+                   Text="接口",
+                   Tag=new NodeContents(NodeContentType.APIPARENT),
+                   ImageIndex=0,
+                   SelectedImageIndex=2,
+                   CollapseImgIndex=0,
+                   ExpandImgIndex=2
+                });
+
+                node.Nodes.Add(new TreeNodeEx
+                {
+                    Text = "环境",
+                    Tag = new NodeContents(NodeContentType.ENVPARENT),
+                    ImageIndex = 0,
+                    SelectedImageIndex = 2,
+                    CollapseImgIndex = 0,
+                    ExpandImgIndex = 2
+                });
+
+                treeNodes.Add(node);
+            }
+            parent.Invoke(new Action(() => { pnode.Nodes.Clear(); pnode.Nodes.AddRange(treeNodes.ToArray()); pnode.Expand(); }));
         }
     }
 }

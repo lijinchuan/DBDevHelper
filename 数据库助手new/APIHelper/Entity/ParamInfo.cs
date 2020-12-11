@@ -5,15 +5,21 @@ using System.Text;
 
 namespace Entity
 {
-    public class APISource:INodeContents
+    public class ParamInfo
     {
-        public int Id
+        public bool Checked
+        {
+            get;
+            set;
+        } = true;
+
+        public string Name
         {
             get;
             set;
         }
 
-        public string SourceName
+        public string Value
         {
             get;
             set;
@@ -24,11 +30,5 @@ namespace Entity
             get;
             set;
         }
-
-        public NodeContentType GetNodeContentType()
-        {
-            return NodeContentType.APISOURCE;
-        }
-
     }
 }

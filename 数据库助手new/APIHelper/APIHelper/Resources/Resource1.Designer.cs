@@ -193,16 +193,6 @@ namespace APIHelper.Resources {
         /// <summary>
         ///   查找 System.Drawing.Bitmap 类型的本地化资源。
         /// </summary>
-        internal static System.Drawing.Bitmap DB2 {
-            get {
-                object obj = ResourceManager.GetObject("DB2", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
-        /// </summary>
         internal static System.Drawing.Bitmap DB3 {
             get {
                 object obj = ResourceManager.GetObject("DB3", resourceCulture);
@@ -315,6 +305,36 @@ namespace APIHelper.Resources {
         internal static System.Drawing.Bitmap DESC {
             get {
                 object obj = ResourceManager.GetObject("DESC", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        /// </summary>
+        internal static System.Drawing.Bitmap ForderClose {
+            get {
+                object obj = ResourceManager.GetObject("ForderClose", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        /// </summary>
+        internal static System.Drawing.Bitmap ForderDB {
+            get {
+                object obj = ResourceManager.GetObject("ForderDB", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        /// </summary>
+        internal static System.Drawing.Bitmap ForderOpen {
+            get {
+                object obj = ResourceManager.GetObject("ForderOpen", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

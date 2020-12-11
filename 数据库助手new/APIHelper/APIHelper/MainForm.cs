@@ -172,6 +172,26 @@ namespace APIHelper
             }
         }
 
+        public void AddTab(string title, TabPage addpage)
+        {
+            bool isExists = false;
+            foreach (TabPage page in this.TabControl.TabPages)
+            {
+                if (page.Text == title || page == addpage)
+                {
+                    isExists = true;
+                    TabControl.SelectedTab = page;
+                    break;
+                }
+            }
+
+            if (!isExists)
+            {
+                this.TabControl.TabPages.Add(addpage);
+                TabControl.SelectedTab = addpage;
+            }
+        }
+
 
         private void TSL_ClearMsg_Click(object sender, EventArgs e)
         {

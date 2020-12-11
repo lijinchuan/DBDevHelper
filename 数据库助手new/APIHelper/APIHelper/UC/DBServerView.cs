@@ -11,6 +11,7 @@ using System.Text.RegularExpressions;
 using APIHelper.SubForm;
 using Biz.Common;
 using LJC.FrameWorkV3.Data.EntityDataBase;
+using Biz;
 
 namespace APIHelper
 {
@@ -18,69 +19,59 @@ namespace APIHelper
     {
         public Action<string, string> OnCreateSelectSql;
         public Action<string, LogicMap> OnDeleteLogicMap;
-        /// <summary>
-        /// 实体命名空间
-        /// </summary>
-        private static string DefaultEntityNamespace = "Nonamespace";
 
         public DBServerView()
         {
             InitializeComponent();
             ts_serchKey.Height = 20;
             tv_DBServers.ImageList = new ImageList();
-            tv_DBServers.ImageList.Images.Add(Resources.Resource1.DB1);
-            tv_DBServers.ImageList.Images.Add(Resources.Resource1.DB2);
-            tv_DBServers.ImageList.Images.Add(Resources.Resource1.DB3);
-            tv_DBServers.ImageList.Images.Add(Resources.Resource1.DB4);
-            tv_DBServers.ImageList.Images.Add(Resources.Resource1.DB5);
-            tv_DBServers.ImageList.Images.Add(Resources.Resource1.DB6);
-            tv_DBServers.ImageList.Images.Add(Resources.Resource1.DB7);
-            tv_DBServers.ImageList.Images.Add(Resources.Resource1.DB8);
-            tv_DBServers.ImageList.Images.Add(Resources.Resource1.DB9);
-            tv_DBServers.ImageList.Images.Add(Resources.Resource1.DB10);
-            tv_DBServers.ImageList.Images.Add(Resources.Resource1.DB11);
-            tv_DBServers.ImageList.Images.Add(Resources.Resource1.param);
-            tv_DBServers.ImageList.Images.Add(Resources.Resource1.paramout);
-            tv_DBServers.ImageList.Images.Add(Resources.Resource1.script_code); //13
-            tv_DBServers.ImageList.Images.Add(Resources.Resource1.script_code_red);
-            tv_DBServers.ImageList.Images.Add(Resources.Resource1.DB16);
-            tv_DBServers.ImageList.Images.Add(Resources.Resource1.DB161); //16
-            tv_DBServers.ImageList.Images.Add(Resources.Resource1.loading);
-            tv_DBServers.ImageList.Images.Add(Resources.Resource1.ColQ); //18
-            tv_DBServers.ImageList.Images.Add(Resources.Resource1.script_code_no);
-            tv_DBServers.ImageList.Images.Add(Resources.Resource1.script_code_red_no);
-            tv_DBServers.ImageList.Images.Add(Resources.Resource1.logic);
-            tv_DBServers.ImageList.Images.Add("ASC", Resources.Resource1.ASC);
-            tv_DBServers.ImageList.Images.Add("DESC", Resources.Resource1.DESC);
-            tv_DBServers.ImageList.Images.Add("plugin", Resources.Resource1.plugin);
-            tv_DBServers.Nodes.Add("0", "资源管理器", 0);
+            
+            tv_DBServers.ImageList.Images.Add(Resources.Resource1.ForderClose);
+            tv_DBServers.ImageList.Images.Add(Resources.Resource1.ForderDB);
+            tv_DBServers.ImageList.Images.Add(Resources.Resource1.ForderOpen);
+            tv_DBServers.Nodes.Add(new TreeNodeEx("资源管理器", 0, 1));
+            tv_DBServers.BeforeExpand += Tv_DBServers_BeforeExpand;
+            tv_DBServers.BeforeCollapse += Tv_DBServers_BeforeCollapse;
             tv_DBServers.NodeMouseClick += new TreeNodeMouseClickEventHandler(tv_DBServers_NodeMouseClick);
             tv_DBServers.NodeMouseDoubleClick += Tv_DBServers_NodeMouseDoubleClick;
+            
             tv_DBServers.HideSelection = false;
             this.DBServerviewContextMenuStrip.ItemClicked += new ToolStripItemClickedEventHandler(OnMenuStrip_ItemClicked);
         }
 
-       
+        private void Tv_DBServers_BeforeCollapse(object sender, TreeViewCancelEventArgs e)
+        {
+            if(e.Node is Biz.TreeNodeEx)
+            {
+                e.Node.ImageIndex= e.Node.SelectedImageIndex = (e.Node as Biz.TreeNodeEx).CollapseImgIndex;
+            }
+        }
+
+        private void Tv_DBServers_BeforeExpand(object sender, TreeViewCancelEventArgs e)
+        {
+            if (e.Node is Biz.TreeNodeEx)
+            {
+                e.Node.ImageIndex=e.Node.SelectedImageIndex = (e.Node as Biz.TreeNodeEx).ExpandImgIndex;
+            }
+        }
 
         void ReLoadDBObj(TreeNode selNode)
         {
             //TreeNode selNode = tv_DBServers.SelectedNode;
             if (selNode == null)
                 return;
-            if ((selNode.Tag as INodeContents).GetNodeContentType() == NodeContentType.TBParent)
+            if (selNode.Level == 0)
+            {
+                Biz.UILoadHelper.LoadApiResurceAsync(this.ParentForm, selNode);
+            }
+            else if (selNode.Tag is APISource)
             {
 
             }
-            else if (selNode.Tag is INodeContents && (selNode.Tag as INodeContents).GetNodeContentType() == NodeContentType.PROCParent)
+            else if (selNode.Tag is NodeContents && (selNode.Tag as INodeContents).GetNodeContentType() == NodeContentType.APIPARENT)
             {
-
-            }
-            else if (selNode.Tag is INodeContents && (selNode.Tag as INodeContents).GetNodeContentType() == NodeContentType.VIEWParent)
-            {
-               
-            }
-            else if (selNode.Tag is INodeContents && (selNode.Tag as INodeContents).GetNodeContentType() == NodeContentType.INDEXParent)
-            {
+                var sid = (selNode.Parent.Tag as APISource).Id;
+                Biz.UILoadHelper.LoadApiAsync(this.ParentForm, selNode, sid);
             }
             else if (selNode.Tag is INodeContents && (selNode.Tag as INodeContents).GetNodeContentType() == NodeContentType.LOGICMAPParent)
             {
@@ -93,51 +84,61 @@ namespace APIHelper
             try
             {
                 DBServerviewContextMenuStrip.Visible = false;
+                var selnode = tv_DBServers.SelectedNode;
+                if (selnode == null)
+                {
+                    return;
+                }
                 switch (e.ClickedItem.Text)
                 {
-                    case "复制对象名":
-                        if (this.tv_DBServers.SelectedNode != null)
+                    case "添加API资源":
                         {
-                            Clipboard.SetText(tv_DBServers.SelectedNode.Text);
-                        }
-                        break;
-                    case "删除表":
-                        break;
-                    case "刷新":
-                        ReLoadDBObj(tv_DBServers.SelectedNode);
-                        break;
-                    case "修改表名":
-                        break;
-                    case "Delete":
-
-                        break;
-                    case "Select":
-
-                        break;
-                    case "创建语句":
-                        MessageBox.Show("Create");
-                        break;
-                    case "同步数据":
-                        {
+                            if(new SubForm.AddAPISource().ShowDialog() == DialogResult.OK)
+                            {
+                                Bind();
+                            }
                             break;
                         }
-                    case "备注":
+                    case "编辑":
                         {
-                            MarkResource();
+                            if(selnode.Tag is APISource)
+                            {
+                                if (new SubForm.AddAPISource((selnode.Tag as APISource).Id).ShowDialog() == DialogResult.OK)
+                                {
+                                    Bind();
+                                }
+                            }
                             break;
                         }
-                    case "清理本地缓存":
+                    case "删除":
                         {
-                            ClearMarkResource();
-                            break;
-                        }
-                    case "生成调用代码":
-                        {
+                            if (selnode.Tag is APISource && MessageBox.Show("要删除吗?", "提示", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                            {
 
+                                if (BigEntityTableEngine.LocalEngine.Delete<APISource>(nameof(APISource), (selnode.Tag as APISource).Id))
+                                {
+                                    Bind();
+                                }
+                            }
+                            break;
+                        }
+                    case "添加API":
+                        {
+                            var apisource = selnode.Parent.Tag as APISource;
+                            var sourceid= apisource.Id;
+                            var step1dlg = new SubForm.AddAPIStep1Dlg(sourceid);
+                            if (step1dlg.ShowDialog() == DialogResult.OK)
+                            {
+                                this.ReLoadDBObj(selnode);
+                                Util.AddToMainTab(this,$"[{apisource.SourceName}]{step1dlg.APIUrl.APIName}", new UC.UCAddAPI(step1dlg.APIUrl));
+                            }
                             break;
                         }
                     default:
-                        break;
+                        {
+                            MessageBox.Show(e.ClickedItem.Text);
+                            break;
+                        }
                 }
             }
             catch (Exception ex)
@@ -159,20 +160,32 @@ namespace APIHelper
 
         void tv_DBServers_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
-            
+            if (e.Node.Nodes.Count == 0)
+            {
+                if (e.Node.Tag is APIUrl)
+                {
+                    var apiurl = e.Node.Tag as APIUrl;
+                    var source = e.Node.Parent.Parent.Tag as APISource;
+                    Util.AddToMainTab(this, $"[{source.SourceName}]{apiurl.APIName}", new UC.UCAddAPI(apiurl));
+                }
+                else
+                {
+                    ReLoadDBObj(e.Node);
+                }
+            }
         }
 
 
         private void Tv_DBServers_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
         {
-            if ((e.Node.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.LOGICMAP)
+            if ((e.Node.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.UNKNOWN)
             {
             }
         }
 
         public void Bind()
         {
-            
+            ReLoadDBObj(tv_DBServers.Nodes[0]);
         }
 
         private void DBServerView_Load(object sender, EventArgs e)
@@ -199,62 +212,18 @@ namespace APIHelper
             if (e.Button == MouseButtons.Right)
             {
                 var node = tv_DBServers.SelectedNode;
-                if (node.Level == 0)
-                {
-                    this.tv_DBServers.ContextMenuStrip = null;
-                    return;
-                }
-                if (node != null)
-                {
-                    var nc = node.Tag as INodeContents;
-                    NodeContentType nctype = NodeContentType.UNKNOWN;
-                    if (nc != null)
-                    {
-                        nctype = nc.GetNodeContentType();
-                    }
+                this.tv_DBServers.ContextMenuStrip = this.DBServerviewContextMenuStrip;
 
-                    if (nctype == NodeContentType.TB
-                        || nctype == NodeContentType.PROC
-                        || nctype == NodeContentType.VIEW
-                        || nctype == NodeContentType.INDEX
-                        || nctype == NodeContentType.INDEXParent
-                        || nctype == NodeContentType.LOGICMAPParent
-                        ||nctype==NodeContentType.LOGICMAP)
-                    {
-                        this.tv_DBServers.ContextMenuStrip = this.DBServerviewContextMenuStrip;
-                        foreach (ToolStripItem item in DBServerviewContextMenuStrip.Items)
-                        {
-                            if (item is ToolStripItem)
-                            {
-                                continue;
-                            }
-                            item.Visible = false;
-                        }
+                添加API资源ToolStripMenuItem.Visible = node.Level == 0;
 
+                添加APIToolStripMenuItem.Visible = (node.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.APIPARENT;
 
-                        刷新ToolStripMenuItem.Visible = nctype == NodeContentType.DBParent
-                            || nctype == NodeContentType.DB
-                            || nctype == NodeContentType.TBParent
-                            || nctype == NodeContentType.TB
-                            || nctype == NodeContentType.INDEXParent
-                            || nctype == NodeContentType.VIEW
-                            || nctype == NodeContentType.VIEWParent
-                            || nctype == NodeContentType.PROCParent
-                            || nctype == NodeContentType.PROC
-                            || nctype == NodeContentType.LOGICMAPParent;
+                修改ToolStripMenuItem.Visible = node.Tag is APISource;
+                删除ToolStripMenuItem.Visible = node.Tag is APISource;
 
-                        复制表名ToolStripMenuItem.Visible = nctype == NodeContentType.VIEW
-                            || nctype == NodeContentType.TB
-                            || nctype == NodeContentType.INDEX
-                            || nctype == NodeContentType.LOGICMAP;
-                        清理备注ToolStripMenuItem.Visible = nctype == NodeContentType.TB;
-                        备注ToolStripMenuItem.Visible = nctype == NodeContentType.TB
-                            || nctype == NodeContentType.PROC;
-                        新增逻辑关系图ToolStripMenuItem.Visible = nctype == NodeContentType.LOGICMAPParent;
-                        删除逻辑关系图ToolStripMenuItem.Visible = nctype == NodeContentType.LOGICMAP;
-                    }
-                }
+                
             }
+
         }
 
         private void toolStripDropDownButton1_Click(object sender, EventArgs e)

@@ -7,6 +7,7 @@ using System.Windows.Forms;
 using System.Runtime.InteropServices;
 using APIHelper.SubForm;
 using System.Runtime.CompilerServices;
+using Entity;
 
 namespace APIHelper
 {
@@ -94,6 +95,25 @@ namespace APIHelper
             return null;
         }
 
+        public static void AddToMainTab(Control ctl,string title, TabPage page)
+        {
+            if (string.IsNullOrWhiteSpace(page.Text))
+            {
+                page.Text = title;
+            }
+            var parent = ctl;
+            while (parent != null)
+            {
+                if (parent is MainFrm)
+                {
+                    ((MainFrm)parent).AddTab(title,page);
+                    break;
+                }
+
+                parent = parent.Parent;
+            }
+        }
+
         public static void PopMsg(int msgid,string title,string content)
         {
             PopMessageDlg dlg = null;
@@ -129,6 +149,27 @@ namespace APIHelper
                 dlg.SetMsg(title, content);
                 dlg.PopShow(cnt);
             }
+        }
+
+        public static bool Compare(List<ParamInfo> paramInfos1,List<ParamInfo> paramInfos2)
+        {
+            if (paramInfos1?.Count != paramInfos2?.Count)
+            {
+                return false;
+            }
+
+            for(int i = 0; i < paramInfos1.Count; i++)
+            {
+                if (paramInfos1[i].Name != paramInfos2[i].Name
+                    || paramInfos1[i].Value != paramInfos2[i].Value
+                    || paramInfos1[i].Checked != paramInfos2[i].Checked
+                    || paramInfos1[i].Desc != paramInfos2[i].Desc)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 }
