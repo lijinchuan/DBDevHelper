@@ -32,6 +32,8 @@ namespace APIHelper.UC
         private APIUrl _apiUrl = null;
         private APIData _apiData = null;
 
+        UC.LoadingBox loadbox = new LoadingBox();
+
         public UCAddAPI()
         {
             InitializeComponent();
@@ -141,12 +143,9 @@ namespace APIHelper.UC
             return apiMethod;
         }
 
-        private void BtnSend_Click(object sender, EventArgs e)
+        private void PostRequest()
         {
-            if (string.IsNullOrEmpty(TBUrl.Text))
-            {
-                return;
-            }
+            UCAddAPI.CheckForIllegalCrossThreadCalls = false;
             var url = TBUrl.Text.Trim();
             HttpRequestEx httpRequestEx = new HttpRequestEx();
             if (Params.Where(p => p.Checked).Count() > 0)
@@ -194,21 +193,10 @@ namespace APIHelper.UC
             var authtype = GetAuthType();
             if (authtype == AuthType.Bearer)
             {
-                if (string.IsNullOrEmpty(UCBearToken.Token))
-                {
-                    MessageBox.Show("鉴权数据不能为空");
-                    return;
-                }
-
                 httpRequestEx.Headers.Add("Authorization", $"Bearer {UCBearToken.Token}");
             }
             else if (authtype == AuthType.ApiKey)
             {
-                if (string.IsNullOrEmpty(UCApiKey.Key) || string.IsNullOrWhiteSpace(UCApiKey.Val))
-                {
-                    MessageBox.Show("鉴权数据不能为空");
-                    return;
-                }
                 if (UCApiKey.AddTo == 0)
                 {
                     httpRequestEx.Headers.Add(UCApiKey.Key, UCApiKey.Val);
@@ -225,7 +213,6 @@ namespace APIHelper.UC
                     }
                 }
             }
-
 
             var bodydataType = GetBodyDataType();
             HttpResponseEx responseEx = null;
@@ -252,21 +239,50 @@ namespace APIHelper.UC
 
                 responseEx = httpRequestEx.DoRequest(url, new byte[0], webRequestMethodEnum);
             }
-            Tabs.SelectedTab = TP_Result;
+            
             if (responseEx.Successed)
             {
-                TBResult.Raw = responseEx.ResponseBytes;
+                this.Invoke(new Action(() => TBResult.Raw = responseEx.ResponseBytes));
             }
             else
             {
-                TBResult.Raw = TBResult.Encoding.GetBytes(responseEx.ErrorMsg.ToString());
+                this.Invoke(new Action(() => TBResult.Raw = TBResult.Encoding.GetBytes(responseEx.ErrorMsg.ToString())));
             }
-            TBResult.SetHeader(responseEx.Headers);
-            TBResult.SetCookie(responseEx.Cookies);
+            this.Invoke(new Action(() => TBResult.SetHeader(responseEx.Headers)));
+            this.Invoke(new Action(() => TBResult.SetCookie(responseEx.Cookies)));
 
-            TBResult.SetOther(responseEx.StatusCode, responseEx.StatusDescription, responseEx.RequestMills,
-                responseEx.ResponseBytes == null ? 0 : responseEx.ResponseBytes.Length);
+            this.Invoke(new Action(() => TBResult.SetOther(responseEx.StatusCode, responseEx.StatusDescription, responseEx.RequestMills,
+                responseEx.ResponseBytes == null ? 0 : responseEx.ResponseBytes.Length)));
 
+        }
+
+        private void BtnSend_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrEmpty(TBUrl.Text))
+            {
+                return;
+            }
+
+            var authtype = GetAuthType();
+            if (authtype == AuthType.Bearer)
+            {
+                if (string.IsNullOrEmpty(UCBearToken.Token))
+                {
+                    MessageBox.Show("鉴权数据不能为空");
+                    return;
+                }
+            }
+            else if (authtype == AuthType.ApiKey)
+            {
+                if (string.IsNullOrEmpty(UCApiKey.Key) || string.IsNullOrWhiteSpace(UCApiKey.Val))
+                {
+                    MessageBox.Show("鉴权数据不能为空");
+                    return;
+                }
+            }
+
+            Tabs.SelectedTab = TP_Result;
+            loadbox.Waiting(this.TP_Result, PostRequest);
             Save();
         }
 
@@ -310,6 +326,7 @@ namespace APIHelper.UC
             this.CBWebMethod.Items.AddRange(Enum.GetNames(typeof(Entity.APIMethod)));
             this.CBApplicationType.Items.AddRange(Enum.GetNames(typeof(Entity.ApplicationType)));
             this.CBAuthType.Items.AddRange(Enum.GetNames(typeof(Entity.AuthType)));
+            this.CBAuthType.SelectedIndexChanged += CBAuthType_SelectedIndexChanged;
 
             if (this._apiUrl != null)
             {
@@ -357,8 +374,7 @@ namespace APIHelper.UC
             headerGridView.Dock = DockStyle.Fill;
             headerGridView.DataSource = Headers;
 
-            this.CBAuthType.SelectedIndexChanged += CBAuthType_SelectedIndexChanged;
-
+            
             this.ParentChanged += UCAddAPI_ParentChanged;
         }
 

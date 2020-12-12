@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Entity
 {
-    public class APIEnv:INodeContents
+    public class APIEnvParam
     {
         public int Id
         {
@@ -13,27 +13,28 @@ namespace Entity
             set;
         }
 
-        public int SourceId
+        public int APISourceId
         {
             get;
             set;
         }
 
-        public string EnvName
+        public int EnvId
         {
             get;
             set;
         }
 
-        public string EnvDesc
+        public string Name
         {
             get;
             set;
         }
 
-        public NodeContentType GetNodeContentType()
+        public string Val
         {
-            return NodeContentType.ENV;
+            get;
+            set;
         }
     }
 }

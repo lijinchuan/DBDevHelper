@@ -29,6 +29,11 @@ namespace APIHelper
             tv_DBServers.ImageList.Images.Add(Resources.Resource1.ForderClose);
             tv_DBServers.ImageList.Images.Add(Resources.Resource1.ForderDB);
             tv_DBServers.ImageList.Images.Add(Resources.Resource1.ForderOpen);
+            tv_DBServers.ImageList.Images.Add("LOADING", Resources.Resource1.loading);
+            tv_DBServers.ImageList.Images.Add("API", Resources.Resource1.DB7);
+            tv_DBServers.ImageList.Images.Add("COL", Resources.Resource1.DB6);
+            tv_DBServers.ImageList.Images.Add("COLQ", Resources.Resource1.ColQ);
+            
             tv_DBServers.Nodes.Add(new TreeNodeEx("资源管理器", 0, 1));
             tv_DBServers.BeforeExpand += Tv_DBServers_BeforeExpand;
             tv_DBServers.BeforeCollapse += Tv_DBServers_BeforeCollapse;
@@ -55,6 +60,52 @@ namespace APIHelper
             }
         }
 
+        T FindParentNode<T>(TreeNode node)
+        {
+            var parent = node.Parent;
+            while (parent != null)
+            {
+                if(parent.Tag is T)
+                {
+                    return (T)parent.Tag;
+                }
+                parent = parent.Parent;
+            }
+
+            return default(T);
+        }
+
+        TreeNode FindParentNodeNode<T>(TreeNode node)
+        {
+            var parent = node.Parent;
+            while (parent != null)
+            {
+                if (parent.Tag is T)
+                {
+                    return parent;
+                }
+                parent = parent.Parent;
+            }
+
+            return null;
+        }
+
+        TreeNode FindParentNode(TreeNode node, NodeContentType nodeContentType)
+        {
+            var parent = node.Parent;
+            while (parent != null)
+            {
+                if (parent.Tag is INodeContents && (parent.Tag as INodeContents).GetNodeContentType() == nodeContentType)
+                {
+                    return parent;
+                }
+                parent = parent.Parent;
+            }
+
+            return null;
+        }
+
+
         void ReLoadDBObj(TreeNode selNode)
         {
             //TreeNode selNode = tv_DBServers.SelectedNode;
@@ -76,6 +127,17 @@ namespace APIHelper
             else if (selNode.Tag is INodeContents && (selNode.Tag as INodeContents).GetNodeContentType() == NodeContentType.LOGICMAPParent)
             {
                 Biz.UILoadHelper.LoadLogicMapsAnsy(this.ParentForm, selNode, GetDBName(selNode));
+            }
+            else if (selNode.Tag is INodeContents && (selNode.Tag as INodeContents).GetNodeContentType() == NodeContentType.ENVPARENT)
+            {
+                var sid = (selNode.Parent.Tag as APISource).Id;
+                Biz.UILoadHelper.LoadApiEnvAsync(this.ParentForm, selNode, sid);
+            }
+            else if (selNode.Tag is APIEnv)
+            {
+                var sid = FindParentNode<APISource>(selNode).Id;
+                var envid = (selNode.Tag as APIEnv).Id;
+                Biz.UILoadHelper.LoadApiEnvParamsAsync(this.ParentForm, selNode, sid, envid);
             }
         }
 
@@ -120,6 +182,29 @@ namespace APIHelper
                                     Bind();
                                 }
                             }
+                            else if (selnode.Tag is APIEnv && MessageBox.Show("要删除吗?", "提示", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                            {
+                                var apienv = selnode.Tag as APIEnv;
+                                var apienvparams = BigEntityTableEngine.LocalEngine.Find<APIEnvParam>(nameof(APIEnvParam), "APISourceId", new object[] { apienv.SourceId })
+                                    .ToList();
+                                foreach (var p in apienvparams.Where(p => p.EnvId == apienv.Id))
+                                {
+                                    BigEntityTableEngine.LocalEngine.Delete<APIEnvParam>(nameof(APIEnvParam), p.Id);
+                                }
+                                BigEntityTableEngine.LocalEngine.Delete<APIEnv>(nameof(APIEnv), apienv.Id);
+                                ReLoadDBObj(FindParentNode(selnode, NodeContentType.ENVPARENT));
+                            }
+                            else if (selnode.Tag is APIEnvParam && MessageBox.Show("会删除所有环境下的此变量，要删除吗?", "提示", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+                            {
+                                var apienvparam = selnode.Tag as APIEnvParam;
+                                var apienvparams = BigEntityTableEngine.LocalEngine.Find<APIEnvParam>(nameof(APIEnvParam), "APISourceId_Name", new object[] { apienvparam.APISourceId,apienvparam.Name })
+                                    .ToList();
+                                foreach (var p in apienvparams)
+                                {
+                                    BigEntityTableEngine.LocalEngine.Delete<APIEnvParam>(nameof(APIEnvParam), p.Id);
+                                }
+                                ReLoadDBObj(FindParentNode(selnode, NodeContentType.ENVPARENT));
+                            }
                             break;
                         }
                     case "添加API":
@@ -131,6 +216,28 @@ namespace APIHelper
                             {
                                 this.ReLoadDBObj(selnode);
                                 Util.AddToMainTab(this,$"[{apisource.SourceName}]{step1dlg.APIUrl.APIName}", new UC.UCAddAPI(step1dlg.APIUrl));
+                            }
+                            break;
+                        }
+                    case "添加环境":
+                        {
+                            var apisource = selnode.Parent.Tag as APISource;
+                            var sourceid = apisource.Id;
+                            var dlg = new SubForm.AddEnvDlg(sourceid);
+                            if (dlg.ShowDialog() == DialogResult.OK)
+                            {
+                                this.ReLoadDBObj(selnode);
+                            }
+                            break;
+                        }
+                    case "添加环境变量":
+                        {
+                            var apisource = selnode.Parent.Tag as APISource;
+                            var sourceid = apisource.Id;
+                            var dlg = new SubForm.AddAPIEnvParamDlg(sourceid,0);
+                            if (dlg.ShowDialog() == DialogResult.OK)
+                            {
+                                this.ReLoadDBObj(selnode);
                             }
                             break;
                         }
@@ -162,24 +269,33 @@ namespace APIHelper
         {
             if (e.Node.Nodes.Count == 0)
             {
-                if (e.Node.Tag is APIUrl)
-                {
-                    var apiurl = e.Node.Tag as APIUrl;
-                    var source = e.Node.Parent.Parent.Tag as APISource;
-                    Util.AddToMainTab(this, $"[{source.SourceName}]{apiurl.APIName}", new UC.UCAddAPI(apiurl));
-                }
-                else
-                {
-                    ReLoadDBObj(e.Node);
-                }
+
+                ReLoadDBObj(e.Node);
             }
         }
 
 
         private void Tv_DBServers_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
         {
-            if ((e.Node.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.UNKNOWN)
+            if (e.Node.Tag is APIUrl)
             {
+                var apiurl = e.Node.Tag as APIUrl;
+                var source = e.Node.Parent.Parent.Tag as APISource;
+                Util.AddToMainTab(this, $"[{source.SourceName}]{apiurl.APIName}", new UC.UCAddAPI(apiurl));
+            }
+            else if (e.Node.Tag is APIEnvParam)
+            {
+                var apisource=FindParentNode<APISource>(e.Node);
+                var envparam = e.Node.Tag as APIEnvParam;
+                if (envparam.Id == 0)
+                {
+                    envparam = BigEntityTableEngine.LocalEngine.Find<APIEnvParam>(nameof(APIEnvParam), "APISourceId_Name", new object[] { apisource.Id, envparam.Name }).FirstOrDefault();
+                }
+                 var dlg = new SubForm.AddAPIEnvParamDlg(apisource.Id,envparam.Id);
+                if (dlg.ShowDialog() == DialogResult.OK)
+                {
+
+                }
             }
         }
 
@@ -219,9 +335,12 @@ namespace APIHelper
                 添加APIToolStripMenuItem.Visible = (node.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.APIPARENT;
 
                 修改ToolStripMenuItem.Visible = node.Tag is APISource;
-                删除ToolStripMenuItem.Visible = node.Tag is APISource;
+                删除ToolStripMenuItem.Visible = node.Tag is APISource
+                    ||node.Tag is APIEnv
+                    ||node.Tag is APIEnvParam;
 
-                
+                添加环境ToolStripMenuItem.Visible= (node.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.ENVPARENT;
+                添加环境变量ToolStripMenuItem.Visible= (node.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.ENVPARENT;
             }
 
         }

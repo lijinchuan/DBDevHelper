@@ -123,6 +123,12 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>SQLTypeRs.resx</DependentUpon>
     </Compile>
+    <Compile Include="SubForm\AddAPIEnvParamDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SubForm\AddAPIEnvParamDlg.Designer.cs">
+      <DependentUpon>AddAPIEnvParamDlg.cs</DependentUpon>
+    </Compile>
     <Compile Include="SubForm\AddAPISource.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -134,6 +140,12 @@
     </Compile>
     <Compile Include="SubForm\AddAPIStep1Dlg.Designer.cs">
       <DependentUpon>AddAPIStep1Dlg.cs</DependentUpon>
+    </Compile>
+    <Compile Include="SubForm\AddEnvDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SubForm\AddEnvDlg.Designer.cs">
+      <DependentUpon>AddEnvDlg.cs</DependentUpon>
     </Compile>
     <Compile Include="SubForm\AddTaskInfoDlg.cs">
       <SubType>Form</SubType>
@@ -284,11 +296,17 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>SQLTypeRs.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <EmbeddedResource Include="SubForm\AddAPIEnvParamDlg.resx">
+      <DependentUpon>AddAPIEnvParamDlg.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="SubForm\AddAPISource.resx">
       <DependentUpon>AddAPISource.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="SubForm\AddAPIStep1Dlg.resx">
       <DependentUpon>AddAPIStep1Dlg.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SubForm\AddEnvDlg.resx">
+      <DependentUpon>AddEnvDlg.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="SubForm\AddTaskInfoDlg.resx">
       <DependentUpon>AddTaskInfoDlg.cs</DependentUpon>
@@ -396,6 +414,7 @@
     <None Include="Resources\sort_descending.png" />
     <None Include="Resources\sort_ascending.png" />
     <None Include="Resources\plugin.png" />
+    <None Include="Resources\shape_3d.png" />
     <Content Include="Resources\table.png" />
     <Content Include="Resources\tbview.png" />
     <None Include="packages.config" />

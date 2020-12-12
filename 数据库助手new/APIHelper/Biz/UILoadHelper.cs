@@ -14,7 +14,7 @@ namespace Biz
     {
         public static void LoadApiAsync(Form parent, TreeNode tbNode, int apiResourceId)
         {
-            tbNode.Nodes.Add(new TreeNode("加载中...", 17, 17));
+            tbNode.Nodes.Add(new TreeNode("加载中...", 3, 3));
             tbNode.Expand();
 
             new Action<Form, TreeNode, int>(LoadApi).BeginInvoke(parent, tbNode, apiResourceId, null, null);
@@ -22,7 +22,7 @@ namespace Biz
 
         public static void LoadLogicMapsAnsy(Form parent, TreeNode tbNode, string dbname)
         {
-            tbNode.Nodes.Add(new TreeNode("加载中...", 17, 17));
+            tbNode.Nodes.Add(new TreeNode("加载中...", 3, 3));
             tbNode.Expand();
             new Action<Form, TreeNode, string>(LoadLogicMaps).BeginInvoke(parent, tbNode, dbname, null, null);
         }
@@ -50,7 +50,7 @@ namespace Biz
 
         }
 
-        public static void LoadApi(Form parent, TreeNode tbNode,int apiSourceId)
+        public static void LoadApi(Form parent, TreeNode tbNode, int apiSourceId)
         {
 
             var apilist = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<APIUrl>(nameof(APIUrl),
@@ -62,7 +62,7 @@ namespace Biz
             {
                 TreeNode newNode = new TreeNode(item.APIName);
 
-                newNode.ImageIndex = newNode.SelectedImageIndex = 21;
+                newNode.ImageKey = newNode.SelectedImageKey = "API";
 
                 newNode.Tag = item;
 
@@ -74,30 +74,30 @@ namespace Biz
 
         public static void LoadApiResurceAsync(Form parent, TreeNode tbNode)
         {
-            tbNode.Nodes.Add(new TreeNode("加载中...", 17, 17));
+            tbNode.Nodes.Add(new TreeNode("加载中...", 3, 3));
             tbNode.Expand();
 
             new Action<Form, TreeNode>(LoadApiResurce).BeginInvoke(parent, tbNode, null, null);
         }
 
-        public static void LoadApiResurce(Form parent,TreeNode pnode)
+        public static void LoadApiResurce(Form parent, TreeNode pnode)
         {
             List<TreeNode> treeNodes = new List<TreeNode>();
             var aPISources = BigEntityTableEngine.LocalEngine.List<APISource>(nameof(APISource), 1, int.MaxValue);
             foreach (var s in aPISources)
             {
-                TreeNode node = new TreeNodeEx(s.SourceName, 0, 2,0,2);
+                TreeNode node = new TreeNodeEx(s.SourceName, 0, 2, 0, 2);
                 var serverinfo = s;
                 node.Tag = serverinfo;
 
                 node.Nodes.Add(new TreeNodeEx
                 {
-                   Text="接口",
-                   Tag=new NodeContents(NodeContentType.APIPARENT),
-                   ImageIndex=0,
-                   SelectedImageIndex=2,
-                   CollapseImgIndex=0,
-                   ExpandImgIndex=2
+                    Text = "接口",
+                    Tag = new NodeContents(NodeContentType.APIPARENT),
+                    ImageIndex = 0,
+                    SelectedImageIndex = 2,
+                    CollapseImgIndex = 0,
+                    ExpandImgIndex = 2
                 });
 
                 node.Nodes.Add(new TreeNodeEx
@@ -111,6 +111,68 @@ namespace Biz
                 });
 
                 treeNodes.Add(node);
+            }
+            parent.Invoke(new Action(() => { pnode.Nodes.Clear(); pnode.Nodes.AddRange(treeNodes.ToArray()); pnode.Expand(); }));
+        }
+
+        public static void LoadApiEnvAsync(Form parent, TreeNode pnode, int sourceid)
+        {
+            pnode.Nodes.Add(new TreeNode("加载中...", 3, 3));
+            pnode.Expand();
+
+            new Action<Form, TreeNode, int>(LoadApiEnv).BeginInvoke(parent, pnode, sourceid, null, null);
+        }
+
+        public static void LoadApiEnv(Form parent, TreeNode pnode, int sourceid)
+        {
+            List<TreeNode> treeNodes = new List<TreeNode>();
+            var envlist = BigEntityTableEngine.LocalEngine.Find<APIEnv>(nameof(APIEnv), "SourceId", new object[] { sourceid }).ToList();
+            foreach (var s in envlist)
+            {
+                TreeNode node = new TreeNodeEx(s.EnvName, 0, 2, 0, 2);
+                node.Tag = s;
+
+                treeNodes.Add(node);
+            }
+            parent.Invoke(new Action(() => { pnode.Nodes.Clear(); pnode.Nodes.AddRange(treeNodes.ToArray()); pnode.Expand(); }));
+        }
+
+        public static void LoadApiEnvParamsAsync(Form parent, TreeNode pnode, int sourceid,int envid)
+        {
+            pnode.Nodes.Add(new TreeNode("加载中...", 3, 3));
+            pnode.Expand();
+
+            new Action<Form, TreeNode, int,int>(LoadApiEnvParams).BeginInvoke(parent, pnode, sourceid,envid, null, null);
+        }
+
+        public static void LoadApiEnvParams(Form parent, TreeNode pnode, int sourceid,int envid)
+        {
+            List<TreeNode> treeNodes = new List<TreeNode>();
+            var allenvparamslist = BigEntityTableEngine.LocalEngine.Find<APIEnvParam>(nameof(APIEnvParam), "APISourceId", new object[] { sourceid }).ToList();
+            var allparamnames=allenvparamslist.Select(p => p.Name).Distinct();
+            foreach (var s in allparamnames)
+            {
+                var param = allenvparamslist.Find(p => p.EnvId == envid && p.Name == s);
+
+                TreeNode node = new TreeNode(s);
+                if (param == null)
+                {
+                    node.Tag = new APIEnvParam
+                    {
+                        EnvId=envid,
+                        APISourceId=sourceid,
+                        Name=s
+                    };
+                    node.ImageKey = node.SelectedImageKey = "COLQ";
+
+                }
+                else
+                {
+                    node.Tag = param;
+                    node.ImageKey = node.SelectedImageKey = "COL";
+                }
+                treeNodes.Add(node);
+
             }
             parent.Invoke(new Action(() => { pnode.Nodes.Clear(); pnode.Nodes.AddRange(treeNodes.ToArray()); pnode.Expand(); }));
         }

@@ -43,6 +43,7 @@
   <ItemGroup>
     <Compile Include="APIData.cs" />
     <Compile Include="APIEnv.cs" />
+    <Compile Include="APIEnvParam.cs" />
     <Compile Include="APIMethod.cs" />
     <Compile Include="APISource.cs" />
     <Compile Include="APIUrl.cs" />
