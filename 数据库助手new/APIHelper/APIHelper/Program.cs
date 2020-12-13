@@ -106,6 +106,7 @@ namespace APIHelper
             BigEntityTableEngine.LocalEngine.CreateTable<APIEnv>(p => p.Id, p => p.AddIndex("SourceId", q => q.Asc(m => m.SourceId)));
 
             BigEntityTableEngine.LocalEngine.CreateTable<APIEnvParam>(p => p.Id, p => p.AddIndex("APISourceId", q => q.Asc(m => m.APISourceId))
+            .AddIndex("APISourceId_EnvId", q=>q.Asc(m=>m.APISourceId).Asc(m=>m.EnvId))
             .AddIndex("APISourceId_Name", q => q.Asc(m => m.APISourceId).Asc(m => m.Name)));
 
             Application.EnableVisualStyles();

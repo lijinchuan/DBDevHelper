@@ -34,11 +34,13 @@ namespace APIHelper.UC
 
         UC.LoadingBox loadbox = new LoadingBox();
 
+        private ComboBox CBEnv = new ComboBox();
+
         public UCAddAPI()
         {
             InitializeComponent();
 
-            foreach(var ctl in PannelReqBody.Controls)
+            foreach (var ctl in PannelReqBody.Controls)
             {
                 if (ctl is RadioButton)
                 {
@@ -143,10 +145,79 @@ namespace APIHelper.UC
             return apiMethod;
         }
 
+        private APIEnv GetEnv()
+        {
+            var envname = LKEnv.Text;
+            if (CBEnv.DataSource is List<APIEnv>)
+            {
+                var envlist = CBEnv.DataSource as List<APIEnv>;
+                if (envlist.Count > 0)
+                {
+                    return envlist.Find(p => p.EnvName == envname);
+                }
+            }
+            return null;
+        }
+
+        private int GetEnvId()
+        {
+            var envname = LKEnv.Text;
+            if (CBEnv.DataSource is List<APIEnv>)
+            {
+                var envlist = CBEnv.DataSource as List<APIEnv>;
+                if (envlist.Count > 0)
+                {
+                    var env= envlist.Find(p => p.EnvName == envname);
+                    if (env == null)
+                    {
+                        return -1;
+                    }
+                    return env.Id;
+                }
+            }
+            return 0;
+        }
+
+
+        private string ReplaceEvnParams(string str, ref List<APIEnvParam> apiEnvParams)
+        {
+            if (str.IndexOf("{{") == -1|| str.IndexOf("}}") == -1)
+            {
+                return str;
+            }
+
+            if(GetEnvId()<=0)
+            {
+                return str;
+            }
+
+            if (apiEnvParams == null)
+            {
+                apiEnvParams = BigEntityTableEngine.LocalEngine.Find<APIEnvParam>(nameof(APIEnvParam), "APISourceId_EnvId", new object[] { _apiUrl.SourceId, GetEnvId() }).ToList();
+
+            }
+
+            if (apiEnvParams.Count == 0)
+            {
+                return str;
+            }
+
+            StringBuilder sb = new StringBuilder(str);
+
+            foreach (var p in apiEnvParams)
+            {
+                sb.Replace($"{{{{{p.Name}}}}}", p.Val);
+            }
+
+            return sb.ToString();
+        }
+
         private void PostRequest()
         {
+            List<APIEnvParam> apiEnvParams = null;
             UCAddAPI.CheckForIllegalCrossThreadCalls = false;
             var url = TBUrl.Text.Trim();
+            url = ReplaceEvnParams(url, ref apiEnvParams);
             HttpRequestEx httpRequestEx = new HttpRequestEx();
             if (Params.Where(p => p.Checked).Count() > 0)
             {
@@ -155,7 +226,7 @@ namespace APIHelper.UC
                     url += "?";
                 }
 
-                url += string.Join("&", Params.Where(p => p.Checked).Select(p => $"{WebUtility.UrlEncode(p.Name)}={WebUtility.UrlEncode(p.Value)}"));
+                url += string.Join("&", Params.Where(p => p.Checked).Select(p => $"{WebUtility.UrlEncode(ReplaceEvnParams(p.Name,ref apiEnvParams))}={WebUtility.UrlEncode(ReplaceEvnParams(p.Value,ref apiEnvParams))}"));
             }
 
             if (Headers.Count() > 0)
@@ -184,7 +255,7 @@ namespace APIHelper.UC
                     {
                         if (header.Checked)
                         {
-                            httpRequestEx.Headers.Add(header.Name, header.Value);
+                            httpRequestEx.Headers.Add(ReplaceEvnParams(header.Name,ref apiEnvParams),ReplaceEvnParams(header.Value,ref apiEnvParams));
                         }
                     }
                 }
@@ -193,23 +264,23 @@ namespace APIHelper.UC
             var authtype = GetAuthType();
             if (authtype == AuthType.Bearer)
             {
-                httpRequestEx.Headers.Add("Authorization", $"Bearer {UCBearToken.Token}");
+                httpRequestEx.Headers.Add("Authorization", $"Bearer {ReplaceEvnParams(UCBearToken.Token,ref apiEnvParams)}");
             }
             else if (authtype == AuthType.ApiKey)
             {
                 if (UCApiKey.AddTo == 0)
                 {
-                    httpRequestEx.Headers.Add(UCApiKey.Key, UCApiKey.Val);
+                    httpRequestEx.Headers.Add(ReplaceEvnParams(UCApiKey.Key,ref apiEnvParams),ReplaceEvnParams(UCApiKey.Val,ref apiEnvParams));
                 }
                 else
                 {
                     if (url.IndexOf('?') == -1)
                     {
-                        url += $"?{UCApiKey.Key}={UCApiKey.Val}";
+                        url += $"?{ReplaceEvnParams(UCApiKey.Key,ref apiEnvParams)}={ReplaceEvnParams(UCApiKey.Val,ref apiEnvParams)}";
                     }
                     else
                     {
-                        url += $"&{UCApiKey.Key}={UCApiKey.Val}";
+                        url += $"&{ReplaceEvnParams(UCApiKey.Key,ref apiEnvParams)}={ReplaceEvnParams(UCApiKey.Val,ref apiEnvParams)}";
                     }
                 }
             }
@@ -218,19 +289,19 @@ namespace APIHelper.UC
             HttpResponseEx responseEx = null;
             if (bodydataType == BodyDataType.formdata)
             {
-                var dic = FormDatas.Where(p => p.Checked).ToDictionary(p => p.Name, q => q.Value);
+                var dic = FormDatas.Where(p => p.Checked).ToDictionary(p =>ReplaceEvnParams(p.Name,ref apiEnvParams), q =>ReplaceEvnParams(q.Value,ref apiEnvParams));
                 responseEx = httpRequestEx.DoFormRequest(url, dic);
             }
             else if (bodydataType == BodyDataType.xwwwformurlencoded)
             {
                 WebRequestMethodEnum webRequestMethodEnum = (WebRequestMethodEnum)Enum.Parse(typeof(WebRequestMethodEnum), CBWebMethod.SelectedItem.ToString());
-                var data = string.Join("&", XWWWFormUrlEncoded.Where(p => p.Checked).Select(p => $"{p.Name}={WebUtility.UrlEncode(p.Value)}"));
+                var data = string.Join("&", XWWWFormUrlEncoded.Where(p => p.Checked).Select(p => $"{ReplaceEvnParams(p.Name,ref apiEnvParams)}={WebUtility.UrlEncode(ReplaceEvnParams(p.Value,ref apiEnvParams))}"));
                 responseEx = httpRequestEx.DoRequest(url, data, webRequestMethodEnum);
             }
             else if (bodydataType == BodyDataType.raw)
             {
                 WebRequestMethodEnum webRequestMethodEnum = (WebRequestMethodEnum)Enum.Parse(typeof(WebRequestMethodEnum), CBWebMethod.SelectedItem.ToString());
-                var data = Encoding.UTF8.GetBytes(rawTextBox.Text);
+                var data = Encoding.UTF8.GetBytes(ReplaceEvnParams(rawTextBox.Text,ref apiEnvParams));
                 responseEx = httpRequestEx.DoRequest(url, data, webRequestMethodEnum, contentType: $"application/{CBApplicationType.SelectedItem.ToString()}");
             }
             else
@@ -281,6 +352,12 @@ namespace APIHelper.UC
                 }
             }
 
+            if(GetEnvId()==-1)
+            {
+                MessageBox.Show("请选择一个环境");
+                return;
+            }
+
             Tabs.SelectedTab = TP_Result;
             loadbox.Waiting(this.TP_Result, PostRequest);
             Save();
@@ -328,6 +405,8 @@ namespace APIHelper.UC
             this.CBAuthType.Items.AddRange(Enum.GetNames(typeof(Entity.AuthType)));
             this.CBAuthType.SelectedIndexChanged += CBAuthType_SelectedIndexChanged;
 
+            LKEnv.Visible = false;
+
             if (this._apiUrl != null)
             {
                 this.CBWebMethod.SelectedItem = _apiUrl.APIMethod.ToString();
@@ -349,6 +428,62 @@ namespace APIHelper.UC
                     this.UCApiKey.AddTo = this._apiData.ApiKeyAddTo;
                     this.UCApiKey.Key = this._apiData.ApiKeyName;
                     this.UCApiKey.Val = this._apiData.ApiKeyValue;
+                }
+
+                var envlist = BigEntityTableEngine.LocalEngine.Find<APIEnv>(nameof(APIEnv), "SourceId", new object[] { _apiUrl.SourceId }).ToList();
+                if (envlist.Count > 0)
+                {
+                    LKEnv.Visible = true;
+                   
+                    CBEnv.Visible = false;
+                    CBEnv.Location = LKEnv.Location;
+                    CBEnv.Width = this.TopPannel.Width - this.CBEnv.Location.X - 5;
+                    this.TopPannel.Controls.Add(CBEnv);
+                    
+                    CBEnv.DataSource = envlist;
+                    CBEnv.DisplayMember = "EnvName";
+                    CBEnv.ValueMember = "Id";
+
+                    if (_apiUrl.ApiEnvId > 0)
+                    {
+                        var env = envlist.Find(p => p.Id == _apiUrl.ApiEnvId);
+                        if (env != null)
+                        {
+                            LKEnv.Text = env.EnvName;
+                            CBEnv.SelectedItem = env;
+                        }
+                    }
+
+                    LKEnv.Click += (s, e) =>
+                    {
+                        CBEnv.Location = LKEnv.Location;
+
+                        var env = envlist.Find(p => p.EnvName == LKEnv.Text);
+                        CBEnv.SelectedItem = env;
+                        
+                        LKEnv.Visible = false;
+                        CBEnv.Visible = true;
+                    };
+
+                    CBEnv.MouseLeave += (s, e) =>
+                    {
+                        if (CBEnv.Visible)
+                        {
+                            CBEnv.Visible = false;
+                            LKEnv.Visible = true;
+                        }
+
+                    };
+
+                    CBEnv.SelectedIndexChanged += (s, e) =>
+                    {
+                        if (CBEnv.SelectedIndex > -1)
+                        {
+                            LKEnv.Text = (CBEnv.SelectedItem as APIEnv).EnvName;
+                            CBEnv.Visible = false;
+                            LKEnv.Visible = true;
+                        }
+                    };
                 }
             }
             else
@@ -433,6 +568,15 @@ namespace APIHelper.UC
                 {
                     _apiUrl.APIMethod = GetAPIMethod();
                     ischanged = true;
+                }
+                var envid = GetEnvId();
+                if (envid>0)
+                {
+                    if (_apiUrl.ApiEnvId != envid)
+                    {
+                        _apiUrl.ApiEnvId = envid;
+                        ischanged = true;
+                    }
                 }
 
                 if (ischanged)

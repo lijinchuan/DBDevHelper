@@ -61,6 +61,12 @@ namespace Entity
             set;
         }
 
+        public int ApiEnvId
+        {
+            get;
+            set;
+        }
+
         public NodeContentType GetNodeContentType()
         {
             return NodeContentType.API;

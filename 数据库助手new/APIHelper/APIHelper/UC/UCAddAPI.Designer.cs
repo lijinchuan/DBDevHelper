@@ -52,7 +52,8 @@
             this.TP_Setting = new System.Windows.Forms.TabPage();
             this.TP_Result = new System.Windows.Forms.TabPage();
             this.TBResult = new APIHelper.UC.UCApiResult();
-            this.panel2 = new System.Windows.Forms.Panel();
+            this.TopPannel = new System.Windows.Forms.Panel();
+            this.LKEnv = new System.Windows.Forms.Label();
             this.Tabs.SuspendLayout();
             this.TP_Params.SuspendLayout();
             this.TP_Auth.SuspendLayout();
@@ -61,7 +62,7 @@
             this.TP_Body.SuspendLayout();
             this.PannelReqBody.SuspendLayout();
             this.TP_Result.SuspendLayout();
-            this.panel2.SuspendLayout();
+            this.TopPannel.SuspendLayout();
             this.SuspendLayout();
             // 
             // CBWebMethod
@@ -82,7 +83,7 @@
             this.TBUrl.Location = new System.Drawing.Point(132, 13);
             this.TBUrl.Margin = new System.Windows.Forms.Padding(3, 13, 3, 13);
             this.TBUrl.Name = "TBUrl";
-            this.TBUrl.Size = new System.Drawing.Size(405, 29);
+            this.TBUrl.Size = new System.Drawing.Size(373, 29);
             this.TBUrl.TabIndex = 1;
             // 
             // BtnSend
@@ -92,9 +93,9 @@
             this.BtnSend.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.BtnSend.Font = new System.Drawing.Font("宋体", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.BtnSend.ForeColor = System.Drawing.SystemColors.ButtonFace;
-            this.BtnSend.Location = new System.Drawing.Point(543, 13);
+            this.BtnSend.Location = new System.Drawing.Point(511, 13);
             this.BtnSend.Name = "BtnSend";
-            this.BtnSend.Size = new System.Drawing.Size(101, 30);
+            this.BtnSend.Size = new System.Drawing.Size(88, 30);
             this.BtnSend.TabIndex = 2;
             this.BtnSend.Text = "发送";
             this.BtnSend.UseVisualStyleBackColor = false;
@@ -134,7 +135,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.ParamDataPanel.Location = new System.Drawing.Point(8, 21);
             this.ParamDataPanel.Name = "ParamDataPanel";
-            this.ParamDataPanel.Size = new System.Drawing.Size(652, 311);
+            this.ParamDataPanel.Size = new System.Drawing.Size(621, 311);
             this.ParamDataPanel.TabIndex = 0;
             // 
             // TP_Auth
@@ -186,7 +187,7 @@
             this.TP_Header.Controls.Add(this.HeaderDataPannel);
             this.TP_Header.Location = new System.Drawing.Point(4, 22);
             this.TP_Header.Name = "TP_Header";
-            this.TP_Header.Size = new System.Drawing.Size(666, 338);
+            this.TP_Header.Size = new System.Drawing.Size(192, 74);
             this.TP_Header.TabIndex = 2;
             this.TP_Header.Text = "请求头";
             this.TP_Header.UseVisualStyleBackColor = true;
@@ -198,7 +199,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.HeaderDataPannel.Location = new System.Drawing.Point(7, 14);
             this.HeaderDataPannel.Name = "HeaderDataPannel";
-            this.HeaderDataPannel.Size = new System.Drawing.Size(652, 311);
+            this.HeaderDataPannel.Size = new System.Drawing.Size(178, 47);
             this.HeaderDataPannel.TabIndex = 1;
             // 
             // TP_Body
@@ -326,22 +327,37 @@
             this.TBResult.Size = new System.Drawing.Size(192, 74);
             this.TBResult.TabIndex = 0;
             // 
-            // panel2
+            // TopPannel
             // 
-            this.panel2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.TopPannel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.panel2.Controls.Add(this.TBUrl);
-            this.panel2.Controls.Add(this.CBWebMethod);
-            this.panel2.Controls.Add(this.BtnSend);
-            this.panel2.Location = new System.Drawing.Point(22, 3);
-            this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(670, 56);
-            this.panel2.TabIndex = 4;
+            this.TopPannel.Controls.Add(this.LKEnv);
+            this.TopPannel.Controls.Add(this.TBUrl);
+            this.TopPannel.Controls.Add(this.CBWebMethod);
+            this.TopPannel.Controls.Add(this.BtnSend);
+            this.TopPannel.Location = new System.Drawing.Point(22, 3);
+            this.TopPannel.Name = "TopPannel";
+            this.TopPannel.Size = new System.Drawing.Size(692, 56);
+            this.TopPannel.TabIndex = 4;
+            // 
+            // LKEnv
+            // 
+            this.LKEnv.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.LKEnv.AutoSize = true;
+            this.LKEnv.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(0)))));
+            this.LKEnv.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.LKEnv.ForeColor = System.Drawing.SystemColors.ButtonFace;
+            this.LKEnv.Location = new System.Drawing.Point(609, 22);
+            this.LKEnv.Name = "LKEnv";
+            this.LKEnv.Size = new System.Drawing.Size(43, 14);
+            this.LKEnv.TabIndex = 3;
+            this.LKEnv.Text = "多环境";
             // 
             // UCAddAPI
             // 
-            this.Controls.Add(this.panel2);
+            this.Controls.Add(this.TopPannel);
             this.Controls.Add(this.Tabs);
+            this.Name = "UCAddAPI";
             this.Size = new System.Drawing.Size(717, 444);
             this.Tabs.ResumeLayout(false);
             this.TP_Params.ResumeLayout(false);
@@ -353,8 +369,8 @@
             this.PannelReqBody.ResumeLayout(false);
             this.PannelReqBody.PerformLayout();
             this.TP_Result.ResumeLayout(false);
-            this.panel2.ResumeLayout(false);
-            this.panel2.PerformLayout();
+            this.TopPannel.ResumeLayout(false);
+            this.TopPannel.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -377,7 +393,7 @@
         private System.Windows.Forms.RadioButton RBBinary;
         private System.Windows.Forms.ComboBox CBApplicationType;
         private System.Windows.Forms.Panel PannelReqBody;
-        private System.Windows.Forms.Panel panel2;
+        private System.Windows.Forms.Panel TopPannel;
         private System.Windows.Forms.Panel DataPanel;
         private System.Windows.Forms.TabPage TP_Result;
         private System.Windows.Forms.Panel ParamDataPanel;
@@ -386,5 +402,6 @@
         private System.Windows.Forms.ComboBox CBAuthType;
         private System.Windows.Forms.Label label1;
         private UCApiResult TBResult;
+        private System.Windows.Forms.Label LKEnv;
     }
 }
