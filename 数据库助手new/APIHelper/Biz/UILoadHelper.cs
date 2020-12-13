@@ -110,6 +110,26 @@ namespace Biz
                     ExpandImgIndex = 2
                 });
 
+                node.Nodes.Add(new TreeNodeEx
+                {
+                    Text = "文档",
+                    Tag = new NodeContents(NodeContentType.DOCPARENT),
+                    ImageIndex = 0,
+                    SelectedImageIndex = 2,
+                    CollapseImgIndex = 0,
+                    ExpandImgIndex = 2
+                });
+
+                node.Nodes.Add(new TreeNodeEx
+                {
+                    Text = "逻辑图",
+                    Tag = new NodeContents(NodeContentType.LOGICMAPParent),
+                    ImageIndex = 0,
+                    SelectedImageIndex = 2,
+                    CollapseImgIndex = 0,
+                    ExpandImgIndex = 2
+                });
+
                 treeNodes.Add(node);
             }
             parent.Invoke(new Action(() => { pnode.Nodes.Clear(); pnode.Nodes.AddRange(treeNodes.ToArray()); pnode.Expand(); }));

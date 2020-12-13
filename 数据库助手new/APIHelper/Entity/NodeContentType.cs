@@ -13,6 +13,8 @@ namespace Entity
         API,
         ENVPARENT,
         ENV,
+        DOCPARENT,
+        DOC,
         LOGICMAPParent,
         LOGICMAP,
         UNKNOWN = 999

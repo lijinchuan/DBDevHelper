@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using LJC.FrameWorkV3.Comm.HttpEx;
+using Entity;
 
 namespace APIHelper.UC
 {
@@ -77,7 +78,7 @@ namespace APIHelper.UC
             }
         }
 
-        public void SetCookie(List<WebCookie> webCookies)
+        public void SetCookie(List<RespCookie> webCookies)
         {
             if (webCookies != null && webCookies.Count > 0)
             {

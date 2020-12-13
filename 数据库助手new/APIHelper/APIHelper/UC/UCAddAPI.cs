@@ -320,10 +320,48 @@ namespace APIHelper.UC
                 this.Invoke(new Action(() => TBResult.Raw = TBResult.Encoding.GetBytes(responseEx.ErrorMsg.ToString())));
             }
             this.Invoke(new Action(() => TBResult.SetHeader(responseEx.Headers)));
-            this.Invoke(new Action(() => TBResult.SetCookie(responseEx.Cookies)));
+            var cookies = responseEx.Cookies.Select(p => new RespCookie
+            {
+                Path=p.Path,
+                Domain=p.Domain,
+                Expires=p.Expires,
+                HasKeys=p.HasKeys,
+                HttpOnly=p.HttpOnly,
+                Name=p.Name,
+                Secure=p.Secure,
+                Value=p.Value
+            }).ToList();
+            this.Invoke(new Action(() => TBResult.SetCookie(cookies)));
 
             this.Invoke(new Action(() => TBResult.SetOther(responseEx.StatusCode, responseEx.StatusDescription, responseEx.RequestMills,
                 responseEx.ResponseBytes == null ? 0 : responseEx.ResponseBytes.Length)));
+
+            APIInvokeLog log = new APIInvokeLog
+            {
+                APIId=_apiUrl.Id,
+                ApiEnvId=GetEnvId(),
+                AuthType=GetAuthType(),
+                ApplicationType=GetCBApplicationType(),
+                BodyDataType=GetBodyDataType(),
+                APIMethod=GetAPIMethod(),
+                APIName=_apiUrl.APIName,
+                CDate=DateTime.Now,
+                Path=url,
+                SourceId=_apiUrl.SourceId,
+                StatusCode=responseEx.StatusCode,
+                RespMsg=responseEx.ErrorMsg?.ToString(),
+                Ms=responseEx.RequestMills,
+                RespSize=responseEx.ResponseBytes==null?0:responseEx.ResponseBytes.Length,
+                ResponseText=responseEx.ResponseBytes==null?null:Encoding.UTF8.GetString(responseEx.ResponseBytes),
+                APIResonseResult=new APIResonseResult
+                {
+                    Cookies=cookies,
+                    Headers=responseEx.Headers,
+                    Raw=responseEx.ResponseBytes
+                },
+                APIData=GetApiData()
+            };
+            //BigEntityTableEngine.LocalEngine.Insert<APIInvokeLog>(nameof(APIInvokeLog), log);
 
         }
 
@@ -537,6 +575,26 @@ namespace APIHelper.UC
             {
                 AuthTableLayoutPanel.Controls.Add(UCNoAuth, 1, 1);
             }
+        }
+
+        private APIData GetApiData()
+        {
+            var apidata = new APIData
+            {
+                ApiId = _apiUrl.Id
+            };
+
+            apidata.XWWWFormUrlEncoded = this.XWWWFormUrlEncoded;
+            apidata.Params = this.Params;
+            apidata.RawText = this.rawTextBox.Text;
+            apidata.Headers = this.Headers;
+            apidata.FormDatas = this.FormDatas;
+            apidata.BearToken = this.UCBearToken.Token;
+            apidata.ApiKeyAddTo = this.UCApiKey.AddTo;
+            apidata.ApiKeyName = this.UCApiKey.Key;
+            apidata.ApiKeyValue = this.UCApiKey.Val;
+
+            return apidata;
         }
 
         private void Save()
