@@ -131,6 +131,27 @@ namespace APIHelper
             }
         }
 
+        internal void ClearMsg(string oldmsg)
+        {
+            if (InvokeRequired)
+            {
+                this.Invoke(new Action(() =>
+                {
+                    if (this.MspPanel.Text == oldmsg)
+                    {
+                        this.MspPanel.Text = string.Empty;
+                    }
+                }));
+            }
+            else
+            {
+                if (this.MspPanel.Text == oldmsg)
+                {
+                    this.MspPanel.Text = string.Empty;
+                }
+            }
+        }
+
         /// <summary>
         /// 根据模型建表
         /// </summary>
@@ -139,15 +160,6 @@ namespace APIHelper
         private void SubItemModelCreateTableTool_Click(object sender, EventArgs e)
         {
             
-        }
-
-        public static void SendMsg(string msg)
-        {
-            if (Instance == null)
-            {
-                return;
-            }
-            Instance.SetMsg(msg);
         }
 
         private void TabControl_MouseDown(object sender, MouseEventArgs e)

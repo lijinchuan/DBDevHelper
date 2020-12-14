@@ -17,14 +17,26 @@ namespace APIHelper
 
         private static string MsgType = "";
 
-        public static void SendMsg(Control ctl,string msg)
+        public static void SendMsg(Control ctl, string msg, uint showSecs = 5)
         {
             var parent = ctl;
             while (parent != null)
             {
-                if(parent is MainFrm)
+                if (parent is MainFrm)
                 {
                     ((MainFrm)parent).SetMsg(msg);
+                    LJC.FrameWorkV3.Comm.TaskHelper.SetInterval((int)showSecs * 1000, () =>
+                    {
+                        try
+                        {
+                            ClearOldMsg(ctl, msg);
+                        }
+                        catch
+                        {
+
+                        }
+                        return true;
+                    }, runintime: false);
                     break;
                 }
 
@@ -63,6 +75,21 @@ namespace APIHelper
 
                     parent = parent.Parent;
                 }
+            }
+        }
+
+        public static void ClearOldMsg(Control ctl, string msg)
+        {
+            var parent = ctl;
+            while (parent != null)
+            {
+                if (parent is MainFrm)
+                {
+                    ((MainFrm)parent).ClearMsg(msg);
+                    break;
+                }
+
+                parent = parent.Parent;
             }
         }
 

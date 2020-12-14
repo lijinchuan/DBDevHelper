@@ -122,6 +122,10 @@ namespace APIHelper.UC
                 int sort = 0;
                 foreach (var line in tb.Lines)
                 {
+                    if (string.IsNullOrWhiteSpace(line))
+                    {
+                        continue;
+                    }
                     sort++;
                     var texts = line.Split('|');
                     if (Type == 0)
@@ -170,7 +174,7 @@ namespace APIHelper.UC
                             APISourceId = SourceId,
                             Name = texts[0],
                             Sort = sort,
-                            Type = 0,
+                            Type = Type,
                             TypeName = texts[1],
                             IsRequried = boo,
                             Desc = texts.Last()
@@ -298,7 +302,8 @@ namespace APIHelper.UC
                     {
                         APIId = APIUrlId,
                         APISourceId = SourceId,
-                        Sort = sort
+                        Sort = sort,
+                        Type=Type
                     });
                     gv.DataSource = null;
                     gv.DataSource = ds;
@@ -317,6 +322,26 @@ namespace APIHelper.UC
                     gv.DataSource = ds;
                 }
             }
+        }
+
+        private void BtnDel_Click(object sender, EventArgs e)
+        {
+            if (DGVRequest.CurrentRow == null)
+            {
+                return;
+            }
+
+            RequstParams.RemoveAt(DGVRequest.CurrentRow.Index);
+
+            var sort = 0;
+            foreach(var item in RequstParams)
+            {
+                sort++;
+                item.Sort = sort;
+            }
+
+            DGVRequest.DataSource = null;
+            DGVRequest.DataSource = RequstParams;
         }
     }
 }

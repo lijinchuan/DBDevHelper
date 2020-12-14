@@ -32,6 +32,7 @@
             this.BtnMultiAddReqParams = new System.Windows.Forms.Button();
             this.BtnReqParamUp = new System.Windows.Forms.Button();
             this.BtnReqParamDown = new System.Windows.Forms.Button();
+            this.BtnDel = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.DGVRequest)).BeginInit();
             this.SuspendLayout();
             // 
@@ -54,7 +55,7 @@
             this.BtnMultiAddReqParams.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.BtnMultiAddReqParams.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
             this.BtnMultiAddReqParams.Image = global::APIHelper.Properties.Resources.text_columns;
-            this.BtnMultiAddReqParams.Location = new System.Drawing.Point(534, 26);
+            this.BtnMultiAddReqParams.Location = new System.Drawing.Point(534, 7);
             this.BtnMultiAddReqParams.Name = "BtnMultiAddReqParams";
             this.BtnMultiAddReqParams.Size = new System.Drawing.Size(30, 23);
             this.BtnMultiAddReqParams.TabIndex = 6;
@@ -66,7 +67,7 @@
             this.BtnReqParamUp.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.BtnReqParamUp.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
             this.BtnReqParamUp.Image = global::APIHelper.Properties.Resources.arrow_up;
-            this.BtnReqParamUp.Location = new System.Drawing.Point(534, 63);
+            this.BtnReqParamUp.Location = new System.Drawing.Point(534, 36);
             this.BtnReqParamUp.Name = "BtnReqParamUp";
             this.BtnReqParamUp.Size = new System.Drawing.Size(30, 23);
             this.BtnReqParamUp.TabIndex = 5;
@@ -78,17 +79,30 @@
             this.BtnReqParamDown.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.BtnReqParamDown.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
             this.BtnReqParamDown.Image = global::APIHelper.Properties.Resources.arrow_down;
-            this.BtnReqParamDown.Location = new System.Drawing.Point(534, 100);
+            this.BtnReqParamDown.Location = new System.Drawing.Point(534, 67);
             this.BtnReqParamDown.Name = "BtnReqParamDown";
             this.BtnReqParamDown.Size = new System.Drawing.Size(30, 23);
             this.BtnReqParamDown.TabIndex = 4;
             this.BtnReqParamDown.UseVisualStyleBackColor = true;
             this.BtnReqParamDown.Click += new System.EventHandler(this.BtnReqParamDown_Click);
             // 
+            // BtnDel
+            // 
+            this.BtnDel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.BtnDel.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
+            this.BtnDel.Image = global::APIHelper.Properties.Resources.cross;
+            this.BtnDel.Location = new System.Drawing.Point(534, 98);
+            this.BtnDel.Name = "BtnDel";
+            this.BtnDel.Size = new System.Drawing.Size(30, 23);
+            this.BtnDel.TabIndex = 7;
+            this.BtnDel.UseVisualStyleBackColor = true;
+            this.BtnDel.Click += new System.EventHandler(this.BtnDel_Click);
+            // 
             // UPAPIParamTable
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.BtnDel);
             this.Controls.Add(this.BtnMultiAddReqParams);
             this.Controls.Add(this.BtnReqParamUp);
             this.Controls.Add(this.BtnReqParamDown);
@@ -106,5 +120,6 @@
         private System.Windows.Forms.Button BtnMultiAddReqParams;
         private System.Windows.Forms.Button BtnReqParamUp;
         private System.Windows.Forms.Button BtnReqParamDown;
+        private System.Windows.Forms.Button BtnDel;
     }
 }

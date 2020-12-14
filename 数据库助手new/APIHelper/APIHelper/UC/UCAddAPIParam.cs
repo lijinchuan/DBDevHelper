@@ -163,6 +163,8 @@ namespace APIHelper.UC
                     }
                 }
             }
+
+            Util.SendMsg(this, "保存成功");
         }
     }
 }
