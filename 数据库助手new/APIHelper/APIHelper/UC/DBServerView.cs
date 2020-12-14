@@ -241,6 +241,14 @@ namespace APIHelper
                             }
                             break;
                         }
+                    case "参数定义":
+                        {
+                            var apirul = selnode.Tag as APIUrl;
+                            var apisource = FindParentNode<APISource>(selnode);
+                            var page = new UC.UCAddAPIParam(apirul.SourceId, apirul.Id);
+                            Util.AddToMainTab(this, $"{apisource.SourceName}.{apirul.APIName}参数定义", page);
+                            break;
+                        }
                     default:
                         {
                             MessageBox.Show(e.ClickedItem.Text);
@@ -341,6 +349,8 @@ namespace APIHelper
 
                 添加环境ToolStripMenuItem.Visible= (node.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.ENVPARENT;
                 添加环境变量ToolStripMenuItem.Visible= (node.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.ENVPARENT;
+
+                参数定义ToolStripMenuItem.Visible = (node.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.API;
             }
 
         }

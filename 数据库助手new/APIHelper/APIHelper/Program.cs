@@ -109,6 +109,11 @@ namespace APIHelper
             .AddIndex("APISourceId_EnvId", q=>q.Asc(m=>m.APISourceId).Asc(m=>m.EnvId))
             .AddIndex("APISourceId_Name", q => q.Asc(m => m.APISourceId).Asc(m => m.Name)));
 
+            //日志
+
+            //参数
+            BigEntityTableEngine.LocalEngine.CreateTable<APIParam>(p => p.Id, p => p.AddIndex("APIId", m => m.Asc(s => s.APIId)));
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new MainFrm());

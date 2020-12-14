@@ -73,6 +73,26 @@ namespace APIHelper.Resources {
         /// <summary>
         ///   查找 System.Drawing.Bitmap 类型的本地化资源。
         /// </summary>
+        internal static System.Drawing.Bitmap arrow_down {
+            get {
+                object obj = ResourceManager.GetObject("arrow_down", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        /// </summary>
+        internal static System.Drawing.Bitmap arrow_up {
+            get {
+                object obj = ResourceManager.GetObject("arrow_up", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        /// </summary>
         internal static System.Drawing.Bitmap ASC {
             get {
                 object obj = ResourceManager.GetObject("ASC", resourceCulture);
@@ -545,6 +565,16 @@ namespace APIHelper.Resources {
         internal static System.Drawing.Bitmap tbview {
             get {
                 object obj = ResourceManager.GetObject("tbview", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        /// </summary>
+        internal static System.Drawing.Bitmap text_columns {
+            get {
+                object obj = ResourceManager.GetObject("text_columns", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

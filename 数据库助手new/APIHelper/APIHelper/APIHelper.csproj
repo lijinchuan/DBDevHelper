@@ -270,6 +270,12 @@
     <Compile Include="UC\UCAddAPI.Designer.cs">
       <DependentUpon>UCAddAPI.cs</DependentUpon>
     </Compile>
+    <Compile Include="UC\UCAddAPIParam.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="UC\UCAddAPIParam.Designer.cs">
+      <DependentUpon>UCAddAPIParam.cs</DependentUpon>
+    </Compile>
     <Compile Include="UC\UCApiResult.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -281,6 +287,12 @@
     </Compile>
     <Compile Include="UC\UCParamsTable.Designer.cs">
       <DependentUpon>UCParamsTable.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UC\UPAPIParamTable.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UC\UPAPIParamTable.Designer.cs">
+      <DependentUpon>UPAPIParamTable.cs</DependentUpon>
     </Compile>
     <Compile Include="Util.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -362,11 +374,17 @@
     <EmbeddedResource Include="UC\UCAddAPI.resx">
       <DependentUpon>UCAddAPI.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="UC\UCAddAPIParam.resx">
+      <DependentUpon>UCAddAPIParam.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="UC\UCApiResult.resx">
       <DependentUpon>UCApiResult.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UC\UCParamsTable.resx">
       <DependentUpon>UCParamsTable.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UC\UPAPIParamTable.resx">
+      <DependentUpon>UPAPIParamTable.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="app.config" />
   </ItemGroup>
@@ -388,6 +406,12 @@
     <Content Include="Json2.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <None Include="Resources\text_columns1.png" />
+    <None Include="Resources\text_columns.png" />
+    <None Include="Resources\arrow_up.png" />
+    <None Include="Resources\arrow_down.png" />
+    <None Include="Resources\arrow_down1.png" />
+    <None Include="Resources\arrow_up1.png" />
     <Content Include="Resources\bullet_tick.png" />
     <Content Include="Resources\computer_link.png" />
     <Content Include="Resources\connect.png" />

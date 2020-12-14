@@ -5,9 +5,18 @@ using System.Text;
 
 namespace Entity
 {
-    public class APIParam
+    public class APIParam:IEquatable<APIParam>
     {
         public int Id
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// 0-入参 1-出参
+        /// </summary>
+        public int Type
         {
             get;
             set;
@@ -20,6 +29,12 @@ namespace Entity
         }
 
         public int APIId
+        {
+            get;
+            set;
+        }
+
+        public int Sort
         {
             get;
             set;
@@ -38,9 +53,9 @@ namespace Entity
         }
 
         /// <summary>
-        /// 0-入参 1-出参
+        /// 是否必填
         /// </summary>
-        public int Type
+        public bool IsRequried
         {
             get;
             set;
@@ -55,13 +70,22 @@ namespace Entity
             set;
         }
 
-        /// <summary>
-        /// 是否必填
-        /// </summary>
-        public bool IsRequried
+        public bool Equals(APIParam other)
         {
-            get;
-            set;
+            if (other == null)
+            {
+                return false;
+            }
+
+            return this.APIId == other.APIId &&
+                this.APISourceId == other.APISourceId &&
+                this.Desc == other.Desc &&
+                this.Id == other.Id &&
+                this.IsRequried == other.IsRequried &&
+                this.Name == other.Name &&
+                this.Sort == other.Sort &&
+                this.Type == other.Type &&
+                this.TypeName == other.TypeName;
         }
     }
 }
