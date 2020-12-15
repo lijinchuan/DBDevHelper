@@ -105,7 +105,7 @@ namespace APIHelper.UC
                 {
                     if (Type == 0)
                     {
-                        sb.AppendLine($"{item.Name}|{item.TypeName}|{item.IsRequried}|{item.Desc}");
+                        sb.AppendLine($"{item.Name}|{item.IsRequried}|{item.TypeName}|{item.Desc}");
                     }
                     else
                     {
@@ -127,7 +127,7 @@ namespace APIHelper.UC
                         continue;
                     }
                     sort++;
-                    var texts = line.Split('|');
+                    var texts = line.Trim('|').Split('|');
                     if (Type == 0)
                     {
                         if (texts.Length != 4)
@@ -144,12 +144,12 @@ namespace APIHelper.UC
                             return;
                         }
                     }
-                    if (string.IsNullOrEmpty(texts[0]))
+                    if (string.IsNullOrWhiteSpace(texts[0]))
                     {
                         Util.SendMsg(this, "字段名称不能为空");
                         return;
                     }
-                    if (string.IsNullOrEmpty(texts[1]))
+                    if (string.IsNullOrWhiteSpace(texts[2]))
                     {
                         Util.SendMsg(this, "类型名称不能为空");
                         return;
@@ -158,7 +158,7 @@ namespace APIHelper.UC
                     var boo = false;
                     if (Type == 0)
                     {
-                        if (!string.IsNullOrEmpty(texts[2]) && !bool.TryParse(texts[2], out boo))
+                        if (!string.IsNullOrWhiteSpace(texts[1]) && !bool.TryParse(texts[1], out boo))
                         {
                             Util.SendMsg(this, "是否必填格式错误为空");
                             return;
@@ -175,7 +175,7 @@ namespace APIHelper.UC
                             Name = texts[0],
                             Sort = sort,
                             Type = Type,
-                            TypeName = texts[1],
+                            TypeName = texts[Type==0?2:1],
                             IsRequried = boo,
                             Desc = texts.Last()
                         });
@@ -191,7 +191,7 @@ namespace APIHelper.UC
                             IsRequried = boo,
                             Sort = sort,
                             Type = oldparam.Type,
-                            TypeName = texts[1],
+                            TypeName = texts[Type == 0 ? 2 : 1],
                             Desc = texts.Last()
                         });
                     }
