@@ -33,8 +33,6 @@
             this.label1 = new System.Windows.Forms.Label();
             this.DBServerviewContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.复制表名ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.备注ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.清理备注ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.刷新ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
             this.新增逻辑关系图ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -46,10 +44,10 @@
             this.添加APIToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.删除ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.修改ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.参数定义ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.ts_serchKey = new System.Windows.Forms.ToolStripComboBox();
             this.toolStripDropDownButton1 = new System.Windows.Forms.ToolStripButton();
-            this.参数定义ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.DBServerviewContextMenuStrip.SuspendLayout();
             this.toolStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -79,8 +77,6 @@
             // 
             this.DBServerviewContextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.复制表名ToolStripMenuItem,
-            this.备注ToolStripMenuItem,
-            this.清理备注ToolStripMenuItem,
             this.刷新ToolStripMenuItem,
             this.toolStripMenuItem2,
             this.新增逻辑关系图ToolStripMenuItem,
@@ -94,25 +90,13 @@
             this.修改ToolStripMenuItem,
             this.参数定义ToolStripMenuItem});
             this.DBServerviewContextMenuStrip.Name = "DBServerviewContextMenuStrip";
-            this.DBServerviewContextMenuStrip.Size = new System.Drawing.Size(181, 324);
+            this.DBServerviewContextMenuStrip.Size = new System.Drawing.Size(181, 280);
             // 
             // 复制表名ToolStripMenuItem
             // 
             this.复制表名ToolStripMenuItem.Name = "复制表名ToolStripMenuItem";
             this.复制表名ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.复制表名ToolStripMenuItem.Text = "复制对象名";
-            // 
-            // 备注ToolStripMenuItem
-            // 
-            this.备注ToolStripMenuItem.Name = "备注ToolStripMenuItem";
-            this.备注ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.备注ToolStripMenuItem.Text = "备注";
-            // 
-            // 清理备注ToolStripMenuItem
-            // 
-            this.清理备注ToolStripMenuItem.Name = "清理备注ToolStripMenuItem";
-            this.清理备注ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.清理备注ToolStripMenuItem.Text = "清理本地缓存";
             // 
             // 刷新ToolStripMenuItem
             // 
@@ -178,6 +162,12 @@
             this.修改ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.修改ToolStripMenuItem.Text = "编辑";
             // 
+            // 参数定义ToolStripMenuItem
+            // 
+            this.参数定义ToolStripMenuItem.Name = "参数定义ToolStripMenuItem";
+            this.参数定义ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.参数定义ToolStripMenuItem.Text = "参数定义";
+            // 
             // toolStrip1
             // 
             this.toolStrip1.AutoSize = false;
@@ -207,12 +197,6 @@
             this.toolStripDropDownButton1.Size = new System.Drawing.Size(23, 19);
             this.toolStripDropDownButton1.Text = "toolStripDropDownButton1";
             this.toolStripDropDownButton1.Click += new System.EventHandler(this.toolStripDropDownButton1_Click);
-            // 
-            // 参数定义ToolStripMenuItem
-            // 
-            this.参数定义ToolStripMenuItem.Name = "参数定义ToolStripMenuItem";
-            this.参数定义ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.参数定义ToolStripMenuItem.Text = "参数定义";
             // 
             // DBServerView
             // 
@@ -244,9 +228,7 @@
         private System.Windows.Forms.ToolStripComboBox ts_serchKey;
         private System.Windows.Forms.ToolStripMenuItem 复制表名ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 刷新ToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem 备注ToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem2;
-        private System.Windows.Forms.ToolStripMenuItem 清理备注ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 新增逻辑关系图ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 删除逻辑关系图ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 添加API资源ToolStripMenuItem;

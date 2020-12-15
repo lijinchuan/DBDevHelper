@@ -49,6 +49,25 @@ namespace APIHelper.UC
             this.DGVCookie.ReadOnly = true;
 
             LBMs.Text = LBSize.Text = LBStatuCode.Text = string.Empty;
+
+            TBResult.ContextMenuStrip = this.CMSTool;
+            this.CMSTool.ItemClicked += CMSTool_ItemClicked;
+        }
+
+        private void CMSTool_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+            switch (e.ClickedItem.Text)
+            {
+                case "复制":
+                    {
+                        if (!string.IsNullOrWhiteSpace(TBResult.SelectedText))
+                        {
+                            Clipboard.SetText(TBResult.SelectedText);
+                            Util.SendMsg(this, "已复制到黏贴板");
+                        }
+                        break;
+                    }
+            }
         }
 
         private void DGVHeader_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)

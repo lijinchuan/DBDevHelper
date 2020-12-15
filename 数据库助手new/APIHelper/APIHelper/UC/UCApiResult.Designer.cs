@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.TBResult = new System.Windows.Forms.RichTextBox();
             this.Tabs = new System.Windows.Forms.TabControl();
             this.TPBody = new System.Windows.Forms.TabPage();
@@ -36,21 +37,24 @@
             this.RBRow = new System.Windows.Forms.RadioButton();
             this.CBEncode = new System.Windows.Forms.ComboBox();
             this.TPHeader = new System.Windows.Forms.TabPage();
-            this.TPCookie = new System.Windows.Forms.TabPage();
             this.DGVHeader = new System.Windows.Forms.DataGridView();
+            this.TPCookie = new System.Windows.Forms.TabPage();
             this.DGVCookie = new System.Windows.Forms.DataGridView();
             this.LBStatuCode = new System.Windows.Forms.Label();
             this.LBMs = new System.Windows.Forms.Label();
             this.LBSize = new System.Windows.Forms.Label();
             this.panel2 = new System.Windows.Forms.Panel();
+            this.CMSTool = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.复制ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.Tabs.SuspendLayout();
             this.TPBody.SuspendLayout();
             this.panel1.SuspendLayout();
             this.TPHeader.SuspendLayout();
-            this.TPCookie.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.DGVHeader)).BeginInit();
+            this.TPCookie.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.DGVCookie)).BeginInit();
             this.panel2.SuspendLayout();
+            this.CMSTool.SuspendLayout();
             this.SuspendLayout();
             // 
             // TBResult
@@ -86,7 +90,7 @@
             this.TPBody.Location = new System.Drawing.Point(4, 22);
             this.TPBody.Name = "TPBody";
             this.TPBody.Padding = new System.Windows.Forms.Padding(3);
-            this.TPBody.Size = new System.Drawing.Size(467, 326);
+            this.TPBody.Size = new System.Drawing.Size(467, 331);
             this.TPBody.TabIndex = 0;
             this.TPBody.Text = "body";
             this.TPBody.UseVisualStyleBackColor = true;
@@ -137,20 +141,10 @@
             this.TPHeader.Location = new System.Drawing.Point(4, 22);
             this.TPHeader.Name = "TPHeader";
             this.TPHeader.Padding = new System.Windows.Forms.Padding(3);
-            this.TPHeader.Size = new System.Drawing.Size(467, 326);
+            this.TPHeader.Size = new System.Drawing.Size(467, 331);
             this.TPHeader.TabIndex = 1;
             this.TPHeader.Text = "header";
             this.TPHeader.UseVisualStyleBackColor = true;
-            // 
-            // TPCookie
-            // 
-            this.TPCookie.Controls.Add(this.DGVCookie);
-            this.TPCookie.Location = new System.Drawing.Point(4, 22);
-            this.TPCookie.Name = "TPCookie";
-            this.TPCookie.Size = new System.Drawing.Size(467, 331);
-            this.TPCookie.TabIndex = 2;
-            this.TPCookie.Text = "Cookie";
-            this.TPCookie.UseVisualStyleBackColor = true;
             // 
             // DGVHeader
             // 
@@ -162,8 +156,18 @@
             this.DGVHeader.Location = new System.Drawing.Point(3, 3);
             this.DGVHeader.Name = "DGVHeader";
             this.DGVHeader.RowTemplate.Height = 23;
-            this.DGVHeader.Size = new System.Drawing.Size(461, 320);
+            this.DGVHeader.Size = new System.Drawing.Size(461, 325);
             this.DGVHeader.TabIndex = 0;
+            // 
+            // TPCookie
+            // 
+            this.TPCookie.Controls.Add(this.DGVCookie);
+            this.TPCookie.Location = new System.Drawing.Point(4, 22);
+            this.TPCookie.Name = "TPCookie";
+            this.TPCookie.Size = new System.Drawing.Size(467, 331);
+            this.TPCookie.TabIndex = 2;
+            this.TPCookie.Text = "Cookie";
+            this.TPCookie.UseVisualStyleBackColor = true;
             // 
             // DGVCookie
             // 
@@ -219,6 +223,19 @@
             this.panel2.Size = new System.Drawing.Size(200, 19);
             this.panel2.TabIndex = 5;
             // 
+            // CMSTool
+            // 
+            this.CMSTool.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.复制ToolStripMenuItem});
+            this.CMSTool.Name = "CMSTool";
+            this.CMSTool.Size = new System.Drawing.Size(181, 48);
+            // 
+            // 复制ToolStripMenuItem
+            // 
+            this.复制ToolStripMenuItem.Name = "复制ToolStripMenuItem";
+            this.复制ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.复制ToolStripMenuItem.Text = "复制";
+            // 
             // UCApiResult
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -232,11 +249,12 @@
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             this.TPHeader.ResumeLayout(false);
-            this.TPCookie.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.DGVHeader)).EndInit();
+            this.TPCookie.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.DGVCookie)).EndInit();
             this.panel2.ResumeLayout(false);
             this.panel2.PerformLayout();
+            this.CMSTool.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -258,5 +276,7 @@
         private System.Windows.Forms.Label LBMs;
         private System.Windows.Forms.Label LBSize;
         private System.Windows.Forms.Panel panel2;
+        private System.Windows.Forms.ContextMenuStrip CMSTool;
+        private System.Windows.Forms.ToolStripMenuItem 复制ToolStripMenuItem;
     }
 }

@@ -265,6 +265,12 @@ namespace APIHelper
                             DelLogicMap();
                             break;
                         }
+                    case "复制对象名":
+                        {
+                            Clipboard.SetText(selnode.Text);
+                            Util.SendMsg(this, "已复制到剪贴板");
+                            break;
+                        }
                     default:
                         {
                             MessageBox.Show(e.ClickedItem.Text);
