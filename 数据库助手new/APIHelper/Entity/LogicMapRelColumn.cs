@@ -22,37 +22,73 @@ namespace Entity
             set;
         }
 
-        public string DBName
+        public int APISourceId
         {
             get;
             set;
         }
 
-        public string TBName
+        public string SourceName
         {
             get;
             set;
         }
 
-        public string ColName
+        public int APIId
         {
             get;
             set;
         }
 
-        public string RelDBName
+        public string APIName
         {
             get;
             set;
         }
 
-        public string RelTBName
+        public int APIParamId
         {
             get;
             set;
         }
 
-        public string RelColName
+        public string APIParamName
+        {
+            get;
+            set;
+        }
+
+        public int RelAPIResourceId
+        {
+            get;
+            set;
+        }
+
+        public string RelAPIResourceName
+        {
+            get;
+            set;
+        }
+
+        public int RelAPIId
+        {
+            get;
+            set;
+        }
+
+        public string RelAPIName
+        {
+            get;
+            set;
+        }
+
+        public int RelAPIParamId
+        {
+            get;
+            set;
+        }
+
+        public string RelAPIParamName
         {
             get;
             set;

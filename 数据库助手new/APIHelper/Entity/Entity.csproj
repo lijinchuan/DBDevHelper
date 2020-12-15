@@ -48,6 +48,7 @@
     <Compile Include="APIInvokeLog.cs" />
     <Compile Include="APIMethod.cs" />
     <Compile Include="APIParam.cs" />
+    <Compile Include="APIParamEx.cs" />
     <Compile Include="APIResonseResult.cs" />
     <Compile Include="APISource.cs" />
     <Compile Include="APIUrl.cs" />

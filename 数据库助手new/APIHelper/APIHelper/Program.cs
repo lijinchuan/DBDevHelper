@@ -94,11 +94,11 @@ namespace APIHelper
             });
 
 
-            BigEntityTableEngine.LocalEngine.CreateTable<LogicMap>(p => p.ID, p => p.AddIndex("DB_LogicName", m => m.Asc(f => f.DBName).Asc(f => f.LogicName)));
+            BigEntityTableEngine.LocalEngine.CreateTable<LogicMap>(p => p.ID, p => p.AddIndex("APISourceId_LogicName", m => m.Asc(f => f.APISourceId).Asc(f => f.LogicName)));
             BigEntityTableEngine.LocalEngine.CreateTable<LogicMapTable>(p => p.ID, p => p.AddIndex("LogicID", m => m.Asc(f => f.LogicID)));
             BigEntityTableEngine.LocalEngine.CreateTable<LogicMapRelColumn>(p => p.ID, p => p.AddIndex("LogicID", m => m.Asc(f => f.LogicID))
-            .AddIndex("LSDTC", m => m.Asc(f => f.LogicID).Asc(f => f.DBName).Asc(f => f.TBName))
-            .AddIndex("LSDRTC", m => m.Asc(f => f.LogicID).Asc(f => f.RelDBName).Asc(f => f.RelTBName)));
+            .AddIndex("LSDTC", m => m.Asc(f => f.LogicID).Asc(f => f.APISourceId).Asc(f => f.APIId))
+            .AddIndex("LSDRTC", m => m.Asc(f => f.LogicID).Asc(f => f.RelAPIResourceId).Asc(f => f.RelAPIId)));
 
 
             BigEntityTableEngine.LocalEngine.CreateTable<APIData>(p => p.Id, p => p.AddIndex("ApiId", q => q.Asc(m => m.ApiId)));

@@ -12,6 +12,7 @@ using APIHelper.SubForm;
 using Biz.Common;
 using LJC.FrameWorkV3.Data.EntityDataBase;
 using Biz;
+using APIHelper.UC;
 
 namespace APIHelper
 {
@@ -126,7 +127,7 @@ namespace APIHelper
             }
             else if (selNode.Tag is INodeContents && (selNode.Tag as INodeContents).GetNodeContentType() == NodeContentType.LOGICMAPParent)
             {
-                Biz.UILoadHelper.LoadLogicMapsAnsy(this.ParentForm, selNode, GetDBName(selNode));
+                Biz.UILoadHelper.LoadLogicMapsAnsy(this.ParentForm, selNode, FindParentNode<APISource>(selNode).Id);
             }
             else if (selNode.Tag is INodeContents && (selNode.Tag as INodeContents).GetNodeContentType() == NodeContentType.ENVPARENT)
             {
@@ -249,6 +250,21 @@ namespace APIHelper
                             Util.AddToMainTab(this, $"{apisource.SourceName}.{apirul.APIName}参数定义", page);
                             break;
                         }
+                    case "刷新":
+                        {
+                            ReLoadDBObj(tv_DBServers.SelectedNode);
+                            break;
+                        }
+                    case "新增逻辑关系图":
+                        {
+                            AddNewLogicMap();
+                            break;
+                        }
+                    case "删除逻辑关系图":
+                        {
+                            DelLogicMap();
+                            break;
+                        }
                     default:
                         {
                             MessageBox.Show(e.ClickedItem.Text);
@@ -293,17 +309,26 @@ namespace APIHelper
             }
             else if (e.Node.Tag is APIEnvParam)
             {
-                var apisource=FindParentNode<APISource>(e.Node);
+                var apisource = FindParentNode<APISource>(e.Node);
                 var envparam = e.Node.Tag as APIEnvParam;
                 if (envparam.Id == 0)
                 {
                     envparam = BigEntityTableEngine.LocalEngine.Find<APIEnvParam>(nameof(APIEnvParam), "APISourceId_Name", new object[] { apisource.Id, envparam.Name }).FirstOrDefault();
                 }
-                 var dlg = new SubForm.AddAPIEnvParamDlg(apisource.Id,envparam.Id);
+                var dlg = new SubForm.AddAPIEnvParamDlg(apisource.Id, envparam.Id);
                 if (dlg.ShowDialog() == DialogResult.OK)
                 {
 
                 }
+            }
+            else if (e.Node.Tag is LogicMap)
+            {
+                var apisouce = FindParentNode<APISource>(e.Node);
+                var logicmap = (e.Node.Tag as LogicMap);
+                var title = $"{apisouce.SourceName}逻辑关系图{logicmap.LogicName}";
+                UC.UCLogicMap panel = new UCLogicMap(apisouce, logicmap.ID);
+                panel.Load();
+                Util.AddToMainTab(this, title, panel);
             }
         }
 
@@ -351,6 +376,9 @@ namespace APIHelper
                 添加环境变量ToolStripMenuItem.Visible= (node.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.ENVPARENT;
 
                 参数定义ToolStripMenuItem.Visible = (node.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.API;
+
+                新增逻辑关系图ToolStripMenuItem.Visible= (node.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.LOGICMAPParent;
+                删除逻辑关系图ToolStripMenuItem.Visible = (node.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.LOGICMAP;
             }
 
         }
@@ -514,7 +542,7 @@ namespace APIHelper
            
         }
 
-        private void 新增逻辑关系图ToolStripMenuItem_Click(object sender, EventArgs e)
+        private void AddNewLogicMap()
         {
             var currnode = this.tv_DBServers.SelectedNode;
             if (currnode == null)
@@ -527,11 +555,11 @@ namespace APIHelper
                 SubForm.InputStringDlg dlg = new InputStringDlg("输入逻辑关系图名称");
                 if (dlg.ShowDialog() == DialogResult.OK)
                 {
-                    var db = GetDBName(currnode).ToUpper();
+                    var apisouce = FindParentNode<APISource>(currnode);
                     var name = dlg.InputString.ToUpper();
                     long total = 0;
-                    if (BigEntityTableEngine.LocalEngine.Scan<LogicMap>(nameof(LogicMap), "DB_LogicName",
-                        new[] { db, name }, new[] { db, name }, 1, 1, ref total).Count > 0)
+                    if (BigEntityTableEngine.LocalEngine.Scan<LogicMap>(nameof(LogicMap), "APISourceId_LogicName",
+                        new object[] { apisouce.Id, name }, new object[] { apisouce.Id, name }, 1, 1, ref total).Count > 0)
                     {
                         MessageBox.Show("名称不能重复");
                     }
@@ -539,11 +567,18 @@ namespace APIHelper
                     {
                         var logicmap = new LogicMap
                         {
-                            DBName=db,
-                            LogicName=dlg.InputString
+                            APISourceId=apisouce.Id,
+                            LogicName=dlg.InputString,
+                            SourceName=apisouce.SourceName
                         };
                         BigEntityTableEngine.LocalEngine.Insert<LogicMap>(nameof(LogicMap), logicmap);
                         ReLoadDBObj(currnode);
+
+                        var title = $"{apisouce.SourceName}逻辑关系图{logicmap.LogicName}";
+                        UC.UCLogicMap panel = new UCLogicMap(apisouce, logicmap.ID);
+                        panel.Load();
+                        Util.AddToMainTab(this, title, panel);
+
                         break;
                     }
                 }
@@ -555,7 +590,7 @@ namespace APIHelper
             }
         }
 
-        private void 删除逻辑关系图ToolStripMenuItem_Click(object sender, EventArgs e)
+        private void DelLogicMap()
         {
             var currnode = this.tv_DBServers.SelectedNode;
             if(currnode!=null&&currnode.Tag is LogicMap)

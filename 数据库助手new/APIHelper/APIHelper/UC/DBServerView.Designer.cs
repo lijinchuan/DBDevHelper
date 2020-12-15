@@ -130,14 +130,12 @@
             this.新增逻辑关系图ToolStripMenuItem.Name = "新增逻辑关系图ToolStripMenuItem";
             this.新增逻辑关系图ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.新增逻辑关系图ToolStripMenuItem.Text = "新增逻辑关系图";
-            this.新增逻辑关系图ToolStripMenuItem.Click += new System.EventHandler(this.新增逻辑关系图ToolStripMenuItem_Click);
             // 
             // 删除逻辑关系图ToolStripMenuItem
             // 
             this.删除逻辑关系图ToolStripMenuItem.Name = "删除逻辑关系图ToolStripMenuItem";
             this.删除逻辑关系图ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.删除逻辑关系图ToolStripMenuItem.Text = "删除逻辑关系图";
-            this.删除逻辑关系图ToolStripMenuItem.Click += new System.EventHandler(this.删除逻辑关系图ToolStripMenuItem_Click);
             // 
             // toolStripSeparator1
             // 

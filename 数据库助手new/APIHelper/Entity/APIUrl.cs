@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Entity
 {
-    public class APIUrl:INodeContents
+    public class APIUrl:INodeContents,IComparable
     {
         public int Id
         {
@@ -65,6 +65,16 @@ namespace Entity
         {
             get;
             set;
+        }
+
+        public int CompareTo(object obj)
+        {
+            if(obj is APIUrl)
+            {
+                return this.Id.CompareTo(((APIUrl)obj).Id);
+            }
+
+            return 1;
         }
 
         public NodeContentType GetNodeContentType()

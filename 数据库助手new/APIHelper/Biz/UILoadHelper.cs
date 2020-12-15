@@ -20,17 +20,17 @@ namespace Biz
             new Action<Form, TreeNode, int>(LoadApi).BeginInvoke(parent, tbNode, apiResourceId, null, null);
         }
 
-        public static void LoadLogicMapsAnsy(Form parent, TreeNode tbNode, string dbname)
+        public static void LoadLogicMapsAnsy(Form parent, TreeNode tbNode, int sourceid)
         {
             tbNode.Nodes.Add(new TreeNode("加载中...", 3, 3));
             tbNode.Expand();
-            new Action<Form, TreeNode, string>(LoadLogicMaps).BeginInvoke(parent, tbNode, dbname, null, null);
+            new Action<Form, TreeNode, int>(LoadLogicMaps).BeginInvoke(parent, tbNode, sourceid, null, null);
         }
 
-        public static void LoadLogicMaps(Form parent, TreeNode tbNode, string dbname)
+        public static void LoadLogicMaps(Form parent, TreeNode tbNode, int sourceid)
         {
             var logicmaplist = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<LogicMap>(nameof(LogicMap),
-                p => p.DBName.Equals(dbname, StringComparison.OrdinalIgnoreCase)).ToList();
+                p => p.APISourceId == sourceid).ToList();
 
 
             List<TreeNode> treeNodes = new List<TreeNode>();

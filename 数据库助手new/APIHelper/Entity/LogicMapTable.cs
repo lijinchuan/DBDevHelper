@@ -19,13 +19,25 @@ namespace Entity
             set;
         }
 
-        public string DBName
+        public int APIResourceId
         {
             get;
             set;
         }
 
-        public string TBName
+        public string APIResourceName
+        {
+            get;
+            set;
+        }
+
+        public int APIId
+        {
+            get;
+            set;
+        }
+
+        public string APIName
         {
             get;
             set;

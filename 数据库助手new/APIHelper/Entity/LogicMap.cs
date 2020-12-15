@@ -17,9 +17,18 @@ namespace Entity
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        public int APISourceId
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
         /// 所属库
         /// </summary>
-        public string DBName
+        public string SourceName
         {
             get;
             set;
