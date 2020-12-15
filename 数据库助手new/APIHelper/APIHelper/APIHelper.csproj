@@ -183,6 +183,12 @@
     <Compile Include="SubForm\PopMessageDlg.Designer.cs">
       <DependentUpon>PopMessageDlg.cs</DependentUpon>
     </Compile>
+    <Compile Include="SubForm\TextBoxWin.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SubForm\TextBoxWin.Designer.cs">
+      <DependentUpon>TextBoxWin.cs</DependentUpon>
+    </Compile>
     <Compile Include="SubForm\WatchTaskList.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -244,6 +250,12 @@
     </Compile>
     <Compile Include="UC\LoadingBox.Designer.cs">
       <DependentUpon>LoadingBox.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UC\LogViewTab.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UC\LogViewTab.Designer.cs">
+      <DependentUpon>LogViewTab.cs</DependentUpon>
     </Compile>
     <Compile Include="UC\MyRichTextBox.cs">
       <SubType>Component</SubType>
@@ -346,6 +358,9 @@
     <EmbeddedResource Include="SubForm\PopMessageDlg.resx">
       <DependentUpon>PopMessageDlg.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="SubForm\TextBoxWin.resx">
+      <DependentUpon>TextBoxWin.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="SubForm\WatchTaskList.resx">
       <DependentUpon>WatchTaskList.cs</DependentUpon>
     </EmbeddedResource>
@@ -372,6 +387,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="UC\LoadingBox.resx">
       <DependentUpon>LoadingBox.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UC\LogViewTab.resx">
+      <DependentUpon>LogViewTab.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UC\MyTabControl.resx">
       <DependentUpon>MyTabControl.cs</DependentUpon>

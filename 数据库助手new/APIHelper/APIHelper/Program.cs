@@ -110,6 +110,8 @@ namespace APIHelper
             .AddIndex("APISourceId_Name", q => q.Asc(m => m.APISourceId).Asc(m => m.Name)));
 
             //日志
+            BigEntityTableEngine.LocalEngine.CreateTable<APIInvokeLog>(p => p.Id, p => p.AddIndex("APIId_CDate", m => m.Asc(s => s.APIId).Desc(s => s.CDate))
+            .AddIndex("APIId_ApiEnvId_CDate", m => m.Asc(s => s.APIId).Asc(s => s.ApiEnvId).Desc(s => s.CDate)));
 
             //参数
             BigEntityTableEngine.LocalEngine.CreateTable<APIParam>(p => p.Id, p => p.AddIndex("APIId", m => m.Asc(s => s.APIId)));

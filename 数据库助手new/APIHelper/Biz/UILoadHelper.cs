@@ -39,7 +39,7 @@ namespace Biz
             {
                 TreeNode newNode = new TreeNode(item.LogicName);
 
-                newNode.ImageIndex = newNode.SelectedImageIndex = 21;
+                newNode.ImageKey = newNode.SelectedImageKey = "LOGIC";
 
                 newNode.Tag = item;
 

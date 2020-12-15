@@ -68,8 +68,16 @@ namespace APIHelper.UC
             }
 
             Bind();
-
+            TPInvokeLog.VisibleChanged += TPInvokeLog_VisibleChanged;
             BtnSend.Click += BtnSend_Click;
+        }
+
+        private void TPInvokeLog_VisibleChanged(object sender, EventArgs e)
+        {
+            if (TPInvokeLog.Visible && this._apiUrl != null)
+            {
+                TPInvokeLog.Init(this._apiUrl.Id, this.GetEnvId());
+            }
         }
 
         private BodyDataType GetBodyDataType()
@@ -361,7 +369,7 @@ namespace APIHelper.UC
                 },
                 APIData=GetApiData()
             };
-            //BigEntityTableEngine.LocalEngine.Insert<APIInvokeLog>(nameof(APIInvokeLog), log);
+            BigEntityTableEngine.LocalEngine.Insert(nameof(APIInvokeLog), log);
 
         }
 

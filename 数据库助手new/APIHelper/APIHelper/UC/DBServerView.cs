@@ -34,6 +34,7 @@ namespace APIHelper
             tv_DBServers.ImageList.Images.Add("API", Resources.Resource1.DB7);
             tv_DBServers.ImageList.Images.Add("COL", Resources.Resource1.DB6);
             tv_DBServers.ImageList.Images.Add("COLQ", Resources.Resource1.ColQ);
+            tv_DBServers.ImageList.Images.Add("LOGIC", Resources.Resource1.logic);
             
             tv_DBServers.Nodes.Add(new TreeNodeEx("资源管理器", 0, 1));
             tv_DBServers.BeforeExpand += Tv_DBServers_BeforeExpand;

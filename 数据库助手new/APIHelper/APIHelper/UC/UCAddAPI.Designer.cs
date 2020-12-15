@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.CBWebMethod = new System.Windows.Forms.ComboBox();
             this.TBUrl = new System.Windows.Forms.TextBox();
             this.BtnSend = new System.Windows.Forms.Button();
@@ -52,8 +53,11 @@
             this.TP_Setting = new System.Windows.Forms.TabPage();
             this.TP_Result = new System.Windows.Forms.TabPage();
             this.TBResult = new APIHelper.UC.UCApiResult();
+            this.TPLog = new System.Windows.Forms.TabPage();
             this.TopPannel = new System.Windows.Forms.Panel();
             this.LKEnv = new System.Windows.Forms.Label();
+            this.TPInvokeLog = new APIHelper.UC.LogViewTab();
+            this.PagerLog = new System.Windows.Forms.BindingNavigator(this.components);
             this.Tabs.SuspendLayout();
             this.TP_Params.SuspendLayout();
             this.TP_Auth.SuspendLayout();
@@ -62,7 +66,10 @@
             this.TP_Body.SuspendLayout();
             this.PannelReqBody.SuspendLayout();
             this.TP_Result.SuspendLayout();
+            this.TPLog.SuspendLayout();
             this.TopPannel.SuspendLayout();
+            this.TPInvokeLog.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.PagerLog)).BeginInit();
             this.SuspendLayout();
             // 
             // CBWebMethod
@@ -111,6 +118,7 @@
             this.Tabs.Controls.Add(this.TP_Body);
             this.Tabs.Controls.Add(this.TP_Setting);
             this.Tabs.Controls.Add(this.TP_Result);
+            this.Tabs.Controls.Add(this.TPLog);
             this.Tabs.Location = new System.Drawing.Point(22, 65);
             this.Tabs.Name = "Tabs";
             this.Tabs.SelectedIndex = 0;
@@ -313,7 +321,7 @@
             this.TP_Result.Controls.Add(this.TBResult);
             this.TP_Result.Location = new System.Drawing.Point(4, 22);
             this.TP_Result.Name = "TP_Result";
-            this.TP_Result.Size = new System.Drawing.Size(192, 74);
+            this.TP_Result.Size = new System.Drawing.Size(666, 338);
             this.TP_Result.TabIndex = 5;
             this.TP_Result.Text = "结果";
             this.TP_Result.UseVisualStyleBackColor = true;
@@ -324,8 +332,19 @@
             this.TBResult.Location = new System.Drawing.Point(0, 0);
             this.TBResult.Name = "TBResult";
             this.TBResult.Raw = null;
-            this.TBResult.Size = new System.Drawing.Size(192, 74);
+            this.TBResult.Size = new System.Drawing.Size(666, 338);
             this.TBResult.TabIndex = 0;
+            // 
+            // TPLog
+            // 
+            this.TPLog.Controls.Add(this.TPInvokeLog);
+            this.TPLog.Location = new System.Drawing.Point(4, 22);
+            this.TPLog.Name = "TPLog";
+            this.TPLog.Padding = new System.Windows.Forms.Padding(3);
+            this.TPLog.Size = new System.Drawing.Size(666, 338);
+            this.TPLog.TabIndex = 6;
+            this.TPLog.Text = "日志";
+            this.TPLog.UseVisualStyleBackColor = true;
             // 
             // TopPannel
             // 
@@ -353,6 +372,33 @@
             this.LKEnv.TabIndex = 3;
             this.LKEnv.Text = "多环境";
             // 
+            // TPInvokeLog
+            // 
+            this.TPInvokeLog.Controls.Add(this.PagerLog);
+            this.TPInvokeLog.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.TPInvokeLog.Location = new System.Drawing.Point(3, 3);
+            this.TPInvokeLog.Name = "TPInvokeLog";
+            this.TPInvokeLog.Size = new System.Drawing.Size(660, 332);
+            this.TPInvokeLog.TabIndex = 1;
+            // 
+            // PagerLog
+            // 
+            this.PagerLog.AddNewItem = null;
+            this.PagerLog.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.PagerLog.CountItem = null;
+            this.PagerLog.DeleteItem = null;
+            this.PagerLog.Dock = System.Windows.Forms.DockStyle.None;
+            this.PagerLog.Location = new System.Drawing.Point(545, 269);
+            this.PagerLog.MoveFirstItem = null;
+            this.PagerLog.MoveLastItem = null;
+            this.PagerLog.MoveNextItem = null;
+            this.PagerLog.MovePreviousItem = null;
+            this.PagerLog.Name = "PagerLog";
+            this.PagerLog.PositionItem = null;
+            this.PagerLog.Size = new System.Drawing.Size(111, 25);
+            this.PagerLog.TabIndex = 0;
+            this.PagerLog.Text = "bindingNavigator1";
+            // 
             // UCAddAPI
             // 
             this.Controls.Add(this.TopPannel);
@@ -369,8 +415,12 @@
             this.PannelReqBody.ResumeLayout(false);
             this.PannelReqBody.PerformLayout();
             this.TP_Result.ResumeLayout(false);
+            this.TPLog.ResumeLayout(false);
             this.TopPannel.ResumeLayout(false);
             this.TopPannel.PerformLayout();
+            this.TPInvokeLog.ResumeLayout(false);
+            this.TPInvokeLog.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.PagerLog)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -403,5 +453,8 @@
         private System.Windows.Forms.Label label1;
         private UCApiResult TBResult;
         private System.Windows.Forms.Label LKEnv;
+        private System.Windows.Forms.TabPage TPLog;
+        private LogViewTab TPInvokeLog;
+        private System.Windows.Forms.BindingNavigator PagerLog;
     }
 }

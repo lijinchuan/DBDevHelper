@@ -36,7 +36,6 @@
             this.SubItemEdit = new System.Windows.Forms.ToolStripMenuItem();
             this.SubItemView = new System.Windows.Forms.ToolStripMenuItem();
             this.SubItemTool = new System.Windows.Forms.ToolStripMenuItem();
-            this.查看日志ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.监控任务ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.SubItemHelp = new System.Windows.Forms.ToolStripMenuItem();
             this.panel1 = new System.Windows.Forms.Panel();
@@ -108,23 +107,15 @@
             // SubItemTool
             // 
             this.SubItemTool.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.查看日志ToolStripMenuItem,
             this.监控任务ToolStripMenuItem});
             this.SubItemTool.Name = "SubItemTool";
             this.SubItemTool.Size = new System.Drawing.Size(44, 21);
             this.SubItemTool.Text = "工具";
             // 
-            // 查看日志ToolStripMenuItem
-            // 
-            this.查看日志ToolStripMenuItem.Name = "查看日志ToolStripMenuItem";
-            this.查看日志ToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
-            this.查看日志ToolStripMenuItem.Text = "查看日志";
-            this.查看日志ToolStripMenuItem.Click += new System.EventHandler(this.查看日志ToolStripMenuItem_Click);
-            // 
             // 监控任务ToolStripMenuItem
             // 
             this.监控任务ToolStripMenuItem.Name = "监控任务ToolStripMenuItem";
-            this.监控任务ToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
+            this.监控任务ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.监控任务ToolStripMenuItem.Text = "监控任务";
             this.监控任务ToolStripMenuItem.Click += new System.EventHandler(this.监控任务ToolStripMenuItem_Click);
             // 
@@ -265,7 +256,6 @@
         private System.Windows.Forms.ToolStripButton tsb_Excute;
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripStatusLabel MspPanel;
-        private System.Windows.Forms.ToolStripMenuItem 查看日志ToolStripMenuItem;
         private System.Windows.Forms.ToolStripLabel TSCBServer;
         private System.Windows.Forms.ToolStripStatusLabel TSL_ClearMsg;
         private System.Windows.Forms.ToolStripMenuItem 监控任务ToolStripMenuItem;
