@@ -13,7 +13,7 @@ using LJC.FrameWorkV3.Data.EntityDataBase;
 
 namespace APIHelper.UC
 {
-    public partial class UCAddAPI : TabPage
+    public partial class UCAddAPI : TabPage, IRecoverAble
     {
         private List<ParamInfo> Params = new List<ParamInfo>();
         private List<ParamInfo> Headers = new List<ParamInfo>();
@@ -48,9 +48,14 @@ namespace APIHelper.UC
                 }
             }
 
-            Bind();
-
+            TPInvokeLog.VisibleChanged += TPInvokeLog_VisibleChanged;
+            TPInvokeLog.ReInvoke += TPInvokeLog_ReInvoke;
             BtnSend.Click += BtnSend_Click;
+            
+            BtnSend.Click += BtnSend_Click;
+
+            Bind();
+            BindData();
         }
 
         public UCAddAPI(APIUrl apiUrl)
@@ -67,9 +72,26 @@ namespace APIHelper.UC
                 }
             }
 
-            Bind();
             TPInvokeLog.VisibleChanged += TPInvokeLog_VisibleChanged;
+            TPInvokeLog.ReInvoke += TPInvokeLog_ReInvoke;
             BtnSend.Click += BtnSend_Click;
+
+            Bind();
+            BindData();
+        }
+
+        private void TPInvokeLog_ReInvoke(APIInvokeLog obj)
+        {
+            this._apiUrl.APIMethod = obj.APIMethod;
+            this._apiUrl.ApplicationType = obj.ApplicationType;
+            this._apiUrl.AuthType = obj.AuthType;
+            this._apiUrl.BodyDataType = obj.BodyDataType;
+
+            this._apiData = obj.APIData;
+
+            BindData();
+
+            this.Tabs.SelectedTab = this.TP_Params;
         }
 
         private void TPInvokeLog_VisibleChanged(object sender, EventArgs e)
@@ -441,6 +463,43 @@ namespace APIHelper.UC
             }
         }
 
+        private void BindData()
+        {
+            if (this._apiUrl != null)
+            {
+                this.CBWebMethod.SelectedItem = _apiUrl.APIMethod.ToString();
+                this.CBApplicationType.SelectedItem = _apiUrl.ApplicationType.ToString();
+                this.CBAuthType.SelectedItem = _apiUrl.AuthType.ToString();
+                this.TBUrl.Text = _apiUrl.Path;
+                SetBodyDataType(_apiUrl.BodyDataType);
+            }
+            else
+            {
+                FormDatas.Add(new ParamInfo());
+                XWWWFormUrlEncoded.Add(new ParamInfo());
+                Params.Add(new ParamInfo());
+
+                Headers.Add(new ParamInfo { Name = "Cache-Control", Value = "no-cache" });
+                Headers.Add(new ParamInfo { Name = "User-Agent", Value = "api client" });
+                Headers.Add(new ParamInfo { Name = "Accept", Value = "*/*" });
+                Headers.Add(new ParamInfo { Name = "Accept-Encoding", Value = "gzip, br" });
+                Headers.Add(new ParamInfo { Name = "Connection", Value = "keep-alive" });
+            }
+
+            if (this._apiData != null)
+            {
+                this.XWWWFormUrlEncoded = this._apiData.XWWWFormUrlEncoded;
+                this.Params = this._apiData.Params;
+                this.rawTextBox.Text = this._apiData.RawText;
+                this.Headers = this._apiData.Headers;
+                this.FormDatas = this._apiData.FormDatas;
+                this.UCBearToken.Token = this._apiData.BearToken;
+                this.UCApiKey.AddTo = this._apiData.ApiKeyAddTo;
+                this.UCApiKey.Key = this._apiData.ApiKeyName;
+                this.UCApiKey.Val = this._apiData.ApiKeyValue;
+            }
+        }
+
         private void Bind()
         {
             HeaderDataPannel.Controls.Add(headerGridView);
@@ -455,27 +514,8 @@ namespace APIHelper.UC
 
             if (this._apiUrl != null)
             {
-                this.CBWebMethod.SelectedItem = _apiUrl.APIMethod.ToString();
-                this.CBApplicationType.SelectedItem = _apiUrl.ApplicationType.ToString();
-                this.CBAuthType.SelectedItem = _apiUrl.AuthType.ToString();
-                this.TBUrl.Text = _apiUrl.Path;
-                SetBodyDataType(_apiUrl.BodyDataType);
-                
-
                 this._apiData = BigEntityTableEngine.LocalEngine.Find<APIData>(nameof(APIData), "ApiId", new object[] { _apiUrl.Id }).FirstOrDefault();
-                if (this._apiData != null)
-                {
-                    this.XWWWFormUrlEncoded = this._apiData.XWWWFormUrlEncoded;
-                    this.Params = this._apiData.Params;
-                    this.rawTextBox.Text = this._apiData.RawText;
-                    this.Headers = this._apiData.Headers;
-                    this.FormDatas = this._apiData.FormDatas;
-                    this.UCBearToken.Token = this._apiData.BearToken;
-                    this.UCApiKey.AddTo = this._apiData.ApiKeyAddTo;
-                    this.UCApiKey.Key = this._apiData.ApiKeyName;
-                    this.UCApiKey.Val = this._apiData.ApiKeyValue;
-                }
-
+                
                 var envlist = BigEntityTableEngine.LocalEngine.Find<APIEnv>(nameof(APIEnv), "SourceId", new object[] { _apiUrl.SourceId }).ToList();
                 if (envlist.Count > 0)
                 {
@@ -531,18 +571,6 @@ namespace APIHelper.UC
                         }
                     };
                 }
-            }
-            else
-            {
-                FormDatas.Add(new ParamInfo());
-                XWWWFormUrlEncoded.Add(new ParamInfo());
-                Params.Add(new ParamInfo());
-
-                Headers.Add(new ParamInfo { Name = "Cache-Control", Value = "no-cache" });
-                Headers.Add(new ParamInfo { Name = "User-Agent", Value = "api client" });
-                Headers.Add(new ParamInfo { Name = "Accept", Value = "*/*" });
-                Headers.Add(new ParamInfo { Name = "Accept-Encoding", Value = "gzip, br" });
-                Headers.Add(new ParamInfo { Name = "Connection", Value = "keep-alive" });
             }
 
             rawTextBox.Multiline = true;
@@ -721,6 +749,21 @@ namespace APIHelper.UC
                 }
                 
             }
+        }
+
+        public object[] GetRecoverData()
+        {
+            return new object[] { this._apiUrl, this._apiData, this.Text };
+        }
+
+        public IRecoverAble Recover(object[] recoverData)
+        {
+            this._apiUrl = (APIUrl)recoverData[0];
+            this._apiData = (APIData)recoverData[1];
+            this.Text = (string)recoverData[2];
+            Bind();
+            BindData();
+            return this;
         }
     }
 }

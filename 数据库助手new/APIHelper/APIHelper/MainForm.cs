@@ -46,6 +46,35 @@ namespace APIHelper
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
+
+            try
+            {
+                TabPage selecedpage = null;
+                foreach (var tp in Biz.RecoverManager.Recove())
+                {
+                    this.TabControl.TabPages.Add(tp.Item1);
+                    if (tp.Item2 == true)
+                    {
+                        selecedpage = tp.Item1;
+                    }
+                }
+                this.TabControl.SelectedIndex = -1;
+                if (selecedpage != null)
+                {
+                    this.TabControl.SelectedTab = selecedpage;
+                }
+                else
+                {
+                    if (this.TabControl.TabPages.Count > 0)
+                    {
+                        this.TabControl.SelectedIndex = 0;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Util.SendMsg(this, $"恢复关闭前选项卡失败:{ex.Message}", 180);
+            }
         }
 
         protected override void OnClosing(CancelEventArgs e)

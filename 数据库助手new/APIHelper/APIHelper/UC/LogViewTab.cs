@@ -18,6 +18,8 @@ namespace APIHelper.UC
         int pageSize = 20;
         UC.LoadingBox loadbox = new LoadingBox();
 
+        public event Action<APIInvokeLog> ReInvoke;
+
         int _apiid = 0,_envid=0;
 
         public void Init(int apiid,int envid)
@@ -49,6 +51,7 @@ namespace APIHelper.UC
             this.GVLog.ContextMenuStrip.Items.Add("复制");
             this.GVLog.ContextMenuStrip.Items.Add("备注");
             this.GVLog.ContextMenuStrip.Items.Add("查看文本");
+            this.GVLog.ContextMenuStrip.Items.Add("再次执行");
             this.GVLog.ContextMenuStrip.ItemClicked += ContextMenuStrip_ItemClicked;
             this.GVLog.CellDoubleClick += GVLog_CellDoubleClick;
             this.GVLog.BorderStyle = BorderStyle.None;
@@ -191,8 +194,21 @@ namespace APIHelper.UC
                     {
                         list.Add(cell.Value?.ToString());
                     }
-                    SubForm.TextBoxWin win = new SubForm.TextBoxWin("", string.Join("\t", list));
+                    SubForm.TextBoxWin win = new SubForm.TextBoxWin($"查看文本", string.Join("\t", list));
                     win.ShowDialog();
+                }
+            }
+            else if (e.ClickedItem.Text == "再次执行")
+            {
+                var row = GVLog.CurrentRow;
+                if (row != null)
+                {
+                    var id = (int)row.Cells["编号"].Value;
+                    var log = BigEntityTableEngine.LocalEngine.Find<APIInvokeLog>(nameof(APIInvokeLog), id);
+                    if (log != null && ReInvoke != null)
+                    {
+                        ReInvoke(log);
+                    }
                 }
             }
         }
@@ -280,7 +296,7 @@ namespace APIHelper.UC
                     if (string.IsNullOrWhiteSpace(TBSearchKey.Text) || TBSearchKey.Text.Equals(TBSearchKey.Tag))
                     {
                         logs = BigEntityTableEngine.LocalEngine.Scan<APIInvokeLog>(nameof(APIInvokeLog), "APIId_ApiEnvId_CDate",
-                            new object[] { _apiid,_envid, EndDate.Value }, new object[] { _apiid,_envid, BeginDate.Value }, PageIndex == 0 ? 1 : PageIndex, pageSize, ref total).Select(p => new
+                            new object[] { _apiid,_envid, EndDate.Value.Date.AddDays(1) }, new object[] { _apiid,_envid, BeginDate.Value.Date }, PageIndex == 0 ? 1 : PageIndex, pageSize, ref total).Select(p => new
                             {
                                 编号 = p.Id,
                                 时间 = p.CDate,
@@ -292,7 +308,7 @@ namespace APIHelper.UC
                     else
                     {
                         var list = BigEntityTableEngine.LocalEngine.Scan<APIInvokeLog>(nameof(APIInvokeLog), "APIId_ApiEnvId_CDate",
-                            new object[] { _apiid, _envid, EndDate.Value }, new object[] { _apiid, _envid, BeginDate.Value }, 1, int.MaxValue, ref total);
+                            new object[] { _apiid, _envid, EndDate.Value.Date.AddDays(1) }, new object[] { _apiid, _envid, BeginDate.Value.Date }, 1, int.MaxValue, ref total);
                         var key = TBSearchKey.Text;
                         list = list.Where(p => (p.ResponseText ?? "").Contains(key)).ToList();
                         total = list.Count();

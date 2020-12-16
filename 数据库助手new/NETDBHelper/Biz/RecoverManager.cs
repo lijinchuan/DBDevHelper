@@ -16,6 +16,10 @@ namespace Biz
 
         public static void AddRecoverInstance(TabPage page, bool isSelected)
         {
+            if (iRecoverAbleLs == null)
+            {
+                iRecoverAbleLs = new List<Tuple<Type, bool, object[]>>();
+            }
             if (page is IRecoverAble)
             {
                 var recoverAble = page as IRecoverAble;
@@ -43,15 +47,18 @@ namespace Biz
             if (File.Exists(recoverpath))
             {
                 iRecoverAbleLs = (List<Tuple<Type, bool, object[]>>)LJC.FrameWorkV3.Comm.SerializerHelper.BinaryGet(recoverpath);
-                foreach (var r in iRecoverAbleLs)
+                if (iRecoverAbleLs != null)
                 {
-                    var ctor = r.Item1.GetConstructor(new Type[0]);
-                    if (ctor != null)
+                    foreach (var r in iRecoverAbleLs)
                     {
-                        yield return new Tuple<TabPage, bool>((TabPage)(ctor.Invoke(new Type[0]) as IRecoverAble).Recover(r.Item3), r.Item2);
+                        var ctor = r.Item1.GetConstructor(new Type[0]);
+                        if (ctor != null)
+                        {
+                            yield return new Tuple<TabPage, bool>((TabPage)(ctor.Invoke(new Type[0]) as IRecoverAble).Recover(r.Item3), r.Item2);
+                        }
                     }
+                    iRecoverAbleLs.Clear();
                 }
-                iRecoverAbleLs.Clear();
             }
 
         }

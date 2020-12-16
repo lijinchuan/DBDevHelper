@@ -5,6 +5,7 @@ using System.Text;
 
 namespace Entity
 {
+    [Serializable]
     public class APIEnvParam
     {
         public int Id
