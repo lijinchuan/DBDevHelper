@@ -58,13 +58,13 @@
             // 
             this.添加表ToolStripMenuItem.Name = "添加表ToolStripMenuItem";
             this.添加表ToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
-            this.添加表ToolStripMenuItem.Text = "添加表";
+            this.添加表ToolStripMenuItem.Text = "添加接口";
             // 
             // delStripMenuItem
             // 
             this.delStripMenuItem.Name = "delStripMenuItem";
             this.delStripMenuItem.Size = new System.Drawing.Size(148, 22);
-            this.delStripMenuItem.Text = "删除表";
+            this.delStripMenuItem.Text = "删除接口";
             // 
             // TSMDelRelColumn
             // 
@@ -82,7 +82,7 @@
             // 
             this.TSMI_CopyTableName.Name = "TSMI_CopyTableName";
             this.TSMI_CopyTableName.Size = new System.Drawing.Size(148, 22);
-            this.TSMI_CopyTableName.Text = "复制表名";
+            this.TSMI_CopyTableName.Text = "复制接口名";
             // 
             // TSMI_CopyColName
             // 
@@ -103,7 +103,7 @@
             // 
             this.TSMI_CopyTable.Name = "TSMI_CopyTable";
             this.TSMI_CopyTable.Size = new System.Drawing.Size(148, 22);
-            this.TSMI_CopyTable.Text = "复制表";
+            this.TSMI_CopyTable.Text = "复制接口";
             // 
             // UCLogicMap
             // 

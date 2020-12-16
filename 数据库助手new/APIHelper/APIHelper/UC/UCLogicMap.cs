@@ -1110,7 +1110,7 @@ namespace APIHelper.UC
                 var view = ((UCLogicTableView)ct);
                 if (!string.IsNullOrWhiteSpace(view.RpTableName))
                 {
-                    if (string.IsNullOrEmpty(view.APIName) || MessageBox.Show($"要删除和表{view.RpTableName}关联关系吗?", "询问", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+                    if (string.IsNullOrEmpty(view.APIName) || MessageBox.Show($"要删除和接口{view.RpTableName}关联关系吗?", "询问", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
                     {
                         var v = view;
 
@@ -1135,7 +1135,7 @@ namespace APIHelper.UC
                 if (!string.IsNullOrWhiteSpace(view.RpTableName))
                 {
                     Clipboard.SetText(view.RpTableName);
-                    Util.SendMsg(this, "已复制表名");
+                    Util.SendMsg(this, "已复制接口名");
                 }
             }
         }
