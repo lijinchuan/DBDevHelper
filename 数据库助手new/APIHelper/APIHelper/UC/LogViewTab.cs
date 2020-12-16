@@ -200,13 +200,27 @@ namespace APIHelper.UC
                     win.ShowDialog();
                 }
             }
-            else if (e.ClickedItem.Text == "查看文本")
+            else if (e.ClickedItem.Text == "查看请求")
             {
-
+                var row = GVLog.CurrentRow;
+                if (row != null)
+                {
+                    var id = (int)row.Cells["编号"].Value;
+                    var log = BigEntityTableEngine.LocalEngine.Find<APIInvokeLog>(nameof(APIInvokeLog), id);
+                    SubForm.TextBoxWin win = new SubForm.TextBoxWin($"查看文本", log?.GetRequestDetail().ToString());
+                    win.ShowDialog();
+                }
             }
             else if (e.ClickedItem.Text == "查看结果")
             {
-
+                var row = GVLog.CurrentRow;
+                if (row != null)
+                {
+                    var id = (int)row.Cells["编号"].Value;
+                    var log = BigEntityTableEngine.LocalEngine.Find<APIInvokeLog>(nameof(APIInvokeLog), id);
+                    SubForm.TextBoxWin win = new SubForm.TextBoxWin($"查看文本", log?.GetRespDetail().ToString());
+                    win.ShowDialog();
+                }
             }
             else if (e.ClickedItem.Text == "再次执行")
             {
