@@ -40,20 +40,6 @@ namespace APIHelper.UC
         {
             InitializeComponent();
 
-            foreach (var ctl in PannelReqBody.Controls)
-            {
-                if (ctl is RadioButton)
-                {
-                    ((RadioButton)ctl).CheckedChanged += PannelReqBody_CheckedChanged;
-                }
-            }
-
-            TPInvokeLog.VisibleChanged += TPInvokeLog_VisibleChanged;
-            TPInvokeLog.ReInvoke += TPInvokeLog_ReInvoke;
-            BtnSend.Click += BtnSend_Click;
-            
-            BtnSend.Click += BtnSend_Click;
-
             Bind();
             BindData();
         }
@@ -63,18 +49,6 @@ namespace APIHelper.UC
             InitializeComponent();
 
             _apiUrl = apiUrl;
-
-            foreach (var ctl in PannelReqBody.Controls)
-            {
-                if (ctl is RadioButton)
-                {
-                    ((RadioButton)ctl).CheckedChanged += PannelReqBody_CheckedChanged;
-                }
-            }
-
-            TPInvokeLog.VisibleChanged += TPInvokeLog_VisibleChanged;
-            TPInvokeLog.ReInvoke += TPInvokeLog_ReInvoke;
-            BtnSend.Click += BtnSend_Click;
 
             Bind();
             BindData();
@@ -343,7 +317,21 @@ namespace APIHelper.UC
             
             if (responseEx.Successed)
             {
-                this.Invoke(new Action(() => TBResult.Raw = responseEx.ResponseBytes));
+                this.Invoke(new Action(() =>
+                {
+                    if (responseEx.ResponseBytes != null)
+                    {
+                        TBResult.Raw = responseEx.ResponseBytes;
+                    }
+                    else if(responseEx.ResponseContent!=null)
+                    {
+                        TBResult.Raw = Encoding.UTF8.GetBytes(responseEx.ResponseContent);
+                    }
+                    else
+                    {
+                        TBResult.Raw = Encoding.UTF8.GetBytes("");
+                    }
+                }));
             }
             else
             {
@@ -465,15 +453,7 @@ namespace APIHelper.UC
 
         private void BindData()
         {
-            if (this._apiUrl != null)
-            {
-                this.CBWebMethod.SelectedItem = _apiUrl.APIMethod.ToString();
-                this.CBApplicationType.SelectedItem = _apiUrl.ApplicationType.ToString();
-                this.CBAuthType.SelectedItem = _apiUrl.AuthType.ToString();
-                this.TBUrl.Text = _apiUrl.Path;
-                SetBodyDataType(_apiUrl.BodyDataType);
-            }
-            else
+            if (this._apiUrl == null)
             {
                 FormDatas.Add(new ParamInfo());
                 XWWWFormUrlEncoded.Add(new ParamInfo());
@@ -498,10 +478,34 @@ namespace APIHelper.UC
                 this.UCApiKey.Key = this._apiData.ApiKeyName;
                 this.UCApiKey.Val = this._apiData.ApiKeyValue;
             }
+
+            headerGridView.DataSource = Headers;
+            paramsGridView.DataSource = Params;
+
+            if (this._apiUrl != null)
+            {
+                this.CBWebMethod.SelectedItem = _apiUrl.APIMethod.ToString();
+                this.CBApplicationType.SelectedItem = _apiUrl.ApplicationType.ToString();
+                this.CBAuthType.SelectedItem = _apiUrl.AuthType.ToString();
+                this.TBUrl.Text = _apiUrl.Path;
+                SetBodyDataType(_apiUrl.BodyDataType);
+            }
         }
 
         private void Bind()
         {
+            foreach (var ctl in PannelReqBody.Controls)
+            {
+                if (ctl is RadioButton)
+                {
+                    ((RadioButton)ctl).CheckedChanged += PannelReqBody_CheckedChanged;
+                }
+            }
+
+            TPInvokeLog.VisibleChanged += TPInvokeLog_VisibleChanged;
+            TPInvokeLog.ReInvoke += TPInvokeLog_ReInvoke;
+            BtnSend.Click += BtnSend_Click;
+
             HeaderDataPannel.Controls.Add(headerGridView);
             ParamDataPanel.Controls.Add(paramsGridView);
 
@@ -578,13 +582,31 @@ namespace APIHelper.UC
             gridView.Dock = DockStyle.Fill;
 
             paramsGridView.Dock = DockStyle.Fill;
-            paramsGridView.DataSource = Params;
-
-            headerGridView.Dock = DockStyle.Fill;
-            headerGridView.DataSource = Headers;
-
             
+            headerGridView.Dock = DockStyle.Fill;
             this.ParentChanged += UCAddAPI_ParentChanged;
+
+            CBApplicationType.SelectedIndexChanged += CBApplicationType_SelectedIndexChanged;
+        }
+
+        private void CBApplicationType_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (true == CBApplicationType.SelectedItem?.ToString().Equals("json", StringComparison.OrdinalIgnoreCase))
+            {
+                if (!string.IsNullOrWhiteSpace(rawTextBox.Text))
+                {
+                    try
+                    {
+                        rawTextBox.Text = Newtonsoft.Json.JsonConvert.SerializeObject(
+                            Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(rawTextBox.Text),
+                            Newtonsoft.Json.Formatting.Indented);
+                    }
+                    catch
+                    {
+
+                    }
+                }
+            }
         }
 
         private void UCAddAPI_ParentChanged(object sender, EventArgs e)

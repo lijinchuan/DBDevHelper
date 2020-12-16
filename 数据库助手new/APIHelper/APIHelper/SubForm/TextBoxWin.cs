@@ -13,6 +13,7 @@ namespace APIHelper.SubForm
     {
         private string text;
         private string caption;
+        private byte[] buffer = null;
         public TextBoxWin(string caption, string text) :
             base()
         {
@@ -23,11 +24,28 @@ namespace APIHelper.SubForm
             this.ShowInTaskbar = true;
         }
 
+        public TextBoxWin(string caption, byte[] textbuffer) :
+            base()
+        {
+            this.buffer = textbuffer;
+            this.caption = caption;
+            InitializeComponent();
+
+            this.ShowInTaskbar = true;
+        }
+
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
-            this.TBContent.Text = text;
-            this.Text = caption;
+            if (buffer == null)
+            {
+                this.TBContent.Text = text;
+                this.Text = caption;
+            }
+            else
+            {
+
+            }
         }
 
         private void BtnCpy_Click(object sender, EventArgs e)

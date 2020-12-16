@@ -18,9 +18,11 @@ namespace APIHelper.UC
         private RichTextBox TBBulkEdit = new RichTextBox();
         public UCParamsTable()
         {
+
             InitializeComponent();
             DGV.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             DGV.DataBindingComplete += GridView_DataBindingComplete;
+            DGV.AllowUserToAddRows = false;
 
             DGV.SelectionMode = DataGridViewSelectionMode.CellSelect;
             DGV.KeyDown += GridView_KeyDown;
@@ -29,6 +31,8 @@ namespace APIHelper.UC
 
             DGV.BorderStyle = BorderStyle.None;
             DGV.RowHeadersVisible = false;
+
+            DGV.DataError += DGV_DataError;
 
 
             CBEditType.SelectedIndex = 0;
@@ -43,16 +47,31 @@ namespace APIHelper.UC
             this.Controls.Add(TBBulkEdit);
         }
 
+        private void DGV_DataError(object sender, DataGridViewDataErrorEventArgs e)
+        {
+            
+        }
+
         public object DataSource
         {
             get
             {
-                return DGV.DataSource;
+                return (DGV.DataSource as BindingSource)?.DataSource;
             }
             set
             {
-                DGV.DataSource = null;
-                DGV.DataSource = value;
+                if (DGV.DataSource == null)
+                {
+                    BindingSource bs = new BindingSource();
+                    bs.DataSource = value;
+                    DGV.DataSource = bs;
+                }
+                else
+                {
+                    BindingSource bs = DGV.DataSource as BindingSource;
+                    bs.DataSource = null;
+                    bs.DataSource = value;
+                }
             }
         }
 
@@ -67,7 +86,7 @@ namespace APIHelper.UC
             {
                 DGV.Visible = false;
                 TBBulkEdit.Visible = true;
-                var ds = DGV.DataSource as List<ParamInfo>;
+                var ds = DataSource as List<ParamInfo>;
                 if (ds == null || ds.Count == 0)
                 {
                     TBBulkEdit.Text = "";
@@ -101,13 +120,12 @@ namespace APIHelper.UC
                         Desc = m.Groups[4].Value.Split(new[] { "//" }, StringSplitOptions.None).Last()
                     });
                 }
-
-                var oldds=DGV.DataSource as List<ParamInfo>;
+                
+                var oldds=(DataSource as List<ParamInfo>);
                 oldds.Clear();
                 oldds.AddRange(paramInfos);
 
-                DGV.DataSource = null;
-                DGV.DataSource = oldds;
+                DataSource = oldds;
                 
             }
         }
@@ -117,20 +135,20 @@ namespace APIHelper.UC
             var dgv = (sender as DataGridView);
             foreach (DataGridViewColumn col in dgv.Columns)
             {
-                if (col.HeaderText == "Checked")
+                if (col.Name == "Checked")
                 {
                     col.HeaderText = "";
                     col.Width = 30;
                 }
-                else if (col.HeaderText == "Name")
+                else if (col.Name == "Name")
                 {
                     col.HeaderText = "参数名称";
                 }
-                else if (col.HeaderText == "Value")
+                else if (col.Name == "Value")
                 {
                     col.HeaderText = "参数值";
                 }
-                else if (col.HeaderText == "Desc")
+                else if (col.Name == "Desc")
                 {
                     col.HeaderText = "参数描述";
                 }
@@ -146,22 +164,22 @@ namespace APIHelper.UC
 
                 if (gv.Rows.Count == 0 || (cell != null && cell == gv.Rows[gv.Rows.Count - 1].Cells[gv.Rows[gv.Rows.Count - 1].Cells.Count - 1]))
                 {
-                    var ds = gv.DataSource as List<ParamInfo>;
+                    var ds = DataSource as List<ParamInfo>;
                     ds.Add(new ParamInfo());
-                    gv.DataSource = null;
-                    gv.DataSource = ds;
+                    DataSource = ds;
                 }
+                e.Handled = true;
 
             }
             else if (e.KeyCode == Keys.Delete)
             {
                 if (gv.CurrentCell != null)
                 {
-                    var ds = gv.DataSource as List<ParamInfo>;
+                    var ds = DataSource as List<ParamInfo>;
                     ds.RemoveAt(gv.CurrentCell.RowIndex);
-                    gv.DataSource = null;
-                    gv.DataSource = ds;
+                    DataSource = ds;
                 }
+                e.Handled = true;
             }
         }
 

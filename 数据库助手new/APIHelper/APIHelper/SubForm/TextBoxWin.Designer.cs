@@ -28,8 +28,10 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.BtnCpy = new System.Windows.Forms.Button();
             this.TBContent = new System.Windows.Forms.TextBox();
+            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.SuspendLayout();
             // 
             // BtnCpy
@@ -54,6 +56,11 @@
             this.TBContent.Size = new System.Drawing.Size(624, 260);
             this.TBContent.TabIndex = 2;
             // 
+            // contextMenuStrip1
+            // 
+            this.contextMenuStrip1.Name = "contextMenuStrip1";
+            this.contextMenuStrip1.Size = new System.Drawing.Size(181, 26);
+            // 
             // TextBoxWin
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -76,5 +83,6 @@
         #endregion
         private System.Windows.Forms.Button BtnCpy;
         private System.Windows.Forms.TextBox TBContent;
+        private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
     }
 }

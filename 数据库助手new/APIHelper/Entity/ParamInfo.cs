@@ -18,18 +18,18 @@ namespace Entity
         {
             get;
             set;
-        }
+        } = "";
 
         public string Value
         {
             get;
             set;
-        }
+        } = "";
 
         public string Desc
         {
             get;
             set;
-        }
+        } = "";
     }
 }

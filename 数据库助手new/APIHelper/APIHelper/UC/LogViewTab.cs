@@ -51,6 +51,8 @@ namespace APIHelper.UC
             this.GVLog.ContextMenuStrip.Items.Add("复制");
             this.GVLog.ContextMenuStrip.Items.Add("备注");
             this.GVLog.ContextMenuStrip.Items.Add("查看文本");
+            this.GVLog.ContextMenuStrip.Items.Add("查看请求");
+            this.GVLog.ContextMenuStrip.Items.Add("查看结果");
             this.GVLog.ContextMenuStrip.Items.Add("再次执行");
             this.GVLog.ContextMenuStrip.ItemClicked += ContextMenuStrip_ItemClicked;
             this.GVLog.CellDoubleClick += GVLog_CellDoubleClick;
@@ -197,6 +199,14 @@ namespace APIHelper.UC
                     SubForm.TextBoxWin win = new SubForm.TextBoxWin($"查看文本", string.Join("\t", list));
                     win.ShowDialog();
                 }
+            }
+            else if (e.ClickedItem.Text == "查看文本")
+            {
+
+            }
+            else if (e.ClickedItem.Text == "查看结果")
+            {
+
             }
             else if (e.ClickedItem.Text == "再次执行")
             {
