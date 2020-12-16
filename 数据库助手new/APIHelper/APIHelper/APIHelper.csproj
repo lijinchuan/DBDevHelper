@@ -314,6 +314,12 @@
     <Compile Include="UC\UPAPIParamTable.Designer.cs">
       <DependentUpon>UPAPIParamTable.cs</DependentUpon>
     </Compile>
+    <Compile Include="UC\WebTab.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="UC\WebTab.Designer.cs">
+      <DependentUpon>WebTab.cs</DependentUpon>
+    </Compile>
     <Compile Include="Util.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -418,6 +424,9 @@
     <EmbeddedResource Include="UC\UPAPIParamTable.resx">
       <DependentUpon>UPAPIParamTable.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="UC\WebTab.resx">
+      <DependentUpon>WebTab.cs</DependentUpon>
+    </EmbeddedResource>
     <None Include="app.config" />
   </ItemGroup>
   <ItemGroup>
@@ -444,6 +453,12 @@
     <None Include="Resources\arrow_down.png" />
     <None Include="Resources\arrow_down1.png" />
     <None Include="Resources\arrow_up1.png" />
+    <Content Include="Markdown.Converter.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="marked.min.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Resources\bullet_tick.png" />
     <Content Include="Resources\computer_link.png" />
     <Content Include="Resources\connect.png" />

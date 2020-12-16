@@ -12,7 +12,7 @@ using LJC.FrameWorkV3.Comm;
 using LJC.FrameWorkV3.Data.EntityDataBase;
 
 namespace APIHelper.UC
-{
+{ 
     public partial class UCAddAPI : TabPage, IRecoverAble
     {
         private List<ParamInfo> Params = new List<ParamInfo>();
@@ -492,8 +492,130 @@ namespace APIHelper.UC
             }
         }
 
+        private void ShowDoc()
+        {
+            if (_apiUrl == null)
+            {
+                return;
+            }
+            var body = @"
+**简要描述：** 
+
+- 用户注册接口
+
+**请求URL：** 
+- ` /api/Course/SearchStudent `
+  
+**请求方式：**
+- POST 
+
+**参数：** 
+
+|参数名|必选|类型|说明|
+|:----    |:---|:----- |-----   |
+ |studentInfo| 是 |string|学生姓名/电话/学号   |
+
+> 此接口是精确搜索学生
+
+ **返回示例**
+
+``` 
+  {
+  ""code"": 200,
+  ""msg"": ""成功"",
+  ""data"": [
+    {
+    }
+  ]
+}
+```
+
+ **返回参数说明** 
+
+|参数名|类型|说明|
+|:-----  |:-----|-----                           |
+|id|integer  |学生ID |
+|studentNumber|string  |学号 |
+|name|string  |姓名 |
+|deptId|integer  |校区ID |
+|deptName|string  |校区名称 |
+|phone|string  |电话 |
+|grade|string  |年级 |
+|schoolId|integer  |学校ID |
+|schoolName|string  |学校名称 |
+|sex|integer  |性别 0-女 1-男 3-未知 |
+|firstLetter|string  |姓名首字母 |
+|headerImg|string |头像|
+
+ **备注** 
+
+- 更多返回错误代码请看首页的错误代码描述
+
+
+";
+            StringBuilder sbdoc = new StringBuilder();
+            sbdoc.AppendLine("**简要描述：** ");
+            sbdoc.AppendLine();
+            sbdoc.AppendLine(_apiUrl.Desc);
+            sbdoc.AppendLine();
+            sbdoc.AppendLine("**请求URL：** ");
+            sbdoc.AppendLine($"- ` {_apiUrl.Path} `");
+            sbdoc.AppendLine();
+            sbdoc.AppendLine("**请求方式：**");
+            sbdoc.AppendLine($"- {_apiUrl.APIMethod.ToString()}");
+            sbdoc.AppendLine();
+            sbdoc.AppendLine("**参数：** ");
+            sbdoc.AppendLine();
+            sbdoc.AppendLine("|参数名|必选|类型|说明|");
+            sbdoc.AppendLine("|:----    |:---|:----- |-----   |");
+            var aPIParams = BigEntityTableEngine.LocalEngine.Find<APIParam>(nameof(APIParam), "APIId", new object[] { _apiUrl.Id }).ToList();
+            foreach(var item in aPIParams.Where(p => p.Type == 0).OrderBy(p => p.Sort))
+            {
+                sbdoc.AppendLine($"{item.Name}|{(item.IsRequried?"T":"F")}|{item.TypeName}|{item.Desc}|");
+            }
+            sbdoc.AppendLine();
+            sbdoc.AppendLine(" **返回示例**");
+            sbdoc.AppendLine("");
+            sbdoc.AppendLine("``` ");
+            sbdoc.AppendLine();
+            sbdoc.AppendLine("``` ");
+            sbdoc.AppendLine();
+            sbdoc.AppendLine(" **返回参数说明** ");
+            sbdoc.AppendLine();
+            sbdoc.AppendLine("|参数名|类型|说明|");
+            sbdoc.AppendLine("|:-----  |:-----|-----                           |");
+            foreach (var item in aPIParams.Where(p => p.Type == 0).OrderBy(p => p.Sort))
+            {
+                sbdoc.AppendLine($"{item.Name}|{item.TypeName}|{item.Desc}|");
+            }
+            sbdoc.AppendLine();
+            sbdoc.AppendLine("**备注** ");
+            //sbdoc.Replace("\"", "\\\"");
+            //sbdoc.Replace("\r", "\\\r");
+
+            var doctab = new WebTab();
+            doctab.Text = "文档";
+            
+            Tabs.Controls.Add(doctab);
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine("<script type=\"text/javascript\">");
+            sb.Append(System.IO.File.ReadAllText("marked.min.js"));
+            sb.AppendLine("</script>");
+            sb.AppendLine("<script type=\"text/javascript\">");
+
+            sbdoc.Replace("\r", "\\n\\");
+            //sbdoc.Replace("\n", "\\\n");
+            sb.AppendLine($"var data='{sbdoc.ToString()}'");
+            sb.Append($"document.body.innerHTML=marked(data)");
+            sb.AppendLine("</script>");
+            doctab.SetBody(sb.ToString());
+
+        }
+
         private void Bind()
         {
+            ShowDoc();
+
             foreach (var ctl in PannelReqBody.Controls)
             {
                 if (ctl is RadioButton)
@@ -783,7 +905,7 @@ namespace APIHelper.UC
             this._apiUrl = (APIUrl)recoverData[0];
             this._apiData = (APIData)recoverData[1];
             this.Text = (string)recoverData[2];
-            Bind();
+            //Bind();
             BindData();
             return this;
         }
