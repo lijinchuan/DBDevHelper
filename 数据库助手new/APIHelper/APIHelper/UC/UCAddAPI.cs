@@ -39,9 +39,6 @@ namespace APIHelper.UC
         public UCAddAPI()
         {
             InitializeComponent();
-
-            Bind();
-            BindData();
         }
 
         public UCAddAPI(APIUrl apiUrl)
@@ -468,6 +465,8 @@ namespace APIHelper.UC
                 Headers.Add(new ParamInfo { Name = "Connection", Value = "keep-alive" });
             }
 
+            RBNone.Checked = true;
+
             if (this._apiData != null)
             {
                 this.XWWWFormUrlEncoded = this._apiData.XWWWFormUrlEncoded;
@@ -845,7 +844,7 @@ namespace APIHelper.UC
             this._apiUrl = (APIUrl)recoverData[0];
             this._apiData = (APIData)recoverData[1];
             this.Text = (string)recoverData[2];
-            //Bind();
+            Bind();
             ShowDoc();
             BindData();
             return this;
