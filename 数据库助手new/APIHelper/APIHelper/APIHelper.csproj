@@ -177,6 +177,12 @@
     <Compile Include="SubForm\MultiInputDlg.Designer.cs">
       <DependentUpon>MultiInputDlg.cs</DependentUpon>
     </Compile>
+    <Compile Include="SubForm\ParseSwaggerDocDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SubForm\ParseSwaggerDocDlg.Designer.cs">
+      <DependentUpon>ParseSwaggerDocDlg.cs</DependentUpon>
+    </Compile>
     <Compile Include="SubForm\PopMessageDlg.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -366,6 +372,9 @@
     <EmbeddedResource Include="SubForm\MultiInputDlg.resx">
       <DependentUpon>MultiInputDlg.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="SubForm\ParseSwaggerDocDlg.resx">
+      <DependentUpon>ParseSwaggerDocDlg.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="SubForm\PopMessageDlg.resx">
       <DependentUpon>PopMessageDlg.cs</DependentUpon>
     </EmbeddedResource>
@@ -495,6 +504,7 @@
     <None Include="Resources\shape_3d.png" />
     <None Include="Resources\record_green.png" />
     <None Include="Resources\record_blue.png" />
+    <None Include="Resources\SwaggerApi.png" />
     <Content Include="Resources\table.png" />
     <Content Include="Resources\tbview.png" />
     <None Include="packages.config" />

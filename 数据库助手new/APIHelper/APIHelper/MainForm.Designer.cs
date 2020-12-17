@@ -47,6 +47,7 @@
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.MspPanel = new System.Windows.Forms.ToolStripStatusLabel();
             this.TSL_ClearMsg = new System.Windows.Forms.ToolStripStatusLabel();
+            this.swaggerMarkUpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mainMenuBar.SuspendLayout();
             this.panel1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
@@ -107,7 +108,8 @@
             // SubItemTool
             // 
             this.SubItemTool.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.监控任务ToolStripMenuItem});
+            this.监控任务ToolStripMenuItem,
+            this.swaggerMarkUpToolStripMenuItem});
             this.SubItemTool.Name = "SubItemTool";
             this.SubItemTool.Size = new System.Drawing.Size(44, 21);
             this.SubItemTool.Text = "工具";
@@ -115,8 +117,9 @@
             // 监控任务ToolStripMenuItem
             // 
             this.监控任务ToolStripMenuItem.Name = "监控任务ToolStripMenuItem";
-            this.监控任务ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.监控任务ToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
             this.监控任务ToolStripMenuItem.Text = "监控任务";
+            this.监控任务ToolStripMenuItem.Visible = false;
             this.监控任务ToolStripMenuItem.Click += new System.EventHandler(this.监控任务ToolStripMenuItem_Click);
             // 
             // SubItemHelp
@@ -212,6 +215,13 @@
             this.TSL_ClearMsg.Visible = false;
             this.TSL_ClearMsg.Click += new System.EventHandler(this.TSL_ClearMsg_Click);
             // 
+            // swaggerMarkUpToolStripMenuItem
+            // 
+            this.swaggerMarkUpToolStripMenuItem.Name = "swaggerMarkUpToolStripMenuItem";
+            this.swaggerMarkUpToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
+            this.swaggerMarkUpToolStripMenuItem.Text = "Swagger->MarkUp";
+            this.swaggerMarkUpToolStripMenuItem.Click += new System.EventHandler(this.swaggerMarkUpToolStripMenuItem_Click);
+            // 
             // MainFrm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -259,6 +269,7 @@
         private System.Windows.Forms.ToolStripLabel TSCBServer;
         private System.Windows.Forms.ToolStripStatusLabel TSL_ClearMsg;
         private System.Windows.Forms.ToolStripMenuItem 监控任务ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem swaggerMarkUpToolStripMenuItem;
     }
 }
 

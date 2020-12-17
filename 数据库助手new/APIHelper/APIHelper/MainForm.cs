@@ -247,5 +247,11 @@ namespace APIHelper
 
             //Util.PopMsg(1, "test", "test");
         }
+
+        private void swaggerMarkUpToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SubForm.ParseSwaggerDocDlg dlg = new ParseSwaggerDocDlg();
+            dlg.ShowDialog();
+        }
     }
 }
