@@ -51,7 +51,7 @@ namespace APIHelper.UC
             sbdoc.AppendLine();
             sbdoc.AppendLine("|参数名|类型|说明|");
             sbdoc.AppendLine("|:-----  |:-----|-----                           |");
-            foreach (var item in aPIParams.Where(p => p.Type == 0).OrderBy(p => p.Sort))
+            foreach (var item in aPIParams.Where(p => p.Type == 1).OrderBy(p => p.Sort))
             {
                 sbdoc.AppendLine($"{item.Name}|{item.TypeName}|{item.Desc}|");
             }
