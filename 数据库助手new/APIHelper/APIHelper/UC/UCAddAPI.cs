@@ -551,7 +551,7 @@ namespace APIHelper.UC
 
             sbdoc.Replace("\r", "\\n\\");
             //sbdoc.Replace("\n", "\\\n");
-            sb.AppendLine($"var data='{sbdoc.ToString()}'");
+            sb.AppendLine($"var data='{sbdoc.ToString().Replace("'","\\'")}'");
             sb.Append($"document.body.innerHTML=marked(data)");
             sb.AppendLine("</script>");
             doctab.SetBody($"<style type=\"text/css\">{System.IO.File.ReadAllText("ApiDoc.css")}</style>",sb.ToString());
@@ -852,6 +852,7 @@ namespace APIHelper.UC
             this._apiData = (APIData)recoverData[1];
             this.Text = (string)recoverData[2];
             //Bind();
+            ShowDoc();
             BindData();
             return this;
         }
