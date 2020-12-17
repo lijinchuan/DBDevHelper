@@ -621,7 +621,7 @@ namespace APIHelper.UC
                 bool used = false;
                 if (page == TP_Auth)
                 {
-                    used = (string)CBAuthType.SelectedItem == AuthType.none.ToString();
+                    used = (string)CBAuthType.SelectedItem != AuthType.none.ToString();
                 }
                 else if (page == TP_Params)
                 {
