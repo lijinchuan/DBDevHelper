@@ -16,7 +16,7 @@ using LJC.FrameWorkV3.Data.EntityDataBase;
 
 namespace APIHelper.UC
 {
-    public partial class UCLogicTableView : UserControl
+    public partial class UCLogicTableView :UserControl
     {
         private int _logicMapId = 0;
         APISource APISource = null;
@@ -305,27 +305,15 @@ namespace APIHelper.UC
             var lb = new Label();
             lb.AutoSize = false;
             lb.ImageAlign = ContentAlignment.MiddleLeft;
-            lb.Image = SQLTypeRs.CHAR;
-            //if (tbcol.IsString())
-            //{
-            //    lb.Image = SQLTypeRs.CHAR;
-            //}
-            //else if (tbcol.IsDateTime())
-            //{
-            //    lb.Image = SQLTypeRs.DATE;
-            //}
-            //else if (tbcol.IsNumber())
-            //{
-            //    lb.Image = SQLTypeRs.NUMBER;
-            //}
-            //else if (tbcol.IsBoolean())
-            //{
-            //    lb.Image = SQLTypeRs.BOOL;
-            //}
-            //else if (tbcol.IsUnique())
-            //{
-            //    lb.Image = SQLTypeRs.UNIQ;
-            //}
+            if (tbcol.Type == 0)
+            {
+                lb.Image = SQLTypeRs.record_blue;
+            }
+            else
+            {
+                lb.Image = SQLTypeRs.record_green;
+            }
+            
             lb.UseMnemonic = true;
 
             if (LbIdx % 2 == 1)

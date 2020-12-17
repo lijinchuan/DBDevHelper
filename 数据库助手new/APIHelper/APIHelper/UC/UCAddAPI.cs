@@ -498,61 +498,7 @@ namespace APIHelper.UC
             {
                 return;
             }
-            var body = @"
-**简要描述：** 
-
-- 用户注册接口
-
-**请求URL：** 
-- ` /api/Course/SearchStudent `
-  
-**请求方式：**
-- POST 
-
-**参数：** 
-
-|参数名|必选|类型|说明|
-|:----    |:---|:----- |-----   |
- |studentInfo| 是 |string|学生姓名/电话/学号   |
-
-> 此接口是精确搜索学生
-
- **返回示例**
-
-``` 
-  {
-  ""code"": 200,
-  ""msg"": ""成功"",
-  ""data"": [
-    {
-    }
-  ]
-}
-```
-
- **返回参数说明** 
-
-|参数名|类型|说明|
-|:-----  |:-----|-----                           |
-|id|integer  |学生ID |
-|studentNumber|string  |学号 |
-|name|string  |姓名 |
-|deptId|integer  |校区ID |
-|deptName|string  |校区名称 |
-|phone|string  |电话 |
-|grade|string  |年级 |
-|schoolId|integer  |学校ID |
-|schoolName|string  |学校名称 |
-|sex|integer  |性别 0-女 1-男 3-未知 |
-|firstLetter|string  |姓名首字母 |
-|headerImg|string |头像|
-
- **备注** 
-
-- 更多返回错误代码请看首页的错误代码描述
-
-
-";
+            
             StringBuilder sbdoc = new StringBuilder();
             sbdoc.AppendLine("**简要描述：** ");
             sbdoc.AppendLine();
@@ -608,7 +554,7 @@ namespace APIHelper.UC
             sb.AppendLine($"var data='{sbdoc.ToString()}'");
             sb.Append($"document.body.innerHTML=marked(data)");
             sb.AppendLine("</script>");
-            doctab.SetBody(sb.ToString());
+            doctab.SetBody($"<style type=\"text/css\">{System.IO.File.ReadAllText("ApiDoc.css")}</style>",sb.ToString());
 
         }
 

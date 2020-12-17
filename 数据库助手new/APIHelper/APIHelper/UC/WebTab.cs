@@ -113,6 +113,14 @@ namespace APIHelper.UC
             return this;
         }
 
+        public WebTab SetBody(string head, string body, bool pre = true)
+        {
+            _body = body;
+            this.webBrowser1.DocumentText = string.Format("<html><head><meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"/><title>{0}</title>{1}</head><body>{2}</body></html>",
+                _title, head, pre ? ("<pre>" + body + "</pre>") : body);
+            return this;
+        }
+
 
         public void SetHtml(string html)
         {
