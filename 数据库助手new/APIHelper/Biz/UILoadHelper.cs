@@ -196,5 +196,38 @@ namespace Biz
             }
             parent.Invoke(new Action(() => { pnode.Nodes.Clear(); pnode.Nodes.AddRange(treeNodes.ToArray()); pnode.Expand(); }));
         }
+
+        public static void LoadApiDocsAsync(Form parent, TreeNode pnode, int sourceid)
+        {
+            pnode.Nodes.Add(new TreeNode("加载中...", 3, 3));
+            pnode.Expand();
+
+            new Action<Form, TreeNode, int>(LoadApiDocs).BeginInvoke(parent, pnode, sourceid, null, null);
+        }
+
+        public static void LoadApiDocs(Form parent, TreeNode pnode, int sourceid)
+        {
+            List<TreeNode> treeNodes = new List<TreeNode>();
+            
+            var doclist = BigEntityTableEngine.LocalEngine.Find<APIDoc>(nameof(APIDoc), "APISourceId", new object[] { sourceid }).ToList();
+            if (doclist.Count > 0)
+            {
+                var apiurllist = BigEntityTableEngine.LocalEngine.FindBatch<APIUrl>(nameof(APIUrl), doclist.Select(p => (object)p.APIId)).ToList();
+                foreach (var s in doclist)
+                {
+                    var apiurl = apiurllist.Find(p => p.Id == s.APIId);
+                    if (apiurl != null)
+                    {
+                        TreeNode node = new TreeNode(apiurl.APIName);
+
+                        node.Tag = s;
+                        node.ImageKey = node.SelectedImageKey = "DOC";
+                        treeNodes.Add(node);
+                    }
+
+                }
+            }
+            parent.Invoke(new Action(() => { pnode.Nodes.Clear(); pnode.Nodes.AddRange(treeNodes.ToArray()); pnode.Expand(); }));
+        }
     }
 }

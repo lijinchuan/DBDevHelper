@@ -35,7 +35,8 @@ namespace APIHelper
             tv_DBServers.ImageList.Images.Add("COL", Resources.Resource1.DB6);
             tv_DBServers.ImageList.Images.Add("COLQ", Resources.Resource1.ColQ);
             tv_DBServers.ImageList.Images.Add("LOGIC", Resources.Resource1.logic);
-            
+            tv_DBServers.ImageList.Images.Add("DOC", Resources.Resource1.Index);
+
             tv_DBServers.Nodes.Add(new TreeNodeEx("资源管理器", 0, 1));
             tv_DBServers.BeforeExpand += Tv_DBServers_BeforeExpand;
             tv_DBServers.BeforeCollapse += Tv_DBServers_BeforeCollapse;
@@ -141,6 +142,11 @@ namespace APIHelper
                 var envid = (selNode.Tag as APIEnv).Id;
                 Biz.UILoadHelper.LoadApiEnvParamsAsync(this.ParentForm, selNode, sid, envid);
             }
+            else if (selNode.Tag is INodeContents && (selNode.Tag as INodeContents).GetNodeContentType() == NodeContentType.DOCPARENT)
+            {
+                var sid = FindParentNode<APISource>(selNode).Id;
+                Biz.UILoadHelper.LoadApiDocsAsync(this.ParentForm, selNode, sid);
+            }
         }
 
         void OnMenuStrip_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
@@ -218,6 +224,14 @@ namespace APIHelper
                             {
                                 this.ReLoadDBObj(selnode);
                                 Util.AddToMainTab(this,$"[{apisource.SourceName}]{step1dlg.APIUrl.APIName}", new UC.UCAddAPI(step1dlg.APIUrl));
+
+                                //创建文档
+                                BigEntityTableEngine.LocalEngine.Insert(nameof(APIDoc), new APIDoc
+                                {
+                                    APISourceId=apisource.Id,
+                                    APIId = step1dlg.APIUrl.Id,
+                                    Mark = step1dlg.APIUrl.Desc
+                                });
                             }
                             break;
                         }
@@ -336,6 +350,18 @@ namespace APIHelper
                 UC.UCLogicMap panel = new UCLogicMap(apisouce, logicmap.ID);
                 panel.Load();
                 Util.AddToMainTab(this, title, panel);
+            }
+            else if (e.Node.Tag is APIDoc)
+            {
+                var apisouce = FindParentNode<APISource>(e.Node);
+                var doc = e.Node.Tag as APIDoc;
+                var apiurl = BigEntityTableEngine.LocalEngine.Find<APIUrl>(nameof(APIUrl), doc.APIId);
+                if (apiurl != null)
+                {
+                    var page = new UC.DocPage();
+                    Util.AddToMainTab(this, $"[文档]{apisouce.SourceName}.{apiurl.APIName}", page);
+                    page.InitDoc(apiurl, null);
+                }
             }
         }
 

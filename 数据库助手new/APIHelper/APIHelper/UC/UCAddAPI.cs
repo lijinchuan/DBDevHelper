@@ -498,63 +498,11 @@ namespace APIHelper.UC
             {
                 return;
             }
-            
-            StringBuilder sbdoc = new StringBuilder();
-            sbdoc.AppendLine("**简要描述：** ");
-            sbdoc.AppendLine();
-            sbdoc.AppendLine(_apiUrl.Desc);
-            sbdoc.AppendLine();
-            sbdoc.AppendLine("**请求URL：** ");
-            sbdoc.AppendLine($"- ` {_apiUrl.Path} `");
-            sbdoc.AppendLine();
-            sbdoc.AppendLine("**请求方式：**");
-            sbdoc.AppendLine($"- {_apiUrl.APIMethod.ToString()}");
-            sbdoc.AppendLine();
-            sbdoc.AppendLine("**参数：** ");
-            sbdoc.AppendLine();
-            sbdoc.AppendLine("|参数名|必选|类型|说明|");
-            sbdoc.AppendLine("|:----    |:---|:----- |-----   |");
-            var aPIParams = BigEntityTableEngine.LocalEngine.Find<APIParam>(nameof(APIParam), "APIId", new object[] { _apiUrl.Id }).ToList();
-            foreach(var item in aPIParams.Where(p => p.Type == 0).OrderBy(p => p.Sort))
-            {
-                sbdoc.AppendLine($"{item.Name}|{(item.IsRequried?"T":"F")}|{item.TypeName}|{item.Desc}|");
-            }
-            sbdoc.AppendLine();
-            sbdoc.AppendLine(" **返回示例**");
-            sbdoc.AppendLine("");
-            sbdoc.AppendLine("``` ");
-            sbdoc.AppendLine();
-            sbdoc.AppendLine("``` ");
-            sbdoc.AppendLine();
-            sbdoc.AppendLine(" **返回参数说明** ");
-            sbdoc.AppendLine();
-            sbdoc.AppendLine("|参数名|类型|说明|");
-            sbdoc.AppendLine("|:-----  |:-----|-----                           |");
-            foreach (var item in aPIParams.Where(p => p.Type == 0).OrderBy(p => p.Sort))
-            {
-                sbdoc.AppendLine($"{item.Name}|{item.TypeName}|{item.Desc}|");
-            }
-            sbdoc.AppendLine();
-            sbdoc.AppendLine("**备注** ");
-            //sbdoc.Replace("\"", "\\\"");
-            //sbdoc.Replace("\r", "\\\r");
-
-            var doctab = new WebTab();
-            doctab.Text = "文档";
+           
+            var doctab = new DocPage();
             
             Tabs.Controls.Add(doctab);
-            StringBuilder sb = new StringBuilder();
-            sb.AppendLine("<script type=\"text/javascript\">");
-            sb.Append(System.IO.File.ReadAllText("marked.min.js"));
-            sb.AppendLine("</script>");
-            sb.AppendLine("<script type=\"text/javascript\">");
-
-            sbdoc.Replace("\r", "\\n\\");
-            //sbdoc.Replace("\n", "\\\n");
-            sb.AppendLine($"var data='{sbdoc.ToString().Replace("'","\\'")}'");
-            sb.Append($"document.body.innerHTML=marked(data)");
-            sb.AppendLine("</script>");
-            doctab.SetBody($"<style type=\"text/css\">{System.IO.File.ReadAllText("ApiDoc.css")}</style>",sb.ToString());
+            doctab.InitDoc(_apiUrl);
 
         }
 

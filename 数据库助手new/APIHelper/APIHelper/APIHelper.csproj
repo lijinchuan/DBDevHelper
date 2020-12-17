@@ -239,6 +239,9 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UC\DocPage.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="UC\LabCombox.cs">
       <SubType>UserControl</SubType>
     </Compile>

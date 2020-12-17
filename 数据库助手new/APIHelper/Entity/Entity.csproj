@@ -45,6 +45,7 @@
     <Compile Include="APIDoc.cs" />
     <Compile Include="APIEnv.cs" />
     <Compile Include="APIEnvParam.cs" />
+    <Compile Include="APIInvokeExample.cs" />
     <Compile Include="APIInvokeLog.cs" />
     <Compile Include="APIMethod.cs" />
     <Compile Include="APIParam.cs" />

@@ -5,16 +5,9 @@ using System.Text;
 
 namespace Entity
 {
-    [Serializable]
-    public class APIDoc:INodeContents
+    public class APIInvokeExample
     {
         public int Id
-        {
-            get;
-            set;
-        }
-
-        public int APISourceId
         {
             get;
             set;
@@ -26,18 +19,28 @@ namespace Entity
             set;
         }
 
-        /// <summary>
-        /// 备注
-        /// </summary>
-        public string Mark
+        public int Sort
         {
             get;
             set;
         }
 
-        public NodeContentType GetNodeContentType()
+        public string ExampleName
         {
-            return NodeContentType.DOC;
+            get;
+            set;
+        }
+
+        public string ReqCode
+        {
+            get;
+            set;
+        }
+
+        public string RespCode
+        {
+            get;
+            set;
         }
     }
 }
