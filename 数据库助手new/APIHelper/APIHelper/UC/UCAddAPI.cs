@@ -492,6 +492,8 @@ namespace APIHelper.UC
                 this.TBUrl.Text = _apiUrl.Path;
                 SetBodyDataType(_apiUrl.BodyDataType);
             }
+
+            Tabs_SelectedIndexChanged(null, null);
         }
 
         private void ShowDoc()
