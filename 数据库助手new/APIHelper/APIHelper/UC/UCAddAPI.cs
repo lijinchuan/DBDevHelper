@@ -395,7 +395,8 @@ namespace APIHelper.UC
             {
                 if (string.IsNullOrEmpty(UCBearToken.Token))
                 {
-                    MessageBox.Show("鉴权数据不能为空");
+                    TP_Auth.ImageKey = "ERROR";
+                    Util.SendMsg(this,"鉴权数据不能为空");
                     return;
                 }
             }
@@ -403,7 +404,8 @@ namespace APIHelper.UC
             {
                 if (string.IsNullOrEmpty(UCApiKey.Key) || string.IsNullOrWhiteSpace(UCApiKey.Val))
                 {
-                    MessageBox.Show("鉴权数据不能为空");
+                    TP_Auth.ImageKey = "ERROR";
+                    Util.SendMsg(this, "鉴权数据不能为空");
                     return;
                 }
             }
@@ -508,8 +510,11 @@ namespace APIHelper.UC
 
         private void Bind()
         {
-            ShowDoc();
+            this.Tabs.ImageList = new ImageList();
+            this.Tabs.ImageList.Images.Add("USED", Resources.Resource1.bullet_green);
+            this.Tabs.ImageList.Images.Add("ERROR", Resources.Resource1.bullet_red);
 
+            ShowDoc();
             foreach (var ctl in PannelReqBody.Controls)
             {
                 if (ctl is RadioButton)
@@ -603,6 +608,45 @@ namespace APIHelper.UC
             this.ParentChanged += UCAddAPI_ParentChanged;
 
             CBApplicationType.SelectedIndexChanged += CBApplicationType_SelectedIndexChanged;
+
+            this.Tabs.SelectedIndexChanged += Tabs_SelectedIndexChanged;
+        }
+
+        private void Tabs_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            foreach (TabPage page in this.Tabs.TabPages)
+            {
+                bool used = false;
+                if (page == TP_Auth)
+                {
+                    used = (string)CBAuthType.SelectedItem == AuthType.none.ToString();
+                }
+                else if (page == TP_Params)
+                {
+                    used = this.Params.Any(p => p.Checked);
+                }
+                else if (page == TP_Header)
+                {
+                    used = this.Headers.Any(p => p.Checked);
+                }
+                else if (page == TP_Body)
+                {
+                    used = GetBodyDataType() != BodyDataType.none;
+                }
+                else
+                {
+                    continue;
+                }
+
+                if (Tabs.SelectedTab == page || !used)
+                {
+                    page.ImageKey = null;
+                }
+                else if (used)
+                {
+                    page.ImageKey = "USED";
+                }
+            }
         }
 
         private void CBApplicationType_SelectedIndexChanged(object sender, EventArgs e)
