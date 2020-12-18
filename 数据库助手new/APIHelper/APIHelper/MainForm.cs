@@ -24,6 +24,7 @@ namespace APIHelper
         private void InitFrm()
         {
             this.tsb_Excute.Enabled = false;
+            this.TSBSave.Enabled = false;
             this.dbServerView1.OnDeleteLogicMap += this.DeleteLogicMap;
 
             this.TabControl.Selected += new TabControlEventHandler(TabControl_Selected);
@@ -34,6 +35,25 @@ namespace APIHelper
             this.TSCBServer.Alignment = ToolStripItemAlignment.Right;
 
             this.MspPanel.TextAlign = ContentAlignment.TopLeft;
+
+            TSBSave.Click += TSBSave_Click;
+            tsb_Excute.Click += Tsb_Excute_Click;
+        }
+
+        private void Tsb_Excute_Click(object sender, EventArgs e)
+        {
+            if (TabControl.SelectedTab != null && TabControl.SelectedTab is IExcuteAble)
+            {
+                (TabControl.SelectedTab as IExcuteAble).Execute();
+            }
+        }
+
+        private void TSBSave_Click(object sender, EventArgs e)
+        {
+            if(TabControl.SelectedTab!=null&&TabControl.SelectedTab is ISaveAble)
+            {
+                (TabControl.SelectedTab as ISaveAble).Save();
+            }
         }
 
         public MainFrm()
@@ -114,6 +134,9 @@ namespace APIHelper
         void TabControl_Selected(object sender, TabControlEventArgs e)
         {
             this.TSCBServer.Visible = false;
+
+            TSBSave.Enabled = e.TabPage is ISaveAble;
+            tsb_Excute.Enabled = e.TabPage is IExcuteAble;
         }
 
         private void 断开对象资源管理器ToolStripMenuItem_Click(object sender, EventArgs e)

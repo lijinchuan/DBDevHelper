@@ -31,23 +31,22 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainFrm));
             this.mainMenuBar = new System.Windows.Forms.MenuStrip();
             this.MenItem_File = new System.Windows.Forms.ToolStripMenuItem();
-            this.连接对象资源管理器ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.断开对象资源管理器ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.SubItemEdit = new System.Windows.Forms.ToolStripMenuItem();
             this.SubItemView = new System.Windows.Forms.ToolStripMenuItem();
             this.SubItemTool = new System.Windows.Forms.ToolStripMenuItem();
             this.监控任务ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.swaggerMarkUpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.SubItemHelp = new System.Windows.Forms.ToolStripMenuItem();
             this.panel1 = new System.Windows.Forms.Panel();
             this.TabControl = new APIHelper.UC.MyTabControl();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.tsb_Excute = new System.Windows.Forms.ToolStripButton();
             this.TSCBServer = new System.Windows.Forms.ToolStripLabel();
+            this.TSBSave = new System.Windows.Forms.ToolStripButton();
             this.dbServerView1 = new APIHelper.DBServerView();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.MspPanel = new System.Windows.Forms.ToolStripStatusLabel();
             this.TSL_ClearMsg = new System.Windows.Forms.ToolStripStatusLabel();
-            this.swaggerMarkUpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mainMenuBar.SuspendLayout();
             this.panel1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
@@ -73,25 +72,9 @@
             // 
             // MenItem_File
             // 
-            this.MenItem_File.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.连接对象资源管理器ToolStripMenuItem,
-            this.断开对象资源管理器ToolStripMenuItem});
             this.MenItem_File.Name = "MenItem_File";
             this.MenItem_File.Size = new System.Drawing.Size(58, 21);
             this.MenItem_File.Text = "文件(F)";
-            // 
-            // 连接对象资源管理器ToolStripMenuItem
-            // 
-            this.连接对象资源管理器ToolStripMenuItem.Name = "连接对象资源管理器ToolStripMenuItem";
-            this.连接对象资源管理器ToolStripMenuItem.Size = new System.Drawing.Size(184, 22);
-            this.连接对象资源管理器ToolStripMenuItem.Text = "连接对象资源管理器";
-            // 
-            // 断开对象资源管理器ToolStripMenuItem
-            // 
-            this.断开对象资源管理器ToolStripMenuItem.Name = "断开对象资源管理器ToolStripMenuItem";
-            this.断开对象资源管理器ToolStripMenuItem.Size = new System.Drawing.Size(184, 22);
-            this.断开对象资源管理器ToolStripMenuItem.Text = "断开对象资源管理器";
-            this.断开对象资源管理器ToolStripMenuItem.Click += new System.EventHandler(this.断开对象资源管理器ToolStripMenuItem_Click);
             // 
             // SubItemEdit
             // 
@@ -121,6 +104,13 @@
             this.监控任务ToolStripMenuItem.Text = "监控任务";
             this.监控任务ToolStripMenuItem.Visible = false;
             this.监控任务ToolStripMenuItem.Click += new System.EventHandler(this.监控任务ToolStripMenuItem_Click);
+            // 
+            // swaggerMarkUpToolStripMenuItem
+            // 
+            this.swaggerMarkUpToolStripMenuItem.Name = "swaggerMarkUpToolStripMenuItem";
+            this.swaggerMarkUpToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
+            this.swaggerMarkUpToolStripMenuItem.Text = "Swagger->MarkUp";
+            this.swaggerMarkUpToolStripMenuItem.Click += new System.EventHandler(this.swaggerMarkUpToolStripMenuItem_Click);
             // 
             // SubItemHelp
             // 
@@ -156,8 +146,9 @@
             // toolStrip1
             // 
             this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsb_Excute,
-            this.TSCBServer});
+            this.TSCBServer,
+            this.TSBSave,
+            this.tsb_Excute});
             this.toolStrip1.Location = new System.Drawing.Point(0, 25);
             this.toolStrip1.Name = "toolStrip1";
             this.toolStrip1.Size = new System.Drawing.Size(830, 25);
@@ -177,6 +168,14 @@
             // 
             this.TSCBServer.Name = "TSCBServer";
             this.TSCBServer.Size = new System.Drawing.Size(0, 22);
+            // 
+            // TSBSave
+            // 
+            this.TSBSave.Image = global::APIHelper.Properties.Resources.disk_black;
+            this.TSBSave.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.TSBSave.Name = "TSBSave";
+            this.TSBSave.Size = new System.Drawing.Size(52, 22);
+            this.TSBSave.Text = "保存";
             // 
             // dbServerView1
             // 
@@ -215,13 +214,6 @@
             this.TSL_ClearMsg.Visible = false;
             this.TSL_ClearMsg.Click += new System.EventHandler(this.TSL_ClearMsg_Click);
             // 
-            // swaggerMarkUpToolStripMenuItem
-            // 
-            this.swaggerMarkUpToolStripMenuItem.Name = "swaggerMarkUpToolStripMenuItem";
-            this.swaggerMarkUpToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
-            this.swaggerMarkUpToolStripMenuItem.Text = "Swagger->MarkUp";
-            this.swaggerMarkUpToolStripMenuItem.Click += new System.EventHandler(this.swaggerMarkUpToolStripMenuItem_Click);
-            // 
             // MainFrm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -253,8 +245,6 @@
 
         private System.Windows.Forms.MenuStrip mainMenuBar;
         private System.Windows.Forms.ToolStripMenuItem MenItem_File;
-        private System.Windows.Forms.ToolStripMenuItem 连接对象资源管理器ToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem 断开对象资源管理器ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem SubItemEdit;
         private System.Windows.Forms.ToolStripMenuItem SubItemView;
         private System.Windows.Forms.ToolStripMenuItem SubItemTool;
@@ -270,6 +260,7 @@
         private System.Windows.Forms.ToolStripStatusLabel TSL_ClearMsg;
         private System.Windows.Forms.ToolStripMenuItem 监控任务ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem swaggerMarkUpToolStripMenuItem;
+        private System.Windows.Forms.ToolStripButton TSBSave;
     }
 }
 

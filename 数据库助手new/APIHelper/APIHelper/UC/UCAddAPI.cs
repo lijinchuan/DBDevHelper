@@ -13,7 +13,7 @@ using LJC.FrameWorkV3.Data.EntityDataBase;
 
 namespace APIHelper.UC
 { 
-    public partial class UCAddAPI : TabPage, IRecoverAble
+    public partial class UCAddAPI : TabPage, IRecoverAble,ISaveAble,IExcuteAble
     {
         private List<ParamInfo> Params = new List<ParamInfo>();
         private List<ParamInfo> Headers = new List<ParamInfo>();
@@ -59,7 +59,10 @@ namespace APIHelper.UC
             this._apiUrl.ApplicationType = obj.ApplicationType;
             this._apiUrl.AuthType = obj.AuthType;
             this._apiUrl.BodyDataType = obj.BodyDataType;
-
+            if (this._apiData != null)
+            {
+                obj.APIData.Id = this._apiData.Id;
+            }
             this._apiData = obj.APIData;
 
             BindData();
@@ -740,7 +743,7 @@ namespace APIHelper.UC
             return apidata;
         }
 
-        private void Save()
+        private void Save(bool force=false)
         {
             if (_apiUrl != null)
             {
@@ -780,7 +783,7 @@ namespace APIHelper.UC
                     }
                 }
 
-                if (ischanged)
+                if (ischanged||force)
                 {
                     BigEntityTableEngine.LocalEngine.Update<APIUrl>(nameof(APIUrl), this._apiUrl);
                     Util.SendMsg(this, "接口资源信息已更新");
@@ -846,7 +849,7 @@ namespace APIHelper.UC
                     ischanged = true;
                 }
 
-                if (ischanged)
+                if (ischanged||force)
                 {
                     if (this._apiData.Id == 0)
                     {
@@ -876,6 +879,16 @@ namespace APIHelper.UC
             Bind();
             BindData();
             return this;
+        }
+
+        void ISaveAble.Save()
+        {
+            Save(true);
+        }
+
+        public void Execute()
+        {
+            BtnSend_Click(null, null);
         }
     }
 }
