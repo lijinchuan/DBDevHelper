@@ -182,7 +182,7 @@ namespace Entity
             }
             else if (bodydataType == BodyDataType.xwwwformurlencoded)
             {
-                sb.AppendLine($" xwwwformurlencoded:{string.Join("&", this.APIData?.FormDatas.Where(p => p.Checked).Select(p => p.Name + "=" + p.Value))}");
+                sb.AppendLine($" xwwwformurlencoded:{string.Join("&", this.APIData?.XWWWFormUrlEncoded.Where(p => p.Checked).Select(p => p.Name + "=" + p.Value))}");
             }
             else if (bodydataType == BodyDataType.raw)
             {
