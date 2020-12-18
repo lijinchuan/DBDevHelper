@@ -19,10 +19,12 @@ namespace APIHelper.UC
         private List<ParamInfo> Headers = new List<ParamInfo>();
         private List<ParamInfo> FormDatas = new List<ParamInfo>();
         private List<ParamInfo> XWWWFormUrlEncoded = new List<ParamInfo>();
+        private List<ParamInfo> Cookies = new List<ParamInfo>();
 
         private UCParamsTable gridView = new UCParamsTable();
         private UCParamsTable paramsGridView = new UCParamsTable();
         private UCParamsTable headerGridView = new UCParamsTable();
+        private UCParamsTable cookieGridView = new UCParamsTable();
         private TextBox rawTextBox = new TextBox();
 
         private UC.Auth.UCBearToken UCBearToken = new Auth.UCBearToken();
@@ -230,7 +232,9 @@ namespace APIHelper.UC
                 url += string.Join("&", Params.Where(p => p.Checked).Select(p => $"{WebUtility.UrlEncode(ReplaceEvnParams(p.Name,ref apiEnvParams))}={WebUtility.UrlEncode(ReplaceEvnParams(p.Value,ref apiEnvParams))}"));
             }
 
-            if (Headers.Count() > 0)
+            //httpRequestEx.Cookies.Add(new System.Net.Cookie()
+
+            if (Headers?.Count() > 0)
             {
                 foreach (var header in Headers)
                 {
@@ -258,6 +262,17 @@ namespace APIHelper.UC
                         {
                             httpRequestEx.Headers.Add(ReplaceEvnParams(header.Name,ref apiEnvParams),ReplaceEvnParams(header.Value,ref apiEnvParams));
                         }
+                    }
+                }
+            }
+
+            if (Cookies?.Count > 0)
+            {
+                foreach(var cookie in Cookies)
+                {
+                    if (cookie.Checked)
+                    {
+                        httpRequestEx.AppendCookie(ReplaceEvnParams(cookie.Name, ref apiEnvParams), ReplaceEvnParams(cookie.Value, ref apiEnvParams), new Uri(url).Host, "/");
                     }
                 }
             }
@@ -474,6 +489,7 @@ namespace APIHelper.UC
                 this.rawTextBox.Text = this._apiData.RawText;
                 this.Headers = this._apiData.Headers;
                 this.FormDatas = this._apiData.FormDatas;
+                this.Cookies = this._apiData.Cookies;
                 this.UCBearToken.Token = this._apiData.BearToken;
                 this.UCApiKey.AddTo = this._apiData.ApiKeyAddTo;
                 this.UCApiKey.Key = this._apiData.ApiKeyName;
@@ -482,6 +498,7 @@ namespace APIHelper.UC
 
             headerGridView.DataSource = Headers;
             paramsGridView.DataSource = Params;
+            cookieGridView.DataSource = Cookies;
 
             if (this._apiUrl != null)
             {
@@ -530,6 +547,7 @@ namespace APIHelper.UC
 
             HeaderDataPannel.Controls.Add(headerGridView);
             ParamDataPanel.Controls.Add(paramsGridView);
+            CookieDataPannel.Controls.Add(cookieGridView);
 
             this.CBWebMethod.Items.AddRange(Enum.GetNames(typeof(Entity.APIMethod)));
             this.CBApplicationType.Items.AddRange(Enum.GetNames(typeof(Entity.ApplicationType)));
@@ -602,6 +620,7 @@ namespace APIHelper.UC
             rawTextBox.Multiline = true;
             rawTextBox.Dock = DockStyle.Fill;
             gridView.Dock = DockStyle.Fill;
+            cookieGridView.Dock = DockStyle.Fill;
 
             paramsGridView.Dock = DockStyle.Fill;
             
@@ -624,15 +643,19 @@ namespace APIHelper.UC
                 }
                 else if (page == TP_Params)
                 {
-                    used = this.Params.Any(p => p.Checked);
+                    used = this.Params?.Any(p => p.Checked) == true;
                 }
                 else if (page == TP_Header)
                 {
-                    used = this.Headers.Any(p => p.Checked);
+                    used = this.Headers?.Any(p => p.Checked) == true;
                 }
                 else if (page == TP_Body)
                 {
                     used = GetBodyDataType() != BodyDataType.none;
+                }
+                else if (page == TP_Cookie)
+                {
+                    used = this.Cookies?.Any(p => p.Checked) == true;
                 }
                 else
                 {
@@ -712,6 +735,7 @@ namespace APIHelper.UC
             apidata.ApiKeyAddTo = this.UCApiKey.AddTo;
             apidata.ApiKeyName = this.UCApiKey.Key;
             apidata.ApiKeyValue = this.UCApiKey.Val;
+            apidata.Cookies = this.Cookies;
 
             return apidata;
         }
@@ -791,6 +815,11 @@ namespace APIHelper.UC
                     this._apiData.Headers = this.Headers;
                     ischanged = true;
                 }
+                if (!Util.Compare(this._apiData.Cookies, this.Cookies))
+                {
+                    this._apiData.Cookies = this.Cookies;
+                    ischanged = true;
+                }
                 if (!Util.Compare(this._apiData.FormDatas, this.FormDatas))
                 {
                     this._apiData.FormDatas = this.FormDatas;
@@ -845,7 +874,6 @@ namespace APIHelper.UC
             this._apiData = (APIData)recoverData[1];
             this.Text = (string)recoverData[2];
             Bind();
-            ShowDoc();
             BindData();
             return this;
         }

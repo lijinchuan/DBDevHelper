@@ -51,6 +51,8 @@ namespace APIHelper.UC
             LBMs.Text = LBSize.Text = LBStatuCode.Text = string.Empty;
 
             TBResult.ContextMenuStrip = this.CMSTool;
+            DGVHeader.ContextMenuStrip = this.CMSTool;
+            DGVCookie.ContextMenuStrip = this.CMSTool;
             this.CMSTool.ItemClicked += CMSTool_ItemClicked;
         }
 
@@ -60,10 +62,43 @@ namespace APIHelper.UC
             {
                 case "复制":
                     {
-                        if (!string.IsNullOrWhiteSpace(TBResult.SelectedText))
+                        if (TBResult.Visible)
                         {
-                            Clipboard.SetText(TBResult.SelectedText);
-                            Util.SendMsg(this, "已复制到黏贴板");
+                            if (!string.IsNullOrWhiteSpace(TBResult.SelectedText))
+                            {
+                                Clipboard.SetText(TBResult.SelectedText);
+                                Util.SendMsg(this, "已复制到黏贴板");
+                            }
+                        }
+                        else
+                        {
+                            DataGridView dgv = null;
+                            if (this.DGVHeader.Visible)
+                            {
+                                dgv = this.DGVHeader;
+                            }
+                            else if (this.DGVCookie.Visible)
+                            {
+                                dgv = this.DGVCookie;
+                            }
+                            if (dgv != null)
+                            {
+                                StringBuilder sb = new StringBuilder();
+                                var cells = new List<DataGridViewCell>();
+                                foreach (DataGridViewCell cell in dgv.SelectedCells)
+                                {
+                                    cells.Add(cell);
+                                }
+                                foreach (var row in cells.GroupBy(p => p.RowIndex))
+                                {
+                                    sb.AppendLine(string.Join(":", row.OrderBy(p => p.ColumnIndex).Select(p => p.Value)));
+                                }
+                                if (sb.Length > 0)
+                                {
+                                    Clipboard.SetText(sb.ToString());
+                                    Util.SendMsg(this, "已复制到黏贴板");
+                                }
+                            }
                         }
                         break;
                     }

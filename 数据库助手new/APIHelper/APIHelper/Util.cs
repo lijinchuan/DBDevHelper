@@ -178,14 +178,14 @@ namespace APIHelper
             }
         }
 
-        public static bool Compare(List<ParamInfo> paramInfos1,List<ParamInfo> paramInfos2)
+        public static bool Compare(List<ParamInfo> paramInfos1, List<ParamInfo> paramInfos2)
         {
             if (paramInfos1?.Count != paramInfos2?.Count)
             {
                 return false;
             }
 
-            for(int i = 0; i < paramInfos1.Count; i++)
+            for (int i = 0; i < paramInfos1?.Count; i++)
             {
                 if (paramInfos1[i].Name != paramInfos2[i].Name
                     || paramInfos1[i].Value != paramInfos2[i].Value

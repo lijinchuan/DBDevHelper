@@ -45,6 +45,8 @@ namespace APIHelper.UC
             TBBulkEdit.Height = DGV.Height;
             TBBulkEdit.Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right | AnchorStyles.Bottom;
             this.Controls.Add(TBBulkEdit);
+
+            this.DGV.ContextMenuStrip = this.contextMenuStrip1;
         }
 
         private void DGV_DataError(object sender, DataGridViewDataErrorEventArgs e)
@@ -183,5 +185,30 @@ namespace APIHelper.UC
             }
         }
 
+        private void 全选ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (this.DGV.Rows.Count > 0)
+            {
+                this.DGV.SelectAll();
+            }
+        }
+
+        private void 复制ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            StringBuilder sb = new StringBuilder();
+            var cells = new List<DataGridViewCell>();
+            foreach (DataGridViewCell cell in DGV.SelectedCells)
+            {
+                cells.Add(cell);
+            }
+            foreach (var row in cells.GroupBy(p => p.RowIndex))
+            {
+                sb.AppendLine(string.Join(":", row.OrderBy(p => p.ColumnIndex).Select(p => p.Value)));
+            }
+            if (sb.Length > 0)
+            {
+                Clipboard.SetText(sb.ToString());
+            }
+        }
     }
 }

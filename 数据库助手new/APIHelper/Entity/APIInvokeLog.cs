@@ -174,6 +174,15 @@ namespace Entity
             sb.AppendLine($" content-type:application/{this.ApplicationType}");
             sb.AppendLine();
 
+            if (this.APIData.Cookies != null)
+            {
+                sb.AppendLine("cookie:");
+                foreach (var cookie in this.APIData.Cookies)
+                {
+                    sb.AppendLine($" {cookie.Name}:{cookie.Value}");
+                }
+            }
+
             sb.AppendLine("body:");
             var bodydataType = this.BodyDataType;
             if (bodydataType == BodyDataType.formdata)

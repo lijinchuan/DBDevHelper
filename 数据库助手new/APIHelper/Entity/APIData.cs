@@ -76,5 +76,11 @@ namespace Entity
             get;
             set;
         }
+
+        public List<ParamInfo> Cookies
+        {
+            get;
+            set;
+        }
     }
 }
