@@ -171,12 +171,31 @@ namespace APIHelper
                         }
                     case "编辑":
                         {
-                            if(selnode.Tag is APISource)
+                            if (selnode.Tag is APISource)
                             {
                                 if (new SubForm.AddAPISource((selnode.Tag as APISource).Id).ShowDialog() == DialogResult.OK)
                                 {
                                     Bind();
                                 }
+                            }
+                            else if (selnode.Tag is APIUrl)
+                            {
+                                var apiurl = selnode.Tag as APIUrl;
+                                var souceid = FindParentNode<APISource>(selnode).Id;
+                                if (new SubForm.AddAPIStep1Dlg(souceid, apiurl).ShowDialog() == DialogResult.OK)
+                                {
+                                    if (!BigEntityTableEngine.LocalEngine.Find<APIDoc>(nameof(APIDoc), "APIId", new object[] { apiurl.Id }).Any())
+                                        {
+                                        //创建文档
+                                        BigEntityTableEngine.LocalEngine.Insert(nameof(APIDoc), new APIDoc
+                                        {
+                                            APISourceId = souceid,
+                                            APIId = apiurl.Id,
+                                            Mark = apiurl.Desc
+                                        });
+                                    }
+                                }
+
                             }
                             break;
                         }
@@ -259,10 +278,10 @@ namespace APIHelper
                         }
                     case "参数定义":
                         {
-                            var apirul = selnode.Tag as APIUrl;
+                            var apidoc = selnode.Tag as APIDoc;
                             var apisource = FindParentNode<APISource>(selnode);
-                            var page = new UC.UCAddAPIParam(apirul.SourceId, apirul.Id);
-                            Util.AddToMainTab(this, $"{apisource.SourceName}.{apirul.APIName}参数定义", page);
+                            var page = new UC.UCAddAPIParam(apidoc.APISourceId, apidoc.APIId);
+                            Util.AddToMainTab(this, $"{apisource.SourceName}.{selnode.Text}参数定义", page);
                             break;
                         }
                     case "刷新":
@@ -324,9 +343,14 @@ namespace APIHelper
         {
             if (e.Node.Tag is APIUrl)
             {
-                var apiurl = e.Node.Tag as APIUrl;
-                var source = e.Node.Parent.Parent.Tag as APISource;
-                Util.AddToMainTab(this, $"[{source.SourceName}]{apiurl.APIName}", new UC.UCAddAPI(apiurl));
+                var apiurlid = (e.Node.Tag as APIUrl).Id;
+                var apiurl = BigEntityTableEngine.LocalEngine.Find<APIUrl>(nameof(APIUrl), apiurlid);
+                if (apiurl != null)
+                {
+                    var source = e.Node.Parent.Parent.Tag as APISource;
+
+                    Util.AddToMainTab(this, $"[{source.SourceName}]{apiurl.APIName}", new UC.UCAddAPI(apiurl));
+                }
             }
             else if (e.Node.Tag is APIEnvParam)
             {
@@ -400,7 +424,8 @@ namespace APIHelper
 
                 添加APIToolStripMenuItem.Visible = (node.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.APIPARENT;
 
-                修改ToolStripMenuItem.Visible = node.Tag is APISource;
+                修改ToolStripMenuItem.Visible = node.Tag is APISource
+                    ||node.Tag is APIUrl;
                 删除ToolStripMenuItem.Visible = node.Tag is APISource
                     ||node.Tag is APIEnv
                     ||node.Tag is APIEnvParam;
@@ -408,7 +433,7 @@ namespace APIHelper
                 添加环境ToolStripMenuItem.Visible= (node.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.ENVPARENT;
                 添加环境变量ToolStripMenuItem.Visible= (node.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.ENVPARENT;
 
-                参数定义ToolStripMenuItem.Visible = (node.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.API;
+                参数定义ToolStripMenuItem.Visible = (node.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.DOC;
 
                 新增逻辑关系图ToolStripMenuItem.Visible= (node.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.LOGICMAPParent;
                 删除逻辑关系图ToolStripMenuItem.Visible = (node.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.LOGICMAP;

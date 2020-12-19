@@ -37,7 +37,6 @@ namespace APIHelper.UC
         public LogViewTab()
         {
             InitializeComponent();
-            this.GVLog.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.DisplayedCells;
             PageIndex = 1;
             this.bindingNavigatorMoveLastItem.Click += BindingNavigatorMoveLastItem_Click;
             this.bindingNavigatorMoveNextItem.Click += BindingNavigatorMoveNextItem_Click;
@@ -60,7 +59,7 @@ namespace APIHelper.UC
             this.GVLog.GridColor = Color.LightBlue;
 
             //this.GVLog.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.DisplayedCells;
-            this.GVLog.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
+            //this.GVLog.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
             this.GVLog.AllowUserToResizeRows = true;
 
             BeginDate.Value = DateTime.Now.AddMonths(-1);
@@ -82,7 +81,7 @@ namespace APIHelper.UC
 
             if (GVLog.Columns.Contains("时间"))
             {
-                GVLog.Columns["时间"].Width = 100;
+                GVLog.Columns["时间"].Width = 120;
             }
 
             if (GVLog.Columns.Contains("状态码"))
@@ -93,6 +92,16 @@ namespace APIHelper.UC
             if (GVLog.Columns.Contains("用时"))
             {
                 GVLog.Columns["用时"].Width = 100;
+            }
+
+            if (GVLog.Columns.Contains("请求大小"))
+            {
+                GVLog.Columns["请求大小"].Width = 100;
+            }
+
+            if (GVLog.Columns.Contains("响应大小"))
+            {
+                GVLog.Columns["响应大小"].Width = 100;
             }
         }
 
@@ -325,6 +334,8 @@ namespace APIHelper.UC
                                 编号 = p.Id,
                                 时间 = p.CDate,
                                 地址 = p.Path,
+                                请求大小=p.GetRequestDetail().Length,
+                                响应大小=p.GetRespDetail().Length,
                                 状态码 = p.StatusCode,
                                 用时 = p.Ms
                             }).ToList();
@@ -342,6 +353,8 @@ namespace APIHelper.UC
                             编号 = p.Id,
                             时间 = p.CDate,
                             地址 = p.Path,
+                            请求大小 = p.GetRequestDetail().Length,
+                            响应大小 = p.GetRespDetail().Length,
                             状态码 = p.StatusCode,
                             用时 = p.Ms
                         }).ToList();

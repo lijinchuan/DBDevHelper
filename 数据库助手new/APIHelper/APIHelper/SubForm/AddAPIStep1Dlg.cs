@@ -33,11 +33,32 @@ namespace APIHelper.SubForm
             _apiresourceid = apiresourceid;
         }
 
+        public AddAPIStep1Dlg(int apiresourceid,APIUrl apiUrl)
+        {
+            InitializeComponent();
+            _apiresourceid = apiresourceid;
+            APIUrl = apiUrl;
+
+            this.TBAPIName.Text = apiUrl.APIName;
+            this.TBAPIName.ReadOnly = true;
+
+            this.TBUrl.Text = APIUrl.Path;
+            this.TBDesc.Text = APIUrl.Desc;
+
+            this.Text = "编辑API接口";
+
+        }
+
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
 
-            this.CBWebMethod.DataSource = Enum.GetNames(typeof(Entity.APIMethod));
+            this.CBWebMethod.Items.AddRange(Enum.GetNames(typeof(Entity.APIMethod)));
+
+            if (APIUrl != null)
+            {
+                this.CBWebMethod.SelectedItem = APIUrl.APIMethod.ToString();
+            }
         }
 
         private void BtnCancel_Click(object sender, EventArgs e)
@@ -67,24 +88,40 @@ namespace APIHelper.SubForm
                 return;
             }
 
-
-            var isexists = BigEntityTableEngine.LocalEngine.Find<APIUrl>(nameof(APIUrl), "SourceId_APIName", new object[] { _apiresourceid, apiname }).ToList().Any();
-            if (isexists)
+            if (APIUrl == null)
             {
-                MessageBox.Show("API名称不能重复");
-                return;
+                var isexists = BigEntityTableEngine.LocalEngine.Find<APIUrl>(nameof(APIUrl), "SourceId_APIName", new object[] { _apiresourceid, apiname }).ToList().Any();
+                if (isexists)
+                {
+                    MessageBox.Show("API名称不能重复");
+                    return;
+                }
+                this.APIUrl = new APIUrl
+                {
+                    APIMethod = (APIMethod)Enum.Parse(typeof(APIMethod), CBWebMethod.SelectedItem.ToString(), true),
+                    APIName = apiname,
+                    Path = apiurl,
+                    SourceId = _apiresourceid,
+                    Desc = TBDesc.Text.Trim()
+                };
+            }
+            else
+            {
+                this.APIUrl.APIMethod = (APIMethod)Enum.Parse(typeof(APIMethod), CBWebMethod.SelectedItem.ToString(), true);
+                this.APIUrl.APIName = apiname;
+                this.APIUrl.Path = apiurl;
+                this.APIUrl.SourceId = _apiresourceid;
+                this.APIUrl.Desc = TBDesc.Text.Trim();
             }
 
-            this.APIUrl = new APIUrl
+            if (this.APIUrl.Id == 0)
             {
-                APIMethod = (APIMethod)Enum.Parse(typeof(APIMethod), CBWebMethod.SelectedItem.ToString(),true),
-                APIName=apiname,
-                Path=apiurl,
-                SourceId=_apiresourceid,
-                Desc=TBDesc.Text.Trim()
-            };
-
-            BigEntityTableEngine.LocalEngine.Insert<APIUrl>(nameof(APIUrl), this.APIUrl);
+                BigEntityTableEngine.LocalEngine.Insert<APIUrl>(nameof(APIUrl), this.APIUrl);
+            }
+            else
+            {
+                BigEntityTableEngine.LocalEngine.Update<APIUrl>(nameof(APIUrl), this.APIUrl);
+            }
 
             this.DialogResult = DialogResult.OK;
         }
