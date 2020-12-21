@@ -16,6 +16,11 @@ namespace APIHelper.UC
     {
         //private TextBox TBBulkEdit = new TextBox();
         private RichTextBox TBBulkEdit = new RichTextBox();
+        public bool CanUpload
+        {
+            get;
+            set;
+        }
         public UCParamsTable()
         {
 
@@ -39,6 +44,7 @@ namespace APIHelper.UC
             CBEditType.SelectedIndexChanged += CBEditType_SelectedIndexChanged;
 
             TBBulkEdit.Visible = false;
+            TBBulkEdit.WordWrap = false;
             TBBulkEdit.Multiline = true;
             TBBulkEdit.Location = DGV.Location;
             TBBulkEdit.Width = DGV.Width;
@@ -47,6 +53,26 @@ namespace APIHelper.UC
             this.Controls.Add(TBBulkEdit);
 
             this.DGV.ContextMenuStrip = this.contextMenuStrip1;
+
+            this.DGV.CellContentClick += DGV_CellContentClick;
+        }
+
+        private void DGV_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+            //点击button按钮事件
+            if (DGV.Columns[e.ColumnIndex].Name == "file" && e.RowIndex >= 0)
+            {
+                //说明点击的列是DataGridViewButtonColumn列
+                DataGridViewColumn column = DGV.Columns[e.ColumnIndex];
+
+                OpenFileDialog dlg = new OpenFileDialog();
+                if (dlg.ShowDialog() == DialogResult.OK)
+                {
+                    var list = this.DataSource as List<ParamInfo>;
+                    list[e.RowIndex].Value = "[file]" + dlg.FileName;
+                    DataSource = list;
+                }
+            }
         }
 
         private void DGV_DataError(object sender, DataGridViewDataErrorEventArgs e)
@@ -100,10 +126,7 @@ namespace APIHelper.UC
             }
             else
             {
-                DGV.Visible = true;
-                TBBulkEdit.Visible = false;
-
-                var regex = new Regex("(--)?([^:]+):([^/]*)((?://)[^\r\n]*)?");
+                var regex = new Regex("(--)?([^:]+):((.*)(?://))([^\r\n/]*$)");
                 List<ParamInfo> paramInfos = new List<ParamInfo>();
                 foreach (var line in TBBulkEdit.Text.Split(new[] { "\n" }, StringSplitOptions.None))
                 {
@@ -118,8 +141,8 @@ namespace APIHelper.UC
                     {
                         Checked = string.IsNullOrWhiteSpace(m.Groups[1].Value),
                         Name = m.Groups[2].Value,
-                        Value = m.Groups[3].Value,
-                        Desc = m.Groups[4].Value.Split(new[] { "//" }, StringSplitOptions.None).Last()
+                        Value = m.Groups[4].Value,
+                        Desc = m.Groups[5].Value
                     });
                 }
                 
@@ -128,13 +151,23 @@ namespace APIHelper.UC
                 oldds.AddRange(paramInfos);
 
                 DataSource = oldds;
-                
+
+                DGV.Visible = true;
+                TBBulkEdit.Visible = false;
             }
         }
 
         private void GridView_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
         {
             var dgv = (sender as DataGridView);
+            var filecolumn = "file";
+            if (CanUpload)
+            {
+                if (dgv.Columns.Contains(filecolumn))
+                {
+                    dgv.Columns.Remove(filecolumn);
+                }
+            }
             foreach (DataGridViewColumn col in dgv.Columns)
             {
                 if (col.Name == "Checked")
@@ -153,6 +186,19 @@ namespace APIHelper.UC
                 else if (col.Name == "Desc")
                 {
                     col.HeaderText = "参数描述";
+                }
+            }
+
+            if (CanUpload)
+            {
+                if (dgv.Columns.Count > 0 && !dgv.Columns.Contains(filecolumn))
+                {
+                    DataGridViewButtonColumn btn = new DataGridViewButtonColumn();
+                    btn.Name = filecolumn;
+                    btn.HeaderText = "上传";
+                    btn.Width = 40;
+                    btn.DefaultCellStyle.NullValue = "上传";
+                    dgv.Columns.Insert(dgv.Columns.Count, btn);
                 }
             }
         }

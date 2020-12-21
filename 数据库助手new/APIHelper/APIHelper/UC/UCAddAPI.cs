@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using Entity;
 using LJC.FrameWorkV3.Comm;
 using LJC.FrameWorkV3.Data.EntityDataBase;
+using System.IO;
 
 namespace APIHelper.UC
 { 
@@ -26,7 +27,7 @@ namespace APIHelper.UC
         private UCParamsTable headerGridView = new UCParamsTable();
         private UCParamsTable cookieGridView = new UCParamsTable();
         private TextBox rawTextBox = new TextBox();
-        private UC.UCBinary UCBinary = new UCBinary();
+        private UC.UCParamsTable UCBinary = new UCParamsTable();
 
         private UC.Auth.UCBearToken UCBearToken = new Auth.UCBearToken();
         private UC.Auth.UCApiKey UCApiKey = new Auth.UCApiKey();
@@ -328,15 +329,31 @@ namespace APIHelper.UC
             {
                 WebRequestMethodEnum webRequestMethodEnum = (WebRequestMethodEnum)Enum.Parse(typeof(WebRequestMethodEnum), CBWebMethod.SelectedItem.ToString());
                 List<FormItemModel> formItems = new List<FormItemModel>();
-                foreach(var item in UCBinary.Files)
+                foreach(var item in UCBinary.DataSource as List<ParamInfo>)
                 {
-                    formItems.Add(new FormItemModel
+                    if (item.Checked)
                     {
-                        FileContent=item.Value,
-                        FileName=item.Key,
-                        Key= "file",
-                        Value= "file"
-                    });
+                        if (item.Value?.StartsWith("[file]")==true)
+                        {
+                            var filename = item.Value.Replace("[file]", string.Empty);
+                            var s = new System.IO.FileStream(filename, FileMode.Open);
+                            formItems.Add(new FormItemModel
+                            {
+                                FileName = Path.GetFileName(filename),
+                                Key = item.Name,
+                                FileContent = s
+                            });
+                        }
+                        else
+                        {
+                            formItems.Add(new FormItemModel
+                            {
+                                FileName = item.Name,
+                                Key = item.Name,
+                                Value = item.Value
+                            });
+                        }
+                    }
                 }
 
                 responseEx = httpRequestEx.FormSubmit(url, formItems, webRequestMethodEnum, saveCookie: true);
@@ -555,6 +572,7 @@ namespace APIHelper.UC
 
         private void Bind()
         {
+            UCBinary.CanUpload = true;
             this.Tabs.ImageList = new ImageList();
             this.Tabs.ImageList.Images.Add("USED", Resources.Resource1.bullet_green);
             this.Tabs.ImageList.Images.Add("ERROR", Resources.Resource1.bullet_red);
@@ -652,6 +670,8 @@ namespace APIHelper.UC
             paramsGridView.Dock = DockStyle.Fill;
             
             headerGridView.Dock = DockStyle.Fill;
+            UCBinary.Dock = DockStyle.Fill;
+            UCBinary.DataSource = new List<ParamInfo>();
             this.ParentChanged += UCAddAPI_ParentChanged;
 
             CBApplicationType.SelectedIndexChanged += CBApplicationType_SelectedIndexChanged;
