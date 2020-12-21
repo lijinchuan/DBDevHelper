@@ -26,6 +26,7 @@ namespace APIHelper.UC
         private UCParamsTable headerGridView = new UCParamsTable();
         private UCParamsTable cookieGridView = new UCParamsTable();
         private TextBox rawTextBox = new TextBox();
+        private UC.UCBinary UCBinary = new UCBinary();
 
         private UC.Auth.UCBearToken UCBearToken = new Auth.UCBearToken();
         private UC.Auth.UCApiKey UCApiKey = new Auth.UCApiKey();
@@ -308,20 +309,37 @@ namespace APIHelper.UC
             HttpResponseEx responseEx = null;
             if (bodydataType == BodyDataType.formdata)
             {
-                var dic = FormDatas.Where(p => p.Checked).ToDictionary(p =>ReplaceEvnParams(p.Name,ref apiEnvParams), q =>ReplaceEvnParams(q.Value,ref apiEnvParams));
+                var dic = FormDatas.Where(p => p.Checked).ToDictionary(p => ReplaceEvnParams(p.Name, ref apiEnvParams), q => ReplaceEvnParams(q.Value, ref apiEnvParams));
                 responseEx = httpRequestEx.DoFormRequest(url, dic);
             }
             else if (bodydataType == BodyDataType.xwwwformurlencoded)
             {
                 WebRequestMethodEnum webRequestMethodEnum = (WebRequestMethodEnum)Enum.Parse(typeof(WebRequestMethodEnum), CBWebMethod.SelectedItem.ToString());
-                var data = string.Join("&", XWWWFormUrlEncoded.Where(p => p.Checked).Select(p => $"{ReplaceEvnParams(p.Name,ref apiEnvParams)}={WebUtility.UrlEncode(ReplaceEvnParams(p.Value,ref apiEnvParams))}"));
+                var data = string.Join("&", XWWWFormUrlEncoded.Where(p => p.Checked).Select(p => $"{ReplaceEvnParams(p.Name, ref apiEnvParams)}={WebUtility.UrlEncode(ReplaceEvnParams(p.Value, ref apiEnvParams))}"));
                 responseEx = httpRequestEx.DoRequest(url, data, webRequestMethodEnum);
             }
             else if (bodydataType == BodyDataType.raw)
             {
                 WebRequestMethodEnum webRequestMethodEnum = (WebRequestMethodEnum)Enum.Parse(typeof(WebRequestMethodEnum), CBWebMethod.SelectedItem.ToString());
-                var data = Encoding.UTF8.GetBytes(ReplaceEvnParams(rawTextBox.Text,ref apiEnvParams));
+                var data = Encoding.UTF8.GetBytes(ReplaceEvnParams(rawTextBox.Text, ref apiEnvParams));
                 responseEx = httpRequestEx.DoRequest(url, data, webRequestMethodEnum, contentType: $"application/{CBApplicationType.SelectedItem.ToString()}");
+            }
+            else if (bodydataType == BodyDataType.binary)
+            {
+                WebRequestMethodEnum webRequestMethodEnum = (WebRequestMethodEnum)Enum.Parse(typeof(WebRequestMethodEnum), CBWebMethod.SelectedItem.ToString());
+                List<FormItemModel> formItems = new List<FormItemModel>();
+                foreach(var item in UCBinary.Files)
+                {
+                    formItems.Add(new FormItemModel
+                    {
+                        FileContent=item.Value,
+                        FileName=item.Key,
+                        Key= "file",
+                        Value= "file"
+                    });
+                }
+
+                responseEx = httpRequestEx.FormSubmit(url, formItems, webRequestMethodEnum, saveCookie: true);
             }
             else
             {
@@ -464,6 +482,12 @@ namespace APIHelper.UC
                 if (RBRow.Checked)
                 {
                     DataPanel.Controls.Add(rawTextBox);
+                }
+            }else if (sender == RBBinary)
+            {
+                if (RBBinary.Checked)
+                {
+                    DataPanel.Controls.Add(UCBinary);
                 }
             }
         }

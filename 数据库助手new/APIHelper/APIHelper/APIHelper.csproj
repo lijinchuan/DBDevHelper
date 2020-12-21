@@ -303,6 +303,12 @@
     <Compile Include="UC\UCApiResult.Designer.cs">
       <DependentUpon>UCApiResult.cs</DependentUpon>
     </Compile>
+    <Compile Include="UC\UCBinary.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UC\UCBinary.Designer.cs">
+      <DependentUpon>UCBinary.cs</DependentUpon>
+    </Compile>
     <Compile Include="UC\UCLogicMap.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -427,6 +433,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="UC\UCApiResult.resx">
       <DependentUpon>UCApiResult.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UC\UCBinary.resx">
+      <DependentUpon>UCBinary.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UC\UCLogicMap.resx">
       <DependentUpon>UCLogicMap.cs</DependentUpon>
