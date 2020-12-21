@@ -15,6 +15,8 @@ namespace APIHelper.SubForm
         public FindDlg()
         {
             InitializeComponent();
+
+            this.StartPosition = FormStartPosition.CenterScreen;
         }
 
         private int findPos = 0;

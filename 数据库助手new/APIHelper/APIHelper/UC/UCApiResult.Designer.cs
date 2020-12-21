@@ -46,6 +46,7 @@
             this.panel2 = new System.Windows.Forms.Panel();
             this.CMSTool = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.复制ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.查找ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.Tabs.SuspendLayout();
             this.TPBody.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -226,15 +227,22 @@
             // CMSTool
             // 
             this.CMSTool.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.复制ToolStripMenuItem});
+            this.复制ToolStripMenuItem,
+            this.查找ToolStripMenuItem});
             this.CMSTool.Name = "CMSTool";
-            this.CMSTool.Size = new System.Drawing.Size(181, 48);
+            this.CMSTool.Size = new System.Drawing.Size(181, 70);
             // 
             // 复制ToolStripMenuItem
             // 
             this.复制ToolStripMenuItem.Name = "复制ToolStripMenuItem";
             this.复制ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.复制ToolStripMenuItem.Text = "复制";
+            // 
+            // 查找ToolStripMenuItem
+            // 
+            this.查找ToolStripMenuItem.Name = "查找ToolStripMenuItem";
+            this.查找ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.查找ToolStripMenuItem.Text = "查找";
             // 
             // UCApiResult
             // 
@@ -278,5 +286,6 @@
         private System.Windows.Forms.Panel panel2;
         private System.Windows.Forms.ContextMenuStrip CMSTool;
         private System.Windows.Forms.ToolStripMenuItem 复制ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 查找ToolStripMenuItem;
     }
 }

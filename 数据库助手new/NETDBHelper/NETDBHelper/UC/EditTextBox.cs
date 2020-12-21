@@ -1383,12 +1383,19 @@ namespace NETDBHelper.UC
         {
             SubForm.FindDlg dlg = new SubForm.FindDlg();
             dlg.Owner = this.ParentForm;
-            
-            //dlg.FindLast += (s, i) =>
-            //{
-            //    var pos = this.RichText.Find(s, i,RichTextBoxFinds.NoHighlight);
-            //    return pos;
-            //};
+
+            dlg.FindLast += (s, i) =>
+            {
+                var pos = this.RichText.Find(s, 0, i, RichTextBoxFinds.Reverse | RichTextBoxFinds.NoHighlight);
+                if (pos != -1)
+                {
+                    this.RichText.Select(pos, s.Length);
+                    this.RichText.ScrollToCaret();
+                    this.RichText.Focus();
+                    return pos;
+                }
+                return 0;
+            };
             dlg.FindNext += (s, i) =>
             {
                 var pos = this.RichText.Find(s, i, RichTextBoxFinds.NoHighlight);

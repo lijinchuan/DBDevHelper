@@ -102,6 +102,44 @@ namespace APIHelper.UC
                         }
                         break;
                     }
+                case "查找":
+                    {
+                        SubForm.FindDlg dlg = new SubForm.FindDlg();
+                        dlg.Owner = this.ParentForm;
+
+                        dlg.FindLast += (s, i) =>
+                        {
+                            var pos = this.TBResult.Find(s, 0,i, RichTextBoxFinds.Reverse | RichTextBoxFinds.NoHighlight);
+                            if (pos != -1)
+                            {
+                                this.TBResult.Select(pos, s.Length);
+                                this.TBResult.ScrollToCaret();
+                                this.TBResult.Focus();
+                                return pos;
+                            }
+                            return 0;
+                        };
+                        dlg.FindNext += (s, i) =>
+                        {
+                            var pos = this.TBResult.Find(s, i, RichTextBoxFinds.NoHighlight);
+                            if (pos != -1)
+                            {
+                                this.TBResult.Select(pos, s.Length);
+                                this.TBResult.ScrollToCaret();
+                                this.TBResult.Focus();
+                                return pos + s.Length;
+                            }
+                            else
+                            {
+                                return 0;
+                            }
+
+                        };
+
+                        dlg.Show();
+
+                        break;
+                    }
             }
         }
 
