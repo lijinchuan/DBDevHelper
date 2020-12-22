@@ -67,6 +67,8 @@
     <Compile Include="MarkObjectInfo.cs" />
     <Compile Include="NodeContents.cs" />
     <Compile Include="NodeContentType.cs" />
+    <Compile Include="OldVesion\APIData.cs" />
+    <Compile Include="OldVesion\APIInvokeLog.cs" />
     <Compile Include="ParamInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RespCookie.cs" />

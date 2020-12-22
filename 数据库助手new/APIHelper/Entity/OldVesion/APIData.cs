@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Entity
+namespace Entity.OldVesion
 {
     [Serializable]
     public class APIData
@@ -78,12 +78,6 @@ namespace Entity
         }
 
         public List<ParamInfo> Cookies
-        {
-            get;
-            set;
-        }
-
-        public List<ParamInfo> Multipart_form_data
         {
             get;
             set;

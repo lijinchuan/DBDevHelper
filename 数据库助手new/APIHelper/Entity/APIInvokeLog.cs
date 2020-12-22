@@ -197,6 +197,10 @@ namespace Entity
             {
                 sb.AppendLine($"raw:{this.APIData?.RawText}");
             }
+            else if (bodydataType == BodyDataType.binary)
+            {
+                sb.AppendLine($" multipart/form-data:{string.Join("&", this.APIData?.Multipart_form_data.Where(p => p.Checked).Select(p => p.Name + "=" + p.Value))}");
+            }
             else
             {
                 sb.AppendLine($"raw:");

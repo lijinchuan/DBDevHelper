@@ -21,6 +21,7 @@ namespace APIHelper.UC
         private List<ParamInfo> FormDatas = new List<ParamInfo>();
         private List<ParamInfo> XWWWFormUrlEncoded = new List<ParamInfo>();
         private List<ParamInfo> Cookies = new List<ParamInfo>();
+        private List<ParamInfo> Multipart_form_data = new List<ParamInfo>();
 
         private UCParamsTable gridView = new UCParamsTable();
         private UCParamsTable paramsGridView = new UCParamsTable();
@@ -534,6 +535,7 @@ namespace APIHelper.UC
                 this.Headers = this._apiData.Headers;
                 this.FormDatas = this._apiData.FormDatas;
                 this.Cookies = this._apiData.Cookies;
+                this.Multipart_form_data = this._apiData.Multipart_form_data;
                 this.UCBearToken.Token = this._apiData.BearToken;
                 this.UCApiKey.AddTo = this._apiData.ApiKeyAddTo;
                 this.UCApiKey.Key = this._apiData.ApiKeyName;
@@ -543,6 +545,7 @@ namespace APIHelper.UC
             headerGridView.DataSource = Headers;
             paramsGridView.DataSource = Params;
             cookieGridView.DataSource = Cookies;
+            UCBinary.DataSource = Multipart_form_data;
 
             if (this._apiUrl != null)
             {
@@ -783,6 +786,7 @@ namespace APIHelper.UC
             apidata.ApiKeyName = this.UCApiKey.Key;
             apidata.ApiKeyValue = this.UCApiKey.Val;
             apidata.Cookies = this.Cookies;
+            apidata.Multipart_form_data = this.Multipart_form_data;
 
             return apidata;
         }
@@ -870,6 +874,11 @@ namespace APIHelper.UC
                 if (!Util.Compare(this._apiData.FormDatas, this.FormDatas))
                 {
                     this._apiData.FormDatas = this.FormDatas;
+                    ischanged = true;
+                }
+                if (!Util.Compare(this._apiData.Multipart_form_data, this.Multipart_form_data))
+                {
+                    this._apiData.Multipart_form_data = this.Multipart_form_data;
                     ischanged = true;
                 }
                 if (this._apiData.BearToken != this.UCBearToken.Token)

@@ -100,7 +100,29 @@ namespace APIHelper
             .AddIndex("LSDTC", m => m.Asc(f => f.LogicID).Asc(f => f.APISourceId).Asc(f => f.APIId))
             .AddIndex("LSDRTC", m => m.Asc(f => f.LogicID).Asc(f => f.RelAPIResourceId).Asc(f => f.RelAPIId)));
 
+            //BigEntityTableEngine.LocalEngine.Upgrade<Entity.OldVesion.APIData, APIData>(nameof(APIData), old =>
+            //{
+            //    if (old == null)
+            //    {
+            //        return null;
+            //    }
+            //    return new APIData
+            //    {
+            //        ApiId = old.ApiId,
+            //        ApiKeyAddTo = old.ApiKeyAddTo,
+            //        ApiKeyName = old.ApiKeyName,
+            //        ApiKeyValue = old.ApiKeyValue,
+            //        BearToken = old.BearToken,
+            //        Cookies = old.Cookies,
+            //        FormDatas = old.FormDatas,
+            //        Headers = old.Headers,
+            //        Multipart_form_data = new List<ParamInfo>(),
+            //        Params = old.Params,
+            //        RawText = old.RawText,
+            //        XWWWFormUrlEncoded = old.XWWWFormUrlEncoded
+            //    };
 
+            //}, "Id", true, new IndexBuilder<APIData>().AddIndex("ApiId", q => q.Asc(m => m.ApiId)).Build());
             BigEntityTableEngine.LocalEngine.CreateTable<APIData>(p => p.Id, p => p.AddIndex("ApiId", q => q.Asc(m => m.ApiId)));
 
             BigEntityTableEngine.LocalEngine.CreateTable<APIEnv>(p => p.Id, p => p.AddIndex("SourceId", q => q.Asc(m => m.SourceId)));
@@ -111,7 +133,7 @@ namespace APIHelper
 
             //日志
             BigEntityTableEngine.LocalEngine.CreateTable<APIInvokeLog>(p => p.Id, p => p.AddIndex("APIId_CDate", m => m.Asc(s => s.APIId).Desc(s => s.CDate))
-            .AddIndex("APIId_ApiEnvId_CDate", m => m.Asc(s => s.APIId).Asc(s => s.ApiEnvId).Desc(s => s.CDate)));
+           .AddIndex("APIId_ApiEnvId_CDate", m => m.Asc(s => s.APIId).Asc(s => s.ApiEnvId).Desc(s => s.CDate)));
 
             //参数
             BigEntityTableEngine.LocalEngine.CreateTable<APIParam>(p => p.Id, p => p.AddIndex("APIId", m => m.Asc(s => s.APIId)));
