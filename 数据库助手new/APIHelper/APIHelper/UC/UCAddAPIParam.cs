@@ -12,7 +12,7 @@ using LJC.FrameWorkV3.Data.EntityDataBase;
 
 namespace APIHelper.UC
 {
-    public partial class UCAddAPIParam : TabPage
+    public partial class UCAddAPIParam : TabPage,ISaveAble
     {
 
         private int _apisourceid = 0;
@@ -48,7 +48,7 @@ namespace APIHelper.UC
                     Sort = 1,
                     APIId = _apiid,
                     APISourceId = _apisourceid,
-
+                    Type=1
                 });
             }
 
@@ -165,6 +165,11 @@ namespace APIHelper.UC
             }
 
             Util.SendMsg(this, "保存成功");
+        }
+
+        public void Save()
+        {
+            BtnSave_Click(null, null);
         }
     }
 }
