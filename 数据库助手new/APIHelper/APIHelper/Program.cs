@@ -139,6 +139,8 @@ namespace APIHelper
             BigEntityTableEngine.LocalEngine.CreateTable<APIParam>(p => p.Id, p => p.AddIndex("APIId", m => m.Asc(s => s.APIId)));
             //文档
             BigEntityTableEngine.LocalEngine.CreateTable<APIDoc>(p => p.Id, p => p.AddIndex("APISourceId", m => m.Asc(s => s.APISourceId)).AddIndex("APIId", m => m.Asc(s => s.APIId)));
+            //文档示例
+            BigEntityTableEngine.LocalEngine.CreateTable<APIDocExample>(p => p.Id, p => p.AddIndex("ApiId", m => m.Asc(s => s.ApiId)));
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);

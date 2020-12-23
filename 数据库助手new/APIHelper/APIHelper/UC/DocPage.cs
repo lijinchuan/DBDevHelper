@@ -31,7 +31,7 @@ namespace APIHelper.UC
             sbdoc.AppendLine("**请求方式：**");
             sbdoc.AppendLine($"- {apiurl.APIMethod.ToString()}");
             sbdoc.AppendLine();
-            sbdoc.AppendLine("**参数：** ");
+            sbdoc.AppendLine("**请求参数说明：** ");
             sbdoc.AppendLine();
             sbdoc.AppendLine("|参数名|必选|类型|说明|");
             sbdoc.AppendLine("|:----    |:---|:----- |-----   |");
@@ -41,13 +41,8 @@ namespace APIHelper.UC
                 sbdoc.AppendLine($"{item.Name}|{(item.IsRequried ? "T" : "F")}|{item.TypeName}|{item.Desc}|");
             }
             sbdoc.AppendLine();
-            sbdoc.AppendLine(" **返回示例**");
-            sbdoc.AppendLine("");
-            sbdoc.AppendLine("``` ");
-            sbdoc.AppendLine();
-            sbdoc.AppendLine("``` ");
-            sbdoc.AppendLine();
-            sbdoc.AppendLine(" **返回参数说明** ");
+
+            sbdoc.AppendLine(" **返回参数说明：** ");
             sbdoc.AppendLine();
             sbdoc.AppendLine("|参数名|类型|说明|");
             sbdoc.AppendLine("|:-----  |:-----|-----                           |");
@@ -56,7 +51,32 @@ namespace APIHelper.UC
                 sbdoc.AppendLine($"{item.Name}|{item.TypeName}|{item.Desc}|");
             }
             sbdoc.AppendLine();
+
+            var examplelist = BigEntityTableEngine.LocalEngine.Find<APIDocExample>(nameof(APIDocExample), "ApiId", new object[] { apiurl.Id });
+            sbdoc.AppendLine("**示例：** ");
+            sbdoc.AppendLine();
+            foreach (var examle in examplelist)
+            {
+                sbdoc.AppendLine($"- 场景:{examle.Name}");
+                sbdoc.AppendLine();
+                sbdoc.AppendLine(" **请求示例**");
+                sbdoc.AppendLine("");
+                sbdoc.AppendLine("``` ");
+                sbdoc.AppendLine(examle.Req);
+                sbdoc.AppendLine("``` ");
+                sbdoc.AppendLine();
+
+                sbdoc.AppendLine();
+                sbdoc.AppendLine(" **返回示例**");
+                sbdoc.AppendLine("");
+                sbdoc.AppendLine("``` ");
+                sbdoc.AppendLine(examle.Resp);
+                sbdoc.AppendLine("``` ");
+                sbdoc.AppendLine();
+            }
+
             sbdoc.AppendLine("**备注** ");
+            sbdoc.AppendLine("> ");
             //sbdoc.Replace("\"", "\\\"");
             //sbdoc.Replace("\r", "\\\r");
             if (!string.IsNullOrEmpty(title))

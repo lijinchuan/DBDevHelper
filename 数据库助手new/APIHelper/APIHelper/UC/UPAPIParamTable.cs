@@ -105,11 +105,11 @@ namespace APIHelper.UC
                 {
                     if (Type == 0)
                     {
-                        sb.AppendLine($"{item.Name}|{item.IsRequried}|{item.TypeName}|{item.Desc}");
+                        sb.AppendLine($"|{item.Name}|{item.IsRequried}|{item.TypeName}|{item.Desc}|");
                     }
                     else
                     {
-                        sb.AppendLine($"{item.Name}|{item.TypeName}|{item.Desc}");
+                        sb.AppendLine($"|{item.Name}|{item.TypeName}|{item.Desc}|");
                     }
                 }
 
@@ -127,12 +127,17 @@ namespace APIHelper.UC
                         continue;
                     }
                     sort++;
-                    var texts = line.Trim('|').Split('|');
+                    if (line.Length < 2 || !line.StartsWith("|") || !line.EndsWith("|"))
+                    {
+                        Util.SendMsg(this, "格式错误:每行必须以|开头和结尾");
+                        return;
+                    }
+                    var texts = line.Substring(1, line.Length - 2).Split('|');
                     if (Type == 0)
                     {
                         if (texts.Length != 4)
                         {
-                            Util.SendMsg(this, "格式错误");
+                            Util.SendMsg(this, "格式错误：需要4列数据");
                             return;
                         }
                     }
@@ -140,20 +145,20 @@ namespace APIHelper.UC
                     {
                         if (texts.Length != 3)
                         {
-                            Util.SendMsg(this, "格式错误");
+                            Util.SendMsg(this, "格式错误：需要3列数据");
                             return;
                         }
                     }
-                    if (string.IsNullOrWhiteSpace(texts[0]))
-                    {
-                        Util.SendMsg(this, "字段名称不能为空");
-                        return;
-                    }
-                    if (string.IsNullOrWhiteSpace(texts[2]))
-                    {
-                        Util.SendMsg(this, "类型名称不能为空");
-                        return;
-                    }
+                    //if (string.IsNullOrWhiteSpace(texts[0]))
+                    //{
+                    //    Util.SendMsg(this, "字段名称不能为空");
+                    //    return;
+                    //}
+                    //if (string.IsNullOrWhiteSpace(texts[2]))
+                    //{
+                    //    Util.SendMsg(this, "类型名称不能为空");
+                    //    return;
+                    //}
 
                     var boo = false;
                     if (Type == 0)

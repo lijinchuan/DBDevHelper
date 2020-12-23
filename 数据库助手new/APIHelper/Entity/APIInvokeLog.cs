@@ -209,6 +209,31 @@ namespace Entity
             return sb;
         }
 
+        public StringBuilder GetRequestBody()
+        {
+            StringBuilder sb = new StringBuilder();
+
+            var bodydataType = this.BodyDataType;
+            if (bodydataType == BodyDataType.formdata)
+            {
+                sb.AppendLine($"{string.Join("&", this.APIData?.FormDatas.Where(p => p.Checked).Select(p => p.Name + "=" + p.Value))}");
+            }
+            else if (bodydataType == BodyDataType.xwwwformurlencoded)
+            {
+                sb.AppendLine($"{string.Join("&", this.APIData?.XWWWFormUrlEncoded.Where(p => p.Checked).Select(p => p.Name + "=" + p.Value))}");
+            }
+            else if (bodydataType == BodyDataType.raw)
+            {
+                sb.AppendLine($"{this.APIData?.RawText}");
+            }
+            else if (bodydataType == BodyDataType.binary)
+            {
+                sb.AppendLine($"{string.Join("&", this.APIData?.Multipart_form_data.Where(p => p.Checked).Select(p => p.Name + "=" + p.Value))}");
+            }
+
+            return sb;
+        }
+
         public StringBuilder GetRespDetail()
         {
             StringBuilder sb = new StringBuilder();
@@ -224,6 +249,15 @@ namespace Entity
             }
             sb.AppendLine();
             sb.AppendLine("body:");
+            sb.AppendLine(this.ResponseText);
+
+            return sb;
+        }
+
+        public StringBuilder GetRespBody()
+        {
+            StringBuilder sb = new StringBuilder();
+
             sb.AppendLine(this.ResponseText);
 
             return sb;

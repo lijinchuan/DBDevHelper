@@ -53,6 +53,7 @@ namespace APIHelper.UC
             this.GVLog.ContextMenuStrip.Items.Add("查看请求");
             this.GVLog.ContextMenuStrip.Items.Add("查看结果");
             this.GVLog.ContextMenuStrip.Items.Add("再次执行");
+            this.GVLog.ContextMenuStrip.Items.Add("添加到示例");
             this.GVLog.ContextMenuStrip.ItemClicked += ContextMenuStrip_ItemClicked;
             this.GVLog.CellDoubleClick += GVLog_CellDoubleClick;
             this.GVLog.BorderStyle = BorderStyle.None;
@@ -241,6 +242,24 @@ namespace APIHelper.UC
                     if (log != null && ReInvoke != null)
                     {
                         ReInvoke(log);
+                    }
+                }
+            }
+            else if (e.ClickedItem.Text == "添加到示例")
+            {
+                var row = GVLog.CurrentRow;
+                if (row != null)
+                {
+                    var id = (int)row.Cells["编号"].Value;
+                    var log = BigEntityTableEngine.LocalEngine.Find<APIInvokeLog>(nameof(APIInvokeLog), id);
+                    if (log != null)
+                    {
+                        var api = BigEntityTableEngine.LocalEngine.Find<APIUrl>(nameof(APIUrl), log.APIId);
+                        if (api != null)
+                        {
+                            var source = BigEntityTableEngine.LocalEngine.Find<APISource>(nameof(APISource), api.SourceId);
+                            Util.AddToMainTab(this, $"{source.SourceName}.{api.APIName}示例管理", new UC.UCAPIExampleTabPage(log.APIId,log));
+                        }
                     }
                 }
             }

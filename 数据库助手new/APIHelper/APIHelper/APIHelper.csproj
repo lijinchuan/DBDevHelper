@@ -297,6 +297,18 @@
     <Compile Include="UC\UCAddAPIParam.Designer.cs">
       <DependentUpon>UCAddAPIParam.cs</DependentUpon>
     </Compile>
+    <Compile Include="UC\UCAPIExample.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UC\UCAPIExample.Designer.cs">
+      <DependentUpon>UCAPIExample.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UC\UCAPIExampleTabPage.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="UC\UCAPIExampleTabPage.Designer.cs">
+      <DependentUpon>UCAPIExampleTabPage.cs</DependentUpon>
+    </Compile>
     <Compile Include="UC\UCApiResult.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -430,6 +442,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="UC\UCAddAPIParam.resx">
       <DependentUpon>UCAddAPIParam.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UC\UCAPIExample.resx">
+      <DependentUpon>UCAPIExample.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UC\UCApiResult.resx">
       <DependentUpon>UCApiResult.cs</DependentUpon>

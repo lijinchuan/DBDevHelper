@@ -11,6 +11,7 @@ using Entity;
 using LJC.FrameWorkV3.Comm;
 using LJC.FrameWorkV3.Data.EntityDataBase;
 using System.IO;
+using Newtonsoft.Json;
 
 namespace APIHelper.UC
 { 
@@ -407,29 +408,42 @@ namespace APIHelper.UC
 
             APIInvokeLog log = new APIInvokeLog
             {
-                APIId=_apiUrl.Id,
-                ApiEnvId=GetEnvId(),
-                AuthType=GetAuthType(),
-                ApplicationType=GetCBApplicationType(),
-                BodyDataType=GetBodyDataType(),
-                APIMethod=GetAPIMethod(),
-                APIName=_apiUrl.APIName,
-                CDate=DateTime.Now,
-                Path=url,
-                SourceId=_apiUrl.SourceId,
-                StatusCode=responseEx.StatusCode,
-                RespMsg=responseEx.ErrorMsg?.ToString(),
-                Ms=responseEx.RequestMills,
-                RespSize=responseEx.ResponseBytes==null?0:responseEx.ResponseBytes.Length,
-                ResponseText=responseEx.ResponseBytes==null?null:Encoding.UTF8.GetString(responseEx.ResponseBytes),
-                APIResonseResult=new APIResonseResult
+                APIId = _apiUrl.Id,
+                ApiEnvId = GetEnvId(),
+                AuthType = GetAuthType(),
+                ApplicationType = GetCBApplicationType(),
+                BodyDataType = GetBodyDataType(),
+                APIMethod = GetAPIMethod(),
+                APIName = _apiUrl.APIName,
+                CDate = DateTime.Now,
+                Path = url,
+                SourceId = _apiUrl.SourceId,
+                StatusCode = responseEx.StatusCode,
+                RespMsg = responseEx.ErrorMsg?.ToString(),
+                Ms = responseEx.RequestMills,
+                RespSize = responseEx.ResponseBytes == null ? 0 : responseEx.ResponseBytes.Length,
+                ResponseText = responseEx.ResponseContent ?? (responseEx.ResponseBytes == null ? null : Encoding.UTF8.GetString(responseEx.ResponseBytes)),
+                APIResonseResult = new APIResonseResult
                 {
-                    Cookies=cookies,
-                    Headers=responseEx.Headers,
-                    Raw=responseEx.ResponseBytes
+                    Cookies = cookies,
+                    Headers = responseEx.Headers,
+                    Raw = responseEx.ResponseBytes
                 },
-                APIData=GetApiData()
+                APIData = GetApiData()
             };
+
+            if (log.ResponseText != null)
+            {
+                try
+                {
+                    var jsonobj = JsonConvert.DeserializeObject<dynamic>(log.ResponseText);
+                    log.ResponseText = JsonConvert.SerializeObject(jsonobj, Formatting.Indented);
+                }
+                catch
+                {
+
+                }
+            }
             BigEntityTableEngine.LocalEngine.Insert(nameof(APIInvokeLog), log);
 
         }

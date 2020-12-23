@@ -43,6 +43,7 @@
   <ItemGroup>
     <Compile Include="APIData.cs" />
     <Compile Include="APIDoc.cs" />
+    <Compile Include="APIDocExample.cs" />
     <Compile Include="APIEnv.cs" />
     <Compile Include="APIEnvParam.cs" />
     <Compile Include="APIInvokeExample.cs" />
