@@ -137,7 +137,7 @@
             this.TP_Params.Padding = new System.Windows.Forms.Padding(3);
             this.TP_Params.Size = new System.Drawing.Size(720, 338);
             this.TP_Params.TabIndex = 0;
-            this.TP_Params.Text = "参数";
+            this.TP_Params.Text = "URL参数";
             this.TP_Params.UseVisualStyleBackColor = true;
             // 
             // ParamDataPanel
@@ -156,7 +156,7 @@
             this.TP_Auth.Location = new System.Drawing.Point(4, 22);
             this.TP_Auth.Name = "TP_Auth";
             this.TP_Auth.Padding = new System.Windows.Forms.Padding(3);
-            this.TP_Auth.Size = new System.Drawing.Size(192, 74);
+            this.TP_Auth.Size = new System.Drawing.Size(720, 338);
             this.TP_Auth.TabIndex = 1;
             this.TP_Auth.Text = "鉴权";
             this.TP_Auth.UseVisualStyleBackColor = true;
@@ -199,7 +199,7 @@
             this.TP_Header.Controls.Add(this.HeaderDataPannel);
             this.TP_Header.Location = new System.Drawing.Point(4, 22);
             this.TP_Header.Name = "TP_Header";
-            this.TP_Header.Size = new System.Drawing.Size(192, 74);
+            this.TP_Header.Size = new System.Drawing.Size(720, 338);
             this.TP_Header.TabIndex = 2;
             this.TP_Header.Text = "请求头";
             this.TP_Header.UseVisualStyleBackColor = true;
@@ -211,7 +211,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.HeaderDataPannel.Location = new System.Drawing.Point(7, 14);
             this.HeaderDataPannel.Name = "HeaderDataPannel";
-            this.HeaderDataPannel.Size = new System.Drawing.Size(178, 47);
+            this.HeaderDataPannel.Size = new System.Drawing.Size(706, 311);
             this.HeaderDataPannel.TabIndex = 1;
             // 
             // TP_Cookie
@@ -220,7 +220,7 @@
             this.TP_Cookie.Location = new System.Drawing.Point(4, 22);
             this.TP_Cookie.Name = "TP_Cookie";
             this.TP_Cookie.Padding = new System.Windows.Forms.Padding(3);
-            this.TP_Cookie.Size = new System.Drawing.Size(192, 74);
+            this.TP_Cookie.Size = new System.Drawing.Size(720, 338);
             this.TP_Cookie.TabIndex = 7;
             this.TP_Cookie.Text = "Cookie";
             this.TP_Cookie.UseVisualStyleBackColor = true;
@@ -232,7 +232,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.CookieDataPannel.Location = new System.Drawing.Point(7, 14);
             this.CookieDataPannel.Name = "CookieDataPannel";
-            this.CookieDataPannel.Size = new System.Drawing.Size(178, 47);
+            this.CookieDataPannel.Size = new System.Drawing.Size(706, 311);
             this.CookieDataPannel.TabIndex = 2;
             // 
             // TP_Body
@@ -336,7 +336,7 @@
             // 
             this.TP_Setting.Location = new System.Drawing.Point(4, 22);
             this.TP_Setting.Name = "TP_Setting";
-            this.TP_Setting.Size = new System.Drawing.Size(192, 74);
+            this.TP_Setting.Size = new System.Drawing.Size(720, 338);
             this.TP_Setting.TabIndex = 4;
             this.TP_Setting.Text = "设置";
             this.TP_Setting.UseVisualStyleBackColor = true;
@@ -346,7 +346,7 @@
             this.TP_Result.Controls.Add(this.TBResult);
             this.TP_Result.Location = new System.Drawing.Point(4, 22);
             this.TP_Result.Name = "TP_Result";
-            this.TP_Result.Size = new System.Drawing.Size(192, 74);
+            this.TP_Result.Size = new System.Drawing.Size(720, 338);
             this.TP_Result.TabIndex = 5;
             this.TP_Result.Text = "结果";
             this.TP_Result.UseVisualStyleBackColor = true;
@@ -357,7 +357,7 @@
             this.TBResult.Location = new System.Drawing.Point(0, 0);
             this.TBResult.Name = "TBResult";
             this.TBResult.Raw = null;
-            this.TBResult.Size = new System.Drawing.Size(192, 74);
+            this.TBResult.Size = new System.Drawing.Size(720, 338);
             this.TBResult.TabIndex = 0;
             // 
             // TPLog
@@ -366,7 +366,7 @@
             this.TPLog.Location = new System.Drawing.Point(4, 22);
             this.TPLog.Name = "TPLog";
             this.TPLog.Padding = new System.Windows.Forms.Padding(3);
-            this.TPLog.Size = new System.Drawing.Size(192, 74);
+            this.TPLog.Size = new System.Drawing.Size(720, 338);
             this.TPLog.TabIndex = 6;
             this.TPLog.Text = "日志";
             this.TPLog.UseVisualStyleBackColor = true;
@@ -377,7 +377,7 @@
             this.TPInvokeLog.Dock = System.Windows.Forms.DockStyle.Fill;
             this.TPInvokeLog.Location = new System.Drawing.Point(3, 3);
             this.TPInvokeLog.Name = "TPInvokeLog";
-            this.TPInvokeLog.Size = new System.Drawing.Size(186, 68);
+            this.TPInvokeLog.Size = new System.Drawing.Size(714, 332);
             this.TPInvokeLog.TabIndex = 1;
             // 
             // PagerLog
@@ -387,7 +387,7 @@
             this.PagerLog.CountItem = null;
             this.PagerLog.DeleteItem = null;
             this.PagerLog.Dock = System.Windows.Forms.DockStyle.None;
-            this.PagerLog.Location = new System.Drawing.Point(71, 5);
+            this.PagerLog.Location = new System.Drawing.Point(599, 269);
             this.PagerLog.MoveFirstItem = null;
             this.PagerLog.MoveLastItem = null;
             this.PagerLog.MoveNextItem = null;

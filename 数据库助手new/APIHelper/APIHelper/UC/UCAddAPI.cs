@@ -14,8 +14,8 @@ using System.IO;
 using Newtonsoft.Json;
 
 namespace APIHelper.UC
-{ 
-    public partial class UCAddAPI : TabPage, IRecoverAble,ISaveAble,IExcuteAble
+{
+    public partial class UCAddAPI : TabPage, IRecoverAble, ISaveAble, IExcuteAble
     {
         private List<ParamInfo> Params = new List<ParamInfo>();
         private List<ParamInfo> Headers = new List<ParamInfo>();
@@ -177,7 +177,7 @@ namespace APIHelper.UC
                 var envlist = CBEnv.DataSource as List<APIEnv>;
                 if (envlist.Count > 0)
                 {
-                    var env= envlist.Find(p => p.EnvName == envname);
+                    var env = envlist.Find(p => p.EnvName == envname);
                     if (env == null)
                     {
                         return -1;
@@ -191,12 +191,12 @@ namespace APIHelper.UC
 
         private string ReplaceEvnParams(string str, ref List<APIEnvParam> apiEnvParams)
         {
-            if (str.IndexOf("{{") == -1|| str.IndexOf("}}") == -1)
+            if (str.IndexOf("{{") == -1 || str.IndexOf("}}") == -1)
             {
                 return str;
             }
 
-            if(GetEnvId()<=0)
+            if (GetEnvId() <= 0)
             {
                 return str;
             }
@@ -236,7 +236,7 @@ namespace APIHelper.UC
                     url += "?";
                 }
 
-                url += string.Join("&", Params.Where(p => p.Checked).Select(p => $"{WebUtility.UrlEncode(ReplaceEvnParams(p.Name,ref apiEnvParams))}={WebUtility.UrlEncode(ReplaceEvnParams(p.Value,ref apiEnvParams))}"));
+                url += string.Join("&", Params.Where(p => p.Checked).Select(p => $"{WebUtility.UrlEncode(ReplaceEvnParams(p.Name, ref apiEnvParams))}={WebUtility.UrlEncode(ReplaceEvnParams(p.Value, ref apiEnvParams))}"));
             }
 
             //httpRequestEx.Cookies.Add(new System.Net.Cookie()
@@ -267,7 +267,7 @@ namespace APIHelper.UC
                     {
                         if (header.Checked)
                         {
-                            httpRequestEx.Headers.Add(ReplaceEvnParams(header.Name,ref apiEnvParams),ReplaceEvnParams(header.Value,ref apiEnvParams));
+                            httpRequestEx.Headers.Add(ReplaceEvnParams(header.Name, ref apiEnvParams), ReplaceEvnParams(header.Value, ref apiEnvParams));
                         }
                     }
                 }
@@ -275,7 +275,7 @@ namespace APIHelper.UC
 
             if (Cookies?.Count > 0)
             {
-                foreach(var cookie in Cookies)
+                foreach (var cookie in Cookies)
                 {
                     if (cookie.Checked)
                     {
@@ -287,23 +287,23 @@ namespace APIHelper.UC
             var authtype = GetAuthType();
             if (authtype == AuthType.Bearer)
             {
-                httpRequestEx.Headers.Add("Authorization", $"Bearer {ReplaceEvnParams(UCBearToken.Token,ref apiEnvParams)}");
+                httpRequestEx.Headers.Add("Authorization", $"Bearer {ReplaceEvnParams(UCBearToken.Token, ref apiEnvParams)}");
             }
             else if (authtype == AuthType.ApiKey)
             {
                 if (UCApiKey.AddTo == 0)
                 {
-                    httpRequestEx.Headers.Add(ReplaceEvnParams(UCApiKey.Key,ref apiEnvParams),ReplaceEvnParams(UCApiKey.Val,ref apiEnvParams));
+                    httpRequestEx.Headers.Add(ReplaceEvnParams(UCApiKey.Key, ref apiEnvParams), ReplaceEvnParams(UCApiKey.Val, ref apiEnvParams));
                 }
                 else
                 {
                     if (url.IndexOf('?') == -1)
                     {
-                        url += $"?{ReplaceEvnParams(UCApiKey.Key,ref apiEnvParams)}={ReplaceEvnParams(UCApiKey.Val,ref apiEnvParams)}";
+                        url += $"?{ReplaceEvnParams(UCApiKey.Key, ref apiEnvParams)}={ReplaceEvnParams(UCApiKey.Val, ref apiEnvParams)}";
                     }
                     else
                     {
-                        url += $"&{ReplaceEvnParams(UCApiKey.Key,ref apiEnvParams)}={ReplaceEvnParams(UCApiKey.Val,ref apiEnvParams)}";
+                        url += $"&{ReplaceEvnParams(UCApiKey.Key, ref apiEnvParams)}={ReplaceEvnParams(UCApiKey.Val, ref apiEnvParams)}";
                     }
                 }
             }
@@ -331,11 +331,11 @@ namespace APIHelper.UC
             {
                 WebRequestMethodEnum webRequestMethodEnum = (WebRequestMethodEnum)Enum.Parse(typeof(WebRequestMethodEnum), CBWebMethod.SelectedItem.ToString());
                 List<FormItemModel> formItems = new List<FormItemModel>();
-                foreach(var item in UCBinary.DataSource as List<ParamInfo>)
+                foreach (var item in UCBinary.DataSource as List<ParamInfo>)
                 {
                     if (item.Checked)
                     {
-                        if (item.Value?.StartsWith("[file]")==true)
+                        if (item.Value?.StartsWith("[file]") == true)
                         {
                             var filename = item.Value.Replace("[file]", string.Empty);
                             var s = new System.IO.FileStream(filename, FileMode.Open);
@@ -366,7 +366,7 @@ namespace APIHelper.UC
 
                 responseEx = httpRequestEx.DoRequest(url, new byte[0], webRequestMethodEnum);
             }
-            
+
             if (responseEx.Successed)
             {
                 this.Invoke(new Action(() =>
@@ -375,7 +375,7 @@ namespace APIHelper.UC
                     {
                         TBResult.Raw = responseEx.ResponseBytes;
                     }
-                    else if(responseEx.ResponseContent!=null)
+                    else if (responseEx.ResponseContent != null)
                     {
                         TBResult.Raw = Encoding.UTF8.GetBytes(responseEx.ResponseContent);
                     }
@@ -392,14 +392,14 @@ namespace APIHelper.UC
             this.Invoke(new Action(() => TBResult.SetHeader(responseEx.Headers)));
             var cookies = responseEx.Cookies.Select(p => new RespCookie
             {
-                Path=p.Path,
-                Domain=p.Domain,
-                Expires=p.Expires,
-                HasKeys=p.HasKeys,
-                HttpOnly=p.HttpOnly,
-                Name=p.Name,
-                Secure=p.Secure,
-                Value=p.Value
+                Path = p.Path,
+                Domain = p.Domain,
+                Expires = p.Expires,
+                HasKeys = p.HasKeys,
+                HttpOnly = p.HttpOnly,
+                Name = p.Name,
+                Secure = p.Secure,
+                Value = p.Value
             }).ToList();
             this.Invoke(new Action(() => TBResult.SetCookie(cookies)));
 
@@ -461,7 +461,7 @@ namespace APIHelper.UC
                 if (string.IsNullOrEmpty(UCBearToken.Token))
                 {
                     TP_Auth.ImageKey = "ERROR";
-                    Util.SendMsg(this,"鉴权数据不能为空");
+                    Util.SendMsg(this, "鉴权数据不能为空");
                     return;
                 }
             }
@@ -475,7 +475,7 @@ namespace APIHelper.UC
                 }
             }
 
-            if(GetEnvId()==-1)
+            if (GetEnvId() == -1)
             {
                 MessageBox.Show("请选择一个环境");
                 return;
@@ -515,7 +515,8 @@ namespace APIHelper.UC
                 {
                     DataPanel.Controls.Add(rawTextBox);
                 }
-            }else if (sender == RBBinary)
+            }
+            else if (sender == RBBinary)
             {
                 if (RBBinary.Checked)
                 {
@@ -579,9 +580,9 @@ namespace APIHelper.UC
             {
                 return;
             }
-           
+
             var doctab = new DocPage();
-            
+
             Tabs.Controls.Add(doctab);
             doctab.InitDoc(_apiUrl);
 
@@ -621,17 +622,17 @@ namespace APIHelper.UC
             if (this._apiUrl != null)
             {
                 this._apiData = BigEntityTableEngine.LocalEngine.Find<APIData>(nameof(APIData), "ApiId", new object[] { _apiUrl.Id }).FirstOrDefault();
-                
+
                 var envlist = BigEntityTableEngine.LocalEngine.Find<APIEnv>(nameof(APIEnv), "SourceId", new object[] { _apiUrl.SourceId }).ToList();
                 if (envlist.Count > 0)
                 {
                     LKEnv.Visible = true;
-                   
+
                     CBEnv.Visible = false;
                     CBEnv.Location = LKEnv.Location;
                     CBEnv.Width = this.TopPannel.Width - this.CBEnv.Location.X - 5;
                     this.TopPannel.Controls.Add(CBEnv);
-                    
+
                     CBEnv.DataSource = envlist;
                     CBEnv.DisplayMember = "EnvName";
                     CBEnv.ValueMember = "Id";
@@ -652,7 +653,7 @@ namespace APIHelper.UC
 
                         var env = envlist.Find(p => p.EnvName == LKEnv.Text);
                         CBEnv.SelectedItem = env;
-                        
+
                         LKEnv.Visible = false;
                         CBEnv.Visible = true;
                     };
@@ -685,7 +686,7 @@ namespace APIHelper.UC
             cookieGridView.Dock = DockStyle.Fill;
 
             paramsGridView.Dock = DockStyle.Fill;
-            
+
             headerGridView.Dock = DockStyle.Fill;
             UCBinary.Dock = DockStyle.Fill;
             UCBinary.DataSource = new List<ParamInfo>();
@@ -805,7 +806,7 @@ namespace APIHelper.UC
             return apidata;
         }
 
-        private void Save(bool force=false)
+        private void Save(bool force = false)
         {
             if (_apiUrl != null)
             {
@@ -836,7 +837,7 @@ namespace APIHelper.UC
                     ischanged = true;
                 }
                 var envid = GetEnvId();
-                if (envid>0)
+                if (envid > 0)
                 {
                     if (_apiUrl.ApiEnvId != envid)
                     {
@@ -845,7 +846,7 @@ namespace APIHelper.UC
                     }
                 }
 
-                if (ischanged||force)
+                if (ischanged || force)
                 {
                     BigEntityTableEngine.LocalEngine.Update<APIUrl>(nameof(APIUrl), this._apiUrl);
                     Util.SendMsg(this, "接口资源信息已更新");
@@ -855,7 +856,7 @@ namespace APIHelper.UC
                 {
                     _apiData = new APIData
                     {
-                        ApiId=_apiUrl.Id
+                        ApiId = _apiUrl.Id
                     };
                 }
 
@@ -916,7 +917,7 @@ namespace APIHelper.UC
                     ischanged = true;
                 }
 
-                if (ischanged||force)
+                if (ischanged || force)
                 {
                     if (this._apiData.Id == 0)
                     {
@@ -929,7 +930,7 @@ namespace APIHelper.UC
                         Util.SendMsg(this, "接口资源已更新");
                     }
                 }
-                
+
             }
         }
 
