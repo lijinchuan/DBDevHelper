@@ -181,6 +181,7 @@ namespace APIHelper.UC
                 }
                 else if (col.Name == "Value")
                 {
+                    ((DataGridViewTextBoxColumn)dgv.Columns["Value"]).MaxInputLength = 1024 * 1024 * 10;
                     col.HeaderText = "参数值";
                 }
                 else if (col.Name == "Desc")
