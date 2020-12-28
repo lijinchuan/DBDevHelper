@@ -569,6 +569,31 @@ namespace APIHelper.UC
                 this.CBAuthType.SelectedItem = _apiUrl.AuthType.ToString();
                 this.TBUrl.Text = _apiUrl.Path;
                 SetBodyDataType(_apiUrl.BodyDataType);
+
+                if (_apiUrl.BodyDataType != BodyDataType.none)
+                {
+                    this.Tabs.SelectedTab = TP_Body;
+                }
+                else if (this.Params.Any(p => p.Checked))
+                {
+                    this.Tabs.SelectedTab = TP_Params;
+                }
+                else if (this.Cookies.Any(p => p.Checked))
+                {
+                    this.Tabs.SelectedTab = TP_Cookie;
+                }
+                else if (this.Headers.Any(p => p.Checked))
+                {
+                    this.Tabs.SelectedTab = TP_Header;
+                }
+                else if (this.CBAuthType.SelectedItem as string != AuthType.none.ToString())
+                {
+                    this.Tabs.SelectedTab = TP_Auth;
+                }
+                else
+                {
+                    this.Tabs.SelectedTab = TP_Result;
+                }
             }
 
             Tabs_SelectedIndexChanged(null, null);
