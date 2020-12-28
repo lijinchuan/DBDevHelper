@@ -58,7 +58,7 @@ namespace Biz
 
             List<TreeNode> treeNodes = new List<TreeNode>();
 
-            foreach (var item in apilist)
+            foreach (var item in apilist.OrderBy(p=>p.APIName))
             {
                 TreeNode newNode = new TreeNode(item.APIName);
 
