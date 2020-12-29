@@ -145,8 +145,7 @@ namespace APIHelper
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new MainFrm());
-
-            BigEntityTableEngine.LocalEngine.ShutDown();
+            
         }
     }
 }

@@ -13,6 +13,8 @@ using Entity.WatchTask;
 using ICSharpCode.SharpZipLib.Zip;
 using APIHelper.SubForm;
 using APIHelper.UC;
+using System.Threading;
+using LJC.FrameWorkV3.Data.EntityDataBase;
 
 namespace APIHelper
 {
@@ -20,6 +22,7 @@ namespace APIHelper
     {
         private static MainFrm Instance = null;
         private System.Timers.Timer tasktimer = null;
+        private WatingDlg wdlg = new WatingDlg();
 
         private void InitFrm()
         {
@@ -66,7 +69,9 @@ namespace APIHelper
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
-
+            this.Visible = false;
+            wdlg.Show("程序启动中，请稍候...");
+            
             try
             {
                 TabPage selecedpage = null;
@@ -95,6 +100,10 @@ namespace APIHelper
             {
                 Util.SendMsg(this, $"恢复关闭前选项卡失败:{ex.Message}", 180);
             }
+            //Thread.Sleep(5000);
+
+            wdlg.Hide();
+            this.Visible = true;
         }
 
         protected override void OnClosing(CancelEventArgs e)
@@ -105,11 +114,24 @@ namespace APIHelper
                 return;
             }
 
+            this.Visible = false;
+            wdlg.Show("程序退出中，请稍候...");
+
             base.OnClosing(e);
+
             if (tasktimer != null)
             {
                 tasktimer.Stop();
                 tasktimer.Close();
+            }
+
+            try
+            {
+                BigEntityTableEngine.LocalEngine.ShutDown();
+            }
+            catch
+            {
+
             }
 
             try
@@ -129,6 +151,7 @@ namespace APIHelper
                 throw ex;
             }
 
+            wdlg.Close();
         }
 
         void TabControl_Selected(object sender, TabControlEventArgs e)

@@ -207,6 +207,12 @@
     <Compile Include="SubForm\WatchTaskLogDlg.Designer.cs">
       <DependentUpon>WatchTaskLogDlg.cs</DependentUpon>
     </Compile>
+    <Compile Include="SubForm\WatingDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SubForm\WatingDlg.Designer.cs">
+      <DependentUpon>WatingDlg.cs</DependentUpon>
+    </Compile>
     <Compile Include="SubForm\WinWebBroswer.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -406,6 +412,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="SubForm\WatchTaskLogDlg.resx">
       <DependentUpon>WatchTaskLogDlg.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SubForm\WatingDlg.resx">
+      <DependentUpon>WatingDlg.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="SubForm\WinWebBroswer.resx">
       <DependentUpon>WinWebBroswer.cs</DependentUpon>

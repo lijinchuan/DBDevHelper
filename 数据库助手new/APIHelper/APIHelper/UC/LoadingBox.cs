@@ -24,9 +24,21 @@ namespace APIHelper.UC
             InitializeComponent();
         }
 
+        public string Msg
+        {
+            set
+            {
+                this.lb1.Text = value;
+            }
+        }
+
         private void LoadingBox_Load(object sender, EventArgs e)
         {
             this.pictureBox1.Image = Resources.Resource1.loading2;
+            if (this.TaskThread == null)
+            {
+                this.LlbStop.Visible = false;
+            }
         }
 
         private void LlbStop_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
