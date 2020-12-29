@@ -115,7 +115,7 @@ namespace APIHelper
             }
 
             this.Visible = false;
-            wdlg.Show("程序退出中，请稍候...");
+            wdlg.Show("程序退出中...");
 
             base.OnClosing(e);
 
