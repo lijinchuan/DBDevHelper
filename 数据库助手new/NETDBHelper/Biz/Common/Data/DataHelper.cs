@@ -145,7 +145,7 @@ namespace Biz.Common.Data
             return ret;
         }
 
-        public static string GetCreateTableSQL(string dbName,DataTable structTable)
+        public static string GetCreateTableSQL(string dbName,string dbdesc,DataTable structTable)
         {
             DataTable tb = structTable;
             StringBuilder sb = new StringBuilder();
@@ -182,6 +182,8 @@ namespace Biz.Common.Data
             //sb.AppendLine("GO");
             sb.AppendLine("SET ANSI_PADDING OFF");
             //sb.AppendLine("GO");
+
+            sb.AppendLine($@"EXEC sys.sp_addextendedproperty @name=N'MS_Description',@level0type=N'SCHEMA',@level0name=N'dbo',@level1type=N'TABLE',@value=N'{dbdesc}' ,@level1name=N'vip_room_user'");
 
             var descCols = from x in tb.AsEnumerable()
                            where x["desc"] != DBNull.Value
