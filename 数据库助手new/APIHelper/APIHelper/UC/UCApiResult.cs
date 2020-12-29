@@ -54,6 +54,18 @@ namespace APIHelper.UC
             DGVHeader.ContextMenuStrip = this.CMSTool;
             DGVCookie.ContextMenuStrip = this.CMSTool;
             this.CMSTool.ItemClicked += CMSTool_ItemClicked;
+
+            TBErrors.ForeColor = Color.Red;
+        }
+
+        public void SetError(string error)
+        {
+            TBErrors.Text = error;
+            
+            if (!string.IsNullOrWhiteSpace(error))
+            {
+                this.Tabs.SelectedTab = TPErrors;
+            }
         }
 
         private void CMSTool_ItemClicked(object sender, ToolStripItemClickedEventArgs e)

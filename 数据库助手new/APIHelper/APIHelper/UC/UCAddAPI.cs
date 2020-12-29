@@ -367,27 +367,29 @@ namespace APIHelper.UC
                 responseEx = httpRequestEx.DoRequest(url, new byte[0], webRequestMethodEnum);
             }
 
-            if (responseEx.Successed)
+            this.Invoke(new Action(() =>
             {
-                this.Invoke(new Action(() =>
+                if (responseEx.ResponseBytes != null)
                 {
-                    if (responseEx.ResponseBytes != null)
-                    {
-                        TBResult.Raw = responseEx.ResponseBytes;
-                    }
-                    else if (responseEx.ResponseContent != null)
-                    {
-                        TBResult.Raw = Encoding.UTF8.GetBytes(responseEx.ResponseContent);
-                    }
-                    else
-                    {
-                        TBResult.Raw = Encoding.UTF8.GetBytes("");
-                    }
-                }));
+                    TBResult.Raw = responseEx.ResponseBytes;
+                }
+                else if (responseEx.ResponseContent != null)
+                {
+                    TBResult.Raw = Encoding.UTF8.GetBytes(responseEx.ResponseContent);
+                }
+                else
+                {
+                    TBResult.Raw = Encoding.UTF8.GetBytes("");
+                }
+            }));
+
+            if (!responseEx.Successed)
+            {
+                this.Invoke(new Action(() => TBResult.SetError(responseEx.ErrorMsg?.Message)));
             }
             else
             {
-                this.Invoke(new Action(() => TBResult.Raw = TBResult.Encoding.GetBytes(responseEx.ErrorMsg.ToString())));
+                this.Invoke(new Action(() => TBResult.SetError(string.Empty)));
             }
             this.Invoke(new Action(() => TBResult.SetHeader(responseEx.Headers)));
             var cookies = responseEx.Cookies.Select(p => new RespCookie

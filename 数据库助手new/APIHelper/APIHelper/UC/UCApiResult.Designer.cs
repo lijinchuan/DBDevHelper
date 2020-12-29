@@ -47,6 +47,8 @@
             this.CMSTool = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.复制ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.查找ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.TPErrors = new System.Windows.Forms.TabPage();
+            this.TBErrors = new System.Windows.Forms.TextBox();
             this.Tabs.SuspendLayout();
             this.TPBody.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -56,6 +58,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.DGVCookie)).BeginInit();
             this.panel2.SuspendLayout();
             this.CMSTool.SuspendLayout();
+            this.TPErrors.SuspendLayout();
             this.SuspendLayout();
             // 
             // TBResult
@@ -77,6 +80,7 @@
             this.Tabs.Controls.Add(this.TPBody);
             this.Tabs.Controls.Add(this.TPHeader);
             this.Tabs.Controls.Add(this.TPCookie);
+            this.Tabs.Controls.Add(this.TPErrors);
             this.Tabs.Location = new System.Drawing.Point(3, 22);
             this.Tabs.Name = "Tabs";
             this.Tabs.SelectedIndex = 0;
@@ -230,19 +234,41 @@
             this.复制ToolStripMenuItem,
             this.查找ToolStripMenuItem});
             this.CMSTool.Name = "CMSTool";
-            this.CMSTool.Size = new System.Drawing.Size(181, 70);
+            this.CMSTool.Size = new System.Drawing.Size(101, 48);
             // 
             // 复制ToolStripMenuItem
             // 
             this.复制ToolStripMenuItem.Name = "复制ToolStripMenuItem";
-            this.复制ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.复制ToolStripMenuItem.Size = new System.Drawing.Size(100, 22);
             this.复制ToolStripMenuItem.Text = "复制";
             // 
             // 查找ToolStripMenuItem
             // 
             this.查找ToolStripMenuItem.Name = "查找ToolStripMenuItem";
-            this.查找ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.查找ToolStripMenuItem.Size = new System.Drawing.Size(100, 22);
             this.查找ToolStripMenuItem.Text = "查找";
+            // 
+            // TPErrors
+            // 
+            this.TPErrors.Controls.Add(this.TBErrors);
+            this.TPErrors.Location = new System.Drawing.Point(4, 22);
+            this.TPErrors.Name = "TPErrors";
+            this.TPErrors.Padding = new System.Windows.Forms.Padding(3);
+            this.TPErrors.Size = new System.Drawing.Size(467, 331);
+            this.TPErrors.TabIndex = 3;
+            this.TPErrors.Text = "错误";
+            this.TPErrors.UseVisualStyleBackColor = true;
+            // 
+            // TBErrors
+            // 
+            this.TBErrors.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.TBErrors.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.TBErrors.Location = new System.Drawing.Point(3, 3);
+            this.TBErrors.Multiline = true;
+            this.TBErrors.Name = "TBErrors";
+            this.TBErrors.ReadOnly = true;
+            this.TBErrors.Size = new System.Drawing.Size(461, 325);
+            this.TBErrors.TabIndex = 0;
             // 
             // UCApiResult
             // 
@@ -263,6 +289,8 @@
             this.panel2.ResumeLayout(false);
             this.panel2.PerformLayout();
             this.CMSTool.ResumeLayout(false);
+            this.TPErrors.ResumeLayout(false);
+            this.TPErrors.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -287,5 +315,7 @@
         private System.Windows.Forms.ContextMenuStrip CMSTool;
         private System.Windows.Forms.ToolStripMenuItem 复制ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 查找ToolStripMenuItem;
+        private System.Windows.Forms.TabPage TPErrors;
+        private System.Windows.Forms.TextBox TBErrors;
     }
 }
