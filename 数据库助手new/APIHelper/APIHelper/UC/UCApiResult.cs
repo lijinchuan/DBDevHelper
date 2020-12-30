@@ -267,6 +267,10 @@ namespace APIHelper.UC
             {
                 return CBEncode.SelectedItem as Encoding;
             }
+            set
+            {
+                CBEncode.SelectedItem = value;
+            }
         }
 
         private byte[] _raw;

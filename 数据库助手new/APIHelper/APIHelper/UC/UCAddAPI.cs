@@ -369,13 +369,16 @@ namespace APIHelper.UC
 
             this.Invoke(new Action(() =>
             {
-                if (responseEx.ResponseBytes != null)
+                if (responseEx.ResponseContent != null)
+                {
+                    var encode = Encoding.GetEncoding(responseEx.CharacterSet);
+                    TBResult.Raw = encode.GetBytes(responseEx.ResponseContent);
+                    TBResult.Encoding = encode;
+
+                }
+                else if (responseEx.ResponseBytes != null)
                 {
                     TBResult.Raw = responseEx.ResponseBytes;
-                }
-                else if (responseEx.ResponseContent != null)
-                {
-                    TBResult.Raw = Encoding.UTF8.GetBytes(responseEx.ResponseContent);
                 }
                 else
                 {

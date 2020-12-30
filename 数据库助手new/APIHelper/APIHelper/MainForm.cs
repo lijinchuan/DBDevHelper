@@ -70,7 +70,7 @@ namespace APIHelper
         {
             base.OnLoad(e);
             this.Visible = false;
-            wdlg.Show("程序启动中，请稍候...");
+            wdlg.Show("初始化数据，请稍候...");
             
             try
             {
@@ -115,7 +115,7 @@ namespace APIHelper
             }
 
             this.Visible = false;
-            wdlg.Show("程序退出中...");
+            wdlg.Show("程序退出...");
 
             base.OnClosing(e);
 
@@ -127,15 +127,8 @@ namespace APIHelper
 
             try
             {
-                BigEntityTableEngine.LocalEngine.ShutDown();
-            }
-            catch
-            {
-
-            }
-
-            try
-            {
+                wdlg.Msg = "保存工作数据...";
+                Thread.Sleep(1000);
                 foreach (TabPage tab in this.TabControl.TabPages)
                 {
                     bool isSelected = this.TabControl.SelectedTab == tab;
@@ -149,6 +142,16 @@ namespace APIHelper
             catch (Exception ex)
             {
                 throw ex;
+            }
+
+            try
+            {
+                wdlg.Msg = "关闭数据库...";
+                BigEntityTableEngine.LocalEngine.ShutDown();
+            }
+            catch
+            {
+
             }
 
             wdlg.Close();
