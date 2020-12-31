@@ -64,6 +64,7 @@
     <Compile Include="TreeNodeEx.cs" />
     <Compile Include="UILoadHelper.cs" />
     <Compile Include="WatchTask\WatchTaskInfoManage.cs" />
+    <Compile Include="WCF\WCFClient.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Entity\Entity.csproj">

@@ -75,10 +75,15 @@
     <Compile Include="RespCookie.cs" />
     <Compile Include="WatchTask\WatchTaskInfo.cs" />
     <Compile Include="WatchTask\WatchTaskLog.cs" />
+    <Compile Include="WCF\Binding.cs" />
+    <Compile Include="WCF\OperationBind.cs" />
+    <Compile Include="WCF\ParamInfo.cs" />
+    <Compile Include="WCF\InterfaceInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <WebReferences Include="Web References\" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
