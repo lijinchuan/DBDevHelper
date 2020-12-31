@@ -64,6 +64,8 @@
     <Compile Include="TreeNodeEx.cs" />
     <Compile Include="UILoadHelper.cs" />
     <Compile Include="WatchTask\WatchTaskInfoManage.cs" />
+    <Compile Include="WCF\Envelope.cs" />
+    <Compile Include="WCF\EnvelopeBody.cs" />
     <Compile Include="WCF\WCFClient.cs" />
   </ItemGroup>
   <ItemGroup>

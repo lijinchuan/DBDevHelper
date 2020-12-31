@@ -1,10 +1,12 @@
 ﻿using Entity.WCF;
+using LJC.FrameWorkV3.Comm;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
+using System.Xml.Serialization;
 
 namespace Biz.WCF
 {
@@ -39,7 +41,7 @@ namespace Biz.WCF
 
             LJC.FrameWorkV3.Comm.HttpRequestEx httpRequestEx = new LJC.FrameWorkV3.Comm.HttpRequestEx();
             var resp = httpRequestEx.DoRequest($"{this._url}?singleWsdl", new byte[0], method: LJC.FrameWorkV3.Comm.WebRequestMethodEnum.GET);
-            System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
+            System.Xml.XmlDocument doc = new XmlDocument();
             doc.LoadXml(resp.ResponseContent);
 
             XmlNamespaceManager xnm = new XmlNamespaceManager(doc.NameTable);
@@ -130,7 +132,7 @@ namespace Biz.WCF
                 {
                     var newinterface = new InterfaceInfo();
                     newinterface.OperationName = node.Attributes["name"].Value;
-                    foreach (System.Xml.XmlNode childnode in node.ChildNodes)
+                    foreach (XmlNode childnode in node.ChildNodes)
                     {
                         if (childnode.Name == "wsdl:input")
                         {
@@ -156,6 +158,81 @@ namespace Biz.WCF
             }
 
             return _interfaceInfos;
+        }
+
+        /// <summary>
+        /// 序列化保存成文档
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="objectToSerializer"></param>
+        /// <param name="savePath"></param>
+        public static string Serializer<T>(T objectToSerializer)
+        {
+            XmlSerializerNamespaces namespaces = new XmlSerializerNamespaces();
+            namespaces.Add("s", "http://schemas.xmlsoap.org/soap/envelope/");
+
+            XmlSerializer ser = new XmlSerializer(typeof(T));
+
+            StringBuilder sb = new StringBuilder();
+            XmlWriterSettings settings = new XmlWriterSettings();
+            // Remove the <?xml version="1.0" encoding="utf-8"?> 
+            settings.OmitXmlDeclaration = true;
+
+            XmlWriter sw = XmlWriter.Create(sb, settings);
+
+            ser.Serialize(sw, objectToSerializer, namespaces);
+
+            return sb.ToString();
+        }
+
+        public HttpResponseEx Invoke(string service, string operationname, string xml)
+        {
+            var interfacedic = GetInterfaceInfos();
+            if (!interfacedic.ContainsKey(service))
+            {
+                throw new NotImplementedException($"查找服务失败:{service}");
+            }
+            var op = interfacedic[service].Find(p => p.OperationName.ToLower() == operationname.ToLower());
+            if (op == null)
+            {
+                throw new NotImplementedException($"查找操作方法失败:{operationname}");
+            }
+
+            HttpRequestEx httpRequestEx = new HttpRequestEx();
+
+            httpRequestEx.Headers.Add("SOAPAction", op.SoapAction);
+            httpRequestEx.Headers.Add("Expect", "100-continue");
+
+            var resp = httpRequestEx.DoRequest(this._url, Encoding.UTF8.GetBytes(xml), WebRequestMethodEnum.POST,
+                false, true, "text/xml; charset=utf-8");
+
+            return resp;
+
+        }
+
+        public HttpResponseEx Invoke(string service,string operationname,Envelope data)
+        {
+            var interfacedic = GetInterfaceInfos();
+            if (!interfacedic.ContainsKey(service))
+            {
+                throw new NotImplementedException($"查找服务失败:{service}");
+            }
+            var op = interfacedic[service].Find(p => p.OperationName.ToLower() == operationname.ToLower());
+            if (op == null)
+            {
+                throw new NotImplementedException($"查找操作方法失败:{operationname}");
+            }
+
+            HttpRequestEx httpRequestEx = new HttpRequestEx();
+            
+            httpRequestEx.Headers.Add("SOAPAction", op.SoapAction);
+            httpRequestEx.Headers.Add("Expect", "100-continue");
+
+            var resp = httpRequestEx.DoRequest(this._url, Encoding.UTF8.GetBytes(Serializer(data)), WebRequestMethodEnum.POST,
+                false, true, "text/xml; charset=utf-8");
+
+            return resp;
+
         }
     }
 }
