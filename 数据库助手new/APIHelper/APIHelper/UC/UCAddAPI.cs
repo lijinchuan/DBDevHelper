@@ -258,6 +258,7 @@ namespace APIHelper.UC
                         if (header.Checked)
                         {
                             httpRequestEx.UserAgent = header.Value;
+
                         }
                     }
                     else if (header.Name.Equals("Accept", StringComparison.OrdinalIgnoreCase))
@@ -265,6 +266,13 @@ namespace APIHelper.UC
                         if (header.Checked)
                         {
                             httpRequestEx.Accept = header.Value;
+                        }
+                    }
+                    else if (header.Name.Equals("Expect", StringComparison.OrdinalIgnoreCase))
+                    {
+                        if (header.Checked)
+                        {
+                            httpRequestEx.Expect = header.Value;
                         }
                     }
                     else if (header.Name.Equals("Connection", StringComparison.OrdinalIgnoreCase))

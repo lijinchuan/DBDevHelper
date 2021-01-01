@@ -201,7 +201,7 @@ namespace Biz.WCF
             HttpRequestEx httpRequestEx = new HttpRequestEx();
 
             httpRequestEx.Headers.Add("SOAPAction", $"\"{op.SoapAction}\"");
-            httpRequestEx.Headers.Add("Expect", "100-continue");
+            httpRequestEx.Expect = "100";
 
             var resp = httpRequestEx.DoRequest(this._url, Encoding.UTF8.GetBytes(xml), WebRequestMethodEnum.POST,
                 false, true, "text/xml; charset=utf-8");

@@ -56,6 +56,12 @@ namespace APIHelper.SubForm
             base.OnLoad(e);
 
             this.LBInterfaceMethod.DoubleClick += LBInterfaceMethod_DoubleClick;
+
+            if (this.APIUrl?.Id > 0)
+            {
+                this.LBInterfaceMethod.Enabled = false;
+                BtnFindService_Click(null, null);
+            }
         }
 
         private void LBInterfaceMethod_DoubleClick(object sender, EventArgs e)
@@ -81,12 +87,22 @@ namespace APIHelper.SubForm
                 new UC.LoadingBox().Waiting(this, new Action(() =>
                  {
                      var client = Biz.WCF.WCFClient.CreateClient(url);
-                     var interfacedic = client.GetInterfaceInfos();
+                     var interfacelist = client.GetInterfaceInfos().SelectMany(p => p.Value).OrderBy(p=>p.OperationName).ToList();
 
                      this.BeginInvoke(new Action(() =>
                      {
-                         this.LBInterfaceMethod.DataSource = interfacedic.SelectMany(p => p.Value).ToList();
+                         this.LBInterfaceMethod.DataSource = interfacelist;
                          this.LBInterfaceMethod.DisplayMember = "OperationName";
+
+                         if (APIUrl?.Id > 0)
+                         {
+                             var apidata = BigEntityTableEngine.LocalEngine.Find<APIData>(nameof(APIData), "ApiId", new object[] { APIUrl.Id }).FirstOrDefault();
+                             if (apidata != null)
+                             {
+                                 this.LBInterfaceMethod.SelectedItem = interfacelist.Find(p => p.SoapAction == apidata.Headers?.Find(q => q.Name == "SOAPAction")?.Value.Trim('"'));
+                             }
+
+                         }
                      }));
                  }));
             }
@@ -181,7 +197,7 @@ namespace APIHelper.SubForm
                         {
                             Checked=true,
                             Name="Expect",
-                            Value="100-continue",
+                            Value="100",
                             Desc=""
                         }
                     },
