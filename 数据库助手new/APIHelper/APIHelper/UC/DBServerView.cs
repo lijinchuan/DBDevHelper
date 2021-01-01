@@ -182,20 +182,38 @@ namespace APIHelper
                             {
                                 var apiurl = selnode.Tag as APIUrl;
                                 var souceid = FindParentNode<APISource>(selnode).Id;
-                                if (new SubForm.AddAPIStep1Dlg(souceid, apiurl).ShowDialog() == DialogResult.OK)
+                                if (apiurl.BodyDataType == BodyDataType.wcf)
                                 {
-                                    if (!BigEntityTableEngine.LocalEngine.Find<APIDoc>(nameof(APIDoc), "APIId", new object[] { apiurl.Id }).Any())
+                                    if (new SubForm.AddWCFApiDlg(souceid, apiurl).ShowDialog() == DialogResult.OK)
+                                    {
+                                        if (!BigEntityTableEngine.LocalEngine.Find<APIDoc>(nameof(APIDoc), "APIId", new object[] { apiurl.Id }).Any())
                                         {
-                                        //创建文档
-                                        BigEntityTableEngine.LocalEngine.Insert(nameof(APIDoc), new APIDoc
-                                        {
-                                            APISourceId = souceid,
-                                            APIId = apiurl.Id,
-                                            Mark = apiurl.Desc
-                                        });
+                                            //创建文档
+                                            BigEntityTableEngine.LocalEngine.Insert(nameof(APIDoc), new APIDoc
+                                            {
+                                                APISourceId = souceid,
+                                                APIId = apiurl.Id,
+                                                Mark = apiurl.Desc
+                                            });
+                                        }
                                     }
                                 }
-
+                                else
+                                {
+                                    if (new SubForm.AddAPIStep1Dlg(souceid, apiurl).ShowDialog() == DialogResult.OK)
+                                    {
+                                        if (!BigEntityTableEngine.LocalEngine.Find<APIDoc>(nameof(APIDoc), "APIId", new object[] { apiurl.Id }).Any())
+                                        {
+                                            //创建文档
+                                            BigEntityTableEngine.LocalEngine.Insert(nameof(APIDoc), new APIDoc
+                                            {
+                                                APISourceId = souceid,
+                                                APIId = apiurl.Id,
+                                                Mark = apiurl.Desc
+                                            });
+                                        }
+                                    }
+                                }
                             }
                             break;
                         }
@@ -303,6 +321,26 @@ namespace APIHelper
                         {
                             Clipboard.SetText(selnode.Text);
                             Util.SendMsg(this, "已复制到剪贴板");
+                            break;
+                        }
+                    case "添加WCF接口":
+                        {
+                            var apisource = selnode.Parent.Tag as APISource;
+                            var sourceid = apisource.Id;
+                            var step1dlg = new SubForm.AddWCFApiDlg(sourceid);
+                            if (step1dlg.ShowDialog() == DialogResult.OK)
+                            {
+                                this.ReLoadDBObj(selnode);
+                                Util.AddToMainTab(this, $"[{apisource.SourceName}]{step1dlg.APIUrl.APIName}", new UC.UCAddAPI(step1dlg.APIUrl));
+
+                                //创建文档
+                                BigEntityTableEngine.LocalEngine.Insert(nameof(APIDoc), new APIDoc
+                                {
+                                    APISourceId = apisource.Id,
+                                    APIId = step1dlg.APIUrl.Id,
+                                    Mark = step1dlg.APIUrl.Desc
+                                });
+                            }
                             break;
                         }
                     default:
@@ -423,6 +461,7 @@ namespace APIHelper
                 添加API资源ToolStripMenuItem.Visible = node.Level == 0;
 
                 添加APIToolStripMenuItem.Visible = (node.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.APIPARENT;
+                添加WCF接口ToolStripMenuItem.Visible = (node.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.APIPARENT;
 
                 修改ToolStripMenuItem.Visible = node.Tag is APISource
                     ||node.Tag is APIUrl;

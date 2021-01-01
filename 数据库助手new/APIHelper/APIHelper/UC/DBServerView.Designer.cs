@@ -46,6 +46,7 @@
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.ts_serchKey = new System.Windows.Forms.ToolStripComboBox();
             this.toolStripDropDownButton1 = new System.Windows.Forms.ToolStripButton();
+            this.添加WCF接口ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.DBServerviewContextMenuStrip.SuspendLayout();
             this.toolStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -84,9 +85,10 @@
             this.添加APIToolStripMenuItem,
             this.删除ToolStripMenuItem,
             this.修改ToolStripMenuItem,
-            this.参数定义ToolStripMenuItem});
+            this.参数定义ToolStripMenuItem,
+            this.添加WCF接口ToolStripMenuItem});
             this.DBServerviewContextMenuStrip.Name = "DBServerviewContextMenuStrip";
-            this.DBServerviewContextMenuStrip.Size = new System.Drawing.Size(181, 268);
+            this.DBServerviewContextMenuStrip.Size = new System.Drawing.Size(181, 290);
             // 
             // 复制表名ToolStripMenuItem
             // 
@@ -184,6 +186,12 @@
             this.toolStripDropDownButton1.Text = "toolStripDropDownButton1";
             this.toolStripDropDownButton1.Click += new System.EventHandler(this.toolStripDropDownButton1_Click);
             // 
+            // 添加WCF接口ToolStripMenuItem
+            // 
+            this.添加WCF接口ToolStripMenuItem.Name = "添加WCF接口ToolStripMenuItem";
+            this.添加WCF接口ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.添加WCF接口ToolStripMenuItem.Text = "添加WCF接口";
+            // 
             // DBServerView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -223,5 +231,6 @@
         private System.Windows.Forms.ToolStripMenuItem 添加环境ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 添加环境变量ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 参数定义ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 添加WCF接口ToolStripMenuItem;
     }
 }

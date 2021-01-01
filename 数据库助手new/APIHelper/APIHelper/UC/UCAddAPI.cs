@@ -90,6 +90,10 @@ namespace APIHelper.UC
             }
             else if (RBRow.Checked)
             {
+                if (_apiUrl.BodyDataType == BodyDataType.wcf)
+                {
+                    return BodyDataType.wcf;
+                }
                 return BodyDataType.raw;
             }
             else if (RBFormdata.Checked)
@@ -115,6 +119,10 @@ namespace APIHelper.UC
                 RBNone.Checked = true;
             }
             else if (BodyDataType.raw == bodyDataType)
+            {
+                RBRow.Checked = true;
+            }
+            else if (BodyDataType.wcf == bodyDataType)
             {
                 RBRow.Checked = true;
             }
@@ -229,7 +237,7 @@ namespace APIHelper.UC
             var url = TBUrl.Text.Trim();
             url = ReplaceEvnParams(url, ref apiEnvParams);
             HttpRequestEx httpRequestEx = new HttpRequestEx();
-            if (Params.Where(p => p.Checked).Count() > 0)
+            if (Params?.Where(p => p.Checked).Count() > 0)
             {
                 if (url.IndexOf("?") == -1)
                 {
@@ -326,6 +334,12 @@ namespace APIHelper.UC
                 WebRequestMethodEnum webRequestMethodEnum = (WebRequestMethodEnum)Enum.Parse(typeof(WebRequestMethodEnum), CBWebMethod.SelectedItem.ToString());
                 var data = Encoding.UTF8.GetBytes(ReplaceEvnParams(rawTextBox.Text, ref apiEnvParams));
                 responseEx = httpRequestEx.DoRequest(url, data, webRequestMethodEnum, contentType: $"application/{CBApplicationType.SelectedItem.ToString()}");
+            }
+            else if (bodydataType == BodyDataType.wcf)
+            {
+                WebRequestMethodEnum webRequestMethodEnum = (WebRequestMethodEnum)Enum.Parse(typeof(WebRequestMethodEnum), CBWebMethod.SelectedItem.ToString());
+                var data = Encoding.UTF8.GetBytes(ReplaceEvnParams(rawTextBox.Text, ref apiEnvParams));
+                responseEx = httpRequestEx.DoRequest(url, data, webRequestMethodEnum, contentType: $"text/{CBApplicationType.SelectedItem.ToString()}");
             }
             else if (bodydataType == BodyDataType.binary)
             {

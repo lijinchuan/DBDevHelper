@@ -147,11 +147,11 @@ namespace Biz.WCF
                             newinterface.OutputMessage = TrimNameSpace(childnode.Attributes["message"].Value);
 
                             newinterface.OutputParams = paraminfodic[msgdic[newinterface.OutputMessage]].ChildParamInfos;
-                        }
-                        newinterface.SoapAction = binddic[servicename].OperatorBindDic[newinterface.OperationName].SoapAction;
-                        newinterface.BindName = binddic[servicename].Name;
-                        oplist.Add(newinterface);
+                        }  
                     }
+                    newinterface.SoapAction = binddic[servicename].OperatorBindDic[newinterface.OperationName].SoapAction;
+                    newinterface.BindName = binddic[servicename].Name;
+                    oplist.Add(newinterface);
 
                 }
                 _interfaceInfos.Add(servicename, oplist);
@@ -200,7 +200,7 @@ namespace Biz.WCF
 
             HttpRequestEx httpRequestEx = new HttpRequestEx();
 
-            httpRequestEx.Headers.Add("SOAPAction", op.SoapAction);
+            httpRequestEx.Headers.Add("SOAPAction", $"\"{op.SoapAction}\"");
             httpRequestEx.Headers.Add("Expect", "100-continue");
 
             var resp = httpRequestEx.DoRequest(this._url, Encoding.UTF8.GetBytes(xml), WebRequestMethodEnum.POST,

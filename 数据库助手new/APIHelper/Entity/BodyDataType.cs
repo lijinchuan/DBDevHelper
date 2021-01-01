@@ -11,6 +11,7 @@ namespace Entity
         formdata,
         xwwwformurlencoded,
         raw,
-        binary
+        binary,
+        wcf
     }
 }
