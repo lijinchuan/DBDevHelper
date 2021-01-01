@@ -146,7 +146,7 @@ namespace APIHelper
 
             try
             {
-                wdlg.Msg = "关闭数据库...";
+                wdlg.Msg = "其它工作...";
                 BigEntityTableEngine.LocalEngine.ShutDown();
             }
             catch

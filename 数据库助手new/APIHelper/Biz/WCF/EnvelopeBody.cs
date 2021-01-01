@@ -57,7 +57,7 @@ namespace Biz.WCF
                 }
                 else
                 {
-                    ValueSerializer.Serialize(write, kv.Value);
+                    write.WriteValue("");
                 }
 
                 write.WriteEndElement();
