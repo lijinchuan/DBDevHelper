@@ -32,6 +32,87 @@ namespace Biz.WCF
             return tag.Split(new[] { ':' }).Last();
         }
 
+        private void Analysis(XmlNode schemaNode, XmlNamespaceManager xnm, ref Dictionary<string, ParamInfo> paraminfodic)
+        {
+            if (paraminfodic == null)
+            {
+                paraminfodic = new Dictionary<string, ParamInfo>();
+            }
+
+            var importnode = schemaNode.SelectNodes("xs:import", xnm);
+            if (importnode.Count > 0)
+            {
+                foreach (XmlNode node in importnode)
+                {
+                    var ns = node.Attributes["namespace"].Value;
+
+                    var importschemanode = schemaNode.OwnerDocument.SelectSingleNode("//wsdl:types/xs:schema[@targetNamespace='" + ns + "']", xnm);
+
+                    Analysis(importschemanode, xnm, ref paraminfodic);
+                }
+            }
+
+            foreach (XmlNode node in schemaNode.ChildNodes)
+            {
+                if (node.Name == "xs:import")
+                {
+                    continue;
+                }
+
+                ParamInfo paraminfo = new ParamInfo();
+                paraminfo.Name = TrimNameSpace(node.Attributes["name"].Value);
+                paraminfo.ChildParamInfos = new List<ParamInfo>();
+
+                XmlNodeList ele = null;
+                if (node.Name == "xs:element")
+                {
+                    if (node.ChildNodes.Count > 0)
+                    {
+                        ele = node.SelectNodes("xs:complexType/xs:sequence/xs:element", xnm);
+                    }
+                    else
+                    {
+                        paraminfo.Nillable = node.Attributes["nillable"] == null ? false : bool.Parse(node.Attributes["nillable"].Value);
+                        paraminfo.Type = TrimNameSpace(node.Attributes["type"].Value);
+                        paraminfo.IsMany = node.Attributes["maxOccurs"]?.Value == "unbounded";
+                        if (paraminfo.Type != null && paraminfodic.ContainsKey(paraminfo.Type))
+                        {
+                            paraminfo.ChildParamInfos = paraminfodic[paraminfo.Type].ChildParamInfos;
+                        }
+                    }
+                }
+                else
+                {
+                    ele = node.SelectNodes("xs:sequence/xs:element", xnm);
+                }
+                if (ele != null)
+                {
+                    foreach (XmlNode e in ele)
+                    {
+                        var p = new ParamInfo
+                        {
+                            ChildParamInfos = new List<ParamInfo>(),
+                            Name = TrimNameSpace(e.Attributes["name"].Value),
+                            Nillable = e.Attributes["nillable"] == null ? false : bool.Parse(e.Attributes["nillable"].Value),
+                            Type = TrimNameSpace(e.Attributes["type"].Value),
+                            IsMany = e.Attributes["maxOccurs"]?.Value == "unbounded"
+                        };
+                        if (p.Type != null && paraminfodic.ContainsKey(p.Type))
+                        {
+                            p.ChildParamInfos = paraminfodic[p.Type].ChildParamInfos;
+                        }
+                        paraminfo.ChildParamInfos.Add(p);
+                    }
+                }
+
+                if (!paraminfodic.ContainsKey(paraminfo.Name))
+                {
+                    paraminfodic.Add(paraminfo.Name, paraminfo);
+                }
+            }
+
+        }
+
         public Dictionary<string,List<InterfaceInfo>> GetInterfaceInfos()
         {
             if (_interfaceInfos.Count > 0)
@@ -52,30 +133,11 @@ namespace Biz.WCF
 
             //解析类型
             Dictionary<string, ParamInfo> paraminfodic = new Dictionary<string, ParamInfo>();
-            var typeelementlist = doc.SelectNodes("//wsdl:types/xs:schema/xs:element", xnm);
-            foreach(XmlNode typeele in typeelementlist)
+            var typeelementlist = doc.SelectNodes("//wsdl:types/xs:schema", xnm);
+            
+            foreach (XmlNode typeele in typeelementlist)
             {
-                ParamInfo paraminfo = new ParamInfo();
-                paraminfo.Name =TrimNameSpace(typeele.Attributes["name"].Value);
-                paraminfo.ChildParamInfos = new List<ParamInfo>();
-                if (typeele.ChildNodes.Count > 0)
-                {
-                    paraminfo.Type = typeele.ChildNodes[0].Name;
-                    
-                    var ele = typeele.ChildNodes[0].SelectNodes("xs:sequence/xs:element", xnm);
-                    foreach(XmlNode e in ele)
-                    {
-                        paraminfo.ChildParamInfos.Add(new ParamInfo
-                        {
-                            ChildParamInfos = new List<ParamInfo>(),
-                            Name = TrimNameSpace(e.Attributes["name"].Value),
-                            Nillable = e.Attributes["nillable"] == null ? false : bool.Parse(e.Attributes["nillable"].Value),
-                            Type = TrimNameSpace(e.Attributes["type"].Value)
-                        });
-                    }
-
-                    paraminfodic.Add(paraminfo.Name, paraminfo);
-                }
+                Analysis(typeele,xnm, ref paraminfodic);
             }
 
             //解析Message

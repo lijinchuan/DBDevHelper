@@ -30,5 +30,11 @@ namespace Entity.WCF
             get;
             set;
         }
+
+        public bool IsMany
+        {
+            get;
+            set;
+        }
     }
 }
