@@ -10,7 +10,7 @@ using System.Xml.Serialization;
 namespace Biz.WCF
 {
     [Serializable]
-    public class EnvelopeBody<TValue> : Dictionary<string, TValue>, IXmlSerializable
+    public class EnvelopeBody : Dictionary<string, EnvelopeValue>, IXmlSerializable
     {
         private string name;
         public EnvelopeBody()
@@ -21,83 +21,29 @@ namespace Biz.WCF
             this.name = name;
         }
 
-        public EnvelopeBody<object> ConvertToBody(IDictionary<string, object> dic)
+        public void WriteXml(XmlWriter writer)       // Serializer
         {
-            EnvelopeBody<object> ret = new EnvelopeBody<object>();
-            foreach (var kv in dic)
-            {
-                ret.Add(kv.Key, kv.Value);
-            }
-
-            return ret;
-        }
-
-        public void WriteXml(XmlWriter write)       // Serializer
-        {
-            XmlSerializer ValueSerializer = new XmlSerializer(typeof(TValue), "");
-
+            XmlSerializer ValueSerializer = new XmlSerializer(typeof(EnvelopeValue), "");
+            XmlSerializerNamespaces namespaces = new XmlSerializerNamespaces();
             if (!string.IsNullOrWhiteSpace(name))
             {
-                write.WriteStartElement(name, "http://tempuri.org/");
+                writer.WriteStartElement(name, "http://tempuri.org/");
             }
-            foreach (KeyValuePair<string, TValue> kv in this)
+            foreach (KeyValuePair<string, EnvelopeValue> kv in this)
             {
-                write.WriteStartElement(kv.Key);
+                writer.WriteStartElement(kv.Key);
 
-                if (kv.Value != null)
-                {
-                    if (kv.Value is IDictionary<string, object>)
-                    {
-                        foreach(var kv2 in (IDictionary<string, object>)kv.Value)
-                        {
-                            write.WriteStartElement(kv2.Key);
-                            if (kv2.Value == null)
-                            {
-                                write.WriteValue("");
-                            }
-                            else
-                            {
-                                write.WriteValue(kv2.Value);
-                            }
+                kv.Value.WriteXml(writer);
 
-                            write.WriteEndElement();
-                        }
-                        
-                    }
-                    else
-                    {
-                        write.WriteValue(kv.Value);
-                    }
-                }
-                else
-                {
-                    write.WriteValue("");
-                }
-
-                write.WriteEndElement();
+                writer.WriteEndElement();
             }
             if (!string.IsNullOrWhiteSpace(name))
             {
-                write.WriteEndElement();
+                writer.WriteEndElement();
             }
         }
         public void ReadXml(XmlReader reader)       // Deserializer
         {
-            reader.Read();
-            XmlSerializer ValueSerializer = new XmlSerializer(typeof(TValue));
-
-            name = reader.Name;
-
-            while (reader.NodeType != XmlNodeType.EndElement)
-            {
-                reader.ReadStartElement(name);
-                string tk = name;
-                TValue vl = (TValue)ValueSerializer.Deserialize(reader);
-                reader.ReadEndElement();
-
-                this.Add(tk, vl);
-                reader.MoveToContent();
-            }
 
         }
         public XmlSchema GetSchema()

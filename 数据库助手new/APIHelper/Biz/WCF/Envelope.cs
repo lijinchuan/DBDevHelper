@@ -11,6 +11,7 @@ namespace Biz.WCF
 {
     [Serializable]
     [XmlRoot(ElementName = "Envelope",Namespace = "http://schemas.xmlsoap.org/soap/envelope/")]
+    
     public class Envelope
     {
         public Envelope()
@@ -20,10 +21,10 @@ namespace Biz.WCF
 
         public Envelope(string opname)
         {
-            this.Body = new EnvelopeBody<object>(opname);
+            this.Body = new EnvelopeBody(opname);
         }
 
-        public EnvelopeBody<object> Body
+        public EnvelopeBody Body
         {
             get;
             set;

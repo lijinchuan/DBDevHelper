@@ -12,19 +12,19 @@ namespace Biz
 {
     public static class UILoadHelper
     {
-        public static void LoadApiAsync(Form parent, TreeNode tbNode, int apiResourceId)
+        public static void LoadApiAsync(Form parent, TreeNode tbNode, int apiResourceId, AsyncCallback callback, object @object)
         {
             tbNode.Nodes.Add(new TreeNode("加载中...", 3, 3));
             tbNode.Expand();
 
-            new Action<Form, TreeNode, int>(LoadApi).BeginInvoke(parent, tbNode, apiResourceId, null, null);
+            new Action<Form, TreeNode, int>(LoadApi).BeginInvoke(parent, tbNode, apiResourceId, callback, @object);
         }
 
-        public static void LoadLogicMapsAnsy(Form parent, TreeNode tbNode, int sourceid)
+        public static void LoadLogicMapsAnsy(Form parent, TreeNode tbNode, int sourceid,AsyncCallback callback, object @object)
         {
             tbNode.Nodes.Add(new TreeNode("加载中...", 3, 3));
             tbNode.Expand();
-            new Action<Form, TreeNode, int>(LoadLogicMaps).BeginInvoke(parent, tbNode, sourceid, null, null);
+            new Action<Form, TreeNode, int>(LoadLogicMaps).BeginInvoke(parent, tbNode, sourceid, callback, @object);
         }
 
         public static void LoadLogicMaps(Form parent, TreeNode tbNode, int sourceid)
@@ -72,12 +72,12 @@ namespace Biz
             parent.Invoke(new Action(() => { tbNode.Nodes.Clear(); tbNode.Nodes.AddRange(treeNodes.ToArray()); tbNode.Expand(); }));
         }
 
-        public static void LoadApiResurceAsync(Form parent, TreeNode tbNode)
+        public static void LoadApiResurceAsync(Form parent, TreeNode tbNode,AsyncCallback callback,object @object)
         {
             tbNode.Nodes.Add(new TreeNode("加载中...", 3, 3));
             tbNode.Expand();
 
-            new Action<Form, TreeNode>(LoadApiResurce).BeginInvoke(parent, tbNode, null, null);
+            new Action<Form, TreeNode>(LoadApiResurce).BeginInvoke(parent, tbNode,callback, @object);
         }
 
         public static void LoadApiResurce(Form parent, TreeNode pnode)
@@ -135,12 +135,12 @@ namespace Biz
             parent.Invoke(new Action(() => { pnode.Nodes.Clear(); pnode.Nodes.AddRange(treeNodes.ToArray()); pnode.Expand(); }));
         }
 
-        public static void LoadApiEnvAsync(Form parent, TreeNode pnode, int sourceid)
+        public static void LoadApiEnvAsync(Form parent, TreeNode pnode, int sourceid, AsyncCallback callback, object @object)
         {
             pnode.Nodes.Add(new TreeNode("加载中...", 3, 3));
             pnode.Expand();
 
-            new Action<Form, TreeNode, int>(LoadApiEnv).BeginInvoke(parent, pnode, sourceid, null, null);
+            new Action<Form, TreeNode, int>(LoadApiEnv).BeginInvoke(parent, pnode, sourceid, callback, @object);
         }
 
         public static void LoadApiEnv(Form parent, TreeNode pnode, int sourceid)
@@ -157,12 +157,12 @@ namespace Biz
             parent.Invoke(new Action(() => { pnode.Nodes.Clear(); pnode.Nodes.AddRange(treeNodes.ToArray()); pnode.Expand(); }));
         }
 
-        public static void LoadApiEnvParamsAsync(Form parent, TreeNode pnode, int sourceid,int envid)
+        public static void LoadApiEnvParamsAsync(Form parent, TreeNode pnode, int sourceid,int envid, AsyncCallback callback, object @object)
         {
             pnode.Nodes.Add(new TreeNode("加载中...", 3, 3));
             pnode.Expand();
 
-            new Action<Form, TreeNode, int,int>(LoadApiEnvParams).BeginInvoke(parent, pnode, sourceid,envid, null, null);
+            new Action<Form, TreeNode, int,int>(LoadApiEnvParams).BeginInvoke(parent, pnode, sourceid,envid, callback, @object);
         }
 
         public static void LoadApiEnvParams(Form parent, TreeNode pnode, int sourceid,int envid)
@@ -197,12 +197,12 @@ namespace Biz
             parent.Invoke(new Action(() => { pnode.Nodes.Clear(); pnode.Nodes.AddRange(treeNodes.ToArray()); pnode.Expand(); }));
         }
 
-        public static void LoadApiDocsAsync(Form parent, TreeNode pnode, int sourceid)
+        public static void LoadApiDocsAsync(Form parent, TreeNode pnode, int sourceid, AsyncCallback callback, object @object)
         {
             pnode.Nodes.Add(new TreeNode("加载中...", 3, 3));
             pnode.Expand();
 
-            new Action<Form, TreeNode, int>(LoadApiDocs).BeginInvoke(parent, pnode, sourceid, null, null);
+            new Action<Form, TreeNode, int>(LoadApiDocs).BeginInvoke(parent, pnode, sourceid, callback, @object);
         }
 
         public static void LoadApiDocs(Form parent, TreeNode pnode, int sourceid)

@@ -181,16 +181,16 @@ namespace APIHelper.SubForm
                 {
                     if (item.ChildParamInfos.Count == 0)
                     {
-                        envelope.Body.Add(item.Name, null);
+                        envelope.Body.Add(item.Name, new EnvelopeValue());
                     }
                     else
                     {
-                        EnvelopeBody<object> body = new Biz.WCF.EnvelopeBody<object>();
+                        EnvelopeBody body = new Biz.WCF.EnvelopeBody();
                         foreach(var c in item.ChildParamInfos)
                         {
-                            body.Add(c.Name, null);
+                            body.Add(c.Name, new EnvelopeValue());
                         }
-                        envelope.Body.Add(item.Name, body);
+                        envelope.Body.Add(item.Name, new EnvelopeValue(body));
                     }
                 }
 

@@ -28,10 +28,10 @@ namespace APIHelper.SubForm
             this.Msg = msg;
             new Thread(new ThreadStart(() =>
             {
-                Thread.Sleep(100);
+                Thread.Sleep(300);
                 this.DialogResult = DialogResult.Cancel;
                 this.Visible = false;
-                Thread.Sleep(100);
+                Thread.Sleep(300);
                 this.ShowDialog();
                 this.BringToFront();
 

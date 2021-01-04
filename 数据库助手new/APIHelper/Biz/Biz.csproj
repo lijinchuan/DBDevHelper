@@ -66,6 +66,8 @@
     <Compile Include="WatchTask\WatchTaskInfoManage.cs" />
     <Compile Include="WCF\Envelope.cs" />
     <Compile Include="WCF\EnvelopeBody.cs" />
+    <Compile Include="WCF\Envelopes.cs" />
+    <Compile Include="WCF\EnvelopeValue.cs" />
     <Compile Include="WCF\WCFClient.cs" />
   </ItemGroup>
   <ItemGroup>

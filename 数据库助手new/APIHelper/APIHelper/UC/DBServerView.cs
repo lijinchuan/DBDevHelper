@@ -13,6 +13,7 @@ using Biz.Common;
 using LJC.FrameWorkV3.Data.EntityDataBase;
 using Biz;
 using APIHelper.UC;
+using System.Threading;
 
 namespace APIHelper
 {
@@ -109,43 +110,62 @@ namespace APIHelper
         }
 
 
-        void ReLoadDBObj(TreeNode selNode)
+        void ReLoadDBObj(TreeNode selNode,bool loadall=false)
         {
             //TreeNode selNode = tv_DBServers.SelectedNode;
             if (selNode == null)
                 return;
+            AsyncCallback callback = null;
+            if (loadall)
+            {
+                callback = new AsyncCallback((o) =>
+                  {
+                      var node = selNode;
+                      foreach(TreeNode c in node.Nodes)
+                      {
+                          this.BeginInvoke(new Action(() =>
+                          {
+                              ReLoadDBObj(c, loadall);
+                          }));
+                      }
+                  });
+            }
             if (selNode.Level == 0)
             {
-                Biz.UILoadHelper.LoadApiResurceAsync(this.ParentForm, selNode);
+
+                Biz.UILoadHelper.LoadApiResurceAsync(this.ParentForm, selNode, callback, selNode);
             }
             else if (selNode.Tag is APISource)
             {
-
+                if (loadall)
+                {
+                    callback(null);
+                }
             }
             else if (selNode.Tag is NodeContents && (selNode.Tag as INodeContents).GetNodeContentType() == NodeContentType.APIPARENT)
             {
                 var sid = (selNode.Parent.Tag as APISource).Id;
-                Biz.UILoadHelper.LoadApiAsync(this.ParentForm, selNode, sid);
+                Biz.UILoadHelper.LoadApiAsync(this.ParentForm, selNode, sid, callback, selNode);
             }
             else if (selNode.Tag is INodeContents && (selNode.Tag as INodeContents).GetNodeContentType() == NodeContentType.LOGICMAPParent)
             {
-                Biz.UILoadHelper.LoadLogicMapsAnsy(this.ParentForm, selNode, FindParentNode<APISource>(selNode).Id);
+                Biz.UILoadHelper.LoadLogicMapsAnsy(this.ParentForm, selNode, FindParentNode<APISource>(selNode).Id, callback, selNode);
             }
             else if (selNode.Tag is INodeContents && (selNode.Tag as INodeContents).GetNodeContentType() == NodeContentType.ENVPARENT)
             {
                 var sid = (selNode.Parent.Tag as APISource).Id;
-                Biz.UILoadHelper.LoadApiEnvAsync(this.ParentForm, selNode, sid);
+                Biz.UILoadHelper.LoadApiEnvAsync(this.ParentForm, selNode, sid, callback, selNode);
             }
             else if (selNode.Tag is APIEnv)
             {
                 var sid = FindParentNode<APISource>(selNode).Id;
                 var envid = (selNode.Tag as APIEnv).Id;
-                Biz.UILoadHelper.LoadApiEnvParamsAsync(this.ParentForm, selNode, sid, envid);
+                Biz.UILoadHelper.LoadApiEnvParamsAsync(this.ParentForm, selNode, sid, envid, callback, selNode);
             }
             else if (selNode.Tag is INodeContents && (selNode.Tag as INodeContents).GetNodeContentType() == NodeContentType.DOCPARENT)
             {
                 var sid = FindParentNode<APISource>(selNode).Id;
-                Biz.UILoadHelper.LoadApiDocsAsync(this.ParentForm, selNode, sid);
+                Biz.UILoadHelper.LoadApiDocsAsync(this.ParentForm, selNode, sid, callback, selNode);
             }
         }
 
@@ -434,7 +454,7 @@ namespace APIHelper
 
         private void DBServerView_Load(object sender, EventArgs e)
         {
-            Bind();
+            ReLoadDBObj(tv_DBServers.Nodes[0], true);
         }
 
         public string DisConnectSelectDBServer()
@@ -537,7 +557,17 @@ namespace APIHelper
             {
                 return false;
             }
-            var find = matchall ? nodeStart.Text.Equals(txt, StringComparison.OrdinalIgnoreCase) : nodeStart.Text.IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1;
+            var text = nodeStart.Text;
+            var find = matchall ? text.Equals(txt, StringComparison.OrdinalIgnoreCase) : text.IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1;
+            if (!find)
+            {
+                if(nodeStart.Tag is APIUrl)
+                {
+                    var apiurl = nodeStart.Tag as APIUrl;
+                    text = apiurl.Path;
+                    find = matchall ? text.Equals(txt, StringComparison.OrdinalIgnoreCase) : text.IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1;
+                }
+            }
             if (find)
             {
                 tv_DBServers.SelectedNode = nodeStart;
