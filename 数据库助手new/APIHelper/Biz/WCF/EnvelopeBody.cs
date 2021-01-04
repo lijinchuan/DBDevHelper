@@ -48,7 +48,21 @@ namespace Biz.WCF
                 {
                     if (kv.Value is IDictionary<string, object>)
                     {
-                        ValueSerializer.Serialize(write, ConvertToBody((IDictionary<string, object>)kv.Value));
+                        foreach(var kv2 in (IDictionary<string, object>)kv.Value)
+                        {
+                            write.WriteStartElement(kv2.Key);
+                            if (kv2.Value == null)
+                            {
+                                write.WriteValue("");
+                            }
+                            else
+                            {
+                                write.WriteValue(kv2.Value);
+                            }
+
+                            write.WriteEndElement();
+                        }
+                        
                     }
                     else
                     {

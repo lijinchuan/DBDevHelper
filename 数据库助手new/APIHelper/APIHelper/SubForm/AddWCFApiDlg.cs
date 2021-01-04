@@ -1,4 +1,5 @@
-﻿using Entity;
+﻿using Biz.WCF;
+using Entity;
 using Entity.WCF;
 using LJC.FrameWorkV3.Data.EntityDataBase;
 using System;
@@ -178,7 +179,19 @@ namespace APIHelper.SubForm
                 Biz.WCF.Envelope envelope = new Biz.WCF.Envelope(wcfinterface.OperationName);
                 foreach(var item in wcfinterface.InputParams)
                 {
-                    envelope.Body.Add(item.Name, null);
+                    if (item.ChildParamInfos.Count == 0)
+                    {
+                        envelope.Body.Add(item.Name, null);
+                    }
+                    else
+                    {
+                        EnvelopeBody<object> body = new Biz.WCF.EnvelopeBody<object>();
+                        foreach(var c in item.ChildParamInfos)
+                        {
+                            body.Add(c.Name, null);
+                        }
+                        envelope.Body.Add(item.Name, body);
+                    }
                 }
 
                 APIData apidata = new APIData
