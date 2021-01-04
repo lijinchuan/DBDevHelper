@@ -171,7 +171,7 @@
             this.ShowIcon = false;
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "添加WCF接口";
+            this.Text = "添加WCF接口(只支持部分简单的接口)";
             this.ResumeLayout(false);
             this.PerformLayout();
 
