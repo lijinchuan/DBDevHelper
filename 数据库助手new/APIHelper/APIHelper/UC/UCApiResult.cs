@@ -56,6 +56,7 @@ namespace APIHelper.UC
             this.CMSTool.ItemClicked += CMSTool_ItemClicked;
 
             TBErrors.ForeColor = Color.Red;
+            WBResult.ScriptErrorsSuppressed = true;
         }
 
         public void SetError(string error)

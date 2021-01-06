@@ -47,6 +47,10 @@ namespace APIHelper
                 {
                     parent = (parent as Form).Owner;
                 }
+                else
+                {
+                    parent = parent.Parent;
+                }
             }
         }
 
@@ -69,6 +73,10 @@ namespace APIHelper
                 else if (parent is Form)
                 {
                     parent = (parent as Form).Owner;
+                }
+                else
+                {
+                    parent = parent.Parent;
                 }
             }
         }
@@ -94,6 +102,10 @@ namespace APIHelper
                     {
                         parent = (parent as Form).Owner;
                     }
+                    else
+                    {
+                        parent = parent.Parent;
+                    }
                 }
             }
         }
@@ -116,6 +128,10 @@ namespace APIHelper
                 else if (parent is Form)
                 {
                     parent = (parent as Form).Owner;
+                }
+                else
+                {
+                    parent = parent.Parent;
                 }
             }
         }
