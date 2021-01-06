@@ -40,13 +40,15 @@
             this.panel1 = new System.Windows.Forms.Panel();
             this.TabControl = new APIHelper.UC.MyTabControl();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
-            this.tsb_Excute = new System.Windows.Forms.ToolStripButton();
             this.TSCBServer = new System.Windows.Forms.ToolStripLabel();
             this.TSBSave = new System.Windows.Forms.ToolStripButton();
+            this.tsb_Excute = new System.Windows.Forms.ToolStripButton();
             this.dbServerView1 = new APIHelper.DBServerView();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.MspPanel = new System.Windows.Forms.ToolStripStatusLabel();
             this.TSL_ClearMsg = new System.Windows.Forms.ToolStripStatusLabel();
+            this.mD5签名ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.时间戳ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mainMenuBar.SuspendLayout();
             this.panel1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
@@ -92,7 +94,9 @@
             // 
             this.SubItemTool.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.监控任务ToolStripMenuItem,
-            this.swaggerMarkUpToolStripMenuItem});
+            this.swaggerMarkUpToolStripMenuItem,
+            this.mD5签名ToolStripMenuItem,
+            this.时间戳ToolStripMenuItem});
             this.SubItemTool.Name = "SubItemTool";
             this.SubItemTool.Size = new System.Drawing.Size(44, 21);
             this.SubItemTool.Text = "工具";
@@ -156,14 +160,6 @@
             this.toolStrip1.Text = "toolStrip1";
             this.toolStrip1.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.toolStrip1_ItemClicked);
             // 
-            // tsb_Excute
-            // 
-            this.tsb_Excute.Image = global::APIHelper.Properties.Resources.新建位图图像__2_;
-            this.tsb_Excute.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsb_Excute.Name = "tsb_Excute";
-            this.tsb_Excute.Size = new System.Drawing.Size(52, 22);
-            this.tsb_Excute.Text = "执行";
-            // 
             // TSCBServer
             // 
             this.TSCBServer.Name = "TSCBServer";
@@ -176,6 +172,14 @@
             this.TSBSave.Name = "TSBSave";
             this.TSBSave.Size = new System.Drawing.Size(52, 22);
             this.TSBSave.Text = "保存";
+            // 
+            // tsb_Excute
+            // 
+            this.tsb_Excute.Image = global::APIHelper.Properties.Resources.新建位图图像__2_;
+            this.tsb_Excute.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsb_Excute.Name = "tsb_Excute";
+            this.tsb_Excute.Size = new System.Drawing.Size(52, 22);
+            this.tsb_Excute.Text = "执行";
             // 
             // dbServerView1
             // 
@@ -213,6 +217,20 @@
             this.TSL_ClearMsg.Size = new System.Drawing.Size(16, 17);
             this.TSL_ClearMsg.Visible = false;
             this.TSL_ClearMsg.Click += new System.EventHandler(this.TSL_ClearMsg_Click);
+            // 
+            // mD5签名ToolStripMenuItem
+            // 
+            this.mD5签名ToolStripMenuItem.Name = "mD5签名ToolStripMenuItem";
+            this.mD5签名ToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
+            this.mD5签名ToolStripMenuItem.Text = "MD5签名";
+            this.mD5签名ToolStripMenuItem.Click += new System.EventHandler(this.mD5签名ToolStripMenuItem_Click);
+            // 
+            // 时间戳ToolStripMenuItem
+            // 
+            this.时间戳ToolStripMenuItem.Name = "时间戳ToolStripMenuItem";
+            this.时间戳ToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
+            this.时间戳ToolStripMenuItem.Text = "时间戳";
+            this.时间戳ToolStripMenuItem.Click += new System.EventHandler(this.时间戳ToolStripMenuItem_Click);
             // 
             // MainFrm
             // 
@@ -261,6 +279,8 @@
         private System.Windows.Forms.ToolStripMenuItem 监控任务ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem swaggerMarkUpToolStripMenuItem;
         private System.Windows.Forms.ToolStripButton TSBSave;
+        private System.Windows.Forms.ToolStripMenuItem mD5签名ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 时间戳ToolStripMenuItem;
     }
 }
 

@@ -300,7 +300,19 @@ namespace APIHelper
         private void swaggerMarkUpToolStripMenuItem_Click(object sender, EventArgs e)
         {
             SubForm.ParseSwaggerDocDlg dlg = new ParseSwaggerDocDlg();
-            dlg.ShowDialog();
+            dlg.Show();
+        }
+
+        private void mD5签名ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SubForm.MD5Dlg dlg = new MD5Dlg();
+            dlg.Owner = this;
+            dlg.Show();
+        }
+
+        private void 时间戳ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            System.Diagnostics.Process.Start("https://tool.lu/timestamp/");
         }
     }
 }

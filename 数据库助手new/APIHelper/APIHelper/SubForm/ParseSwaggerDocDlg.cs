@@ -16,6 +16,7 @@ namespace APIHelper.SubForm
         public ParseSwaggerDocDlg()
         {
             InitializeComponent();
+            this.StartPosition = FormStartPosition.CenterScreen;
         }
 
         private void BtnOK_Click(object sender, EventArgs e)

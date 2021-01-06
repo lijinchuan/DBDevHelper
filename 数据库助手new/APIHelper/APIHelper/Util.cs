@@ -39,8 +39,14 @@ namespace APIHelper
                     }, runintime: false);
                     break;
                 }
-
-                parent = parent.Parent;
+                if (parent.Parent != null)
+                {
+                    parent = parent.Parent;
+                }
+                else if (parent is Form)
+                {
+                    parent = (parent as Form).Owner;
+                }
             }
         }
 
@@ -56,7 +62,14 @@ namespace APIHelper
                     break;
                 }
 
-                parent = parent.Parent;
+                if (parent.Parent != null)
+                {
+                    parent = parent.Parent;
+                }
+                else if (parent is Form)
+                {
+                    parent = (parent as Form).Owner;
+                }
             }
         }
 
@@ -73,7 +86,14 @@ namespace APIHelper
                         break;
                     }
 
-                    parent = parent.Parent;
+                    if (parent.Parent != null)
+                    {
+                        parent = parent.Parent;
+                    }
+                    else if (parent is Form)
+                    {
+                        parent = (parent as Form).Owner;
+                    }
                 }
             }
         }
@@ -89,7 +109,14 @@ namespace APIHelper
                     break;
                 }
 
-                parent = parent.Parent;
+                if (parent.Parent != null)
+                {
+                    parent = parent.Parent;
+                }
+                else if (parent is Form)
+                {
+                    parent = (parent as Form).Owner;
+                }
             }
         }
 

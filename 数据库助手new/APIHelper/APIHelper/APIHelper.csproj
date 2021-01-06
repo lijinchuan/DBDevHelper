@@ -177,6 +177,12 @@
     <Compile Include="SubForm\InputStringDlg.Designer.cs">
       <DependentUpon>InputStringDlg.cs</DependentUpon>
     </Compile>
+    <Compile Include="SubForm\MD5Dlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SubForm\MD5Dlg.Designer.cs">
+      <DependentUpon>MD5Dlg.cs</DependentUpon>
+    </Compile>
     <Compile Include="SubForm\MultiInputDlg.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -194,6 +200,12 @@
     </Compile>
     <Compile Include="SubForm\PopMessageDlg.Designer.cs">
       <DependentUpon>PopMessageDlg.cs</DependentUpon>
+    </Compile>
+    <Compile Include="SubForm\SubBaseDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SubForm\SubBaseDlg.Designer.cs">
+      <DependentUpon>SubBaseDlg.cs</DependentUpon>
     </Compile>
     <Compile Include="SubForm\TextBoxWin.cs">
       <SubType>Form</SubType>
@@ -404,6 +416,9 @@
     <EmbeddedResource Include="SubForm\InputStringDlg.resx">
       <DependentUpon>InputStringDlg.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="SubForm\MD5Dlg.resx">
+      <DependentUpon>MD5Dlg.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="SubForm\MultiInputDlg.resx">
       <DependentUpon>MultiInputDlg.cs</DependentUpon>
     </EmbeddedResource>
@@ -412,6 +427,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="SubForm\PopMessageDlg.resx">
       <DependentUpon>PopMessageDlg.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SubForm\SubBaseDlg.resx">
+      <DependentUpon>SubBaseDlg.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="SubForm\TextBoxWin.resx">
       <DependentUpon>TextBoxWin.cs</DependentUpon>
