@@ -40,6 +40,8 @@
             this.DGVHeader = new System.Windows.Forms.DataGridView();
             this.TPCookie = new System.Windows.Forms.TabPage();
             this.DGVCookie = new System.Windows.Forms.DataGridView();
+            this.TPErrors = new System.Windows.Forms.TabPage();
+            this.TBErrors = new System.Windows.Forms.TextBox();
             this.LBStatuCode = new System.Windows.Forms.Label();
             this.LBMs = new System.Windows.Forms.Label();
             this.LBSize = new System.Windows.Forms.Label();
@@ -47,8 +49,8 @@
             this.CMSTool = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.复制ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.查找ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.TPErrors = new System.Windows.Forms.TabPage();
-            this.TBErrors = new System.Windows.Forms.TextBox();
+            this.TPBrowser = new System.Windows.Forms.TabPage();
+            this.WBResult = new System.Windows.Forms.WebBrowser();
             this.Tabs.SuspendLayout();
             this.TPBody.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -56,9 +58,10 @@
             ((System.ComponentModel.ISupportInitialize)(this.DGVHeader)).BeginInit();
             this.TPCookie.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.DGVCookie)).BeginInit();
+            this.TPErrors.SuspendLayout();
             this.panel2.SuspendLayout();
             this.CMSTool.SuspendLayout();
-            this.TPErrors.SuspendLayout();
+            this.TPBrowser.SuspendLayout();
             this.SuspendLayout();
             // 
             // TBResult
@@ -78,6 +81,7 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.Tabs.Controls.Add(this.TPBody);
+            this.Tabs.Controls.Add(this.TPBrowser);
             this.Tabs.Controls.Add(this.TPHeader);
             this.Tabs.Controls.Add(this.TPCookie);
             this.Tabs.Controls.Add(this.TPErrors);
@@ -187,6 +191,28 @@
             this.DGVCookie.Size = new System.Drawing.Size(467, 331);
             this.DGVCookie.TabIndex = 1;
             // 
+            // TPErrors
+            // 
+            this.TPErrors.Controls.Add(this.TBErrors);
+            this.TPErrors.Location = new System.Drawing.Point(4, 22);
+            this.TPErrors.Name = "TPErrors";
+            this.TPErrors.Padding = new System.Windows.Forms.Padding(3);
+            this.TPErrors.Size = new System.Drawing.Size(467, 331);
+            this.TPErrors.TabIndex = 3;
+            this.TPErrors.Text = "错误";
+            this.TPErrors.UseVisualStyleBackColor = true;
+            // 
+            // TBErrors
+            // 
+            this.TBErrors.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.TBErrors.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.TBErrors.Location = new System.Drawing.Point(3, 3);
+            this.TBErrors.Multiline = true;
+            this.TBErrors.Name = "TBErrors";
+            this.TBErrors.ReadOnly = true;
+            this.TBErrors.Size = new System.Drawing.Size(461, 325);
+            this.TBErrors.TabIndex = 0;
+            // 
             // LBStatuCode
             // 
             this.LBStatuCode.AutoSize = true;
@@ -248,27 +274,25 @@
             this.查找ToolStripMenuItem.Size = new System.Drawing.Size(100, 22);
             this.查找ToolStripMenuItem.Text = "查找";
             // 
-            // TPErrors
+            // TPBrowser
             // 
-            this.TPErrors.Controls.Add(this.TBErrors);
-            this.TPErrors.Location = new System.Drawing.Point(4, 22);
-            this.TPErrors.Name = "TPErrors";
-            this.TPErrors.Padding = new System.Windows.Forms.Padding(3);
-            this.TPErrors.Size = new System.Drawing.Size(467, 331);
-            this.TPErrors.TabIndex = 3;
-            this.TPErrors.Text = "错误";
-            this.TPErrors.UseVisualStyleBackColor = true;
+            this.TPBrowser.Controls.Add(this.WBResult);
+            this.TPBrowser.Location = new System.Drawing.Point(4, 22);
+            this.TPBrowser.Name = "TPBrowser";
+            this.TPBrowser.Padding = new System.Windows.Forms.Padding(3);
+            this.TPBrowser.Size = new System.Drawing.Size(467, 331);
+            this.TPBrowser.TabIndex = 4;
+            this.TPBrowser.Text = "浏览器";
+            this.TPBrowser.UseVisualStyleBackColor = true;
             // 
-            // TBErrors
+            // WBResult
             // 
-            this.TBErrors.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.TBErrors.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.TBErrors.Location = new System.Drawing.Point(3, 3);
-            this.TBErrors.Multiline = true;
-            this.TBErrors.Name = "TBErrors";
-            this.TBErrors.ReadOnly = true;
-            this.TBErrors.Size = new System.Drawing.Size(461, 325);
-            this.TBErrors.TabIndex = 0;
+            this.WBResult.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.WBResult.Location = new System.Drawing.Point(3, 3);
+            this.WBResult.MinimumSize = new System.Drawing.Size(20, 20);
+            this.WBResult.Name = "WBResult";
+            this.WBResult.Size = new System.Drawing.Size(461, 325);
+            this.WBResult.TabIndex = 0;
             // 
             // UCApiResult
             // 
@@ -286,11 +310,12 @@
             ((System.ComponentModel.ISupportInitialize)(this.DGVHeader)).EndInit();
             this.TPCookie.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.DGVCookie)).EndInit();
+            this.TPErrors.ResumeLayout(false);
+            this.TPErrors.PerformLayout();
             this.panel2.ResumeLayout(false);
             this.panel2.PerformLayout();
             this.CMSTool.ResumeLayout(false);
-            this.TPErrors.ResumeLayout(false);
-            this.TPErrors.PerformLayout();
+            this.TPBrowser.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -317,5 +342,7 @@
         private System.Windows.Forms.ToolStripMenuItem 查找ToolStripMenuItem;
         private System.Windows.Forms.TabPage TPErrors;
         private System.Windows.Forms.TextBox TBErrors;
+        private System.Windows.Forms.TabPage TPBrowser;
+        private System.Windows.Forms.WebBrowser WBResult;
     }
 }

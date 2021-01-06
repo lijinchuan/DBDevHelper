@@ -532,6 +532,9 @@
     <None Include="Resources\arrow_down.png" />
     <None Include="Resources\arrow_down1.png" />
     <None Include="Resources\arrow_up1.png" />
+    <None Include="jsonview.html.tpl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <Content Include="marked.min.js">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

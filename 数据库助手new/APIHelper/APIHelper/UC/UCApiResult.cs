@@ -232,10 +232,12 @@ namespace APIHelper.UC
                 if (RBRow.Checked)
                 {
                     this.TBResult.Text = html;
+                    this.WBResult.DocumentText = html;
                 }
                 else
                 {
                     html = html.Trim();
+                    bool isjson = false;
                     try
                     {
                         if (html.StartsWith("{") && html.EndsWith("}"))
@@ -244,13 +246,21 @@ namespace APIHelper.UC
                             if (jsonobject != null)
                             {
                                 html = Newtonsoft.Json.JsonConvert.SerializeObject(jsonobject, Newtonsoft.Json.Formatting.Indented);
+                                isjson = true;
+                                this.WBResult.DocumentText = System.IO.File.ReadAllText("jsonview.html.tpl", Encoding.UTF8).Replace("{{{json}}}", html);
                             }
                         }
                     }
                     catch
                     {
-
+                        isjson = false;   
                     }
+
+                    if (!isjson)
+                    {
+                        this.WBResult.DocumentText = html;
+                    }
+
                     this.TBResult.Text = html;
                 }
             }
