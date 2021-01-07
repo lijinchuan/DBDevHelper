@@ -100,7 +100,6 @@ namespace APIHelper
             {
                 Util.SendMsg(this, $"恢复关闭前选项卡失败:{ex.Message}", 180);
             }
-            //Thread.Sleep(5000);
 
             wdlg.Hide();
             this.Visible = true;

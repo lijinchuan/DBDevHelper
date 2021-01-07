@@ -241,8 +241,19 @@ namespace APIHelper
                         {
                             if (selnode.Tag is APISource && MessageBox.Show("要删除吗?", "提示", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                             {
-
-                                if (BigEntityTableEngine.LocalEngine.Delete<APISource>(nameof(APISource), (selnode.Tag as APISource).Id))
+                                var sourceid = (selnode.Tag as APISource).Id;
+                                //如果有API则不能删除
+                                if (BigEntityTableEngine.LocalEngine.Count(nameof(APIUrl), "SourceId", new object[] { sourceid }) > 0)
+                                {
+                                    MessageBox.Show("删除失败，请先删除接口");
+                                    return;
+                                }
+                                if (BigEntityTableEngine.LocalEngine.Scan<LogicMap>(nameof(LogicMap), "APISourceId_LogicName", new object[] { sourceid, Consts.STRINGCOMPAIRMIN }, new object[] { sourceid, Consts.STRINGCOMPAIRMAX }, 1, 1).Any())
+                                {
+                                    MessageBox.Show("删除失败，请先删除逻辑图关联");
+                                    return;
+                                }
+                                if (BigEntityTableEngine.LocalEngine.Delete<APISource>(nameof(APISource), sourceid))
                                 {
                                     Bind();
                                 }
@@ -252,6 +263,7 @@ namespace APIHelper
                                 var apienv = selnode.Tag as APIEnv;
                                 var apienvparams = BigEntityTableEngine.LocalEngine.Find<APIEnvParam>(nameof(APIEnvParam), "APISourceId", new object[] { apienv.SourceId })
                                     .ToList();
+                                //如果有环境变量，则不能删除
                                 foreach (var p in apienvparams.Where(p => p.EnvId == apienv.Id))
                                 {
                                     BigEntityTableEngine.LocalEngine.Delete<APIEnvParam>(nameof(APIEnvParam), p.Id);
@@ -262,13 +274,54 @@ namespace APIHelper
                             else if (selnode.Tag is APIEnvParam && MessageBox.Show("会删除所有环境下的此变量，要删除吗?", "提示", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
                             {
                                 var apienvparam = selnode.Tag as APIEnvParam;
-                                var apienvparams = BigEntityTableEngine.LocalEngine.Find<APIEnvParam>(nameof(APIEnvParam), "APISourceId_Name", new object[] { apienvparam.APISourceId,apienvparam.Name })
+                                var apienvparams = BigEntityTableEngine.LocalEngine.Find<APIEnvParam>(nameof(APIEnvParam), "APISourceId_Name", new object[] { apienvparam.APISourceId, apienvparam.Name })
                                     .ToList();
                                 foreach (var p in apienvparams)
                                 {
                                     BigEntityTableEngine.LocalEngine.Delete<APIEnvParam>(nameof(APIEnvParam), p.Id);
                                 }
                                 ReLoadDBObj(FindParentNode(selnode, NodeContentType.ENVPARENT));
+                            }
+                            else if (selnode.Tag is APIUrl)
+                            {
+                                var souceid = FindParentNode<APISource>(selnode).Id;
+                                var apiurlid = (selnode.Tag as APIUrl).Id;
+                                //如果API
+                                if (BigEntityTableEngine.LocalEngine.Find<LogicMapRelColumn>(nameof(LogicMapRelColumn), c =>
+                                 {
+                                     return c.APIId == apiurlid || c.RelAPIId == apiurlid;
+                                 }).Count() > 0)
+                                {
+                                    MessageBox.Show("删除失败，请先删除逻辑图字段关联关系");
+                                    return;
+                                }
+                                if (MessageBox.Show("要删除吗?", "提示", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
+                                {
+                                    return;
+                                }
+                                //删除APIDATA
+                                var apidatalist = BigEntityTableEngine.LocalEngine.Find<APIData>(nameof(APIData), "ApiId", new object[] { apiurlid }).ToList();
+                                foreach (var apidata in apidatalist)
+                                {
+                                    BigEntityTableEngine.LocalEngine.Delete<APIData>(nameof(APIData), apidata.Id);
+                                }
+                                var apiparamlist = BigEntityTableEngine.LocalEngine.Find<APIParam>(nameof(APIParam), "APIId", new object[] { apiurlid }).ToList();
+                                foreach (var apiparam in apiparamlist)
+                                {
+                                    BigEntityTableEngine.LocalEngine.Delete<APIParam>(nameof(APIParam), apiparam.Id);
+                                }
+                                var apiDocExamplelist = BigEntityTableEngine.LocalEngine.Find<APIDocExample>(nameof(APIDocExample), "ApiId", new object[] { apiurlid }).ToList();
+                                foreach (var apidocexample in apiDocExamplelist)
+                                {
+                                    BigEntityTableEngine.LocalEngine.Delete<APIDocExample>(nameof(APIDocExample), apidocexample.Id);
+                                }
+                                var apidoclist = BigEntityTableEngine.LocalEngine.Find<APIDoc>(nameof(APIDoc), "APIId", new object[] { apiurlid }).ToList();
+                                foreach (var apidoc in apidoclist)
+                                {
+                                    BigEntityTableEngine.LocalEngine.Delete<APIDoc>(nameof(APIDoc), apidoc.Id);
+                                }
+                                BigEntityTableEngine.LocalEngine.Delete<APIUrl>(nameof(APIUrl), apiurlid);
+                                ReLoadDBObj(FindParentNode(selnode, NodeContentType.APISOURCE), true);
                             }
                             break;
                         }
@@ -487,7 +540,8 @@ namespace APIHelper
                     ||node.Tag is APIUrl;
                 删除ToolStripMenuItem.Visible = node.Tag is APISource
                     ||node.Tag is APIEnv
-                    ||node.Tag is APIEnvParam;
+                    ||node.Tag is APIEnvParam
+                    ||node.Tag is APIUrl;
 
                 添加环境ToolStripMenuItem.Visible= (node.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.ENVPARENT;
                 添加环境变量ToolStripMenuItem.Visible= (node.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.ENVPARENT;
@@ -725,6 +779,17 @@ namespace APIHelper
                 var logicmap = currnode.Tag as LogicMap;
                 if (MessageBox.Show($"要删除逻辑关系图【{logicmap.LogicName}】吗？", "", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                 {
+                    //先删除相关字段
+                    var logicMapRelColumnList = BigEntityTableEngine.LocalEngine.Find<LogicMapRelColumn>(nameof(LogicMapRelColumn), "LogicID", new object[] { logicmap.ID }).ToList();
+                    foreach(var col in logicMapRelColumnList)
+                    {
+                        BigEntityTableEngine.LocalEngine.Delete<LogicMapRelColumn>(nameof(LogicMapRelColumn), col.ID);
+                    }
+                    var logicTableList = BigEntityTableEngine.LocalEngine.Find<LogicMapTable>(nameof(LogicMapTable), "LogicID", new object[] { logicmap.ID }).ToList();
+                    foreach(var tb in logicTableList)
+                    {
+                        BigEntityTableEngine.LocalEngine.Delete<LogicMapTable>(nameof(LogicMapTable), tb.ID);
+                    }
                     BigEntityTableEngine.LocalEngine.Delete<LogicMap>(nameof(LogicMap), logicmap.ID);
                     if (this.OnDeleteLogicMap != null)
                     {
