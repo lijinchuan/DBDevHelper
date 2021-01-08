@@ -12,7 +12,10 @@ namespace APIHelper.UC
     [ComVisible(true)]
     public class DocPage : WebTab
     {
-
+        public void InitDoc(string url,string title)
+        {
+            this.SetUrl(url,title);
+        }
         public void InitDoc(APIUrl apiurl,string title="文档")
         {
             if (apiurl == null)

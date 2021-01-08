@@ -416,6 +416,23 @@ namespace APIHelper
                             }
                             break;
                         }
+                    case "如何使用":
+                        {
+                            if (selnode.Tag is APIEnvParam)
+                            {
+                                var page = new UC.DocPage();
+                                Util.AddToMainTab(this, $"帮助文档-环境变量", page);
+                                page.InitDoc(Application.StartupPath + "\\help.html#envparam", null);
+
+                            }
+                            else if ((selnode.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.DOCPARENT)
+                            {
+                                var page = new UC.DocPage();
+                                Util.AddToMainTab(this, $"帮助文档-接口文档", page);
+                                page.InitDoc(Application.StartupPath + "\\help.html#doc", null);
+                            }
+                            break;
+                        }
                     default:
                         {
                             MessageBox.Show(e.ClickedItem.Text);
@@ -550,6 +567,9 @@ namespace APIHelper
 
                 新增逻辑关系图ToolStripMenuItem.Visible= (node.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.LOGICMAPParent;
                 删除逻辑关系图ToolStripMenuItem.Visible = (node.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.LOGICMAP;
+
+                如何使用ToolStripMenuItem.Visible = (node.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.DOCPARENT
+                    || node.Tag is APIEnvParam;
             }
 
         }

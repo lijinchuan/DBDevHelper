@@ -121,6 +121,13 @@ namespace APIHelper.UC
             return this;
         }
 
+        public WebTab SetUrl(string url,string title)
+        {
+            this.webBrowser1.Url = new Uri(url);
+            
+            return this;
+        }
+
 
         public void SetHtml(string html)
         {
