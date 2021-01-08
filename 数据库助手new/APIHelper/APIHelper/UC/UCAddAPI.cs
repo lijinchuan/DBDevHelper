@@ -433,6 +433,8 @@ namespace APIHelper.UC
             this.Invoke(new Action(() => TBResult.SetOther(responseEx.StatusCode, responseEx.StatusDescription, responseEx.RequestMills,
                 responseEx.ResponseBytes == null ? 0 : responseEx.ResponseBytes.Length)));
 
+            TBResult.APIEnv = GetEnv();
+
             APIInvokeLog log = new APIInvokeLog
             {
                 APIId = _apiUrl.Id,

@@ -36,6 +36,8 @@
             this.RBFormat = new System.Windows.Forms.RadioButton();
             this.RBRow = new System.Windows.Forms.RadioButton();
             this.CBEncode = new System.Windows.Forms.ComboBox();
+            this.TPBrowser = new System.Windows.Forms.TabPage();
+            this.WBResult = new System.Windows.Forms.WebBrowser();
             this.TPHeader = new System.Windows.Forms.TabPage();
             this.DGVHeader = new System.Windows.Forms.DataGridView();
             this.TPCookie = new System.Windows.Forms.TabPage();
@@ -49,11 +51,11 @@
             this.CMSTool = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.复制ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.查找ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.TPBrowser = new System.Windows.Forms.TabPage();
-            this.WBResult = new System.Windows.Forms.WebBrowser();
+            this.更新环境变量ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.Tabs.SuspendLayout();
             this.TPBody.SuspendLayout();
             this.panel1.SuspendLayout();
+            this.TPBrowser.SuspendLayout();
             this.TPHeader.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.DGVHeader)).BeginInit();
             this.TPCookie.SuspendLayout();
@@ -61,7 +63,6 @@
             this.TPErrors.SuspendLayout();
             this.panel2.SuspendLayout();
             this.CMSTool.SuspendLayout();
-            this.TPBrowser.SuspendLayout();
             this.SuspendLayout();
             // 
             // TBResult
@@ -143,6 +144,26 @@
             this.CBEncode.Name = "CBEncode";
             this.CBEncode.Size = new System.Drawing.Size(121, 20);
             this.CBEncode.TabIndex = 3;
+            // 
+            // TPBrowser
+            // 
+            this.TPBrowser.Controls.Add(this.WBResult);
+            this.TPBrowser.Location = new System.Drawing.Point(4, 22);
+            this.TPBrowser.Name = "TPBrowser";
+            this.TPBrowser.Padding = new System.Windows.Forms.Padding(3);
+            this.TPBrowser.Size = new System.Drawing.Size(467, 331);
+            this.TPBrowser.TabIndex = 4;
+            this.TPBrowser.Text = "浏览器";
+            this.TPBrowser.UseVisualStyleBackColor = true;
+            // 
+            // WBResult
+            // 
+            this.WBResult.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.WBResult.Location = new System.Drawing.Point(3, 3);
+            this.WBResult.MinimumSize = new System.Drawing.Size(20, 20);
+            this.WBResult.Name = "WBResult";
+            this.WBResult.Size = new System.Drawing.Size(461, 325);
+            this.WBResult.TabIndex = 0;
             // 
             // TPHeader
             // 
@@ -258,41 +279,28 @@
             // 
             this.CMSTool.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.复制ToolStripMenuItem,
-            this.查找ToolStripMenuItem});
+            this.查找ToolStripMenuItem,
+            this.更新环境变量ToolStripMenuItem});
             this.CMSTool.Name = "CMSTool";
-            this.CMSTool.Size = new System.Drawing.Size(101, 48);
+            this.CMSTool.Size = new System.Drawing.Size(181, 92);
             // 
             // 复制ToolStripMenuItem
             // 
             this.复制ToolStripMenuItem.Name = "复制ToolStripMenuItem";
-            this.复制ToolStripMenuItem.Size = new System.Drawing.Size(100, 22);
+            this.复制ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.复制ToolStripMenuItem.Text = "复制";
             // 
             // 查找ToolStripMenuItem
             // 
             this.查找ToolStripMenuItem.Name = "查找ToolStripMenuItem";
-            this.查找ToolStripMenuItem.Size = new System.Drawing.Size(100, 22);
+            this.查找ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.查找ToolStripMenuItem.Text = "查找";
             // 
-            // TPBrowser
+            // 更新环境变量ToolStripMenuItem
             // 
-            this.TPBrowser.Controls.Add(this.WBResult);
-            this.TPBrowser.Location = new System.Drawing.Point(4, 22);
-            this.TPBrowser.Name = "TPBrowser";
-            this.TPBrowser.Padding = new System.Windows.Forms.Padding(3);
-            this.TPBrowser.Size = new System.Drawing.Size(467, 331);
-            this.TPBrowser.TabIndex = 4;
-            this.TPBrowser.Text = "浏览器";
-            this.TPBrowser.UseVisualStyleBackColor = true;
-            // 
-            // WBResult
-            // 
-            this.WBResult.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.WBResult.Location = new System.Drawing.Point(3, 3);
-            this.WBResult.MinimumSize = new System.Drawing.Size(20, 20);
-            this.WBResult.Name = "WBResult";
-            this.WBResult.Size = new System.Drawing.Size(461, 325);
-            this.WBResult.TabIndex = 0;
+            this.更新环境变量ToolStripMenuItem.Name = "更新环境变量ToolStripMenuItem";
+            this.更新环境变量ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.更新环境变量ToolStripMenuItem.Text = "更新环境变量";
             // 
             // UCApiResult
             // 
@@ -306,6 +314,7 @@
             this.TPBody.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
+            this.TPBrowser.ResumeLayout(false);
             this.TPHeader.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.DGVHeader)).EndInit();
             this.TPCookie.ResumeLayout(false);
@@ -315,7 +324,6 @@
             this.panel2.ResumeLayout(false);
             this.panel2.PerformLayout();
             this.CMSTool.ResumeLayout(false);
-            this.TPBrowser.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -344,5 +352,6 @@
         private System.Windows.Forms.TextBox TBErrors;
         private System.Windows.Forms.TabPage TPBrowser;
         private System.Windows.Forms.WebBrowser WBResult;
+        private System.Windows.Forms.ToolStripMenuItem 更新环境变量ToolStripMenuItem;
     }
 }

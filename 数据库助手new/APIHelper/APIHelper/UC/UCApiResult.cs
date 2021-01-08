@@ -9,11 +9,14 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using LJC.FrameWorkV3.Comm.HttpEx;
 using Entity;
+using LJC.FrameWorkV3.Data.EntityDataBase;
 
 namespace APIHelper.UC
 {
     public partial class UCApiResult : UserControl
     {
+        //private APIUrl APIUrl = null;
+        private APIEnv apiEnv = null;
         public UCApiResult()
         {
             InitializeComponent();
@@ -151,6 +154,67 @@ namespace APIHelper.UC
 
                         dlg.Show();
 
+                        break;
+                    }
+                case "更新环境变量":
+                    {
+                        if (apiEnv != null)
+                        {
+                            var apienvparamlist = BigEntityTableEngine.LocalEngine.Find<APIEnvParam>(nameof(APIEnvParam), "APISourceId_EnvId", new object[] { apiEnv.SourceId, apiEnv.Id }).ToList();
+                            DataGridView dgv = null;
+                            if (this.DGVHeader.Visible)
+                            {
+                                dgv = this.DGVHeader;
+                            }
+                            else if (this.DGVCookie.Visible)
+                            {
+                                dgv = this.DGVCookie;
+                            }
+                            if (apienvparamlist.Count > 0)
+                            {
+                                if (dgv != null)
+                                {
+                                    int count = 0;
+                                    StringBuilder sb = new StringBuilder();
+                                    var cells = new List<DataGridViewCell>();
+                                    foreach (DataGridViewCell cell in dgv.SelectedCells)
+                                    {
+                                        cells.Add(cell);
+                                    }
+                                    foreach (var row in cells.GroupBy(p => p.RowIndex))
+                                    {
+                                        var kv = row.OrderBy(p => p.ColumnIndex).Select(p => p.Value).ToList();
+                                        if (kv.Count > 1)
+                                        {
+                                            var key = kv.First().ToString();
+                                            var apienvparam = apienvparamlist.Find(p => p.Name == key);
+                                            if (apienvparam != null)
+                                            {
+                                                if (apienvparam.Val != kv[1].ToString())
+                                                {
+                                                    apienvparam.Val = kv[1].ToString();
+                                                    BigEntityTableEngine.LocalEngine.Update<APIEnvParam>(nameof(APIEnvParam), apienvparam);
+                                                    count++;
+                                                }
+                                            }
+                                            else
+                                            {
+                                                BigEntityTableEngine.LocalEngine.Insert<APIEnvParam>(nameof(APIEnvParam), new APIEnvParam
+                                                {
+                                                    APISourceId=apiEnv.SourceId,
+                                                    EnvId=apiEnv.Id,
+                                                    Name=key,
+                                                    Val=kv[1].ToString()
+                                                });
+
+                                                count++;
+                                            }
+                                        }
+                                    }
+                                    Util.SendMsg(this, $"更新成功{count}条");
+                                }
+                            }
+                        }
                         break;
                     }
             }
@@ -298,5 +362,20 @@ namespace APIHelper.UC
                 Tabs.SelectedTab = TPBody;
             }
         }
+
+        /// <summary>
+        /// 设置环境
+        /// </summary>
+        public APIEnv APIEnv
+        {
+            get
+            {
+                return apiEnv;
+            }
+            set
+            {
+                apiEnv = value;
+            }
+        } 
     }
 }
