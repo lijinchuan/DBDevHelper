@@ -206,6 +206,8 @@ namespace NETDBHelper.UC
                 "LSDRTC", new object[] { this._logicMapId, this.DBName.ToLower(), this.TBName.ToLower() },
                 new object[] { this._logicMapId, this.DBName.ToLower(), this.TBName.ToLower() }, 1, int.MaxValue);
 
+            this.CBCoumns.Items.Clear();
+
             this.CBCoumns.Items.AddRange(ColumnsList.Where(p => !collist.Any(q => q.ColName.Equals(p.Name, StringComparison.OrdinalIgnoreCase))
             && !relcollist.Any(q => q.RelColName.Equals(p.Name, StringComparison.OrdinalIgnoreCase))).ToArray());
 
