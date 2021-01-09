@@ -393,7 +393,7 @@ namespace APIHelper.UC
             {
                 if (responseEx.ResponseContent != null)
                 {
-                    var encode = Encoding.GetEncoding(responseEx.CharacterSet);
+                    var encode = string.IsNullOrWhiteSpace(responseEx.CharacterSet) ? Encoding.UTF8 : Encoding.GetEncoding(responseEx.CharacterSet);
                     TBResult.Raw = encode.GetBytes(responseEx.ResponseContent);
                     TBResult.Encoding = encode;
 
