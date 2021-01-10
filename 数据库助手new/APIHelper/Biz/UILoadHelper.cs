@@ -52,24 +52,30 @@ namespace Biz
 
         public static void LoadApi(Form parent, TreeNode tbNode, int apiSourceId)
         {
-
-            var apilist = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<APIUrl>(nameof(APIUrl),
-                "SourceId", new object[] { apiSourceId }).ToList();
-
-            List<TreeNode> treeNodes = new List<TreeNode>();
-
-            foreach (var item in apilist.OrderBy(p=>p.APIName))
+            try
             {
-                TreeNode newNode = new TreeNode(item.APIName);
+                var apilist = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<APIUrl>(nameof(APIUrl),
+                    "SourceId", new object[] { apiSourceId }).ToList();
 
-                newNode.ImageKey = newNode.SelectedImageKey = "API";
+                List<TreeNode> treeNodes = new List<TreeNode>();
 
-                newNode.Tag = item;
+                foreach (var item in apilist.OrderBy(p => p.APIName))
+                {
+                    TreeNode newNode = new TreeNode(item.APIName);
 
-                treeNodes.Add(newNode);
+                    newNode.ImageKey = newNode.SelectedImageKey = "API";
+
+                    newNode.Tag = item;
+
+                    treeNodes.Add(newNode);
+                }
+
+                parent.Invoke(new Action(() => { tbNode.Nodes.Clear(); tbNode.Nodes.AddRange(treeNodes.ToArray()); tbNode.Expand(); }));
             }
+            catch (Exception ex)
+            {
 
-            parent.Invoke(new Action(() => { tbNode.Nodes.Clear(); tbNode.Nodes.AddRange(treeNodes.ToArray()); tbNode.Expand(); }));
+            }
         }
 
         public static void LoadApiResurceAsync(Form parent, TreeNode tbNode,AsyncCallback callback,object @object)
@@ -165,36 +171,43 @@ namespace Biz
             new Action<Form, TreeNode, int,int>(LoadApiEnvParams).BeginInvoke(parent, pnode, sourceid,envid, callback, @object);
         }
 
-        public static void LoadApiEnvParams(Form parent, TreeNode pnode, int sourceid,int envid)
+        public static void LoadApiEnvParams(Form parent, TreeNode pnode, int sourceid, int envid)
         {
-            List<TreeNode> treeNodes = new List<TreeNode>();
-            var allenvparamslist = BigEntityTableEngine.LocalEngine.Find<APIEnvParam>(nameof(APIEnvParam), "APISourceId", new object[] { sourceid }).ToList();
-            var allparamnames=allenvparamslist.Select(p => p.Name).Distinct();
-            foreach (var s in allparamnames)
+            try
             {
-                var param = allenvparamslist.Find(p => p.EnvId == envid && p.Name == s);
-
-                TreeNode node = new TreeNode(s);
-                if (param == null)
+                List<TreeNode> treeNodes = new List<TreeNode>();
+                var allenvparamslist = BigEntityTableEngine.LocalEngine.Find<APIEnvParam>(nameof(APIEnvParam), "APISourceId", new object[] { sourceid }).ToList();
+                var allparamnames = allenvparamslist.Select(p => p.Name).Distinct();
+                foreach (var s in allparamnames)
                 {
-                    node.Tag = new APIEnvParam
+                    var param = allenvparamslist.Find(p => p.EnvId == envid && p.Name == s);
+
+                    TreeNode node = new TreeNode(s);
+                    if (param == null)
                     {
-                        EnvId=envid,
-                        APISourceId=sourceid,
-                        Name=s
-                    };
-                    node.ImageKey = node.SelectedImageKey = "COLQ";
+                        node.Tag = new APIEnvParam
+                        {
+                            EnvId = envid,
+                            APISourceId = sourceid,
+                            Name = s
+                        };
+                        node.ImageKey = node.SelectedImageKey = "COLQ";
+
+                    }
+                    else
+                    {
+                        node.Tag = param;
+                        node.ImageKey = node.SelectedImageKey = "COL";
+                    }
+                    treeNodes.Add(node);
 
                 }
-                else
-                {
-                    node.Tag = param;
-                    node.ImageKey = node.SelectedImageKey = "COL";
-                }
-                treeNodes.Add(node);
-
+                parent.Invoke(new Action(() => { pnode.Nodes.Clear(); pnode.Nodes.AddRange(treeNodes.ToArray()); pnode.Expand(); }));
             }
-            parent.Invoke(new Action(() => { pnode.Nodes.Clear(); pnode.Nodes.AddRange(treeNodes.ToArray()); pnode.Expand(); }));
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
         public static void LoadApiDocsAsync(Form parent, TreeNode pnode, int sourceid, AsyncCallback callback, object @object)
