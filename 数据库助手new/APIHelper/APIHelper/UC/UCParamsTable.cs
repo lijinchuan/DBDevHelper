@@ -65,11 +65,11 @@ namespace APIHelper.UC
                 //说明点击的列是DataGridViewButtonColumn列
                 DataGridViewColumn column = DGV.Columns[e.ColumnIndex];
 
-                OpenFileDialog dlg = new OpenFileDialog();
+                SubForm.FileDlg dlg = new SubForm.FileDlg();
                 if (dlg.ShowDialog() == DialogResult.OK)
                 {
                     var list = this.DataSource as List<ParamInfo>;
-                    list[e.RowIndex].Value = "[file]" + dlg.FileName;
+                    list[e.RowIndex].Value = dlg.FilePath;
                     DataSource = list;
                 }
             }

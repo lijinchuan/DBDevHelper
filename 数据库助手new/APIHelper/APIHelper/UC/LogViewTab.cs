@@ -364,7 +364,7 @@ namespace APIHelper.UC
                         var list = BigEntityTableEngine.LocalEngine.Scan<APIInvokeLog>(nameof(APIInvokeLog), "APIId_ApiEnvId_CDate",
                             new object[] { _apiid, _envid, EndDate.Value.Date.AddDays(1) }, new object[] { _apiid, _envid, BeginDate.Value.Date }, 1, int.MaxValue, ref total);
                         var key = TBSearchKey.Text;
-                        list = list.Where(p => (p.ResponseText ?? "").Contains(key)).ToList();
+                        list = list.Where(p => p.GetRequestBody().ToString().Contains(key) || (p.ResponseText ?? "").Contains(key)).ToList();
                         total = list.Count();
                         list = list.Skip((PageIndex - 1) * pageSize).Take(pageSize).ToList();
                         logs = list.Select(p => new

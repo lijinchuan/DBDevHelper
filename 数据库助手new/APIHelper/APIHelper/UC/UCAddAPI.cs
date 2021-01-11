@@ -368,6 +368,21 @@ namespace APIHelper.UC
                                 FileContent = s
                             });
                         }
+                        else if (item.Value?.StartsWith("[base64]") == true)
+                        {
+                            var filename = item.Value.Replace("[base64]", string.Empty);
+                            if (!System.IO.File.Exists(filename))
+                            {
+                                Util.SendMsg(this, $"文件不存在;{filename}");
+                                return;
+                            }
+                            formItems.Add(new FormItemModel
+                            {
+                                FileName = item.Name,
+                                Key = item.Name,
+                                Value = Convert.ToBase64String(File.ReadAllBytes(filename))
+                            });
+                        }
                         else
                         {
                             formItems.Add(new FormItemModel

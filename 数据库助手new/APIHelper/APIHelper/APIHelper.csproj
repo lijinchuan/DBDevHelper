@@ -165,6 +165,12 @@
     <Compile Include="SubForm\CreateEntityNavDlg.Designer.cs">
       <DependentUpon>CreateEntityNavDlg.cs</DependentUpon>
     </Compile>
+    <Compile Include="SubForm\FileDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SubForm\FileDlg.Designer.cs">
+      <DependentUpon>FileDlg.cs</DependentUpon>
+    </Compile>
     <Compile Include="SubForm\FindDlg.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -409,6 +415,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="SubForm\CreateEntityNavDlg.resx">
       <DependentUpon>CreateEntityNavDlg.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SubForm\FileDlg.resx">
+      <DependentUpon>FileDlg.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="SubForm\FindDlg.resx">
       <DependentUpon>FindDlg.cs</DependentUpon>

@@ -15,6 +15,7 @@ namespace APIHelper.SubForm
         public SubBaseDlg()
         {
             InitializeComponent();
+            this.StartPosition = FormStartPosition.CenterScreen;
         }
     }
 }
