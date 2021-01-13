@@ -11,6 +11,7 @@ namespace Entity
         ApiKey,
         Bearer,
         OAuth1,
-        OAuth2
+        OAuth2,
+        Basic
     }
 }

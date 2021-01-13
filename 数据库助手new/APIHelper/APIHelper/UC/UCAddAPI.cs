@@ -34,6 +34,7 @@ namespace APIHelper.UC
         private UC.Auth.UCBearToken UCBearToken = new Auth.UCBearToken();
         private UC.Auth.UCApiKey UCApiKey = new Auth.UCApiKey();
         private UC.Auth.UCNoAuth UCNoAuth = new Auth.UCNoAuth();
+        private UC.Auth.UCBasicAuth BasicAuth = new Auth.UCBasicAuth();
 
         private APIUrl _apiUrl = null;
         private APIData _apiData = null;
@@ -322,6 +323,10 @@ namespace APIHelper.UC
                         url += $"&{ReplaceEvnParams(UCApiKey.Key, ref apiEnvParams)}={ReplaceEvnParams(UCApiKey.Val, ref apiEnvParams)}";
                     }
                 }
+            }
+            else if (authtype == AuthType.Basic)
+            {
+                httpRequestEx.Headers.Add("Authorization", $"Basic {Convert.ToBase64String(Encoding.UTF8.GetBytes($"{BasicAuth.Key}:{BasicAuth.Val}"))}");
             }
 
             var bodydataType = GetBodyDataType();
@@ -839,6 +844,11 @@ namespace APIHelper.UC
         {
             var authtype = GetAuthType();
 
+            AuthTableLayoutPanel.Controls.Remove(UCBearToken);
+            AuthTableLayoutPanel.Controls.Remove(UCApiKey);
+            AuthTableLayoutPanel.Controls.Remove(BasicAuth);
+            AuthTableLayoutPanel.Controls.Remove(UCNoAuth);
+
             if (authtype == AuthType.Bearer)
             {
                 AuthTableLayoutPanel.Controls.Add(UCBearToken, 1, 1);
@@ -846,6 +856,10 @@ namespace APIHelper.UC
             else if (authtype == AuthType.ApiKey)
             {
                 AuthTableLayoutPanel.Controls.Add(UCApiKey, 1, 1);
+            }
+            else if (authtype == AuthType.Basic)
+            {
+                AuthTableLayoutPanel.Controls.Add(BasicAuth, 1, 1);
             }
             else
             {

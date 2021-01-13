@@ -249,6 +249,12 @@
     <Compile Include="UC\Auth\UCApiKey.Designer.cs">
       <DependentUpon>UCApiKey.cs</DependentUpon>
     </Compile>
+    <Compile Include="UC\Auth\UCBasicAuth.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UC\Auth\UCBasicAuth.Designer.cs">
+      <DependentUpon>UCBasicAuth.cs</DependentUpon>
+    </Compile>
     <Compile Include="UC\Auth\UCBearToken.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -457,6 +463,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="UC\Auth\UCApiKey.resx">
       <DependentUpon>UCApiKey.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UC\Auth\UCBasicAuth.resx">
+      <DependentUpon>UCBasicAuth.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UC\Auth\UCBearToken.resx">
       <DependentUpon>UCBearToken.cs</DependentUpon>
