@@ -82,5 +82,11 @@ namespace Entity.OldVesion
             get;
             set;
         }
+
+        public List<ParamInfo> Multipart_form_data
+        {
+            get;
+            set;
+        }
     }
 }

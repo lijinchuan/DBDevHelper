@@ -433,6 +433,21 @@ namespace APIHelper
                             }
                             break;
                         }
+                    case "批量复制引用":
+                        {
+                            StringBuilder sb = new StringBuilder();
+                            foreach (TreeNode node in selnode.Nodes)
+                            {
+                                if (node.Tag is APIEnvParam)
+                                {
+                                    var p = node.Tag as APIEnvParam;
+                                    sb.AppendLine($"{p.Name}:{{{{{p.Name}}}}}");
+                                }
+                            }
+                            Clipboard.SetText(sb.ToString());
+                            Util.SendMsg(this, "已复制到剪切板");
+                            break;
+                        }
                     default:
                         {
                             MessageBox.Show(e.ClickedItem.Text);
@@ -554,22 +569,24 @@ namespace APIHelper
                 添加WCF接口ToolStripMenuItem.Visible = (node.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.APIPARENT;
 
                 修改ToolStripMenuItem.Visible = node.Tag is APISource
-                    ||node.Tag is APIUrl;
+                    || node.Tag is APIUrl;
                 删除ToolStripMenuItem.Visible = node.Tag is APISource
-                    ||node.Tag is APIEnv
-                    ||node.Tag is APIEnvParam
-                    ||node.Tag is APIUrl;
+                    || node.Tag is APIEnv
+                    || node.Tag is APIEnvParam
+                    || node.Tag is APIUrl;
 
-                添加环境ToolStripMenuItem.Visible= (node.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.ENVPARENT;
-                添加环境变量ToolStripMenuItem.Visible= (node.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.ENVPARENT;
+                添加环境ToolStripMenuItem.Visible = (node.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.ENVPARENT;
+                添加环境变量ToolStripMenuItem.Visible = (node.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.ENVPARENT;
 
                 参数定义ToolStripMenuItem.Visible = (node.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.DOC;
 
-                新增逻辑关系图ToolStripMenuItem.Visible= (node.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.LOGICMAPParent;
+                新增逻辑关系图ToolStripMenuItem.Visible = (node.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.LOGICMAPParent;
                 删除逻辑关系图ToolStripMenuItem.Visible = (node.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.LOGICMAP;
 
                 如何使用ToolStripMenuItem.Visible = (node.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.DOCPARENT
                     || node.Tag is APIEnvParam;
+
+                批量复制引用ToolStripMenuItem.Visible = (node.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.ENV;
             }
 
         }

@@ -604,6 +604,8 @@ namespace APIHelper.UC
                 this.UCApiKey.AddTo = this._apiData.ApiKeyAddTo;
                 this.UCApiKey.Key = this._apiData.ApiKeyName;
                 this.UCApiKey.Val = this._apiData.ApiKeyValue;
+                this.BasicAuth.Key = this._apiData.BasicUserName;
+                this.BasicAuth.Val = this._apiData.BasicUserPwd;
             }
 
             headerGridView.DataSource = Headers;
@@ -885,6 +887,8 @@ namespace APIHelper.UC
             apidata.ApiKeyValue = this.UCApiKey.Val;
             apidata.Cookies = this.Cookies;
             apidata.Multipart_form_data = this.Multipart_form_data;
+            apidata.BasicUserName = this.BasicAuth.Key;
+            apidata.BasicUserPwd = this.BasicAuth.Val;
 
             return apidata;
         }
@@ -997,6 +1001,16 @@ namespace APIHelper.UC
                 if (this._apiData.ApiKeyValue != this.UCApiKey.Val)
                 {
                     this._apiData.ApiKeyValue = this.UCApiKey.Val;
+                    ischanged = true;
+                }
+                if (this._apiData.BasicUserName != this.BasicAuth.Key)
+                {
+                    this._apiData.BasicUserName = this.BasicAuth.Key;
+                    ischanged = true;
+                }
+                if (this._apiData.BasicUserPwd != this.BasicAuth.Val)
+                {
+                    this._apiData.BasicUserPwd = this.BasicAuth.Val;
                     ischanged = true;
                 }
 

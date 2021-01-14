@@ -170,6 +170,10 @@ namespace Entity
                     sb.AppendLine($" {this.APIData?.ApiKeyName}:{this.APIData?.ApiKeyValue}");
                 }
             }
+            else if (authtype == AuthType.Basic)
+            {
+                sb.AppendLine($" Authorization:Basic {Convert.ToBase64String(Encoding.UTF8.GetBytes($"{this.APIData?.BasicUserName}:{this.APIData?.BasicUserPwd}"))}");
+            }
 
             sb.AppendLine($" content-type:application/{this.ApplicationType}");
             sb.AppendLine();
