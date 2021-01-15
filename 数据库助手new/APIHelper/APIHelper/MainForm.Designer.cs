@@ -36,6 +36,8 @@
             this.SubItemTool = new System.Windows.Forms.ToolStripMenuItem();
             this.监控任务ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.swaggerMarkUpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.mD5签名ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.时间戳ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.SubItemHelp = new System.Windows.Forms.ToolStripMenuItem();
             this.panel1 = new System.Windows.Forms.Panel();
             this.TabControl = new APIHelper.UC.MyTabControl();
@@ -47,8 +49,11 @@
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.MspPanel = new System.Windows.Forms.ToolStripStatusLabel();
             this.TSL_ClearMsg = new System.Windows.Forms.ToolStripStatusLabel();
-            this.mD5签名ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.时间戳ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.bASE64ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.正则表达式测试ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.xML工具ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.jSON工具ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.hTTP状态码ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mainMenuBar.SuspendLayout();
             this.panel1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
@@ -96,7 +101,12 @@
             this.监控任务ToolStripMenuItem,
             this.swaggerMarkUpToolStripMenuItem,
             this.mD5签名ToolStripMenuItem,
-            this.时间戳ToolStripMenuItem});
+            this.时间戳ToolStripMenuItem,
+            this.bASE64ToolStripMenuItem,
+            this.正则表达式测试ToolStripMenuItem,
+            this.xML工具ToolStripMenuItem,
+            this.jSON工具ToolStripMenuItem,
+            this.hTTP状态码ToolStripMenuItem});
             this.SubItemTool.Name = "SubItemTool";
             this.SubItemTool.Size = new System.Drawing.Size(44, 21);
             this.SubItemTool.Text = "工具";
@@ -115,6 +125,20 @@
             this.swaggerMarkUpToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
             this.swaggerMarkUpToolStripMenuItem.Text = "Swagger->MarkUp";
             this.swaggerMarkUpToolStripMenuItem.Click += new System.EventHandler(this.swaggerMarkUpToolStripMenuItem_Click);
+            // 
+            // mD5签名ToolStripMenuItem
+            // 
+            this.mD5签名ToolStripMenuItem.Name = "mD5签名ToolStripMenuItem";
+            this.mD5签名ToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
+            this.mD5签名ToolStripMenuItem.Text = "MD5签名";
+            this.mD5签名ToolStripMenuItem.Click += new System.EventHandler(this.mD5签名ToolStripMenuItem_Click);
+            // 
+            // 时间戳ToolStripMenuItem
+            // 
+            this.时间戳ToolStripMenuItem.Name = "时间戳ToolStripMenuItem";
+            this.时间戳ToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
+            this.时间戳ToolStripMenuItem.Text = "时间戳";
+            this.时间戳ToolStripMenuItem.Click += new System.EventHandler(this.时间戳ToolStripMenuItem_Click);
             // 
             // SubItemHelp
             // 
@@ -218,19 +242,40 @@
             this.TSL_ClearMsg.Visible = false;
             this.TSL_ClearMsg.Click += new System.EventHandler(this.TSL_ClearMsg_Click);
             // 
-            // mD5签名ToolStripMenuItem
+            // bASE64ToolStripMenuItem
             // 
-            this.mD5签名ToolStripMenuItem.Name = "mD5签名ToolStripMenuItem";
-            this.mD5签名ToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
-            this.mD5签名ToolStripMenuItem.Text = "MD5签名";
-            this.mD5签名ToolStripMenuItem.Click += new System.EventHandler(this.mD5签名ToolStripMenuItem_Click);
+            this.bASE64ToolStripMenuItem.Name = "bASE64ToolStripMenuItem";
+            this.bASE64ToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
+            this.bASE64ToolStripMenuItem.Text = "BASE64";
+            this.bASE64ToolStripMenuItem.Click += new System.EventHandler(this.bASE64ToolStripMenuItem_Click);
             // 
-            // 时间戳ToolStripMenuItem
+            // 正则表达式测试ToolStripMenuItem
             // 
-            this.时间戳ToolStripMenuItem.Name = "时间戳ToolStripMenuItem";
-            this.时间戳ToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
-            this.时间戳ToolStripMenuItem.Text = "时间戳";
-            this.时间戳ToolStripMenuItem.Click += new System.EventHandler(this.时间戳ToolStripMenuItem_Click);
+            this.正则表达式测试ToolStripMenuItem.Name = "正则表达式测试ToolStripMenuItem";
+            this.正则表达式测试ToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
+            this.正则表达式测试ToolStripMenuItem.Text = "正则表达式测试";
+            this.正则表达式测试ToolStripMenuItem.Click += new System.EventHandler(this.正则表达式测试ToolStripMenuItem_Click);
+            // 
+            // xML工具ToolStripMenuItem
+            // 
+            this.xML工具ToolStripMenuItem.Name = "xML工具ToolStripMenuItem";
+            this.xML工具ToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
+            this.xML工具ToolStripMenuItem.Text = "XML工具";
+            this.xML工具ToolStripMenuItem.Click += new System.EventHandler(this.xML工具ToolStripMenuItem_Click);
+            // 
+            // jSON工具ToolStripMenuItem
+            // 
+            this.jSON工具ToolStripMenuItem.Name = "jSON工具ToolStripMenuItem";
+            this.jSON工具ToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
+            this.jSON工具ToolStripMenuItem.Text = "JSON工具";
+            this.jSON工具ToolStripMenuItem.Click += new System.EventHandler(this.jSON工具ToolStripMenuItem_Click);
+            // 
+            // hTTP状态码ToolStripMenuItem
+            // 
+            this.hTTP状态码ToolStripMenuItem.Name = "hTTP状态码ToolStripMenuItem";
+            this.hTTP状态码ToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
+            this.hTTP状态码ToolStripMenuItem.Text = "HTTP状态码";
+            this.hTTP状态码ToolStripMenuItem.Click += new System.EventHandler(this.hTTP状态码ToolStripMenuItem_Click);
             // 
             // MainFrm
             // 
@@ -281,6 +326,11 @@
         private System.Windows.Forms.ToolStripButton TSBSave;
         private System.Windows.Forms.ToolStripMenuItem mD5签名ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 时间戳ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem bASE64ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 正则表达式测试ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem xML工具ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem jSON工具ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem hTTP状态码ToolStripMenuItem;
     }
 }
 

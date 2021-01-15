@@ -60,6 +60,18 @@ namespace APIHelper.UC
 
             TBErrors.ForeColor = Color.Red;
             WBResult.ScriptErrorsSuppressed = true;
+
+            LBStatuCode.DoubleClick += LBStatuCode_DoubleClick;
+            LBStatuCode.Cursor = Cursors.Hand;
+            
+        }
+
+        private void LBStatuCode_DoubleClick(object sender, EventArgs e)
+        {
+            if (LBStatuCode.Tag!=null)
+            {
+                System.Diagnostics.Process.Start($"https://tool.lu/httpcode/#{LBStatuCode.Tag.ToString()}");
+            }
         }
 
         public void SetError(string error)
@@ -267,6 +279,7 @@ namespace APIHelper.UC
         public void SetOther(int code, string codemsg, double ms, long size)
         {
             LBStatuCode.Text = "状态:" + code.ToString();
+            LBStatuCode.Tag = code;
             if (ms >= 1000)
             {
                 LBMs.Text = (ms / 1000.0).ToString(".###") + "s";

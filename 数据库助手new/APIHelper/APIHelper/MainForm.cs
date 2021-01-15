@@ -313,5 +313,30 @@ namespace APIHelper
         {
             System.Diagnostics.Process.Start("https://tool.lu/timestamp/");
         }
+
+        private void bASE64ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            System.Diagnostics.Process.Start("https://tool.lu/encdec/");
+        }
+
+        private void 正则表达式测试ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            System.Diagnostics.Process.Start("https://tool.lu/regex/");
+        }
+
+        private void xML工具ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            System.Diagnostics.Process.Start("https://tool.lu/xml/");
+        }
+
+        private void jSON工具ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            System.Diagnostics.Process.Start("https://tool.lu/json/");
+        }
+
+        private void hTTP状态码ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            System.Diagnostics.Process.Start("https://tool.lu/httpcode/");
+        }
     }
 }
