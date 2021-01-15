@@ -57,6 +57,7 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WCF\WCFClientTests.cs" />
+    <Compile Include="WCF\WebSvcCaller.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Biz\Biz.csproj">
