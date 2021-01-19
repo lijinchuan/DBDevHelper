@@ -19,7 +19,7 @@ namespace Biz.WCF.Tests
         public void Test()
         {
             var ht = new System.Collections.Hashtable();
-            ht.Add("newperson",)
+            ht.Add("newperson", "");
             WebSvcCaller.QuerySoapWebService("http://localhost:53797/Service1.svc",
                 "ECHOPerson2", ht);
         }
