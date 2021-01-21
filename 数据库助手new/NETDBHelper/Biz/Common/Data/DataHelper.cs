@@ -183,7 +183,7 @@ namespace Biz.Common.Data
             sb.AppendLine("SET ANSI_PADDING OFF");
             //sb.AppendLine("GO");
 
-            sb.AppendLine($@"EXEC sys.sp_addextendedproperty @name=N'MS_Description',@level0type=N'SCHEMA',@level0name=N'dbo',@level1type=N'TABLE',@value=N'{dbdesc}' ,@level1name=N'vip_room_user'");
+            sb.AppendLine($@"EXEC sys.sp_addextendedproperty @name=N'MS_Description',@level0type=N'SCHEMA',@level0name=N'dbo',@level1type=N'TABLE',@value=N'{dbdesc}' ,@level1name=N'{tb.TableName}'");
 
             var descCols = from x in tb.AsEnumerable()
                            where x["desc"] != DBNull.Value

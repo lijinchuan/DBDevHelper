@@ -135,7 +135,7 @@ namespace NETDBHelper
                             var node = tv_DBServers.SelectedNode;
                             if (node == null)
                                 return;
-                            OnAddEntityTB(GetDBSource(node), node.Text);
+                            OnAddEntityTB(GetDBSource(node),GetDBName(node));
                         }
                         break;
                     case "删除对象":
@@ -859,7 +859,7 @@ namespace NETDBHelper
                     else
                     {
                         this.tv_DBServers.ContextMenuStrip = this.CommMenuStrip;
-                        subMenuItemAddEntityTB.Visible = nctype == NodeContentType.DB;
+                        subMenuItemAddEntityTB.Visible = nctype == NodeContentType.TBParent;
                         TSMI_ViewTableList.Visible = nctype == NodeContentType.DB;
                         TSMI_ViewColumnList.Visible = nctype == NodeContentType.DB;
                         CommSubMenuItem_Delete.Visible = nctype == NodeContentType.DB;
@@ -1004,6 +1004,25 @@ namespace NETDBHelper
                     }
                 }
             }
+            return null;
+        }
+
+        public TreeNode FindNode(TreeNode node, NodeContentType nodeContentType)
+        {
+            if (node.Tag is INodeContents && (node.Tag as INodeContents).GetNodeContentType() == nodeContentType)
+            {
+                return node;
+            }
+
+            foreach(TreeNode n in node.Nodes)
+            {
+                var fn = FindNode(n, nodeContentType);
+                if (fn != null)
+                {
+                    return fn;
+                }
+            }
+
             return null;
         }
 
