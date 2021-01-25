@@ -325,7 +325,14 @@ namespace APIHelper.UC
                             {
                                 html = Newtonsoft.Json.JsonConvert.SerializeObject(jsonobject, Newtonsoft.Json.Formatting.Indented);
                                 isjson = true;
-                                this.WBResult.DocumentText = System.IO.File.ReadAllText("jsonview.html.tpl", Encoding.UTF8).Replace("{{{json}}}", html);
+                                if (html.Length <= 100 * 1000)
+                                {
+                                    this.WBResult.DocumentText = System.IO.File.ReadAllText("jsonview.html.tpl", Encoding.UTF8).Replace("{{{json}}}", html);
+                                }
+                                else
+                                {
+                                    this.WBResult.DocumentText = html;
+                                }
                             }
                         }
                     }
