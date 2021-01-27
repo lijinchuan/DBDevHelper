@@ -201,6 +201,10 @@ namespace APIHelper.UC
 
         private string ReplaceEvnParams(string str, ref List<APIEnvParam> apiEnvParams)
         {
+            if (string.IsNullOrWhiteSpace(str))
+            {
+                return str;
+            }
             if (str.IndexOf("{{") == -1 || str.IndexOf("}}") == -1)
             {
                 return str;
@@ -266,6 +270,7 @@ namespace APIHelper.UC
             var url = TBUrl.Text.Trim();
             url = ReplaceEvnParams(url, ref apiEnvParams);
             HttpRequestEx httpRequestEx = new HttpRequestEx();
+            httpRequestEx.TimeOut = 3600 * 8;
             url = ReplaceParams(url, Params, apiEnvParams);
 
             //httpRequestEx.Cookies.Add(new System.Net.Cookie()
