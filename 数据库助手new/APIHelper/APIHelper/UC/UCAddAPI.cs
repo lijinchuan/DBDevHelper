@@ -263,8 +263,9 @@ namespace APIHelper.UC
             return url;
         }
 
-        private void PostRequest()
+        private void PostRequest(object cancelToken)
         {
+
             List<APIEnvParam> apiEnvParams = null;
             UCAddAPI.CheckForIllegalCrossThreadCalls = false;
             var url = TBUrl.Text.Trim();
@@ -356,28 +357,29 @@ namespace APIHelper.UC
 
             var bodydataType = GetBodyDataType();
             HttpResponseEx responseEx = null;
+
             if (bodydataType == BodyDataType.formdata)
             {
                 var dic = FormDatas.Where(p => p.Checked).ToDictionary(p => ReplaceEvnParams(p.Name, ref apiEnvParams), q => ReplaceEvnParams(q.Value, ref apiEnvParams));
-                responseEx = httpRequestEx.DoFormRequest(url, dic);
+                responseEx = httpRequestEx.DoFormRequestAsync(url, dic, cancelToken: (CancelToken)cancelToken).Result;
             }
             else if (bodydataType == BodyDataType.xwwwformurlencoded)
             {
                 WebRequestMethodEnum webRequestMethodEnum = (WebRequestMethodEnum)Enum.Parse(typeof(WebRequestMethodEnum), CBWebMethod.SelectedItem.ToString());
                 var data = string.Join("&", XWWWFormUrlEncoded.Where(p => p.Checked).Select(p => $"{ReplaceEvnParams(p.Name, ref apiEnvParams)}={WebUtility.UrlEncode(ReplaceEvnParams(p.Value, ref apiEnvParams))}"));
-                responseEx = httpRequestEx.DoRequest(url, data, webRequestMethodEnum);
+                responseEx = httpRequestEx.DoRequestAsync(url, data, webRequestMethodEnum, true, true, cancelToken: (CancelToken)cancelToken).Result;
             }
             else if (bodydataType == BodyDataType.raw)
             {
                 WebRequestMethodEnum webRequestMethodEnum = (WebRequestMethodEnum)Enum.Parse(typeof(WebRequestMethodEnum), CBWebMethod.SelectedItem.ToString());
                 var data = Encoding.UTF8.GetBytes(ReplaceEvnParams(rawTextBox.Text, ref apiEnvParams));
-                responseEx = httpRequestEx.DoRequest(url, data, webRequestMethodEnum, contentType: $"application/{CBApplicationType.SelectedItem.ToString()}");
+                responseEx = httpRequestEx.DoRequestAsync(url, data, webRequestMethodEnum, true, true, $"application/{CBApplicationType.SelectedItem.ToString()}", (CancelToken)cancelToken).Result;
             }
             else if (bodydataType == BodyDataType.wcf)
             {
                 WebRequestMethodEnum webRequestMethodEnum = (WebRequestMethodEnum)Enum.Parse(typeof(WebRequestMethodEnum), CBWebMethod.SelectedItem.ToString());
                 var data = Encoding.UTF8.GetBytes(ReplaceEvnParams(rawTextBox.Text, ref apiEnvParams));
-                responseEx = httpRequestEx.DoRequest(url, data, webRequestMethodEnum, contentType: $"text/{CBApplicationType.SelectedItem.ToString()}");
+                responseEx = httpRequestEx.DoRequestAsync(url, data, webRequestMethodEnum, true, true, $"text/{CBApplicationType.SelectedItem.ToString()}", (CancelToken)cancelToken).Result;
             }
             else if (bodydataType == BodyDataType.binary)
             {
@@ -425,13 +427,13 @@ namespace APIHelper.UC
                     }
                 }
 
-                responseEx = httpRequestEx.FormSubmit(url, formItems, webRequestMethodEnum, saveCookie: true);
+                responseEx = httpRequestEx.FormSubmitAsync(url, formItems, webRequestMethodEnum, saveCookie: true, (CancelToken)cancelToken).Result;
             }
             else
             {
                 WebRequestMethodEnum webRequestMethodEnum = (WebRequestMethodEnum)Enum.Parse(typeof(WebRequestMethodEnum), CBWebMethod.SelectedItem.ToString());
 
-                responseEx = httpRequestEx.DoRequest(url, new byte[0], webRequestMethodEnum);
+                responseEx = httpRequestEx.DoRequestAsync(url, new byte[0], webRequestMethodEnum, cancelToken: (CancelToken)cancelToken).Result;
             }
 
             this.Invoke(new Action(() =>
@@ -556,7 +558,8 @@ namespace APIHelper.UC
             }
 
             Tabs.SelectedTab = TP_Result;
-            loadbox.Waiting(this.TP_Result, PostRequest);
+            CancelToken cancelToken = new CancelToken();
+            loadbox.Waiting(this.TP_Result, PostRequest, cancelToken, () => cancelToken.Cancel = true);
             Save();
         }
 

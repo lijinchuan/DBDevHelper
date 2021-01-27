@@ -29,7 +29,7 @@ namespace APIHelper
                     {
                         try
                         {
-                            ClearOldMsg(ctl, msg);
+                            ClearOldMsg(parent, msg);
                         }
                         catch
                         {
