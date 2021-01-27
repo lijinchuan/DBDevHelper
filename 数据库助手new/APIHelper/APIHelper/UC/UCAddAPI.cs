@@ -12,6 +12,7 @@ using LJC.FrameWorkV3.Comm;
 using LJC.FrameWorkV3.Data.EntityDataBase;
 using System.IO;
 using Newtonsoft.Json;
+using System.Text.RegularExpressions;
 
 namespace APIHelper.UC
 {
@@ -231,6 +232,33 @@ namespace APIHelper.UC
             return sb.ToString();
         }
 
+        private string ReplaceParams(string url, List<ParamInfo> paramlist, List<APIEnvParam> apiEnvParams)
+        {
+            var ms = Regex.Matches(url, @"(?<!\{)\{(\w+)\}(?!\})");
+            List<string> list = new List<string>();
+            if (ms.Count > 0)
+            {
+                foreach (Match m in ms)
+                {
+                    list.Add(m.Groups[1].Value);
+                    url = url.Replace(m.Value, (paramlist.Find(p => p.Name == m.Groups[1].Value && p.Checked)?.Value) ?? string.Empty);
+                }
+            }
+
+            var paramlist2 = Params?.Where(p => !list.Contains(p.Name) && p.Checked);
+            if (paramlist2.Count() > 0)
+            {
+                if (url.IndexOf("?") == -1)
+                {
+                    url += "?";
+                }
+
+                url += string.Join("&", paramlist2.Select(p => $"{WebUtility.UrlEncode(ReplaceEvnParams(p.Name, ref apiEnvParams))}={WebUtility.UrlEncode(ReplaceEvnParams(p.Value, ref apiEnvParams))}"));
+            }
+
+            return url;
+        }
+
         private void PostRequest()
         {
             List<APIEnvParam> apiEnvParams = null;
@@ -238,15 +266,7 @@ namespace APIHelper.UC
             var url = TBUrl.Text.Trim();
             url = ReplaceEvnParams(url, ref apiEnvParams);
             HttpRequestEx httpRequestEx = new HttpRequestEx();
-            if (Params?.Where(p => p.Checked).Count() > 0)
-            {
-                if (url.IndexOf("?") == -1)
-                {
-                    url += "?";
-                }
-
-                url += string.Join("&", Params.Where(p => p.Checked).Select(p => $"{WebUtility.UrlEncode(ReplaceEvnParams(p.Name, ref apiEnvParams))}={WebUtility.UrlEncode(ReplaceEvnParams(p.Value, ref apiEnvParams))}"));
-            }
+            url = ReplaceParams(url, Params, apiEnvParams);
 
             //httpRequestEx.Cookies.Add(new System.Net.Cookie()
 
@@ -771,6 +791,37 @@ namespace APIHelper.UC
             CBApplicationType.SelectedIndexChanged += CBApplicationType_SelectedIndexChanged;
 
             this.Tabs.SelectedIndexChanged += Tabs_SelectedIndexChanged;
+
+            this.TBUrl.TextChanged += TBUrl_TextChanged;
+        }
+
+        private void TBUrl_TextChanged(object sender, EventArgs e)
+        {
+            var ms = Regex.Matches(TBUrl.Text, @"(?<!\{)\{(\w+)\}(?!\})");
+            if (ms.Count > 0)
+            {
+                if (this.Params == null)
+                {
+                    this.Params = new List<ParamInfo>();
+                }
+
+                foreach(Match m in ms)
+                {
+                    if (this.Params.Any(p => p.Name.Equals(m.Groups[1].Value, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        continue;
+                    }
+                    this.Params.Add(new ParamInfo
+                    {
+                        Checked=true,
+                        Name=m.Groups[1].Value,
+                        Value="",
+                        Desc=""
+                    });
+                }
+
+                paramsGridView.DataSource = Params;
+            }
         }
 
         private void Tabs_SelectedIndexChanged(object sender, EventArgs e)
