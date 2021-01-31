@@ -694,6 +694,14 @@ namespace APIHelper.UC
 
         private void Bind()
         {
+            TabResults.TabPages.Clear();
+
+            Tabs.TabPages.Remove(TP_Result);
+            TabResults.TabPages.Add(TP_Result);
+
+            Tabs.TabPages.Remove(TPLog);
+            TabResults.TabPages.Add(TPLog);
+
             UCBinary.CanUpload = true;
             this.Tabs.ImageList = new ImageList();
             this.Tabs.ImageList.Images.Add("USED", Resources.Resource1.bullet_green);
@@ -708,13 +716,13 @@ namespace APIHelper.UC
                 }
             }
 
-            TPInvokeLog.VisibleChanged += TPInvokeLog_VisibleChanged;
-            TPInvokeLog.ReInvoke += TPInvokeLog_ReInvoke;
-            BtnSend.Click += BtnSend_Click;
-
             HeaderDataPannel.Controls.Add(headerGridView);
             ParamDataPanel.Controls.Add(paramsGridView);
             CookieDataPannel.Controls.Add(cookieGridView);
+
+            TPInvokeLog.VisibleChanged += TPInvokeLog_VisibleChanged;
+            TPInvokeLog.ReInvoke += TPInvokeLog_ReInvoke;
+            BtnSend.Click += BtnSend_Click;
 
             this.CBWebMethod.Items.AddRange(Enum.GetNames(typeof(Entity.APIMethod)));
             this.CBApplicationType.Items.AddRange(Enum.GetNames(typeof(Entity.ApplicationType)));
@@ -905,6 +913,8 @@ namespace APIHelper.UC
         {
             var authtype = GetAuthType();
 
+            AuthTableLayoutPanel.AutoScroll = true;
+
             AuthTableLayoutPanel.Controls.Remove(UCBearToken);
             AuthTableLayoutPanel.Controls.Remove(UCApiKey);
             AuthTableLayoutPanel.Controls.Remove(BasicAuth);
@@ -925,6 +935,12 @@ namespace APIHelper.UC
             else
             {
                 AuthTableLayoutPanel.Controls.Add(UCNoAuth, 1, 1);
+            }
+
+            var rs = AuthTableLayoutPanel.RowStyles;
+            foreach (RowStyle r in rs)
+            {
+                r.SizeType = SizeType.Absolute;
             }
         }
 
