@@ -28,7 +28,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(UCAddAPI));
             this.CBWebMethod = new System.Windows.Forms.ComboBox();
             this.TBUrl = new System.Windows.Forms.TextBox();
@@ -58,7 +57,6 @@
             this.TBResult = new APIHelper.UC.UCApiResult();
             this.TPLog = new System.Windows.Forms.TabPage();
             this.TPInvokeLog = new APIHelper.UC.LogViewTab();
-            this.PagerLog = new System.Windows.Forms.BindingNavigator(this.components);
             this.TopPannel = new System.Windows.Forms.Panel();
             this.LKEnv = new System.Windows.Forms.Label();
             this.pannelmid = new System.Windows.Forms.Panel();
@@ -75,8 +73,6 @@
             this.PannelReqBody.SuspendLayout();
             this.TP_Result.SuspendLayout();
             this.TPLog.SuspendLayout();
-            this.TPInvokeLog.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.PagerLog)).BeginInit();
             this.TopPannel.SuspendLayout();
             this.pannelmid.SuspendLayout();
             this.PannelBottom.SuspendLayout();
@@ -164,7 +160,7 @@
             this.TP_Auth.Location = new System.Drawing.Point(4, 22);
             this.TP_Auth.Name = "TP_Auth";
             this.TP_Auth.Padding = new System.Windows.Forms.Padding(3);
-            this.TP_Auth.Size = new System.Drawing.Size(739, 157);
+            this.TP_Auth.Size = new System.Drawing.Size(192, 74);
             this.TP_Auth.TabIndex = 1;
             this.TP_Auth.Text = "鉴权";
             this.TP_Auth.UseVisualStyleBackColor = true;
@@ -182,7 +178,7 @@
             this.AuthTableLayoutPanel.RowCount = 2;
             this.AuthTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.AuthTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.AuthTableLayoutPanel.Size = new System.Drawing.Size(733, 151);
+            this.AuthTableLayoutPanel.Size = new System.Drawing.Size(186, 68);
             this.AuthTableLayoutPanel.TabIndex = 0;
             // 
             // CBAuthType
@@ -377,37 +373,19 @@
             this.TPLog.Location = new System.Drawing.Point(4, 22);
             this.TPLog.Name = "TPLog";
             this.TPLog.Padding = new System.Windows.Forms.Padding(3);
-            this.TPLog.Size = new System.Drawing.Size(192, 74);
+            this.TPLog.Size = new System.Drawing.Size(739, 157);
             this.TPLog.TabIndex = 6;
             this.TPLog.Text = "日志";
             this.TPLog.UseVisualStyleBackColor = true;
             // 
             // TPInvokeLog
             // 
-            this.TPInvokeLog.Controls.Add(this.PagerLog);
+            this.TPInvokeLog.AutoScroll = true;
             this.TPInvokeLog.Dock = System.Windows.Forms.DockStyle.Fill;
             this.TPInvokeLog.Location = new System.Drawing.Point(3, 3);
             this.TPInvokeLog.Name = "TPInvokeLog";
-            this.TPInvokeLog.Size = new System.Drawing.Size(186, 68);
+            this.TPInvokeLog.Size = new System.Drawing.Size(733, 151);
             this.TPInvokeLog.TabIndex = 1;
-            // 
-            // PagerLog
-            // 
-            this.PagerLog.AddNewItem = null;
-            this.PagerLog.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.PagerLog.CountItem = null;
-            this.PagerLog.DeleteItem = null;
-            this.PagerLog.Dock = System.Windows.Forms.DockStyle.None;
-            this.PagerLog.Location = new System.Drawing.Point(71, 5);
-            this.PagerLog.MoveFirstItem = null;
-            this.PagerLog.MoveLastItem = null;
-            this.PagerLog.MoveNextItem = null;
-            this.PagerLog.MovePreviousItem = null;
-            this.PagerLog.Name = "PagerLog";
-            this.PagerLog.PositionItem = null;
-            this.PagerLog.Size = new System.Drawing.Size(111, 25);
-            this.PagerLog.TabIndex = 0;
-            this.PagerLog.Text = "bindingNavigator1";
             // 
             // TopPannel
             // 
@@ -495,9 +473,6 @@
             this.PannelReqBody.PerformLayout();
             this.TP_Result.ResumeLayout(false);
             this.TPLog.ResumeLayout(false);
-            this.TPInvokeLog.ResumeLayout(false);
-            this.TPInvokeLog.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.PagerLog)).EndInit();
             this.TopPannel.ResumeLayout(false);
             this.TopPannel.PerformLayout();
             this.pannelmid.ResumeLayout(false);
@@ -537,7 +512,6 @@
         private System.Windows.Forms.Label LKEnv;
         private System.Windows.Forms.TabPage TPLog;
         private LogViewTab TPInvokeLog;
-        private System.Windows.Forms.BindingNavigator PagerLog;
         private System.Windows.Forms.TabPage TP_Cookie;
         private System.Windows.Forms.Panel CookieDataPannel;
         private System.Windows.Forms.Panel pannelmid;

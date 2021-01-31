@@ -613,7 +613,7 @@ namespace APIHelper.UC
                 return;
             }
 
-            Tabs.SelectedTab = TP_Result;
+            (TP_Result.Parent as TabControl).SelectedTab = TP_Result;
             CancelToken cancelToken = new CancelToken();
             loadbox.Waiting(this.TP_Result, PostRequest, cancelToken, () => cancelToken.Cancel = true);
             Save();
@@ -755,6 +755,7 @@ namespace APIHelper.UC
 
         private void Bind()
         {
+            TPInvokeLog.SetPageSize(10);
             ChangeLayout();
 
             UCBinary.CanUpload = true;

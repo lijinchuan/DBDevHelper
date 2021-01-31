@@ -62,8 +62,6 @@ namespace APIHelper.UC
             this.GVLog.BorderStyle = BorderStyle.None;
             this.GVLog.GridColor = Color.LightBlue;
 
-            //this.GVLog.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.DisplayedCells;
-            //this.GVLog.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
             this.GVLog.AllowUserToResizeRows = true;
 
             BeginDate.Value = DateTime.Now.AddMonths(-1);
@@ -74,6 +72,16 @@ namespace APIHelper.UC
 
             GVLog.RowHeadersVisible = false;
             GVLog.DataBindingComplete += GVLog_DataBindingComplete;
+
+            this.AutoScroll = true;
+        }
+
+        public void SetPageSize(int size)
+        {
+            if (size > 0)
+            {
+                this.pageSize = size;
+            }
         }
 
         private void GVLog_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
@@ -88,14 +96,9 @@ namespace APIHelper.UC
                 GVLog.Columns["时间"].Width = 120;
             }
 
-            if (GVLog.Columns.Contains("状态码"))
+            if (GVLog.Columns.Contains("地址"))
             {
-                GVLog.Columns["状态码"].Width = 80;
-            }
-
-            if (GVLog.Columns.Contains("用时"))
-            {
-                GVLog.Columns["用时"].Width = 100;
+                GVLog.Columns["地址"].Width = 200;
             }
 
             if (GVLog.Columns.Contains("请求大小"))
@@ -106,6 +109,21 @@ namespace APIHelper.UC
             if (GVLog.Columns.Contains("响应大小"))
             {
                 GVLog.Columns["响应大小"].Width = 100;
+            }
+
+            if (GVLog.Columns.Contains("状态码"))
+            {
+                GVLog.Columns["状态码"].Width = 80;
+            }
+
+            if (GVLog.Columns.Contains("用时"))
+            {
+                GVLog.Columns["用时"].Width = 100;
+            }
+
+            if (GVLog.Rows.Count > 0)
+            {
+                GVLog.Height = GVLog.Rows[0].Height * GVLog.RowCount + GVLog.ColumnHeadersHeight;
             }
         }
 
@@ -417,7 +435,7 @@ namespace APIHelper.UC
                 }
                 catch(Exception ex)
                 {
-
+                    Util.SendMsg(this, ex.Message);
                 }
                 finally
                 {
