@@ -131,10 +131,10 @@
             this.Tabs.Controls.Add(this.TP_Setting);
             this.Tabs.Controls.Add(this.TP_Result);
             this.Tabs.Controls.Add(this.TPLog);
-            this.Tabs.Location = new System.Drawing.Point(3, 3);
+            this.Tabs.Location = new System.Drawing.Point(0, 0);
             this.Tabs.Name = "Tabs";
             this.Tabs.SelectedIndex = 0;
-            this.Tabs.Size = new System.Drawing.Size(740, 175);
+            this.Tabs.Size = new System.Drawing.Size(747, 183);
             this.Tabs.TabIndex = 3;
             // 
             // TP_Params
@@ -143,7 +143,7 @@
             this.TP_Params.Location = new System.Drawing.Point(4, 22);
             this.TP_Params.Name = "TP_Params";
             this.TP_Params.Padding = new System.Windows.Forms.Padding(3);
-            this.TP_Params.Size = new System.Drawing.Size(732, 149);
+            this.TP_Params.Size = new System.Drawing.Size(739, 157);
             this.TP_Params.TabIndex = 0;
             this.TP_Params.Text = "URL参数";
             this.TP_Params.UseVisualStyleBackColor = true;
@@ -155,7 +155,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.ParamDataPanel.Location = new System.Drawing.Point(8, 21);
             this.ParamDataPanel.Name = "ParamDataPanel";
-            this.ParamDataPanel.Size = new System.Drawing.Size(687, 122);
+            this.ParamDataPanel.Size = new System.Drawing.Size(725, 130);
             this.ParamDataPanel.TabIndex = 0;
             // 
             // TP_Auth
@@ -164,7 +164,7 @@
             this.TP_Auth.Location = new System.Drawing.Point(4, 22);
             this.TP_Auth.Name = "TP_Auth";
             this.TP_Auth.Padding = new System.Windows.Forms.Padding(3);
-            this.TP_Auth.Size = new System.Drawing.Size(732, 149);
+            this.TP_Auth.Size = new System.Drawing.Size(192, 74);
             this.TP_Auth.TabIndex = 1;
             this.TP_Auth.Text = "鉴权";
             this.TP_Auth.UseVisualStyleBackColor = true;
@@ -182,7 +182,7 @@
             this.AuthTableLayoutPanel.RowCount = 2;
             this.AuthTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.AuthTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.AuthTableLayoutPanel.Size = new System.Drawing.Size(726, 143);
+            this.AuthTableLayoutPanel.Size = new System.Drawing.Size(186, 68);
             this.AuthTableLayoutPanel.TabIndex = 0;
             // 
             // CBAuthType
@@ -190,7 +190,7 @@
             this.CBAuthType.FormattingEnabled = true;
             this.CBAuthType.Location = new System.Drawing.Point(3, 23);
             this.CBAuthType.Name = "CBAuthType";
-            this.CBAuthType.Size = new System.Drawing.Size(139, 20);
+            this.CBAuthType.Size = new System.Drawing.Size(31, 20);
             this.CBAuthType.TabIndex = 0;
             // 
             // label1

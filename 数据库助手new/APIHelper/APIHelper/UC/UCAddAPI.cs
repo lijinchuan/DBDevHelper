@@ -37,6 +37,8 @@ namespace APIHelper.UC
         private UC.Auth.UCNoAuth UCNoAuth = new Auth.UCNoAuth();
         private UC.Auth.UCBasicAuth BasicAuth = new Auth.UCBasicAuth();
 
+        private int layoutmodel = -1;
+
         private APIUrl _apiUrl = null;
         private APIData _apiData = null;
 
@@ -47,16 +49,63 @@ namespace APIHelper.UC
         public UCAddAPI()
         {
             InitializeComponent();
+            rawTextBox.ScrollBars = ScrollBars.Both;
         }
 
         public UCAddAPI(APIUrl apiUrl)
         {
             InitializeComponent();
+            rawTextBox.ScrollBars = ScrollBars.Both;
 
             _apiUrl = apiUrl;
 
             Bind();
             BindData();
+        }
+
+        private void ChangeLayout()
+        {
+            //结果请求是上下分开的
+            if (layoutmodel == 1)
+            {
+
+                Tabs.TabPages.Remove(TP_Result);
+                TabResults.TabPages.Add(TP_Result);
+
+                Tabs.TabPages.Remove(TPLog);
+                TabResults.TabPages.Add(TPLog);
+
+                pannelmid.Height -= TabResults.Height;
+                TabResults.Visible = true;
+
+                layoutmodel = 0;
+            }
+            else if (layoutmodel == 0)
+            {
+                TabResults.TabPages.Remove(TP_Result);
+                Tabs.TabPages.Add(TP_Result);
+
+                TabResults.TabPages.Remove(TPLog);
+                Tabs.TabPages.Add(TPLog);
+
+                TabResults.Visible = false;
+
+                pannelmid.Height += TabResults.Height;
+
+                layoutmodel = 1;
+            }
+            else
+            {
+                TabResults.TabPages.Clear();
+
+                Tabs.TabPages.Remove(TP_Result);
+                TabResults.TabPages.Add(TP_Result);
+
+                Tabs.TabPages.Remove(TPLog);
+                TabResults.TabPages.Add(TPLog);
+
+                layoutmodel = 0;
+            }
         }
 
         private void TPInvokeLog_ReInvoke(APIInvokeLog obj)
@@ -686,21 +735,21 @@ namespace APIHelper.UC
             }
 
             var doctab = new DocPage();
-
-            Tabs.Controls.Add(doctab);
+            if (layoutmodel == 0)
+            {
+                TabResults.TabPages.Add(doctab);
+            }
+            else
+            {
+                Tabs.Controls.Add(doctab);
+            }
             doctab.InitDoc(_apiUrl);
 
         }
 
         private void Bind()
         {
-            TabResults.TabPages.Clear();
-
-            Tabs.TabPages.Remove(TP_Result);
-            TabResults.TabPages.Add(TP_Result);
-
-            Tabs.TabPages.Remove(TPLog);
-            TabResults.TabPages.Add(TPLog);
+            ChangeLayout();
 
             UCBinary.CanUpload = true;
             this.Tabs.ImageList = new ImageList();
@@ -708,6 +757,7 @@ namespace APIHelper.UC
             this.Tabs.ImageList.Images.Add("ERROR", Resources.Resource1.bullet_red);
 
             ShowDoc();
+
             foreach (var ctl in PannelReqBody.Controls)
             {
                 if (ctl is RadioButton)
@@ -809,6 +859,19 @@ namespace APIHelper.UC
             this.Tabs.SelectedIndexChanged += Tabs_SelectedIndexChanged;
 
             this.TBUrl.TextChanged += TBUrl_TextChanged;
+
+            TabResults.DoubleClick += TabResults_DoubleClick;
+            Tabs.DoubleClick += Tabs_DoubleClick;
+        }
+
+        private void TabResults_DoubleClick(object sender, EventArgs e)
+        {
+            ChangeLayout();
+        }
+
+        private void Tabs_DoubleClick(object sender, EventArgs e)
+        {
+            ChangeLayout();
         }
 
         private void TBUrl_TextChanged(object sender, EventArgs e)
