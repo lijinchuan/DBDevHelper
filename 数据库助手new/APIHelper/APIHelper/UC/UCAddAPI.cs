@@ -913,6 +913,7 @@ namespace APIHelper.UC
         {
             var authtype = GetAuthType();
 
+            AuthTableLayoutPanel.RowStyles.Clear();
             AuthTableLayoutPanel.AutoScroll = true;
 
             AuthTableLayoutPanel.Controls.Remove(UCBearToken);
@@ -935,12 +936,6 @@ namespace APIHelper.UC
             else
             {
                 AuthTableLayoutPanel.Controls.Add(UCNoAuth, 1, 1);
-            }
-
-            var rs = AuthTableLayoutPanel.RowStyles;
-            foreach (RowStyle r in rs)
-            {
-                r.SizeType = SizeType.Absolute;
             }
         }
 

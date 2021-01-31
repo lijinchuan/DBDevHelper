@@ -164,7 +164,7 @@
             this.TP_Auth.Location = new System.Drawing.Point(4, 22);
             this.TP_Auth.Name = "TP_Auth";
             this.TP_Auth.Padding = new System.Windows.Forms.Padding(3);
-            this.TP_Auth.Size = new System.Drawing.Size(192, 74);
+            this.TP_Auth.Size = new System.Drawing.Size(732, 149);
             this.TP_Auth.TabIndex = 1;
             this.TP_Auth.Text = "鉴权";
             this.TP_Auth.UseVisualStyleBackColor = true;
@@ -172,24 +172,25 @@
             // AuthTableLayoutPanel
             // 
             this.AuthTableLayoutPanel.ColumnCount = 2;
-            this.AuthTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25.99388F));
-            this.AuthTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 74.00612F));
+            this.AuthTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
+            this.AuthTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 80F));
             this.AuthTableLayoutPanel.Controls.Add(this.CBAuthType, 0, 1);
             this.AuthTableLayoutPanel.Controls.Add(this.label1, 0, 0);
-            this.AuthTableLayoutPanel.Location = new System.Drawing.Point(6, 3);
+            this.AuthTableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.AuthTableLayoutPanel.Location = new System.Drawing.Point(3, 3);
             this.AuthTableLayoutPanel.Name = "AuthTableLayoutPanel";
             this.AuthTableLayoutPanel.RowCount = 2;
-            this.AuthTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 5.167173F));
-            this.AuthTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 94.83282F));
-            this.AuthTableLayoutPanel.Size = new System.Drawing.Size(654, 329);
+            this.AuthTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.AuthTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.AuthTableLayoutPanel.Size = new System.Drawing.Size(726, 143);
             this.AuthTableLayoutPanel.TabIndex = 0;
             // 
             // CBAuthType
             // 
             this.CBAuthType.FormattingEnabled = true;
-            this.CBAuthType.Location = new System.Drawing.Point(3, 20);
+            this.CBAuthType.Location = new System.Drawing.Point(3, 23);
             this.CBAuthType.Name = "CBAuthType";
-            this.CBAuthType.Size = new System.Drawing.Size(163, 20);
+            this.CBAuthType.Size = new System.Drawing.Size(139, 20);
             this.CBAuthType.TabIndex = 0;
             // 
             // label1
@@ -354,7 +355,7 @@
             this.TP_Result.Controls.Add(this.TBResult);
             this.TP_Result.Location = new System.Drawing.Point(4, 22);
             this.TP_Result.Name = "TP_Result";
-            this.TP_Result.Size = new System.Drawing.Size(732, 149);
+            this.TP_Result.Size = new System.Drawing.Size(192, 74);
             this.TP_Result.TabIndex = 5;
             this.TP_Result.Text = "结果";
             this.TP_Result.UseVisualStyleBackColor = true;
@@ -367,7 +368,7 @@
             this.TBResult.Location = new System.Drawing.Point(0, 0);
             this.TBResult.Name = "TBResult";
             this.TBResult.Raw = null;
-            this.TBResult.Size = new System.Drawing.Size(732, 149);
+            this.TBResult.Size = new System.Drawing.Size(192, 74);
             this.TBResult.TabIndex = 0;
             // 
             // TPLog
@@ -376,7 +377,7 @@
             this.TPLog.Location = new System.Drawing.Point(4, 22);
             this.TPLog.Name = "TPLog";
             this.TPLog.Padding = new System.Windows.Forms.Padding(3);
-            this.TPLog.Size = new System.Drawing.Size(732, 149);
+            this.TPLog.Size = new System.Drawing.Size(192, 74);
             this.TPLog.TabIndex = 6;
             this.TPLog.Text = "日志";
             this.TPLog.UseVisualStyleBackColor = true;
@@ -387,7 +388,7 @@
             this.TPInvokeLog.Dock = System.Windows.Forms.DockStyle.Fill;
             this.TPInvokeLog.Location = new System.Drawing.Point(3, 3);
             this.TPInvokeLog.Name = "TPInvokeLog";
-            this.TPInvokeLog.Size = new System.Drawing.Size(726, 143);
+            this.TPInvokeLog.Size = new System.Drawing.Size(186, 68);
             this.TPInvokeLog.TabIndex = 1;
             // 
             // PagerLog
@@ -397,7 +398,7 @@
             this.PagerLog.CountItem = null;
             this.PagerLog.DeleteItem = null;
             this.PagerLog.Dock = System.Windows.Forms.DockStyle.None;
-            this.PagerLog.Location = new System.Drawing.Point(611, 80);
+            this.PagerLog.Location = new System.Drawing.Point(71, 5);
             this.PagerLog.MoveFirstItem = null;
             this.PagerLog.MoveLastItem = null;
             this.PagerLog.MoveNextItem = null;
