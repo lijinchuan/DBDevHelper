@@ -37,6 +37,8 @@ namespace APIHelper.UC
         private UC.Auth.UCNoAuth UCNoAuth = new Auth.UCNoAuth();
         private UC.Auth.UCBasicAuth BasicAuth = new Auth.UCBasicAuth();
 
+        private DocPage doctab = new DocPage();
+
         private int layoutmodel = -1;
 
         private APIUrl _apiUrl = null;
@@ -75,8 +77,11 @@ namespace APIHelper.UC
                 Tabs.TabPages.Remove(TPLog);
                 TabResults.TabPages.Add(TPLog);
 
-                pannelmid.Height -= TabResults.Height;
-                TabResults.Visible = true;
+                Tabs.TabPages.Remove(doctab);
+                TabResults.TabPages.Add(doctab);
+
+                pannelmid.Height -= PannelBottom.Height;
+                PannelBottom.Visible = true;
 
                 layoutmodel = 0;
             }
@@ -88,9 +93,11 @@ namespace APIHelper.UC
                 TabResults.TabPages.Remove(TPLog);
                 Tabs.TabPages.Add(TPLog);
 
-                TabResults.Visible = false;
+                TabResults.TabPages.Remove(doctab);
+                Tabs.TabPages.Add(doctab);
 
-                pannelmid.Height += TabResults.Height;
+                PannelBottom.Visible = false;
+                pannelmid.Height += PannelBottom.Height;
 
                 layoutmodel = 1;
             }
@@ -734,7 +741,6 @@ namespace APIHelper.UC
                 return;
             }
 
-            var doctab = new DocPage();
             if (layoutmodel == 0)
             {
                 TabResults.TabPages.Add(doctab);
