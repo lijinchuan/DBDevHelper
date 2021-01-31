@@ -175,7 +175,8 @@ namespace APIHelper
            .AddIndex("APIId_ApiEnvId_CDate", m => m.Asc(s => s.APIId).Asc(s => s.ApiEnvId).Desc(s => s.CDate)).Build());
 
             //BigEntityTableEngine.LocalEngine.CreateTable<APIInvokeLog>(p => p.Id, p => p.AddIndex("APIId_CDate", m => m.Asc(s => s.APIId).Desc(s => s.CDate))
-           //.AddIndex("APIId_ApiEnvId_CDate", m => m.Asc(s => s.APIId).Asc(s => s.ApiEnvId).Desc(s => s.CDate)));
+            //.AddIndex("APIId_ApiEnvId_CDate", m => m.Asc(s => s.APIId).Asc(s => s.ApiEnvId).Desc(s => s.CDate)));
+            BigEntityTableEngine.LocalEngine.EnsureIndex<APIInvokeLog>(nameof(APIInvokeLog), b => b.AddIndex("CDate", m => m.Desc(s => s.CDate)).Build());
 
             //参数
             BigEntityTableEngine.LocalEngine.CreateTable<APIParam>(p => p.Id, p => p.AddIndex("APIId", m => m.Asc(s => s.APIId)));

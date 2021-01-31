@@ -22,16 +22,19 @@ namespace APIHelper.UC
 
         int _apiid = 0,_envid=0;
 
-        public void Init(int apiid,int envid)
+        public void Init(int apiid, int envid)
         {
             if (apiid != _apiid || envid != _envid)
             {
                 _apiid = apiid;
                 _envid = envid;
 
-                this.PageIndex = 1;
-                BindData();
             }
+
+            this.TBSearchKey.Visible = apiid > 0;
+
+            this.PageIndex = 1;
+            BindData();
         }
 
         public LogViewTab()
@@ -347,17 +350,34 @@ namespace APIHelper.UC
                     object logs = null;
                     if (string.IsNullOrWhiteSpace(TBSearchKey.Text) || TBSearchKey.Text.Equals(TBSearchKey.Tag))
                     {
-                        logs = BigEntityTableEngine.LocalEngine.Scan<APIInvokeLog>(nameof(APIInvokeLog), "APIId_ApiEnvId_CDate",
-                            new object[] { _apiid,_envid, EndDate.Value.Date.AddDays(1) }, new object[] { _apiid,_envid, BeginDate.Value.Date }, PageIndex == 0 ? 1 : PageIndex, pageSize, ref total).Select(p => new
-                            {
-                                编号 = p.Id,
-                                时间 = p.CDate,
-                                地址 = p.Path,
-                                请求大小=p.GetRequestDetail().Length,
-                                响应大小=p.GetRespDetail().Length,
-                                状态码 = p.StatusCode,
-                                用时 = p.Ms
-                            }).ToList();
+                        if (_apiid > 0)
+                        {
+                            logs = BigEntityTableEngine.LocalEngine.Scan<APIInvokeLog>(nameof(APIInvokeLog), "APIId_ApiEnvId_CDate",
+                                new object[] { _apiid, _envid, EndDate.Value.Date.AddDays(1) }, new object[] { _apiid, _envid, BeginDate.Value.Date }, PageIndex == 0 ? 1 : PageIndex, pageSize, ref total).Select(p => new
+                                {
+                                    编号 = p.Id,
+                                    时间 = p.CDate,
+                                    地址 = p.Path,
+                                    请求大小 = p.GetRequestDetail().Length,
+                                    响应大小 = p.GetRespDetail().Length,
+                                    状态码 = p.StatusCode,
+                                    用时 = p.Ms
+                                }).ToList();
+                        }
+                        else
+                        {
+                            logs = BigEntityTableEngine.LocalEngine.Scan<APIInvokeLog>(nameof(APIInvokeLog), "CDate",
+                                new object[] { EndDate.Value.Date.AddDays(1) }, new object[] { BeginDate.Value.Date }, PageIndex == 0 ? 1 : PageIndex, pageSize, ref total).Select(p => new
+                                {
+                                    编号 = p.Id,
+                                    时间 = p.CDate,
+                                    地址 = p.Path,
+                                    请求大小 = p.GetRequestDetail().Length,
+                                    响应大小 = p.GetRespDetail().Length,
+                                    状态码 = p.StatusCode,
+                                    用时 = p.Ms
+                                }).ToList();
+                        }
                     }
                     else
                     {
@@ -395,7 +415,7 @@ namespace APIHelper.UC
                         this.bindingNavigatorMovePreviousItem.Enabled = PageIndex > 1;
                     }));
                 }
-                catch
+                catch(Exception ex)
                 {
 
                 }

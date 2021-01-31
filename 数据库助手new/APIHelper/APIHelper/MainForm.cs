@@ -261,7 +261,7 @@ namespace APIHelper
             }
         }
 
-        public void AddTab(string title, TabPage addpage)
+        public bool AddTab(string title, TabPage addpage)
         {
             bool isExists = false;
             foreach (TabPage page in this.TabControl.TabPages)
@@ -278,7 +278,10 @@ namespace APIHelper
             {
                 this.TabControl.TabPages.Add(addpage);
                 TabControl.SelectedTab = addpage;
+                return true;
             }
+
+            return false;
         }
 
 
@@ -342,6 +345,33 @@ namespace APIHelper
         private void gUIDToolStripMenuItem_Click(object sender, EventArgs e)
         {
             System.Diagnostics.Process.Start("https://www.iamwawa.cn/guid.html");
+        }
+
+        private void 最近ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var tp = new TabPage();
+            
+            if (Util.AddToMainTab(this, "最近访问", tp))
+            {
+                var logview = new LogViewTab();
+                logview.Dock = DockStyle.Fill;
+                tp.Controls.Add(logview);
+
+                logview.Init(0, 0);
+
+                logview.ReInvoke += log =>
+                {
+                    var apiurl = BigEntityTableEngine.LocalEngine.Find<APIUrl>(nameof(APIUrl), log.APIId);
+                    if (apiurl != null)
+                    {
+                        var apisource = BigEntityTableEngine.LocalEngine.Find<APISource>(nameof(APISource), apiurl.SourceId);
+                        if (apisource != null)
+                        {
+                            Util.AddToMainTab(this, $"[{apisource.SourceName}]{apiurl.APIName}", new UCAddAPI(apiurl));
+                        }
+                    }
+                };
+            }
         }
     }
 }
