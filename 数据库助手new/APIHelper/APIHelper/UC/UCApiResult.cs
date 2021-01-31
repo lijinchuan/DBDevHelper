@@ -63,6 +63,8 @@ namespace APIHelper.UC
 
             LBStatuCode.DoubleClick += LBStatuCode_DoubleClick;
             LBStatuCode.Cursor = Cursors.Hand;
+
+            panel2.BringToFront();
             
         }
 

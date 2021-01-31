@@ -72,7 +72,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.TBResult.Location = new System.Drawing.Point(6, 41);
             this.TBResult.Name = "TBResult";
-            this.TBResult.Size = new System.Drawing.Size(455, 279);
+            this.TBResult.Size = new System.Drawing.Size(455, 300);
             this.TBResult.TabIndex = 0;
             this.TBResult.Text = "";
             // 
@@ -86,10 +86,10 @@
             this.Tabs.Controls.Add(this.TPHeader);
             this.Tabs.Controls.Add(this.TPCookie);
             this.Tabs.Controls.Add(this.TPErrors);
-            this.Tabs.Location = new System.Drawing.Point(3, 22);
+            this.Tabs.Location = new System.Drawing.Point(3, 4);
             this.Tabs.Name = "Tabs";
             this.Tabs.SelectedIndex = 0;
-            this.Tabs.Size = new System.Drawing.Size(475, 357);
+            this.Tabs.Size = new System.Drawing.Size(475, 373);
             this.Tabs.TabIndex = 1;
             // 
             // TPBody
@@ -100,7 +100,7 @@
             this.TPBody.Location = new System.Drawing.Point(4, 22);
             this.TPBody.Name = "TPBody";
             this.TPBody.Padding = new System.Windows.Forms.Padding(3);
-            this.TPBody.Size = new System.Drawing.Size(467, 331);
+            this.TPBody.Size = new System.Drawing.Size(467, 347);
             this.TPBody.TabIndex = 0;
             this.TPBody.Text = "body";
             this.TPBody.UseVisualStyleBackColor = true;
@@ -282,24 +282,24 @@
             this.查找ToolStripMenuItem,
             this.更新环境变量ToolStripMenuItem});
             this.CMSTool.Name = "CMSTool";
-            this.CMSTool.Size = new System.Drawing.Size(181, 92);
+            this.CMSTool.Size = new System.Drawing.Size(149, 70);
             // 
             // 复制ToolStripMenuItem
             // 
             this.复制ToolStripMenuItem.Name = "复制ToolStripMenuItem";
-            this.复制ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.复制ToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
             this.复制ToolStripMenuItem.Text = "复制";
             // 
             // 查找ToolStripMenuItem
             // 
             this.查找ToolStripMenuItem.Name = "查找ToolStripMenuItem";
-            this.查找ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.查找ToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
             this.查找ToolStripMenuItem.Text = "查找";
             // 
             // 更新环境变量ToolStripMenuItem
             // 
             this.更新环境变量ToolStripMenuItem.Name = "更新环境变量ToolStripMenuItem";
-            this.更新环境变量ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.更新环境变量ToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
             this.更新环境变量ToolStripMenuItem.Text = "更新环境变量";
             // 
             // UCApiResult
