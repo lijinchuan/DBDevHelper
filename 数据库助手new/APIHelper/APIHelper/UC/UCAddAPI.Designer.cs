@@ -149,9 +149,9 @@
             this.ParamDataPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.ParamDataPanel.Location = new System.Drawing.Point(8, 21);
+            this.ParamDataPanel.Location = new System.Drawing.Point(8, 6);
             this.ParamDataPanel.Name = "ParamDataPanel";
-            this.ParamDataPanel.Size = new System.Drawing.Size(725, 130);
+            this.ParamDataPanel.Size = new System.Drawing.Size(725, 145);
             this.ParamDataPanel.TabIndex = 0;
             // 
             // TP_Auth
@@ -214,9 +214,9 @@
             this.HeaderDataPannel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.HeaderDataPannel.Location = new System.Drawing.Point(7, 14);
+            this.HeaderDataPannel.Location = new System.Drawing.Point(7, 3);
             this.HeaderDataPannel.Name = "HeaderDataPannel";
-            this.HeaderDataPannel.Size = new System.Drawing.Size(178, 47);
+            this.HeaderDataPannel.Size = new System.Drawing.Size(178, 66);
             this.HeaderDataPannel.TabIndex = 1;
             // 
             // TP_Cookie
@@ -235,9 +235,9 @@
             this.CookieDataPannel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.CookieDataPannel.Location = new System.Drawing.Point(7, 14);
+            this.CookieDataPannel.Location = new System.Drawing.Point(7, 7);
             this.CookieDataPannel.Name = "CookieDataPannel";
-            this.CookieDataPannel.Size = new System.Drawing.Size(178, 47);
+            this.CookieDataPannel.Size = new System.Drawing.Size(178, 61);
             this.CookieDataPannel.TabIndex = 2;
             // 
             // TP_Body
@@ -246,7 +246,7 @@
             this.TP_Body.Controls.Add(this.PannelReqBody);
             this.TP_Body.Location = new System.Drawing.Point(4, 22);
             this.TP_Body.Name = "TP_Body";
-            this.TP_Body.Size = new System.Drawing.Size(192, 74);
+            this.TP_Body.Size = new System.Drawing.Size(739, 157);
             this.TP_Body.TabIndex = 3;
             this.TP_Body.Text = "请求体";
             this.TP_Body.UseVisualStyleBackColor = true;
@@ -256,9 +256,9 @@
             this.DataPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.DataPanel.Location = new System.Drawing.Point(3, 52);
+            this.DataPanel.Location = new System.Drawing.Point(3, 32);
             this.DataPanel.Name = "DataPanel";
-            this.DataPanel.Size = new System.Drawing.Size(167, 22);
+            this.DataPanel.Size = new System.Drawing.Size(714, 125);
             this.DataPanel.TabIndex = 7;
             // 
             // PannelReqBody
@@ -271,14 +271,14 @@
             this.PannelReqBody.Controls.Add(this.RBRow);
             this.PannelReqBody.Location = new System.Drawing.Point(3, 3);
             this.PannelReqBody.Name = "PannelReqBody";
-            this.PannelReqBody.Size = new System.Drawing.Size(714, 43);
+            this.PannelReqBody.Size = new System.Drawing.Size(714, 29);
             this.PannelReqBody.TabIndex = 6;
             // 
             // RBNone
             // 
             this.RBNone.AutoSize = true;
             this.RBNone.Checked = true;
-            this.RBNone.Location = new System.Drawing.Point(23, 13);
+            this.RBNone.Location = new System.Drawing.Point(8, 7);
             this.RBNone.Name = "RBNone";
             this.RBNone.Size = new System.Drawing.Size(47, 16);
             this.RBNone.TabIndex = 0;
@@ -291,7 +291,7 @@
             this.CBApplicationType.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.CBApplicationType.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(0)))));
             this.CBApplicationType.FormattingEnabled = true;
-            this.CBApplicationType.Location = new System.Drawing.Point(590, 12);
+            this.CBApplicationType.Location = new System.Drawing.Point(588, 5);
             this.CBApplicationType.Name = "CBApplicationType";
             this.CBApplicationType.Size = new System.Drawing.Size(121, 20);
             this.CBApplicationType.TabIndex = 5;
@@ -300,7 +300,7 @@
             // RBFormdata
             // 
             this.RBFormdata.AutoSize = true;
-            this.RBFormdata.Location = new System.Drawing.Point(85, 13);
+            this.RBFormdata.Location = new System.Drawing.Point(70, 7);
             this.RBFormdata.Name = "RBFormdata";
             this.RBFormdata.Size = new System.Drawing.Size(77, 16);
             this.RBFormdata.TabIndex = 1;
@@ -310,7 +310,7 @@
             // RBBinary
             // 
             this.RBBinary.AutoSize = true;
-            this.RBBinary.Location = new System.Drawing.Point(426, 13);
+            this.RBBinary.Location = new System.Drawing.Point(411, 7);
             this.RBBinary.Name = "RBBinary";
             this.RBBinary.Size = new System.Drawing.Size(137, 16);
             this.RBBinary.TabIndex = 4;
@@ -320,7 +320,7 @@
             // RBXwwwformurlencoded
             // 
             this.RBXwwwformurlencoded.AutoSize = true;
-            this.RBXwwwformurlencoded.Location = new System.Drawing.Point(184, 13);
+            this.RBXwwwformurlencoded.Location = new System.Drawing.Point(169, 7);
             this.RBXwwwformurlencoded.Name = "RBXwwwformurlencoded";
             this.RBXwwwformurlencoded.Size = new System.Drawing.Size(149, 16);
             this.RBXwwwformurlencoded.TabIndex = 2;
@@ -330,7 +330,7 @@
             // RBRow
             // 
             this.RBRow.AutoSize = true;
-            this.RBRow.Location = new System.Drawing.Point(356, 13);
+            this.RBRow.Location = new System.Drawing.Point(341, 7);
             this.RBRow.Name = "RBRow";
             this.RBRow.Size = new System.Drawing.Size(41, 16);
             this.RBRow.TabIndex = 3;
@@ -351,7 +351,7 @@
             this.TP_Result.Controls.Add(this.TBResult);
             this.TP_Result.Location = new System.Drawing.Point(4, 22);
             this.TP_Result.Name = "TP_Result";
-            this.TP_Result.Size = new System.Drawing.Size(192, 74);
+            this.TP_Result.Size = new System.Drawing.Size(739, 157);
             this.TP_Result.TabIndex = 5;
             this.TP_Result.Text = "结果";
             this.TP_Result.UseVisualStyleBackColor = true;
@@ -364,7 +364,7 @@
             this.TBResult.Location = new System.Drawing.Point(0, 0);
             this.TBResult.Name = "TBResult";
             this.TBResult.Raw = null;
-            this.TBResult.Size = new System.Drawing.Size(192, 74);
+            this.TBResult.Size = new System.Drawing.Size(739, 157);
             this.TBResult.TabIndex = 0;
             // 
             // TPLog
@@ -373,7 +373,7 @@
             this.TPLog.Location = new System.Drawing.Point(4, 22);
             this.TPLog.Name = "TPLog";
             this.TPLog.Padding = new System.Windows.Forms.Padding(3);
-            this.TPLog.Size = new System.Drawing.Size(739, 157);
+            this.TPLog.Size = new System.Drawing.Size(192, 74);
             this.TPLog.TabIndex = 6;
             this.TPLog.Text = "日志";
             this.TPLog.UseVisualStyleBackColor = true;
@@ -384,7 +384,7 @@
             this.TPInvokeLog.Dock = System.Windows.Forms.DockStyle.Fill;
             this.TPInvokeLog.Location = new System.Drawing.Point(3, 3);
             this.TPInvokeLog.Name = "TPInvokeLog";
-            this.TPInvokeLog.Size = new System.Drawing.Size(733, 151);
+            this.TPInvokeLog.Size = new System.Drawing.Size(186, 68);
             this.TPInvokeLog.TabIndex = 1;
             // 
             // TopPannel
