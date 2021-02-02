@@ -306,7 +306,7 @@ namespace APIHelper.UC
             }
 
             var paramlist2 = Params?.Where(p => !list.Contains(p.Name) && p.Checked);
-            if (paramlist2.Count() > 0)
+            if (paramlist2?.Count() > 0)
             {
                 if (url.IndexOf("?") == -1)
                 {
@@ -328,6 +328,7 @@ namespace APIHelper.UC
             url = ReplaceEvnParams(url, ref apiEnvParams);
             HttpRequestEx httpRequestEx = new HttpRequestEx();
             httpRequestEx.TimeOut = 3600 * 8;
+            
             url = ReplaceParams(url, Params, apiEnvParams);
 
             //httpRequestEx.Cookies.Add(new System.Net.Cookie()
@@ -873,12 +874,22 @@ namespace APIHelper.UC
 
         private void TabResults_DoubleClick(object sender, EventArgs e)
         {
+            var currtab = TabResults.SelectedTab;
             ChangeLayout();
+            if (currtab != null)
+            {
+                (currtab.Parent as TabControl).SelectedTab = currtab;
+            }
         }
 
         private void Tabs_DoubleClick(object sender, EventArgs e)
         {
+            var currtab = Tabs.SelectedTab;
             ChangeLayout();
+            if (currtab != null)
+            {
+                (currtab.Parent as TabControl).SelectedTab = currtab;
+            }
         }
 
         private void TBUrl_TextChanged(object sender, EventArgs e)
