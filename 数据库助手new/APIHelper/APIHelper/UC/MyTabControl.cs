@@ -98,7 +98,7 @@ namespace APIHelper.UC
                             if (!string.IsNullOrWhiteSpace(inputStringDlg.InputString))
                             {
                                 this.SelectedTab.Text = inputStringDlg.InputString;
-                                ResetTabs();
+                                //ResetTabs();
                                 this.Invalidate();
                             }
                         }
@@ -170,7 +170,7 @@ namespace APIHelper.UC
                         TabPages[tabex.TabIndex] = tabex.TabPage;
                         tabExDic[lasttabex.TabIndex] = lasttabex;
                         TabPages[lasttabex.TabIndex] = lasttabex.TabPage;
-                        ResetTabs();
+                        //ResetTabs();
                     }
                 }
                 this.SelectedTab = selitem.TabPage;
@@ -235,7 +235,7 @@ namespace APIHelper.UC
                 dragsourcetab.Value.Value.TabIndex = dragtargettab.Value.Key;
 
                 this.SelectedIndex = dragtargettab.Value.Key;
-                ResetTabs();
+                //ResetTabs();
                 this.Invalidate();
             }
         }
@@ -532,6 +532,7 @@ namespace APIHelper.UC
 
         protected override void OnPaint(PaintEventArgs e)
         {
+            ResetTabs();
             moretabtablelist.Clear();
             var isfull = false;
             KeyValuePair<int, TabTableTabEx>? dragtab = null;

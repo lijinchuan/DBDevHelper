@@ -31,6 +31,7 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainFrm));
             this.mainMenuBar = new System.Windows.Forms.MenuStrip();
             this.MenItem_File = new System.Windows.Forms.ToolStripMenuItem();
+            this.最近ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.SubItemEdit = new System.Windows.Forms.ToolStripMenuItem();
             this.SubItemView = new System.Windows.Forms.ToolStripMenuItem();
             this.SubItemTool = new System.Windows.Forms.ToolStripMenuItem();
@@ -56,7 +57,6 @@
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.MspPanel = new System.Windows.Forms.ToolStripStatusLabel();
             this.TSL_ClearMsg = new System.Windows.Forms.ToolStripStatusLabel();
-            this.最近ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mainMenuBar.SuspendLayout();
             this.panel1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
@@ -87,6 +87,13 @@
             this.MenItem_File.Name = "MenItem_File";
             this.MenItem_File.Size = new System.Drawing.Size(58, 21);
             this.MenItem_File.Text = "文件(F)";
+            // 
+            // 最近ToolStripMenuItem
+            // 
+            this.最近ToolStripMenuItem.Name = "最近ToolStripMenuItem";
+            this.最近ToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
+            this.最近ToolStripMenuItem.Text = "最近访问";
+            this.最近ToolStripMenuItem.Click += new System.EventHandler(this.最近ToolStripMenuItem_Click);
             // 
             // SubItemEdit
             // 
@@ -298,13 +305,6 @@
             this.TSL_ClearMsg.Visible = false;
             this.TSL_ClearMsg.Click += new System.EventHandler(this.TSL_ClearMsg_Click);
             // 
-            // 最近ToolStripMenuItem
-            // 
-            this.最近ToolStripMenuItem.Name = "最近ToolStripMenuItem";
-            this.最近ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.最近ToolStripMenuItem.Text = "最近访问";
-            this.最近ToolStripMenuItem.Click += new System.EventHandler(this.最近ToolStripMenuItem_Click);
-            // 
             // MainFrm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -318,7 +318,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.mainMenuBar;
             this.Name = "MainFrm";
-            this.Text = "接口管理工具";
+            this.Text = "流星蝴蝶剑";
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.mainMenuBar.ResumeLayout(false);
             this.mainMenuBar.PerformLayout();
