@@ -37,6 +37,8 @@ namespace APIHelper.UC
         private UC.Auth.UCNoAuth UCNoAuth = new Auth.UCNoAuth();
         private UC.Auth.UCBasicAuth BasicAuth = new Auth.UCBasicAuth();
 
+        UCApiUrlSetting ucsetting = null;
+
         private DocPage doctab = new DocPage();
 
         private int layoutmodel = -1;
@@ -328,6 +330,22 @@ namespace APIHelper.UC
             url = ReplaceEvnParams(url, ref apiEnvParams);
             HttpRequestEx httpRequestEx = new HttpRequestEx();
             httpRequestEx.TimeOut = 3600 * 8;
+
+            if (ucsetting != null)
+            {
+                if (ucsetting.TimeOut() > 0)
+                    httpRequestEx.TimeOut = ucsetting.TimeOut();
+
+                if (!ucsetting.NoPrxoy())
+                {
+                    var globProxyServer = BigEntityTableEngine.LocalEngine.Find<ProxyServer>(nameof(ProxyServer), p => p.Name == ProxyServer.GlobName).FirstOrDefault();
+                    if (globProxyServer != null && !string.IsNullOrWhiteSpace(globProxyServer.Host))
+                    {
+                        httpRequestEx.SetCredential(globProxyServer.Name, globProxyServer.Password, globProxyServer.Host);
+                    }
+                }
+
+            }
             
             url = ReplaceParams(url, Params, apiEnvParams);
 
@@ -555,13 +573,13 @@ namespace APIHelper.UC
                 RespMsg = responseEx.ErrorMsg?.ToString(),
                 Ms = responseEx.RequestMills,
                 RespSize = responseEx.ResponseBytes == null ? 0 : responseEx.ResponseBytes.Length,
-                ResponseText = responseEx.ResponseContent ?? (responseEx.ResponseBytes == null ? null : Encoding.UTF8.GetString(responseEx.ResponseBytes)),
-                APIResonseResult = new APIResonseResult
+                ResponseText = (ucsetting?.SaveResp() == true) ? (responseEx.ResponseContent ?? (responseEx.ResponseBytes == null ? null : Encoding.UTF8.GetString(responseEx.ResponseBytes))) : null,
+                APIResonseResult = (ucsetting?.SaveResp() == true) ? new APIResonseResult
                 {
                     Cookies = cookies,
                     Headers = responseEx.Headers,
                     Raw = responseEx.ResponseBytes
-                },
+                } : null,
                 APIData = GetApiData()
             };
 
@@ -756,6 +774,10 @@ namespace APIHelper.UC
 
         private void Bind()
         {
+            ucsetting = _apiUrl == null ? new UCApiUrlSetting() : new UCApiUrlSetting(_apiUrl.Id);
+            ucsetting.Dock = DockStyle.Fill;
+            TP_Setting.Controls.Add(ucsetting);
+
             TPInvokeLog.SetPageSize(10);
             ChangeLayout();
 

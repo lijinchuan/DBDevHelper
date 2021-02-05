@@ -54,6 +54,8 @@
     <Compile Include="APIResonseResult.cs" />
     <Compile Include="APISource.cs" />
     <Compile Include="APIUrl.cs" />
+    <Compile Include="ApiUrlSetting.cs" />
+    <Compile Include="ApiUrlSettingObj.cs" />
     <Compile Include="ApplicationType.cs" />
     <Compile Include="AuthType.cs" />
     <Compile Include="BodyDataType.cs" />
@@ -72,6 +74,7 @@
     <Compile Include="OldVesion\APIInvokeLog.cs" />
     <Compile Include="ParamInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ProxyServer.cs" />
     <Compile Include="RespCookie.cs" />
     <Compile Include="WatchTask\WatchTaskInfo.cs" />
     <Compile Include="WatchTask\WatchTaskLog.cs" />

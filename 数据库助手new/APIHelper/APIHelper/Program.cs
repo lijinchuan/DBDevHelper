@@ -185,6 +185,9 @@ namespace APIHelper
             //文档示例
             BigEntityTableEngine.LocalEngine.CreateTable<APIDocExample>(p => p.Id, p => p.AddIndex("ApiId", m => m.Asc(s => s.ApiId)));
 
+            BigEntityTableEngine.LocalEngine.CreateTable<ProxyServer>(p => p.Id, null);
+            BigEntityTableEngine.LocalEngine.CreateTable<ApiUrlSetting>(p => p.Id, b => b.AddIndex("ApiId", c => c.Asc(d => d.ApiId)));
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new MainFrm());

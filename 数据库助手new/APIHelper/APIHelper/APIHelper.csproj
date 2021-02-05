@@ -351,6 +351,12 @@
     <Compile Include="UC\UCApiResult.Designer.cs">
       <DependentUpon>UCApiResult.cs</DependentUpon>
     </Compile>
+    <Compile Include="UC\UCApiUrlSetting.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UC\UCApiUrlSetting.Designer.cs">
+      <DependentUpon>UCApiUrlSetting.cs</DependentUpon>
+    </Compile>
     <Compile Include="UC\UCBinary.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -374,6 +380,12 @@
     </Compile>
     <Compile Include="UC\UCParamsTable.Designer.cs">
       <DependentUpon>UCParamsTable.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UC\UCProxy.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UC\UCProxy.Designer.cs">
+      <DependentUpon>UCProxy.cs</DependentUpon>
     </Compile>
     <Compile Include="UC\UPAPIParamTable.cs">
       <SubType>UserControl</SubType>
@@ -503,6 +515,9 @@
     <EmbeddedResource Include="UC\UCApiResult.resx">
       <DependentUpon>UCApiResult.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="UC\UCApiUrlSetting.resx">
+      <DependentUpon>UCApiUrlSetting.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="UC\UCBinary.resx">
       <DependentUpon>UCBinary.cs</DependentUpon>
     </EmbeddedResource>
@@ -514,6 +529,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="UC\UCParamsTable.resx">
       <DependentUpon>UCParamsTable.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UC\UCProxy.resx">
+      <DependentUpon>UCProxy.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UC\UPAPIParamTable.resx">
       <DependentUpon>UPAPIParamTable.cs</DependentUpon>

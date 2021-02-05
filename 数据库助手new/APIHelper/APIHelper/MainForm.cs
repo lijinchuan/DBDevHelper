@@ -373,5 +373,37 @@ namespace APIHelper
                 };
             }
         }
+
+        private void 代理服务器ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var dlg = new SubForm.SubBaseDlg();
+            dlg.Text = "全局代理服务器";
+            var globProxyServer = BigEntityTableEngine.LocalEngine.Find<ProxyServer>(nameof(ProxyServer), p => p.Name.Equals(ProxyServer.GlobName)).FirstOrDefault();
+            
+            var ucproxy =new UC.UCProxy(globProxyServer);
+            ucproxy.Dock = DockStyle.Fill;
+            dlg.Controls.Add(ucproxy);
+            dlg.FormClosing += (s, ee) =>
+            {
+                var proxyserver = ucproxy.GetProxyServer();
+
+                if (ucproxy.HasChanged && MessageBox.Show("要保存吗?", "提示", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                {
+                    if (proxyserver.Id == 0)
+                    {
+                        proxyserver.Name = ProxyServer.GlobName;
+                        BigEntityTableEngine.LocalEngine.Insert<ProxyServer>(nameof(ProxyServer), proxyserver);
+                        Util.SendMsg(this, "新增成功");
+                    }
+                    else
+                    {
+                        BigEntityTableEngine.LocalEngine.Update<ProxyServer>(nameof(ProxyServer), proxyserver);
+                        Util.SendMsg(this, "修改成功");
+                    }
+                    
+                }
+            };
+            dlg.ShowDialog();
+        }
     }
 }

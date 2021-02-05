@@ -247,13 +247,16 @@ namespace Entity
             sb.AppendLine($"响应大小:{this.RespSize}B");
             sb.AppendLine();
             sb.AppendLine("headers:");
-            foreach (var h in this.APIResonseResult.Headers)
+            if (this.APIResonseResult?.Headers != null)
             {
-                sb.AppendLine($" {h.Key}:{h.Value}");
+                foreach (var h in this.APIResonseResult?.Headers)
+                {
+                    sb.AppendLine($" {h.Key}:{h.Value}");
+                }
+                sb.AppendLine();
+                sb.AppendLine("body:");
+                sb.AppendLine(this.ResponseText);
             }
-            sb.AppendLine();
-            sb.AppendLine("body:");
-            sb.AppendLine(this.ResponseText);
 
             return sb;
         }

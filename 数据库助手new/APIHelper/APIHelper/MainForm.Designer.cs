@@ -33,6 +33,7 @@
             this.MenItem_File = new System.Windows.Forms.ToolStripMenuItem();
             this.最近ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.SubItemEdit = new System.Windows.Forms.ToolStripMenuItem();
+            this.代理服务器ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.SubItemView = new System.Windows.Forms.ToolStripMenuItem();
             this.SubItemTool = new System.Windows.Forms.ToolStripMenuItem();
             this.监控任务ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -97,9 +98,18 @@
             // 
             // SubItemEdit
             // 
+            this.SubItemEdit.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.代理服务器ToolStripMenuItem});
             this.SubItemEdit.Name = "SubItemEdit";
             this.SubItemEdit.Size = new System.Drawing.Size(59, 21);
             this.SubItemEdit.Text = "编辑(E)";
+            // 
+            // 代理服务器ToolStripMenuItem
+            // 
+            this.代理服务器ToolStripMenuItem.Name = "代理服务器ToolStripMenuItem";
+            this.代理服务器ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.代理服务器ToolStripMenuItem.Text = "代理服务器";
+            this.代理服务器ToolStripMenuItem.Click += new System.EventHandler(this.代理服务器ToolStripMenuItem_Click);
             // 
             // SubItemView
             // 
@@ -362,6 +372,7 @@
         private System.Windows.Forms.ToolStripMenuItem 版本ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem gUIDToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 最近ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 代理服务器ToolStripMenuItem;
     }
 }
 
