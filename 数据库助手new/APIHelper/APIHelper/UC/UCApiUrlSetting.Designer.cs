@@ -35,6 +35,11 @@
             this.label3 = new System.Windows.Forms.Label();
             this.CBNoproxy = new System.Windows.Forms.CheckBox();
             this.BtnSave = new System.Windows.Forms.Button();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.label4 = new System.Windows.Forms.Label();
+            this.NPNumber = new System.Windows.Forms.NumericUpDown();
+            this.groupBox1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.NPNumber)).BeginInit();
             this.SuspendLayout();
             // 
             // label1
@@ -105,10 +110,38 @@
             this.BtnSave.UseVisualStyleBackColor = true;
             this.BtnSave.Click += new System.EventHandler(this.BtnSave_Click);
             // 
+            // groupBox1
+            // 
+            this.groupBox1.Controls.Add(this.NPNumber);
+            this.groupBox1.Controls.Add(this.label4);
+            this.groupBox1.Location = new System.Drawing.Point(53, 134);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(200, 60);
+            this.groupBox1.TabIndex = 7;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "并发请求";
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(15, 27);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(53, 12);
+            this.label4.TabIndex = 0;
+            this.label4.Text = "并发数：";
+            // 
+            // NPNumber
+            // 
+            this.NPNumber.Location = new System.Drawing.Point(74, 23);
+            this.NPNumber.Name = "NPNumber";
+            this.NPNumber.Size = new System.Drawing.Size(58, 21);
+            this.NPNumber.TabIndex = 1;
+            // 
             // UCApiUrlSetting
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.BtnSave);
             this.Controls.Add(this.CBNoproxy);
             this.Controls.Add(this.label3);
@@ -118,6 +151,9 @@
             this.Controls.Add(this.label1);
             this.Name = "UCApiUrlSetting";
             this.Size = new System.Drawing.Size(539, 324);
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.NPNumber)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -132,5 +168,8 @@
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.CheckBox CBNoproxy;
         private System.Windows.Forms.Button BtnSave;
+        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.NumericUpDown NPNumber;
     }
 }
