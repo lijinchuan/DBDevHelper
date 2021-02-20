@@ -321,140 +321,177 @@ namespace APIHelper.UC
             return url;
         }
 
+        private List<HttpRequestEx> PepareRequest(int number,object cancelToken)
+        {
+            List<HttpRequestEx> requestlist = new List<HttpRequestEx>();
+
+            for(var i = 0; i < number; i++)
+            {
+                List<APIEnvParam> apiEnvParams = null;
+                UCAddAPI.CheckForIllegalCrossThreadCalls = false;
+                var url = TBUrl.Text.Trim();
+                url = ReplaceEvnParams(url, ref apiEnvParams);
+                HttpRequestEx httpRequestEx = new HttpRequestEx();
+                httpRequestEx.TimeOut = 3600 * 8;
+
+                if (ucsetting != null)
+                {
+                    if (ucsetting.TimeOut() > 0)
+                        httpRequestEx.TimeOut = ucsetting.TimeOut();
+
+                    if (!ucsetting.NoPrxoy())
+                    {
+                        var globProxyServer = BigEntityTableEngine.LocalEngine.Find<ProxyServer>(nameof(ProxyServer), p => p.Name == ProxyServer.GlobName).FirstOrDefault();
+                        if (globProxyServer != null && !string.IsNullOrWhiteSpace(globProxyServer.Host))
+                        {
+                            httpRequestEx.SetCredential(globProxyServer.Name, globProxyServer.Password, globProxyServer.Host);
+                        }
+                    }
+
+                }
+
+                url = ReplaceParams(url, Params, apiEnvParams);
+
+                //httpRequestEx.Cookies.Add(new System.Net.Cookie()
+
+                if (Headers?.Count() > 0)
+                {
+                    foreach (var header in Headers)
+                    {
+                        if (header.Name.Equals("User-Agent", StringComparison.OrdinalIgnoreCase))
+                        {
+                            if (header.Checked)
+                            {
+                                httpRequestEx.UserAgent = header.Value;
+
+                            }
+                        }
+                        else if (header.Name.Equals("Accept", StringComparison.OrdinalIgnoreCase))
+                        {
+                            if (header.Checked)
+                            {
+                                httpRequestEx.Accept = header.Value;
+                            }
+                        }
+                        else if (header.Name.Equals("Expect", StringComparison.OrdinalIgnoreCase))
+                        {
+                            if (header.Checked)
+                            {
+                                httpRequestEx.Expect = header.Value;
+                            }
+                        }
+                        else if (header.Name.Equals("Connection", StringComparison.OrdinalIgnoreCase))
+                        {
+
+                        }
+                        else
+                        {
+                            if (header.Checked)
+                            {
+                                httpRequestEx.Headers.Add(ReplaceEvnParams(header.Name, ref apiEnvParams), ReplaceEvnParams(header.Value, ref apiEnvParams));
+                            }
+                        }
+                    }
+                }
+
+                if (Cookies?.Count > 0)
+                {
+                    foreach (var cookie in Cookies)
+                    {
+                        if (cookie.Checked)
+                        {
+                            httpRequestEx.AppendCookie(ReplaceEvnParams(cookie.Name, ref apiEnvParams), ReplaceEvnParams(cookie.Value, ref apiEnvParams), new Uri(url).Host, "/");
+                        }
+                    }
+                }
+
+                var authtype = GetAuthType();
+                if (authtype == AuthType.Bearer)
+                {
+                    httpRequestEx.Headers.Add("Authorization", $"Bearer {ReplaceEvnParams(UCBearToken.Token, ref apiEnvParams)}");
+                }
+                else if (authtype == AuthType.ApiKey)
+                {
+                    if (UCApiKey.AddTo == 0)
+                    {
+                        httpRequestEx.Headers.Add(ReplaceEvnParams(UCApiKey.Key, ref apiEnvParams), ReplaceEvnParams(UCApiKey.Val, ref apiEnvParams));
+                    }
+                    else
+                    {
+                        if (url.IndexOf('?') == -1)
+                        {
+                            url += $"?{ReplaceEvnParams(UCApiKey.Key, ref apiEnvParams)}={ReplaceEvnParams(UCApiKey.Val, ref apiEnvParams)}";
+                        }
+                        else
+                        {
+                            url += $"&{ReplaceEvnParams(UCApiKey.Key, ref apiEnvParams)}={ReplaceEvnParams(UCApiKey.Val, ref apiEnvParams)}";
+                        }
+                    }
+                }
+                else if (authtype == AuthType.Basic)
+                {
+                    httpRequestEx.Headers.Add("Authorization", $"Basic {Convert.ToBase64String(Encoding.UTF8.GetBytes($"{BasicAuth.Key}:{BasicAuth.Val}"))}");
+                }
+
+                requestlist.Add(httpRequestEx);
+            }
+
+            return requestlist;
+        }
+
         private void PostRequest(object cancelToken)
         {
-
-            List<APIEnvParam> apiEnvParams = null;
-            UCAddAPI.CheckForIllegalCrossThreadCalls = false;
-            var url = TBUrl.Text.Trim();
-            url = ReplaceEvnParams(url, ref apiEnvParams);
-            HttpRequestEx httpRequestEx = new HttpRequestEx();
-            httpRequestEx.TimeOut = 3600 * 8;
-
+            var number = 1;
             if (ucsetting != null)
             {
-                if (ucsetting.TimeOut() > 0)
-                    httpRequestEx.TimeOut = ucsetting.TimeOut();
-
-                if (!ucsetting.NoPrxoy())
+                if (ucsetting.PNumber() > 1)
                 {
-                    var globProxyServer = BigEntityTableEngine.LocalEngine.Find<ProxyServer>(nameof(ProxyServer), p => p.Name == ProxyServer.GlobName).FirstOrDefault();
-                    if (globProxyServer != null && !string.IsNullOrWhiteSpace(globProxyServer.Host))
-                    {
-                        httpRequestEx.SetCredential(globProxyServer.Name, globProxyServer.Password, globProxyServer.Host);
-                    }
-                }
-
-            }
-            
-            url = ReplaceParams(url, Params, apiEnvParams);
-
-            //httpRequestEx.Cookies.Add(new System.Net.Cookie()
-
-            if (Headers?.Count() > 0)
-            {
-                foreach (var header in Headers)
-                {
-                    if (header.Name.Equals("User-Agent", StringComparison.OrdinalIgnoreCase))
-                    {
-                        if (header.Checked)
-                        {
-                            httpRequestEx.UserAgent = header.Value;
-
-                        }
-                    }
-                    else if (header.Name.Equals("Accept", StringComparison.OrdinalIgnoreCase))
-                    {
-                        if (header.Checked)
-                        {
-                            httpRequestEx.Accept = header.Value;
-                        }
-                    }
-                    else if (header.Name.Equals("Expect", StringComparison.OrdinalIgnoreCase))
-                    {
-                        if (header.Checked)
-                        {
-                            httpRequestEx.Expect = header.Value;
-                        }
-                    }
-                    else if (header.Name.Equals("Connection", StringComparison.OrdinalIgnoreCase))
-                    {
-
-                    }
-                    else
-                    {
-                        if (header.Checked)
-                        {
-                            httpRequestEx.Headers.Add(ReplaceEvnParams(header.Name, ref apiEnvParams), ReplaceEvnParams(header.Value, ref apiEnvParams));
-                        }
-                    }
+                    number = ucsetting.PNumber();
                 }
             }
 
-            if (Cookies?.Count > 0)
-            {
-                foreach (var cookie in Cookies)
-                {
-                    if (cookie.Checked)
-                    {
-                        httpRequestEx.AppendCookie(ReplaceEvnParams(cookie.Name, ref apiEnvParams), ReplaceEvnParams(cookie.Value, ref apiEnvParams), new Uri(url).Host, "/");
-                    }
-                }
-            }
+            var httpRequestExList = PepareRequest(number, cancelToken);
 
-            var authtype = GetAuthType();
-            if (authtype == AuthType.Bearer)
-            {
-                httpRequestEx.Headers.Add("Authorization", $"Bearer {ReplaceEvnParams(UCBearToken.Token, ref apiEnvParams)}");
-            }
-            else if (authtype == AuthType.ApiKey)
-            {
-                if (UCApiKey.AddTo == 0)
-                {
-                    httpRequestEx.Headers.Add(ReplaceEvnParams(UCApiKey.Key, ref apiEnvParams), ReplaceEvnParams(UCApiKey.Val, ref apiEnvParams));
-                }
-                else
-                {
-                    if (url.IndexOf('?') == -1)
-                    {
-                        url += $"?{ReplaceEvnParams(UCApiKey.Key, ref apiEnvParams)}={ReplaceEvnParams(UCApiKey.Val, ref apiEnvParams)}";
-                    }
-                    else
-                    {
-                        url += $"&{ReplaceEvnParams(UCApiKey.Key, ref apiEnvParams)}={ReplaceEvnParams(UCApiKey.Val, ref apiEnvParams)}";
-                    }
-                }
-            }
-            else if (authtype == AuthType.Basic)
-            {
-                httpRequestEx.Headers.Add("Authorization", $"Basic {Convert.ToBase64String(Encoding.UTF8.GetBytes($"{BasicAuth.Key}:{BasicAuth.Val}"))}");
-            }
+            List<APIEnvParam> apiEnvParams = null;
+            var url = ReplaceEvnParams(this.TBUrl.Text, ref apiEnvParams);
 
             var bodydataType = GetBodyDataType();
-            HttpResponseEx responseEx = null;
+            List<Task<HttpResponseEx>> responseExTaskList = new List<Task<HttpResponseEx>>();
 
             if (bodydataType == BodyDataType.formdata)
             {
                 var dic = FormDatas.Where(p => p.Checked).ToDictionary(p => ReplaceEvnParams(p.Name, ref apiEnvParams), q => ReplaceEvnParams(q.Value, ref apiEnvParams));
-                responseEx = httpRequestEx.DoFormRequestAsync(url, dic, cancelToken: (CancelToken)cancelToken).Result;
+                foreach(var httpRequestEx in httpRequestExList)
+                {
+                    responseExTaskList.Add(httpRequestEx.DoFormRequestAsync(url, dic, cancelToken: (CancelToken)cancelToken));
+                }
             }
             else if (bodydataType == BodyDataType.xwwwformurlencoded)
             {
                 WebRequestMethodEnum webRequestMethodEnum = (WebRequestMethodEnum)Enum.Parse(typeof(WebRequestMethodEnum), CBWebMethod.SelectedItem.ToString());
                 var data = string.Join("&", XWWWFormUrlEncoded.Where(p => p.Checked).Select(p => $"{ReplaceEvnParams(p.Name, ref apiEnvParams)}={WebUtility.UrlEncode(ReplaceEvnParams(p.Value, ref apiEnvParams))}"));
-                responseEx = httpRequestEx.DoRequestAsync(url, data, webRequestMethodEnum, true, true, cancelToken: (CancelToken)cancelToken).Result;
+                foreach (var httpRequestEx in httpRequestExList)
+                {
+                    responseExTaskList.Add(httpRequestEx.DoRequestAsync(url, data, webRequestMethodEnum, true, true, cancelToken: (CancelToken)cancelToken));
+                }
             }
             else if (bodydataType == BodyDataType.raw)
             {
                 WebRequestMethodEnum webRequestMethodEnum = (WebRequestMethodEnum)Enum.Parse(typeof(WebRequestMethodEnum), CBWebMethod.SelectedItem.ToString());
                 var data = Encoding.UTF8.GetBytes(ReplaceEvnParams(rawTextBox.Text, ref apiEnvParams));
-                responseEx = httpRequestEx.DoRequestAsync(url, data, webRequestMethodEnum, true, true, $"application/{CBApplicationType.SelectedItem.ToString()}", (CancelToken)cancelToken).Result;
+                foreach (var httpRequestEx in httpRequestExList)
+                {
+                    responseExTaskList.Add(httpRequestEx.DoRequestAsync(url, data, webRequestMethodEnum, true, true, $"application/{CBApplicationType.SelectedItem.ToString()}", (CancelToken)cancelToken));
+                }
             }
             else if (bodydataType == BodyDataType.wcf)
             {
                 WebRequestMethodEnum webRequestMethodEnum = (WebRequestMethodEnum)Enum.Parse(typeof(WebRequestMethodEnum), CBWebMethod.SelectedItem.ToString());
                 var data = Encoding.UTF8.GetBytes(ReplaceEvnParams(rawTextBox.Text, ref apiEnvParams));
-                responseEx = httpRequestEx.DoRequestAsync(url, data, webRequestMethodEnum, true, true, $"text/{CBApplicationType.SelectedItem.ToString()}", (CancelToken)cancelToken).Result;
+                foreach (var httpRequestEx in httpRequestExList)
+                {
+                    responseExTaskList.Add(httpRequestEx.DoRequestAsync(url, data, webRequestMethodEnum, true, true, $"text/{CBApplicationType.SelectedItem.ToString()}", (CancelToken)cancelToken));
+                }
             }
             else if (bodydataType == BodyDataType.binary)
             {
@@ -501,18 +538,25 @@ namespace APIHelper.UC
                         }
                     }
                 }
-
-                responseEx = httpRequestEx.FormSubmitAsync(url, formItems, webRequestMethodEnum, saveCookie: true, (CancelToken)cancelToken).Result;
+                foreach (var httpRequestEx in httpRequestExList)
+                {
+                    responseExTaskList.Add(httpRequestEx.FormSubmitAsync(url, formItems, webRequestMethodEnum, saveCookie: true, (CancelToken)cancelToken));
+                }
             }
             else
             {
                 WebRequestMethodEnum webRequestMethodEnum = (WebRequestMethodEnum)Enum.Parse(typeof(WebRequestMethodEnum), CBWebMethod.SelectedItem.ToString());
-
-                responseEx = httpRequestEx.DoRequestAsync(url, new byte[0], webRequestMethodEnum, cancelToken: (CancelToken)cancelToken).Result;
+                foreach (var httpRequestEx in httpRequestExList)
+                {
+                    responseExTaskList.Add(httpRequestEx.DoRequestAsync(url, new byte[0], webRequestMethodEnum, cancelToken: (CancelToken)cancelToken));
+                }
             }
+
+            Task.WaitAll(responseExTaskList.ToArray());
 
             this.Invoke(new Action(() =>
             {
+                var responseEx = responseExTaskList.First().Result;
                 if (responseEx.ResponseContent != null)
                 {
                     var encode = string.IsNullOrWhiteSpace(responseEx.CharacterSet) ? Encoding.UTF8 : Encoding.GetEncoding(responseEx.CharacterSet);
@@ -530,72 +574,76 @@ namespace APIHelper.UC
                 }
             }));
 
-            if (!responseEx.Successed)
+            foreach (var item in responseExTaskList)
             {
-                this.Invoke(new Action(() => TBResult.SetError(responseEx.ErrorMsg?.Message)));
-            }
-            else
-            {
-                this.Invoke(new Action(() => TBResult.SetError(string.Empty)));
-            }
-            this.Invoke(new Action(() => TBResult.SetHeader(responseEx.Headers)));
-            var cookies = responseEx.Cookies.Select(p => new RespCookie
-            {
-                Path = p.Path,
-                Domain = p.Domain,
-                Expires = p.Expires,
-                HasKeys = p.HasKeys,
-                HttpOnly = p.HttpOnly,
-                Name = p.Name,
-                Secure = p.Secure,
-                Value = p.Value
-            }).ToList();
-            this.Invoke(new Action(() => TBResult.SetCookie(cookies)));
-
-            this.Invoke(new Action(() => TBResult.SetOther(responseEx.StatusCode, responseEx.StatusDescription, responseEx.RequestMills,
-                responseEx.ResponseBytes == null ? 0 : responseEx.ResponseBytes.Length)));
-
-            TBResult.APIEnv = GetEnv();
-
-            APIInvokeLog log = new APIInvokeLog
-            {
-                APIId = _apiUrl.Id,
-                ApiEnvId = GetEnvId(),
-                AuthType = GetAuthType(),
-                ApplicationType = GetCBApplicationType(),
-                BodyDataType = GetBodyDataType(),
-                APIMethod = GetAPIMethod(),
-                APIName = _apiUrl.APIName,
-                CDate = DateTime.Now,
-                Path = url,
-                SourceId = _apiUrl.SourceId,
-                StatusCode = responseEx.StatusCode,
-                RespMsg = responseEx.ErrorMsg?.ToString(),
-                Ms = responseEx.RequestMills,
-                RespSize = responseEx.ResponseBytes == null ? 0 : responseEx.ResponseBytes.Length,
-                ResponseText = (ucsetting?.SaveResp() == true) ? (responseEx.ResponseContent ?? (responseEx.ResponseBytes == null ? null : Encoding.UTF8.GetString(responseEx.ResponseBytes))) : null,
-                APIResonseResult = (ucsetting?.SaveResp() == true) ? new APIResonseResult
+                var responseEx = item.Result;
+                if (!responseEx.Successed)
                 {
-                    Cookies = cookies,
-                    Headers = responseEx.Headers,
-                    Raw = responseEx.ResponseBytes
-                } : null,
-                APIData = GetApiData()
-            };
-
-            if (log.ResponseText != null)
-            {
-                try
-                {
-                    var jsonobj = JsonConvert.DeserializeObject<dynamic>(log.ResponseText);
-                    log.ResponseText = JsonConvert.SerializeObject(jsonobj, Formatting.Indented);
+                    this.Invoke(new Action(() => TBResult.SetError(responseEx.ErrorMsg?.Message)));
                 }
-                catch
+                else
                 {
-
+                    this.Invoke(new Action(() => TBResult.SetError(string.Empty)));
                 }
+                this.Invoke(new Action(() => TBResult.SetHeader(responseEx.Headers)));
+                var cookies = responseEx.Cookies.Select(p => new RespCookie
+                {
+                    Path = p.Path,
+                    Domain = p.Domain,
+                    Expires = p.Expires,
+                    HasKeys = p.HasKeys,
+                    HttpOnly = p.HttpOnly,
+                    Name = p.Name,
+                    Secure = p.Secure,
+                    Value = p.Value
+                }).ToList();
+                this.Invoke(new Action(() => TBResult.SetCookie(cookies)));
+
+                this.Invoke(new Action(() => TBResult.SetOther(responseEx.StatusCode, responseEx.StatusDescription, responseEx.RequestMills,
+                    responseEx.ResponseBytes == null ? 0 : responseEx.ResponseBytes.Length)));
+
+                TBResult.APIEnv = GetEnv();
+
+                APIInvokeLog log = new APIInvokeLog
+                {
+                    APIId = _apiUrl.Id,
+                    ApiEnvId = GetEnvId(),
+                    AuthType = GetAuthType(),
+                    ApplicationType = GetCBApplicationType(),
+                    BodyDataType = GetBodyDataType(),
+                    APIMethod = GetAPIMethod(),
+                    APIName = _apiUrl.APIName,
+                    CDate = DateTime.Now,
+                    Path = url,
+                    SourceId = _apiUrl.SourceId,
+                    StatusCode = responseEx.StatusCode,
+                    RespMsg = responseEx.ErrorMsg?.ToString(),
+                    Ms = responseEx.RequestMills,
+                    RespSize = responseEx.ResponseBytes == null ? 0 : responseEx.ResponseBytes.Length,
+                    ResponseText = (ucsetting?.SaveResp() == true) ? (responseEx.ResponseContent ?? (responseEx.ResponseBytes == null ? null : Encoding.UTF8.GetString(responseEx.ResponseBytes))) : null,
+                    APIResonseResult = (ucsetting?.SaveResp() == true) ? new APIResonseResult
+                    {
+                        Cookies = cookies,
+                        Headers = responseEx.Headers,
+                        Raw = responseEx.ResponseBytes
+                    } : null,
+                    APIData = GetApiData()
+                };
+
+                if (log.ResponseText != null)
+                {
+                    try
+                    {
+                        var jsonobj = JsonConvert.DeserializeObject<dynamic>(log.ResponseText);
+                        log.ResponseText = JsonConvert.SerializeObject(jsonobj, Formatting.Indented);
+                    }
+                    catch
+                    {
+
+                    }
+                }
+                BigEntityTableEngine.LocalEngine.Insert(nameof(APIInvokeLog), log);
             }
-            BigEntityTableEngine.LocalEngine.Insert(nameof(APIInvokeLog), log);
 
         }
 
@@ -632,6 +680,16 @@ namespace APIHelper.UC
                 return;
             }
 
+            if (ucsetting != null)
+            {
+                if (ucsetting.PNumber() > 1)
+                {
+                    if (MessageBox.Show("配置要发送" + ucsetting.PNumber() + "个并发，确认吗", "提示", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
+                    {
+                        ucsetting.ResetPNumber();
+                    }
+                }
+            }
             (TP_Result.Parent as TabControl).SelectedTab = TP_Result;
             CancelToken cancelToken = new CancelToken();
             loadbox.Waiting(this.TP_Result, PostRequest, cancelToken, () => cancelToken.Cancel = true);

@@ -20,6 +20,15 @@ namespace Entity
             set;
         }
 
+        /// <summary>
+        /// 并发请求数
+        /// </summary>
+        public int PSendNumber
+        {
+            get;
+            set;
+        } = 1;
+
         public bool SaveResp
         {
             get;

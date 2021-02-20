@@ -48,6 +48,20 @@ namespace APIHelper.UC
             return _apiUrlSettingObj?.TimeOut ?? 0;
         }
 
+        public int PNumber()
+        {
+            return _apiUrlSettingObj?.PSendNumber ?? 1;
+        }
+
+        public void ResetPNumber()
+        {
+            if (_apiUrlSettingObj != null)
+                _apiUrlSettingObj.PSendNumber = 1;
+            NPNumber.Value = 1;
+
+            BtnSave_Click(null, null);
+        }
+
         private void Init()
         {
             if (_apiid > 0)
@@ -67,6 +81,7 @@ namespace APIHelper.UC
                 this.TBTimeOut.Text = _apiUrlSettingObj.TimeOut.ToString();
                 this.CBNoproxy.Checked = _apiUrlSettingObj.NoPrxoy;
                 this.CBSaveResp.Checked = _apiUrlSettingObj.SaveResp;
+                this.NPNumber.Value = _apiUrlSettingObj.PSendNumber;
             }
         }
 
@@ -85,7 +100,8 @@ namespace APIHelper.UC
                 {
                     NoPrxoy = CBNoproxy.Checked,
                     SaveResp = CBSaveResp.Checked,
-                    TimeOut = int.Parse(TBTimeOut.Text)
+                    TimeOut = int.Parse(TBTimeOut.Text),
+                    PSendNumber = (int)NPNumber.Value
                 };
                 _apiUrlSetting.SettingJson = Newtonsoft.Json.JsonConvert.SerializeObject(newapiUrlSettingObj);
                 if (_apiUrlSetting.Id == 0)
