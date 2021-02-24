@@ -586,7 +586,7 @@ namespace APIHelper.UC
                     this.Invoke(new Action(() => TBResult.SetError(string.Empty)));
                 }
                 this.Invoke(new Action(() => TBResult.SetHeader(responseEx.Headers)));
-                var cookies = responseEx.Cookies.Select(p => new RespCookie
+                var cookies = responseEx.Cookies?.Select(p => new RespCookie
                 {
                     Path = p.Path,
                     Domain = p.Domain,

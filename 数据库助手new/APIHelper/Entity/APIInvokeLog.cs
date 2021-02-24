@@ -197,7 +197,7 @@ namespace Entity
             {
                 sb.AppendLine($" xwwwformurlencoded:{string.Join("&", this.APIData?.XWWWFormUrlEncoded.Where(p => p.Checked).Select(p => p.Name + "=" + p.Value))}");
             }
-            else if (bodydataType == BodyDataType.raw)
+            else if (bodydataType == BodyDataType.raw || bodydataType == BodyDataType.wcf)
             {
                 sb.AppendLine($"raw:{this.APIData?.RawText}");
             }
@@ -226,7 +226,7 @@ namespace Entity
             {
                 sb.AppendLine($"{string.Join("&", this.APIData?.XWWWFormUrlEncoded.Where(p => p.Checked).Select(p => p.Name + "=" + p.Value))}");
             }
-            else if (bodydataType == BodyDataType.raw)
+            else if (bodydataType == BodyDataType.raw || bodydataType == BodyDataType.wcf)
             {
                 sb.AppendLine($"{this.APIData?.RawText}");
             }
