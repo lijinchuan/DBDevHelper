@@ -594,6 +594,9 @@
     <None Include="Resources\folder_database.png" />
     <None Include="Resources\disk_black.png" />
     <None Include="Resources\disk_black1.png" />
+    <None Include="Resources\control_add.png" />
+    <None Include="Resources\control_remove.png" />
+    <None Include="Resources\help.png" />
     <Content Include="Resources\loading2.gif" />
     <Content Include="Resources\msg.png" />
     <None Include="Resources\script_code_no.png" />

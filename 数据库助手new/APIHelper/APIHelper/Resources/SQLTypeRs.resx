@@ -124,6 +124,12 @@
   <data name="CHAR" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>text_ab.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="control_add" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>control_add.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="control_remove" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>control_remove.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="DATE" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>date.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
