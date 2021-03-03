@@ -659,6 +659,14 @@ namespace APIHelper
                     find = matchall ? text.Equals(txt, StringComparison.OrdinalIgnoreCase) : text.IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1;
                 }
             }
+            if (!find)
+            {
+                if(nodeStart.Tag is APIEnvParam)
+                {
+                    var envparam = nodeStart.Tag as APIEnvParam;
+                    find = matchall ? txt.Equals(envparam.Val, StringComparison.OrdinalIgnoreCase) : envparam.Val?.IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1;
+                }
+            }
             if (find)
             {
                 tv_DBServers.SelectedNode = nodeStart;
