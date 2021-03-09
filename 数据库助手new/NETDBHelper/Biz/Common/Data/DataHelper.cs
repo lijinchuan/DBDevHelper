@@ -7,6 +7,7 @@ using System.CodeDom.Compiler;
 using System.Reflection;
 using Entity;
 using System.Text.RegularExpressions;
+using System.Collections;
 
 namespace Biz.Common.Data
 {
@@ -545,6 +546,27 @@ namespace Biz.Common.Data
 
             StringBuilder sb = new StringBuilder(string.Format("namespace {0}\r\n", classnamespace));
             sb.AppendLine("{");
+
+
+            //类注释
+            string tbdesc = null;
+            var item = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys", new[] { dbname.ToUpper(), tbname.ToUpper(), string.Empty }).FirstOrDefault();
+            if (item == null)
+            {
+                var tb = SQLHelper.GetTableDescription(dbsource, dbname, tbname);
+                if (tb.Rows.Count > 0)
+                {
+                    tbdesc = (string)tb.Rows[0]["desc"];
+                }
+            }
+            else
+            {
+                tbdesc = item.MarkInfo;
+            }
+            sb.AppendLine(@"    /// <summary>");
+            sb.AppendLine($@"    /// {tbdesc}");
+            sb.AppendLine(@"    /// </summary>");
+
             if (isSupportProtobuf)
                 sb.AppendLine("    [ProtoContract]");
             if (isSupportDBMapperAttr)

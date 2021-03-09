@@ -64,6 +64,19 @@ namespace Biz.Common.Data
                                 ORDER  
                                     BY OBJECT_NAME(c.object_id), c.column_id";
 
+        /// <summary>
+        /// 所有的表说明
+        /// </summary>
+        public const string GetTablesDescription = @"select  a.name, 
+                isnull(g.[value],'') as [desc] from sys.tables a left join sys.extended_properties g on (a.object_id = g.major_id AND g.minor_id = 0)";
+
+        /// <summary>
+        /// 单个表说明
+        /// </summary>
+        public const string GetTableDescription = @"select  a.name, 
+isnull(g.[value],'') as [desc] from sys.tables a left join sys.extended_properties g on (a.object_id = g.major_id AND g.minor_id = 0)
+where a.name=@name";
+
         public const string SQL_GETINDEXLIST = @"SELECT a.object_id
                       ,b.name AS schema_name
                       ,a.name AS table_name

@@ -76,6 +76,24 @@ namespace Biz.Common.Data
             return ExecuteDBTable(dbSource, dbName, SQLHelperConsts.GetTableColsDescription, tbName == null ? null : new SqlParameter("@TbName", tbName));
         }
 
+        /// <summary>
+        /// 取表说明
+        /// </summary>
+        /// <param name="dBSource">name,desc</param>
+        /// <param name="tbName">空取所有的表说明，不空取单个表说明</param>
+        /// <returns></returns>
+        public static DataTable GetTableDescription(DBSource dBSource, string dbName, string tbName)
+        {
+            if (string.IsNullOrWhiteSpace(tbName))
+            {
+                return ExecuteDBTable(dBSource, dbName, SQLHelperConsts.GetTablesDescription, null);
+            }
+            else
+            {
+                return ExecuteDBTable(dBSource, dbName, SQLHelperConsts.GetTableDescription, new SqlParameter("@name", tbName));
+            }
+        }
+
         public static IEnumerable<TBColumn> GetColumns(DBSource dbSource, string dbName, string tbid,string tbName)
         {
             var tb= ExecuteDBTable(dbSource, dbName, SQLHelperConsts.GetColumns, new SqlParameter("@id", tbid));
