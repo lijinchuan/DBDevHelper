@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
+using System.Xml.Linq;
 using System.Xml.Serialization;
 
 namespace Biz.WCF
@@ -237,6 +238,7 @@ namespace Biz.WCF
 
             StringBuilder sb = new StringBuilder();
             XmlWriterSettings settings = new XmlWriterSettings();
+            settings.Indent = true;
             // Remove the <?xml version="1.0" encoding="utf-8"?> 
             settings.OmitXmlDeclaration = true;
 

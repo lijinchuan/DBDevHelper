@@ -430,7 +430,7 @@ namespace APIHelper.UC
                 }
                 else if (authtype == AuthType.Basic)
                 {
-                    httpRequestEx.Headers.Add("Authorization", $"Basic {Convert.ToBase64String(Encoding.UTF8.GetBytes($"{BasicAuth.Key}:{BasicAuth.Val}"))}");
+                    httpRequestEx.Headers.Add("Authorization", $"Basic {Convert.ToBase64String(Encoding.UTF8.GetBytes($"{ReplaceEvnParams(BasicAuth.Key, ref apiEnvParams)}:{ReplaceEvnParams(BasicAuth.Val, ref apiEnvParams)}"))}");
                 }
 
                 requestlist.Add(httpRequestEx);
