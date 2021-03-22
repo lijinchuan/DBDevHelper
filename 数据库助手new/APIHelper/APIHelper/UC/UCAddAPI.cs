@@ -276,7 +276,6 @@ namespace APIHelper.UC
             if (apiEnvParams == null)
             {
                 apiEnvParams = BigEntityTableEngine.LocalEngine.Find<APIEnvParam>(nameof(APIEnvParam), "APISourceId_EnvId", new object[] { _apiUrl.SourceId, GetEnvId() }).ToList();
-
             }
 
             if (apiEnvParams.Count == 0)
@@ -294,7 +293,7 @@ namespace APIHelper.UC
             return sb.ToString();
         }
 
-        private string ReplaceParams(string url, List<ParamInfo> paramlist, List<APIEnvParam> apiEnvParams)
+        private string ReplaceParams(ref string url, List<ParamInfo> paramlist, List<APIEnvParam> apiEnvParams)
         {
             var ms = Regex.Matches(url, @"(?<!\{)\{(\w+)\}(?!\})");
             List<string> list = new List<string>();
@@ -321,15 +320,13 @@ namespace APIHelper.UC
             return url;
         }
 
-        private List<HttpRequestEx> PepareRequest(int number,object cancelToken)
+        private List<HttpRequestEx> PepareRequest(ref string url, List<APIEnvParam> apiEnvParams,int number,object cancelToken)
         {
             List<HttpRequestEx> requestlist = new List<HttpRequestEx>();
 
             for(var i = 0; i < number; i++)
             {
-                List<APIEnvParam> apiEnvParams = null;
                 UCAddAPI.CheckForIllegalCrossThreadCalls = false;
-                var url = TBUrl.Text.Trim();
                 url = ReplaceEvnParams(url, ref apiEnvParams);
                 HttpRequestEx httpRequestEx = new HttpRequestEx();
                 httpRequestEx.TimeOut = 3600 * 8;
@@ -350,7 +347,7 @@ namespace APIHelper.UC
 
                 }
 
-                url = ReplaceParams(url, Params, apiEnvParams);
+                url = ReplaceParams(ref url, Params, apiEnvParams);
 
                 //httpRequestEx.Cookies.Add(new System.Net.Cookie()
 
@@ -450,11 +447,12 @@ namespace APIHelper.UC
                 }
             }
 
-            var httpRequestExList = PepareRequest(number, cancelToken);
+            List<APIEnvParam> apiEnvParams = apiEnvParams = BigEntityTableEngine.LocalEngine.Find<APIEnvParam>(nameof(APIEnvParam), "APISourceId_EnvId", new object[] { _apiUrl.SourceId, GetEnvId() }).ToList();
 
-            List<APIEnvParam> apiEnvParams = null;
-            var url = ReplaceEvnParams(this.TBUrl.Text, ref apiEnvParams);
+            var url = TBUrl.Text;
+            var httpRequestExList = PepareRequest(ref url, apiEnvParams, number, cancelToken);
 
+           
             var bodydataType = GetBodyDataType();
             List<Task<HttpResponseEx>> responseExTaskList = new List<Task<HttpResponseEx>>();
 
