@@ -973,11 +973,16 @@ namespace APIHelper.UC
         private void TBUrl_TextChanged(object sender, EventArgs e)
         {
             var ms = Regex.Matches(TBUrl.Text, @"(?<!\{)\{(\w+)\}(?!\})");
+            string urlparamsdesc = "url参数";
             if (ms.Count > 0)
             {
                 if (this.Params == null)
                 {
                     this.Params = new List<ParamInfo>();
+                }
+                else
+                {
+                    this.Params = this.Params.Where(p => p.Desc != urlparamsdesc).ToList();
                 }
 
                 foreach(Match m in ms)
@@ -988,10 +993,10 @@ namespace APIHelper.UC
                     }
                     this.Params.Add(new ParamInfo
                     {
-                        Checked=true,
-                        Name=m.Groups[1].Value,
-                        Value="",
-                        Desc=""
+                        Checked = true,
+                        Name = m.Groups[1].Value,
+                        Value = "",
+                        Desc = urlparamsdesc
                     });
                 }
 
