@@ -641,7 +641,7 @@ namespace Biz.Common.Data
                     }
                     else
                     {
-                        sbreader.AppendLine("   item." + Biz.Common.StringHelper.FirstToUpper(column.Name) + "=reader[\"" + column.Name + "\"]==DBNull.Value?default(" + Biz.Common.Data.Common.DbTypeToNetType(column.TypeName, false) + "):(" + Biz.Common.Data.Common.DbTypeToNetType(column.TypeName, column.IsNullAble) + ")reader[\"" + column.Name + "\"];");
+                        sbreader.AppendLine("   item." + Biz.Common.StringHelper.FirstToUpper(column.Name) + "=reader[\"" + column.Name + "\"]==DBNull.Value?default(" + Biz.Common.Data.Common.DbTypeToNetType(column.TypeName, column.IsNullAble) + "):(" + Biz.Common.Data.Common.DbTypeToNetType(column.TypeName, column.IsNullAble) + ")reader[\"" + column.Name + "\"];");
                     }
                     sbreader.AppendLine("}");
                 }

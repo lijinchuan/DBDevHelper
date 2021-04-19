@@ -92,7 +92,7 @@ namespace Biz.Common.Data
                 return "System.Data.DbType.String";
             if(sqlType.IndexOf("decimal",StringComparison.OrdinalIgnoreCase)>-1)
                 return "System.Data.DbType.Decimal";
-            switch (sqlType.ToLower())
+            switch (sqlType.Split('(').First().ToLower())
             {
                 case "bigint":
                     return "System.Data.DbType.Int64";
@@ -105,8 +105,11 @@ namespace Biz.Common.Data
                 case "datetime":
                     return "System.Data.DbType.DateTime";
                 case "money":
-                    return "System.Data.DbType.Decimal";
                 case "decimal":
+                    return "System.Data.DbType.Decimal";
+                case "float":
+                case "double":
+                    return "System.Data.DbType.Double";
                 default:
                     return "unknow";
             }
