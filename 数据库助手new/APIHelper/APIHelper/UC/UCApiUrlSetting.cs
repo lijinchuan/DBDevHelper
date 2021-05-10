@@ -62,6 +62,11 @@ namespace APIHelper.UC
             BtnSave_Click(null, null);
         }
 
+        public bool CreateSSLTLSSecureChannel()
+        {
+            return _apiUrlSettingObj?.Create_SSL_TLS_secure_channel ?? false;
+        }
+
         private void Init()
         {
             if (_apiid > 0)
@@ -82,6 +87,7 @@ namespace APIHelper.UC
                 this.CBNoproxy.Checked = _apiUrlSettingObj.NoPrxoy;
                 this.CBSaveResp.Checked = _apiUrlSettingObj.SaveResp;
                 this.NPNumber.Value = _apiUrlSettingObj.PSendNumber;
+                this.CBCreakSSLChannel.Checked = _apiUrlSettingObj.Create_SSL_TLS_secure_channel;
             }
         }
 
@@ -101,7 +107,8 @@ namespace APIHelper.UC
                     NoPrxoy = CBNoproxy.Checked,
                     SaveResp = CBSaveResp.Checked,
                     TimeOut = int.Parse(TBTimeOut.Text),
-                    PSendNumber = (int)NPNumber.Value
+                    PSendNumber = (int)NPNumber.Value,
+                    Create_SSL_TLS_secure_channel = CBCreakSSLChannel.Checked
                 };
                 _apiUrlSetting.SettingJson = Newtonsoft.Json.JsonConvert.SerializeObject(newapiUrlSettingObj);
                 if (_apiUrlSetting.Id == 0)

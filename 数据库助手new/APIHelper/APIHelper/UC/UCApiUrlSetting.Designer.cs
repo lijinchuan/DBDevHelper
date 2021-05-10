@@ -36,8 +36,9 @@
             this.CBNoproxy = new System.Windows.Forms.CheckBox();
             this.BtnSave = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.label4 = new System.Windows.Forms.Label();
             this.NPNumber = new System.Windows.Forms.NumericUpDown();
+            this.label4 = new System.Windows.Forms.Label();
+            this.CBCreakSSLChannel = new System.Windows.Forms.CheckBox();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.NPNumber)).BeginInit();
             this.SuspendLayout();
@@ -121,6 +122,13 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "并发请求";
             // 
+            // NPNumber
+            // 
+            this.NPNumber.Location = new System.Drawing.Point(74, 23);
+            this.NPNumber.Name = "NPNumber";
+            this.NPNumber.Size = new System.Drawing.Size(58, 21);
+            this.NPNumber.TabIndex = 1;
+            // 
             // label4
             // 
             this.label4.AutoSize = true;
@@ -130,17 +138,21 @@
             this.label4.TabIndex = 0;
             this.label4.Text = "并发数：";
             // 
-            // NPNumber
+            // CBCreakSSLChannel
             // 
-            this.NPNumber.Location = new System.Drawing.Point(74, 23);
-            this.NPNumber.Name = "NPNumber";
-            this.NPNumber.Size = new System.Drawing.Size(58, 21);
-            this.NPNumber.TabIndex = 1;
+            this.CBCreakSSLChannel.AutoSize = true;
+            this.CBCreakSSLChannel.Location = new System.Drawing.Point(75, 221);
+            this.CBCreakSSLChannel.Name = "CBCreakSSLChannel";
+            this.CBCreakSSLChannel.Size = new System.Drawing.Size(198, 16);
+            this.CBCreakSSLChannel.TabIndex = 8;
+            this.CBCreakSSLChannel.Text = "create SSL/TLS secure channel";
+            this.CBCreakSSLChannel.UseVisualStyleBackColor = true;
             // 
             // UCApiUrlSetting
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.CBCreakSSLChannel);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.BtnSave);
             this.Controls.Add(this.CBNoproxy);
@@ -171,5 +183,6 @@
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.NumericUpDown NPNumber;
+        private System.Windows.Forms.CheckBox CBCreakSSLChannel;
     }
 }

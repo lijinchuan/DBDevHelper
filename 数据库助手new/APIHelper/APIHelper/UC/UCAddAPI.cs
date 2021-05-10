@@ -452,6 +452,15 @@ namespace APIHelper.UC
             var url = TBUrl.Text;
             var httpRequestExList = PepareRequest(ref url, apiEnvParams, number, cancelToken);
 
+            if (url.StartsWith("https:", StringComparison.OrdinalIgnoreCase)
+                && ucsetting.CreateSSLTLSSecureChannel())
+            {
+                System.Net.ServicePointManager.SecurityProtocol =
+                                          System.Net.SecurityProtocolType.Tls
+                                        | System.Net.SecurityProtocolType.Tls11
+                                        | System.Net.SecurityProtocolType.Tls12
+                                        | System.Net.SecurityProtocolType.Ssl3;
+            }
            
             var bodydataType = GetBodyDataType();
             List<Task<HttpResponseEx>> responseExTaskList = new List<Task<HttpResponseEx>>();

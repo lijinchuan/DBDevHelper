@@ -17,6 +17,7 @@ namespace APIHelper.UC
     {
         //private APIUrl APIUrl = null;
         private APIEnv apiEnv = null;
+        private UC.UCJsonViewer UCJsonViewer = null;
         public UCApiResult()
         {
             InitializeComponent();
@@ -65,6 +66,11 @@ namespace APIHelper.UC
             LBStatuCode.Cursor = Cursors.Hand;
 
             panel2.BringToFront();
+
+            UCJsonViewer = new UCJsonViewer();
+            UCJsonViewer.Visible = false;
+            UCJsonViewer.Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right | AnchorStyles.Bottom;
+            this.TPBody.Controls.Add(UCJsonViewer);
             
         }
 
@@ -304,6 +310,8 @@ namespace APIHelper.UC
             }
         }
 
+
+
         private void ShowResult()
         {
             if (Raw != null && Raw.Length > 0)
@@ -311,11 +319,26 @@ namespace APIHelper.UC
                 var html = (this.CBEncode.SelectedItem as Encoding).GetString(Raw);
                 if (RBRow.Checked)
                 {
+                    TBResult.Visible = true;
+                    UCJsonViewer.Visible = false;
                     this.TBResult.Text = html;
                     this.WBResult.DocumentText = html;
                 }
+                else if (RBTree.Checked)
+                {
+                    this.WBResult.DocumentText = html;
+                    UCJsonViewer.DataSource = html;
+                    UCJsonViewer.Location = TBResult.Location;
+                    UCJsonViewer.Height = TBResult.Height;
+                    UCJsonViewer.Width = TBResult.Width;
+                    TBResult.Visible = false;
+                    UCJsonViewer.Visible = true;
+                    UCJsonViewer.BindDataSource();
+                }
                 else
                 {
+                    TBResult.Visible = true;
+                    UCJsonViewer.Visible = false;
                     html = html.Trim();
                     bool isjson = false;
                     try
@@ -340,7 +363,7 @@ namespace APIHelper.UC
                     }
                     catch
                     {
-                        isjson = false;   
+                        isjson = false;
                     }
 
                     if (!isjson)
@@ -398,6 +421,11 @@ namespace APIHelper.UC
             {
                 apiEnv = value;
             }
-        } 
+        }
+
+        private void RBTree_CheckedChanged(object sender, EventArgs e)
+        {
+            this.ShowResult();
+        }
     }
 }

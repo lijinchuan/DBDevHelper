@@ -34,5 +34,11 @@ namespace Entity
             get;
             set;
         } = true;
+
+        public bool Create_SSL_TLS_secure_channel
+        {
+            get;
+            set;
+        } = true;
     }
 }

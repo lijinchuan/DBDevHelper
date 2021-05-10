@@ -52,6 +52,7 @@
             this.复制ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.查找ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.更新环境变量ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.RBTree = new System.Windows.Forms.RadioButton();
             this.Tabs.SuspendLayout();
             this.TPBody.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -107,11 +108,12 @@
             // 
             // panel1
             // 
+            this.panel1.Controls.Add(this.RBTree);
             this.panel1.Controls.Add(this.RBFormat);
             this.panel1.Controls.Add(this.RBRow);
             this.panel1.Location = new System.Drawing.Point(6, 6);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(162, 29);
+            this.panel1.Size = new System.Drawing.Size(292, 29);
             this.panel1.TabIndex = 4;
             // 
             // RBFormat
@@ -129,7 +131,7 @@
             // RBRow
             // 
             this.RBRow.AutoSize = true;
-            this.RBRow.Location = new System.Drawing.Point(75, 7);
+            this.RBRow.Location = new System.Drawing.Point(158, 7);
             this.RBRow.Name = "RBRow";
             this.RBRow.Size = new System.Drawing.Size(71, 16);
             this.RBRow.TabIndex = 2;
@@ -151,7 +153,7 @@
             this.TPBrowser.Location = new System.Drawing.Point(4, 22);
             this.TPBrowser.Name = "TPBrowser";
             this.TPBrowser.Padding = new System.Windows.Forms.Padding(3);
-            this.TPBrowser.Size = new System.Drawing.Size(467, 331);
+            this.TPBrowser.Size = new System.Drawing.Size(467, 347);
             this.TPBrowser.TabIndex = 4;
             this.TPBrowser.Text = "浏览器";
             this.TPBrowser.UseVisualStyleBackColor = true;
@@ -162,7 +164,7 @@
             this.WBResult.Location = new System.Drawing.Point(3, 3);
             this.WBResult.MinimumSize = new System.Drawing.Size(20, 20);
             this.WBResult.Name = "WBResult";
-            this.WBResult.Size = new System.Drawing.Size(461, 325);
+            this.WBResult.Size = new System.Drawing.Size(461, 341);
             this.WBResult.TabIndex = 0;
             // 
             // TPHeader
@@ -171,7 +173,7 @@
             this.TPHeader.Location = new System.Drawing.Point(4, 22);
             this.TPHeader.Name = "TPHeader";
             this.TPHeader.Padding = new System.Windows.Forms.Padding(3);
-            this.TPHeader.Size = new System.Drawing.Size(467, 331);
+            this.TPHeader.Size = new System.Drawing.Size(467, 347);
             this.TPHeader.TabIndex = 1;
             this.TPHeader.Text = "header";
             this.TPHeader.UseVisualStyleBackColor = true;
@@ -186,7 +188,7 @@
             this.DGVHeader.Location = new System.Drawing.Point(3, 3);
             this.DGVHeader.Name = "DGVHeader";
             this.DGVHeader.RowTemplate.Height = 23;
-            this.DGVHeader.Size = new System.Drawing.Size(461, 325);
+            this.DGVHeader.Size = new System.Drawing.Size(461, 341);
             this.DGVHeader.TabIndex = 0;
             // 
             // TPCookie
@@ -194,7 +196,7 @@
             this.TPCookie.Controls.Add(this.DGVCookie);
             this.TPCookie.Location = new System.Drawing.Point(4, 22);
             this.TPCookie.Name = "TPCookie";
-            this.TPCookie.Size = new System.Drawing.Size(467, 331);
+            this.TPCookie.Size = new System.Drawing.Size(467, 347);
             this.TPCookie.TabIndex = 2;
             this.TPCookie.Text = "Cookie";
             this.TPCookie.UseVisualStyleBackColor = true;
@@ -209,7 +211,7 @@
             this.DGVCookie.Location = new System.Drawing.Point(0, 0);
             this.DGVCookie.Name = "DGVCookie";
             this.DGVCookie.RowTemplate.Height = 23;
-            this.DGVCookie.Size = new System.Drawing.Size(467, 331);
+            this.DGVCookie.Size = new System.Drawing.Size(467, 347);
             this.DGVCookie.TabIndex = 1;
             // 
             // TPErrors
@@ -218,7 +220,7 @@
             this.TPErrors.Location = new System.Drawing.Point(4, 22);
             this.TPErrors.Name = "TPErrors";
             this.TPErrors.Padding = new System.Windows.Forms.Padding(3);
-            this.TPErrors.Size = new System.Drawing.Size(467, 331);
+            this.TPErrors.Size = new System.Drawing.Size(467, 347);
             this.TPErrors.TabIndex = 3;
             this.TPErrors.Text = "错误";
             this.TPErrors.UseVisualStyleBackColor = true;
@@ -231,7 +233,7 @@
             this.TBErrors.Multiline = true;
             this.TBErrors.Name = "TBErrors";
             this.TBErrors.ReadOnly = true;
-            this.TBErrors.Size = new System.Drawing.Size(461, 325);
+            this.TBErrors.Size = new System.Drawing.Size(461, 341);
             this.TBErrors.TabIndex = 0;
             // 
             // LBStatuCode
@@ -302,6 +304,18 @@
             this.更新环境变量ToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
             this.更新环境变量ToolStripMenuItem.Text = "更新环境变量";
             // 
+            // RBTree
+            // 
+            this.RBTree.AutoSize = true;
+            this.RBTree.Location = new System.Drawing.Point(75, 7);
+            this.RBTree.Name = "RBTree";
+            this.RBTree.Size = new System.Drawing.Size(71, 16);
+            this.RBTree.TabIndex = 3;
+            this.RBTree.TabStop = true;
+            this.RBTree.Text = "树形列表";
+            this.RBTree.UseVisualStyleBackColor = true;
+            this.RBTree.CheckedChanged += new System.EventHandler(this.RBTree_CheckedChanged);
+            // 
             // UCApiResult
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -353,5 +367,6 @@
         private System.Windows.Forms.TabPage TPBrowser;
         private System.Windows.Forms.WebBrowser WBResult;
         private System.Windows.Forms.ToolStripMenuItem 更新环境变量ToolStripMenuItem;
+        private System.Windows.Forms.RadioButton RBTree;
     }
 }

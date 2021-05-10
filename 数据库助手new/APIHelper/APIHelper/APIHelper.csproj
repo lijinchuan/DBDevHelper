@@ -363,6 +363,12 @@
     <Compile Include="UC\UCBinary.Designer.cs">
       <DependentUpon>UCBinary.cs</DependentUpon>
     </Compile>
+    <Compile Include="UC\UCJsonViewer.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UC\UCJsonViewer.Designer.cs">
+      <DependentUpon>UCJsonViewer.cs</DependentUpon>
+    </Compile>
     <Compile Include="UC\UCLogicMap.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -521,6 +527,9 @@
     <EmbeddedResource Include="UC\UCBinary.resx">
       <DependentUpon>UCBinary.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="UC\UCJsonViewer.resx">
+      <DependentUpon>UCJsonViewer.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="UC\UCLogicMap.resx">
       <DependentUpon>UCLogicMap.cs</DependentUpon>
     </EmbeddedResource>
@@ -579,6 +588,7 @@
     </Content>
     <None Include="Resources\bullet_green.png" />
     <None Include="Resources\bullet_red.png" />
+    <None Include="Resources\bullet_database_yellow.png" />
     <Content Include="Resources\bullet_tick.png" />
     <Content Include="Resources\computer_link.png" />
     <Content Include="Resources\connect.png" />
@@ -614,6 +624,7 @@
     <None Include="Resources\record_green.png" />
     <None Include="Resources\record_blue.png" />
     <None Include="Resources\SwaggerApi.png" />
+    <None Include="Resources\rgb.png" />
     <Content Include="Resources\table.png" />
     <Content Include="Resources\tbview.png" />
     <None Include="packages.config" />
