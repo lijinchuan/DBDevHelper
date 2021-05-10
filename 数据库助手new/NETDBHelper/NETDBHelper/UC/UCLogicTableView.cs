@@ -389,6 +389,15 @@ namespace NETDBHelper.UC
                         }
                     }
 
+                    if (pp.X >= parentpannel.Width - parentpannel.AutoScrollPosition.X)
+                    {
+                        if (parentpannel.HorizontalScroll.Value < parentpannel.HorizontalScroll.Maximum)
+                        {
+                            parentpannel.HorizontalScroll.Value += 50;
+                        }
+                    }
+
+
                     isDraging = Math.Abs(dragEnd.X - dragStart.X) > 10 || Math.Abs(dragEnd.Y - dragStart.Y) > 10;
 
                     dragEnd = new Point(ee.X, ee.Y);
