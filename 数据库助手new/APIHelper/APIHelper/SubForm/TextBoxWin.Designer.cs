@@ -53,13 +53,14 @@
             this.TBContent.Location = new System.Drawing.Point(12, 12);
             this.TBContent.Multiline = true;
             this.TBContent.Name = "TBContent";
+            this.TBContent.ScrollBars = System.Windows.Forms.ScrollBars.Both;
             this.TBContent.Size = new System.Drawing.Size(624, 260);
             this.TBContent.TabIndex = 2;
             // 
             // contextMenuStrip1
             // 
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(181, 26);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(61, 4);
             // 
             // TextBoxWin
             // 
