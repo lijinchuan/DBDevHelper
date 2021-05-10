@@ -28,16 +28,44 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.DTV = new System.Windows.Forms.TreeView();
+            this.CMSOP = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.TSMCopy = new System.Windows.Forms.ToolStripMenuItem();
+            this.TSMView = new System.Windows.Forms.ToolStripMenuItem();
+            this.CMSOP.SuspendLayout();
             this.SuspendLayout();
             // 
             // DTV
             // 
+            this.DTV.ContextMenuStrip = this.CMSOP;
             this.DTV.Dock = System.Windows.Forms.DockStyle.Fill;
             this.DTV.Location = new System.Drawing.Point(0, 0);
             this.DTV.Name = "DTV";
             this.DTV.Size = new System.Drawing.Size(432, 352);
             this.DTV.TabIndex = 0;
+            // 
+            // CMSOP
+            // 
+            this.CMSOP.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.TSMCopy,
+            this.TSMView});
+            this.CMSOP.Name = "CMSOP";
+            this.CMSOP.Size = new System.Drawing.Size(181, 70);
+            // 
+            // TSMCopy
+            // 
+            this.TSMCopy.Name = "TSMCopy";
+            this.TSMCopy.Size = new System.Drawing.Size(180, 22);
+            this.TSMCopy.Text = "复制";
+            this.TSMCopy.Click += new System.EventHandler(this.TSMCopy_Click);
+            // 
+            // TSMView
+            // 
+            this.TSMView.Name = "TSMView";
+            this.TSMView.Size = new System.Drawing.Size(180, 22);
+            this.TSMView.Text = "查看";
+            this.TSMView.Click += new System.EventHandler(this.TSMView_Click);
             // 
             // UCJsonViewer
             // 
@@ -46,6 +74,7 @@
             this.Controls.Add(this.DTV);
             this.Name = "UCJsonViewer";
             this.Size = new System.Drawing.Size(432, 352);
+            this.CMSOP.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -53,5 +82,8 @@
         #endregion
 
         private System.Windows.Forms.TreeView DTV;
+        private System.Windows.Forms.ContextMenuStrip CMSOP;
+        private System.Windows.Forms.ToolStripMenuItem TSMCopy;
+        private System.Windows.Forms.ToolStripMenuItem TSMView;
     }
 }

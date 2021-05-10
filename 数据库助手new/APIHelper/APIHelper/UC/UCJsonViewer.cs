@@ -258,5 +258,23 @@ namespace APIHelper.UC
                 return false;
             }
         }
+
+        private void TSMCopy_Click(object sender, EventArgs e)
+        {
+            if (DTV.SelectedNode != null)
+            {
+                Clipboard.SetText(DTV.SelectedNode.Text);
+                Util.SendMsg(this, "复制成功");
+            }
+        }
+
+        private void TSMView_Click(object sender, EventArgs e)
+        {
+            if (DTV.SelectedNode != null)
+            {
+                SubForm.TextBoxWin textBoxWin=new SubForm.TextBoxWin("查看",DTV.SelectedNode.Text);
+                textBoxWin.Show();
+            }
+        }
     }
 }
