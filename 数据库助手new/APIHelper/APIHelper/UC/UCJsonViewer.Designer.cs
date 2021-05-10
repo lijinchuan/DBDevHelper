@@ -33,6 +33,7 @@
             this.CMSOP = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.TSMCopy = new System.Windows.Forms.ToolStripMenuItem();
             this.TSMView = new System.Windows.Forms.ToolStripMenuItem();
+            this.TSMExpend = new System.Windows.Forms.ToolStripMenuItem();
             this.CMSOP.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -49,9 +50,10 @@
             // 
             this.CMSOP.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.TSMCopy,
-            this.TSMView});
+            this.TSMView,
+            this.TSMExpend});
             this.CMSOP.Name = "CMSOP";
-            this.CMSOP.Size = new System.Drawing.Size(181, 70);
+            this.CMSOP.Size = new System.Drawing.Size(181, 92);
             // 
             // TSMCopy
             // 
@@ -66,6 +68,13 @@
             this.TSMView.Size = new System.Drawing.Size(180, 22);
             this.TSMView.Text = "查看";
             this.TSMView.Click += new System.EventHandler(this.TSMView_Click);
+            // 
+            // TSMExpend
+            // 
+            this.TSMExpend.Name = "TSMExpend";
+            this.TSMExpend.Size = new System.Drawing.Size(180, 22);
+            this.TSMExpend.Text = "展开";
+            this.TSMExpend.Click += new System.EventHandler(this.TSMExpend_Click);
             // 
             // UCJsonViewer
             // 
@@ -85,5 +94,6 @@
         private System.Windows.Forms.ContextMenuStrip CMSOP;
         private System.Windows.Forms.ToolStripMenuItem TSMCopy;
         private System.Windows.Forms.ToolStripMenuItem TSMView;
+        private System.Windows.Forms.ToolStripMenuItem TSMExpend;
     }
 }

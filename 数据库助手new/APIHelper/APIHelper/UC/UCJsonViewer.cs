@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
+using NPOI.SS.Formula.Functions;
 
 namespace APIHelper.UC
 {
@@ -16,6 +17,7 @@ namespace APIHelper.UC
     {
         private static ImageList IMGS = null;
         private bool sourcechanged = false;
+        private UC.LoadingBox waitbox = new LoadingBox();
         public UCJsonViewer()
         {
             InitializeComponent();
@@ -52,9 +54,13 @@ namespace APIHelper.UC
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
-            if (!string.IsNullOrWhiteSpace(DataSource)&&sourcechanged)
+            if (!string.IsNullOrWhiteSpace(DataSource) && sourcechanged)
             {
-                BindTreeView(this.DTV, DataSource);
+                waitbox.Waiting(this, new Action(() =>
+                 {
+                     this.BeginInvoke(new Action(() =>
+                     BindTreeView(this.DTV, DataSource)));
+                 }));
                 sourcechanged = false;
             }
         }
@@ -63,7 +69,11 @@ namespace APIHelper.UC
         {
             if (!string.IsNullOrWhiteSpace(DataSource)&&sourcechanged)
             {
-                BindTreeView(this.DTV, DataSource);
+                waitbox.Waiting(this, new Action(() =>
+                {
+                    this.BeginInvoke(new Action(() =>
+                    BindTreeView(this.DTV, DataSource)));
+                }));
                 sourcechanged = false;
             }
         }
@@ -147,7 +157,7 @@ namespace APIHelper.UC
                     treeView.Nodes.Add(tree);
                 }
             }
-            treeView.ExpandAll();
+            //treeView.ExpandAll();
         }
 
         /// <summary>
@@ -274,6 +284,25 @@ namespace APIHelper.UC
             {
                 SubForm.TextBoxWin textBoxWin=new SubForm.TextBoxWin("查看",DTV.SelectedNode.Text);
                 textBoxWin.Show();
+            }
+        }
+
+        private void TSMExpend_Click(object sender, EventArgs e)
+        {
+            if (DTV.SelectedNode != null)
+            {
+                if (DTV.SelectedNode.IsExpanded)
+                {
+                    DTV.SelectedNode.Collapse();
+                }
+                else
+                {
+                    DTV.SelectedNode.ExpandAll();
+                }
+            }
+            else
+            {
+                DTV.ExpandAll();
             }
         }
     }
