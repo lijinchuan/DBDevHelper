@@ -381,11 +381,37 @@ namespace NETDBHelper.UC
                     var pp = parentpannel.PointToClient(lb.PointToScreen(ee.Location));
                     pp.Offset(-parentpannel.AutoScrollPosition.X, -parentpannel.AutoScrollPosition.Y);
 
+                    //Util.SendMsg(this, pp.Y + " " + parentpannel.AutoScrollPosition.Y);
+                    if (pp.Y + parentpannel.AutoScrollPosition.Y <= 0)
+                    {
+                        if (parentpannel.VerticalScroll.Value + pp.Y + parentpannel.AutoScrollPosition.Y > parentpannel.VerticalScroll.Minimum)
+                        {
+                            parentpannel.VerticalScroll.Value += pp.Y + parentpannel.AutoScrollPosition.Y;
+                        }
+                    }
+
                     if (pp.Y >= parentpannel.Height - parentpannel.AutoScrollPosition.Y)
                     {
                         if (parentpannel.VerticalScroll.Value < parentpannel.VerticalScroll.Maximum)
                         {
                             parentpannel.VerticalScroll.Value += 50;
+                        }
+                    }
+
+                    if (pp.X >= parentpannel.Width - parentpannel.AutoScrollPosition.X)
+                    {
+                        if (parentpannel.HorizontalScroll.Value < parentpannel.HorizontalScroll.Maximum)
+                        {
+                            parentpannel.HorizontalScroll.Value += 50;
+                        }
+                    }
+
+                    //Util.SendMsg(this, pp.X + " " + parentpannel.AutoScrollPosition.X);
+                    if (pp.X + parentpannel.AutoScrollPosition.X <= 0)
+                    {
+                        if (parentpannel.HorizontalScroll.Value + pp.X + parentpannel.AutoScrollPosition.X > parentpannel.HorizontalScroll.Minimum)
+                        {
+                            parentpannel.HorizontalScroll.Value += pp.X + parentpannel.AutoScrollPosition.X;
                         }
                     }
 
