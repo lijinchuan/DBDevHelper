@@ -52,7 +52,13 @@ namespace NETDBHelper.UC
                 DataTable tb= DataHelper.GetEntityFieldTable(etbCode.Text).FirstOrDefault();
                 if (tb != null)
                 {
-                    string s = DataHelper.GetCreateTableSQL(this.DBName, tb);
+                    var inputdlg = new SubForm.InputStringDlg("备注表说明");
+                    if (inputdlg.ShowDialog() != DialogResult.OK)
+                    {
+                        Util.SendMsg(this, "必须要填写表备注");
+                        return;
+                    }
+                    string s = DataHelper.GetCreateTableSQL(this.DBName, inputdlg.InputString, tb);
                     this.etbSQL.Text = s;
                     this.etbSQL.MarkKeyWords(true);
                     Biz.Common.Data.MySQLHelper.ExecuteNoQuery(this.DB, this.DBName, s, null);
