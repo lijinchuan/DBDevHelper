@@ -516,6 +516,7 @@ namespace NETDBHelper
             UC.WebTab panel = new WebTab(dbsource, dbname);
             panel.SetHtml(html);
             panel.Text = tit;
+            panel.OnShowProc += (s, d, p, b) => this.ShowProc(s, d, p, b);
             panel.OnSearch += (s, n, w) =>
             {
                 List<object> lst = new List<object>();
