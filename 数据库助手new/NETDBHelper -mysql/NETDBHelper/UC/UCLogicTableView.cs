@@ -377,6 +377,18 @@ namespace NETDBHelper.UC
             {
                 if (ee.Button == MouseButtons.Left)
                 {
+                    var parentpannel = this.Parent as Panel;
+                    var pp = parentpannel.PointToClient(lb.PointToScreen(ee.Location));
+                    pp.Offset(-parentpannel.AutoScrollPosition.X, -parentpannel.AutoScrollPosition.Y);
+
+                    if (pp.Y >= parentpannel.Height - parentpannel.AutoScrollPosition.Y)
+                    {
+                        if (parentpannel.VerticalScroll.Value < parentpannel.VerticalScroll.Maximum)
+                        {
+                            parentpannel.VerticalScroll.Value += 50;
+                        }
+                    }
+
                     isDraging = Math.Abs(dragEnd.X - dragStart.X) > 10 || Math.Abs(dragEnd.Y - dragStart.Y) > 10;
 
                     dragEnd = new Point(ee.X, ee.Y);
