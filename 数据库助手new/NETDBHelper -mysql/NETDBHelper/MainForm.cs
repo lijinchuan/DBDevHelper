@@ -150,7 +150,10 @@ namespace NETDBHelper
                 e.Cancel = true;
                 return;
             }
-
+            if (e.Cancel)
+            {
+                e.Cancel = false;
+            }
             base.OnClosing(e);
             if (tasktimer != null)
             {
