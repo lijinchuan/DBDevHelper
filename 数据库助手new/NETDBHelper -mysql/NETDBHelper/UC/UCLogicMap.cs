@@ -157,6 +157,16 @@ namespace NETDBHelper.UC
                 }
             }
 
+            foreach (var item in relColumnIces)
+            {
+                item.IsHotLine = false;
+            }
+
+            if (relColumnEx != null)
+            {
+                relColumnEx.IsHotLine = true;
+            }
+
             return relColumnEx;
         }
 
@@ -169,6 +179,7 @@ namespace NETDBHelper.UC
 
                 if (relColumnEx != null)
                 {
+                    relColumnEx.IsHotLine = true;
                     hashotline = true;
                     //Util.SendMsg(this, string.Join(",", relColumnEx.LinkLines.Select(p => p.X + " " + p.Y)));
                     Util.SendMsg(this, $"[{relColumnEx.RelColumn.DBName}].[{relColumnEx.RelColumn.TBName}].[{relColumnEx.RelColumn.ColName}] -> [{relColumnEx.RelColumn.RelDBName}].[{relColumnEx.RelColumn.RelTBName}].[{relColumnEx.RelColumn.RelColName}]:{relColumnEx.RelColumn.Desc}");
@@ -559,7 +570,7 @@ namespace NETDBHelper.UC
                         colori = 0;
                     }
                     item.LineColor = colors[colori];
-                    using (var p = new Pen(colors[colori++], 1))
+                    using (var p = new Pen(colors[colori++], item.IsHotLine ? 2 : 1))
                     {
                         var points = item.LinkLines;
 

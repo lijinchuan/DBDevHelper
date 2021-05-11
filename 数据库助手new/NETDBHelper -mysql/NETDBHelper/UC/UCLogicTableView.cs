@@ -574,6 +574,21 @@ namespace NETDBHelper.UC
 
             lb.TextChanged += (s, e) => Check();
 
+            lb.MouseHover += (s, e) =>
+            {
+                var col = (lb.Tag as TBColumn);
+                var desc = BigEntityTableEngine.LocalEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys",
+                    new[] { col.DBName.ToUpper(), col.TBName.ToUpper(), col.Name.ToUpper() }).FirstOrDefault();
+                if (desc != null)
+                {
+                    Util.SendMsg(this, desc.MarkInfo);
+                }
+                else
+                {
+                    Util.SendMsg(this, string.Empty);
+                }
+            };
+
             Check();
         }
 
