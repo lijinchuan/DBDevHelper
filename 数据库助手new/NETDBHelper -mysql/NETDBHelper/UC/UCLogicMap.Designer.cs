@@ -34,9 +34,10 @@
             this.delStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.TSMDelRelColumn = new System.Windows.Forms.ToolStripMenuItem();
             this.TSMI_Export = new System.Windows.Forms.ToolStripMenuItem();
-            this.PanelMap = new System.Windows.Forms.Panel();
             this.TSMI_CopyTableName = new System.Windows.Forms.ToolStripMenuItem();
             this.TSMI_CopyColName = new System.Windows.Forms.ToolStripMenuItem();
+            this.PanelMap = new System.Windows.Forms.Panel();
+            this.TSMI_CopyTable = new System.Windows.Forms.ToolStripMenuItem();
             this.CMSOpMenu.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -48,33 +49,46 @@
             this.TSMDelRelColumn,
             this.TSMI_Export,
             this.TSMI_CopyTableName,
-            this.TSMI_CopyColName});
+            this.TSMI_CopyColName,
+            this.TSMI_CopyTable});
             this.CMSOpMenu.Name = "CMSOpMenu";
-            this.CMSOpMenu.Size = new System.Drawing.Size(149, 136);
+            this.CMSOpMenu.Size = new System.Drawing.Size(181, 180);
             // 
             // 添加表ToolStripMenuItem
             // 
             this.添加表ToolStripMenuItem.Name = "添加表ToolStripMenuItem";
-            this.添加表ToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
+            this.添加表ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.添加表ToolStripMenuItem.Text = "添加表";
             // 
             // delStripMenuItem
             // 
             this.delStripMenuItem.Name = "delStripMenuItem";
-            this.delStripMenuItem.Size = new System.Drawing.Size(148, 22);
+            this.delStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.delStripMenuItem.Text = "删除表";
             // 
             // TSMDelRelColumn
             // 
             this.TSMDelRelColumn.Name = "TSMDelRelColumn";
-            this.TSMDelRelColumn.Size = new System.Drawing.Size(148, 22);
+            this.TSMDelRelColumn.Size = new System.Drawing.Size(180, 22);
             this.TSMDelRelColumn.Text = "删除字段关联";
             // 
             // TSMI_Export
             // 
             this.TSMI_Export.Name = "TSMI_Export";
-            this.TSMI_Export.Size = new System.Drawing.Size(148, 22);
+            this.TSMI_Export.Size = new System.Drawing.Size(180, 22);
             this.TSMI_Export.Text = "导出为图片";
+            // 
+            // TSMI_CopyTableName
+            // 
+            this.TSMI_CopyTableName.Name = "TSMI_CopyTableName";
+            this.TSMI_CopyTableName.Size = new System.Drawing.Size(180, 22);
+            this.TSMI_CopyTableName.Text = "复制表名";
+            // 
+            // TSMI_CopyColName
+            // 
+            this.TSMI_CopyColName.Name = "TSMI_CopyColName";
+            this.TSMI_CopyColName.Size = new System.Drawing.Size(180, 22);
+            this.TSMI_CopyColName.Text = "复制字段名";
             // 
             // PanelMap
             // 
@@ -82,24 +96,19 @@
             this.PanelMap.Dock = System.Windows.Forms.DockStyle.Fill;
             this.PanelMap.Location = new System.Drawing.Point(0, 0);
             this.PanelMap.Name = "PanelMap";
-            this.PanelMap.Size = new System.Drawing.Size(200, 100);
+            this.PanelMap.Size = new System.Drawing.Size(150, 150);
             this.PanelMap.TabIndex = 0;
             // 
-            // TSMI_CopyTableName
+            // TSMI_CopyTable
             // 
-            this.TSMI_CopyTableName.Name = "TSMI_CopyTableName";
-            this.TSMI_CopyTableName.Size = new System.Drawing.Size(148, 22);
-            this.TSMI_CopyTableName.Text = "复制表名";
-            // 
-            // TSMI_CopyColName
-            // 
-            this.TSMI_CopyColName.Name = "TSMI_CopyColName";
-            this.TSMI_CopyColName.Size = new System.Drawing.Size(148, 22);
-            this.TSMI_CopyColName.Text = "复制字段名";
+            this.TSMI_CopyTable.Name = "TSMI_CopyTable";
+            this.TSMI_CopyTable.Size = new System.Drawing.Size(180, 22);
+            this.TSMI_CopyTable.Text = "复制表";
             // 
             // UCLogicMap
             // 
             this.Controls.Add(this.PanelMap);
+            this.Name = "UCLogicMap";
             this.CMSOpMenu.ResumeLayout(false);
             this.ResumeLayout(false);
 
@@ -115,5 +124,6 @@
         private System.Windows.Forms.Panel PanelMap;
         private System.Windows.Forms.ToolStripMenuItem TSMI_CopyTableName;
         private System.Windows.Forms.ToolStripMenuItem TSMI_CopyColName;
+        private System.Windows.Forms.ToolStripMenuItem TSMI_CopyTable;
     }
 }

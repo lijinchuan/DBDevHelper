@@ -104,6 +104,10 @@ namespace NETDBHelper.UC
                 this.CBTables.Visible = false;
 
                 ColumnsList = MySQLHelper.GetColumns(DBSource, DBName, CBTables.SelectedItem.ToString()).ToList();
+                if (this.TBName.IndexOf('*') > -1)
+                {
+                    ColumnsList.ForEach(p => p.TBName = this.TBName);
+                }
                 BindColumns();
             }
         }
@@ -113,6 +117,13 @@ namespace NETDBHelper.UC
             get
             {
                 return this.TBName;
+            }
+        }
+        public string RpTableName
+        {
+            get
+            {
+                return TBName?.Split('*')[0];
             }
         }
 
@@ -477,7 +488,7 @@ namespace NETDBHelper.UC
                       && p.TBName.Equals(tbcol.TBName, StringComparison.OrdinalIgnoreCase) && p.ColName.Equals(tbcol.Name, StringComparison.OrdinalIgnoreCase)
                       && p.RelColName == string.Empty);
                     var logiccoldesc = logiccol?.Desc ?? string.Empty;
-                    var dlg = new SubForm.InputStringDlg($"逻辑备注{tbcol.TBName}.{tbcol.Name}", logiccoldesc);
+                    var dlg = new SubForm.InputStringDlg($"逻辑备注{tbcol.TBName.Split('*')[0]}.{tbcol.Name}", logiccoldesc);
                     if (dlg.ShowDialog() == DialogResult.OK)
                     {
                         if (logiccol != null)
@@ -533,12 +544,17 @@ namespace NETDBHelper.UC
             }
             else
             {
-                this.LBTabname.Text = issamedb ? $"{TBName}" : $"[{DBName}].{TBName}";
+                var realtbname = TBName.Split('*')[0];
+                this.LBTabname.Text = issamedb ? $"{realtbname}" : $"[{DBName}].{realtbname}";
                 this.LBTabname.Visible = true;
                 this.LBTabname.Location = new Point(1, 1);
                 this.LBTabname.Width = this.Width - 2;
                 this.CBTables.Visible = false;
-                ColumnsList = MySQLHelper.GetColumns(DBSource, DBName, TBName).ToList();
+                ColumnsList = MySQLHelper.GetColumns(DBSource, DBName, realtbname).ToList();
+                if (this.TBName.IndexOf('*') > -1)
+                {
+                    ColumnsList.ForEach(p => p.TBName = this.TBName);
+                }
                 BindColumns();
 
             }
