@@ -52,11 +52,62 @@ namespace NETDBHelper.UC
             InitializeComponent();
         }
 
+        public void Check()
+        {
+            if (!string.IsNullOrWhiteSpace(LBTabname.Text))
+            {
+                var isoverflow = false;
+                var maxwidth = this.Width * 1f;
+                using (var g = this.CreateGraphics())
+                {
+                    var size = g.MeasureString(LBTabname.Text, this.LBTabname.Font);
+                    if (size.Width > this.LBTabname.Width)
+                    {
+                        isoverflow = true;
+                        maxwidth = size.Width;
+                    }
+                    foreach (var ctl in this.ColumnsPanel.Controls)
+                    {
+                        if (ctl is Label)
+                        {
+                            var lb = ctl as Label;
+                            var size2 = g.MeasureString(lb.Text, lb.Font);
+                            if (size2.Width > lb.Width)
+                            {
+                                isoverflow = true;
+                                if (size2.Width > maxwidth)
+                                {
+                                    maxwidth = size2.Width;
+                                }
+                            }
+                        }
+                    }
+                }
+                if (isoverflow)
+                {
+                    maxwidth += 1;
+                    this.Width = (int)maxwidth + 2;
+                    this.LBTabname.Width = (int)maxwidth;
+                    this.ColumnsPanel.Width = (int)maxwidth;
+                    this.CBCoumns.Width = (int)maxwidth - 2;
+                    foreach (var ctl in this.ColumnsPanel.Controls)
+                    {
+                        if (ctl is Label)
+                        {
+                            (ctl as Label).Width = (int)maxwidth;
+                        }
+                    }
+                }
+            }
+        }
+
         public UCLogicTableView(DBSource dbSource, bool samedb, string dbname, string tbname,int logicMapId, Func<List<Tuple<string, string>>> funcLoadTables, Action<UCLogicTableView> onComplete,
             Func<Point, Point, bool, bool> checkConflict)
         {
             InitializeComponent();
             //this.AutoSize = true;
+
+            LBTabname.TextChanged += (s, e) => Check();
 
             DBSource = dbSource;
             DBName = dbname;
@@ -70,10 +121,7 @@ namespace NETDBHelper.UC
             LBTabname.AutoSize = false;
             LBTabname.Height = 20;
             LBTabname.ForeColor = Color.Blue;
-            if (!string.IsNullOrWhiteSpace(tbname))
-            {
-                LBTabname.Text = issamedb ? $"{tbname}" : $"[{dbname}].{tbname}";
-            }
+
             this.ColumnsPanel.Location = new Point(1, LBTabname.Height + 1);
             this.ColumnsPanel.Width = LBTabname.Width - 2;
             this.ColumnsPanel.Height = this.Height - this.LBTabname.Height - 2;
@@ -85,6 +133,11 @@ namespace NETDBHelper.UC
             this.BorderStyle = BorderStyle.None;
 
             onCheckConflict = checkConflict;
+
+            if (!string.IsNullOrWhiteSpace(tbname))
+            {
+                LBTabname.Text = issamedb ? $"{tbname}" : $"[{dbname}].{tbname}";
+            }
 
             CBCoumns.Visible = false;
 
@@ -239,6 +292,10 @@ namespace NETDBHelper.UC
             else if (tbcol.IsBoolean())
             {
                 lb.Image = SQLTypeRs.BOOL;
+            }
+            else if (tbcol.IsUnique())
+            {
+                lb.Image = SQLTypeRs.UNIQ;
             }
             lb.UseMnemonic = true;
 
@@ -514,6 +571,10 @@ namespace NETDBHelper.UC
                     }
                 }
             };
+
+            lb.TextChanged += (s, e) => Check();
+
+            Check();
         }
 
         private void CBCoumns_SelectedIndexChanged(object sender, EventArgs e)

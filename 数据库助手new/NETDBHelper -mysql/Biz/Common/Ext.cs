@@ -51,6 +51,14 @@ namespace Biz.Common
                    || colEnum.Equals(MSSQLTypeEnum.Set);
         }
 
+        public static bool IsUnique(this TBColumn column)
+        {
+            CheckIsSupport(column);
+            var colEnum = Enum.Parse(typeof(MSSQLTypeEnum), column.TypeName, true);
+            return colEnum.Equals(MSSQLTypeEnum.Uniqueidentifier);
+        }
+
+
         public static bool IsEnum(this TBColumn column)
         {
             CheckIsSupport(column);
