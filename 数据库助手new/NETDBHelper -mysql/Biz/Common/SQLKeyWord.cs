@@ -100,6 +100,12 @@ namespace Biz.Common
             });
             KeyWordDic.Add(new SQLKeyWord
             {
+                KeyWord= "@@innodb_version",
+                Desc= "看innodb引擎版本",
+                HighColor=Color.Pink
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
                 KeyWord = "add",
                 Desc = "添加"
             });
