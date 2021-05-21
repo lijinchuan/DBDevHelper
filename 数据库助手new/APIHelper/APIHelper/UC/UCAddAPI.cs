@@ -29,7 +29,7 @@ namespace APIHelper.UC
         private UCParamsTable paramsGridView = new UCParamsTable();
         private UCParamsTable headerGridView = new UCParamsTable();
         private UCParamsTable cookieGridView = new UCParamsTable();
-        private TextBox rawTextBox = new TextBox();
+        private TextBox rawTextBox = new TextBoxEx();
         private UC.UCParamsTable UCBinary = new UCParamsTable();
 
         private UC.Auth.UCBearToken UCBearToken = new Auth.UCBearToken();
@@ -53,12 +53,14 @@ namespace APIHelper.UC
         public UCAddAPI()
         {
             InitializeComponent();
+            //rawTextBox.TextChanged += RawTextBox_TextChanged;
             rawTextBox.ScrollBars = ScrollBars.Both;
         }
 
         public UCAddAPI(APIUrl apiUrl)
         {
             InitializeComponent();
+            //rawTextBox.TextChanged += RawTextBox_TextChanged;
             rawTextBox.ScrollBars = ScrollBars.Both;
 
             _apiUrl = apiUrl;

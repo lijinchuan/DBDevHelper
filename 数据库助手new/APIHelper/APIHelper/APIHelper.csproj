@@ -321,6 +321,9 @@
       <DependentUpon>Scale.cs</DependentUpon>
     </Compile>
     <Compile Include="UC\TabTableTabEx.cs" />
+    <Compile Include="UC\TextBoxEx.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="UC\UCAddAPI.cs">
       <SubType>Component</SubType>
     </Compile>
