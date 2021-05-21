@@ -310,8 +310,6 @@ namespace APIHelper.UC
             }
         }
 
-
-
         private void ShowResult()
         {
             if (Raw != null && Raw.Length > 0)
@@ -350,13 +348,19 @@ namespace APIHelper.UC
                             {
                                 html = Newtonsoft.Json.JsonConvert.SerializeObject(jsonobject, Newtonsoft.Json.Formatting.Indented);
                                 isjson = true;
-                                if (html.Length <= 100 * 1000)
+                                this.WBResult.DocumentCompleted += (s, e) =>
                                 {
-                                    this.WBResult.DocumentText = System.IO.File.ReadAllText("jsonview.html.tpl", Encoding.UTF8).Replace("{{{json}}}", html);
+                                    this.WBResult.Document.InvokeScript("maxWin", null);
+                                    this.WBResult.Document.InvokeScript("setText", new[] { html});
+                                };
+                                if (this.WBResult.Url?.AbsoluteUri.Contains("jsonviewer.html") != true)
+                                {
+                                    this.WBResult.AllowNavigation = false;
+                                    this.WBResult.Url = new Uri(AppDomain.CurrentDomain.BaseDirectory+"jsonviewer.html");
                                 }
                                 else
                                 {
-                                    this.WBResult.DocumentText = html;
+                                    this.WBResult.Document.InvokeScript("setText", new[] { html });
                                 }
                             }
                         }

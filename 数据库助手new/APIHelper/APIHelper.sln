@@ -18,6 +18,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BizTests", "BizTests\BizTests.csproj", "{25C80C23-99D2-4C49-9F30-1EE25C19F7BC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JSONTool", "..\JSONToolWeb\JSONTool\JSONTool.csproj", "{E16F7B6A-E75E-4809-BDFD-21BBE0C65182}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -70,6 +72,18 @@ Global
 		{25C80C23-99D2-4C49-9F30-1EE25C19F7BC}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{25C80C23-99D2-4C49-9F30-1EE25C19F7BC}.Release|x86.ActiveCfg = Release|Any CPU
 		{25C80C23-99D2-4C49-9F30-1EE25C19F7BC}.Release|x86.Build.0 = Release|Any CPU
+		{E16F7B6A-E75E-4809-BDFD-21BBE0C65182}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E16F7B6A-E75E-4809-BDFD-21BBE0C65182}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E16F7B6A-E75E-4809-BDFD-21BBE0C65182}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{E16F7B6A-E75E-4809-BDFD-21BBE0C65182}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{E16F7B6A-E75E-4809-BDFD-21BBE0C65182}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{E16F7B6A-E75E-4809-BDFD-21BBE0C65182}.Debug|x86.Build.0 = Debug|Any CPU
+		{E16F7B6A-E75E-4809-BDFD-21BBE0C65182}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E16F7B6A-E75E-4809-BDFD-21BBE0C65182}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E16F7B6A-E75E-4809-BDFD-21BBE0C65182}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{E16F7B6A-E75E-4809-BDFD-21BBE0C65182}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{E16F7B6A-E75E-4809-BDFD-21BBE0C65182}.Release|x86.ActiveCfg = Release|Any CPU
+		{E16F7B6A-E75E-4809-BDFD-21BBE0C65182}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
