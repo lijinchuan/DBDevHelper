@@ -58,6 +58,7 @@
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.MspPanel = new System.Windows.Forms.ToolStripStatusLabel();
             this.TSL_ClearMsg = new System.Windows.Forms.ToolStripStatusLabel();
+            this.TSMReportError = new System.Windows.Forms.ToolStripMenuItem();
             this.mainMenuBar.SuspendLayout();
             this.panel1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
@@ -107,7 +108,7 @@
             // 代理服务器ToolStripMenuItem
             // 
             this.代理服务器ToolStripMenuItem.Name = "代理服务器ToolStripMenuItem";
-            this.代理服务器ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.代理服务器ToolStripMenuItem.Size = new System.Drawing.Size(136, 22);
             this.代理服务器ToolStripMenuItem.Text = "代理服务器";
             this.代理服务器ToolStripMenuItem.Click += new System.EventHandler(this.代理服务器ToolStripMenuItem_Click);
             // 
@@ -208,7 +209,8 @@
             // SubItemHelp
             // 
             this.SubItemHelp.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.版本ToolStripMenuItem});
+            this.版本ToolStripMenuItem,
+            this.TSMReportError});
             this.SubItemHelp.Name = "SubItemHelp";
             this.SubItemHelp.Size = new System.Drawing.Size(44, 21);
             this.SubItemHelp.Text = "帮助";
@@ -216,7 +218,7 @@
             // 版本ToolStripMenuItem
             // 
             this.版本ToolStripMenuItem.Name = "版本ToolStripMenuItem";
-            this.版本ToolStripMenuItem.Size = new System.Drawing.Size(149, 22);
+            this.版本ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.版本ToolStripMenuItem.Text = "当前版本V1.1";
             // 
             // panel1
@@ -315,6 +317,13 @@
             this.TSL_ClearMsg.Visible = false;
             this.TSL_ClearMsg.Click += new System.EventHandler(this.TSL_ClearMsg_Click);
             // 
+            // TSMReportError
+            // 
+            this.TSMReportError.Name = "TSMReportError";
+            this.TSMReportError.Size = new System.Drawing.Size(180, 22);
+            this.TSMReportError.Text = "故障报告";
+            this.TSMReportError.Click += new System.EventHandler(this.TSMReportError_Click);
+            // 
             // MainFrm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -373,6 +382,7 @@
         private System.Windows.Forms.ToolStripMenuItem gUIDToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 最近ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 代理服务器ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem TSMReportError;
     }
 }
 

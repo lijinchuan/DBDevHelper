@@ -405,5 +405,17 @@ namespace APIHelper
             };
             dlg.ShowDialog();
         }
+
+        private void TSMReportError_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                System.Diagnostics.Process.Start("mailto:403479851@qq.com?subject=api管理工具v1.0使用问题反馈");
+            }
+            catch
+            {
+                MessageBox.Show("启动发送邮件应用失败，请手动发送邮件到：403479851@qq.com");
+            }
+        }
     }
 }
