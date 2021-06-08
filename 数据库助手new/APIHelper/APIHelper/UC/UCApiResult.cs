@@ -377,7 +377,6 @@ namespace APIHelper.UC
                                 var jsonobject = Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(html);
                                 if (jsonobject != null)
                                 {
-                                    html = Newtonsoft.Json.JsonConvert.SerializeObject(jsonobject, Newtonsoft.Json.Formatting.Indented);
                                     isjson = true;
                                 }
                             }
@@ -385,7 +384,9 @@ namespace APIHelper.UC
 
                         if (isjson)
                         {
-                            Tabs.SelectedTab = TPBrowser;
+                            var jsonobject = Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(html);
+                            html = Newtonsoft.Json.JsonConvert.SerializeObject(jsonobject, Newtonsoft.Json.Formatting.Indented);
+                            //Tabs.SelectedTab = TPBrowser;
                             this.WBResult.DocumentCompleted += (s, e) =>
                             {
                                 this.WBResult.Document.InvokeScript("maxWin", null);
@@ -403,7 +404,7 @@ namespace APIHelper.UC
                         }
                         else if (isxml)
                         {
-                            Tabs.SelectedTab = TPBrowser;
+                            //Tabs.SelectedTab = TPBrowser;
                             this.WBResult.DocumentCompleted += (s, e) =>
                             {
                                 //this.WBResult.Document.InvokeScript("maxWin", new object[] { this.Width, this.Height });
@@ -429,7 +430,7 @@ namespace APIHelper.UC
                     if (!isjson && !isxml)
                     {
                         this.WBResult.DocumentText = html;
-                        Tabs.SelectedTab = TPBody;
+                        //Tabs.SelectedTab = TPBody;
                     }
 
                     this.TBResult.Text = html;
@@ -465,7 +466,7 @@ namespace APIHelper.UC
             {
                 _raw = value;
                 ShowResult();
-                //Tabs.SelectedTab = TPBody;
+                Tabs.SelectedTab = TPBody;
             }
         }
 
