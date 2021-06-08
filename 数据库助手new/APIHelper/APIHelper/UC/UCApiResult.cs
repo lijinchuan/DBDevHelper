@@ -255,10 +255,12 @@ namespace APIHelper.UC
             }
         }
 
+        private Dictionary<string, string> header = null;
         public void SetHeader(Dictionary<string,string> headerdic)
         {
             if (headerdic != null && headerdic.Count > 0)
             {
+                this.header = headerdic;
                 this.DGVHeader.DataSource = headerdic.Select(p => new
                 {
                     p.Key,
@@ -339,40 +341,95 @@ namespace APIHelper.UC
                     UCJsonViewer.Visible = false;
                     html = html.Trim();
                     bool isjson = false;
+                    bool isxml = false;
                     try
                     {
-                        if (html.StartsWith("{") && html.EndsWith("}"))
+                        if (this.header != null)
                         {
-                            var jsonobject = Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(html);
-                            if (jsonobject != null)
+                            var contenttype = string.Empty;
+
+                            foreach (var kv in header)
                             {
-                                html = Newtonsoft.Json.JsonConvert.SerializeObject(jsonobject, Newtonsoft.Json.Formatting.Indented);
-                                isjson = true;
-                                this.WBResult.DocumentCompleted += (s, e) =>
+                                if (kv.Key.Equals("Content-Type", StringComparison.OrdinalIgnoreCase))
                                 {
-                                    this.WBResult.Document.InvokeScript("maxWin", null);
-                                    this.WBResult.Document.InvokeScript("setText", new[] { html});
-                                };
-                                if (this.WBResult.Url?.AbsoluteUri.Contains("jsonviewer.html") != true)
-                                {
-                                    this.WBResult.AllowNavigation = false;
-                                    this.WBResult.Url = new Uri(AppDomain.CurrentDomain.BaseDirectory+"jsonviewer.html");
+                                    contenttype = kv.Value;
+                                    break;
                                 }
-                                else
+                            }
+
+                            if (!string.IsNullOrWhiteSpace(contenttype))
+                            {
+                                if (contenttype.IndexOf("application/json", StringComparison.OrdinalIgnoreCase) > -1)
                                 {
-                                    this.WBResult.Document.InvokeScript("setText", new[] { html });
+                                    isjson = true;
                                 }
+                                else if (contenttype.IndexOf("text/xml", StringComparison.OrdinalIgnoreCase) > -1)
+                                {
+                                    isxml = true;
+                                }
+                            }
+                        }
+
+                        if (!isjson && !isxml)
+                        {
+                            if (html.StartsWith("{") && html.EndsWith("}"))
+                            {
+                                var jsonobject = Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(html);
+                                if (jsonobject != null)
+                                {
+                                    html = Newtonsoft.Json.JsonConvert.SerializeObject(jsonobject, Newtonsoft.Json.Formatting.Indented);
+                                    isjson = true;
+                                }
+                            }
+                        }
+
+                        if (isjson)
+                        {
+                            Tabs.SelectedTab = TPBrowser;
+                            this.WBResult.DocumentCompleted += (s, e) =>
+                            {
+                                this.WBResult.Document.InvokeScript("maxWin", null);
+                                this.WBResult.Document.InvokeScript("setText", new[] { html });
+                            };
+                            if (this.WBResult.Url?.AbsoluteUri.Contains("jsonviewer.html") != true)
+                            {
+                                this.WBResult.AllowNavigation = false;
+                                this.WBResult.Url = new Uri(AppDomain.CurrentDomain.BaseDirectory + "jsonviewer.html");
+                            }
+                            else
+                            {
+                                this.WBResult.Document.InvokeScript("setText", new[] { html });
+                            }
+                        }
+                        else if (isxml)
+                        {
+                            Tabs.SelectedTab = TPBrowser;
+                            this.WBResult.DocumentCompleted += (s, e) =>
+                            {
+                                //this.WBResult.Document.InvokeScript("maxWin", new object[] { this.Width, this.Height });
+                                this.WBResult.Document.InvokeScript("setText", new[] { html });
+                            };
+                            if (this.WBResult.Url?.AbsoluteUri.Contains("xmltool.html") != true)
+                            {
+                                this.WBResult.AllowNavigation = false;
+                                this.WBResult.Url = new Uri(AppDomain.CurrentDomain.BaseDirectory + "xmltool.html");
+                            }
+                            else
+                            {
+                                this.WBResult.Document.InvokeScript("setText", new[] { html });
                             }
                         }
                     }
                     catch
                     {
                         isjson = false;
+                        isxml = false;
                     }
 
-                    if (!isjson)
+                    if (!isjson && !isxml)
                     {
                         this.WBResult.DocumentText = html;
+                        Tabs.SelectedTab = TPBody;
                     }
 
                     this.TBResult.Text = html;
@@ -408,7 +465,7 @@ namespace APIHelper.UC
             {
                 _raw = value;
                 ShowResult();
-                Tabs.SelectedTab = TPBody;
+                //Tabs.SelectedTab = TPBody;
             }
         }
 

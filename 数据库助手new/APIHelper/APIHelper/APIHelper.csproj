@@ -580,6 +580,9 @@
     <Content Include="Json2.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="xmltool.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <None Include="Resources\text_columns1.png" />
     <None Include="Resources\text_columns.png" />
     <None Include="Resources\arrow_up.png" />

@@ -566,6 +566,7 @@ namespace APIHelper.UC
             this.Invoke(new Action(() =>
             {
                 var responseEx = responseExTaskList.First().Result;
+                TBResult.SetHeader(responseEx.Headers);
                 if (responseEx.ResponseContent != null)
                 {
                     var encode = string.IsNullOrWhiteSpace(responseEx.CharacterSet) ? Encoding.UTF8 : Encoding.GetEncoding(responseEx.CharacterSet);
@@ -594,7 +595,7 @@ namespace APIHelper.UC
                 {
                     this.Invoke(new Action(() => TBResult.SetError(string.Empty)));
                 }
-                this.Invoke(new Action(() => TBResult.SetHeader(responseEx.Headers)));
+                //this.Invoke(new Action(() => TBResult.SetHeader(responseEx.Headers)));
                 var cookies = responseEx.Cookies?.Select(p => new RespCookie
                 {
                     Path = p.Path,
