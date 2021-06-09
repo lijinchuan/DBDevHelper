@@ -410,10 +410,10 @@ namespace APIHelper.UC
                                 //this.WBResult.Document.InvokeScript("maxWin", new object[] { this.Width, this.Height });
                                 this.WBResult.Document.InvokeScript("setText", new[] { html });
                             };
-                            if (this.WBResult.Url?.AbsoluteUri.Contains("xmltool.html") != true)
+                            if (this.WBResult.Url?.AbsoluteUri.Contains("xml.html") != true)
                             {
                                 this.WBResult.AllowNavigation = false;
-                                this.WBResult.Url = new Uri(AppDomain.CurrentDomain.BaseDirectory + "xmltool.html");
+                                this.WBResult.Url = new Uri(AppDomain.CurrentDomain.BaseDirectory + "xml.html");
                             }
                             else
                             {
