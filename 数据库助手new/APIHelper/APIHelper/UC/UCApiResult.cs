@@ -404,7 +404,8 @@ namespace APIHelper.UC
                         }
                         else if (isxml)
                         {
-                            //Tabs.SelectedTab = TPBrowser;
+                            Tabs.SelectedTab = TPBrowser;
+                            //this.WBResult.ScriptErrorsSuppressed = false;
                             this.WBResult.DocumentCompleted += (s, e) =>
                             {
                                 //this.WBResult.Document.InvokeScript("maxWin", new object[] { this.Width, this.Height });
@@ -465,8 +466,9 @@ namespace APIHelper.UC
             set
             {
                 _raw = value;
-                ShowResult();
                 Tabs.SelectedTab = TPBody;
+                ShowResult();
+                
             }
         }
 

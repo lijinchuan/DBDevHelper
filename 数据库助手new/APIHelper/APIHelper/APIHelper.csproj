@@ -580,6 +580,9 @@
     <Content Include="Json2.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="worker-xml.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="xml.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
