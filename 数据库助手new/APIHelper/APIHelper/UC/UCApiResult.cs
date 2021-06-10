@@ -251,7 +251,7 @@ namespace APIHelper.UC
         {
             if((sender as RadioButton).Checked)
             {
-                ShowResult();
+                ShowResult(false);
             }
         }
 
@@ -312,7 +312,7 @@ namespace APIHelper.UC
             }
         }
 
-        private void ShowResult()
+        private void ShowResult(bool autoselecttab)
         {
             if (Raw != null && Raw.Length > 0)
             {
@@ -386,7 +386,10 @@ namespace APIHelper.UC
                         {
                             var jsonobject = Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(html);
                             html = Newtonsoft.Json.JsonConvert.SerializeObject(jsonobject, Newtonsoft.Json.Formatting.Indented);
-                            //Tabs.SelectedTab = TPBrowser;
+                            if (autoselecttab)
+                            {
+                                Tabs.SelectedTab = TPBrowser;
+                            }
                             this.WBResult.DocumentCompleted += (s, e) =>
                             {
                                 this.WBResult.Document.InvokeScript("maxWin", null);
@@ -404,7 +407,10 @@ namespace APIHelper.UC
                         }
                         else if (isxml)
                         {
-                            Tabs.SelectedTab = TPBrowser;
+                            if (autoselecttab)
+                            {
+                                Tabs.SelectedTab = TPBrowser;
+                            }
                             //this.WBResult.ScriptErrorsSuppressed = false;
                             this.WBResult.DocumentCompleted += (s, e) =>
                             {
@@ -431,7 +437,10 @@ namespace APIHelper.UC
                     if (!isjson && !isxml)
                     {
                         this.WBResult.DocumentText = html;
-                        //Tabs.SelectedTab = TPBody;
+                        if (autoselecttab)
+                        {
+                            Tabs.SelectedTab = TPBody;
+                        }
                     }
 
                     this.TBResult.Text = html;
@@ -441,7 +450,7 @@ namespace APIHelper.UC
 
         private void CBEncode_SelectedIndexChanged(object sender, EventArgs e)
         {
-            ShowResult();
+            ShowResult(false);
         }
 
         public Encoding Encoding
@@ -466,8 +475,8 @@ namespace APIHelper.UC
             set
             {
                 _raw = value;
-                Tabs.SelectedTab = TPBody;
-                ShowResult();
+                //Tabs.SelectedTab = TPBody;
+                ShowResult(true);
                 
             }
         }
@@ -489,7 +498,7 @@ namespace APIHelper.UC
 
         private void RBTree_CheckedChanged(object sender, EventArgs e)
         {
-            this.ShowResult();
+            this.ShowResult(false);
         }
     }
 }
