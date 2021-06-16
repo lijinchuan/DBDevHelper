@@ -295,7 +295,7 @@ namespace APIHelper.UC
                 {
                     if (cookie.Checked)
                     {
-                        httpRequestEx.AppendCookie(ReplaceEvnParams(cookie.Name, ref apiEnvParams), ReplaceEvnParams(cookie.Value, ref apiEnvParams), new Uri(url).Host, "/");
+                        httpRequestEx.AppendCookie(ReplaceEvnParams(cookie.Name, ref apiEnvParams),WebUtility.UrlEncode(ReplaceEvnParams(cookie.Value, ref apiEnvParams)), new Uri(url).Host, "/");
                     }
                 }
             }
