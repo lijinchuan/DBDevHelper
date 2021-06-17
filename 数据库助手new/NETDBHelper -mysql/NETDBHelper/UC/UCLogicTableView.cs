@@ -52,11 +52,62 @@ namespace NETDBHelper.UC
             InitializeComponent();
         }
 
+        public void Check()
+        {
+            if (!string.IsNullOrWhiteSpace(LBTabname.Text))
+            {
+                var isoverflow = false;
+                var maxwidth = this.Width * 1f;
+                using (var g = this.CreateGraphics())
+                {
+                    var size = g.MeasureString(LBTabname.Text, this.LBTabname.Font);
+                    if (size.Width > this.LBTabname.Width)
+                    {
+                        isoverflow = true;
+                        maxwidth = size.Width;
+                    }
+                    foreach (var ctl in this.ColumnsPanel.Controls)
+                    {
+                        if (ctl is Label)
+                        {
+                            var lb = ctl as Label;
+                            var size2 = g.MeasureString(lb.Text, lb.Font);
+                            if (size2.Width > lb.Width)
+                            {
+                                isoverflow = true;
+                                if (size2.Width > maxwidth)
+                                {
+                                    maxwidth = size2.Width;
+                                }
+                            }
+                        }
+                    }
+                }
+                if (isoverflow)
+                {
+                    maxwidth += 1;
+                    this.Width = (int)maxwidth + 2;
+                    this.LBTabname.Width = (int)maxwidth;
+                    this.ColumnsPanel.Width = (int)maxwidth;
+                    this.CBCoumns.Width = (int)maxwidth - 2;
+                    foreach (var ctl in this.ColumnsPanel.Controls)
+                    {
+                        if (ctl is Label)
+                        {
+                            (ctl as Label).Width = (int)maxwidth;
+                        }
+                    }
+                }
+            }
+        }
+
         public UCLogicTableView(DBSource dbSource, bool samedb, string dbname, string tbname,int logicMapId, Func<List<Tuple<string, string>>> funcLoadTables, Action<UCLogicTableView> onComplete,
             Func<Point, Point, bool, bool> checkConflict)
         {
             InitializeComponent();
             //this.AutoSize = true;
+
+            LBTabname.TextChanged += (s, e) => Check();
 
             DBSource = dbSource;
             DBName = dbname;
@@ -70,10 +121,7 @@ namespace NETDBHelper.UC
             LBTabname.AutoSize = false;
             LBTabname.Height = 20;
             LBTabname.ForeColor = Color.Blue;
-            if (!string.IsNullOrWhiteSpace(tbname))
-            {
-                LBTabname.Text = issamedb ? $"{tbname}" : $"[{dbname}].{tbname}";
-            }
+
             this.ColumnsPanel.Location = new Point(1, LBTabname.Height + 1);
             this.ColumnsPanel.Width = LBTabname.Width - 2;
             this.ColumnsPanel.Height = this.Height - this.LBTabname.Height - 2;
@@ -85,6 +133,11 @@ namespace NETDBHelper.UC
             this.BorderStyle = BorderStyle.None;
 
             onCheckConflict = checkConflict;
+
+            if (!string.IsNullOrWhiteSpace(tbname))
+            {
+                LBTabname.Text = issamedb ? $"{tbname}" : $"[{dbname}].{tbname}";
+            }
 
             CBCoumns.Visible = false;
 
@@ -104,6 +157,10 @@ namespace NETDBHelper.UC
                 this.CBTables.Visible = false;
 
                 ColumnsList = MySQLHelper.GetColumns(DBSource, DBName, CBTables.SelectedItem.ToString()).ToList();
+                if (this.TBName.IndexOf('*') > -1)
+                {
+                    ColumnsList.ForEach(p => p.TBName = this.TBName);
+                }
                 BindColumns();
             }
         }
@@ -113,6 +170,13 @@ namespace NETDBHelper.UC
             get
             {
                 return this.TBName;
+            }
+        }
+        public string RpTableName
+        {
+            get
+            {
+                return TBName?.Split('*')[0];
             }
         }
 
@@ -141,6 +205,8 @@ namespace NETDBHelper.UC
             var relcollist = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Scan<LogicMapRelColumn>(nameof(LogicMapRelColumn),
                 "LSDRTC", new object[] { this._logicMapId, this.DBName.ToLower(), this.TBName.ToLower() },
                 new object[] { this._logicMapId, this.DBName.ToLower(), this.TBName.ToLower() }, 1, int.MaxValue);
+            
+            this.CBCoumns.Items.Clear();
 
             this.CBCoumns.Items.AddRange(ColumnsList.Where(p => !collist.Any(q => q.ColName.Equals(p.Name, StringComparison.OrdinalIgnoreCase))
             && !relcollist.Any(q => q.RelColName.Equals(p.Name, StringComparison.OrdinalIgnoreCase))).ToArray());
@@ -229,6 +295,10 @@ namespace NETDBHelper.UC
             {
                 lb.Image = SQLTypeRs.BOOL;
             }
+            else if (tbcol.IsUnique())
+            {
+                lb.Image = SQLTypeRs.UNIQ;
+            }
             lb.UseMnemonic = true;
 
             if (LbIdx % 2 == 1)
@@ -307,6 +377,44 @@ namespace NETDBHelper.UC
             {
                 if (ee.Button == MouseButtons.Left)
                 {
+                    var parentpannel = this.Parent as Panel;
+                    var pp = parentpannel.PointToClient(lb.PointToScreen(ee.Location));
+                    pp.Offset(-parentpannel.AutoScrollPosition.X, -parentpannel.AutoScrollPosition.Y);
+
+                    //Util.SendMsg(this, pp.Y + " " + parentpannel.AutoScrollPosition.Y);
+                    if (pp.Y + parentpannel.AutoScrollPosition.Y <= 0)
+                    {
+                        if (parentpannel.VerticalScroll.Value + pp.Y + parentpannel.AutoScrollPosition.Y > parentpannel.VerticalScroll.Minimum)
+                        {
+                            parentpannel.VerticalScroll.Value += pp.Y + parentpannel.AutoScrollPosition.Y;
+                        }
+                    }
+
+                    if (pp.Y >= parentpannel.Height - parentpannel.AutoScrollPosition.Y)
+                    {
+                        if (parentpannel.VerticalScroll.Value < parentpannel.VerticalScroll.Maximum)
+                        {
+                            parentpannel.VerticalScroll.Value += 50;
+                        }
+                    }
+
+                    if (pp.X >= parentpannel.Width - parentpannel.AutoScrollPosition.X)
+                    {
+                        if (parentpannel.HorizontalScroll.Value < parentpannel.HorizontalScroll.Maximum)
+                        {
+                            parentpannel.HorizontalScroll.Value += 50;
+                        }
+                    }
+
+                    //Util.SendMsg(this, pp.X + " " + parentpannel.AutoScrollPosition.X);
+                    if (pp.X + parentpannel.AutoScrollPosition.X <= 0)
+                    {
+                        if (parentpannel.HorizontalScroll.Value + pp.X + parentpannel.AutoScrollPosition.X > parentpannel.HorizontalScroll.Minimum)
+                        {
+                            parentpannel.HorizontalScroll.Value += pp.X + parentpannel.AutoScrollPosition.X;
+                        }
+                    }
+
                     isDraging = Math.Abs(dragEnd.X - dragStart.X) > 10 || Math.Abs(dragEnd.Y - dragStart.Y) > 10;
 
                     dragEnd = new Point(ee.X, ee.Y);
@@ -477,7 +585,7 @@ namespace NETDBHelper.UC
                       && p.TBName.Equals(tbcol.TBName, StringComparison.OrdinalIgnoreCase) && p.ColName.Equals(tbcol.Name, StringComparison.OrdinalIgnoreCase)
                       && p.RelColName == string.Empty);
                     var logiccoldesc = logiccol?.Desc ?? string.Empty;
-                    var dlg = new SubForm.InputStringDlg($"逻辑备注{tbcol.TBName}.{tbcol.Name}", logiccoldesc);
+                    var dlg = new SubForm.InputStringDlg($"逻辑备注{tbcol.TBName.Split('*')[0]}.{tbcol.Name}", logiccoldesc);
                     if (dlg.ShowDialog() == DialogResult.OK)
                     {
                         if (logiccol != null)
@@ -503,6 +611,25 @@ namespace NETDBHelper.UC
                     }
                 }
             };
+
+            lb.TextChanged += (s, e) => Check();
+
+            lb.MouseHover += (s, e) =>
+            {
+                var col = (lb.Tag as TBColumn);
+                var desc = BigEntityTableEngine.LocalEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys",
+                    new[] { col.DBName.ToUpper(), col.TBName.ToUpper(), col.Name.ToUpper() }).FirstOrDefault();
+                if (desc != null)
+                {
+                    Util.SendMsg(this, desc.MarkInfo);
+                }
+                else
+                {
+                    Util.SendMsg(this, string.Empty);
+                }
+            };
+
+            Check();
         }
 
         private void CBCoumns_SelectedIndexChanged(object sender, EventArgs e)
@@ -533,12 +660,17 @@ namespace NETDBHelper.UC
             }
             else
             {
-                this.LBTabname.Text = issamedb ? $"{TBName}" : $"[{DBName}].{TBName}";
+                var realtbname = TBName.Split('*')[0];
+                this.LBTabname.Text = issamedb ? $"{realtbname}" : $"[{DBName}].{realtbname}";
                 this.LBTabname.Visible = true;
                 this.LBTabname.Location = new Point(1, 1);
                 this.LBTabname.Width = this.Width - 2;
                 this.CBTables.Visible = false;
-                ColumnsList = MySQLHelper.GetColumns(DBSource, DBName, TBName).ToList();
+                ColumnsList = MySQLHelper.GetColumns(DBSource, DBName, realtbname).ToList();
+                if (this.TBName.IndexOf('*') > -1)
+                {
+                    ColumnsList.ForEach(p => p.TBName = this.TBName);
+                }
                 BindColumns();
 
             }

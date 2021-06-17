@@ -107,14 +107,14 @@ namespace NETDBHelper
             if (this.TabControl.TabPages.Count == 0)
             {
                 连接对象资源管理器ToolStripMenuItem_Click(null, null);
-                Biz.WatchTask.WatchTaskInfoManage.OnTiggerError += (s, o) =>
-                {
-                    this.BeginInvoke(new Action(() =>
-                    {
-                        Util.PopMsg(s.ID, s.Name, s.ErrorMsg);
-                    }));
-                };
             }
+            Biz.WatchTask.WatchTaskInfoManage.OnTiggerError += (s, o) =>
+            {
+                this.BeginInvoke(new Action(() =>
+                {
+                    Util.PopMsg(s.ID, s.Name, s.ErrorMsg);
+                }));
+            };
             Biz.WatchTask.WatchTaskInfoManage.OnErrorDisappear += (s) =>
             {
                 this.BeginInvoke(new Action(() => {
@@ -135,7 +135,10 @@ namespace NETDBHelper
                 e.Cancel = true;
                 return;
             }
-
+            if (e.Cancel)
+            {
+                e.Cancel = false;
+            }
             base.OnClosing(e);
             if (tasktimer != null)
             {
@@ -469,7 +472,11 @@ namespace NETDBHelper
 
         private void OnNewTableAdd(DBSource db, string dbName)
         {
-            Biz.UILoadHelper.LoadTBsAnsy(this, dbServerView1.FindNode(db.ServerName, dbName), db, dbName, null);
+            var dbnode = dbServerView1.FindNode(db.ServerName, dbName);
+            if (dbnode != null)
+            {
+                Biz.UILoadHelper.LoadTBsAnsy(this, dbServerView1.FindNode(dbnode, NodeContentType.TBParent), db, dbName, null);
+            }
         }
 
         public void ShowTableData(DBSource db,string dbName,string tablename, string sql)

@@ -31,12 +31,23 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainFrm));
             this.mainMenuBar = new System.Windows.Forms.MenuStrip();
             this.MenItem_File = new System.Windows.Forms.ToolStripMenuItem();
+            this.最近ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.SubItemEdit = new System.Windows.Forms.ToolStripMenuItem();
+            this.代理服务器ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.SubItemView = new System.Windows.Forms.ToolStripMenuItem();
             this.SubItemTool = new System.Windows.Forms.ToolStripMenuItem();
             this.监控任务ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.mD5签名ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.gUIDToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.时间戳ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.bASE64ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.正则表达式测试ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.xML工具ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.jSON工具ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.hTTP状态码ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.swaggerMarkUpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.SubItemHelp = new System.Windows.Forms.ToolStripMenuItem();
+            this.版本ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.panel1 = new System.Windows.Forms.Panel();
             this.TabControl = new APIHelper.UC.MyTabControl();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
@@ -47,8 +58,7 @@
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.MspPanel = new System.Windows.Forms.ToolStripStatusLabel();
             this.TSL_ClearMsg = new System.Windows.Forms.ToolStripStatusLabel();
-            this.mD5签名ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.时间戳ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.TSMReportError = new System.Windows.Forms.ToolStripMenuItem();
             this.mainMenuBar.SuspendLayout();
             this.panel1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
@@ -74,15 +84,33 @@
             // 
             // MenItem_File
             // 
+            this.MenItem_File.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.最近ToolStripMenuItem});
             this.MenItem_File.Name = "MenItem_File";
             this.MenItem_File.Size = new System.Drawing.Size(58, 21);
             this.MenItem_File.Text = "文件(F)";
             // 
+            // 最近ToolStripMenuItem
+            // 
+            this.最近ToolStripMenuItem.Name = "最近ToolStripMenuItem";
+            this.最近ToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
+            this.最近ToolStripMenuItem.Text = "最近访问";
+            this.最近ToolStripMenuItem.Click += new System.EventHandler(this.最近ToolStripMenuItem_Click);
+            // 
             // SubItemEdit
             // 
+            this.SubItemEdit.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.代理服务器ToolStripMenuItem});
             this.SubItemEdit.Name = "SubItemEdit";
             this.SubItemEdit.Size = new System.Drawing.Size(59, 21);
             this.SubItemEdit.Text = "编辑(E)";
+            // 
+            // 代理服务器ToolStripMenuItem
+            // 
+            this.代理服务器ToolStripMenuItem.Name = "代理服务器ToolStripMenuItem";
+            this.代理服务器ToolStripMenuItem.Size = new System.Drawing.Size(136, 22);
+            this.代理服务器ToolStripMenuItem.Text = "代理服务器";
+            this.代理服务器ToolStripMenuItem.Click += new System.EventHandler(this.代理服务器ToolStripMenuItem_Click);
             // 
             // SubItemView
             // 
@@ -94,9 +122,15 @@
             // 
             this.SubItemTool.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.监控任务ToolStripMenuItem,
-            this.swaggerMarkUpToolStripMenuItem,
             this.mD5签名ToolStripMenuItem,
-            this.时间戳ToolStripMenuItem});
+            this.gUIDToolStripMenuItem,
+            this.时间戳ToolStripMenuItem,
+            this.bASE64ToolStripMenuItem,
+            this.正则表达式测试ToolStripMenuItem,
+            this.xML工具ToolStripMenuItem,
+            this.jSON工具ToolStripMenuItem,
+            this.hTTP状态码ToolStripMenuItem,
+            this.swaggerMarkUpToolStripMenuItem});
             this.SubItemTool.Name = "SubItemTool";
             this.SubItemTool.Size = new System.Drawing.Size(44, 21);
             this.SubItemTool.Text = "工具";
@@ -109,6 +143,62 @@
             this.监控任务ToolStripMenuItem.Visible = false;
             this.监控任务ToolStripMenuItem.Click += new System.EventHandler(this.监控任务ToolStripMenuItem_Click);
             // 
+            // mD5签名ToolStripMenuItem
+            // 
+            this.mD5签名ToolStripMenuItem.Name = "mD5签名ToolStripMenuItem";
+            this.mD5签名ToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
+            this.mD5签名ToolStripMenuItem.Text = "MD5签名";
+            this.mD5签名ToolStripMenuItem.Click += new System.EventHandler(this.mD5签名ToolStripMenuItem_Click);
+            // 
+            // gUIDToolStripMenuItem
+            // 
+            this.gUIDToolStripMenuItem.Name = "gUIDToolStripMenuItem";
+            this.gUIDToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
+            this.gUIDToolStripMenuItem.Text = "GUID";
+            this.gUIDToolStripMenuItem.Click += new System.EventHandler(this.gUIDToolStripMenuItem_Click);
+            // 
+            // 时间戳ToolStripMenuItem
+            // 
+            this.时间戳ToolStripMenuItem.Name = "时间戳ToolStripMenuItem";
+            this.时间戳ToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
+            this.时间戳ToolStripMenuItem.Text = "时间戳";
+            this.时间戳ToolStripMenuItem.Click += new System.EventHandler(this.时间戳ToolStripMenuItem_Click);
+            // 
+            // bASE64ToolStripMenuItem
+            // 
+            this.bASE64ToolStripMenuItem.Name = "bASE64ToolStripMenuItem";
+            this.bASE64ToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
+            this.bASE64ToolStripMenuItem.Text = "BASE64";
+            this.bASE64ToolStripMenuItem.Click += new System.EventHandler(this.bASE64ToolStripMenuItem_Click);
+            // 
+            // 正则表达式测试ToolStripMenuItem
+            // 
+            this.正则表达式测试ToolStripMenuItem.Name = "正则表达式测试ToolStripMenuItem";
+            this.正则表达式测试ToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
+            this.正则表达式测试ToolStripMenuItem.Text = "正则表达式测试";
+            this.正则表达式测试ToolStripMenuItem.Click += new System.EventHandler(this.正则表达式测试ToolStripMenuItem_Click);
+            // 
+            // xML工具ToolStripMenuItem
+            // 
+            this.xML工具ToolStripMenuItem.Name = "xML工具ToolStripMenuItem";
+            this.xML工具ToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
+            this.xML工具ToolStripMenuItem.Text = "XML工具";
+            this.xML工具ToolStripMenuItem.Click += new System.EventHandler(this.xML工具ToolStripMenuItem_Click);
+            // 
+            // jSON工具ToolStripMenuItem
+            // 
+            this.jSON工具ToolStripMenuItem.Name = "jSON工具ToolStripMenuItem";
+            this.jSON工具ToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
+            this.jSON工具ToolStripMenuItem.Text = "JSON工具";
+            this.jSON工具ToolStripMenuItem.Click += new System.EventHandler(this.jSON工具ToolStripMenuItem_Click);
+            // 
+            // hTTP状态码ToolStripMenuItem
+            // 
+            this.hTTP状态码ToolStripMenuItem.Name = "hTTP状态码ToolStripMenuItem";
+            this.hTTP状态码ToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
+            this.hTTP状态码ToolStripMenuItem.Text = "HTTP状态码";
+            this.hTTP状态码ToolStripMenuItem.Click += new System.EventHandler(this.hTTP状态码ToolStripMenuItem_Click);
+            // 
             // swaggerMarkUpToolStripMenuItem
             // 
             this.swaggerMarkUpToolStripMenuItem.Name = "swaggerMarkUpToolStripMenuItem";
@@ -118,9 +208,18 @@
             // 
             // SubItemHelp
             // 
+            this.SubItemHelp.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.版本ToolStripMenuItem,
+            this.TSMReportError});
             this.SubItemHelp.Name = "SubItemHelp";
             this.SubItemHelp.Size = new System.Drawing.Size(44, 21);
             this.SubItemHelp.Text = "帮助";
+            // 
+            // 版本ToolStripMenuItem
+            // 
+            this.版本ToolStripMenuItem.Name = "版本ToolStripMenuItem";
+            this.版本ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.版本ToolStripMenuItem.Text = "当前版本V1.1";
             // 
             // panel1
             // 
@@ -218,19 +317,12 @@
             this.TSL_ClearMsg.Visible = false;
             this.TSL_ClearMsg.Click += new System.EventHandler(this.TSL_ClearMsg_Click);
             // 
-            // mD5签名ToolStripMenuItem
+            // TSMReportError
             // 
-            this.mD5签名ToolStripMenuItem.Name = "mD5签名ToolStripMenuItem";
-            this.mD5签名ToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
-            this.mD5签名ToolStripMenuItem.Text = "MD5签名";
-            this.mD5签名ToolStripMenuItem.Click += new System.EventHandler(this.mD5签名ToolStripMenuItem_Click);
-            // 
-            // 时间戳ToolStripMenuItem
-            // 
-            this.时间戳ToolStripMenuItem.Name = "时间戳ToolStripMenuItem";
-            this.时间戳ToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
-            this.时间戳ToolStripMenuItem.Text = "时间戳";
-            this.时间戳ToolStripMenuItem.Click += new System.EventHandler(this.时间戳ToolStripMenuItem_Click);
+            this.TSMReportError.Name = "TSMReportError";
+            this.TSMReportError.Size = new System.Drawing.Size(180, 22);
+            this.TSMReportError.Text = "故障报告";
+            this.TSMReportError.Click += new System.EventHandler(this.TSMReportError_Click);
             // 
             // MainFrm
             // 
@@ -245,7 +337,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.mainMenuBar;
             this.Name = "MainFrm";
-            this.Text = "接口管理工具";
+            this.Text = "流星蝴蝶剑";
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.mainMenuBar.ResumeLayout(false);
             this.mainMenuBar.PerformLayout();
@@ -281,6 +373,16 @@
         private System.Windows.Forms.ToolStripButton TSBSave;
         private System.Windows.Forms.ToolStripMenuItem mD5签名ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 时间戳ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem bASE64ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 正则表达式测试ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem xML工具ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem jSON工具ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem hTTP状态码ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 版本ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem gUIDToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 最近ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 代理服务器ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem TSMReportError;
     }
 }
 

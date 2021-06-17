@@ -16,6 +16,7 @@ namespace NETDBHelper.UC
     public partial class WebTab : TabPage
     {
         public Func<DBSource, string, string, List<object>> OnSearch;
+        public Action<DBSource, string, string, string> OnShowProc;
         private DBSource _dbSource;
         private string _dbName;
 
@@ -67,9 +68,15 @@ namespace NETDBHelper.UC
         {
             try
             {
-                var procbody = Biz.Common.Data.MySQLHelper.GetProcedureBody(this._dbSource, this._dbName, procname);
-                SubForm.TextBoxWin win = new SubForm.TextBoxWin($"查看存储过程 {procname}", procbody);
-                win.ShowDialog();
+                //var procbody = Biz.Common.Data.MySQLHelper.GetProcedureBody(this._dbSource, this._dbName, procname);
+                //SubForm.TextBoxWin win = new SubForm.TextBoxWin($"查看存储过程 {procname}", procbody);
+                //win.ShowDialog();
+
+                if (OnShowProc != null)
+                {
+                    var procbody = Biz.Common.Data.MySQLHelper.GetProcedureBody(this._dbSource, this._dbName, procname);
+                    OnShowProc(this._dbSource, this._dbName, procname, procbody);
+                }
             }
             catch (Exception ex)
             {

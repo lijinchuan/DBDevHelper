@@ -87,8 +87,19 @@ namespace APIHelper.SubForm
             {
                 new UC.LoadingBox().Waiting(this, new Action(() =>
                  {
-                     var client = Biz.WCF.WCFClient.CreateClient(url);
-                     var interfacelist = client.GetInterfaceInfos().SelectMany(p => p.Value).OrderBy(p=>p.OperationName).ToList();
+
+                     List<InterfaceInfo> interfacelist = new List<InterfaceInfo>();
+
+                     if (url.EndsWith(".asmx", StringComparison.OrdinalIgnoreCase))
+                     {
+                         var client = Biz.WCF.WebSrvClient.CreateClient(url);
+                         interfacelist = client.GetInterfaceInfos().SelectMany(p => p.Value).OrderBy(p => p.OperationName).ToList();
+                     }
+                     else
+                     {
+                         var client = Biz.WCF.WCFClient.CreateClient(url);
+                         interfacelist = client.GetInterfaceInfos().SelectMany(p => p.Value).OrderBy(p => p.OperationName).ToList();
+                     }
 
                      this.BeginInvoke(new Action(() =>
                      {

@@ -29,7 +29,7 @@ namespace APIHelper
                     {
                         try
                         {
-                            ClearOldMsg(ctl, msg);
+                            ClearOldMsg(parent, msg);
                         }
                         catch
                         {
@@ -165,7 +165,7 @@ namespace APIHelper
             return null;
         }
 
-        public static void AddToMainTab(Control ctl,string title, TabPage page)
+        public static bool AddToMainTab(Control ctl,string title, TabPage page)
         {
             if (string.IsNullOrWhiteSpace(page.Text))
             {
@@ -176,12 +176,13 @@ namespace APIHelper
             {
                 if (parent is MainFrm)
                 {
-                    ((MainFrm)parent).AddTab(title,page);
-                    break;
+                   return ((MainFrm)parent).AddTab(title,page);
                 }
 
                 parent = parent.Parent;
             }
+
+            return false;
         }
 
         public static void PopMsg(int msgid,string title,string content)

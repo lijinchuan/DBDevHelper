@@ -151,7 +151,7 @@ namespace Biz.Common.Data
             return ret;
         }
 
-        public static string GetCreateTableSQL(string dbName,DataTable structTable)
+        public static string GetCreateTableSQL(string dbName, string dbdesc, DataTable structTable)
         {
             DataTable tb = structTable;
             StringBuilder sb = new StringBuilder();
@@ -167,6 +167,7 @@ namespace Biz.Common.Data
            // sb.AppendLine("GO");
             sb.AppendLine();
             sb.AppendFormat("CREATE TABLE if NOT exists `{0}`(", tb.TableName);
+            
             foreach (DataRow row in tb.Rows)
             {
                 sb.AppendLine();
@@ -200,6 +201,8 @@ namespace Biz.Common.Data
                 sb.AppendLine();
                 //sb.AppendLine("GO");
             }
+
+            sb.AppendFormat("ALTER TABLE `{0}` COMMENT='{1}';", tb.TableName, dbdesc);
             return sb.ToString();
         }
 

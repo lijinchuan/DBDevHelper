@@ -7,6 +7,7 @@ using System.CodeDom.Compiler;
 using System.Reflection;
 using Entity;
 using System.Text.RegularExpressions;
+using System.Collections;
 
 namespace Biz.Common.Data
 {
@@ -183,7 +184,7 @@ namespace Biz.Common.Data
             sb.AppendLine("SET ANSI_PADDING OFF");
             //sb.AppendLine("GO");
 
-            sb.AppendLine($@"EXEC sys.sp_addextendedproperty @name=N'MS_Description',@level0type=N'SCHEMA',@level0name=N'dbo',@level1type=N'TABLE',@value=N'{dbdesc}' ,@level1name=N'vip_room_user'");
+            sb.AppendLine($@"EXEC sys.sp_addextendedproperty @name=N'MS_Description',@level0type=N'SCHEMA',@level0name=N'dbo',@level1type=N'TABLE',@value=N'{dbdesc}' ,@level1name=N'{tb.TableName}'");
 
             var descCols = from x in tb.AsEnumerable()
                            where x["desc"] != DBNull.Value
@@ -519,8 +520,8 @@ namespace Biz.Common.Data
             return sb.ToString();
         }
 
-        public static string CreateTableEntity(DBSource dbsource, string dbname, string tbname, string tid,string classnamespace,bool isview, bool isSupportProtobuf,
-            bool isSupportDBMapperAttr, bool isSupportJsonproterty, bool isSupportMvcDisplay,Func<string,string> getDesc, out bool hasKey)
+        public static Tuple<string,string> CreateTableEntity(DBSource dbsource, string dbname, string tbname, string tid,string classnamespace,bool isview, bool isSupportProtobuf,
+            bool isSupportDBMapperAttr, bool isSupportJsonproterty, bool isSupportMvcDisplay,bool isReaderEntity,Func<string,string> getDesc, out bool hasKey)
         {
             hasKey = false;
             DataTable tbDesc = null;
@@ -545,6 +546,33 @@ namespace Biz.Common.Data
 
             StringBuilder sb = new StringBuilder(string.Format("namespace {0}\r\n", classnamespace));
             sb.AppendLine("{");
+
+            StringBuilder sbreader = new StringBuilder();
+            sbreader.AppendLine(@"var fields = new HashSet<string>();");
+            sbreader.AppendLine(@"for (var i = 0; i < reader.FieldCount; i++)");
+            sbreader.AppendLine("{");
+            sbreader.AppendLine("   fields.Add(reader.GetName(i).ToLower());");
+            sbreader.AppendLine("}");
+
+            //类注释
+            string tbdesc = null;
+            var item = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys", new[] { dbname.ToUpper(), tbname.ToUpper(), string.Empty }).FirstOrDefault();
+            if (item == null)
+            {
+                var tb = SQLHelper.GetTableDescription(dbsource, dbname, tbname);
+                if (tb.Rows.Count > 0)
+                {
+                    tbdesc = (string)tb.Rows[0]["desc"];
+                }
+            }
+            else
+            {
+                tbdesc = item.MarkInfo;
+            }
+            sb.AppendLine(@"    /// <summary>");
+            sb.AppendLine($@"    /// {tbdesc}");
+            sb.AppendLine(@"    /// </summary>");
+
             if (isSupportProtobuf)
                 sb.AppendLine("    [ProtoContract]");
             if (isSupportDBMapperAttr)
@@ -603,6 +631,21 @@ namespace Biz.Common.Data
                     }
                 }
 
+                if (isReaderEntity)
+                {
+                    sbreader.AppendLine("if (fields.Contains(\"" + column.Name.ToLower() + "\"))");
+                    sbreader.AppendLine("{");
+                    if (iskey)
+                    {
+                        sbreader.AppendLine("   item." + Biz.Common.StringHelper.FirstToUpper(column.Name) + "=(" + Biz.Common.Data.Common.DbTypeToNetType(column.TypeName, column.IsNullAble) + ")reader[\"" + column.Name + "\"];");
+                    }
+                    else
+                    {
+                        sbreader.AppendLine("   item." + Biz.Common.StringHelper.FirstToUpper(column.Name) + "=reader[\"" + column.Name + "\"]==DBNull.Value?default(" + Biz.Common.Data.Common.DbTypeToNetType(column.TypeName, column.IsNullAble) + "):(" + Biz.Common.Data.Common.DbTypeToNetType(column.TypeName, column.IsNullAble) + ")reader[\"" + column.Name + "\"];");
+                    }
+                    sbreader.AppendLine("}");
+                }
+
                 if (isSupportJsonproterty)
                 {
                     sb.AppendLine("        [JsonProperty(\"" + column.Name.ToLower() + "\")]");
@@ -620,7 +663,12 @@ namespace Biz.Common.Data
             }
             sb.AppendLine("    }");
             sb.AppendLine("}");
-            return sb.ToString();
+            sb.AppendLine();
+            //if (isReaderEntity)
+            //{
+            //    sb.AppendLine(sbreader.ToString());
+            //}
+            return new Tuple<string, string>(sb.ToString(), sbreader.ToString());
         }
 
         public static string CreateSelectSql(string dbname,string tbname,string editer,string spabout,List<TBColumn> cols,List<TBColumn> conditioncols, List<TBColumn> outputcols)

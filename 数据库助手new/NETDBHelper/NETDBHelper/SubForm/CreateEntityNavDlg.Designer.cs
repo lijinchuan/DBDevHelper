@@ -34,10 +34,11 @@
             this.errorProvider1 = new System.Windows.Forms.ErrorProvider(this.components);
             this.BtnCancel = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.CbProtobuf = new System.Windows.Forms.CheckBox();
-            this.CBDatabaseMapperAttr = new System.Windows.Forms.CheckBox();
-            this.CBJsonProperty = new System.Windows.Forms.CheckBox();
             this.CBMVCDisplay = new System.Windows.Forms.CheckBox();
+            this.CBJsonProperty = new System.Windows.Forms.CheckBox();
+            this.CBDatabaseMapperAttr = new System.Windows.Forms.CheckBox();
+            this.CbProtobuf = new System.Windows.Forms.CheckBox();
+            this.CBGenReader = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.errorProvider1)).BeginInit();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
@@ -79,40 +80,27 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.CBGenReader);
             this.groupBox1.Controls.Add(this.CBMVCDisplay);
             this.groupBox1.Controls.Add(this.CBJsonProperty);
             this.groupBox1.Controls.Add(this.CBDatabaseMapperAttr);
             this.groupBox1.Controls.Add(this.CbProtobuf);
             this.groupBox1.Location = new System.Drawing.Point(9, 53);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(404, 48);
+            this.groupBox1.Size = new System.Drawing.Size(439, 48);
             this.groupBox1.TabIndex = 3;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "选择属性";
             // 
-            // CbProtobuf
+            // CBMVCDisplay
             // 
-            this.CbProtobuf.AutoSize = true;
-            this.CbProtobuf.Checked = true;
-            this.CbProtobuf.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.CbProtobuf.Location = new System.Drawing.Point(6, 20);
-            this.CbProtobuf.Name = "CbProtobuf";
-            this.CbProtobuf.Size = new System.Drawing.Size(96, 16);
-            this.CbProtobuf.TabIndex = 0;
-            this.CbProtobuf.Text = "支持Protobuf";
-            this.CbProtobuf.UseVisualStyleBackColor = true;
-            // 
-            // CBDatabaseMapperAttr
-            // 
-            this.CBDatabaseMapperAttr.AutoSize = true;
-            this.CBDatabaseMapperAttr.Checked = true;
-            this.CBDatabaseMapperAttr.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.CBDatabaseMapperAttr.Location = new System.Drawing.Point(108, 20);
-            this.CBDatabaseMapperAttr.Name = "CBDatabaseMapperAttr";
-            this.CBDatabaseMapperAttr.Size = new System.Drawing.Size(60, 16);
-            this.CBDatabaseMapperAttr.TabIndex = 1;
-            this.CBDatabaseMapperAttr.Text = "数据库";
-            this.CBDatabaseMapperAttr.UseVisualStyleBackColor = true;
+            this.CBMVCDisplay.AutoSize = true;
+            this.CBMVCDisplay.Location = new System.Drawing.Point(228, 20);
+            this.CBMVCDisplay.Name = "CBMVCDisplay";
+            this.CBMVCDisplay.Size = new System.Drawing.Size(90, 16);
+            this.CBMVCDisplay.TabIndex = 3;
+            this.CBMVCDisplay.Text = "MVC display";
+            this.CBMVCDisplay.UseVisualStyleBackColor = true;
             // 
             // CBJsonProperty
             // 
@@ -126,21 +114,45 @@
             this.CBJsonProperty.Text = "Json";
             this.CBJsonProperty.UseVisualStyleBackColor = true;
             // 
-            // CBMVCDisplay
+            // CBDatabaseMapperAttr
             // 
-            this.CBMVCDisplay.AutoSize = true;
-            this.CBMVCDisplay.Location = new System.Drawing.Point(228, 20);
-            this.CBMVCDisplay.Name = "CBMVCDisplay";
-            this.CBMVCDisplay.Size = new System.Drawing.Size(90, 16);
-            this.CBMVCDisplay.TabIndex = 3;
-            this.CBMVCDisplay.Text = "MVC display";
-            this.CBMVCDisplay.UseVisualStyleBackColor = true;
+            this.CBDatabaseMapperAttr.AutoSize = true;
+            this.CBDatabaseMapperAttr.Checked = true;
+            this.CBDatabaseMapperAttr.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.CBDatabaseMapperAttr.Location = new System.Drawing.Point(108, 20);
+            this.CBDatabaseMapperAttr.Name = "CBDatabaseMapperAttr";
+            this.CBDatabaseMapperAttr.Size = new System.Drawing.Size(60, 16);
+            this.CBDatabaseMapperAttr.TabIndex = 1;
+            this.CBDatabaseMapperAttr.Text = "数据库";
+            this.CBDatabaseMapperAttr.UseVisualStyleBackColor = true;
+            // 
+            // CbProtobuf
+            // 
+            this.CbProtobuf.AutoSize = true;
+            this.CbProtobuf.Checked = true;
+            this.CbProtobuf.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.CbProtobuf.Location = new System.Drawing.Point(6, 20);
+            this.CbProtobuf.Name = "CbProtobuf";
+            this.CbProtobuf.Size = new System.Drawing.Size(96, 16);
+            this.CbProtobuf.TabIndex = 0;
+            this.CbProtobuf.Text = "支持Protobuf";
+            this.CbProtobuf.UseVisualStyleBackColor = true;
+            // 
+            // CBGenReader
+            // 
+            this.CBGenReader.AutoSize = true;
+            this.CBGenReader.Location = new System.Drawing.Point(326, 20);
+            this.CBGenReader.Name = "CBGenReader";
+            this.CBGenReader.Size = new System.Drawing.Size(96, 16);
+            this.CBGenReader.TabIndex = 4;
+            this.CBGenReader.Text = "Reader转实体";
+            this.CBGenReader.UseVisualStyleBackColor = true;
             // 
             // CreateEntityNavDlg
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(425, 113);
+            this.ClientSize = new System.Drawing.Size(460, 113);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.BtnCancel);
             this.Controls.Add(this.tbInput);
@@ -172,5 +184,6 @@
         private System.Windows.Forms.CheckBox CBDatabaseMapperAttr;
         private System.Windows.Forms.CheckBox CBJsonProperty;
         private System.Windows.Forms.CheckBox CBMVCDisplay;
+        private System.Windows.Forms.CheckBox CBGenReader;
     }
 }

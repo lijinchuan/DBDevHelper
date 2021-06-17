@@ -70,9 +70,10 @@ namespace APIHelper.UC
             var currentrow = DGVRequest.CurrentRow;
             if (currentrow == null || currentrow.Index == 0)
             {
+                DGVRequest.BindingContext[DGVRequest.DataSource].Position = DGVRequest.Rows.Count - 1;
                 return;
             }
-
+            var rowindex = currentrow.Index;
             var currentparam = currentrow.DataBoundItem as APIParam;
             var destSort = currentparam.Sort - 1;
             var destparam = RequstParams.Find(p => p.Sort == destSort);
@@ -85,6 +86,7 @@ namespace APIHelper.UC
             RequstParams = RequstParams.OrderBy(p => p.Sort).ToList();
             DGVRequest.DataSource = null;
             DGVRequest.DataSource = RequstParams;
+            DGVRequest.BindingContext[DGVRequest.DataSource].Position = rowindex - 1;
         }
 
         private void BtnMultiAddReqParams_Click(object sender, EventArgs e)
@@ -214,9 +216,10 @@ namespace APIHelper.UC
             var currentrow = DGVRequest.CurrentRow;
             if (currentrow == null || currentrow.Index == DGVRequest.Rows.Count - 1)
             {
+                DGVRequest.BindingContext[DGVRequest.DataSource].Position = 0;
                 return;
             }
-
+            var rowindex = currentrow.Index;
             var currentparam = currentrow.DataBoundItem as APIParam;
             var destSort = currentparam.Sort + 1;
             var destparam = RequstParams.Find(p => p.Sort == destSort);
@@ -229,6 +232,7 @@ namespace APIHelper.UC
             RequstParams = RequstParams.OrderBy(p => p.Sort).ToList();
             DGVRequest.DataSource = null;
             DGVRequest.DataSource = RequstParams;
+            DGVRequest.BindingContext[DGVRequest.DataSource].Position = rowindex + 1;
         }
 
         private void GridView_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)

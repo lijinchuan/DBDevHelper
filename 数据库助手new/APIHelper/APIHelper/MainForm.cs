@@ -261,7 +261,7 @@ namespace APIHelper
             }
         }
 
-        public void AddTab(string title, TabPage addpage)
+        public bool AddTab(string title, TabPage addpage)
         {
             bool isExists = false;
             foreach (TabPage page in this.TabControl.TabPages)
@@ -278,7 +278,10 @@ namespace APIHelper
             {
                 this.TabControl.TabPages.Add(addpage);
                 TabControl.SelectedTab = addpage;
+                return true;
             }
+
+            return false;
         }
 
 
@@ -312,6 +315,107 @@ namespace APIHelper
         private void 时间戳ToolStripMenuItem_Click(object sender, EventArgs e)
         {
             System.Diagnostics.Process.Start("https://tool.lu/timestamp/");
+        }
+
+        private void bASE64ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            System.Diagnostics.Process.Start("https://tool.lu/encdec/");
+        }
+
+        private void 正则表达式测试ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            System.Diagnostics.Process.Start("https://tool.lu/regex/");
+        }
+
+        private void xML工具ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            System.Diagnostics.Process.Start("https://tool.lu/xml/");
+        }
+
+        private void jSON工具ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            System.Diagnostics.Process.Start("https://tool.lu/json/");
+        }
+
+        private void hTTP状态码ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            System.Diagnostics.Process.Start("https://tool.lu/httpcode/");
+        }
+
+        private void gUIDToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            System.Diagnostics.Process.Start("https://www.iamwawa.cn/guid.html");
+        }
+
+        private void 最近ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var tp = new TabPage();
+            
+            if (Util.AddToMainTab(this, "最近访问", tp))
+            {
+                var logview = new LogViewTab();
+                logview.Dock = DockStyle.Fill;
+                tp.Controls.Add(logview);
+
+                logview.Init(0, 0);
+
+                logview.ReInvoke += log =>
+                {
+                    var apiurl = BigEntityTableEngine.LocalEngine.Find<APIUrl>(nameof(APIUrl), log.APIId);
+                    if (apiurl != null)
+                    {
+                        var apisource = BigEntityTableEngine.LocalEngine.Find<APISource>(nameof(APISource), apiurl.SourceId);
+                        if (apisource != null)
+                        {
+                            Util.AddToMainTab(this, $"[{apisource.SourceName}]{apiurl.APIName}", new UCAddAPI(apiurl));
+                        }
+                    }
+                };
+            }
+        }
+
+        private void 代理服务器ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var dlg = new SubForm.SubBaseDlg();
+            dlg.Text = "全局代理服务器";
+            var globProxyServer = BigEntityTableEngine.LocalEngine.Find<ProxyServer>(nameof(ProxyServer), p => p.Name.Equals(ProxyServer.GlobName)).FirstOrDefault();
+            
+            var ucproxy =new UC.UCProxy(globProxyServer);
+            ucproxy.Dock = DockStyle.Fill;
+            dlg.Controls.Add(ucproxy);
+            dlg.FormClosing += (s, ee) =>
+            {
+                var proxyserver = ucproxy.GetProxyServer();
+
+                if (ucproxy.HasChanged && MessageBox.Show("要保存吗?", "提示", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                {
+                    if (proxyserver.Id == 0)
+                    {
+                        proxyserver.Name = ProxyServer.GlobName;
+                        BigEntityTableEngine.LocalEngine.Insert<ProxyServer>(nameof(ProxyServer), proxyserver);
+                        Util.SendMsg(this, "新增成功");
+                    }
+                    else
+                    {
+                        BigEntityTableEngine.LocalEngine.Update<ProxyServer>(nameof(ProxyServer), proxyserver);
+                        Util.SendMsg(this, "修改成功");
+                    }
+                    
+                }
+            };
+            dlg.ShowDialog();
+        }
+
+        private void TSMReportError_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                System.Diagnostics.Process.Start("mailto:403479851@qq.com?subject=api管理工具v1.0使用问题反馈");
+            }
+            catch
+            {
+                MessageBox.Show("启动发送邮件应用失败，请手动发送邮件到：403479851@qq.com");
+            }
         }
     }
 }

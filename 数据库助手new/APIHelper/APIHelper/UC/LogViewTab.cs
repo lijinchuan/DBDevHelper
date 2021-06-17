@@ -22,16 +22,19 @@ namespace APIHelper.UC
 
         int _apiid = 0,_envid=0;
 
-        public void Init(int apiid,int envid)
+        public void Init(int apiid, int envid)
         {
             if (apiid != _apiid || envid != _envid)
             {
                 _apiid = apiid;
                 _envid = envid;
 
-                this.PageIndex = 1;
-                BindData();
             }
+
+            this.TBSearchKey.Visible = apiid > 0;
+
+            this.PageIndex = 1;
+            BindData();
         }
 
         public LogViewTab()
@@ -59,8 +62,6 @@ namespace APIHelper.UC
             this.GVLog.BorderStyle = BorderStyle.None;
             this.GVLog.GridColor = Color.LightBlue;
 
-            //this.GVLog.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.DisplayedCells;
-            //this.GVLog.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
             this.GVLog.AllowUserToResizeRows = true;
 
             BeginDate.Value = DateTime.Now.AddMonths(-1);
@@ -71,6 +72,16 @@ namespace APIHelper.UC
 
             GVLog.RowHeadersVisible = false;
             GVLog.DataBindingComplete += GVLog_DataBindingComplete;
+
+            this.AutoScroll = true;
+        }
+
+        public void SetPageSize(int size)
+        {
+            if (size > 0)
+            {
+                this.pageSize = size;
+            }
         }
 
         private void GVLog_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
@@ -85,14 +96,9 @@ namespace APIHelper.UC
                 GVLog.Columns["时间"].Width = 120;
             }
 
-            if (GVLog.Columns.Contains("状态码"))
+            if (GVLog.Columns.Contains("地址"))
             {
-                GVLog.Columns["状态码"].Width = 80;
-            }
-
-            if (GVLog.Columns.Contains("用时"))
-            {
-                GVLog.Columns["用时"].Width = 100;
+                GVLog.Columns["地址"].Width = 200;
             }
 
             if (GVLog.Columns.Contains("请求大小"))
@@ -103,6 +109,21 @@ namespace APIHelper.UC
             if (GVLog.Columns.Contains("响应大小"))
             {
                 GVLog.Columns["响应大小"].Width = 100;
+            }
+
+            if (GVLog.Columns.Contains("状态码"))
+            {
+                GVLog.Columns["状态码"].Width = 80;
+            }
+
+            if (GVLog.Columns.Contains("用时"))
+            {
+                GVLog.Columns["用时"].Width = 100;
+            }
+
+            if (GVLog.Rows.Count > 0)
+            {
+                GVLog.Height = GVLog.Rows[0].Height * GVLog.RowCount + GVLog.ColumnHeadersHeight;
             }
         }
 
@@ -347,24 +368,41 @@ namespace APIHelper.UC
                     object logs = null;
                     if (string.IsNullOrWhiteSpace(TBSearchKey.Text) || TBSearchKey.Text.Equals(TBSearchKey.Tag))
                     {
-                        logs = BigEntityTableEngine.LocalEngine.Scan<APIInvokeLog>(nameof(APIInvokeLog), "APIId_ApiEnvId_CDate",
-                            new object[] { _apiid,_envid, EndDate.Value.Date.AddDays(1) }, new object[] { _apiid,_envid, BeginDate.Value.Date }, PageIndex == 0 ? 1 : PageIndex, pageSize, ref total).Select(p => new
-                            {
-                                编号 = p.Id,
-                                时间 = p.CDate,
-                                地址 = p.Path,
-                                请求大小=p.GetRequestDetail().Length,
-                                响应大小=p.GetRespDetail().Length,
-                                状态码 = p.StatusCode,
-                                用时 = p.Ms
-                            }).ToList();
+                        if (_apiid > 0)
+                        {
+                            logs = BigEntityTableEngine.LocalEngine.Scan<APIInvokeLog>(nameof(APIInvokeLog), "APIId_ApiEnvId_CDate",
+                                new object[] { _apiid, _envid, EndDate.Value.Date.AddDays(1) }, new object[] { _apiid, _envid, BeginDate.Value.Date }, PageIndex == 0 ? 1 : PageIndex, pageSize, ref total).Select(p => new
+                                {
+                                    编号 = p.Id,
+                                    时间 = p.CDate,
+                                    地址 = p.Path,
+                                    请求大小 = p.GetRequestDetail().Length,
+                                    响应大小 = p.GetRespDetail().Length,
+                                    状态码 = p.StatusCode,
+                                    用时 = p.Ms
+                                }).ToList();
+                        }
+                        else
+                        {
+                            logs = BigEntityTableEngine.LocalEngine.Scan<APIInvokeLog>(nameof(APIInvokeLog), "CDate",
+                                new object[] { EndDate.Value.Date.AddDays(1) }, new object[] { BeginDate.Value.Date }, PageIndex == 0 ? 1 : PageIndex, pageSize, ref total).Select(p => new
+                                {
+                                    编号 = p.Id,
+                                    时间 = p.CDate,
+                                    地址 = p.Path,
+                                    请求大小 = p.GetRequestDetail().Length,
+                                    响应大小 = p.GetRespDetail().Length,
+                                    状态码 = p.StatusCode,
+                                    用时 = p.Ms
+                                }).ToList();
+                        }
                     }
                     else
                     {
                         var list = BigEntityTableEngine.LocalEngine.Scan<APIInvokeLog>(nameof(APIInvokeLog), "APIId_ApiEnvId_CDate",
                             new object[] { _apiid, _envid, EndDate.Value.Date.AddDays(1) }, new object[] { _apiid, _envid, BeginDate.Value.Date }, 1, int.MaxValue, ref total);
                         var key = TBSearchKey.Text;
-                        list = list.Where(p => (p.ResponseText ?? "").Contains(key)).ToList();
+                        list = list.Where(p => p.GetRequestBody().ToString().Contains(key) || (p.ResponseText ?? "").Contains(key)).ToList();
                         total = list.Count();
                         list = list.Skip((PageIndex - 1) * pageSize).Take(pageSize).ToList();
                         logs = list.Select(p => new
@@ -395,9 +433,9 @@ namespace APIHelper.UC
                         this.bindingNavigatorMovePreviousItem.Enabled = PageIndex > 1;
                     }));
                 }
-                catch
+                catch(Exception ex)
                 {
-
+                    Util.SendMsg(this, ex.Message);
                 }
                 finally
                 {

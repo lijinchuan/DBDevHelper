@@ -77,6 +77,18 @@ namespace Entity
             set;
         }
 
+        public string BasicUserName
+        {
+            get;
+            set;
+        }
+
+        public string BasicUserPwd
+        {
+            get;
+            set;
+        }
+
         public List<ParamInfo> Cookies
         {
             get;

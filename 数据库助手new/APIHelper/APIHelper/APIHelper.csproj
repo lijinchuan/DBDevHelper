@@ -165,6 +165,12 @@
     <Compile Include="SubForm\CreateEntityNavDlg.Designer.cs">
       <DependentUpon>CreateEntityNavDlg.cs</DependentUpon>
     </Compile>
+    <Compile Include="SubForm\FileDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SubForm\FileDlg.Designer.cs">
+      <DependentUpon>FileDlg.cs</DependentUpon>
+    </Compile>
     <Compile Include="SubForm\FindDlg.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -243,6 +249,12 @@
     <Compile Include="UC\Auth\UCApiKey.Designer.cs">
       <DependentUpon>UCApiKey.cs</DependentUpon>
     </Compile>
+    <Compile Include="UC\Auth\UCBasicAuth.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UC\Auth\UCBasicAuth.Designer.cs">
+      <DependentUpon>UCBasicAuth.cs</DependentUpon>
+    </Compile>
     <Compile Include="UC\Auth\UCBearToken.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -309,6 +321,9 @@
       <DependentUpon>Scale.cs</DependentUpon>
     </Compile>
     <Compile Include="UC\TabTableTabEx.cs" />
+    <Compile Include="UC\TextBoxEx.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="UC\UCAddAPI.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -339,11 +354,23 @@
     <Compile Include="UC\UCApiResult.Designer.cs">
       <DependentUpon>UCApiResult.cs</DependentUpon>
     </Compile>
+    <Compile Include="UC\UCApiUrlSetting.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UC\UCApiUrlSetting.Designer.cs">
+      <DependentUpon>UCApiUrlSetting.cs</DependentUpon>
+    </Compile>
     <Compile Include="UC\UCBinary.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="UC\UCBinary.Designer.cs">
       <DependentUpon>UCBinary.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UC\UCJsonViewer.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UC\UCJsonViewer.Designer.cs">
+      <DependentUpon>UCJsonViewer.cs</DependentUpon>
     </Compile>
     <Compile Include="UC\UCLogicMap.cs">
       <SubType>Component</SubType>
@@ -362,6 +389,12 @@
     </Compile>
     <Compile Include="UC\UCParamsTable.Designer.cs">
       <DependentUpon>UCParamsTable.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UC\UCProxy.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UC\UCProxy.Designer.cs">
+      <DependentUpon>UCProxy.cs</DependentUpon>
     </Compile>
     <Compile Include="UC\UPAPIParamTable.cs">
       <SubType>UserControl</SubType>
@@ -410,6 +443,9 @@
     <EmbeddedResource Include="SubForm\CreateEntityNavDlg.resx">
       <DependentUpon>CreateEntityNavDlg.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="SubForm\FileDlg.resx">
+      <DependentUpon>FileDlg.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="SubForm\FindDlg.resx">
       <DependentUpon>FindDlg.cs</DependentUpon>
     </EmbeddedResource>
@@ -449,6 +485,9 @@
     <EmbeddedResource Include="UC\Auth\UCApiKey.resx">
       <DependentUpon>UCApiKey.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="UC\Auth\UCBasicAuth.resx">
+      <DependentUpon>UCBasicAuth.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="UC\Auth\UCBearToken.resx">
       <DependentUpon>UCBearToken.cs</DependentUpon>
     </EmbeddedResource>
@@ -485,8 +524,14 @@
     <EmbeddedResource Include="UC\UCApiResult.resx">
       <DependentUpon>UCApiResult.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="UC\UCApiUrlSetting.resx">
+      <DependentUpon>UCApiUrlSetting.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="UC\UCBinary.resx">
       <DependentUpon>UCBinary.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UC\UCJsonViewer.resx">
+      <DependentUpon>UCJsonViewer.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UC\UCLogicMap.resx">
       <DependentUpon>UCLogicMap.cs</DependentUpon>
@@ -496,6 +541,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="UC\UCParamsTable.resx">
       <DependentUpon>UCParamsTable.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UC\UCProxy.resx">
+      <DependentUpon>UCProxy.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UC\UPAPIParamTable.resx">
       <DependentUpon>UPAPIParamTable.cs</DependentUpon>
@@ -523,11 +571,23 @@
     <Content Include="ApiDoc.css">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="btn.svg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="help.html">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Json2.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="worker-xml.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="xml.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="xmltool.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <None Include="Resources\text_columns1.png" />
     <None Include="Resources\text_columns.png" />
@@ -538,11 +598,15 @@
     <None Include="jsonview.html.tpl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <Content Include="jsonviewer.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="marked.min.js">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <None Include="Resources\bullet_green.png" />
     <None Include="Resources\bullet_red.png" />
+    <None Include="Resources\bullet_database_yellow.png" />
     <Content Include="Resources\bullet_tick.png" />
     <Content Include="Resources\computer_link.png" />
     <Content Include="Resources\connect.png" />
@@ -558,6 +622,9 @@
     <None Include="Resources\folder_database.png" />
     <None Include="Resources\disk_black.png" />
     <None Include="Resources\disk_black1.png" />
+    <None Include="Resources\control_add.png" />
+    <None Include="Resources\control_remove.png" />
+    <None Include="Resources\help.png" />
     <Content Include="Resources\loading2.gif" />
     <Content Include="Resources\msg.png" />
     <None Include="Resources\script_code_no.png" />
@@ -575,6 +642,7 @@
     <None Include="Resources\record_green.png" />
     <None Include="Resources\record_blue.png" />
     <None Include="Resources\SwaggerApi.png" />
+    <None Include="Resources\rgb.png" />
     <Content Include="Resources\table.png" />
     <Content Include="Resources\tbview.png" />
     <None Include="packages.config" />

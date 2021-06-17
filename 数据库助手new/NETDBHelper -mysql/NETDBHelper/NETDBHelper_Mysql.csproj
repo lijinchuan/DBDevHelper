@@ -530,7 +530,9 @@
     <None Include="Resources\plugin.png" />
     <None Include="Resources\sort_ascending.png" />
     <None Include="Resources\sort_descending.png" />
+    <None Include="Resources\text_ab.png" />
     <Content Include="Resources\text_bold.png" />
+    <None Include="Resources\text_underline.png" />
     <Content Include="Resources\text_uppercase.png" />
     <None Include="packages.config" />
     <None Include="Resources\table.png" />

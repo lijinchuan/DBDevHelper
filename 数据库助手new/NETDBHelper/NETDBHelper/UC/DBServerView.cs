@@ -135,7 +135,7 @@ namespace NETDBHelper
                             var node = tv_DBServers.SelectedNode;
                             if (node == null)
                                 return;
-                            OnAddEntityTB(GetDBSource(node), node.Text);
+                            OnAddEntityTB(GetDBSource(node),GetDBName(node));
                         }
                         break;
                     case "删除对象":
@@ -163,7 +163,7 @@ namespace NETDBHelper
                         var dlg = new SubForm.InputStringDlg("请输入库名：");
                         if (dlg.ShowDialog() == DialogResult.OK)
                         {
-                            Biz.Common.Data.SQLHelper.CreateDataBase(GetDBSource(selnode), selnode.FirstNode.Text, dlg.InputString);
+                            Biz.Common.Data.SQLHelper.CreateDataBase(GetDBSource(selnode), selnode.FirstNode?.Text, dlg.InputString);
                             ReLoadDBObj(selnode);
 
                             LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<HLogEntity>("HLog", new HLogEntity
@@ -549,23 +549,26 @@ namespace NETDBHelper
                 string dbname = GetDBName(tv_DBServers.SelectedNode);
                 var tid = (tv_DBServers.SelectedNode.Tag as TableInfo)?.TBId;
 
-                var classcode = DataHelper.CreateTableEntity(dbsource, dbname, tbname, tid, DefaultEntityNamespace, tv_DBServers.SelectedNode.Tag is ViewInfo,
-                    isSupportProtobuf, isSupportDBMapperAttr, isSupportJsonproterty, isSupportMvcDisplay, name =>
-                     {
-                         var mark = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys", new
-                                  [] { dbname.ToUpper(), tbname.ToUpper(), name.ToUpper() }).FirstOrDefault();
+                var tp = DataHelper.CreateTableEntity(dbsource, dbname, tbname, tid, DefaultEntityNamespace, tv_DBServers.SelectedNode.Tag is ViewInfo,
+                    isSupportProtobuf, isSupportDBMapperAttr, isSupportJsonproterty, isSupportMvcDisplay, dlg.ReaderEntityCode, name =>
+                      {
+                          var mark = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys", new
+                                   [] { dbname.ToUpper(), tbname.ToUpper(), name.ToUpper() }).FirstOrDefault();
 
-                         return mark == null ? name : mark.MarkInfo;
+                          return mark == null ? name : mark.MarkInfo;
 
-                     }, out hasKey);
-
+                      }, out hasKey);
+                var classcode = tp.Item1;
                 if (OnCreateEntity != null)
                 {
                     OnCreateEntity("实体类" + tbname, classcode);
                 }
                 Clipboard.SetText(classcode);
                 MainFrm.SendMsg(string.Format("实体代码已经复制到剪贴板,{0}", hasKey ? "" : "警告：表没有自增主键。"));
-
+                if (dlg.ReaderEntityCode)
+                {
+                    new SubForm.TextBoxWin("reader " + dbname + "." + tbname, tp.Item2).Show();
+                }
             }
         }
 
@@ -859,7 +862,7 @@ namespace NETDBHelper
                     else
                     {
                         this.tv_DBServers.ContextMenuStrip = this.CommMenuStrip;
-                        subMenuItemAddEntityTB.Visible = nctype == NodeContentType.DB;
+                        subMenuItemAddEntityTB.Visible = nctype == NodeContentType.TBParent;
                         TSMI_ViewTableList.Visible = nctype == NodeContentType.DB;
                         TSMI_ViewColumnList.Visible = nctype == NodeContentType.DB;
                         CommSubMenuItem_Delete.Visible = nctype == NodeContentType.DB;
@@ -1004,6 +1007,25 @@ namespace NETDBHelper
                     }
                 }
             }
+            return null;
+        }
+
+        public TreeNode FindNode(TreeNode node, NodeContentType nodeContentType)
+        {
+            if (node.Tag is INodeContents && (node.Tag as INodeContents).GetNodeContentType() == nodeContentType)
+            {
+                return node;
+            }
+
+            foreach(TreeNode n in node.Nodes)
+            {
+                var fn = FindNode(n, nodeContentType);
+                if (fn != null)
+                {
+                    return fn;
+                }
+            }
+
             return null;
         }
 

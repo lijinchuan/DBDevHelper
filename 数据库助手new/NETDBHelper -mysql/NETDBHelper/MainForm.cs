@@ -150,7 +150,10 @@ namespace NETDBHelper
                 e.Cancel = true;
                 return;
             }
-
+            if (e.Cancel)
+            {
+                e.Cancel = false;
+            }
             base.OnClosing(e);
             if (tasktimer != null)
             {
@@ -254,20 +257,11 @@ namespace NETDBHelper
 
         private void OnNewTableAdd(DBSource db, string dbName)
         {
-            var node = dbServerView1.FindNode(db.ServerName, dbName);
-            TreeNode pnode = null;
-            foreach (TreeNode n in node.Nodes)
+            var dbnode = dbServerView1.FindNode(db.ServerName, dbName);
+            if (dbnode != null)
             {
-                var c = n.Tag as Entity.INodeContents;
-                if (c.GetNodeContentType() == NodeContentType.TBParent)
-                {
-                    pnode = n;
-                    break;
-                }
-
+                Biz.UILoadHelper.LoadTBsAnsy(this, dbServerView1.FindNode(dbnode, NodeContentType.TBParent), db, dbName, null);
             }
-            if (pnode != null)
-                Biz.UILoadHelper.LoadTBsAnsy(this, pnode, db, dbName, null);
         }
 
         public void ShowTableData(DBSource db,string dbName,string tbName, string sql)
@@ -516,6 +510,7 @@ namespace NETDBHelper
             UC.WebTab panel = new WebTab(dbsource, dbname);
             panel.SetHtml(html);
             panel.Text = tit;
+            panel.OnShowProc += (s, d, p, b) => this.ShowProc(s, d, p, b);
             panel.OnSearch += (s, n, w) =>
             {
                 List<object> lst = new List<object>();

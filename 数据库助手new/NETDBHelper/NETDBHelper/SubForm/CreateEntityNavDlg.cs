@@ -50,6 +50,14 @@ namespace NETDBHelper.SubForm
             }
         }
 
+        public bool ReaderEntityCode
+        {
+            get
+            {
+                return this.CBGenReader.Checked;
+            }
+        }
+
         public CreateEntityNavDlg(string caption, string oldText = "", string inputTest = "") :
             base()
         {

@@ -100,30 +100,30 @@ namespace APIHelper
             .AddIndex("LSDTC", m => m.Asc(f => f.LogicID).Asc(f => f.APISourceId).Asc(f => f.APIId))
             .AddIndex("LSDRTC", m => m.Asc(f => f.LogicID).Asc(f => f.RelAPIResourceId).Asc(f => f.RelAPIId)));
 
-            //BigEntityTableEngine.LocalEngine.Upgrade<Entity.OldVesion.APIData, APIData>(nameof(APIData), old =>
-            //{
-            //    if (old == null)
-            //    {
-            //        return null;
-            //    }
-            //    return new APIData
-            //    {
-            //        ApiId = old.ApiId,
-            //        ApiKeyAddTo = old.ApiKeyAddTo,
-            //        ApiKeyName = old.ApiKeyName,
-            //        ApiKeyValue = old.ApiKeyValue,
-            //        BearToken = old.BearToken,
-            //        Cookies = old.Cookies,
-            //        FormDatas = old.FormDatas,
-            //        Headers = old.Headers,
-            //        Multipart_form_data = new List<ParamInfo>(),
-            //        Params = old.Params,
-            //        RawText = old.RawText,
-            //        XWWWFormUrlEncoded = old.XWWWFormUrlEncoded
-            //    };
+            BigEntityTableEngine.LocalEngine.Upgrade<Entity.OldVesion.APIData, APIData>(nameof(APIData), old =>
+            {
+                if (old == null)
+                {
+                    return null;
+                }
+                return new APIData
+                {
+                    ApiId = old.ApiId,
+                    ApiKeyAddTo = old.ApiKeyAddTo,
+                    ApiKeyName = old.ApiKeyName,
+                    ApiKeyValue = old.ApiKeyValue,
+                    BearToken = old.BearToken,
+                    Cookies = old.Cookies,
+                    FormDatas = old.FormDatas,
+                    Headers = old.Headers,
+                    Multipart_form_data = new List<ParamInfo>(),
+                    Params = old.Params,
+                    RawText = old.RawText,
+                    XWWWFormUrlEncoded = old.XWWWFormUrlEncoded
+                };
 
-            //}, "Id", true, new IndexBuilder<APIData>().AddIndex("ApiId", q => q.Asc(m => m.ApiId)).Build());
-            BigEntityTableEngine.LocalEngine.CreateTable<APIData>(p => p.Id, p => p.AddIndex("ApiId", q => q.Asc(m => m.ApiId)));
+            }, "Id", true, new IndexBuilder<APIData>().AddIndex("ApiId", q => q.Asc(m => m.ApiId)).Build());
+            //BigEntityTableEngine.LocalEngine.CreateTable<APIData>(p => p.Id, p => p.AddIndex("ApiId", q => q.Asc(m => m.ApiId)));
 
             BigEntityTableEngine.LocalEngine.CreateTable<APIEnv>(p => p.Id, p => p.AddIndex("SourceId", q => q.Asc(m => m.SourceId)));
 
@@ -132,8 +132,51 @@ namespace APIHelper
             .AddIndex("APISourceId_Name", q => q.Asc(m => m.APISourceId).Asc(m => m.Name)));
 
             //日志
-            BigEntityTableEngine.LocalEngine.CreateTable<APIInvokeLog>(p => p.Id, p => p.AddIndex("APIId_CDate", m => m.Asc(s => s.APIId).Desc(s => s.CDate))
-           .AddIndex("APIId_ApiEnvId_CDate", m => m.Asc(s => s.APIId).Asc(s => s.ApiEnvId).Desc(s => s.CDate)));
+            BigEntityTableEngine.LocalEngine.Upgrade<Entity.OldVesion.APIInvokeLog, Entity.APIInvokeLog>(nameof(APIInvokeLog), old =>
+              {
+                  return new APIInvokeLog
+                  {
+                      APIData=new APIData
+                      {
+                          ApiId=old.APIData.ApiId,
+                          ApiKeyAddTo=old.APIData.ApiKeyAddTo,
+                          ApiKeyName=old.APIData.ApiKeyName,
+                          ApiKeyValue=old.APIData.ApiKeyValue,
+                          BasicUserName=string.Empty,
+                          BasicUserPwd=string.Empty,
+                          BearToken=old.APIData.BearToken,
+                          Cookies=old.APIData.Cookies,
+                          FormDatas=old.APIData.FormDatas,
+                          Headers=old.APIData.Headers,
+                          Id=old.APIData.Id,
+                          Multipart_form_data=old.APIData.Multipart_form_data,
+                          Params=old.APIData.Params,
+                          RawText=old.APIData.RawText,
+                          XWWWFormUrlEncoded=old.APIData.XWWWFormUrlEncoded
+                      },
+                      ApiEnvId=old.ApiEnvId,
+                      AuthType=old.AuthType,
+                      APIId=old.APIId,
+                      APIMethod=old.APIMethod,
+                      APIName=old.APIName,
+                      APIResonseResult=old.APIResonseResult,
+                      ApplicationType=old.ApplicationType,
+                      BodyDataType=old.BodyDataType,
+                      CDate=old.CDate,
+                      Ms=old.Ms,
+                      Path=old.Path,
+                      RespMsg=old.RespMsg,
+                      ResponseText=old.ResponseText,
+                      RespSize=old.RespSize,
+                      SourceId=old.SourceId,
+                      StatusCode=old.StatusCode
+                  };
+              }, "Id", true, new IndexBuilder<APIInvokeLog>().AddIndex("APIId_CDate", m => m.Asc(s => s.APIId).Desc(s => s.CDate))
+           .AddIndex("APIId_ApiEnvId_CDate", m => m.Asc(s => s.APIId).Asc(s => s.ApiEnvId).Desc(s => s.CDate)).Build());
+
+            //BigEntityTableEngine.LocalEngine.CreateTable<APIInvokeLog>(p => p.Id, p => p.AddIndex("APIId_CDate", m => m.Asc(s => s.APIId).Desc(s => s.CDate))
+            //.AddIndex("APIId_ApiEnvId_CDate", m => m.Asc(s => s.APIId).Asc(s => s.ApiEnvId).Desc(s => s.CDate)));
+            BigEntityTableEngine.LocalEngine.EnsureIndex<APIInvokeLog>(nameof(APIInvokeLog), b => b.AddIndex("CDate", m => m.Desc(s => s.CDate)).Build());
 
             //参数
             BigEntityTableEngine.LocalEngine.CreateTable<APIParam>(p => p.Id, p => p.AddIndex("APIId", m => m.Asc(s => s.APIId)));
@@ -141,6 +184,9 @@ namespace APIHelper
             BigEntityTableEngine.LocalEngine.CreateTable<APIDoc>(p => p.Id, p => p.AddIndex("APISourceId", m => m.Asc(s => s.APISourceId)).AddIndex("APIId", m => m.Asc(s => s.APIId)));
             //文档示例
             BigEntityTableEngine.LocalEngine.CreateTable<APIDocExample>(p => p.Id, p => p.AddIndex("ApiId", m => m.Asc(s => s.ApiId)));
+
+            BigEntityTableEngine.LocalEngine.CreateTable<ProxyServer>(p => p.Id, null);
+            BigEntityTableEngine.LocalEngine.CreateTable<ApiUrlSetting>(p => p.Id, b => b.AddIndex("ApiId", c => c.Asc(d => d.ApiId)));
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);

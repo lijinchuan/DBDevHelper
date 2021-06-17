@@ -170,6 +170,10 @@ namespace Entity
                     sb.AppendLine($" {this.APIData?.ApiKeyName}:{this.APIData?.ApiKeyValue}");
                 }
             }
+            else if (authtype == AuthType.Basic)
+            {
+                sb.AppendLine($" Authorization:Basic {Convert.ToBase64String(Encoding.UTF8.GetBytes($"{this.APIData?.BasicUserName}:{this.APIData?.BasicUserPwd}"))}");
+            }
 
             sb.AppendLine($" content-type:application/{this.ApplicationType}");
             sb.AppendLine();
@@ -193,7 +197,7 @@ namespace Entity
             {
                 sb.AppendLine($" xwwwformurlencoded:{string.Join("&", this.APIData?.XWWWFormUrlEncoded.Where(p => p.Checked).Select(p => p.Name + "=" + p.Value))}");
             }
-            else if (bodydataType == BodyDataType.raw)
+            else if (bodydataType == BodyDataType.raw || bodydataType == BodyDataType.wcf)
             {
                 sb.AppendLine($"raw:{this.APIData?.RawText}");
             }
@@ -222,7 +226,7 @@ namespace Entity
             {
                 sb.AppendLine($"{string.Join("&", this.APIData?.XWWWFormUrlEncoded.Where(p => p.Checked).Select(p => p.Name + "=" + p.Value))}");
             }
-            else if (bodydataType == BodyDataType.raw)
+            else if (bodydataType == BodyDataType.raw || bodydataType == BodyDataType.wcf)
             {
                 sb.AppendLine($"{this.APIData?.RawText}");
             }
@@ -243,13 +247,16 @@ namespace Entity
             sb.AppendLine($"响应大小:{this.RespSize}B");
             sb.AppendLine();
             sb.AppendLine("headers:");
-            foreach (var h in this.APIResonseResult.Headers)
+            if (this.APIResonseResult?.Headers != null)
             {
-                sb.AppendLine($" {h.Key}:{h.Value}");
+                foreach (var h in this.APIResonseResult?.Headers)
+                {
+                    sb.AppendLine($" {h.Key}:{h.Value}");
+                }
+                sb.AppendLine();
+                sb.AppendLine("body:");
+                sb.AppendLine(this.ResponseText);
             }
-            sb.AppendLine();
-            sb.AppendLine("body:");
-            sb.AppendLine(this.ResponseText);
 
             return sb;
         }

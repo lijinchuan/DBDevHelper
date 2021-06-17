@@ -235,7 +235,7 @@ namespace APIHelper.UC
                 new object[] { this._logicMapId, APISource.Id, API.Id }, 1, int.MaxValue);
 
             this.CBCoumns.Items.AddRange(ColumnsList.Where(p => !collist.Any(q => q.APIParamName.Equals(p.Name, StringComparison.OrdinalIgnoreCase))
-            && !relcollist.Any(q => q.RelAPIParamName.Equals(p.Name, StringComparison.OrdinalIgnoreCase))).ToArray());
+            && !relcollist.Any(q => q.RelAPIParamName.Equals(p.Name, StringComparison.OrdinalIgnoreCase))).OrderBy(p => p.Type).ToArray());
 
             this.CBCoumns.SelectedIndex = -1;
             this.CBCoumns.Visible = true;
@@ -253,7 +253,7 @@ namespace APIHelper.UC
                     var col = ColumnsList.FirstOrDefault(p => p.Name.Equals(item.APIParamName, StringComparison.OrdinalIgnoreCase));
                     if (col != null)
                     {
-                        AddColumnLable(col,ref logicMapRelColumns);
+                        AddColumnLable(col, ref logicMapRelColumns);
                     }
                 }
 
@@ -268,7 +268,7 @@ namespace APIHelper.UC
                     var col = ColumnsList.FirstOrDefault(p => p.Name.Equals(item.RelAPIParamName, StringComparison.OrdinalIgnoreCase));
                     if (col != null)
                     {
-                        AddColumnLable(col,ref logicMapRelColumns);
+                        AddColumnLable(col, ref logicMapRelColumns);
                     }
                 }
 

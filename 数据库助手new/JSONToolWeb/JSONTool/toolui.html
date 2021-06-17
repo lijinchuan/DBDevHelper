@@ -1,0 +1,23 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <link rel="stylesheet" href="../css/jsoneditor.css" />
+    <script type="text/javascript" src="../js/jQuery.js"></script>
+    
+</head>
+<body>
+    <div id="jsoneditor"><a class="webfullscreen-btn" id="js-webfullscreen">网页全屏</a></div>
+    <script>
+        var text = {};
+        var __je = undefined;
+
+        function setText(txt) {
+            __je.setText(txt);
+            __je.format();
+        }
+    </script>
+    <script type="text/javascript" src="../js/uitool.js"></script>
+</body>
+</html>

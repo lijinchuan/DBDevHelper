@@ -65,11 +65,11 @@ namespace APIHelper.UC
                 //说明点击的列是DataGridViewButtonColumn列
                 DataGridViewColumn column = DGV.Columns[e.ColumnIndex];
 
-                OpenFileDialog dlg = new OpenFileDialog();
+                SubForm.FileDlg dlg = new SubForm.FileDlg();
                 if (dlg.ShowDialog() == DialogResult.OK)
                 {
                     var list = this.DataSource as List<ParamInfo>;
-                    list[e.RowIndex].Value = "[file]" + dlg.FileName;
+                    list[e.RowIndex].Value = dlg.FilePath;
                     DataSource = list;
                 }
             }
@@ -106,6 +106,41 @@ namespace APIHelper.UC
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
+
+            PbAddParams.Image = Resources.SQLTypeRs.control_add;
+            PbAddParams.Height = Resources.SQLTypeRs.control_add.Height;
+            PbAddParams.Width = Resources.SQLTypeRs.control_add.Width;
+            PbAddParams.Click += PbAddParams_Click;
+            PbAddParams.Cursor = Cursors.Hand;
+
+            PbRemParams.Image = Resources.SQLTypeRs.control_remove;
+            PbRemParams.Height = Resources.SQLTypeRs.control_remove.Height;
+            PbRemParams.Width = Resources.SQLTypeRs.control_remove.Width;
+            PbRemParams.Click += PbRemParams_Click;
+            PBHelp.Cursor = Cursors.Hand;
+
+            PBHelp.Image = Resources.Resource1.help;
+            PBHelp.Height = Resources.Resource1.help.Height;
+            PBHelp.Width = Resources.Resource1.help.Width;
+            PBHelp.Click += PBHelp_Click;
+            PBHelp.Cursor = Cursors.Help;
+        }
+
+        private void PBHelp_Click(object sender, EventArgs e)
+        {
+            var page = new UC.DocPage();
+            Util.AddToMainTab(this, $"帮助文档-请求参数", page);
+            page.InitDoc(Application.StartupPath + "\\help.html#inputparams", null);
+        }
+
+        private void PbRemParams_Click(object sender, EventArgs e)
+        {
+            RemParamsRow();
+        }
+
+        private void PbAddParams_Click(object sender, EventArgs e)
+        {
+            AddNewParamsRow();
         }
 
         private void CBEditType_SelectedIndexChanged(object sender, EventArgs e)
@@ -204,6 +239,27 @@ namespace APIHelper.UC
             }
         }
 
+        private void AddNewParamsRow()
+        {
+            var ds = DataSource as List<ParamInfo>;
+            if (ds == null)
+            {
+                ds = new List<ParamInfo>();
+            }
+            ds.Add(new ParamInfo());
+            DataSource = ds;
+        }
+
+        private void RemParamsRow()
+        {
+            if (DGV.CurrentCell != null)
+            {
+                var ds = DataSource as List<ParamInfo>;
+                ds.RemoveAt(DGV.CurrentCell.RowIndex);
+                DataSource = ds;
+            }
+        }
+
         private void GridView_KeyDown(object sender, KeyEventArgs e)
         {
             var gv = (DataGridView)sender;
@@ -213,21 +269,14 @@ namespace APIHelper.UC
 
                 if (gv.Rows.Count == 0 || (cell != null && cell == gv.Rows[gv.Rows.Count - 1].Cells[gv.Rows[gv.Rows.Count - 1].Cells.Count - 1]))
                 {
-                    var ds = DataSource as List<ParamInfo>;
-                    ds.Add(new ParamInfo());
-                    DataSource = ds;
+                    AddNewParamsRow();
                 }
                 e.Handled = true;
 
             }
             else if (e.KeyCode == Keys.Delete)
             {
-                if (gv.CurrentCell != null)
-                {
-                    var ds = DataSource as List<ParamInfo>;
-                    ds.RemoveAt(gv.CurrentCell.RowIndex);
-                    DataSource = ds;
-                }
+                RemParamsRow();
                 e.Handled = true;
             }
         }

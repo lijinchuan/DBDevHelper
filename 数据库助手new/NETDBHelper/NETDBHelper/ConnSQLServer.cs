@@ -21,7 +21,7 @@ namespace NETDBHelper
             set;
         }
 
-        private static int _lastServerSelectedIndex = 0;
+        private static int _lastServerSelectedIndex = -1;
 
         private static DBSourceCollection dbs;
         

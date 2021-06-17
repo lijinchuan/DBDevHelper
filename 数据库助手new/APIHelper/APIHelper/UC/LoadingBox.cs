@@ -19,6 +19,8 @@ namespace APIHelper.UC
             set;
         }
 
+        private Action beforeCancel;
+
         public LoadingBox()
         {
             InitializeComponent();
@@ -49,6 +51,10 @@ namespace APIHelper.UC
                 {
                     try
                     {
+                        if (beforeCancel != null)
+                        {
+                            beforeCancel();
+                        }
                         TaskThread.Abort();
                     }
                     catch
@@ -79,6 +85,37 @@ namespace APIHelper.UC
                 try
                 {
                     act();
+                }
+                catch (Exception ex)
+                {
+                    Util.SendMsg(this, ex.Message);
+                }
+                finally
+                {
+                    parent.Invoke(new Action(() => parent.Controls.Remove(this)));
+                    TaskThread = null;
+                }
+            }));
+            this.TaskThread = thd;
+            this.Location = new Point((parent.Width - this.Width) / 2, (parent.Height - this.Height) / 2);
+            parent.Controls.Add(this);
+            this.BringToFront();
+
+            thd.Start();
+        }
+
+        public void Waiting(Control parent, Action<object> act,object val,Action cancel)
+        {
+            if (TaskThread != null)
+            {
+                return;
+            }
+            this.beforeCancel = cancel;
+            var thd = new Thread(new ThreadStart(() =>
+            {
+                try
+                {
+                    act(val);
                 }
                 catch (Exception ex)
                 {

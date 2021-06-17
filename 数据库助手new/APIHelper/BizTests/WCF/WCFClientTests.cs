@@ -8,12 +8,22 @@ using System.Threading.Tasks;
 using System.Xml.Serialization;
 using System.IO;
 using System.Xml;
+using BizTests.WCF;
 
 namespace Biz.WCF.Tests
 {
     [TestClass()]
     public class WCFClientTests
     {
+        [TestMethod]
+        public void Test()
+        {
+            var ht = new System.Collections.Hashtable();
+            ht.Add("newperson", "");
+            WebSvcCaller.QuerySoapWebService("http://localhost:53797/Service1.svc",
+                "ECHOPerson2", ht);
+        }
+
         [TestMethod()]
         public void GetInterfaceInfosTest()
         {

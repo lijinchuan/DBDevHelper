@@ -17,6 +17,7 @@ namespace APIHelper.UC
     {
         //private APIUrl APIUrl = null;
         private APIEnv apiEnv = null;
+        private UC.UCJsonViewer UCJsonViewer = null;
         public UCApiResult()
         {
             InitializeComponent();
@@ -60,6 +61,25 @@ namespace APIHelper.UC
 
             TBErrors.ForeColor = Color.Red;
             WBResult.ScriptErrorsSuppressed = true;
+
+            LBStatuCode.DoubleClick += LBStatuCode_DoubleClick;
+            LBStatuCode.Cursor = Cursors.Hand;
+
+            panel2.BringToFront();
+
+            UCJsonViewer = new UCJsonViewer();
+            UCJsonViewer.Visible = false;
+            UCJsonViewer.Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right | AnchorStyles.Bottom;
+            this.TPBody.Controls.Add(UCJsonViewer);
+            
+        }
+
+        private void LBStatuCode_DoubleClick(object sender, EventArgs e)
+        {
+            if (LBStatuCode.Tag!=null)
+            {
+                System.Diagnostics.Process.Start($"https://tool.lu/httpcode/#{LBStatuCode.Tag.ToString()}");
+            }
         }
 
         public void SetError(string error)
@@ -231,14 +251,16 @@ namespace APIHelper.UC
         {
             if((sender as RadioButton).Checked)
             {
-                ShowResult();
+                ShowResult(false);
             }
         }
 
+        private Dictionary<string, string> header = null;
         public void SetHeader(Dictionary<string,string> headerdic)
         {
             if (headerdic != null && headerdic.Count > 0)
             {
+                this.header = headerdic;
                 this.DGVHeader.DataSource = headerdic.Select(p => new
                 {
                     p.Key,
@@ -267,6 +289,7 @@ namespace APIHelper.UC
         public void SetOther(int code, string codemsg, double ms, long size)
         {
             LBStatuCode.Text = "状态:" + code.ToString();
+            LBStatuCode.Tag = code;
             if (ms >= 1000)
             {
                 LBMs.Text = (ms / 1000.0).ToString(".###") + "s";
@@ -289,41 +312,135 @@ namespace APIHelper.UC
             }
         }
 
-        private void ShowResult()
+        private void ShowResult(bool autoselecttab)
         {
             if (Raw != null && Raw.Length > 0)
             {
                 var html = (this.CBEncode.SelectedItem as Encoding).GetString(Raw);
                 if (RBRow.Checked)
                 {
+                    TBResult.Visible = true;
+                    UCJsonViewer.Visible = false;
                     this.TBResult.Text = html;
                     this.WBResult.DocumentText = html;
                 }
+                else if (RBTree.Checked)
+                {
+                    this.WBResult.DocumentText = html;
+                    UCJsonViewer.DataSource = html;
+                    UCJsonViewer.Location = TBResult.Location;
+                    UCJsonViewer.Height = TBResult.Height;
+                    UCJsonViewer.Width = TBResult.Width;
+                    TBResult.Visible = false;
+                    UCJsonViewer.Visible = true;
+                    UCJsonViewer.BindDataSource();
+                }
                 else
                 {
+                    TBResult.Visible = true;
+                    UCJsonViewer.Visible = false;
                     html = html.Trim();
                     bool isjson = false;
+                    bool isxml = false;
                     try
                     {
-                        if (html.StartsWith("{") && html.EndsWith("}"))
+                        if (this.header != null)
+                        {
+                            var contenttype = string.Empty;
+
+                            foreach (var kv in header)
+                            {
+                                if (kv.Key.Equals("Content-Type", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    contenttype = kv.Value;
+                                    break;
+                                }
+                            }
+
+                            if (!string.IsNullOrWhiteSpace(contenttype))
+                            {
+                                if (contenttype.IndexOf("application/json", StringComparison.OrdinalIgnoreCase) > -1)
+                                {
+                                    isjson = true;
+                                }
+                                else if (contenttype.IndexOf("text/xml", StringComparison.OrdinalIgnoreCase) > -1)
+                                {
+                                    isxml = true;
+                                }
+                            }
+                        }
+
+                        if (!isjson && !isxml)
+                        {
+                            if (html.StartsWith("{") && html.EndsWith("}"))
+                            {
+                                var jsonobject = Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(html);
+                                if (jsonobject != null)
+                                {
+                                    isjson = true;
+                                }
+                            }
+                        }
+
+                        if (isjson)
                         {
                             var jsonobject = Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(html);
-                            if (jsonobject != null)
+                            html = Newtonsoft.Json.JsonConvert.SerializeObject(jsonobject, Newtonsoft.Json.Formatting.Indented);
+                            if (autoselecttab)
                             {
-                                html = Newtonsoft.Json.JsonConvert.SerializeObject(jsonobject, Newtonsoft.Json.Formatting.Indented);
-                                isjson = true;
-                                this.WBResult.DocumentText = System.IO.File.ReadAllText("jsonview.html.tpl", Encoding.UTF8).Replace("{{{json}}}", html);
+                                Tabs.SelectedTab = TPBrowser;
+                            }
+                            this.WBResult.DocumentCompleted += (s, e) =>
+                            {
+                                this.WBResult.Document.InvokeScript("maxWin", null);
+                                this.WBResult.Document.InvokeScript("setText", new[] { html });
+                            };
+                            if (this.WBResult.Url?.AbsoluteUri.Contains("jsonviewer.html") != true)
+                            {
+                                this.WBResult.AllowNavigation = false;
+                                this.WBResult.Url = new Uri(AppDomain.CurrentDomain.BaseDirectory + "jsonviewer.html");
+                            }
+                            else
+                            {
+                                this.WBResult.Document.InvokeScript("setText", new[] { html });
+                            }
+                        }
+                        else if (isxml)
+                        {
+                            if (autoselecttab)
+                            {
+                                Tabs.SelectedTab = TPBrowser;
+                            }
+                            //this.WBResult.ScriptErrorsSuppressed = false;
+                            this.WBResult.DocumentCompleted += (s, e) =>
+                            {
+                                //this.WBResult.Document.InvokeScript("maxWin", new object[] { this.Width, this.Height });
+                                this.WBResult.Document.InvokeScript("setText", new[] { html });
+                            };
+                            if (this.WBResult.Url?.AbsoluteUri.Contains("xml.html") != true)
+                            {
+                                this.WBResult.AllowNavigation = false;
+                                this.WBResult.Url = new Uri(AppDomain.CurrentDomain.BaseDirectory + "xml.html");
+                            }
+                            else
+                            {
+                                this.WBResult.Document.InvokeScript("setText", new[] { html });
                             }
                         }
                     }
                     catch
                     {
-                        isjson = false;   
+                        isjson = false;
+                        isxml = false;
                     }
 
-                    if (!isjson)
+                    if (!isjson && !isxml)
                     {
                         this.WBResult.DocumentText = html;
+                        if (autoselecttab)
+                        {
+                            Tabs.SelectedTab = TPBody;
+                        }
                     }
 
                     this.TBResult.Text = html;
@@ -333,7 +450,7 @@ namespace APIHelper.UC
 
         private void CBEncode_SelectedIndexChanged(object sender, EventArgs e)
         {
-            ShowResult();
+            ShowResult(false);
         }
 
         public Encoding Encoding
@@ -358,8 +475,9 @@ namespace APIHelper.UC
             set
             {
                 _raw = value;
-                ShowResult();
-                Tabs.SelectedTab = TPBody;
+                //Tabs.SelectedTab = TPBody;
+                ShowResult(true);
+                
             }
         }
 
@@ -376,6 +494,11 @@ namespace APIHelper.UC
             {
                 apiEnv = value;
             }
-        } 
+        }
+
+        private void RBTree_CheckedChanged(object sender, EventArgs e)
+        {
+            this.ShowResult(false);
+        }
     }
 }

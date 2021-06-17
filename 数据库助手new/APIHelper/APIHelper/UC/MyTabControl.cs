@@ -98,7 +98,7 @@ namespace APIHelper.UC
                             if (!string.IsNullOrWhiteSpace(inputStringDlg.InputString))
                             {
                                 this.SelectedTab.Text = inputStringDlg.InputString;
-                                ResetTabs();
+                                //ResetTabs();
                                 this.Invalidate();
                             }
                         }
@@ -129,8 +129,6 @@ namespace APIHelper.UC
 
                 var lasttabex = this.tabExDic.AsEnumerable().ToArray()[pos].Value;
                 selitem.TabIndex = pos;
-
-                selitem.TabIndex = pos;
                 if (pos != 0)
                 {
                     tabExDic[0].TabIndex = tabExDic.Count;
@@ -141,6 +139,41 @@ namespace APIHelper.UC
                 this.TabPages.AddRange(tabs);
                 this.SelectedTab = selitem.TabPage;
 
+                var isfull = false;
+                var hasselectedtab = false;
+                lasttabex = null;
+                float currwidth = 0;
+                foreach (var item in this.tabExDic)
+                {
+                    if (!isfull)
+                    {
+                        currwidth += item.Value.TabWidth;
+                        if (currwidth > this.Width - 20)
+                        {
+
+                            isfull = true;
+                            break;
+                        }
+                        lasttabex = item.Value;
+                        hasselectedtab = selitem.TabPage == item.Value.TabPage;
+                    }
+                }
+                if (isfull && !hasselectedtab && lasttabex != null)
+                {
+                    var tabex = this.tabExDic.FirstOrDefault(p => p.Value.TabPage == selitem.TabPage).Value;
+                    if (tabex != null)
+                    {
+                        var tabexindex = tabex.TabIndex;
+                        tabex.TabIndex = lasttabex.TabIndex;
+                        lasttabex.TabIndex = tabexindex;
+                        tabExDic[tabex.TabIndex] = tabex;
+                        TabPages[tabex.TabIndex] = tabex.TabPage;
+                        tabExDic[lasttabex.TabIndex] = lasttabex;
+                        TabPages[lasttabex.TabIndex] = lasttabex.TabPage;
+                        //ResetTabs();
+                    }
+                }
+                this.SelectedTab = selitem.TabPage;
                 this.Invalidate();
             }
         }
@@ -202,7 +235,7 @@ namespace APIHelper.UC
                 dragsourcetab.Value.Value.TabIndex = dragtargettab.Value.Key;
 
                 this.SelectedIndex = dragtargettab.Value.Key;
-                ResetTabs();
+                //ResetTabs();
                 this.Invalidate();
             }
         }
@@ -499,22 +532,15 @@ namespace APIHelper.UC
 
         protected override void OnPaint(PaintEventArgs e)
         {
-            float currwidth = 0;
+            ResetTabs();
             moretabtablelist.Clear();
             var isfull = false;
             KeyValuePair<int, TabTableTabEx>? dragtab = null;
             foreach (var item in this.tabExDic)
             {
-                if (!isfull)
-                {
-                    currwidth += item.Value.StripRect.Width;
-                    if (currwidth > this.Width - 20)
-                    {
-                        isfull = true;
-                    }
-                }
                 if (isfull)
                 {
+                    item.Value.ClearRect();
                     moretabtablelist.Add(item.Value);
                 }
                 else
@@ -525,7 +551,12 @@ namespace APIHelper.UC
                     }
                     else
                     {
-                        MyTabControl_DrawItem_Tab(item.Key, e.Graphics);
+                        if (!MyTabControl_DrawItem_Tab(item.Key, e.Graphics))
+                        {
+                            isfull = true;
+                            item.Value.ClearRect();
+                            moretabtablelist.Insert(0, item.Value);
+                        }
                     }
                 }
             }
@@ -550,7 +581,7 @@ namespace APIHelper.UC
             }
         }
 
-        void MyTabControl_DrawItem_Tab(int tabindex,Graphics g)
+        bool MyTabControl_DrawItem_Tab(int tabindex,Graphics g)
         {
             var currentItem=this.TabPages[tabindex];
             var SelectedItem=this.SelectedTab;
@@ -564,6 +595,12 @@ namespace APIHelper.UC
                 OnCalcTabPage(g, currentItem,sf, ref buttonRect);
                 tabExDic[tabindex].StripRect = buttonRect;
             }
+
+            if (buttonRect.Left + buttonRect.Width >= this.Width - 20 && this.SelectedTab != currentItem)
+            {
+                return false;
+            }
+            
             Rectangle closeButtonBounds = Rectangle.Empty;
             if (currentItem == SelectedTab)
             {
@@ -725,7 +762,7 @@ namespace APIHelper.UC
                 DrawCross(closeButtonBounds, false, g);
             }
 
-            
+            return true;
         }
 
         void MyTabControl_DrawItem(object sender, DrawItemEventArgs e)

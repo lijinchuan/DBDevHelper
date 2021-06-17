@@ -92,13 +92,17 @@ namespace NETDBHelper.UC
                     if (m.Groups.Count > 3 && m.Groups[3].Value.Trim().Equals("output", StringComparison.OrdinalIgnoreCase))
                     {
                         outPutParam = m.Groups[1].Value;
-                        
-                        sb.Append($@"new SqlParameter(""{outPutParam}"",{Biz.Common.Data.Common.SqlTypeToDatadbType(m.Groups[2].Value)}){{Value={tb_Entity.Text}.{outPutParam.Trim('@')},Direction=ParameterDirection.Output}},");
+                        var entityfield = outPutParam.Trim('@');
+                        entityfield = entityfield.First().ToString().ToUpper() + (entityfield.Length > 1 ? entityfield.Substring(1) : "");
+                        sb.Append($@"new SqlParameter(""{outPutParam}"",{Biz.Common.Data.Common.SqlTypeToDatadbType(m.Groups[2].Value)}){{Value=((object){tb_Entity.Text}.{entityfield})==null?DBNull.Value:((object){tb_Entity.Text}.{entityfield}),Direction=ParameterDirection.Output}},");
                         sboutput.AppendLine($"object op_{outPutParam.Trim('@')}=parameters[{i}].Value;");
                     }
                     else
                     {
-                        sb.Append($@"new SqlParameter(""{m.Groups[1].Value}"",{Biz.Common.Data.Common.SqlTypeToDatadbType(m.Groups[2].Value)}){{Value={tb_Entity.Text}.{m.Groups[1].Value.Trim('@')}}},");
+                        outPutParam = m.Groups[1].Value;
+                        var entityfield = outPutParam.Trim('@');
+                        entityfield = entityfield.First().ToString().ToUpper() + (entityfield.Length > 1 ? entityfield.Substring(1) : "");
+                        sb.Append($@"new SqlParameter(""{m.Groups[1].Value}"",{Biz.Common.Data.Common.SqlTypeToDatadbType(m.Groups[2].Value)}){{Value=((object){tb_Entity.Text}.{entityfield})==null?DBNull.Value:((object){tb_Entity.Text}.{entityfield})}},");
                     }
                     i++;
                     sb.AppendLine();
