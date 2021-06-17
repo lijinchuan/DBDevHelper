@@ -17,6 +17,9 @@ namespace NETDBHelper.SubForm
             get;
             set;
         }
+
+        public event Action DlgResult;
+
         public InputStringDlg(string caption,string oldText="",string inputTest=""):
             base()
         {
@@ -30,11 +33,41 @@ namespace NETDBHelper.SubForm
             }
         }
 
+        private Control OwnerCtl = null;
+        public void ShowMe(Control owner)
+        {
+            this.OwnerCtl = owner;
+            this.Show();
+        }
+
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
 
             this.tbInput.ImeMode = ImeMode.On;
+
+            if (this.OwnerCtl != null)
+            {
+                var pt = this.OwnerCtl.PointToScreen(this.OwnerCtl.Location);
+                pt.Offset(this.OwnerCtl.Width / 2 - this.Width, this.OwnerCtl.Height / 2 - this.Height);
+                this.Location = pt;
+                this.OwnerCtl.VisibleChanged += OwnerCtl_VisibleChanged;
+                
+            }
+        }
+
+        private void OwnerCtl_VisibleChanged(object sender, EventArgs e)
+        {
+            this.Visible = this.OwnerCtl.Visible;
+        }
+
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            base.OnClosing(e);
+            if (OwnerCtl != null)
+            {
+                this.OwnerCtl.VisibleChanged -= OwnerCtl_VisibleChanged;
+            }
         }
 
         private void BtnOk_Click(object sender, EventArgs e)
@@ -42,13 +75,25 @@ namespace NETDBHelper.SubForm
             if (!string.IsNullOrWhiteSpace(this.tbInput.Text))
             {
                 this.InputString = this.tbInput.Text;
-                this.DialogResult = DialogResult.OK;
+
+                if (this.DlgResult != null)
+                {
+                    this.DlgResult();
+                }
+
+                if (this.Modal)
+                    this.DialogResult = DialogResult.OK;
+                else
+                    this.Close();
             }
         }
 
         private void BtnCancel_Click(object sender, EventArgs e)
         {
-            this.DialogResult = DialogResult.Abort;
+            if (this.Modal)
+                this.DialogResult = DialogResult.Abort;
+            else
+                this.Close();
         }
     }
 }
