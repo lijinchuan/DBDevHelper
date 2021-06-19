@@ -52,7 +52,15 @@ namespace NETDBHelper.SubForm
                 pt.Offset(this.OwnerCtl.Width / 2 - this.Width, this.OwnerCtl.Height / 2 - this.Height);
                 this.Location = pt;
                 this.OwnerCtl.VisibleChanged += OwnerCtl_VisibleChanged;
-                
+                this.OwnerCtl.ParentChanged += OwnerCtl_ParentChanged;
+            }
+        }
+
+        private void OwnerCtl_ParentChanged(object sender, EventArgs e)
+        {
+            if (this.OwnerCtl.Parent == null)
+            {
+                this.Close();
             }
         }
 
@@ -64,9 +72,10 @@ namespace NETDBHelper.SubForm
         protected override void OnClosing(CancelEventArgs e)
         {
             base.OnClosing(e);
-            if (OwnerCtl != null)
+            if (OwnerCtl != null && !OwnerCtl.IsDisposed)
             {
                 this.OwnerCtl.VisibleChanged -= OwnerCtl_VisibleChanged;
+                this.OwnerCtl.ParentChanged -= OwnerCtl_ParentChanged;
             }
         }
 

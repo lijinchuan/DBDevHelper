@@ -85,7 +85,7 @@ namespace NETDBHelper.UC
                           LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Update<RelColumn>(nameof(RelColumn), relColumnEx.RelColumn);
                           this.PanelMap.Invalidate();
                       };
-                    dlg.ShowMe(this.Parent);
+                    dlg.ShowMe(this);
                 }
             }
         }

@@ -609,7 +609,8 @@ namespace NETDBHelper.UC
                         }
                         lb.Text = $"   {tbcol.Name}({dlg.InputString})";
                     };
-                    dlg.ShowMe(this.Parent);
+                    
+                    dlg.ShowMe(Util.FindParent<TabPage>(this));
                 }
             };
 

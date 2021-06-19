@@ -1382,7 +1382,6 @@ namespace NETDBHelper.UC
         private void 搜索ToolStripMenuItem_Click(object sender, EventArgs e)
         {
             SubForm.FindDlg dlg = new SubForm.FindDlg();
-            dlg.Owner = this.ParentForm;
 
             dlg.FindLast += (s, i) =>
             {
@@ -1413,7 +1412,7 @@ namespace NETDBHelper.UC
 
             };
 
-            dlg.Show();
+            dlg.ShowMe(Util.FindParent<TabPage>(this));
         }
 
         private void TSMI_Save_Click(object sender, EventArgs e)
