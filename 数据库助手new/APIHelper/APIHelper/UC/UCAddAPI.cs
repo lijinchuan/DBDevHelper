@@ -361,7 +361,7 @@ namespace APIHelper.UC
                         {
                             if (header.Checked)
                             {
-                                httpRequestEx.UserAgent = header.Value;
+                                httpRequestEx.UserAgent = ReplaceEvnParams(header.Value, ref apiEnvParams);
 
                             }
                         }
@@ -369,22 +369,22 @@ namespace APIHelper.UC
                         {
                             if (header.Checked)
                             {
-                                httpRequestEx.Accept = header.Value;
+                                httpRequestEx.Accept = ReplaceEvnParams(header.Value, ref apiEnvParams);
                             }
                         }
                         else if (header.Name.Equals("Expect", StringComparison.OrdinalIgnoreCase))
                         {
                             if (header.Checked)
                             {
-                                httpRequestEx.Expect = header.Value;
+                                httpRequestEx.Expect = ReplaceEvnParams(header.Value, ref apiEnvParams);
                             }
                         }
                         else if (header.Name.Equals("Referer", StringComparison.OrdinalIgnoreCase))
                         {
                             if (header.Checked)
                             {
-                                httpRequestEx.Referer = header.Value;
-                            }
+                                httpRequestEx.Referer = ReplaceEvnParams(header.Value, ref apiEnvParams);
+        }
                         }
                         else if (header.Name.Equals("Connection", StringComparison.OrdinalIgnoreCase))
                         {
@@ -515,22 +515,24 @@ namespace APIHelper.UC
                 List<FormItemModel> formItems = new List<FormItemModel>();
                 foreach (var item in UCBinary.DataSource as List<ParamInfo>)
                 {
+                    var @value = ReplaceEvnParams(item.Value, ref apiEnvParams);
+                    var name = ReplaceEvnParams(item.Name, ref apiEnvParams);
                     if (item.Checked)
                     {
-                        if (item.Value?.StartsWith("[file]") == true)
+                        if (@value?.StartsWith("[file]") == true)
                         {
-                            var filename = item.Value.Replace("[file]", string.Empty);
+                            var filename = @value.Replace("[file]", string.Empty);
                             var s = new System.IO.FileStream(filename, FileMode.Open);
                             formItems.Add(new FormItemModel
                             {
                                 FileName = Path.GetFileName(filename),
-                                Key = item.Name,
+                                Key = name,
                                 FileContent = s
                             });
                         }
                         else if (item.Value?.StartsWith("[base64]") == true)
                         {
-                            var filename = item.Value.Replace("[base64]", string.Empty);
+                            var filename = @value.Replace("[base64]", string.Empty);
                             if (!System.IO.File.Exists(filename))
                             {
                                 Util.SendMsg(this, $"文件不存在;{filename}");
@@ -538,8 +540,8 @@ namespace APIHelper.UC
                             }
                             formItems.Add(new FormItemModel
                             {
-                                FileName = item.Name,
-                                Key = item.Name,
+                                FileName = name,
+                                Key = name,
                                 Value = Convert.ToBase64String(File.ReadAllBytes(filename))
                             });
                         }
@@ -547,9 +549,9 @@ namespace APIHelper.UC
                         {
                             formItems.Add(new FormItemModel
                             {
-                                FileName = item.Name,
-                                Key = item.Name,
-                                Value = item.Value
+                                FileName = name,
+                                Key = name,
+                                Value = @value
                             });
                         }
                     }
@@ -1129,19 +1131,57 @@ namespace APIHelper.UC
                 ApiId = _apiUrl.Id
             };
 
-            apidata.XWWWFormUrlEncoded = this.XWWWFormUrlEncoded;
-            apidata.Params = this.Params;
-            apidata.RawText = this.rawTextBox.Text;
-            apidata.Headers = this.Headers;
-            apidata.FormDatas = this.FormDatas;
-            apidata.BearToken = this.UCBearToken.Token;
+            List<APIEnvParam> apiEnvParams = apiEnvParams = BigEntityTableEngine.LocalEngine.Find<APIEnvParam>(nameof(APIEnvParam), "APISourceId_EnvId", new object[] { _apiUrl.SourceId, GetEnvId() }).ToList();
+
+            apidata.XWWWFormUrlEncoded = this.XWWWFormUrlEncoded?.Select(p => new ParamInfo
+            {
+                Checked = p.Checked,
+                Desc = p.Desc,
+                Name = ReplaceEvnParams(p.Name, ref apiEnvParams),
+                Value = ReplaceEvnParams(p.Value, ref apiEnvParams)
+            }).ToList();
+            apidata.Params = this.Params?.Select(p => new ParamInfo
+            {
+                Checked = p.Checked,
+                Desc = p.Desc,
+                Name = ReplaceEvnParams(p.Name, ref apiEnvParams),
+                Value =WebUtility.UrlEncode(ReplaceEvnParams(p.Value, ref apiEnvParams))
+            }).ToList();
+            apidata.RawText = ReplaceEvnParams(this.rawTextBox.Text, ref apiEnvParams);
+            apidata.Headers = this.Headers?.Select(p=>new ParamInfo
+            {
+                Name= ReplaceEvnParams(p.Name, ref apiEnvParams),
+                Desc=p.Desc,
+                Checked=p.Checked,
+                Value= ReplaceEvnParams(p.Value, ref apiEnvParams)
+            }).ToList();
+            apidata.FormDatas = this.FormDatas?.Select(p => new ParamInfo
+            {
+                Checked = p.Checked,
+                Desc = p.Desc,
+                Name = ReplaceEvnParams(p.Name, ref apiEnvParams),
+                Value = ReplaceEvnParams(p.Value, ref apiEnvParams)
+            }).ToList(); ;
+            apidata.BearToken = ReplaceEvnParams(this.UCBearToken.Token, ref apiEnvParams);
             apidata.ApiKeyAddTo = this.UCApiKey.AddTo;
-            apidata.ApiKeyName = this.UCApiKey.Key;
-            apidata.ApiKeyValue = this.UCApiKey.Val;
-            apidata.Cookies = this.Cookies;
-            apidata.Multipart_form_data = this.Multipart_form_data;
-            apidata.BasicUserName = this.BasicAuth.Key;
-            apidata.BasicUserPwd = this.BasicAuth.Val;
+            apidata.ApiKeyName = ReplaceEvnParams(this.UCApiKey.Key, ref apiEnvParams);
+            apidata.ApiKeyValue = ReplaceEvnParams(this.UCApiKey.Val, ref apiEnvParams);
+            apidata.Cookies = this.Cookies?.Select(p=>new ParamInfo
+            {
+                Checked=p.Checked,
+                Desc=p.Desc,
+                Name= ReplaceEvnParams(p.Name, ref apiEnvParams),
+                Value=WebUtility.UrlEncode(ReplaceEvnParams(p.Value, ref apiEnvParams))
+            }).ToList();
+            apidata.Multipart_form_data = this.Multipart_form_data?.Select(p => new ParamInfo
+            {
+                Checked = p.Checked,
+                Desc = p.Desc,
+                Name = ReplaceEvnParams(p.Name, ref apiEnvParams),
+                Value = ReplaceEvnParams(p.Value, ref apiEnvParams)
+            }).ToList();
+            apidata.BasicUserName = ReplaceEvnParams(this.BasicAuth.Key, ref apiEnvParams);
+            apidata.BasicUserPwd = ReplaceEvnParams(this.BasicAuth.Val, ref apiEnvParams);
 
             return apidata;
         }
