@@ -343,6 +343,7 @@ namespace NETDBHelper
             panel.SetHtml(html);
             panel.Text = tit;
             panel.OnShowProc += (s, d, p, b) => this.ShowProc(s, d, p, b);
+            panel.OnShowFunction += (s, d, p, b) => this.ShowFunction(s, d, p, b);
             panel.OnSearch += (s, n, w) =>
             {
                 List<object> lst = new List<object>();

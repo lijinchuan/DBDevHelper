@@ -153,6 +153,25 @@ namespace NETDBHelper.UC
             }
         }
 
+        public void ShowFunction(string functionname)
+        {
+            try
+            {
+                //var procbody = Biz.Common.Data.SQLHelper.GetProcedureBody(this._dbSource, this._dbName, procname);
+                //SubForm.TextBoxWin win = new SubForm.TextBoxWin($"查看存储过程 {procname}", procbody);
+                //win.ShowDialog();
+                if (OnShowFunction != null)
+                {
+                    var procbody = Biz.Common.Data.SQLHelper.GetFunctionBody(this._dbSource, this._dbName, functionname);
+                    OnShowFunction(this._dbSource, this._dbName, functionname, procbody);
+                }
+            }
+            catch (Exception ex)
+            {
+                Util.SendMsg(this, ex.Message);
+            }
+        }
+
         public void ClearCach()
         {
             LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.TruncateTable(nameof(SPContent));

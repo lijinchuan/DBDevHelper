@@ -2486,7 +2486,7 @@ background-color: #ffffff;
                 foreach (string name in proclist)
                 {
                     var item = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<SPInfo>("SPInfo", "DBName_SPName", new[] { dbname, name.ToUpper() }).FirstOrDefault();
-                    sb.Append($"<tr><td>{i++}</td><td><a href='javascript:window.external.ShowProc(\"{name}\")'>{name}</a></td><td>{item?.Mark}</td></tr>");
+                    sb.Append($"<tr><td>{i++}</td><td><a href='javascript:window.external.ShowFunction(\"{name}\")'>{name}</a></td><td>{item?.Mark}</td></tr>");
                 }
                 sb.Append("</table>");
                 sb.Append("</body>");
