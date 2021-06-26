@@ -503,6 +503,8 @@
     <None Include="Resources\cross1.png" />
     <None Include="Resources\link.png" />
     <None Include="Resources\date.png" />
+    <None Include="Resources\lightning.png" />
+    <None Include="Resources\lightning_delete.png" />
     <Content Include="Resources\loading2.gif" />
     <Content Include="Resources\msg.png" />
     <None Include="Resources\script_code_no.png" />

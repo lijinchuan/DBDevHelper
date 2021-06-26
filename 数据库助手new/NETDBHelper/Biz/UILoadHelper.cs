@@ -118,6 +118,9 @@ namespace Biz
                 var indexnode = new TreeNode("索引", 1, 1);
                 indexnode.Tag = new NodeContents(NodeContentType.INDEXParent);
                 tbNode.Nodes.Add(indexnode);
+                var triggernode = new TreeNode("触发器", 1, 1);
+                triggernode.Tag = new NodeContents(NodeContentType.TRIGGERPARENT);
+                tbNode.Nodes.Add(triggernode);
                 tbNode.Expand();
             }));
 
@@ -338,6 +341,44 @@ namespace Biz
                 newNode.Tag = item;
 
                 newNode.ImageIndex = newNode.SelectedImageIndex = 6;
+
+                treeNodes.Add(newNode);
+            }
+
+            parent.Invoke(new Action(() => { tbNode.Nodes.Clear(); tbNode.Nodes.AddRange(treeNodes.ToArray()); tbNode.Expand(); }));
+        }
+
+        public static void LoadTriggersAnsy(Form parent, TreeNode tbNode, DBSource server, string dbname)
+        {
+            tbNode.Nodes.Add(new TreeNode("加载中...", 17, 17));
+            tbNode.Expand();
+            new Action<Form, TreeNode, DBSource, string>(LoadTriggers).BeginInvoke(parent, tbNode, server, dbname, null, null);
+        }
+
+        private static void LoadTriggers(Form parent, TreeNode tbNode, DBSource server, string dbname)
+        {
+            if (server == null)
+            {
+                return;
+            }
+
+            var list = Biz.Common.Data.SQLHelper.GetTriggers(server, dbname, tbNode.Parent.Text);
+            List<TreeNode> treeNodes = new List<TreeNode>();
+
+            foreach (var item in list)
+            {
+                TreeNode newNode = new TreeNode($"{item.TriggerName}");
+
+                newNode.Tag = item;
+
+                if (item.ExecIsTriggerDisabled)
+                {
+                    newNode.ImageIndex = newNode.SelectedImageIndex = 26;
+                }
+                else
+                {
+                    newNode.ImageIndex = newNode.SelectedImageIndex = 25;
+                }
 
                 treeNodes.Add(newNode);
             }

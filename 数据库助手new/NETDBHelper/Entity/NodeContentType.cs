@@ -27,6 +27,8 @@ namespace Entity
         FUNPARENT,
         FUN,
         FUNPARAM,
+        TRIGGERPARENT,
+        TRIGGER,
         UNKNOWN = 999
     }
 }

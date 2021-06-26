@@ -81,6 +81,7 @@
     <Compile Include="TableInfo.cs" />
     <Compile Include="TBColumn.cs" />
     <Compile Include="TBSearchColumn.cs" />
+    <Compile Include="TriggerEntity.cs" />
     <Compile Include="ViewColumn.cs" />
     <Compile Include="ViewInfo.cs" />
     <Compile Include="WatchTask\WatchTaskInfo.cs" />

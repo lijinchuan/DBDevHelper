@@ -77,6 +77,8 @@ namespace NETDBHelper
             tv_DBServers.ImageList.Images.Add("ASC", Resources.Resource1.ASC);
             tv_DBServers.ImageList.Images.Add("DESC", Resources.Resource1.DESC);
             tv_DBServers.ImageList.Images.Add("plugin", Resources.Resource1.plugin);
+            tv_DBServers.ImageList.Images.Add("lightning", Resources.Resource1.lightning);//25
+            tv_DBServers.ImageList.Images.Add("lightning_delete", Resources.Resource1.lightning_delete);
             tv_DBServers.Nodes.Add("0", "资源管理器", 0);
             tv_DBServers.NodeMouseClick += new TreeNodeMouseClickEventHandler(tv_DBServers_NodeMouseClick);
             tv_DBServers.NodeMouseDoubleClick += Tv_DBServers_NodeMouseDoubleClick;
@@ -311,6 +313,10 @@ namespace NETDBHelper
             else if (selNode.Tag is INodeContents && (selNode.Tag as INodeContents).GetNodeContentType() == NodeContentType.INDEXParent)
             {
                 Biz.UILoadHelper.LoadIndexAnsy(this.ParentForm, selNode, GetDBSource(selNode), GetDBName(selNode));
+            }
+            else if (selNode.Tag is INodeContents && (selNode.Tag as INodeContents).GetNodeContentType() == NodeContentType.TRIGGERPARENT)
+            {
+                Biz.UILoadHelper.LoadTriggersAnsy(this.ParentForm, selNode, GetDBSource(selNode), GetDBName(selNode));
             }
             else if (selNode.Tag is INodeContents && (selNode.Tag as INodeContents).GetNodeContentType() == NodeContentType.LOGICMAPParent)
             {
@@ -825,6 +831,12 @@ namespace NETDBHelper
                     return;
                 Biz.UILoadHelper.LoadIndexAnsy(this.ParentForm, e.Node, GetDBSource(e.Node), GetDBName(e.Node));
             }
+            else if ((e.Node.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.TRIGGERPARENT)
+            {
+                if (e.Node.Nodes.Count > 0)
+                    return;
+                Biz.UILoadHelper.LoadTriggersAnsy(this.ParentForm, e.Node, GetDBSource(e.Node), GetDBName(e.Node));
+            }
             else if ((e.Node.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.LOGICMAPParent)
             {
                 if (e.Node.Nodes.Count > 0)
@@ -921,6 +933,8 @@ namespace NETDBHelper
                         || nctype == NodeContentType.VIEW
                         || nctype == NodeContentType.INDEX
                         || nctype == NodeContentType.INDEXParent
+                        || nctype == NodeContentType.TRIGGERPARENT
+                        || nctype == NodeContentType.TRIGGER
                         || nctype == NodeContentType.LOGICMAPParent
                         || nctype == NodeContentType.LOGICMAP)
                     {
@@ -940,6 +954,7 @@ namespace NETDBHelper
                             || nctype == NodeContentType.TBParent
                             || nctype == NodeContentType.TB
                             || nctype == NodeContentType.INDEXParent
+                            || nctype == NodeContentType.TRIGGERPARENT
                             || nctype == NodeContentType.VIEW
                             || nctype == NodeContentType.VIEWParent
                             || nctype == NodeContentType.PROCParent
@@ -951,9 +966,11 @@ namespace NETDBHelper
                         导出ToolStripMenuItem.Visible = nctype == NodeContentType.VIEW
                             || nctype == NodeContentType.PROC
                             || nctype == NodeContentType.FUN
+                            || nctype == NodeContentType.TRIGGER
                             || nctype == NodeContentType.TB;
                         CreateMSSQLToolStripMenuItem.Visible = nctype == NodeContentType.PROC
                             || nctype == NodeContentType.FUN
+                            || nctype == NodeContentType.TRIGGER
                             || nctype == NodeContentType.VIEW
                             || nctype == NodeContentType.TB;
                         创建语句ToolStripMenuItem.Visible = 数据MSSQLToolStripMenuItem.Visible =
@@ -963,6 +980,7 @@ namespace NETDBHelper
                         复制表名ToolStripMenuItem.Visible = nctype == NodeContentType.VIEW
                             || nctype == NodeContentType.TB
                             || nctype == NodeContentType.INDEX
+                            || nctype == NodeContentType.TRIGGER
                             || nctype == NodeContentType.LOGICMAP;
                         显示前100条数据ToolStripMenuItem.Visible = nctype == NodeContentType.VIEW
                             || nctype == NodeContentType.TB;
@@ -1372,6 +1390,29 @@ GO");
                     //TextBoxWin win = new TextBoxWin("存储过程[" + node.Text + "]", body);
                     //win.Show();
                     OnShowProc(GetDBSource(node), dbname, procinfo.Name, body);
+
+                    LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<HLogEntity>("HLog", new HLogEntity
+                    {
+                        TypeName = node.Text,
+                        LogTime = DateTime.Now,
+                        LogType = LogTypeEnum.proc,
+                        DB = dbname,
+                        Sever = GetDBSource(node).ServerName,
+                        Valid = true
+                    });
+                }
+
+            }
+            else if (node != null && node.Tag is TriggerEntity)
+            {
+                if (OnShowProc != null)
+                {
+                    var procinfo = node.Tag as TriggerEntity;
+                    var dbname = GetDBName(node);
+                    var body = Biz.Common.Data.SQLHelper.GetTriggerBody(GetDBSource(node), dbname, procinfo.TriggerName);
+                    //TextBoxWin win = new TextBoxWin("存储过程[" + node.Text + "]", body);
+                    //win.Show();
+                    OnShowProc(GetDBSource(node), dbname, procinfo.TriggerName, body);
 
                     LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<HLogEntity>("HLog", new HLogEntity
                     {

@@ -423,7 +423,7 @@ namespace Biz.Common.Data
 						SELECT ao.object_id,ao.name, 1 AS number, p.parameter_id, p.name AS pname, SCHEMA_NAME(t.schema_id) AS typeschema, t.name AS tpname, p.max_length length, p.precision, p.scale, p.is_cursor_ref, p.is_output isoutparam, p.is_readonly, p.has_default_value, p.default_value 
                         FROM sys.parameters p
                         INNER JOIN sys.types t ON p.user_type_id = t.user_type_id
-                        INNER JOIN sys.objects ao ON p.object_id = ao.object_id WHERE ao.type IN('P', 'RF', 'PC', 'FN', 'IF', 'TF', 'FS', 'FT') 
+                        INNER JOIN sys.objects ao ON p.object_id = ao.object_id WHERE ao.type IN('RF', 'PC', 'FN', 'IF', 'TF', 'FS', 'FT') 
                         --AND ao.schema_id = SCHEMA_ID(N'dbo')
                         --AND ao.name = N'gets'
                         UNION ALL SELECT ao.object_id,ao.name, np.procedure_number AS number, np.parameter_id, np.name AS pname, SCHEMA_NAME(t.schema_id) AS typeschema, t.name AS tpname, np.max_length , np.precision, np.scale, np.is_cursor_ref, np.is_output isoutparam, 0 AS is_readonly, 0 AS has_default_value, NULL AS default_value
@@ -440,6 +440,23 @@ namespace Biz.Common.Data
         }
 
         public static string GetFunctionBody(DBSource dbSource, string dbName, string functionname)
+        {
+            string sql = string.Format("sp_helptext  '{0}'", functionname);
+
+            var tb = ExecuteDBTable(dbSource, dbName, sql);
+            StringBuilder sb = new StringBuilder();
+
+            foreach (DataRow row in tb.Rows)
+            {
+                //sb.Append(Regex.Replace((string)row["Text"],"\n{1,}","\n").Replace("\t","    "));
+                sb.Append(((string)row["Text"]).TrimStart('\n').Replace("\t", "    "));
+            }
+
+
+            return sb.ToString();
+        }
+
+        public static string GetTriggerBody(DBSource dbSource, string dbName, string functionname)
         {
             string sql = string.Format("sp_helptext  '{0}'", functionname);
 
@@ -484,6 +501,35 @@ namespace Biz.Common.Data
                             IsDesc=c.Field<bool>("is_descending_key"),
                             IsInclude= c.Field<bool>("is_included_column")
                         }).ToArray()
+                    };
+
+            return x.ToList();
+        }
+
+        public static List<TriggerEntity> GetTriggers(DBSource dbSource, string dbName, string tbname)
+        {
+
+            string sql = @"SELECT po.name,OBJECTPROPERTY(ao.id, N'ExecIsInsertTrigger') ExecIsInsertTrigger,
+                        OBJECTPROPERTY(ao.id, N'ExecIsTriggerDisabled') ExecIsTriggerDisabled,
+						OBJECTPROPERTY(ao.id, N'ExecIsUpdateTrigger') ExecIsUpdateTrigger,
+						OBJECTPROPERTY(ao.id, N'ExecIsDeleteTrigger') ExecIsDeleteTrigger,
+						ao.name triggername,
+                        ao.id
+                        FROM sys.sysobjects ao
+						join sys.sysobjects po on po.id=ao.parent_obj
+						 WHERE ao.type IN('tr', 'ta') and po.name=@name
+                        ORDER BY ao.name";
+
+            var tb = ExecuteDBTable(dbSource, dbName, sql,new SqlParameter("@name",tbname));
+
+            var x = from row in tb.AsEnumerable()
+                    select new TriggerEntity
+                    {
+                        TriggerName = row.Field<string>("triggername"),
+                        ExecIsInsertTrigger = row.Field<int>("ExecIsInsertTrigger")==1,//
+                        ExecIsTriggerDisabled = row.Field<int>("ExecIsTriggerDisabled") == 1,
+                        ExecIsUpdateTrigger = row.Field<int>("ExecIsUpdateTrigger") == 1,
+                        ExecIsDeleteTrigger = row.Field<int>("ExecIsDeleteTrigger") == 1
                     };
 
             return x.ToList();
