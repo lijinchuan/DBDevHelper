@@ -61,6 +61,9 @@ namespace Biz
                     var procnode = new TreeNode("存储过程", 1, 1);
                     procnode.Tag = new NodeContents(NodeContentType.PROCParent);
                     dbNode.Nodes.Add(procnode);
+                    var funnode = new TreeNode("函数", 1, 1);
+                    funnode.Tag = new NodeContents(NodeContentType.FUNPARENT);
+                    dbNode.Nodes.Add(funnode);
                     var logicmapnode = new TreeNode("逻辑关系图", 1, 1);
                     logicmapnode.Tag = new NodeContents(NodeContentType.LOGICMAPParent);
                     dbNode.Nodes.Add(logicmapnode);
@@ -223,6 +226,65 @@ namespace Biz
             procedureNode.Nodes.Add(new TreeNode("加载中...", 17, 17));
             procedureNode.Expand();
             new Action<Form, TreeNode, DBSource,Func<string,string>>(LoadProcedure).BeginInvoke(parent, procedureNode, server, gettip,null, null);
+        }
+
+        public static void LoadFunctionsAnsy(Form parent, TreeNode functionNode, DBSource server, Func<string, string> gettip)
+        {
+            functionNode.Nodes.Add(new TreeNode("加载中...", 17, 17));
+            functionNode.Expand();
+            new Action<Form, TreeNode, DBSource, Func<string, string>>(LoadFunctions).BeginInvoke(parent, functionNode, server, gettip, null, null);
+        }
+
+        private static void LoadFunctions(Form parent, TreeNode tbNode, DBSource server, Func<string, string> gettip)
+        {
+            if (server == null)
+                return;
+            List<TreeNode> treeNodes = new List<TreeNode>();
+            foreach (var kv in Biz.Common.Data.SQLHelper.GetFunctionsWithParams(server, tbNode.Parent.Text).AsEnumerable().GroupBy(p => p.Field<string>("name")))
+            {
+
+                //int imgIdx = col.IsKey ? 4 : 5;
+                TreeNode newNode = new TreeNode(kv.Key, 13, 14);
+                FunInfo funInfo = new FunInfo { Name = kv.Key,IsScalar=kv.First().Field<int>("IsScalarFunction")==1,
+                    IsTableValue= kv.First().Field<int>("IsTableFunction") == 1,
+                    FuncParamInfos = new List<FunParamInfo>() };
+                newNode.Tag = funInfo;
+                var pname = string.Empty;
+                foreach (var row in kv)
+                {
+                    if (!row.IsNull("pname"))
+                    {
+                        var funParamInfo = new FunParamInfo();
+                        funParamInfo.Len = row.IsNull("length") ? -1 : row.Field<Int16>("length");
+                        funParamInfo.HasDefaultValue = row.Field<int>("has_default_value") == 1;
+                        funParamInfo.IsOutparam = row.Field<bool>("isoutparam");
+                        funParamInfo.Name = row.Field<string>("pname");
+                        funParamInfo.TypeName = row.Field<string>("tpname");
+                        var node = new TreeNode($"{funParamInfo.Name}({row.Field<string>("tpname")}{(funParamInfo.Len == -1 ? string.Empty : "(" + funParamInfo.Len.ToString() + ")")}{(funParamInfo.HasDefaultValue ? " null" : "")}{(funParamInfo.IsOutparam ? " output" : "")})", funParamInfo.IsOutparam ? 12 : 11, funParamInfo.IsOutparam ? 12 : 11);
+                        node.Tag = funParamInfo;
+                        newNode.Nodes.Add(node);
+                        funInfo.FuncParamInfos.Add(funParamInfo);
+                    }
+                }
+
+                if (gettip != null)
+                {
+                    var tiptext = gettip(kv.Key);
+                    if (string.IsNullOrWhiteSpace(tiptext))
+                    {
+                        newNode.ImageIndex = 19;
+                        newNode.SelectedImageIndex = 20;
+                    }
+                    else
+                    {
+                        newNode.ToolTipText = tiptext;
+                    }
+                }
+
+                treeNodes.Add(newNode);
+            }
+
+            parent.Invoke(new Action(() => { tbNode.Nodes.Clear(); tbNode.Nodes.AddRange(treeNodes.ToArray()); tbNode.Expand(); }));
         }
 
         public static void LoadIndexAnsy(Form parent, TreeNode tbNode, DBSource server, string dbname)

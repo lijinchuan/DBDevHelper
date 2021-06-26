@@ -236,6 +236,20 @@ namespace NETDBHelper
                      return string.Empty;
                  });
             }
+            else if (selNode.Tag is INodeContents && (selNode.Tag as INodeContents).GetNodeContentType() == NodeContentType.FUNPARENT)
+            {
+                var dbname = GetDBName(selNode).ToUpper();
+                Biz.UILoadHelper.LoadFunctionsAnsy(this.ParentForm, selNode, GetDBSource(selNode), p =>
+                {
+                    var item = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<SPInfo>("SPInfo", "DBName_SPName", new[] { dbname, p.ToUpper() }).FirstOrDefault();
+
+                    if (item != null)
+                    {
+                        return item.Mark;
+                    }
+                    return string.Empty;
+                });
+            }
             else if (selNode.Tag is INodeContents && (selNode.Tag as INodeContents).GetNodeContentType() == NodeContentType.VIEWParent)
             {
                 Biz.UILoadHelper.LoadViewsAnsy(this.ParentForm, selNode, GetDBSource(selNode));
@@ -425,41 +439,125 @@ namespace NETDBHelper
                             var selnode = tv_DBServers.SelectedNode;
                             if (selnode != null && OnExecutSql != null)
                             {
-                                //foreach (var row in kv)
-                                //{
-                                //    var len = row.Field<Int16>("length");
-                                //    var isnullable = row.Field<int>("isnullable") == 1;
-                                //    var isoutparam = row.Field<int>("isoutparam") == 1;
-                                //    newNode.Nodes.Add(row.Field<string>("pname"), $"{row.Field<string>("pname")}({row.Field<string>("tpname")}{(len == -1 ? string.Empty : "(" + len.ToString() + ")")}{(isnullable ? " null" : "")}{(isoutparam ? " output" : "")})", isoutparam ? 12 : 11, isoutparam ? 12 : 11);
-                                //}
-                                var procInfo = ((ProcInfo)selnode.Tag);
-                                StringBuilder sb = new StringBuilder();
-                                sb.AppendLine($"exec {procInfo.Name} ");
-                                StringBuilder sb1 = new StringBuilder($"use {GetDBName(selnode)}");
-                                sb1.AppendLine();
-                                sb1.AppendLine("GO");
-                                StringBuilder sb2 = new StringBuilder();
-                                foreach (var pa in procInfo.ProcParamInfos)
+                                if (selnode.Tag is ProcInfo)
                                 {
-                                    if (pa.IsOutparam)
+                                    var procInfo = ((ProcInfo)selnode.Tag);
+                                    StringBuilder sb = new StringBuilder();
+                                    sb.AppendLine($"exec {procInfo.Name} ");
+                                    StringBuilder sb1 = new StringBuilder($"use {GetDBName(selnode)}");
+                                    sb1.AppendLine();
+                                    sb1.AppendLine("GO");
+                                    StringBuilder sb2 = new StringBuilder();
+                                    foreach (var pa in procInfo.ProcParamInfos)
                                     {
-                                        sb.AppendLine($"{pa.Name}={pa.Name}1 output,");
-                                        sb1.AppendLine($"declare {pa.Name}1 {(Biz.Common.Data.Common.GetDBType(new TBColumn { Name = pa.Name, TypeName = pa.TypeName, Length = pa.Len }))}");
-                                        sb2.AppendLine($"select {pa.Name}1");
+                                        if (pa.IsOutparam)
+                                        {
+                                            sb.AppendLine($"{pa.Name}={pa.Name}1 output,");
+                                            sb1.AppendLine($"declare {pa.Name}1 {(Biz.Common.Data.Common.GetDBType(new TBColumn { Name = pa.Name, TypeName = pa.TypeName, Length = pa.Len }))}");
+                                            sb2.AppendLine($"select {pa.Name}1");
+                                        }
+                                        else
+                                        {
+                                            sb.AppendLine($"{pa.Name}=<{(Biz.Common.Data.Common.GetDBType(new TBColumn { Name = pa.Name, TypeName = pa.TypeName, Length = pa.Len }))}>,");
+                                        }
+                                    }
+
+                                    if (sb.Length > 2 && sb[sb.Length - 3] == ',')
+                                    {
+                                        sb = sb.Remove(sb.Length - 3, 1);
+                                    }
+                                    var sql = sb1.ToString() + sb.ToString() + sb2.ToString();
+
+                                    OnExecutSql(GetDBSource(selnode), GetDBName(selnode), sql);
+                                }
+                                else if (selnode.Tag is FunInfo)
+                                {
+                                    var funInfo = ((FunInfo)selnode.Tag);
+                                    StringBuilder sb = new StringBuilder();
+                                    if (funInfo.IsTableValue)
+                                    {
+                                        sb.Append($"select * from {funInfo.Name}(");
                                     }
                                     else
                                     {
-                                        sb.AppendLine($"{pa.Name}=<{(Biz.Common.Data.Common.GetDBType(new TBColumn { Name = pa.Name, TypeName = pa.TypeName, Length = pa.Len }))}>,");
+                                        sb.Append($"exec ");
                                     }
-                                }
+                                    StringBuilder sb1 = new StringBuilder($"use {GetDBName(selnode)}");
+                                    sb1.AppendLine();
+                                    sb1.AppendLine("GO");
+                                    StringBuilder sb2 = new StringBuilder();
+                                    StringBuilder sb3 = new StringBuilder();
+                                    for(var i=0;i<funInfo.FuncParamInfos.Count;i++)
+                                    {
+                                        if (funInfo.IsTableValue)
+                                        {
+                                            if (i == 0 && funInfo.FuncParamInfos.Any(p => !p.IsOutparam))
+                                            {
+                                                sb2.Append("declare ");
+                                            }
 
-                                if (sb.Length > 2 && sb[sb.Length - 3] == ',')
-                                {
-                                    sb = sb.Remove(sb.Length - 3, 1);
-                                }
-                                var sql = sb1.ToString() + sb.ToString() + sb2.ToString();
+                                            var pa = funInfo.FuncParamInfos[i];
+                                            if (pa.IsOutparam)
+                                            {
 
-                                OnExecutSql(GetDBSource(selnode), GetDBName(selnode), sql);
+                                            }
+                                            else
+                                            {
+                                                sb.Append($"{pa.Name},");
+                                                sb2.AppendLine($"{pa.Name} {(Biz.Common.Data.Common.GetDBType(new TBColumn { Name = pa.Name, TypeName = pa.TypeName, Length = pa.Len }))}=<{(Biz.Common.Data.Common.GetDBType(new TBColumn { Name = pa.Name, TypeName = pa.TypeName, Length = pa.Len }))}>,");
+                                            }
+                                        }
+                                        else
+                                        {
+                                            if (i == 0 && funInfo.FuncParamInfos.Any(p => p.IsOutparam))
+                                            {
+                                                sb2.Append("declare ");
+                                            }
+
+                                            var pa = funInfo.FuncParamInfos[i];
+                                            if (pa.IsOutparam)
+                                            {
+                                                sb.AppendLine($"{funInfo.Name}");
+                                                var pname = pa.Name;
+                                                if (string.IsNullOrEmpty(pname))
+                                                {
+                                                    pname = $"@ret{i}";
+                                                }
+                                                sb2.AppendLine($"{pname} {(Biz.Common.Data.Common.GetDBType(new TBColumn { Name = pname, TypeName = pa.TypeName, Length = pa.Len }))},");
+
+                                                sb3.AppendLine($"SELECT {pname} AS 'Return Result'");
+                                            }
+                                            else
+                                            {
+                                                sb.AppendLine($"{pa.Name}=<{(Biz.Common.Data.Common.GetDBType(new TBColumn { Name = pa.Name, TypeName = pa.TypeName, Length = pa.Len }))}>,");
+                                            }
+                                        }
+                                    }
+
+                                    if (sb.Length > 2 && sb[sb.Length - 1] == ',')
+                                    {
+                                        sb = sb.Remove(sb.Length - 1, 1);
+                                        sb.Append(")");
+                                    }
+
+                                    if (sb.Length > 2 && sb[sb.Length - 3] == ',')
+                                    {
+                                        sb = sb.Remove(sb.Length - 3, 1);
+                                        if (funInfo.IsTableValue)
+                                        {
+                                            sb.Append(")");
+                                        }
+                                    }
+
+                                    if (sb2.Length > 2 && sb2[sb2.Length - 3] == ',')
+                                    {
+                                        sb2 = sb2.Remove(sb2.Length - 3, 1);
+                                    }
+
+                                    var sql = sb1.ToString() + sb2.ToString() + sb.ToString() + sb3.ToString();
+
+                                    OnExecutSql(GetDBSource(selnode), GetDBName(selnode), sql);
+                                }
                             }
                             break;
                         }
@@ -626,6 +724,22 @@ namespace NETDBHelper
                     DB = e.Node.Text,
                     Sever = GetDBSource(e.Node).ServerName,
                     Valid = true
+                });
+            }
+            else if ((e.Node.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.FUNPARENT)
+            {
+                if (e.Node.Nodes.Count > 0)
+                    return;
+                var dbname = GetDBName(e.Node).ToUpper();
+                Biz.UILoadHelper.LoadFunctionsAnsy(this.ParentForm, e.Node, GetDBSource(e.Node), p =>
+                {
+                    var item = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<SPInfo>("SPInfo", "DBName_SPName", new[] { dbname, p.ToUpper() }).FirstOrDefault();
+
+                    if (item != null)
+                    {
+                        return item.Mark;
+                    }
+                    return string.Empty;
                 });
             }
             else if ((e.Node.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.PROCParent)
@@ -797,11 +911,12 @@ namespace NETDBHelper
 
                     if (nctype == NodeContentType.TB
                         || nctype == NodeContentType.PROC
+                        || nctype == NodeContentType.FUN
                         || nctype == NodeContentType.VIEW
                         || nctype == NodeContentType.INDEX
                         || nctype == NodeContentType.INDEXParent
                         || nctype == NodeContentType.LOGICMAPParent
-                        ||nctype==NodeContentType.LOGICMAP)
+                        || nctype == NodeContentType.LOGICMAP)
                     {
                         this.tv_DBServers.ContextMenuStrip = this.DBServerviewContextMenuStrip;
                         foreach (ToolStripItem item in DBServerviewContextMenuStrip.Items)
@@ -823,12 +938,16 @@ namespace NETDBHelper
                             || nctype == NodeContentType.VIEWParent
                             || nctype == NodeContentType.PROCParent
                             || nctype == NodeContentType.PROC
+                            || nctype == NodeContentType.FUNPARENT
+                            || nctype == NodeContentType.FUN
                             || nctype == NodeContentType.LOGICMAPParent;
 
                         导出ToolStripMenuItem.Visible = nctype == NodeContentType.VIEW
                             || nctype == NodeContentType.PROC
+                            || nctype == NodeContentType.FUN
                             || nctype == NodeContentType.TB;
                         CreateMSSQLToolStripMenuItem.Visible = nctype == NodeContentType.PROC
+                            || nctype == NodeContentType.FUN
                             || nctype == NodeContentType.VIEW
                             || nctype == NodeContentType.TB;
                         创建语句ToolStripMenuItem.Visible = 数据MSSQLToolStripMenuItem.Visible =
@@ -843,9 +962,10 @@ namespace NETDBHelper
                             || nctype == NodeContentType.TB;
                         清理备注ToolStripMenuItem.Visible = nctype == NodeContentType.TB;
                         备注ToolStripMenuItem.Visible = nctype == NodeContentType.TB
-                            || nctype == NodeContentType.PROC;
+                            || nctype == NodeContentType.PROC
+                            || nctype == NodeContentType.FUN;
                         表关系图ToolStripMenuItem.Visible = nctype == NodeContentType.TB;
-                        TSMI_ExeProc.Visible = nctype == NodeContentType.PROC;
+                        TSMI_ExeProc.Visible = nctype == NodeContentType.PROC|| nctype == NodeContentType.FUN;
                         生成数据字典ToolStripMenuItem.Visible = nctype == NodeContentType.TB;
                         SyncDataToolStripMenuItem.Visible = nctype == NodeContentType.TB;
                         修改表名ToolStripMenuItem.Visible = nctype == NodeContentType.TB;
@@ -1219,6 +1339,29 @@ GO");
                     var procinfo = node.Tag as ProcInfo;
                     var dbname = GetDBName(node);
                     var body = Biz.Common.Data.SQLHelper.GetProcedureBody(GetDBSource(node), dbname, procinfo.Name);
+                    //TextBoxWin win = new TextBoxWin("存储过程[" + node.Text + "]", body);
+                    //win.Show();
+                    OnShowProc(GetDBSource(node), dbname, procinfo.Name, body);
+
+                    LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<HLogEntity>("HLog", new HLogEntity
+                    {
+                        TypeName = node.Text,
+                        LogTime = DateTime.Now,
+                        LogType = LogTypeEnum.proc,
+                        DB = dbname,
+                        Sever = GetDBSource(node).ServerName,
+                        Valid = true
+                    });
+                }
+
+            }
+            else if (node != null && node.Tag is FunInfo)
+            {
+                if (OnShowProc != null)
+                {
+                    var procinfo = node.Tag as FunInfo;
+                    var dbname = GetDBName(node);
+                    var body = Biz.Common.Data.SQLHelper.GetFunctionBody(GetDBSource(node), dbname, procinfo.Name);
                     //TextBoxWin win = new TextBoxWin("存储过程[" + node.Text + "]", body);
                     //win.Show();
                     OnShowProc(GetDBSource(node), dbname, procinfo.Name, body);
@@ -1631,6 +1774,28 @@ background-color: #ffffff;
                     MessageBox.Show("备注成功");
                 }
             }
+            else if (selnode.Tag is FunInfo)
+            {
+                var servername = GetDBSource(selnode).ServerName;
+                var dbname = GetDBName(selnode);
+                var spname = (selnode.Tag as FunInfo).Name;
+                var item = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<SPInfo>("SPInfo", "DBName_SPName", new[] { dbname.ToUpper(), spname.ToUpper() }).FirstOrDefault();
+
+                if (item == null)
+                {
+                    item = new SPInfo { Servername = servername, DBName = dbname, SPName = spname, Mark = "" };
+                }
+                InputStringDlg dlg = new InputStringDlg($"备注字段[{dbname}.{spname}]", item.Mark);
+                if (dlg.ShowDialog() == DialogResult.OK)
+                {
+                    item.Mark = dlg.InputString;
+                    LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Upsert<SPInfo>("SPInfo", item);
+                    selnode.ToolTipText = item.Mark;
+                    selnode.ImageIndex = 13;
+                    selnode.SelectedImageIndex = 14;
+                    MessageBox.Show("备注成功");
+                }
+            }
 
         }
 
@@ -1675,6 +1840,28 @@ background-color: #ffffff;
                     }
                 }
                 else if (currnode.Tag is ProcInfo)
+                {
+                    var servername = GetDBSource(currnode).ServerName;
+                    var dbname = GetDBName(currnode);
+                    var spname = currnode.Text;
+                    var item = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<SPInfo>("SPInfo", "DBName_SPName", new[] { dbname.ToUpper(), spname.ToUpper() }).FirstOrDefault();
+
+                    if (item == null)
+                    {
+                        item = new SPInfo { Servername = servername, DBName = dbname.ToUpper(), SPName = spname.ToUpper(), Mark = "" };
+                    }
+                    InputStringDlg dlg = new InputStringDlg($"备注字段[{dbname}.{spname}]", item.Mark);
+                    if (dlg.ShowDialog() == DialogResult.OK)
+                    {
+                        item.Mark = dlg.InputString;
+                        LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Upsert<SPInfo>("SPInfo", item);
+                        currnode.ToolTipText = item.Mark;
+                        currnode.ImageIndex = 13;
+                        currnode.SelectedImageIndex = 14;
+                        MessageBox.Show("备注成功");
+                    }
+                }
+                else if (currnode.Tag is FunInfo)
                 {
                     var servername = GetDBSource(currnode).ServerName;
                     var dbname = GetDBName(currnode);
