@@ -18,6 +18,7 @@ namespace NETDBHelper.UC
     {
         public Func<DBSource,string,string,List<object>> OnSearch;
         public Action<DBSource, string, string,string> OnShowProc;
+        public Action<DBSource, string, string, string> OnShowFunction;
         private DBSource _dbSource;
         private string _dbName;
 

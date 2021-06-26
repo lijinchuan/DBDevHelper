@@ -35,6 +35,7 @@ namespace NETDBHelper
             this.dbServerView1.OnViewTable += this.ShowTables;
             this.dbServerView1.OnViewCloumns += this.ShowColumns;
             this.dbServerView1.OnFilterProc += this.FilterProc;
+            this.dbServerView1.OnFilterFunction += this.FilterFunction;
             this.dbServerView1.OnExecutSql += this.ExecutSql;
             this.dbServerView1.OnShowViewSql += this.ShowViewSql;
             this.dbServerView1.OnShowRelMap += this.ShowRelMap;
@@ -195,6 +196,15 @@ namespace NETDBHelper
             UC.SQLCodePanel panel = new SQLCodePanel();
             panel.SetCode(dbname,procbody);
             panel.Text = $"存储过程-{procname}";
+            this.TabControl.TabPages.Add(panel);
+            this.TabControl.SelectedTab = panel;
+        }
+
+        private void ShowFunction(DBSource dBSource, string dbname, string procname, string procbody)
+        {
+            UC.SQLCodePanel panel = new SQLCodePanel();
+            panel.SetCode(dbname, procbody);
+            panel.Text = $"函数-{procname}";
             this.TabControl.TabPages.Add(panel);
             this.TabControl.SelectedTab = panel;
         }
@@ -395,6 +405,90 @@ namespace NETDBHelper
                     Util.SendMsg(this, $"正在搜索存储过程>{proc}，完成{rat.ToString("f2")}%......");
                 }
                 Util.SendMsg(this, $"正在搜索存储过程，完成100%，共{lst.Count}条数据......");
+                return lst;
+            };
+            this.TabControl.TabPages.Add(panel);
+            this.TabControl.SelectedTab = panel;
+        }
+
+        private void FilterFunction(DBSource dbsource, string dbname, string html)
+        {
+            var tit = $"查看{dbname}的函数";
+            foreach (TabPage tab in this.TabControl.TabPages)
+            {
+                if (tab.Text.Equals(tit))
+                {
+                    (tab as UC.WebTab).SetHtml(html);
+                    TabControl.SelectedTab = tab;
+                    return;
+                }
+            }
+            UC.WebTab panel = new WebTab(dbsource, dbname);
+            panel.SetHtml(html);
+            panel.Text = tit;
+            panel.OnShowFunction += (s, d, p, b) => this.ShowFunction(s, d, p, b);
+            panel.OnSearch += (s, n, w) =>
+            {
+                List<object> lst = new List<object>();
+                var proclist = Biz.Common.Data.SQLHelper.GetFunctions(dbsource, dbname).AsEnumerable().Select(p=>p.Field<string>("name")).ToList();
+                if (proclist.Count == 0)
+                {
+                    return lst;
+                }
+                int finishcount = 0;
+                foreach (var proc in proclist)
+                {
+                    var spcontent = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<FunContent>("FunContent", "FunName", new[] { proc }).FirstOrDefault();
+                    if (spcontent == null)
+                    {
+                        try
+                        {
+                            var body = Biz.Common.Data.SQLHelper.GetFunctionBody(dbsource, dbname, proc);
+
+                            if (!string.IsNullOrEmpty(body))
+                            {
+                                spcontent = new FunContent { FunName = proc, Content = body };
+                                LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<FunContent>("FunContent", new FunContent
+                                {
+                                    Content = body,
+                                    FunName = proc
+                                });
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Util.SendMsg(this, ex.Message);
+                        }
+
+                    }
+
+                    if (spcontent != null)
+                    {
+                        if (spcontent.Content.IndexOf(w, StringComparison.OrdinalIgnoreCase) > -1)
+                        {
+                            lst.Add(proc);
+                        }
+                        else
+                        {
+                            try
+                            {
+                                if (Regex.IsMatch(spcontent.Content, w))
+                                {
+                                    lst.Add(proc);
+                                }
+                            }
+                            catch
+                            {
+
+                            }
+                        }
+                    }
+
+                    finishcount++;
+                    var rat = finishcount * 100 / proclist.Count;
+                    Util.SendMsg(this, $"正在搜索函数>{proc}，完成{rat.ToString("f2")}%......");
+                }
+                Util.SendMsg(this, $"正在搜索函数过程，完成100%，共{lst.Count}条数据......");
                 return lst;
             };
             this.TabControl.TabPages.Add(panel);

@@ -49,6 +49,7 @@
     <Compile Include="DBMapAttribute.cs" />
     <Compile Include="DBSource.cs" />
     <Compile Include="DBSourceCollection.cs" />
+    <Compile Include="FunContent.cs" />
     <Compile Include="FunInfo.cs" />
     <Compile Include="FunParamInfo.cs" />
     <Compile Include="HLogEntity.cs" />

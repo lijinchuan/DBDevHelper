@@ -27,6 +27,7 @@ namespace NETDBHelper
         public Action<DBSource,string, string> OnViewTable;
         public Action<DBSource,string, string> OnViewCloumns;
         public Action<DBSource,string, string> OnFilterProc;
+        public Action<DBSource, string, string> OnFilterFunction;
         public Action<DBSource, string, string> OnExecutSql;
         public Action<DBSource, string, string, string> OnShowViewSql;
         public Action<DBSource, string,string> OnShowRelMap;
@@ -192,6 +193,11 @@ namespace NETDBHelper
                     case "筛选存储过程":
                         {
                             FilterProc();
+                            break;
+                        }
+                    case "筛选函数":
+                        {
+                            FilterFunction();
                             break;
                         }
                 }
@@ -992,6 +998,7 @@ namespace NETDBHelper
                         备注本地ToolStripMenuItem.Visible = nctype == NodeContentType.COLUMN;
                         TSMI_MulMarkLocal.Visible = nctype == NodeContentType.COLUMN;
                         TSMI_FilterProc.Visible = nctype == NodeContentType.PROCParent;
+                        TSMI_FilterFunction.Visible = nctype == NodeContentType.FUNPARENT;
                     }
                 }
             }
@@ -2364,6 +2371,128 @@ background-color: #ffffff;
                 sb.Append("</html>");
 
                 this.OnFilterProc(dbsource, dbname, sb.ToString());
+            }
+        }
+
+        private void FilterFunction()
+        {
+            var selnode = tv_DBServers.SelectedNode;
+            if (this.OnFilterFunction != null && selnode != null)
+            {
+                var dbsource = GetDBSource(selnode);
+                var dbname = GetDBName(selnode);
+                var proclist = Biz.Common.Data.SQLHelper.GetFunctions(dbsource, dbname).AsEnumerable().Select(p => p.Field<string>("name")).ToList();
+
+                StringBuilder sb = new StringBuilder("<html>");
+                sb.Append("<head>");
+                sb.Append($"<title>查看{dbname}的函数</title>");
+                sb.Append(@"<style>
+ table {{
+width:98%;
+font-family: verdana,arial,sans-serif;
+font-size:11px;
+color:#333333;
+border-width: 1px;
+border-color: #666666;
+border-collapse: collapse;
+}}
+table th {{
+border-width: 1px;
+padding: 8px;
+border-style: solid;
+border-color: #666666;
+background-color: #dedede;
+}}
+table td {{
+border-width: 1px;
+padding: 8px;
+border-style: solid;
+border-color: #666666;
+background-color: #ffffff;
+}}</style>");
+                sb.Append("</head>");
+                sb.Append(@"<body>
+                  
+                  <script>
+                      function k(){
+                          if (event.keyCode == 13) s();
+                      }
+                      function s(){
+                       document.getElementById('clearcachtip').style.display='none';
+                       var w=document.getElementById('w').value
+                       if(/^\s*$/.test(w)){
+                           var idx=1
+                           var trs= document.getElementsByTagName('tr');
+                           for(var i=0;i<trs.length;i++){
+                               trs[i].style.display=''
+                               if(trs[i].firstChild.tagName=='TD')
+                                   trs[i].firstChild.innerText=idx++
+                            }
+                           return
+                       }
+                       var ckbody=document.getElementById('scontent').checked;
+                       if(!ckbody){
+                       var idx=1;
+                       var tds= document.getElementsByTagName('td');
+                       w=w.toUpperCase();
+                       for(var i=0;i<tds.length;i+=3){
+                           var boo=tds[i+1].innerText.toUpperCase().indexOf(w)>-1||tds[i+2].innerText.toUpperCase().indexOf(w)>-1
+                           tds[i].parentNode.style.display=boo?'':'none'
+                           if(boo) tds[i].innerText=idx++
+                       }
+                     }else{
+                         window.external.Search(w);
+                     }
+                   }
+                    
+                   function tryclearcach(){
+                       window.external.ClearCach();
+                      document.getElementById('clearcachtip').style.display='none';
+                      
+                   }
+
+                   function searchcallback(str){
+                      var searchresult= JSON.parse(str);
+                      var tds= document.getElementsByTagName('td');
+                       for(var i=0;i<tds.length;i+=3){
+                           tds[i].parentNode.style.display='none';
+                       }
+                      var idx=1;
+                      for(var j=0;j<searchresult.length;j++){
+                         var spname=searchresult[j];
+                         for(var i=0;i<tds.length;i+=3){
+                           var boo=tds[i+1].innerText==spname;
+                           if(boo){
+                               tds[i].parentNode.style.display='';
+                               tds[i].innerText=idx++;
+                               break;
+                            }
+                        }
+                      }
+                      document.getElementById('clearcachtip').style.display='';
+                  }
+                  </script>");
+                sb.AppendFormat("<script>{0}</script>", System.IO.File.ReadAllText("json2.js"));
+                sb.Append(@"<input id='w' type='text' style='height:23px; line-height:23px;width:30%;' onkeypress='k()' value=''/>
+                            <input type='checkbox' id='scontent' value='1'>搜索内容</input>
+                            <input type='button' style='font-size:12px; height:23px; line-height:18px;' value='搜索'  onclick='s()'/>");
+                sb.Append("<p/>");
+                sb.Append($"<div id='clearcachtip' style='margin-top:5px;display:none;width:98%;font-size:9pt;height:18px; line-height:18px;background-color:lightyellow;border:solid 1px lightblue'>如果没有找到，可以选择<a href='javascript:tryclearcach()'>清空缓存</a>试试</div>");
+                sb.Append("<p/>");
+                sb.Append("<table>");
+                sb.Append("<tr><th>序号</th><th>存储过程</th><th>描述</th></tr>");
+                int i = 1;
+                dbname = dbname.ToUpper();
+                foreach (string name in proclist)
+                {
+                    var item = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<SPInfo>("SPInfo", "DBName_SPName", new[] { dbname, name.ToUpper() }).FirstOrDefault();
+                    sb.Append($"<tr><td>{i++}</td><td><a href='javascript:window.external.ShowProc(\"{name}\")'>{name}</a></td><td>{item?.Mark}</td></tr>");
+                }
+                sb.Append("</table>");
+                sb.Append("</body>");
+                sb.Append("</html>");
+
+                this.OnFilterFunction(dbsource, dbname, sb.ToString());
             }
         }
 
