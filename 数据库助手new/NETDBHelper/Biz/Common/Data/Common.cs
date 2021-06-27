@@ -180,5 +180,25 @@ namespace Biz.Common.Data
                     return col.TypeName;
             }
         }
+
+        public static string GetDBType(string typeName,int len,int prec,int scale)
+        {
+            switch (typeName.ToLower())
+            {
+                case "varchar":
+                case "char":
+                case "nchar":
+                    return string.Concat(typeName, "(", len == -1 ? "max" : len.ToString(), ")");
+                case "nvarchar":
+                    return string.Concat(typeName, "(", len == -1 ? "max" : (len == 8000 ? "4000" : len.ToString()), ")");
+                case "numeric":
+                case "money":
+                case "decimal":
+                case "float":
+                    return string.Concat(typeName, "(", prec, ",", scale, ")");
+                default:
+                    return typeName;
+            }
+        }
     }
 }

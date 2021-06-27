@@ -263,11 +263,24 @@ namespace Biz
                         funParamInfo.IsOutparam = row.Field<bool>("isoutparam");
                         funParamInfo.Name = row.Field<string>("pname");
                         funParamInfo.TypeName = row.Field<string>("tpname");
-                        var node = new TreeNode($"{funParamInfo.Name}({row.Field<string>("tpname")}{(funParamInfo.Len == -1 ? string.Empty : "(" + funParamInfo.Len.ToString() + ")")}{(funParamInfo.HasDefaultValue ? " null" : "")}{(funParamInfo.IsOutparam ? " output" : "")})", funParamInfo.IsOutparam ? 12 : 11, funParamInfo.IsOutparam ? 12 : 11);
+                        var typestr=Common.Data.Common.GetDBType(row.Field<string>("tpname"), funParamInfo.Len, row.Field<byte>("precision"), row.Field<byte>("scale"));
+                        var node = new TreeNode($"{funParamInfo.Name}({typestr}{(funParamInfo.HasDefaultValue ? " null" : "")}{(funParamInfo.IsOutparam ? " output" : "")})", funParamInfo.IsOutparam ? 12 : 11, funParamInfo.IsOutparam ? 12 : 11);
                         node.Tag = funParamInfo;
                         newNode.Nodes.Add(node);
                         funInfo.FuncParamInfos.Add(funParamInfo);
                     }
+                }
+
+                if (funInfo.IsTableValue)
+                {
+                    var node = new TreeNode($"(Table(output))", 12, 12);
+                    node.Tag = new FunParamInfo
+                    {
+                       Name="",
+                       TypeName="Table",
+                       IsOutparam=true
+                    };
+                    newNode.Nodes.Add(node);
                 }
 
                 if (gettip != null)
