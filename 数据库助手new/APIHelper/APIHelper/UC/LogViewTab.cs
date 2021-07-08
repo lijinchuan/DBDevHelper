@@ -18,7 +18,7 @@ namespace APIHelper.UC
         int pageSize = 20;
         UC.LoadingBox loadbox = new LoadingBox();
 
-        public event Action<APIInvokeLog> ReInvoke;
+        public event Action<APIInvokeLog,bool> ReInvoke;
 
         int _apiid = 0,_envid=0;
 
@@ -56,6 +56,7 @@ namespace APIHelper.UC
             this.GVLog.ContextMenuStrip.Items.Add("查看请求");
             this.GVLog.ContextMenuStrip.Items.Add("查看结果");
             this.GVLog.ContextMenuStrip.Items.Add("再次执行");
+            this.GVLog.ContextMenuStrip.Items.Add("带参数再次执行");
             this.GVLog.ContextMenuStrip.Items.Add("添加到示例");
             this.GVLog.ContextMenuStrip.ItemClicked += ContextMenuStrip_ItemClicked;
             this.GVLog.CellDoubleClick += GVLog_CellDoubleClick;
@@ -262,7 +263,20 @@ namespace APIHelper.UC
                     var log = BigEntityTableEngine.LocalEngine.Find<APIInvokeLog>(nameof(APIInvokeLog), id);
                     if (log != null && ReInvoke != null)
                     {
-                        ReInvoke(log);
+                        ReInvoke(log,false);
+                    }
+                }
+            }
+            else if(e.ClickedItem.Text== "带参数再次执行")
+            {
+                var row = GVLog.CurrentRow;
+                if (row != null)
+                {
+                    var id = (int)row.Cells["编号"].Value;
+                    var log = BigEntityTableEngine.LocalEngine.Find<APIInvokeLog>(nameof(APIInvokeLog), id);
+                    if (log != null && ReInvoke != null)
+                    {
+                        ReInvoke(log,true);
                     }
                 }
             }

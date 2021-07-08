@@ -50,6 +50,8 @@ namespace APIHelper.UC
 
         private ComboBox CBEnv = new ComboBox();
 
+        private bool fromlogflag = false;
+
         public UCAddAPI()
         {
             InitializeComponent();
@@ -119,8 +121,10 @@ namespace APIHelper.UC
             }
         }
 
-        private void TPInvokeLog_ReInvoke(APIInvokeLog obj)
+        private void TPInvokeLog_ReInvoke(APIInvokeLog obj,bool flag)
         {
+            this.fromlogflag = flag;
+
             this._apiUrl.APIMethod = obj.APIMethod;
             this._apiUrl.ApplicationType = obj.ApplicationType;
             this._apiUrl.AuthType = obj.AuthType;
@@ -129,9 +133,25 @@ namespace APIHelper.UC
             {
                 obj.APIData.Id = this._apiData.Id;
             }
-            this._apiData = obj.APIData;
+            if (flag)
+            {
+                this._apiData = obj.APIData;
+            }
+            else
+            {
+                this._apiData = obj.OrgAPIData;
+            }
 
             BindData();
+
+            if (flag)
+            {
+                this.TBUrl.Text = obj.Path;
+            }
+            else
+            {
+                this.TBUrl.Text = obj.OrgPath;
+            }
 
             this.Tabs.SelectedTab = this.TP_Params;
         }
@@ -634,6 +654,7 @@ namespace APIHelper.UC
                     APIName = _apiUrl.APIName,
                     CDate = DateTime.Now,
                     Path = url,
+                    OrgPath=TBUrl.Text,
                     SourceId = _apiUrl.SourceId,
                     StatusCode = responseEx.StatusCode,
                     RespMsg = responseEx.ErrorMsg?.ToString(),
@@ -646,7 +667,8 @@ namespace APIHelper.UC
                         Headers = responseEx.Headers,
                         Raw = responseEx.ResponseBytes
                     } : null,
-                    APIData = GetApiData()
+                    APIData = GetApiData(false),
+                    OrgAPIData=GetApiData(true)
                 };
 
                 if (log.ResponseText != null)
@@ -1124,7 +1146,7 @@ namespace APIHelper.UC
             }
         }
 
-        private APIData GetApiData()
+        private APIData GetApiData(bool notReplaceEvnParams)
         {
             var apidata = new APIData
             {
@@ -1137,51 +1159,51 @@ namespace APIHelper.UC
             {
                 Checked = p.Checked,
                 Desc = p.Desc,
-                Name = ReplaceEvnParams(p.Name, ref apiEnvParams),
-                Value = ReplaceEvnParams(p.Value, ref apiEnvParams)
+                Name = notReplaceEvnParams?p.Name: ReplaceEvnParams(p.Name, ref apiEnvParams),
+                Value = notReplaceEvnParams?p.Value:ReplaceEvnParams(p.Value, ref apiEnvParams)
             }).ToList();
             apidata.Params = this.Params?.Select(p => new ParamInfo
             {
                 Checked = p.Checked,
                 Desc = p.Desc,
-                Name = ReplaceEvnParams(p.Name, ref apiEnvParams),
-                Value =WebUtility.UrlEncode(ReplaceEvnParams(p.Value, ref apiEnvParams))
+                Name = notReplaceEvnParams ? p.Name : ReplaceEvnParams(p.Name, ref apiEnvParams),
+                Value = notReplaceEvnParams ? p.Value : WebUtility.UrlEncode(ReplaceEvnParams(p.Value, ref apiEnvParams))
             }).ToList();
-            apidata.RawText = ReplaceEvnParams(this.rawTextBox.Text, ref apiEnvParams);
+            apidata.RawText = notReplaceEvnParams ? this.rawTextBox.Text : ReplaceEvnParams(this.rawTextBox.Text, ref apiEnvParams);
             apidata.Headers = this.Headers?.Select(p=>new ParamInfo
             {
-                Name= ReplaceEvnParams(p.Name, ref apiEnvParams),
+                Name= notReplaceEvnParams ? p.Name : ReplaceEvnParams(p.Name, ref apiEnvParams),
                 Desc=p.Desc,
                 Checked=p.Checked,
-                Value= ReplaceEvnParams(p.Value, ref apiEnvParams)
+                Value= notReplaceEvnParams ? p.Value : ReplaceEvnParams(p.Value, ref apiEnvParams)
             }).ToList();
             apidata.FormDatas = this.FormDatas?.Select(p => new ParamInfo
             {
                 Checked = p.Checked,
                 Desc = p.Desc,
-                Name = ReplaceEvnParams(p.Name, ref apiEnvParams),
-                Value = ReplaceEvnParams(p.Value, ref apiEnvParams)
+                Name = notReplaceEvnParams ? p.Name : ReplaceEvnParams(p.Name, ref apiEnvParams),
+                Value = notReplaceEvnParams ? p.Value : ReplaceEvnParams(p.Value, ref apiEnvParams)
             }).ToList(); ;
-            apidata.BearToken = ReplaceEvnParams(this.UCBearToken.Token, ref apiEnvParams);
+            apidata.BearToken = notReplaceEvnParams ? this.UCBearToken.Token : ReplaceEvnParams(this.UCBearToken.Token, ref apiEnvParams);
             apidata.ApiKeyAddTo = this.UCApiKey.AddTo;
-            apidata.ApiKeyName = ReplaceEvnParams(this.UCApiKey.Key, ref apiEnvParams);
-            apidata.ApiKeyValue = ReplaceEvnParams(this.UCApiKey.Val, ref apiEnvParams);
+            apidata.ApiKeyName = notReplaceEvnParams ? this.UCApiKey.Key : ReplaceEvnParams(this.UCApiKey.Key, ref apiEnvParams);
+            apidata.ApiKeyValue = notReplaceEvnParams ? this.UCApiKey.Val : ReplaceEvnParams(this.UCApiKey.Val, ref apiEnvParams);
             apidata.Cookies = this.Cookies?.Select(p=>new ParamInfo
             {
                 Checked=p.Checked,
                 Desc=p.Desc,
-                Name= ReplaceEvnParams(p.Name, ref apiEnvParams),
-                Value=WebUtility.UrlEncode(ReplaceEvnParams(p.Value, ref apiEnvParams))
+                Name= notReplaceEvnParams ? p.Name : ReplaceEvnParams(p.Name, ref apiEnvParams),
+                Value= notReplaceEvnParams ? p.Value : WebUtility.UrlEncode(ReplaceEvnParams(p.Value, ref apiEnvParams))
             }).ToList();
             apidata.Multipart_form_data = this.Multipart_form_data?.Select(p => new ParamInfo
             {
                 Checked = p.Checked,
                 Desc = p.Desc,
-                Name = ReplaceEvnParams(p.Name, ref apiEnvParams),
-                Value = ReplaceEvnParams(p.Value, ref apiEnvParams)
+                Name = notReplaceEvnParams ? p.Name : ReplaceEvnParams(p.Name, ref apiEnvParams),
+                Value = notReplaceEvnParams ? p.Value : ReplaceEvnParams(p.Value, ref apiEnvParams)
             }).ToList();
-            apidata.BasicUserName = ReplaceEvnParams(this.BasicAuth.Key, ref apiEnvParams);
-            apidata.BasicUserPwd = ReplaceEvnParams(this.BasicAuth.Val, ref apiEnvParams);
+            apidata.BasicUserName = notReplaceEvnParams ? this.BasicAuth.Key : ReplaceEvnParams(this.BasicAuth.Key, ref apiEnvParams);
+            apidata.BasicUserPwd = notReplaceEvnParams ? this.BasicAuth.Val : ReplaceEvnParams(this.BasicAuth.Val, ref apiEnvParams);
 
             return apidata;
         }
@@ -1307,6 +1329,11 @@ namespace APIHelper.UC
                     ischanged = true;
                 }
 
+                if (ischanged && fromlogflag && MessageBox.Show("从日志过来的数据，确认保存吗？", "提示", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
+                {
+                    return;
+                }
+
                 if (ischanged || force)
                 {
                     if (this._apiData.Id == 0)
@@ -1341,7 +1368,7 @@ namespace APIHelper.UC
 
         void ISaveAble.Save()
         {
-            Save(true);
+            //Save(true);
         }
 
         public void Execute()

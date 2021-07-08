@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Entity
+namespace Entity.OldVesion.V2
 {
     public class APIInvokeLog
     {
@@ -32,12 +32,6 @@ namespace Entity
         }
 
         public string Path
-        {
-            get;
-            set;
-        }
-
-        public string OrgPath
         {
             get;
             set;
@@ -73,13 +67,7 @@ namespace Entity
             set;
         }
 
-        public APIData APIData
-        {
-            get;
-            set;
-        }
-
-        public APIData OrgAPIData
+        public Entity.APIData APIData
         {
             get;
             set;

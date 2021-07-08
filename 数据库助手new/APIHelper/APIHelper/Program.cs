@@ -132,7 +132,7 @@ namespace APIHelper
             .AddIndex("APISourceId_Name", q => q.Asc(m => m.APISourceId).Asc(m => m.Name)));
 
             //日志
-            BigEntityTableEngine.LocalEngine.Upgrade<Entity.OldVesion.APIInvokeLog, Entity.APIInvokeLog>(nameof(APIInvokeLog), old =>
+            BigEntityTableEngine.LocalEngine.Upgrade<Entity.OldVesion.V2.APIInvokeLog, Entity.APIInvokeLog>(nameof(APIInvokeLog), old =>
               {
                   return new APIInvokeLog
                   {
@@ -154,7 +154,25 @@ namespace APIHelper
                           RawText=old.APIData.RawText,
                           XWWWFormUrlEncoded=old.APIData.XWWWFormUrlEncoded
                       },
-                      ApiEnvId=old.ApiEnvId,
+                      OrgAPIData = new APIData
+                      {
+                          ApiId = old.APIData.ApiId,
+                          ApiKeyAddTo = old.APIData.ApiKeyAddTo,
+                          ApiKeyName = old.APIData.ApiKeyName,
+                          ApiKeyValue = old.APIData.ApiKeyValue,
+                          BasicUserName = string.Empty,
+                          BasicUserPwd = string.Empty,
+                          BearToken = old.APIData.BearToken,
+                          Cookies = old.APIData.Cookies,
+                          FormDatas = old.APIData.FormDatas,
+                          Headers = old.APIData.Headers,
+                          Id = old.APIData.Id,
+                          Multipart_form_data = old.APIData.Multipart_form_data,
+                          Params = old.APIData.Params,
+                          RawText = old.APIData.RawText,
+                          XWWWFormUrlEncoded = old.APIData.XWWWFormUrlEncoded
+                      },
+                      ApiEnvId =old.ApiEnvId,
                       AuthType=old.AuthType,
                       APIId=old.APIId,
                       APIMethod=old.APIMethod,
@@ -165,6 +183,7 @@ namespace APIHelper
                       CDate=old.CDate,
                       Ms=old.Ms,
                       Path=old.Path,
+                      OrgPath=old.Path,
                       RespMsg=old.RespMsg,
                       ResponseText=old.ResponseText,
                       RespSize=old.RespSize,

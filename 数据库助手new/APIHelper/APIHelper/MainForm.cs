@@ -359,7 +359,7 @@ namespace APIHelper
 
                 logview.Init(0, 0);
 
-                logview.ReInvoke += log =>
+                logview.ReInvoke += (log,b) =>
                 {
                     var apiurl = BigEntityTableEngine.LocalEngine.Find<APIUrl>(nameof(APIUrl), log.APIId);
                     if (apiurl != null)
