@@ -49,6 +49,11 @@ namespace Biz
                 {
                     DBInfo dbInfo = new DBInfo { DBSource = server, Name = tb.Rows[i]["Name"].ToString() };
                     TreeNode dbNode = new TreeNode(dbInfo.Name, 2, 2);
+                    var item = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys", new[] { dbInfo.Name.ToUpper(), string.Empty, string.Empty }).FirstOrDefault();
+                    if (item != null)
+                    {
+                        dbNode.ToolTipText = item.MarkInfo;
+                    }
                     dbNode.Tag = dbInfo;
                     serverNode.Nodes.Add(dbNode);
 
