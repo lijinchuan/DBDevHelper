@@ -10,7 +10,8 @@ namespace Biz.Common.Data
         public const string GetDBs = @"select [name] from [master].[sys].[databases](nolock)
             where not [name] in('master','tempdb','model','msdb')";
 
-        public const string GetTBs = @"select [id],name from sysobjects(nolock) where type='U'";
+        //public const string GetTBs = @"select [id],name from sysobjects(nolock) where type='U'";
+        public const string GetTBs = @"select object_id as id,name,SCHEMA_NAME(schema_id) AS [schema] from sys.tables ";
 
         public const string GetColumns = @"select [syscolumns].name
                                            ,[systypes].name type

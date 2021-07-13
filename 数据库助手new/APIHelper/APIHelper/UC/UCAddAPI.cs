@@ -56,6 +56,7 @@ namespace APIHelper.UC
         {
             InitializeComponent();
             //rawTextBox.TextChanged += RawTextBox_TextChanged;
+            rawTextBox.MaxLength = int.MaxValue;
             rawTextBox.ScrollBars = ScrollBars.Both;
         }
 
@@ -63,6 +64,7 @@ namespace APIHelper.UC
         {
             InitializeComponent();
             //rawTextBox.TextChanged += RawTextBox_TextChanged;
+            rawTextBox.MaxLength = int.MaxValue;
             rawTextBox.ScrollBars = ScrollBars.Both;
 
             _apiUrl = apiUrl;

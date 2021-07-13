@@ -31,10 +31,11 @@
             this.BtnSelectFile = new System.Windows.Forms.Button();
             this.TBFileName = new System.Windows.Forms.TextBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.RBFile = new System.Windows.Forms.RadioButton();
             this.RBBase64 = new System.Windows.Forms.RadioButton();
+            this.RBFile = new System.Windows.Forms.RadioButton();
             this.BtnOK = new System.Windows.Forms.Button();
             this.BtnCancel = new System.Windows.Forms.Button();
+            this.BtnCopyBase64 = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -67,6 +68,16 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "选项";
             // 
+            // RBBase64
+            // 
+            this.RBBase64.AutoSize = true;
+            this.RBBase64.Location = new System.Drawing.Point(322, 20);
+            this.RBBase64.Name = "RBBase64";
+            this.RBBase64.Size = new System.Drawing.Size(59, 16);
+            this.RBBase64.TabIndex = 2;
+            this.RBBase64.Text = "Base64";
+            this.RBBase64.UseVisualStyleBackColor = true;
+            // 
             // RBFile
             // 
             this.RBFile.AutoSize = true;
@@ -78,16 +89,6 @@
             this.RBFile.TabStop = true;
             this.RBFile.Text = "文件";
             this.RBFile.UseVisualStyleBackColor = true;
-            // 
-            // RBBase64
-            // 
-            this.RBBase64.AutoSize = true;
-            this.RBBase64.Location = new System.Drawing.Point(322, 20);
-            this.RBBase64.Name = "RBBase64";
-            this.RBBase64.Size = new System.Drawing.Size(59, 16);
-            this.RBBase64.TabIndex = 2;
-            this.RBBase64.Text = "Base64";
-            this.RBBase64.UseVisualStyleBackColor = true;
             // 
             // BtnOK
             // 
@@ -109,11 +110,23 @@
             this.BtnCancel.UseVisualStyleBackColor = true;
             this.BtnCancel.Click += new System.EventHandler(this.BtnCancel_Click);
             // 
+            // BtnCopyBase64
+            // 
+            this.BtnCopyBase64.Location = new System.Drawing.Point(121, 125);
+            this.BtnCopyBase64.Name = "BtnCopyBase64";
+            this.BtnCopyBase64.Size = new System.Drawing.Size(91, 23);
+            this.BtnCopyBase64.TabIndex = 5;
+            this.BtnCopyBase64.Text = "复制Base64值";
+            this.BtnCopyBase64.UseVisualStyleBackColor = true;
+            this.BtnCopyBase64.Visible = false;
+            this.BtnCopyBase64.Click += new System.EventHandler(this.BtnCopyBase64_Click);
+            // 
             // FileDlg
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(443, 173);
+            this.Controls.Add(this.BtnCopyBase64);
             this.Controls.Add(this.BtnCancel);
             this.Controls.Add(this.BtnOK);
             this.Controls.Add(this.groupBox1);
@@ -138,5 +151,6 @@
         private System.Windows.Forms.RadioButton RBFile;
         private System.Windows.Forms.Button BtnOK;
         private System.Windows.Forms.Button BtnCancel;
+        private System.Windows.Forms.Button BtnCopyBase64;
     }
 }

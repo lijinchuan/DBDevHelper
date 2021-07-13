@@ -150,8 +150,14 @@ namespace Biz
                 {
                     DBName = dbname,
                     TBId = tb2.Rows[i]["id"].ToString(),
-                    TBName = tb2.Rows[i]["name"].ToString()
+                    TBName = tb2.Rows[i]["name"].ToString(),
+                    Schema = tb2.Rows[i]["schema"].ToString()
                 };
+
+                if (tbinfo.Schema != "dbo")
+                {
+                    tbinfo.TBName = tbinfo.Schema + "." + tbinfo.TBName;
+                }
 
                 tbinfo.Desc = tbdesc.AsEnumerable().
                     FirstOrDefault(p => p.Field<string>("tablename").Equals(tbinfo.TBName, StringComparison.OrdinalIgnoreCase))

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,6 +17,14 @@ namespace APIHelper.SubForm
         public FileDlg()
         {
             InitializeComponent();
+
+            BtnCopyBase64.Visible = RBBase64.Checked;
+            RBBase64.CheckedChanged += RBBase64_VisibleChanged;
+        }
+
+        private void RBBase64_VisibleChanged(object sender, EventArgs e)
+        {
+            BtnCopyBase64.Visible = RBBase64.Checked;
         }
 
         private void BtnCancel_Click(object sender, EventArgs e)
@@ -66,6 +75,17 @@ namespace APIHelper.SubForm
                 this.TBFileName.Text = fileDialog.FileName;
             }
 
+        }
+
+        private void BtnCopyBase64_Click(object sender, EventArgs e)
+        {
+            if (!string.IsNullOrWhiteSpace(TBFileName.Text))
+            {
+                var base64 = Convert.ToBase64String(File.ReadAllBytes(TBFileName.Text));
+                Clipboard.SetText(base64);
+
+                MessageBox.Show("复制成功");
+            }
         }
     }
 }

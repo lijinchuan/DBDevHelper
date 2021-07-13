@@ -7,6 +7,12 @@ namespace Entity
 {
     public class TableInfo : INodeContents
     {
+        public string Schema
+        {
+            get;
+            set;
+        }
+
         public string DBName
         {
             get;
