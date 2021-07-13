@@ -1013,7 +1013,8 @@ namespace NETDBHelper
                         CommSubMenuitem_add.Visible = nctype == NodeContentType.SEVER;
                         CommSubMenuitem_ViewConnsql.Visible = nctype == NodeContentType.DB;
                         CommSubMenuitem_ReorderColumn.Visible = nctype == NodeContentType.COLUMN;
-                        备注本地ToolStripMenuItem.Visible = nctype == NodeContentType.COLUMN;
+                        备注本地ToolStripMenuItem.Visible = nctype == NodeContentType.COLUMN
+                            || nctype == NodeContentType.DB;
                         TSMI_MulMarkLocal.Visible = nctype == NodeContentType.COLUMN;
                         TSMI_FilterProc.Visible = nctype == NodeContentType.PROCParent;
                         TSMI_FilterFunction.Visible = nctype == NodeContentType.FUNPARENT;
@@ -1079,7 +1080,10 @@ namespace NETDBHelper
             {
                 return false;
             }
-            var find = matchall ? nodeStart.Text.Equals(txt, StringComparison.OrdinalIgnoreCase) : nodeStart.Text.IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1;
+            var find = matchall ? (nodeStart.Text.Equals(txt, StringComparison.OrdinalIgnoreCase)
+                || nodeStart.ToolTipText?.Equals(txt, StringComparison.OrdinalIgnoreCase) == true) :
+                (nodeStart.Text.IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1
+                || nodeStart.ToolTipText?.IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1);
             if (find)
             {
                 tv_DBServers.SelectedNode = nodeStart;
@@ -1800,7 +1804,7 @@ background-color: #ffffff;
                     MessageBox.Show("备注成功");
                 }
             }
-            else if (selnode.Tag is ProcInfo)
+            else if (selnode != null && selnode.Tag is ProcInfo)
             {
                 var servername = GetDBSource(selnode).ServerName;
                 var dbname = GetDBName(selnode);
@@ -1822,7 +1826,7 @@ background-color: #ffffff;
                     MessageBox.Show("备注成功");
                 }
             }
-            else if (selnode.Tag is FunInfo)
+            else if (selnode != null && selnode.Tag is FunInfo)
             {
                 var servername = GetDBSource(selnode).ServerName;
                 var dbname = GetDBName(selnode);
@@ -1841,6 +1845,30 @@ background-color: #ffffff;
                     selnode.ToolTipText = item.Mark;
                     selnode.ImageIndex = 13;
                     selnode.SelectedImageIndex = 14;
+                    MessageBox.Show("备注成功");
+                }
+            }
+            else if (selnode != null && selnode.Tag is DBInfo)
+            {
+                var tbname = string.Empty;
+                var servername = GetDBSource(selnode).ServerName;
+                var dbname = GetDBName(selnode);
+                var item = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys", new[] { dbname.ToUpper(), tbname.ToUpper(), string.Empty }).FirstOrDefault();
+
+                if (item == null)
+                {
+                    item = new MarkObjectInfo { ColumnName = string.Empty, DBName = dbname.ToUpper(), TBName = tbname.ToUpper(), Servername = servername };
+                }
+                InputStringDlg dlg = new InputStringDlg($"备注[{dbname}]", item.MarkInfo);
+                if (dlg.ShowDialog() == DialogResult.OK)
+                {
+                    if (selnode.ImageIndex == 18)
+                    {
+                        selnode.ImageIndex = selnode.SelectedImageIndex = 5;
+                    }
+                    item.MarkInfo = dlg.InputString;
+                    LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Upsert<MarkObjectInfo>("MarkObjectInfo", item);
+                    selnode.ToolTipText = item.MarkInfo;
                     MessageBox.Show("备注成功");
                 }
             }
