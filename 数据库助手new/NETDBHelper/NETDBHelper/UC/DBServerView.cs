@@ -79,6 +79,8 @@ namespace NETDBHelper
             tv_DBServers.ImageList.Images.Add("plugin", Resources.Resource1.plugin);
             tv_DBServers.ImageList.Images.Add("lightning", Resources.Resource1.lightning);//25
             tv_DBServers.ImageList.Images.Add("lightning_delete", Resources.Resource1.lightning_delete);
+            tv_DBServers.ImageList.Images.Add("table", Resources.Resource1.table);
+            tv_DBServers.ImageList.Images.Add("table_link", Resources.Resource1.table_link);
             tv_DBServers.Nodes.Add("0", "资源管理器", 0);
             tv_DBServers.NodeMouseClick += new TreeNodeMouseClickEventHandler(tv_DBServers_NodeMouseClick);
             tv_DBServers.NodeMouseDoubleClick += Tv_DBServers_NodeMouseDoubleClick;
@@ -600,12 +602,16 @@ namespace NETDBHelper
                 }
                 StringBuilder sb = new StringBuilder("select top 100 ");
                 sb.AppendLine();
+
+                var schema = "";
+                if (!"dbo".Equals(tb.Schema, StringComparison.OrdinalIgnoreCase))
+                {
+                    schema = "[" + tb.Schema + "].";
+                }
                 sb.Append(string.Join(",\r\n", cols.Select(p => "[" + p.Key + "]")));
                 sb.AppendLine("");
                 sb.Append(" from ");
-                sb.Append("[");
-                sb.Append(tv_DBServers.SelectedNode.Text);
-                sb.Append("]");
+                sb.Append(schema + "[" + tv_DBServers.SelectedNode.Text + "]");
                 sb.Append(" with(nolock)");
                 if (this.OnShowTableData != null)
                 {

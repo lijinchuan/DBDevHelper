@@ -86,11 +86,11 @@ namespace Biz
             new Action<Form, TreeNode, DBSource, string, Func<string, string>>(LoadTBs).BeginInvoke(parent, dbNode, server, dbname, gettip, null, null);
         }
 
-        public static void LoadColumnsAnsy(Form parent, TreeNode tbNode, DBSource server, Func<TBColumn,string> gettip)
+        public static void LoadColumnsAnsy(Form parent, TreeNode tbNode, DBSource server, Func<TBColumn, string> gettip)
         {
             tbNode.Nodes.Add(new TreeNode("加载中...", 17, 17));
             tbNode.Expand();
-            new Action<Form, TreeNode, DBSource, Func<TBColumn,string>>(LoadColumns).BeginInvoke(parent, tbNode, server,gettip, null, null);
+            new Action<Form, TreeNode, DBSource, Func<TBColumn, string>>(LoadColumns).BeginInvoke(parent, tbNode, server, gettip, null, null);
         }
 
         private static void LoadColumns(Form parent, TreeNode tbNode, DBSource server, Func<TBColumn, string> gettip)
@@ -131,11 +131,14 @@ namespace Biz
 
         }
 
-        private static void LoadTBs(Form parent, TreeNode serverNode, DBSource server,string dbname, Func<string, string> gettip)
+        private static void LoadTBs(Form parent, TreeNode serverNode, DBSource server, string dbname, Func<string, string> gettip)
         {
             //var server = DBServers.FirstOrDefault(p => p.ServerName.Equals(e.Node.Parent.Text));
             if (server == null)
                 return;
+
+            long total = 0;
+
             List<TreeNode> treeNodes = new List<TreeNode>();
             DataTable tb = Biz.Common.Data.SQLHelper.GetTBs(server, dbname);
             var y = from x in tb.AsEnumerable()
@@ -159,16 +162,27 @@ namespace Biz
                     Schema = tb2.Rows[i]["schema"].ToString()
                 };
 
-                if (tbinfo.Schema != "dbo")
-                {
-                    tbinfo.TBName = tbinfo.Schema + "." + tbinfo.TBName;
-                }
+                //if (tbinfo.Schema != "dbo")
+                //{
+                //    tbinfo.TBName = tbinfo.Schema + "." + tbinfo.TBName;
+                //}
+
+                var ex = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Scan<RelTable>(nameof(RelTable), "SDT", new[] { dbname.ToLower(), tbinfo.TBName.ToLower() }, new[] { dbname.ToLower(), tbinfo.TBName.ToLower() }, 1, 1, ref total).FirstOrDefault() != null
+                || LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Scan<RelTable>(nameof(RelTable), "SDRT", new[] { dbname.ToLower(), tbinfo.TBName.ToLower() }, new[] { dbname.ToLower(), tbinfo.TBName.ToLower() }, 1, 1, ref total).FirstOrDefault() != null;
 
                 tbinfo.Desc = tbdesc.AsEnumerable().
                     FirstOrDefault(p => p.Field<string>("tablename").Equals(tbinfo.TBName, StringComparison.OrdinalIgnoreCase))
                     ?.Field<object>("desc").ToString();
 
-                TreeNode newNode = new TreeNode(tbinfo.TBName, 3, 3);
+                TreeNode newNode = null;
+                if (ex)
+                {
+                    newNode = new TreeNode(tbinfo.TBName, 28, 28);
+                }
+                else
+                {
+                    newNode = new TreeNode(tbinfo.TBName, 27, 27);
+                }
 
                 newNode.Tag = tbinfo;
                 if (gettip != null)

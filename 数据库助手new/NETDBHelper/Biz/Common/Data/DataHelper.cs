@@ -578,7 +578,7 @@ namespace Biz.Common.Data
             if (isSupportDBMapperAttr)
                 sb.AppendLine("    [DataBaseMapperAttr(TableName=\"" + tbname + "\")]");
             sb.Append("    public class ");
-            sb.Append(Biz.Common.StringHelper.FirstToUpper(tbname));
+            sb.Append(Biz.Common.StringHelper.FirstToUpper(tbname.Replace(".", "_")));
             sb.Append("Entity");
             sb.Append("\r\n    {\r\n");
 

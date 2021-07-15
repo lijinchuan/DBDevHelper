@@ -519,6 +519,9 @@
     <None Include="Resources\sort_ascending.png" />
     <None Include="Resources\plugin.png" />
     <Content Include="Resources\table.png" />
+    <None Include="Resources\table_lightning.png" />
+    <None Include="Resources\table_link.png" />
+    <None Include="Resources\table_multiple.png" />
     <Content Include="Resources\tbview.png" />
     <None Include="packages.config" />
     <None Include="Resources\tags_red.png" />
