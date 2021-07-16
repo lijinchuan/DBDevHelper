@@ -40,6 +40,7 @@
             this.实体建表ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.查看日志ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.常用SQLToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.监控任务ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.SubItemHelp = new System.Windows.Forms.ToolStripMenuItem();
             this.panel1 = new System.Windows.Forms.Panel();
             this.TabControl = new NETDBHelper.UC.MyTabControl();
@@ -50,7 +51,7 @@
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.MspPanel = new System.Windows.Forms.ToolStripStatusLabel();
             this.TSL_ClearMsg = new System.Windows.Forms.ToolStripStatusLabel();
-            this.监控任务ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.复制数据库ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mainMenuBar.SuspendLayout();
             this.panel1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
@@ -116,7 +117,8 @@
             this.实体建表ToolStripMenuItem,
             this.查看日志ToolStripMenuItem,
             this.常用SQLToolStripMenuItem,
-            this.监控任务ToolStripMenuItem});
+            this.监控任务ToolStripMenuItem,
+            this.复制数据库ToolStripMenuItem});
             this.SubItemTool.Name = "SubItemTool";
             this.SubItemTool.Size = new System.Drawing.Size(44, 21);
             this.SubItemTool.Text = "工具";
@@ -147,6 +149,13 @@
             this.常用SQLToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.常用SQLToolStripMenuItem.Text = "常用SQL";
             this.常用SQLToolStripMenuItem.Click += new System.EventHandler(this.常用SQLToolStripMenuItem_Click);
+            // 
+            // 监控任务ToolStripMenuItem
+            // 
+            this.监控任务ToolStripMenuItem.Name = "监控任务ToolStripMenuItem";
+            this.监控任务ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.监控任务ToolStripMenuItem.Text = "监控任务";
+            this.监控任务ToolStripMenuItem.Click += new System.EventHandler(this.监控任务ToolStripMenuItem_Click);
             // 
             // SubItemHelp
             // 
@@ -241,12 +250,12 @@
             this.TSL_ClearMsg.Visible = false;
             this.TSL_ClearMsg.Click += new System.EventHandler(this.TSL_ClearMsg_Click);
             // 
-            // 监控任务ToolStripMenuItem
+            // 复制数据库ToolStripMenuItem
             // 
-            this.监控任务ToolStripMenuItem.Name = "监控任务ToolStripMenuItem";
-            this.监控任务ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.监控任务ToolStripMenuItem.Text = "监控任务";
-            this.监控任务ToolStripMenuItem.Click += new System.EventHandler(this.监控任务ToolStripMenuItem_Click);
+            this.复制数据库ToolStripMenuItem.Name = "复制数据库ToolStripMenuItem";
+            this.复制数据库ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.复制数据库ToolStripMenuItem.Text = "复制数据库";
+            this.复制数据库ToolStripMenuItem.Click += new System.EventHandler(this.复制数据库ToolStripMenuItem_Click);
             // 
             // MainFrm
             // 
@@ -300,6 +309,7 @@
         private System.Windows.Forms.ToolStripLabel TSCBServer;
         private System.Windows.Forms.ToolStripStatusLabel TSL_ClearMsg;
         private System.Windows.Forms.ToolStripMenuItem 监控任务ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 复制数据库ToolStripMenuItem;
     }
 }
 

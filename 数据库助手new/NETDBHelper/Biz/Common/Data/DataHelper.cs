@@ -790,5 +790,43 @@ namespace Biz.Common.Data
 
             return sb.ToString();
         }
+
+        public static string GetCreateTableSQL(TableInfo tableinfo,List<TBColumn> columns)
+        {
+            StringBuilder sb = new StringBuilder(string.Format("Use [{0}]", tableinfo.DBName));
+            sb.AppendLine();
+            sb.AppendLine("Go");
+            sb.Append(@"SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+SET ANSI_PADDING ON
+GO");
+            sb.AppendLine();
+            sb.AppendLine(string.Format("CREATE TABLE [{0}].[{1}](",tableinfo.Schema, tableinfo.TBName));
+            //sb.AppendLine();
+            List<string> keys = new List<string>();
+            foreach (TBColumn col in columns)
+            {
+                sb.AppendFormat("[{0}] {1} {2} {3},", col.Name, Biz.Common.Data.Common.GetDBType(col), (col.IsID || col.IsKey) ? "NOT NULL" : (col.IsNullAble ? "NULL" : "NOT NULL"), col.IsID ? "IDENTITY(1,1)" : "");
+                sb.AppendLine();
+                if (col.IsKey)
+                {
+                    keys.Add(col.Name);
+                }
+            }
+            sb.AppendLine(")");
+
+            if (keys.Count > 0)
+            {
+                sb.AppendLine("alter table " + "[" + tableinfo.Schema + "].[" + tableinfo.TBName + "] add constraint pk_" + string.Join("_", keys) + "_1 primary key(" + string.Join(",", keys) + ")");
+
+            }
+            sb.AppendLine("Go");
+
+            return sb.ToString();
+        }
     }
 }

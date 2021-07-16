@@ -821,5 +821,11 @@ namespace NETDBHelper
 
             //Util.PopMsg(1, "test", "test");
         }
+
+        private void 复制数据库ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var dlg = new SubForm.CopyDB();
+            dlg.ShowMe(this);
+        }
     }
 }

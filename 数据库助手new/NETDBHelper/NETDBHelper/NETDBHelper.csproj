@@ -135,6 +135,12 @@
     <Compile Include="SubForm\AddTaskInfoDlg.Designer.cs">
       <DependentUpon>AddTaskInfoDlg.cs</DependentUpon>
     </Compile>
+    <Compile Include="SubForm\CopyDB.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SubForm\CopyDB.Designer.cs">
+      <DependentUpon>CopyDB.cs</DependentUpon>
+    </Compile>
     <Compile Include="SubForm\CreateEntityNavDlg.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -370,6 +376,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="SubForm\AddTaskInfoDlg.resx">
       <DependentUpon>AddTaskInfoDlg.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SubForm\CopyDB.resx">
+      <DependentUpon>CopyDB.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="SubForm\CreateEntityNavDlg.resx">
       <DependentUpon>CreateEntityNavDlg.cs</DependentUpon>

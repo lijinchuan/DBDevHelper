@@ -1332,39 +1332,9 @@ namespace NETDBHelper
             if (node != null && node.Tag is TableInfo)
             {
                 var tableinfo = node.Tag as TableInfo;
-                StringBuilder sb = new StringBuilder(string.Format("Use [{0}]", tableinfo.DBName));
-                sb.AppendLine();
-                sb.AppendLine("Go");
-                sb.Append(@"SET ANSI_NULLS ON
-GO
 
-SET QUOTED_IDENTIFIER ON
-GO
-
-SET ANSI_PADDING ON
-GO");
-                sb.AppendLine();
-                sb.AppendLine(string.Format("CREATE TABLE dbo.[{0}](", node.Text));
-                //sb.AppendLine();
-                List<string> keys = new List<string>();
-                foreach (TBColumn col in Biz.Common.Data.SQLHelper.GetColumns(GetDBSource(node), tableinfo.DBName, tableinfo.TBId, tableinfo.TBName))
-                {
-                    sb.AppendFormat("[{0}] {1} {2} {3},", col.Name, Biz.Common.Data.Common.GetDBType(col), (col.IsID || col.IsKey) ? "NOT NULL" : (col.IsNullAble ? "NULL" : "NOT NULL"), col.IsID ? "IDENTITY(1,1)" : "");
-                    sb.AppendLine();
-                    if (col.IsKey)
-                    {
-                        keys.Add(col.Name);
-                    }
-                }
-                sb.AppendLine(")");
-
-                if (keys.Count > 0)
-                {
-                    sb.AppendLine("alter table " + node.Text + " add constraint pk_" + string.Join("_", keys) + "_1 primary key(" + string.Join(",", keys) + ")");
-
-                }
-                sb.AppendLine("Go");
-                TextBoxWin win = new TextBoxWin("创建表" + node.Text, sb.ToString());
+                var cols = Biz.Common.Data.SQLHelper.GetColumns(GetDBSource(node), tableinfo.DBName, tableinfo.TBId, tableinfo.TBName).ToList();
+                TextBoxWin win = new TextBoxWin("创建表" + node.Text, DataHelper.GetCreateTableSQL(tableinfo, cols));
                 win.Show();
             }
             else if (node != null && node.Tag is ProcInfo)
