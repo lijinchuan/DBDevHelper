@@ -94,8 +94,14 @@ namespace NETDBHelper.SubForm
                         {
                             //SQLHelper.CreateIndex()
                         }
-                        
+
                         Util.SendMsg(this.OwnerCtl ?? this, "导出库" + db + ",表:" + tbinfo.TBName);
+
+                        //导出前100条语句
+                        sb.AppendLine(SQLHelper.ExportData(cols, true, DBSource, tbinfo, 100));
+                        sb.AppendLine("GO");
+
+                        Util.SendMsg(this.OwnerCtl ?? this, "导出库" + db + ",表前100条语句:" + tbinfo.TBName);
                     }
 
                     //视图
