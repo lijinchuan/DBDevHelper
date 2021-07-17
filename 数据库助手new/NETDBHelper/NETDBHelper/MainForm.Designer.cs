@@ -41,7 +41,9 @@
             this.查看日志ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.常用SQLToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.监控任务ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.复制数据库ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.SubItemHelp = new System.Windows.Forms.ToolStripMenuItem();
+            this.登录ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.panel1 = new System.Windows.Forms.Panel();
             this.TabControl = new NETDBHelper.UC.MyTabControl();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
@@ -51,7 +53,7 @@
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.MspPanel = new System.Windows.Forms.ToolStripStatusLabel();
             this.TSL_ClearMsg = new System.Windows.Forms.ToolStripStatusLabel();
-            this.复制数据库ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.登出ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mainMenuBar.SuspendLayout();
             this.panel1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
@@ -126,42 +128,59 @@
             // ToolStripMenuItem_callsp
             // 
             this.ToolStripMenuItem_callsp.Name = "ToolStripMenuItem_callsp";
-            this.ToolStripMenuItem_callsp.Size = new System.Drawing.Size(180, 22);
+            this.ToolStripMenuItem_callsp.Size = new System.Drawing.Size(148, 22);
             this.ToolStripMenuItem_callsp.Text = "存储过程调用";
             this.ToolStripMenuItem_callsp.Click += new System.EventHandler(this.ToolStripMenuItem_callsp_Click);
             // 
             // 实体建表ToolStripMenuItem
             // 
             this.实体建表ToolStripMenuItem.Name = "实体建表ToolStripMenuItem";
-            this.实体建表ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.实体建表ToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
             this.实体建表ToolStripMenuItem.Text = "建表工具";
             // 
             // 查看日志ToolStripMenuItem
             // 
             this.查看日志ToolStripMenuItem.Name = "查看日志ToolStripMenuItem";
-            this.查看日志ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.查看日志ToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
             this.查看日志ToolStripMenuItem.Text = "查看日志";
             this.查看日志ToolStripMenuItem.Click += new System.EventHandler(this.查看日志ToolStripMenuItem_Click);
             // 
             // 常用SQLToolStripMenuItem
             // 
             this.常用SQLToolStripMenuItem.Name = "常用SQLToolStripMenuItem";
-            this.常用SQLToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.常用SQLToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
             this.常用SQLToolStripMenuItem.Text = "常用SQL";
             this.常用SQLToolStripMenuItem.Click += new System.EventHandler(this.常用SQLToolStripMenuItem_Click);
             // 
             // 监控任务ToolStripMenuItem
             // 
             this.监控任务ToolStripMenuItem.Name = "监控任务ToolStripMenuItem";
-            this.监控任务ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.监控任务ToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
             this.监控任务ToolStripMenuItem.Text = "监控任务";
             this.监控任务ToolStripMenuItem.Click += new System.EventHandler(this.监控任务ToolStripMenuItem_Click);
             // 
+            // 复制数据库ToolStripMenuItem
+            // 
+            this.复制数据库ToolStripMenuItem.Name = "复制数据库ToolStripMenuItem";
+            this.复制数据库ToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
+            this.复制数据库ToolStripMenuItem.Text = "复制数据库";
+            this.复制数据库ToolStripMenuItem.Click += new System.EventHandler(this.复制数据库ToolStripMenuItem_Click);
+            // 
             // SubItemHelp
             // 
+            this.SubItemHelp.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.登录ToolStripMenuItem,
+            this.登出ToolStripMenuItem});
             this.SubItemHelp.Name = "SubItemHelp";
             this.SubItemHelp.Size = new System.Drawing.Size(44, 21);
             this.SubItemHelp.Text = "帮助";
+            // 
+            // 登录ToolStripMenuItem
+            // 
+            this.登录ToolStripMenuItem.Name = "登录ToolStripMenuItem";
+            this.登录ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.登录ToolStripMenuItem.Text = "登录";
+            this.登录ToolStripMenuItem.Click += new System.EventHandler(this.登录ToolStripMenuItem_Click);
             // 
             // panel1
             // 
@@ -250,12 +269,12 @@
             this.TSL_ClearMsg.Visible = false;
             this.TSL_ClearMsg.Click += new System.EventHandler(this.TSL_ClearMsg_Click);
             // 
-            // 复制数据库ToolStripMenuItem
+            // 登出ToolStripMenuItem
             // 
-            this.复制数据库ToolStripMenuItem.Name = "复制数据库ToolStripMenuItem";
-            this.复制数据库ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.复制数据库ToolStripMenuItem.Text = "复制数据库";
-            this.复制数据库ToolStripMenuItem.Click += new System.EventHandler(this.复制数据库ToolStripMenuItem_Click);
+            this.登出ToolStripMenuItem.Name = "登出ToolStripMenuItem";
+            this.登出ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.登出ToolStripMenuItem.Text = "登出";
+            this.登出ToolStripMenuItem.Click += new System.EventHandler(this.登出ToolStripMenuItem_Click);
             // 
             // MainFrm
             // 
@@ -310,6 +329,8 @@
         private System.Windows.Forms.ToolStripStatusLabel TSL_ClearMsg;
         private System.Windows.Forms.ToolStripMenuItem 监控任务ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 复制数据库ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 登录ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 登出ToolStripMenuItem;
     }
 }
 

@@ -232,6 +232,14 @@ namespace NETDBHelper
             Application.Run(new MainFrm());
 
             BigEntityTableEngine.LocalEngine.ShutDown();
+            try
+            {
+                LJC.FrameWork.SOA.ESBClient.Close();
+            }
+            catch
+            {
+
+            }
         }
     }
 }

@@ -7,6 +7,7 @@ using System.Windows.Forms;
 using System.Runtime.InteropServices;
 using NETDBHelper.SubForm;
 using System.Runtime.CompilerServices;
+using Entity;
 
 namespace NETDBHelper
 {
@@ -15,6 +16,12 @@ namespace NETDBHelper
         private static Dictionary<int, PopMessageDlg> PopDlgDic = new Dictionary<int, PopMessageDlg>();
 
         private static string MsgType = "";
+
+        private static LoginUser CurrentLoginUser = null;
+
+        public static event Action<LoginUser> OnUserLogin = null;
+
+        public static event Action<LoginUser> OnUserLoginOut = null;
 
         public static void SendMsg(Control ctl,string msg)
         {
@@ -128,6 +135,41 @@ namespace NETDBHelper
             {
                 dlg.SetMsg(title, content);
                 dlg.PopShow(cnt);
+            }
+        }
+
+        public static void UserLogin(string userName,int level)
+        {
+            CurrentLoginUser = new LoginUser
+            {
+                UserLevel=level,
+                UserName=userName
+            };
+
+            if (OnUserLogin != null)
+            {
+                OnUserLogin(CurrentLoginUser);
+            }
+        }
+
+        public static int LoginUserLevel()
+        {
+            if (CurrentLoginUser == null)
+            {
+                return 0;
+            }
+
+            return CurrentLoginUser.UserLevel;
+        }
+
+        public static void LoginOut()
+        {
+            var oldLoinUser = CurrentLoginUser;
+            CurrentLoginUser = null;
+
+            if (OnUserLoginOut != null)
+            {
+                OnUserLoginOut(oldLoinUser);
             }
         }
     }

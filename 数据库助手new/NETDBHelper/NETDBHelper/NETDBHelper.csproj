@@ -61,8 +61,14 @@
     <Reference Include="ICSharpCode.SharpZipLib, Version=1.0.0.999, Culture=neutral, PublicKeyToken=1b03e6acf1164f73, processorArchitecture=MSIL">
       <HintPath>..\packages\SharpZipLib.1.0.0\lib\net45\ICSharpCode.SharpZipLib.dll</HintPath>
     </Reference>
+    <Reference Include="Ljc.Com.Blog.Model">
+      <HintPath>..\..\Lib\Ljc.Com.Blog.Model.dll</HintPath>
+    </Reference>
     <Reference Include="LJC.FrameWork">
       <HintPath>..\..\Lib\LJC.FrameWork.dll</HintPath>
+    </Reference>
+    <Reference Include="LJC.FrameWork.SOA">
+      <HintPath>..\..\Lib\LJC.FrameWork.SOA.dll</HintPath>
     </Reference>
     <Reference Include="LJC.FrameWorkV3">
       <HintPath>..\..\Lib\LJC.FrameWorkV3.dll</HintPath>
@@ -158,6 +164,12 @@
     </Compile>
     <Compile Include="SubForm\InputStringDlg.Designer.cs">
       <DependentUpon>InputStringDlg.cs</DependentUpon>
+    </Compile>
+    <Compile Include="SubForm\LoginDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SubForm\LoginDlg.Designer.cs">
+      <DependentUpon>LoginDlg.cs</DependentUpon>
     </Compile>
     <Compile Include="SubForm\MultiInputDlg.cs">
       <SubType>Form</SubType>
@@ -389,6 +401,9 @@
     <EmbeddedResource Include="SubForm\InputStringDlg.resx">
       <DependentUpon>InputStringDlg.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="SubForm\LoginDlg.resx">
+      <DependentUpon>LoginDlg.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="SubForm\MultiInputDlg.resx">
       <DependentUpon>MultiInputDlg.cs</DependentUpon>
     </EmbeddedResource>
@@ -498,6 +513,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="ESBConfig.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Json2.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

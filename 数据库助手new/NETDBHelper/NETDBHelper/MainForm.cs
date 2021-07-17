@@ -50,6 +50,31 @@ namespace NETDBHelper
             this.TSCBServer.Alignment = ToolStripItemAlignment.Right;
 
             this.MspPanel.TextAlign = ContentAlignment.TopLeft;
+
+            复制数据库ToolStripMenuItem.Visible = Util.LoginUserLevel() >= 5;
+            登录ToolStripMenuItem.Visible = Util.LoginUserLevel() == 0;
+            登出ToolStripMenuItem.Visible = Util.LoginUserLevel() > 0;
+
+            Util.OnUserLogin += Util_OnUserLogin;
+            Util.OnUserLoginOut += Util_OnUserLoginOut;
+        }
+
+        private void Util_OnUserLoginOut(LoginUser user)
+        {
+            复制数据库ToolStripMenuItem.Visible = false;
+            登录ToolStripMenuItem.Visible = true;
+            登出ToolStripMenuItem.Visible = false;
+
+            Text = Text.Split('-')[0];
+        }
+
+        private void Util_OnUserLogin(LoginUser loginUser)
+        {
+            复制数据库ToolStripMenuItem.Visible = loginUser.UserLevel >= 5;
+            登录ToolStripMenuItem.Visible = false;
+            登出ToolStripMenuItem.Visible = true;
+
+            Text += "-" + loginUser.UserName;
         }
 
         public MainFrm()
@@ -826,6 +851,17 @@ namespace NETDBHelper
         {
             var dlg = new SubForm.CopyDB();
             dlg.ShowMe(this);
+        }
+
+        private void 登录ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SubForm.LoginDlg dlg = new LoginDlg();
+            dlg.ShowDialog();
+        }
+
+        private void 登出ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Util.LoginOut();
         }
     }
 }

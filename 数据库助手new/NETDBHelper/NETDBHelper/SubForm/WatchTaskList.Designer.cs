@@ -121,6 +121,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "WatchTaskList";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "事件监控";
             ((System.ComponentModel.ISupportInitialize)(this.DGV_TaskList)).EndInit();
             this.menuStrip1.ResumeLayout(false);
