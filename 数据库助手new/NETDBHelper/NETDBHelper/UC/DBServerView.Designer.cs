@@ -82,6 +82,7 @@
             this.CommSubMenuItem_Delete = new System.Windows.Forms.ToolStripMenuItem();
             this.TSMI_FilterProc = new System.Windows.Forms.ToolStripMenuItem();
             this.TSMI_FilterFunction = new System.Windows.Forms.ToolStripMenuItem();
+            this.完全加载ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.DBServerviewContextMenuStrip.SuspendLayout();
             this.toolStrip1.SuspendLayout();
             this.CommMenuStrip.SuspendLayout();
@@ -377,6 +378,7 @@
             this.CommMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.ToolStripMenuItemReload,
             this.CommSubMenuitem_ViewConnsql,
+            this.完全加载ToolStripMenuItem,
             this.复制对象名ToolStripMenuItem,
             this.TSMI_ViewTableList,
             this.TSMI_ViewColumnList,
@@ -390,7 +392,7 @@
             this.TSMI_FilterProc,
             this.TSMI_FilterFunction});
             this.CommMenuStrip.Name = "CommMenuStrip";
-            this.CommMenuStrip.Size = new System.Drawing.Size(181, 318);
+            this.CommMenuStrip.Size = new System.Drawing.Size(181, 340);
             // 
             // ToolStripMenuItemReload
             // 
@@ -494,6 +496,13 @@
             this.TSMI_FilterFunction.Size = new System.Drawing.Size(180, 22);
             this.TSMI_FilterFunction.Text = "筛选函数";
             // 
+            // 完全加载ToolStripMenuItem
+            // 
+            this.完全加载ToolStripMenuItem.Name = "完全加载ToolStripMenuItem";
+            this.完全加载ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.完全加载ToolStripMenuItem.Text = "完全加载";
+            this.完全加载ToolStripMenuItem.Click += new System.EventHandler(this.完全加载ToolStripMenuItem_Click);
+            // 
             // DBServerView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -570,5 +579,6 @@
         private System.Windows.Forms.ToolStripMenuItem TTSM_CreateIndex;
         private System.Windows.Forms.ToolStripMenuItem TTSM_DelIndex;
         private System.Windows.Forms.ToolStripMenuItem TSMI_FilterFunction;
+        private System.Windows.Forms.ToolStripMenuItem 完全加载ToolStripMenuItem;
     }
 }

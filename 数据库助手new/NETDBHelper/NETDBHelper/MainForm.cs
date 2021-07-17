@@ -570,7 +570,7 @@ namespace NETDBHelper
             var dbnode = dbServerView1.FindNode(db.ServerName, dbName);
             if (dbnode != null)
             {
-                Biz.UILoadHelper.LoadTBsAnsy(this, dbServerView1.FindNode(dbnode, NodeContentType.TBParent), db, dbName, null);
+                Biz.UILoadHelper.LoadTBsAnsy(this, dbServerView1.FindNode(dbnode, NodeContentType.TBParent), db, dbName, null,null,null);
             }
         }
 

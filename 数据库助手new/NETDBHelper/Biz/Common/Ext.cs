@@ -121,7 +121,7 @@ namespace Biz.Common
                 case "money":
                 case "decimal":
                 case "float":
-                    return string.Concat(col.TypeName, "(", col.prec, ",", col.scale, ")");
+                    return string.Concat(col.TypeName, "(", col.prec,")");
                 default:
                     return col.TypeName;
             }

@@ -24,13 +24,13 @@ namespace NETDBHelper
         public Action<DBSource, string, string, string, CreateProceEnum> OnCreatePorcSQL;
         public Action<DBSource, string, string, string> OnShowProc;
         public Action<DBSource, string, string, string> OnShowDataDic;
-        public Action<DBSource,string, string> OnViewTable;
-        public Action<DBSource,string, string> OnViewCloumns;
-        public Action<DBSource,string, string> OnFilterProc;
+        public Action<DBSource, string, string> OnViewTable;
+        public Action<DBSource, string, string> OnViewCloumns;
+        public Action<DBSource, string, string> OnFilterProc;
         public Action<DBSource, string, string> OnFilterFunction;
         public Action<DBSource, string, string> OnExecutSql;
         public Action<DBSource, string, string, string> OnShowViewSql;
-        public Action<DBSource, string,string> OnShowRelMap;
+        public Action<DBSource, string, string> OnShowRelMap;
         public Action<DBSource, string, LogicMap> OnAddNewLogicMap;
         public Action<string, LogicMap> OnDeleteLogicMap;
         private DBSourceCollection _dbServers;
@@ -140,7 +140,7 @@ namespace NETDBHelper
                             var node = tv_DBServers.SelectedNode;
                             if (node == null)
                                 return;
-                            OnAddEntityTB(GetDBSource(node),GetDBName(node));
+                            OnAddEntityTB(GetDBSource(node), GetDBName(node));
                         }
                         break;
                     case "删除对象":
@@ -212,15 +212,44 @@ namespace NETDBHelper
             }
         }
 
-        void ReLoadDBObj(TreeNode selNode)
+        void ReLoadDBObj(TreeNode selNode, bool loadall = false)
         {
             //TreeNode selNode = tv_DBServers.SelectedNode;
-            if (selNode == null)
+            if (selNode == null || selNode.Tag == null)
                 return;
+            AsyncCallback callback = null;
+            if (loadall)
+            {
+                callback = new AsyncCallback((o) =>
+                {
+                    var node = selNode;
+                    foreach (TreeNode c in node.Nodes)
+                    {
+                        this.BeginInvoke(new Action(() =>
+                        {
+                            ReLoadDBObj(c, loadall);
+                        }));
+                    }
+                });
+            }
             if (selNode.Tag is ServerInfo)
             {
-                Biz.UILoadHelper.LoadDBsAnsy(this.ParentForm, selNode, GetDBSource(selNode));
+                Biz.UILoadHelper.LoadDBsAnsy(this.ParentForm, selNode, GetDBSource(selNode), callback, selNode);
                 selNode.Parent.Expand();
+            }
+            else if(selNode.Tag is DBInfo)
+            {
+                if (loadall)
+                {
+                    var node = selNode;
+                    foreach (TreeNode c in node.Nodes)
+                    {
+                        this.BeginInvoke(new Action(() =>
+                        {
+                            ReLoadDBObj(c, loadall);
+                        }));
+                    }
+                }
             }
             else if ((selNode.Tag as INodeContents).GetNodeContentType() == NodeContentType.TBParent)
             {
@@ -230,7 +259,7 @@ namespace NETDBHelper
                       var mark = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys", new
                                    [] { dbname, name.ToUpper(), string.Empty }).FirstOrDefault();
                       return mark == null ? string.Empty : mark.MarkInfo;
-                  });
+                  },callback,selNode);
             }
             else if (selNode.Tag is INodeContents && (selNode.Tag as INodeContents).GetNodeContentType() == NodeContentType.PROCParent)
             {
@@ -732,7 +761,7 @@ namespace NETDBHelper
                       var mark = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys", new
                                    [] { GetDBName(e.Node).ToUpper(), name.ToUpper(), string.Empty }).FirstOrDefault();
                       return mark == null ? string.Empty : mark.MarkInfo;
-                  });
+                  },null,null);
 
                 LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<HLogEntity>("HLog", new HLogEntity
                 {
@@ -889,7 +918,7 @@ namespace NETDBHelper
 
         private void DBServerView_Load(object sender, EventArgs e)
         {
-            Bind();
+            ReLoadDBObj(tv_DBServers.Nodes[0]);
         }
 
         public string DisConnectSelectDBServer()
@@ -1454,7 +1483,8 @@ namespace NETDBHelper
             int topNum = 1000;
             int.TryParse(dlg.InputString, out topNum);
 
-            var cols = Biz.Common.Data.SQLHelper.GetColumns(GetDBSource(node), tableinfo.DBName, tableinfo.TBId, tableinfo.TBName);
+            var cols = Biz.Common.Data.SQLHelper.GetColumns(GetDBSource(node), tableinfo.DBName, tableinfo.TBId, tableinfo.TBName).ToList();
+            
             if (cols.ToList().Exists(p => p.IsID))
             {
                 if (MessageBox.Show("是否要导出自增列数据，如果导出会删除原来的数据。", "提示", MessageBoxButtons.YesNo, MessageBoxIcon.Question,
@@ -1463,79 +1493,10 @@ namespace NETDBHelper
                     notExportId = false;
                 }
             }
-            if (notExportId)
-            {
-                cols = cols.Where(p => !p.IsID);
-            }
-            cols = cols.OrderBy(p => p.IsID ? 0 : 1);
 
-            string sqltext = string.Format("select top {2} {0} from {1} with(nolock)", string.Join(",", cols.Select(p => string.Concat("[", p.Name, "]"))), string.Concat("[", node.Text, "]"), topNum);
-            var datas = Biz.Common.Data.SQLHelper.ExecuteDBTable(GetDBSource(node), tableinfo.DBName, sqltext, null);
-            StringBuilder sb = new StringBuilder();
-            if (!notExportId)
-            {
-                sb.AppendLine(string.Format("SET IDENTITY_INSERT {0} ON", string.Concat("[", node.Text, "]")));
-                sb.AppendLine("GO");
-                sb.AppendLine(string.Format("delete from {0}", string.Concat("[", node.Text, "]")));
-                sb.AppendLine(string.Format("DBCC CHECKIDENT({0},RESEED,0)", string.Concat("[", node.Text, "]")));
-                sb.AppendLine("GO");
-            }
-            sb.AppendFormat("Insert into {0} ({1})  ", string.Concat("[", node.Text, "]"), string.Join(",", cols.Select(p => string.Concat("[", p.Name, "]"))));
-            int idx = 0;
-            foreach (DataRow row in datas.Rows)
-            {
-                idx++;
-                StringBuilder sb1 = new StringBuilder(idx > 1 ? " union select " : "select ");
-                foreach (var column in cols)
-                {
-                    object data = row[column.Name];
-                    if (data == DBNull.Value)
-                    {
-                        sb1.Append("NULL,");
-                    }
-                    else
-                    {
-                        if (column.TypeName.IndexOf("int", StringComparison.OrdinalIgnoreCase) > -1
-                            || column.TypeName.IndexOf("decimal", StringComparison.OrdinalIgnoreCase) > -1
-                            || column.TypeName.IndexOf("float", StringComparison.OrdinalIgnoreCase) > -1
-                            //|| column.TypeName.Equals("bit", StringComparison.OrdinalIgnoreCase)
-                            || column.TypeName.Equals("real", StringComparison.OrdinalIgnoreCase)
-                            || column.TypeName.IndexOf("money", StringComparison.OrdinalIgnoreCase) > -1
-                            || column.TypeName.Equals("timestamp", StringComparison.OrdinalIgnoreCase)
-                            || column.TypeName.IndexOf("money", StringComparison.OrdinalIgnoreCase) > -1
-                        )
-                        {
-                            sb1.AppendFormat("{0},", data);
-                        }
-                        else if (column.TypeName.Equals("bit", StringComparison.OrdinalIgnoreCase))
-                        {
-                            sb1.AppendFormat("{0},", (bool)data ? 1 : 0);
-                        }
-                        else if (column.TypeName.Equals("datetime", StringComparison.OrdinalIgnoreCase)
-                            || column.TypeName.Equals("smalldatetime", StringComparison.OrdinalIgnoreCase)
-                            || column.TypeName.Equals("datetime2", StringComparison.OrdinalIgnoreCase))
-                        {
-                            sb1.AppendFormat("'{0}',", ((DateTime)data).ToString("yyyy-MM-dd HH:mm:ss"));
-                        }
-                        else
-                        {
-                            sb1.Append(string.Concat("'", string.IsNullOrEmpty((string)data) ? string.Empty : data.ToString().Replace("'", "''"), "',"));
-                        }
-                    }
-                }
-                if (sb1.Length > 0)
-                    sb1.Remove(sb1.Length - 1, 1);
-                sb.AppendLine();
-                sb.AppendFormat("{0}", sb1.ToString());
-            }
+            var sql= SQLHelper.ExportData(cols, notExportId, GetDBSource(node), tableinfo, topNum);
 
-            if (!notExportId)
-            {
-                sb.AppendLine();
-                sb.AppendLine(string.Format("SET IDENTITY_INSERT {0} OFF", string.Concat("[", node.Text, "]")));
-                sb.AppendLine("GO");
-            }
-            TextBoxWin win = new TextBoxWin("导出数据", sb.ToString());
+            TextBoxWin win = new TextBoxWin("导出数据", sql);
             win.Show();
         }
 
@@ -2661,6 +2622,11 @@ background-color: #ffffff;
                     }
                 }
             }
+        }
+
+        private void 完全加载ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ReLoadDBObj(tv_DBServers.SelectedNode, true);
         }
     }
 }

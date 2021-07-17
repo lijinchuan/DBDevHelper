@@ -109,10 +109,17 @@ namespace Biz.Common.Data
                 var y=(from x in tbDesc.AsEnumerable()
                       where string.Equals((string)x["ColumnName"],(string)tb.Rows[i]["name"],StringComparison.OrdinalIgnoreCase)
                       select x["Description"]).FirstOrDefault();
+
+                var prec = NumberHelper.CovertToInt(tb.Rows[i]["prec"]);
+                var len = int.Parse(tb.Rows[i]["length"].ToString());
+                if (len > prec && prec > 0)
+                {
+                    len = prec;
+                }
                 yield return new TBColumn
                 {
                     IsKey = (tb2.AsEnumerable()).FirstOrDefault(p=>p[0].ToString().Equals(tb.Rows[i]["name"].ToString(),StringComparison.OrdinalIgnoreCase))!=null,
-                    Length=int.Parse(tb.Rows[i]["length"].ToString()),
+                    Length= len,
                     Name=tb.Rows[i]["name"].ToString(),
                     TypeName = tb.Rows[i]["type"].ToString(),
                     IsID=string.Equals(idColumnName,tb.Rows[i]["name"].ToString()),
@@ -297,7 +304,7 @@ namespace Biz.Common.Data
         {
             if (dbSource == null)
                 return;
-            string delSql = "alter database "+dbName+" set single_user with rollback immediate \r\ndrop database [" + dbName + "]";
+            string delSql = "USE MASTER alter database [" + dbName+"] set single_user with rollback immediate \r\ndrop database [" + dbName + "]";
             ExecuteNoQuery(dbSource, dbName, delSql, null);
         }
 
@@ -634,6 +641,11 @@ where a.Table_NAME='"+viewname+"' and a.TABLE_NAME=b.TABLE_NAME ORDER BY A.TABLE
                 }
                 cols = cols.OrderBy(p => p.IsID ? 0 : 1);
 
+                if (!cols.Any())
+                {
+                    return "---------no columns----------";
+                }
+
                 string sqltext = string.Format("select top {2} {0} from [{3}].{1} with(nolock)", string.Join(",", cols.Select(p => string.Concat("[", p.Name, "]"))), string.Concat("[", tableinfo.TBName, "]"), topNum,tableinfo.Schema);
                 var datas = Biz.Common.Data.SQLHelper.ExecuteDBTable(dbSource, tableinfo.DBName, sqltext, null);
 
@@ -645,11 +657,14 @@ where a.Table_NAME='"+viewname+"' and a.TABLE_NAME=b.TABLE_NAME ORDER BY A.TABLE
                     sb.AppendLine(string.Format("DBCC CHECKIDENT({0},RESEED,0)", string.Concat("[", tableinfo.TBName, "]")));
                     sb.AppendLine("GO");
                 }
-                sb.AppendFormat("Insert into {0} ({1})  ", string.Concat("[", tableinfo.TBName, "]"), string.Join(",", cols.Select(p => string.Concat("[", p.Name, "]"))));
+                
                 int idx = 0;
                 foreach (DataRow row in datas.Rows)
                 {
-                    idx++;
+                    if ((++idx) == 1)
+                    {
+                        sb.AppendFormat("Insert into {0} ({1})  ", string.Concat("[", tableinfo.TBName, "]"), string.Join(",", cols.Select(p => string.Concat("[", p.Name, "]"))));
+                    }
                     StringBuilder sb1 = new StringBuilder(idx > 1 ? " union select " : "select ");
                     foreach (var column in cols)
                     {
@@ -685,21 +700,30 @@ where a.Table_NAME='"+viewname+"' and a.TABLE_NAME=b.TABLE_NAME ORDER BY A.TABLE
                                 {
                                     sb1.AppendFormat("'{0}',", ((DateTime)data).ToString("yyyy-MM-dd HH:mm:ss"));
                                 }
+                                else if (column.TypeName.Equals("sql_variant", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    sb1.AppendFormat("'{0}',", data);
+                                }
                                 else
                                 {
                                     sb1.Append(string.Concat("'", string.IsNullOrEmpty((string)data) ? string.Empty : data.ToString().Replace("'", "''"), "',"));
                                 }
                             }
                         }
-                        catch (Exception ex)
+                        catch (Exception)
                         {
-                            //throw ex;
+                            throw;
                         }
                     }
                     if (sb1.Length > 0)
                         sb1.Remove(sb1.Length - 1, 1);
                     sb.AppendLine();
                     sb.AppendFormat("{0}", sb1.ToString());
+                }
+
+                if (idx == 0)
+                {
+                    sb.AppendLine("--------------no data--------------------");
                 }
 
                 if (!notExportId)
@@ -711,9 +735,9 @@ where a.Table_NAME='"+viewname+"' and a.TABLE_NAME=b.TABLE_NAME ORDER BY A.TABLE
 
                 
             }
-            catch (Exception exx)
+            catch (Exception)
             {
-                //throw exx;
+                throw;
 
             }
 
