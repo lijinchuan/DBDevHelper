@@ -646,7 +646,7 @@ where a.Table_NAME='"+viewname+"' and a.TABLE_NAME=b.TABLE_NAME ORDER BY A.TABLE
                     return "---------no columns----------";
                 }
 
-                string sqltext = string.Format("select top {2} {0} from [{3}].{1} with(nolock)", string.Join(",", cols.Select(p => string.Concat("[", p.Name, "]"))), string.Concat("[", tableinfo.TBName, "]"), topNum,tableinfo.Schema);
+                string sqltext = string.Format("select top {2} {0} from [{3}].{1} with(nolock)", string.Join(",", cols.Select(p => GetConverType(p))), string.Concat("[", tableinfo.TBName, "]"), topNum, tableinfo.Schema);
                 var datas = Biz.Common.Data.SQLHelper.ExecuteDBTable(dbSource, tableinfo.DBName, sqltext, null);
 
                 if (!notExportId)
@@ -657,7 +657,7 @@ where a.Table_NAME='"+viewname+"' and a.TABLE_NAME=b.TABLE_NAME ORDER BY A.TABLE
                     sb.AppendLine(string.Format("DBCC CHECKIDENT({0},RESEED,0)", string.Concat("[", tableinfo.TBName, "]")));
                     sb.AppendLine("GO");
                 }
-                
+
                 int idx = 0;
                 foreach (DataRow row in datas.Rows)
                 {
@@ -683,11 +683,20 @@ where a.Table_NAME='"+viewname+"' and a.TABLE_NAME=b.TABLE_NAME ORDER BY A.TABLE
                                     //|| column.TypeName.Equals("bit", StringComparison.OrdinalIgnoreCase)
                                     || column.TypeName.Equals("real", StringComparison.OrdinalIgnoreCase)
                                     || column.TypeName.IndexOf("money", StringComparison.OrdinalIgnoreCase) > -1
-                                    || column.TypeName.Equals("timestamp", StringComparison.OrdinalIgnoreCase)
                                     || column.TypeName.IndexOf("money", StringComparison.OrdinalIgnoreCase) > -1
                                 )
                                 {
                                     sb1.AppendFormat("{0},", data);
+                                }
+                                else if (column.TypeName.Equals("timestamp", StringComparison.OrdinalIgnoreCase)
+                                    || column.TypeName.Equals("binary", StringComparison.OrdinalIgnoreCase)
+                                    || column.TypeName.Equals("varbinary", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    sb1.AppendFormat("{0},", data);
+                                }
+                                else if (column.TypeName.Equals("uniqueidentifier", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    sb1.AppendFormat("'{0}',", data);
                                 }
                                 else if (column.TypeName.Equals("bit", StringComparison.OrdinalIgnoreCase))
                                 {
@@ -733,7 +742,7 @@ where a.Table_NAME='"+viewname+"' and a.TABLE_NAME=b.TABLE_NAME ORDER BY A.TABLE
                     sb.AppendLine("GO");
                 }
 
-                
+
             }
             catch (Exception)
             {
@@ -742,6 +751,20 @@ where a.Table_NAME='"+viewname+"' and a.TABLE_NAME=b.TABLE_NAME ORDER BY A.TABLE
             }
 
             return sb.ToString();
+
+            string GetConverType(TBColumn column)
+            {
+                if (column.TypeName.Equals("timestamp", StringComparison.OrdinalIgnoreCase))
+                {
+                    return string.Format("CAST([{0}] AS VARBINARY(8)) as [{0}]", column.Name);
+                }
+                else if (column.TypeName.Equals("binary", StringComparison.OrdinalIgnoreCase)
+                    || column.TypeName.Equals("varbinary", StringComparison.OrdinalIgnoreCase))
+                {
+                    return string.Format("CAST([{0}] AS VARBINARY({1})) as [{0}]", column.Name, column.Length == -1 ? "max" : column.Length.ToString());
+                }
+                return string.Format("[{0}]", column.Name);
+            }
         }
     }
 }

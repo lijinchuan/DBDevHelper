@@ -147,7 +147,18 @@ namespace NETDBHelper.SubForm
                             foreach (var idx in SQLHelper.GetIndexs(DBSource, db, tbinfo.TBName))
                             {
                                 //SQLHelper.CreateIndex()
+                                
                             }
+
+                            //触发器
+                            foreach(var tg in SQLHelper.GetTriggers(this.DBSource, tbinfo.DBName, tbinfo.TBName))
+                            {
+                                sb.AppendLine("Go");
+
+                                sb.AppendLine(SQLHelper.GetTriggerBody(this.DBSource, tbinfo.DBName, tg.TriggerName));
+                                sb.AppendLine("Go");
+                            }
+
                             //finished++;
                             SendMsg("导出库" + db + ",表:" + tbinfo.TBName);
 
