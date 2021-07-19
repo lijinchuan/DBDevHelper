@@ -766,5 +766,10 @@ where a.Table_NAME='"+viewname+"' and a.TABLE_NAME=b.TABLE_NAME ORDER BY A.TABLE
                 return string.Format("[{0}]", column.Name);
             }
         }
+
+        public static DataTable GetIndexDDL(DBSource dbSource,string dbname,string tablename)
+        {
+            return ExecuteDBTable(dbSource, dbname, SQLHelperConsts.SQL_GETINDEX_DDL, new SqlParameter("@tabname", tablename));
+        }
     }
 }

@@ -100,5 +100,93 @@ where a.name=@name";
                  where a.name='{0}' and c.is_hypothetical=0 and c.type_desc<>'HEAP' --and d.partition_ordinal=0";
 
         public const string SQL_GetTBsDesc = @"select objname tablename,value [desc] from fn_listextendedproperty(null,'SCHEMA','dbo','table',@tablename,null,null)";
+
+        public const string SQL_GETINDEX_DDL = @"--获取索引，约束(主键)的DDL
+--declare @tabname varchar(50)
+--set @tabname='NewsEntity'--表名
+
+if ( object_id('tempdb.dbo.#IDX') is not null)
+begin
+DROP TABLE #IDX
+DROP TABLE #IDX2
+DROP TABLE #IDX3
+end
+
+SELECT a.name  IndexName,
+       c.name  TableName,
+       d.name  IndexColumn,
+       i.is_primary_key,--为主键=1，其他为0
+       i.is_unique_constraint, --唯一约束=1，其他为0
+       b.keyno --列的次序,0为include的列
+       into #IDX
+  FROM sysindexes a
+  JOIN sysindexkeys b
+    ON a.id = b.id
+   AND a.indid = b.indid
+  JOIN sysobjects c
+    ON b.id = c.id
+  JOIN syscolumns d
+    ON b.id = d.id
+   AND b.colid = d.colid
+join sys.indexes i
+on i.index_id=a.indid and c.id=i.object_id  
+ WHERE a.indid NOT IN (0, 255) --indid = 0 或 255则为表，其他为索引。
+      -- and   c.xtype='U'  /*U = 用户表*/ and   c.status>0 --查所有用户表  
+   AND c.name = @tabname --查指定表  
+   and c.type <> 's' --S = 系统表
+ ORDER BY c.name, a.name,b.keyno asc
+
+SELECT IndexName,
+       TableName,
+       is_primary_key,       --为主键=1，其他为0
+       is_unique_constraint,    --唯一约束=1，其他为0
+       [IndexColumn] =
+          stuff (
+             (SELECT ',' + [IndexColumn]
+                FROM (select * from #IDX where keyno<>0) n
+               WHERE     t.IndexName = n.IndexName
+                     AND t.TableName = n.TableName
+                     AND t.is_primary_key = n.is_primary_key
+                     AND t.is_unique_constraint = n.is_unique_constraint
+              FOR XML PATH ( '' )),
+             1,
+             1,
+             '')
+             into #IDX2
+  FROM (select * from #IDX where keyno<>0) t
+GROUP BY IndexName,
+         TableName,
+         is_primary_key,
+         is_unique_constraint
+
+ SELECT IndexName,
+       TableName,
+       is_primary_key,       --为主键=1，其他为0
+       is_unique_constraint,    --唯一约束=1，其他为0
+       [IndexColumn] =
+          stuff (
+             (SELECT ',' + [IndexColumn]
+                FROM (select * from #IDX where keyno=0) n
+               WHERE     t.IndexName = n.IndexName
+                     AND t.TableName = n.TableName
+                     AND t.is_primary_key = n.is_primary_key
+                     AND t.is_unique_constraint = n.is_unique_constraint
+              FOR XML PATH ( '' )),
+             1,
+             1,
+             '')
+             into #IDX3
+  FROM (select * from #IDX where keyno=0) t
+GROUP BY IndexName,
+         TableName,
+         is_primary_key,
+         is_unique_constraint
+
+		  select a.is_primary_key,a.indexname, case 
+ when a.is_primary_key=1 then 'ALTER TABLE '+a.tablename+' ADD CONSTRAINT '+a.indexname+' PRIMARY KEY  ('+a.IndexColumn+')'
+ when a.is_unique_constraint=1 then 'ALTER TABLE '+a.tablename+' ADD CONSTRAINT '+a.indexname+' UNIQUE NONCLUSTERED('+a.IndexColumn+') WITH(ONLINE=ON,FillFactor=90)'
+ else 'create index '+a.indexname+' on '+a.tablename+'('+a.IndexColumn+') '+
+ (case when b.IndexColumn is null then '' else 'include('+b.IndexColumn+') ' end)+'WITH(ONLINE=ON,FillFactor=90)' end INDEX_DDL
+  from #IDX2 a left join #IDX3 b on a.indexname=b.indexname";
     }
 }

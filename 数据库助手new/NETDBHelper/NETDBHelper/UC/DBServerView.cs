@@ -1363,7 +1363,7 @@ namespace NETDBHelper
                 var tableinfo = node.Tag as TableInfo;
 
                 var cols = Biz.Common.Data.SQLHelper.GetColumns(GetDBSource(node), tableinfo.DBName, tableinfo.TBId, tableinfo.TBName).ToList();
-                TextBoxWin win = new TextBoxWin("创建表" + node.Text, DataHelper.GetCreateTableSQL(tableinfo, cols));
+                TextBoxWin win = new TextBoxWin("创建表" + node.Text, DataHelper.GetCreateTableSQL(tableinfo, cols, SQLHelper.GetIndexDDL(GetDBSource(node), tableinfo.DBName, tableinfo.TBName)));
                 win.Show();
             }
             else if (node != null && node.Tag is ProcInfo)

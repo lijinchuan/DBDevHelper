@@ -138,20 +138,21 @@ namespace NETDBHelper.SubForm
 
                             var cols = SQLHelper.GetColumns(this.DBSource, tbinfo.DBName, tbinfo.TBId, tbinfo.TBName).ToList();
 
+                            var indexDDL = SQLHelper.GetIndexDDL(this.DBSource, tbinfo.DBName, tbinfo.TBName);
                             sb.AppendLine();
                             sb.AppendLine("--" + tbinfo.TBName);
-                            sb.AppendLine(DataHelper.GetCreateTableSQL(tbinfo, cols));
+                            sb.AppendLine(DataHelper.GetCreateTableSQL(tbinfo, cols, indexDDL));
                             sb.AppendLine();
                             sb.AppendLine("GO");
                             //索引
-                            foreach (var idx in SQLHelper.GetIndexs(DBSource, db, tbinfo.TBName))
+                            foreach (var idx in indexDDL.AsEnumerable().Where(p => !p.Field<bool>("is_primary_key")))
                             {
-                                //SQLHelper.CreateIndex()
-                                
+                                sb.AppendLine(idx.Field<string>("INDEX_DDL"));
+                                sb.AppendLine("GO");
                             }
 
                             //触发器
-                            foreach(var tg in SQLHelper.GetTriggers(this.DBSource, tbinfo.DBName, tbinfo.TBName))
+                            foreach (var tg in SQLHelper.GetTriggers(this.DBSource, tbinfo.DBName, tbinfo.TBName))
                             {
                                 sb.AppendLine("Go");
 

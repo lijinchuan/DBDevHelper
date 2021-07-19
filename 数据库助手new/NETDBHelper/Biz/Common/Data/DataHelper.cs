@@ -146,7 +146,7 @@ namespace Biz.Common.Data
             return ret;
         }
 
-        public static string GetCreateTableSQL(string dbName,string dbdesc,DataTable structTable)
+        public static string GetCreateTableSQL(string dbName,string dbdesc,DataTable structTable,DataTable indexDDL)
         {
             DataTable tb = structTable;
             StringBuilder sb = new StringBuilder();
@@ -171,15 +171,27 @@ namespace Biz.Common.Data
                 sb.Remove(sb.Length - 1, 1);
             }
             sb.AppendLine();
-            if (!string.IsNullOrWhiteSpace(keyCols))
+
+            if (indexDDL == null)
             {
-                sb.AppendFormat("CONSTRAINT [PK_{0}] PRIMARY KEY CLUSTERED ", tb.TableName);
-                sb.AppendLine();
-                sb.AppendLine("(");
-                sb.AppendLine(keyCols);
-                sb.AppendLine(")WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]");
+                if (!string.IsNullOrWhiteSpace(keyCols))
+                {
+                    sb.AppendFormat("CONSTRAINT [PK_{0}] PRIMARY KEY CLUSTERED ", tb.TableName);
+                    sb.AppendLine();
+                    sb.AppendLine("(");
+                    sb.AppendLine(keyCols);
+                    sb.AppendLine(")WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]");
+                }
+                sb.AppendLine(") ON [PRIMARY]");
             }
-            sb.AppendLine(") ON [PRIMARY]");
+            else
+            {
+                foreach (var idx in indexDDL.AsEnumerable().Where(p => p.Field<int>("is_primary_key") == 1))
+                {
+                    sb.AppendLine(idx.Field<string>("INDEX_DDL"));
+                }
+            }
+
             //sb.AppendLine("GO");
             sb.AppendLine("SET ANSI_PADDING OFF");
             //sb.AppendLine("GO");
@@ -791,7 +803,7 @@ namespace Biz.Common.Data
             return sb.ToString();
         }
 
-        public static string GetCreateTableSQL(TableInfo tableinfo,List<TBColumn> columns)
+        public static string GetCreateTableSQL(TableInfo tableinfo,List<TBColumn> columns,DataTable indexDDL)
         {
             StringBuilder sb = new StringBuilder(string.Format("Use [{0}]", tableinfo.DBName));
             sb.AppendLine();
@@ -819,11 +831,17 @@ GO");
             }
             sb.AppendLine(")");
 
-            if (keys.Count > 0)
+            //if (keys.Count > 0)
+            //{
+            //    //sb.AppendLine("alter table " + "[" + tableinfo.Schema + "].[" + tableinfo.TBName + "] add constraint pk_" + string.Join("_", keys) + "_1 primary key(" + string.Join(",", keys) + ")");
+                
+            //}
+            
+            foreach(var idx in indexDDL.AsEnumerable().Where(p => p.Field<bool>("is_primary_key")))
             {
-                sb.AppendLine("alter table " + "[" + tableinfo.Schema + "].[" + tableinfo.TBName + "] add constraint pk_" + string.Join("_", keys) + "_1 primary key(" + string.Join(",", keys) + ")");
-
+                sb.AppendLine(idx.Field<string>("INDEX_DDL"));
             }
+
             sb.AppendLine("Go");
 
             return sb.ToString();

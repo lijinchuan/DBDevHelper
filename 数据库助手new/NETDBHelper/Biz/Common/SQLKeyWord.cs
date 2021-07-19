@@ -228,6 +228,11 @@ namespace Biz.Common
             });
             KeyWordDic.Add(new SQLKeyWord
             {
+                KeyWord= "constraint",
+                Desc="约束"
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
                 KeyWord = "count",
                 Desc = "总计"
             });
