@@ -120,6 +120,7 @@ namespace NETDBHelper.UC
 
                 count = 0;
 
+                HashSet<string> hash = new HashSet<string>();
                 foreach (var m in markColumnInfoList)
                 {
                     if (string.IsNullOrWhiteSpace(m.ColumnName))
@@ -129,14 +130,25 @@ namespace NETDBHelper.UC
                     }
                     else
                     {
-                        if (!ThinkInfoLib.Any(p => p.Type == 1&& ((MarkObjectInfo)p.Tag)?.DBName.Equals(m.DBName, StringComparison.OrdinalIgnoreCase) == true && p.ObjectName.Equals(m.TBName, StringComparison.OrdinalIgnoreCase)))
+                        var key = (1 + "_" + m.DBName + m.TBName).ToUpper();
+                        if (!hash.Contains(key))
+                        //if (!ThinkInfoLib.Any(p => p.Type == 1&& ((MarkObjectInfo)p.Tag)?.DBName.Equals(m.DBName, StringComparison.OrdinalIgnoreCase) == true && p.ObjectName.Equals(m.TBName, StringComparison.OrdinalIgnoreCase)))
                         {
-                            ThinkInfoLib.Add(new ThinkInfo { Type = 1, ObjectName = m.TBName.ToLower(), Tag = new MarkObjectInfo
+                            var thinkinfo = new ThinkInfo
                             {
-                                DBName=m.DBName,
-                                Servername=m.Servername,
-                                TBName=m.TBName
-                            }, Desc = string.Empty });
+                                Type = 1,
+                                ObjectName = m.TBName.ToLower(),
+                                Tag = new MarkObjectInfo
+                                {
+                                    DBName = m.DBName,
+                                    Servername = m.Servername,
+                                    TBName = m.TBName
+                                },
+                                Desc = string.Empty
+                            };
+                            ThinkInfoLib.Add(thinkinfo);
+
+                            hash.Add(key);
                         }
                         string desc = m.ColumnType;
                         if (!string.IsNullOrWhiteSpace(m.MarkInfo))
