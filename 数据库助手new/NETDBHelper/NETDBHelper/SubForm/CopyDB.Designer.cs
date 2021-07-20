@@ -36,15 +36,21 @@
             this.BtnCancel = new System.Windows.Forms.Button();
             this.BtnSelAll = new System.Windows.Forms.Button();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.CBData = new System.Windows.Forms.CheckBox();
+            this.CBFunc = new System.Windows.Forms.CheckBox();
+            this.CBProc = new System.Windows.Forms.CheckBox();
+            this.CBTest = new System.Windows.Forms.CheckBox();
             this.PannelCopNumber = new System.Windows.Forms.Panel();
-            this.label1 = new System.Windows.Forms.Label();
-            this.NUDMaxNumber = new System.Windows.Forms.NumericUpDown();
-            this.CBIgnoreError = new System.Windows.Forms.CheckBox();
             this.label2 = new System.Windows.Forms.Label();
+            this.CBIgnoreError = new System.Windows.Forms.CheckBox();
+            this.NUDMaxNumber = new System.Windows.Forms.NumericUpDown();
+            this.label1 = new System.Windows.Forms.Label();
+            this.CBData = new System.Windows.Forms.CheckBox();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.ProcessBar = new System.Windows.Forms.ToolStripProgressBar();
             this.MsgText = new System.Windows.Forms.ToolStripStatusLabel();
+            this.CBView = new System.Windows.Forms.CheckBox();
+            this.CBIndex = new System.Windows.Forms.CheckBox();
+            this.CBTrigger = new System.Windows.Forms.CheckBox();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.PannelCopNumber.SuspendLayout();
@@ -126,6 +132,12 @@
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.CBTrigger);
+            this.groupBox2.Controls.Add(this.CBIndex);
+            this.groupBox2.Controls.Add(this.CBView);
+            this.groupBox2.Controls.Add(this.CBFunc);
+            this.groupBox2.Controls.Add(this.CBProc);
+            this.groupBox2.Controls.Add(this.CBTest);
             this.groupBox2.Controls.Add(this.PannelCopNumber);
             this.groupBox2.Controls.Add(this.CBData);
             this.groupBox2.Location = new System.Drawing.Point(536, 52);
@@ -135,15 +147,39 @@
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "设置";
             // 
-            // CBData
+            // CBFunc
             // 
-            this.CBData.AutoSize = true;
-            this.CBData.Location = new System.Drawing.Point(24, 29);
-            this.CBData.Name = "CBData";
-            this.CBData.Size = new System.Drawing.Size(72, 16);
-            this.CBData.TabIndex = 0;
-            this.CBData.Text = "复制数据";
-            this.CBData.UseVisualStyleBackColor = true;
+            this.CBFunc.AutoSize = true;
+            this.CBFunc.Checked = true;
+            this.CBFunc.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.CBFunc.Location = new System.Drawing.Point(25, 166);
+            this.CBFunc.Name = "CBFunc";
+            this.CBFunc.Size = new System.Drawing.Size(48, 16);
+            this.CBFunc.TabIndex = 4;
+            this.CBFunc.Text = "函数";
+            this.CBFunc.UseVisualStyleBackColor = true;
+            // 
+            // CBProc
+            // 
+            this.CBProc.AutoSize = true;
+            this.CBProc.Checked = true;
+            this.CBProc.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.CBProc.Location = new System.Drawing.Point(24, 143);
+            this.CBProc.Name = "CBProc";
+            this.CBProc.Size = new System.Drawing.Size(72, 16);
+            this.CBProc.TabIndex = 3;
+            this.CBProc.Text = "存储过程";
+            this.CBProc.UseVisualStyleBackColor = true;
+            // 
+            // CBTest
+            // 
+            this.CBTest.AutoSize = true;
+            this.CBTest.Location = new System.Drawing.Point(25, 315);
+            this.CBTest.Name = "CBTest";
+            this.CBTest.Size = new System.Drawing.Size(156, 16);
+            this.CBTest.TabIndex = 2;
+            this.CBTest.Text = "测试(库会加时间重命名)";
+            this.CBTest.UseVisualStyleBackColor = true;
             // 
             // PannelCopNumber
             // 
@@ -157,14 +193,23 @@
             this.PannelCopNumber.Size = new System.Drawing.Size(222, 58);
             this.PannelCopNumber.TabIndex = 1;
             // 
-            // label1
+            // label2
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(9, 8);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(65, 12);
-            this.label1.TabIndex = 0;
-            this.label1.Text = "最多数据：";
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(9, 34);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(65, 12);
+            this.label2.TabIndex = 4;
+            this.label2.Text = "忽略错误：";
+            // 
+            // CBIgnoreError
+            // 
+            this.CBIgnoreError.AutoSize = true;
+            this.CBIgnoreError.Location = new System.Drawing.Point(80, 34);
+            this.CBIgnoreError.Name = "CBIgnoreError";
+            this.CBIgnoreError.Size = new System.Drawing.Size(15, 14);
+            this.CBIgnoreError.TabIndex = 3;
+            this.CBIgnoreError.UseVisualStyleBackColor = true;
             // 
             // NUDMaxNumber
             // 
@@ -193,23 +238,24 @@
             0,
             0});
             // 
-            // CBIgnoreError
+            // label1
             // 
-            this.CBIgnoreError.AutoSize = true;
-            this.CBIgnoreError.Location = new System.Drawing.Point(80, 34);
-            this.CBIgnoreError.Name = "CBIgnoreError";
-            this.CBIgnoreError.Size = new System.Drawing.Size(15, 14);
-            this.CBIgnoreError.TabIndex = 3;
-            this.CBIgnoreError.UseVisualStyleBackColor = true;
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(9, 8);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(65, 12);
+            this.label1.TabIndex = 0;
+            this.label1.Text = "最多数据：";
             // 
-            // label2
+            // CBData
             // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(9, 34);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(65, 12);
-            this.label2.TabIndex = 4;
-            this.label2.Text = "忽略错误：";
+            this.CBData.AutoSize = true;
+            this.CBData.Location = new System.Drawing.Point(24, 29);
+            this.CBData.Name = "CBData";
+            this.CBData.Size = new System.Drawing.Size(72, 16);
+            this.CBData.TabIndex = 0;
+            this.CBData.Text = "复制数据";
+            this.CBData.UseVisualStyleBackColor = true;
             // 
             // statusStrip1
             // 
@@ -234,6 +280,42 @@
             this.MsgText.Size = new System.Drawing.Size(683, 17);
             this.MsgText.Spring = true;
             this.MsgText.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // CBView
+            // 
+            this.CBView.AutoSize = true;
+            this.CBView.Checked = true;
+            this.CBView.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.CBView.Location = new System.Drawing.Point(24, 118);
+            this.CBView.Name = "CBView";
+            this.CBView.Size = new System.Drawing.Size(48, 16);
+            this.CBView.TabIndex = 5;
+            this.CBView.Text = "视图";
+            this.CBView.UseVisualStyleBackColor = true;
+            // 
+            // CBIndex
+            // 
+            this.CBIndex.AutoSize = true;
+            this.CBIndex.Checked = true;
+            this.CBIndex.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.CBIndex.Location = new System.Drawing.Point(142, 118);
+            this.CBIndex.Name = "CBIndex";
+            this.CBIndex.Size = new System.Drawing.Size(48, 16);
+            this.CBIndex.TabIndex = 6;
+            this.CBIndex.Text = "索引";
+            this.CBIndex.UseVisualStyleBackColor = true;
+            // 
+            // CBTrigger
+            // 
+            this.CBTrigger.AutoSize = true;
+            this.CBTrigger.Checked = true;
+            this.CBTrigger.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.CBTrigger.Location = new System.Drawing.Point(142, 143);
+            this.CBTrigger.Name = "CBTrigger";
+            this.CBTrigger.Size = new System.Drawing.Size(60, 16);
+            this.CBTrigger.TabIndex = 7;
+            this.CBTrigger.Text = "触发器";
+            this.CBTrigger.UseVisualStyleBackColor = true;
             // 
             // CopyDB
             // 
@@ -285,5 +367,11 @@
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripProgressBar ProcessBar;
         private System.Windows.Forms.ToolStripStatusLabel MsgText;
+        private System.Windows.Forms.CheckBox CBTest;
+        private System.Windows.Forms.CheckBox CBProc;
+        private System.Windows.Forms.CheckBox CBFunc;
+        private System.Windows.Forms.CheckBox CBView;
+        private System.Windows.Forms.CheckBox CBIndex;
+        private System.Windows.Forms.CheckBox CBTrigger;
     }
 }

@@ -118,7 +118,7 @@ namespace Biz.Common.Data
                 }
                 yield return new TBColumn
                 {
-                    IsKey = (tb2.AsEnumerable()).FirstOrDefault(p=>p[0].ToString().Equals(tb.Rows[i]["name"].ToString(),StringComparison.OrdinalIgnoreCase))!=null,
+                    IsKey = (tb2.AsEnumerable()).FirstOrDefault(p=>p["COLUMN_NAME"].ToString().Equals(tb.Rows[i]["name"].ToString(),StringComparison.OrdinalIgnoreCase))!=null,
                     Length= len,
                     Name=tb.Rows[i]["name"].ToString(),
                     TypeName = tb.Rows[i]["type"].ToString(),
@@ -630,7 +630,7 @@ where a.Table_NAME='"+viewname+"' and a.TABLE_NAME=b.TABLE_NAME ORDER BY A.TABLE
             StringBuilder sb = new StringBuilder();
             try
             {
-                IEnumerable<TBColumn> cols = columns;
+                IEnumerable<TBColumn> cols = columns.Where(p => !p.TypeName.Equals("timestamp", StringComparison.OrdinalIgnoreCase));
                 if (!cols.ToList().Exists(p => p.IsID))
                 {
                     notExportId = true;
@@ -663,7 +663,7 @@ where a.Table_NAME='"+viewname+"' and a.TABLE_NAME=b.TABLE_NAME ORDER BY A.TABLE
                 {
                     if ((++idx) == 1)
                     {
-                        sb.AppendFormat("Insert into {0} ({1})  ", string.Concat("[", tableinfo.TBName, "]"), string.Join(",", cols.Select(p => string.Concat("[", p.Name, "]"))));
+                        sb.AppendFormat("Insert into [{2}].[{0}] ({1})  ", tableinfo.TBName, string.Join(",", cols.Select(p => string.Concat("[", p.Name, "]"))), tableinfo.Schema);
                     }
                     StringBuilder sb1 = new StringBuilder(idx > 1 ? " union select " : "select ");
                     foreach (var column in cols)
@@ -692,7 +692,7 @@ where a.Table_NAME='"+viewname+"' and a.TABLE_NAME=b.TABLE_NAME ORDER BY A.TABLE
                                     || column.TypeName.Equals("binary", StringComparison.OrdinalIgnoreCase)
                                     || column.TypeName.Equals("varbinary", StringComparison.OrdinalIgnoreCase))
                                 {
-                                    sb1.AppendFormat("{0},", data);
+                                    sb1.AppendFormat("cast(N'' as xml).value('xs:base64Binary(\"{0}\")','varbinary({1})'),", data, column.Length == -1 ? "MAX" : column.Length.ToString());
                                 }
                                 else if (column.TypeName.Equals("uniqueidentifier", StringComparison.OrdinalIgnoreCase))
                                 {
@@ -756,12 +756,12 @@ where a.Table_NAME='"+viewname+"' and a.TABLE_NAME=b.TABLE_NAME ORDER BY A.TABLE
             {
                 if (column.TypeName.Equals("timestamp", StringComparison.OrdinalIgnoreCase))
                 {
-                    return string.Format("CAST([{0}] AS VARBINARY(8)) as [{0}]", column.Name);
+                    return string.Format("cast('' as xml).value('xs:base64Binary(sql:column(\"{0}\"))', 'varchar(max)') as [{0}]", column.Name);
                 }
                 else if (column.TypeName.Equals("binary", StringComparison.OrdinalIgnoreCase)
                     || column.TypeName.Equals("varbinary", StringComparison.OrdinalIgnoreCase))
                 {
-                    return string.Format("CAST([{0}] AS VARBINARY({1})) as [{0}]", column.Name, column.Length == -1 ? "max" : column.Length.ToString());
+                    return string.Format("cast('' as xml).value('xs:base64Binary(sql:column(\"{0}\"))', 'varchar(max)') as [{0}]", column.Name);
                 }
                 return string.Format("[{0}]", column.Name);
             }

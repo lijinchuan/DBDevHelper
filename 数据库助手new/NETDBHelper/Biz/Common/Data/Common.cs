@@ -171,11 +171,16 @@ namespace Biz.Common.Data
                     return string.Concat(col.TypeName, "(", col.Length==-1?"max":col.Length.ToString(),")");
                 case "nvarchar":
                     return string.Concat(col.TypeName, "(", col.Length == -1 ? "max" : (col.Length == 8000 ? "4000" : col.Length.ToString()), ")");
-                case "numeric":
                 case "money":
-                case "decimal":
+                    return col.TypeName;
                 case "float":
+                    return string.Concat(col.TypeName, "(", col.prec, ")");
+                case "numeric":
+                case "decimal":
                     return string.Concat(col.TypeName, "(", col.prec, ",", col.scale,")");
+                case "binary":
+                case "varbinary":
+                    return string.Concat(col.TypeName, "(", col.prec == -1 ? "MAX" : col.prec.ToString(), ")");
                 default:
                     return col.TypeName;
             }

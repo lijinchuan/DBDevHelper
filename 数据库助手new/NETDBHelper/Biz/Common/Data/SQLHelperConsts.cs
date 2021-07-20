@@ -24,7 +24,7 @@ namespace Biz.Common.Data
                                            --on [syscolumns].[xtype]=[systypes].[xtype]
                                            on [syscolumns].xusertype = [systypes].xusertype
                                            where [syscolumns].[id]=@id
-                                           and [systypes].name<>'sysname'";
+                                           --and [systypes].name<>'sysname'";
 
         public const string GetColumnsByTableName = @"select [syscolumns].name
                                            ,[systypes].name type
@@ -39,9 +39,12 @@ namespace Biz.Common.Data
                                            left join sysobjects(nolock)
                                            on sysobjects.id=syscolumns.id
                                            where sysobjects.name=@name
-                                           and [systypes].name<>'sysname'";
+                                           --and [systypes].name<>'sysname'";
 
-        public const string GetKeyColumn = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE(nolock) WHERE TABLE_NAME=@TABLE_NAME";
+        //public const string GetKeyColumn = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE(nolock) WHERE TABLE_NAME=@TABLE_NAME";
+
+        //exec sp_pkeys 'TB_Tresume'
+        public const string GetKeyColumn = "exec sp_pkeys @TABLE_NAME";
         /// <summary>
         /// 获取自增键
         /// </summary>
@@ -117,7 +120,8 @@ SELECT a.name  IndexName,
        d.name  IndexColumn,
        i.is_primary_key,--为主键=1，其他为0
        i.is_unique_constraint, --唯一约束=1，其他为0
-       b.keyno --列的次序,0为include的列
+       b.keyno, --列的次序,0为include的列
+	   SCHEMA_NAME(j.schema_id) AS [schema]
        into #IDX
   FROM sysindexes a
   JOIN sysindexkeys b
@@ -130,6 +134,7 @@ SELECT a.name  IndexName,
    AND b.colid = d.colid
 join sys.indexes i
 on i.index_id=a.indid and c.id=i.object_id  
+join sys.tables j on c.id=j.object_id
  WHERE a.indid NOT IN (0, 255) --indid = 0 或 255则为表，其他为索引。
       -- and   c.xtype='U'  /*U = 用户表*/ and   c.status>0 --查所有用户表  
    AND c.name = @tabname --查指定表  
@@ -138,11 +143,12 @@ on i.index_id=a.indid and c.id=i.object_id
 
 SELECT IndexName,
        TableName,
+	   [schema],
        is_primary_key,       --为主键=1，其他为0
        is_unique_constraint,    --唯一约束=1，其他为0
        [IndexColumn] =
           stuff (
-             (SELECT ',' + [IndexColumn]
+             (SELECT ',[' + [IndexColumn]+']'
                 FROM (select * from #IDX where keyno<>0) n
                WHERE     t.IndexName = n.IndexName
                      AND t.TableName = n.TableName
@@ -156,6 +162,7 @@ SELECT IndexName,
   FROM (select * from #IDX where keyno<>0) t
 GROUP BY IndexName,
          TableName,
+		 [schema],
          is_primary_key,
          is_unique_constraint
 
@@ -165,7 +172,7 @@ GROUP BY IndexName,
        is_unique_constraint,    --唯一约束=1，其他为0
        [IndexColumn] =
           stuff (
-             (SELECT ',' + [IndexColumn]
+             (SELECT ',[' + [IndexColumn]+']'
                 FROM (select * from #IDX where keyno=0) n
                WHERE     t.IndexName = n.IndexName
                      AND t.TableName = n.TableName
@@ -183,10 +190,10 @@ GROUP BY IndexName,
          is_unique_constraint
 
 		  select a.is_primary_key,a.indexname, case 
- when a.is_primary_key=1 then 'ALTER TABLE '+a.tablename+' ADD CONSTRAINT '+a.indexname+' PRIMARY KEY  ('+a.IndexColumn+')'
- when a.is_unique_constraint=1 then 'ALTER TABLE '+a.tablename+' ADD CONSTRAINT '+a.indexname+' UNIQUE NONCLUSTERED('+a.IndexColumn+') WITH(ONLINE=ON,FillFactor=90)'
- else 'create index '+a.indexname+' on '+a.tablename+'('+a.IndexColumn+') '+
- (case when b.IndexColumn is null then '' else 'include('+b.IndexColumn+') ' end)+'WITH(ONLINE=ON,FillFactor=90)' end INDEX_DDL
+ when a.is_primary_key=1 then 'ALTER TABLE ['+a.[schema]+'].['+a.tablename+'] ADD CONSTRAINT ['+a.indexname+'] PRIMARY KEY  ('+a.IndexColumn+')'
+ when a.is_unique_constraint=1 then 'ALTER TABLE ['+a.[schema]+'].['+a.tablename+'] ADD CONSTRAINT ['+a.indexname+'] UNIQUE NONCLUSTERED('+a.IndexColumn+') WITH(ONLINE=OFF,FillFactor=90)'
+ else 'create index ['+a.indexname+'] on ['+a.[schema]+'].['+a.tablename+']('+a.IndexColumn+') '+
+ (case when b.IndexColumn is null then '' else 'include('+b.IndexColumn+') ' end)+'WITH(ONLINE=OFF,FillFactor=90)' end INDEX_DDL
   from #IDX2 a left join #IDX3 b on a.indexname=b.indexname";
     }
 }
