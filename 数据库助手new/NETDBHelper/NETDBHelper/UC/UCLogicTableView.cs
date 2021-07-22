@@ -681,6 +681,21 @@ namespace NETDBHelper.UC
             this.LBTabname.MouseDown += OnLBTabnameMouseDown;
             this.LBTabname.MouseUp += OnLBTabnameMouseUp;
             this.LBTabname.DoubleClick += LBTabname_DoubleClick;
+            this.LBTabname.MouseHover += (ss, ee) =>
+            {
+                if (!string.IsNullOrWhiteSpace(DBName) && !string.IsNullOrWhiteSpace(TBName))
+                {
+                    var desc = BigEntityTableEngine.LocalEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys", new[] { DBName.ToUpper(), TBName.ToUpper(), string.Empty }).FirstOrDefault();
+                    if (desc != null)
+                    {
+                        Util.SendMsg(this, desc.MarkInfo);
+                    }
+                    else
+                    {
+                        Util.SendMsg(this, string.Empty);
+                    }
+                }
+            };
 
             ColumnsPanel.DoubleClick += ColumnsPanel_DoubleClick;
             this.CBCoumns.Visible = false;
