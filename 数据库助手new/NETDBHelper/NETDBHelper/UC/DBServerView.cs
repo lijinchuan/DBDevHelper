@@ -1494,9 +1494,13 @@ namespace NETDBHelper
                 }
             }
 
-            var sql= SQLHelper.ExportData(cols, notExportId, GetDBSource(node), tableinfo, topNum);
+            StringBuilder sql = new StringBuilder();
+            foreach(var item in SQLHelper.ExportData(cols, notExportId, GetDBSource(node), tableinfo, topNum))
+            {
+                sql.AppendLine(item);
+            }
 
-            TextBoxWin win = new TextBoxWin("导出数据", sql);
+            TextBoxWin win = new TextBoxWin("导出数据", sql.ToString());
             win.Show();
         }
 

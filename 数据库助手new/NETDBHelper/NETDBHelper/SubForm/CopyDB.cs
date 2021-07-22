@@ -91,15 +91,24 @@ namespace NETDBHelper.SubForm
             }
         }
 
-        private async Task<int> Save(bool isTest,bool needIndex,bool needView,bool needProc,bool needFunc,bool needTrigger)
+        private async Task<int> Save(bool isTest,bool needIndex,bool needView,bool needProc,bool needFunc,bool needTrigger,int maxSize)
         {
             bool haserror = true;
+            var dir = Application.StartupPath + "\\temp\\";
+            if (!Directory.Exists(dir))
+            {
+                Directory.CreateDirectory(dir);
+            }
+            var filename = Path.Combine(dir, "createdb_" + DateTime.Now.ToString("yyyyyMMddHHmmss") + ".sql");
+            var datafilename= Path.Combine(dir, "createdb" + DateTime.Now.ToString("yyyyyMMddHHmmss") + "_data_###.sql");
+            int datafilecount = 0;
             try
             {
                 var total = CLBDBs.CheckedItems.Count;
                 var finished = 0;
                 StringBuilder sball = new StringBuilder();
                 StringBuilder sb = new StringBuilder();
+                StringBuilder sbdata = new StringBuilder();
                 
                 foreach (var item in CLBDBs.CheckedItems)
                 {
@@ -190,8 +199,23 @@ namespace NETDBHelper.SubForm
                                 //导出前100条语句
                                 try
                                 {
-                                    sb.AppendLine(SQLHelper.ExportData(cols, true, DBSource, tbinfo, (int)NUDMaxNumber.Value));
-                                    sb.AppendLine("GO");
+                                    foreach(var s in SQLHelper.ExportData(cols, true, DBSource, tbinfo, (int)NUDMaxNumber.Value))
+                                    {
+                                        sbdata.AppendLine(s);
+                                        sbdata.AppendLine("GO");
+
+                                        if (maxSize > 0 && sbdata.Length > maxSize * 1024 * 1024)
+                                        {
+                                            if (isTest)
+                                            {
+                                                sbdata = new StringBuilder(Regex.Replace(sbdata.ToString(), $"use[\\s]+\\[?{db}\\]?", $"use [{destdb}]", RegexOptions.IgnoreCase | RegexOptions.Multiline));
+                                            }
+                                            var currDataFileName = datafilename.Replace("###", (datafilecount++).ToString());
+                                            File.WriteAllText(currDataFileName, sbdata.ToString(), Encoding.UTF8);
+                                            sbdata.Clear();
+                                        }
+                                    }
+                                    
                                 }
                                 catch (Exception)
                                 {
@@ -201,7 +225,7 @@ namespace NETDBHelper.SubForm
                                     }
                                     else
                                     {
-                                        sb.AppendLine("-----------导出数据出错-----------");
+                                        sbdata.AppendLine("-----------导出数据出错-----------");
                                     }
                                 }
                                 //finished += 9;
@@ -311,20 +335,19 @@ namespace NETDBHelper.SubForm
 
                 if (!cancel && sball.Length > 0)
                 {
-                    var dir = Application.StartupPath + "\\temp\\";
-                    if (!Directory.Exists(dir))
-                    {
-                        Directory.CreateDirectory(dir);
-                    }
-
-                    var filename = Path.Combine(dir, "createdb_" + DateTime.Now.ToString("yyyyyMMddHHmmss") + ".sql");
-
                     File.WriteAllText(filename, sball.ToString(), Encoding.UTF8);
-
-                    SendMsg("保存成功:" + filename);
-
-                    System.Diagnostics.Process.Start(dir);
                 }
+
+                if (!cancel && sbdata.Length > 0)
+                {
+                    var currDataFileName = datafilename.Replace("###", (datafilecount++).ToString());
+                    File.WriteAllText(currDataFileName, sbdata.ToString(), Encoding.UTF8);
+                }
+
+                SendMsg("保存成功:" + filename);
+
+                System.Diagnostics.Process.Start(dir);
+
                 haserror = false;
                 return await Task.FromResult(1);
             }
@@ -380,7 +403,7 @@ namespace NETDBHelper.SubForm
             this.groupBox2.Enabled = false;
             //this.BtnCancel.Enabled = false;
             PublishFinished(100, 0);
-            saveTask = Task.Run(() => Save(CBTest.Checked, CBIndex.Checked, CBView.Checked, CBProc.Checked, CBFunc.Checked, CBTrigger.Checked));
+            saveTask = Task.Run(() => Save(CBTest.Checked, CBIndex.Checked, CBView.Checked, CBProc.Checked, CBFunc.Checked, CBTrigger.Checked, (int)NUDMaxSize.Value));
 
         }
 
