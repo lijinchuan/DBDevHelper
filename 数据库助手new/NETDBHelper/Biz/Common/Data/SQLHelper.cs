@@ -127,7 +127,8 @@ namespace Biz.Common.Data
                     prec=NumberHelper.CovertToInt(tb.Rows[i]["prec"]),
                     scale = NumberHelper.CovertToInt(tb.Rows[i]["scale"]),
                     Description=y==null?"":y.ToString(),
-                    TBName=tbName,
+                    DefaultValue=tb.Rows[i]["defaultvalue"]==DBNull.Value?null: tb.Rows[i]["defaultvalue"],
+                    TBName =tbName,
                     DBName=dbName
                 };
             }
@@ -159,7 +160,8 @@ namespace Biz.Common.Data
                     prec = NumberHelper.CovertToInt(tb.Rows[i]["prec"]),
                     scale = NumberHelper.CovertToInt(tb.Rows[i]["scale"]),
                     Description = y == null ? "" : y.ToString(),
-                    TBName=tbName,
+                    DefaultValue = tb.Rows[i]["defaultvalue"] == DBNull.Value ? null : tb.Rows[i]["defaultvalue"],
+                    TBName =tbName,
                     DBName=dbName
                 };
             }
@@ -625,136 +627,169 @@ where a.Table_NAME='"+viewname+"' and a.TABLE_NAME=b.TABLE_NAME ORDER BY A.TABLE
             ExecuteNoQuery(dbSource, dbName, sql);
         }
 
-        public static string ExportData(List<TBColumn> columns, bool notExportId, DBSource dbSource, TableInfo tableinfo, int topNum)
+        public static IEnumerable<string> ExportData(List<TBColumn> columns, bool notExportId, DBSource dbSource, TableInfo tableinfo, int topNum)
         {
             StringBuilder sb = new StringBuilder();
-            try
+
+            IEnumerable<TBColumn> cols = columns.Where(p => !p.TypeName.Equals("timestamp", StringComparison.OrdinalIgnoreCase));
+            if (!cols.ToList().Exists(p => p.IsID))
             {
-                IEnumerable<TBColumn> cols = columns.Where(p => !p.TypeName.Equals("timestamp", StringComparison.OrdinalIgnoreCase));
-                if (!cols.ToList().Exists(p => p.IsID))
-                {
-                    notExportId = true;
-                }
-                if (notExportId)
-                {
-                    cols = cols.Where(p => !p.IsID);
-                }
-                cols = cols.OrderBy(p => p.IsID ? 0 : 1);
+                notExportId = true;
+            }
+            if (notExportId)
+            {
+                cols = cols.Where(p => !p.IsID);
+            }
+            cols = cols.OrderBy(p => p.IsID ? 0 : 1);
 
-                if (!cols.Any())
+            if (!cols.Any())
+            {
+                yield return "---------no columns----------";
+                yield break;
+            }
+
+            string sqltext = string.Format("select top {2} {0} from [{3}].{1} with(nolock)", string.Join(",", cols.Select(p => GetConverType(p))), string.Concat("[", tableinfo.TBName, "]"), topNum, tableinfo.Schema);
+            var datas = Biz.Common.Data.SQLHelper.ExecuteDBTable(dbSource, tableinfo.DBName, sqltext, null);
+
+            if (!notExportId)
+            {
+                sb.AppendLine(string.Format("SET IDENTITY_INSERT {0} ON", string.Concat("[", tableinfo.TBName, "]")));
+                sb.AppendLine("GO");
+                sb.AppendLine(string.Format("delete from {0}", string.Concat("[", tableinfo.TBName, "]")));
+                sb.AppendLine(string.Format("DBCC CHECKIDENT({0},RESEED,0)", string.Concat("[", tableinfo.TBName, "]")));
+                sb.AppendLine("GO");
+            }
+
+            int idx = 0;
+            foreach (DataRow row in datas.Rows)
+            {
+                if ((++idx) == 1)
                 {
-                    return "---------no columns----------";
+                    sb.AppendFormat("Insert into [{2}].[{0}] ({1})  ", tableinfo.TBName, string.Join(",", cols.Select(p => string.Concat("[", p.Name, "]"))), tableinfo.Schema);
                 }
-
-                string sqltext = string.Format("select top {2} {0} from [{3}].{1} with(nolock)", string.Join(",", cols.Select(p => GetConverType(p))), string.Concat("[", tableinfo.TBName, "]"), topNum, tableinfo.Schema);
-                var datas = Biz.Common.Data.SQLHelper.ExecuteDBTable(dbSource, tableinfo.DBName, sqltext, null);
-
-                if (!notExportId)
+                StringBuilder sb1 = new StringBuilder(idx > 1 ? " union select " : "select ");
+                foreach (var column in cols)
                 {
-                    sb.AppendLine(string.Format("SET IDENTITY_INSERT {0} ON", string.Concat("[", tableinfo.TBName, "]")));
-                    sb.AppendLine("GO");
-                    sb.AppendLine(string.Format("delete from {0}", string.Concat("[", tableinfo.TBName, "]")));
-                    sb.AppendLine(string.Format("DBCC CHECKIDENT({0},RESEED,0)", string.Concat("[", tableinfo.TBName, "]")));
-                    sb.AppendLine("GO");
-                }
-
-                int idx = 0;
-                foreach (DataRow row in datas.Rows)
-                {
-                    if ((++idx) == 1)
+                    object data = row[column.Name];
+                    if (data == DBNull.Value)
                     {
-                        sb.AppendFormat("Insert into [{2}].[{0}] ({1})  ", tableinfo.TBName, string.Join(",", cols.Select(p => string.Concat("[", p.Name, "]"))), tableinfo.Schema);
+                        sb1.Append("NULL,");
                     }
-                    StringBuilder sb1 = new StringBuilder(idx > 1 ? " union select " : "select ");
-                    foreach (var column in cols)
+                    else
                     {
-                        try
+                        if (column.TypeName.IndexOf("int", StringComparison.OrdinalIgnoreCase) > -1
+                            || column.TypeName.IndexOf("decimal", StringComparison.OrdinalIgnoreCase) > -1
+                            || column.TypeName.IndexOf("float", StringComparison.OrdinalIgnoreCase) > -1
+                            //|| column.TypeName.Equals("bit", StringComparison.OrdinalIgnoreCase)
+                            || column.TypeName.Equals("real", StringComparison.OrdinalIgnoreCase)
+                            || column.TypeName.IndexOf("money", StringComparison.OrdinalIgnoreCase) > -1
+                            || column.TypeName.IndexOf("money", StringComparison.OrdinalIgnoreCase) > -1
+                        )
                         {
-                            object data = row[column.Name];
-                            if (data == DBNull.Value)
+                            sb1.AppendFormat("{0},", data);
+                        }
+                        else if (column.TypeName.Equals("timestamp", StringComparison.OrdinalIgnoreCase)
+                            || column.TypeName.Equals("binary", StringComparison.OrdinalIgnoreCase)
+                            || column.TypeName.Equals("varbinary", StringComparison.OrdinalIgnoreCase))
+                        {
+                            sb1.AppendFormat("cast(N'' as xml).value('xs:base64Binary(\"{0}\")','varbinary({1})'),", data, column.Length == -1 ? "MAX" : column.Length.ToString());
+                        }
+                        else if (column.TypeName.Equals("uniqueidentifier", StringComparison.OrdinalIgnoreCase))
+                        {
+                            sb1.AppendFormat("'{0}',", data);
+                        }
+                        else if (column.TypeName.Equals("bit", StringComparison.OrdinalIgnoreCase))
+                        {
+                            sb1.AppendFormat("{0},", (bool)data ? 1 : 0);
+                        }
+                        else if (column.TypeName.Equals("datetime", StringComparison.OrdinalIgnoreCase)
+                            || column.TypeName.Equals("date", StringComparison.OrdinalIgnoreCase)
+                            || column.TypeName.Equals("smalldatetime", StringComparison.OrdinalIgnoreCase)
+                            || column.TypeName.Equals("datetime2", StringComparison.OrdinalIgnoreCase))
+                        {
+                            sb1.AppendFormat("'{0}',", ((DateTime)data).ToString("yyyy-MM-dd HH:mm:ss"));
+                        }
+                        else if (column.TypeName.Equals("sql_variant", StringComparison.OrdinalIgnoreCase))
+                        {
+                            sb1.AppendFormat("'{0}',", data);
+                        }
+                        else
+                        {
+                            if (column.TypeName.IndexOf("int", StringComparison.OrdinalIgnoreCase) > -1
+                                || column.TypeName.IndexOf("decimal", StringComparison.OrdinalIgnoreCase) > -1
+                                || column.TypeName.IndexOf("float", StringComparison.OrdinalIgnoreCase) > -1
+                                //|| column.TypeName.Equals("bit", StringComparison.OrdinalIgnoreCase)
+                                || column.TypeName.Equals("real", StringComparison.OrdinalIgnoreCase)
+                                || column.TypeName.IndexOf("money", StringComparison.OrdinalIgnoreCase) > -1
+                                || column.TypeName.IndexOf("money", StringComparison.OrdinalIgnoreCase) > -1
+                            )
                             {
-                                sb1.Append("NULL,");
+                                sb1.AppendFormat("{0},", data);
+                            }
+                            else if (column.TypeName.Equals("timestamp", StringComparison.OrdinalIgnoreCase)
+                                || column.TypeName.Equals("binary", StringComparison.OrdinalIgnoreCase)
+                                || column.TypeName.Equals("varbinary", StringComparison.OrdinalIgnoreCase))
+                            {
+                                sb1.AppendFormat("cast(N'' as xml).value('xs:base64Binary(\"{0}\")','varbinary({1})'),", data, column.Length == -1 ? "MAX" : column.Length.ToString());
+                            }
+                            else if (column.TypeName.Equals("image", StringComparison.OrdinalIgnoreCase))
+                            {
+                                sb1.AppendFormat("cast(N'' as xml).value('xs:base64Binary(\"{0}\")','varbinary(max)'),", Convert.ToBase64String((byte[])data));
+                            }
+                            else if (column.TypeName.Equals("uniqueidentifier", StringComparison.OrdinalIgnoreCase))
+                            {
+                                sb1.AppendFormat("'{0}',", data);
+                            }
+                            else if (column.TypeName.Equals("bit", StringComparison.OrdinalIgnoreCase))
+                            {
+                                sb1.AppendFormat("{0},", (bool)data ? 1 : 0);
+                            }
+                            else if (column.TypeName.Equals("datetime", StringComparison.OrdinalIgnoreCase)
+                                || column.TypeName.Equals("date", StringComparison.OrdinalIgnoreCase)
+                                || column.TypeName.Equals("smalldatetime", StringComparison.OrdinalIgnoreCase)
+                                || column.TypeName.Equals("datetime2", StringComparison.OrdinalIgnoreCase))
+                            {
+                                sb1.AppendFormat("'{0}',", ((DateTime)data).ToString("yyyy-MM-dd HH:mm:ss"));
+                            }
+                            else if (column.TypeName.Equals("sql_variant", StringComparison.OrdinalIgnoreCase))
+                            {
+                                sb1.AppendFormat("'{0}',", data);
                             }
                             else
                             {
-                                if (column.TypeName.IndexOf("int", StringComparison.OrdinalIgnoreCase) > -1
-                                    || column.TypeName.IndexOf("decimal", StringComparison.OrdinalIgnoreCase) > -1
-                                    || column.TypeName.IndexOf("float", StringComparison.OrdinalIgnoreCase) > -1
-                                    //|| column.TypeName.Equals("bit", StringComparison.OrdinalIgnoreCase)
-                                    || column.TypeName.Equals("real", StringComparison.OrdinalIgnoreCase)
-                                    || column.TypeName.IndexOf("money", StringComparison.OrdinalIgnoreCase) > -1
-                                    || column.TypeName.IndexOf("money", StringComparison.OrdinalIgnoreCase) > -1
-                                )
-                                {
-                                    sb1.AppendFormat("{0},", data);
-                                }
-                                else if (column.TypeName.Equals("timestamp", StringComparison.OrdinalIgnoreCase)
-                                    || column.TypeName.Equals("binary", StringComparison.OrdinalIgnoreCase)
-                                    || column.TypeName.Equals("varbinary", StringComparison.OrdinalIgnoreCase))
-                                {
-                                    sb1.AppendFormat("cast(N'' as xml).value('xs:base64Binary(\"{0}\")','varbinary({1})'),", data, column.Length == -1 ? "MAX" : column.Length.ToString());
-                                }
-                                else if (column.TypeName.Equals("image", StringComparison.OrdinalIgnoreCase))
-                                {
-                                    sb1.AppendFormat("cast(N'' as xml).value('xs:base64Binary(\"{0}\")','varbinary(max)'),",Convert.ToBase64String((byte[])data));
-                                }
-                                else if (column.TypeName.Equals("uniqueidentifier", StringComparison.OrdinalIgnoreCase))
-                                {
-                                    sb1.AppendFormat("'{0}',", data);
-                                }
-                                else if (column.TypeName.Equals("bit", StringComparison.OrdinalIgnoreCase))
-                                {
-                                    sb1.AppendFormat("{0},", (bool)data ? 1 : 0);
-                                }
-                                else if (column.TypeName.Equals("datetime", StringComparison.OrdinalIgnoreCase)
-                                    || column.TypeName.Equals("date", StringComparison.OrdinalIgnoreCase)
-                                    || column.TypeName.Equals("smalldatetime", StringComparison.OrdinalIgnoreCase)
-                                    || column.TypeName.Equals("datetime2", StringComparison.OrdinalIgnoreCase))
-                                {
-                                    sb1.AppendFormat("'{0}',", ((DateTime)data).ToString("yyyy-MM-dd HH:mm:ss"));
-                                }
-                                else if (column.TypeName.Equals("sql_variant", StringComparison.OrdinalIgnoreCase))
-                                {
-                                    sb1.AppendFormat("'{0}',", data);
-                                }
-                                else
-                                {
-                                    sb1.Append(string.Concat("'", string.IsNullOrEmpty((string)data) ? string.Empty : data.ToString().Replace("'", "''"), "',"));
-                                }
+                                sb1.Append(string.Concat("'", string.IsNullOrEmpty((string)data) ? string.Empty : data.ToString().Replace("'", "''"), "',"));
                             }
                         }
-                        catch (Exception)
-                        {
-                            throw;
-                        }
                     }
-                    if (sb1.Length > 0)
-                        sb1.Remove(sb1.Length - 1, 1);
-                    sb.AppendLine();
-                    sb.AppendFormat("{0}", sb1.ToString());
-                }
 
-                if (idx == 0)
+                }
+                if (sb1.Length > 0)
+                    sb1.Remove(sb1.Length - 1, 1);
+                sb.AppendLine();
+                sb.AppendFormat("{0}", sb1.ToString());
+
+                if (idx > 10000)
                 {
-                    sb.AppendLine("--------------no data--------------------");
+                    yield return sb.ToString();
+                    sb.Clear();
+                    idx = 0;
                 }
-
-                if (!notExportId)
-                {
-                    sb.AppendLine();
-                    sb.AppendLine(string.Format("SET IDENTITY_INSERT {0} OFF", string.Concat("[", tableinfo.TBName, "]")));
-                    sb.AppendLine("GO");
-                }
-
-
             }
-            catch (Exception)
+
+            if (datas.Rows.Count == 0)
             {
-                throw;
-
+                sb.AppendLine("--------------no data--------------------");
             }
 
-            return sb.ToString();
+            if (!notExportId)
+            {
+                sb.AppendLine();
+                sb.AppendLine(string.Format("SET IDENTITY_INSERT {0} OFF", string.Concat("[", tableinfo.TBName, "]")));
+                sb.AppendLine("GO");
+            }
+
+
+            yield return sb.ToString();
 
             string GetConverType(TBColumn column)
             {

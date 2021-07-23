@@ -397,7 +397,6 @@ namespace APIHelper.UC
                             };
                             if (this.WBResult.Url?.AbsoluteUri.Contains("jsonviewer.html") != true)
                             {
-                                this.WBResult.AllowNavigation = false;
                                 this.WBResult.Url = new Uri(AppDomain.CurrentDomain.BaseDirectory + "jsonviewer.html");
                             }
                             else
@@ -442,7 +441,7 @@ namespace APIHelper.UC
                             Tabs.SelectedTab = TPBody;
                         }
                     }
-
+                   
                     this.TBResult.Text = html;
                 }
             }

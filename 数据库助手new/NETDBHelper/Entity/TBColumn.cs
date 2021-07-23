@@ -79,6 +79,15 @@ namespace Entity
             set;
         }
 
+        /// <summary>
+        /// 默认值
+        /// </summary>
+        public object DefaultValue
+        {
+            get;
+            set;
+        }
+
         public NodeContentType GetNodeContentType()
         {
             return NodeContentType.COLUMN;

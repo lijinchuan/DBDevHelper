@@ -1494,9 +1494,13 @@ namespace NETDBHelper
                 }
             }
 
-            var sql= SQLHelper.ExportData(cols, notExportId, GetDBSource(node), tableinfo, topNum);
+            StringBuilder sql = new StringBuilder();
+            foreach(var item in SQLHelper.ExportData(cols, notExportId, GetDBSource(node), tableinfo, topNum))
+            {
+                sql.AppendLine(item);
+            }
 
-            TextBoxWin win = new TextBoxWin("导出数据", sql);
+            TextBoxWin win = new TextBoxWin("导出数据", sql.ToString());
             win.Show();
         }
 
@@ -1522,6 +1526,7 @@ namespace NETDBHelper
                     new []{"iskey","是否主键"},
                     new []{"null","可空"},
                     new []{"type","类型"},
+                    new []{"defaultvalue","默认值"},
                     new []{"len","长度"},
                     new []{"desc","说明"} }.Select(s => new DataColumn
                     {
@@ -1578,6 +1583,7 @@ namespace NETDBHelper
                         {
                             newrow["len"] = col.Length == -1 ? "max" : col.Length.ToString();
                             newrow["null"] = col.IsNullAble ? "√" : "✕";
+                            newrow["defaultvalue"] = col.DefaultValue == null ? "" : DataHelper.TrimDefaultValue(col.DefaultValue.ToString());
                         }
 
                         resulttb.Rows.Add(newrow);

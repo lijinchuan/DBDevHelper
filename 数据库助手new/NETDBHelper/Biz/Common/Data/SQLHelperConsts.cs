@@ -19,7 +19,10 @@ namespace Biz.Common.Data
                                            ,[syscolumns].isnullable
                                            ,[syscolumns].prec
                                            ,[syscolumns].scale
+                                           ,[syscomments].text as defaultvalue
                                            FROM [syscolumns](nolock)
+                                           LEFT JOIN [syscomments](NOLOCK)
+										   ON [syscolumns].cdefault=[syscomments].id
                                            left join [systypes](nolock)
                                            --on [syscolumns].[xtype]=[systypes].[xtype]
                                            on [syscolumns].xusertype = [systypes].xusertype
@@ -32,7 +35,10 @@ namespace Biz.Common.Data
                                            ,[syscolumns].isnullable
                                            ,[syscolumns].prec
                                            ,[syscolumns].scale
+                                           ,[syscomments].text as defaultvalue
                                            FROM [syscolumns](nolock)
+                                           LEFT JOIN [syscomments](NOLOCK)
+										   ON [syscolumns].cdefault=[syscomments].id
                                            left join [systypes](nolock)
                                            --on [syscolumns].[xtype]=[systypes].[xtype]
                                            on [syscolumns].xusertype = [systypes].xusertype
@@ -65,6 +71,7 @@ namespace Biz.Common.Data
                                 WHERE  
                                     OBJECTPROPERTY(c.object_id, 'IsMsShipped')=0  
                                     AND OBJECT_NAME(c.object_id) =@TbName
+                                    and ex.name='MS_Description'
                                 ORDER  
                                     BY OBJECT_NAME(c.object_id), c.column_id";
 
@@ -72,14 +79,14 @@ namespace Biz.Common.Data
         /// 所有的表说明
         /// </summary>
         public const string GetTablesDescription = @"select  a.name, 
-                isnull(g.[value],'') as [desc] from sys.tables a left join sys.extended_properties g on (a.object_id = g.major_id AND g.minor_id = 0)";
+                isnull(g.[value],'') as [desc] from sys.tables a left join sys.extended_properties g on (a.object_id = g.major_id AND g.minor_id = 0) where g.name='MS_Description'";
 
         /// <summary>
         /// 单个表说明
         /// </summary>
         public const string GetTableDescription = @"select  a.name, 
 isnull(g.[value],'') as [desc] from sys.tables a left join sys.extended_properties g on (a.object_id = g.major_id AND g.minor_id = 0)
-where a.name=@name";
+where a.name=@name and g.name='MS_Description'";
 
         public const string SQL_GETINDEXLIST = @"SELECT a.object_id
                       ,b.name AS schema_name

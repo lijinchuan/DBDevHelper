@@ -36,6 +36,9 @@
             this.BtnCancel = new System.Windows.Forms.Button();
             this.BtnSelAll = new System.Windows.Forms.Button();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.CBTrigger = new System.Windows.Forms.CheckBox();
+            this.CBIndex = new System.Windows.Forms.CheckBox();
+            this.CBView = new System.Windows.Forms.CheckBox();
             this.CBFunc = new System.Windows.Forms.CheckBox();
             this.CBProc = new System.Windows.Forms.CheckBox();
             this.CBTest = new System.Windows.Forms.CheckBox();
@@ -48,14 +51,14 @@
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.ProcessBar = new System.Windows.Forms.ToolStripProgressBar();
             this.MsgText = new System.Windows.Forms.ToolStripStatusLabel();
-            this.CBView = new System.Windows.Forms.CheckBox();
-            this.CBIndex = new System.Windows.Forms.CheckBox();
-            this.CBTrigger = new System.Windows.Forms.CheckBox();
+            this.NUDMaxSize = new System.Windows.Forms.NumericUpDown();
+            this.label3 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.PannelCopNumber.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.NUDMaxNumber)).BeginInit();
             this.statusStrip1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.NUDMaxSize)).BeginInit();
             this.SuspendLayout();
             // 
             // BtnSelectServer
@@ -132,6 +135,8 @@
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.label3);
+            this.groupBox2.Controls.Add(this.NUDMaxSize);
             this.groupBox2.Controls.Add(this.CBTrigger);
             this.groupBox2.Controls.Add(this.CBIndex);
             this.groupBox2.Controls.Add(this.CBView);
@@ -146,6 +151,42 @@
             this.groupBox2.TabIndex = 20;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "设置";
+            // 
+            // CBTrigger
+            // 
+            this.CBTrigger.AutoSize = true;
+            this.CBTrigger.Checked = true;
+            this.CBTrigger.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.CBTrigger.Location = new System.Drawing.Point(142, 143);
+            this.CBTrigger.Name = "CBTrigger";
+            this.CBTrigger.Size = new System.Drawing.Size(60, 16);
+            this.CBTrigger.TabIndex = 7;
+            this.CBTrigger.Text = "触发器";
+            this.CBTrigger.UseVisualStyleBackColor = true;
+            // 
+            // CBIndex
+            // 
+            this.CBIndex.AutoSize = true;
+            this.CBIndex.Checked = true;
+            this.CBIndex.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.CBIndex.Location = new System.Drawing.Point(142, 118);
+            this.CBIndex.Name = "CBIndex";
+            this.CBIndex.Size = new System.Drawing.Size(48, 16);
+            this.CBIndex.TabIndex = 6;
+            this.CBIndex.Text = "索引";
+            this.CBIndex.UseVisualStyleBackColor = true;
+            // 
+            // CBView
+            // 
+            this.CBView.AutoSize = true;
+            this.CBView.Checked = true;
+            this.CBView.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.CBView.Location = new System.Drawing.Point(24, 118);
+            this.CBView.Name = "CBView";
+            this.CBView.Size = new System.Drawing.Size(48, 16);
+            this.CBView.TabIndex = 5;
+            this.CBView.Text = "视图";
+            this.CBView.UseVisualStyleBackColor = true;
             // 
             // CBFunc
             // 
@@ -281,41 +322,26 @@
             this.MsgText.Spring = true;
             this.MsgText.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
-            // CBView
+            // NUDMaxSize
             // 
-            this.CBView.AutoSize = true;
-            this.CBView.Checked = true;
-            this.CBView.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.CBView.Location = new System.Drawing.Point(24, 118);
-            this.CBView.Name = "CBView";
-            this.CBView.Size = new System.Drawing.Size(48, 16);
-            this.CBView.TabIndex = 5;
-            this.CBView.Text = "视图";
-            this.CBView.UseVisualStyleBackColor = true;
+            this.NUDMaxSize.Location = new System.Drawing.Point(142, 210);
+            this.NUDMaxSize.Name = "NUDMaxSize";
+            this.NUDMaxSize.Size = new System.Drawing.Size(79, 21);
+            this.NUDMaxSize.TabIndex = 8;
+            this.NUDMaxSize.Value = new decimal(new int[] {
+            30,
+            0,
+            0,
+            0});
             // 
-            // CBIndex
+            // label3
             // 
-            this.CBIndex.AutoSize = true;
-            this.CBIndex.Checked = true;
-            this.CBIndex.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.CBIndex.Location = new System.Drawing.Point(142, 118);
-            this.CBIndex.Name = "CBIndex";
-            this.CBIndex.Size = new System.Drawing.Size(48, 16);
-            this.CBIndex.TabIndex = 6;
-            this.CBIndex.Text = "索引";
-            this.CBIndex.UseVisualStyleBackColor = true;
-            // 
-            // CBTrigger
-            // 
-            this.CBTrigger.AutoSize = true;
-            this.CBTrigger.Checked = true;
-            this.CBTrigger.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.CBTrigger.Location = new System.Drawing.Point(142, 143);
-            this.CBTrigger.Name = "CBTrigger";
-            this.CBTrigger.Size = new System.Drawing.Size(60, 16);
-            this.CBTrigger.TabIndex = 7;
-            this.CBTrigger.Text = "触发器";
-            this.CBTrigger.UseVisualStyleBackColor = true;
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(31, 214);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(107, 12);
+            this.label3.TabIndex = 9;
+            this.label3.Text = "单个文件大小(M)：";
             // 
             // CopyDB
             // 
@@ -334,6 +360,7 @@
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "CopyDB";
+            this.ShowInTaskbar = false;
             this.Text = "复制数据库";
             this.groupBox1.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
@@ -343,6 +370,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.NUDMaxNumber)).EndInit();
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.NUDMaxSize)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -373,5 +401,7 @@
         private System.Windows.Forms.CheckBox CBView;
         private System.Windows.Forms.CheckBox CBIndex;
         private System.Windows.Forms.CheckBox CBTrigger;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.NumericUpDown NUDMaxSize;
     }
 }

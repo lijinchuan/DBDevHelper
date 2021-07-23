@@ -822,7 +822,7 @@ GO");
             List<string> keys = new List<string>();
             foreach (TBColumn col in columns)
             {
-                sb.AppendFormat("[{0}] {1} {2} {3},", col.Name, Biz.Common.Data.Common.GetDBType(col), (col.IsID || col.IsKey) ? "NOT NULL" : (col.IsNullAble ? "NULL" : "NOT NULL"), col.IsID ? "IDENTITY(1,1)" : "");
+                sb.AppendFormat("[{0}] {1} {2} {3} {4},", col.Name, Biz.Common.Data.Common.GetDBType(col), (col.IsID || col.IsKey) ? "NOT NULL" : (col.IsNullAble ? "NULL" : "NOT NULL"), col.IsID ? "IDENTITY(1,1)" : "",col.DefaultValue==null?"":("default "+col.DefaultValue.ToString()));
                 sb.AppendLine();
                 if (col.IsKey)
                 {
@@ -845,6 +845,21 @@ GO");
             sb.AppendLine("Go");
 
             return sb.ToString();
+        }
+
+        public static string TrimDefaultValue(string defaultvalue)
+        {
+            if (defaultvalue == null)
+            {
+                return defaultvalue;
+            }
+
+            while (defaultvalue.StartsWith("("))
+            {
+                defaultvalue=defaultvalue.TrimStart('(').TrimEnd(')');
+            }
+
+            return defaultvalue;
         }
     }
 }
