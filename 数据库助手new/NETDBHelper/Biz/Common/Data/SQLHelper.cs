@@ -694,6 +694,10 @@ where a.Table_NAME='"+viewname+"' and a.TABLE_NAME=b.TABLE_NAME ORDER BY A.TABLE
                                 {
                                     sb1.AppendFormat("cast(N'' as xml).value('xs:base64Binary(\"{0}\")','varbinary({1})'),", data, column.Length == -1 ? "MAX" : column.Length.ToString());
                                 }
+                                else if (column.TypeName.Equals("image", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    sb1.AppendFormat("cast(N'' as xml).value('xs:base64Binary(\"{0}\")','varbinary(max)'),",Convert.ToBase64String((byte[])data));
+                                }
                                 else if (column.TypeName.Equals("uniqueidentifier", StringComparison.OrdinalIgnoreCase))
                                 {
                                     sb1.AppendFormat("'{0}',", data);
@@ -762,6 +766,10 @@ where a.Table_NAME='"+viewname+"' and a.TABLE_NAME=b.TABLE_NAME ORDER BY A.TABLE
                     || column.TypeName.Equals("varbinary", StringComparison.OrdinalIgnoreCase))
                 {
                     return string.Format("cast('' as xml).value('xs:base64Binary(sql:column(\"{0}\"))', 'varchar(max)') as [{0}]", column.Name);
+                }
+                else if (column.TypeName.Equals("image", StringComparison.OrdinalIgnoreCase))
+                {
+                    return string.Format("convert(varbinary(max),[{0}]) as [{0}]", column.Name);
                 }
                 return string.Format("[{0}]", column.Name);
             }
