@@ -144,6 +144,22 @@ namespace NETDBHelper
                   }
                 });
 
+            BigEntityTableEngine.LocalEngine.CreateTable("FunContent", "ID", true, typeof(FunContent), new IndexInfo[]{
+                  new IndexInfo
+                  {
+                      IndexName="FunName",
+                      Indexs=new IndexItem[]
+                      {
+                          new IndexItem
+                          {
+                              Field="FunName",
+                              FieldType=EntityType.STRING
+                          }
+                      }
+                  }
+                });
+
+
 
             //TBSearchColumn
             BigEntityTableEngine.LocalEngine.CreateTable("TBSearchColumn", "ID", true, typeof(TBSearchColumn), new IndexInfo[]{

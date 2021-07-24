@@ -24,6 +24,11 @@ namespace Entity
         VIEWCOLUMN,
         LOGICMAPParent,
         LOGICMAP,
+        FUNPARENT,
+        FUN,
+        FUNPARAM,
+        TRIGGERPARENT,
+        TRIGGER,
         UNKNOWN = 999
     }
 }

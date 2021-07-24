@@ -94,7 +94,7 @@ namespace Biz.Common.Data
 
         public static IEnumerable<string> GetProcedures(DBSource dbSource,string dbName)
         {
-            var tb = ExecuteDBTable(dbSource, dbName, string.Format("select name from mysql.proc where db='{0}'", dbName));
+            var tb = ExecuteDBTable(dbSource, dbName, string.Format("select name from mysql.proc where db='{0}' AND `type` = 'PROCEDURE' ", dbName));
 
             var y = from x in tb.AsEnumerable()
                     select x["name"] as string;
@@ -143,7 +143,7 @@ namespace Biz.Common.Data
         [Obsolete("取不到参数")]
         public static string GetProcedureBody2(DBSource dbSource, string dbName, string procedure)
         {
-            string sql = string.Format("select body from mysql.proc where name='{0}';", procedure);
+            string sql = string.Format("select body from mysql.proc where name='{0}' AND `type` = 'PROCEDURE';", procedure);
 
             var tb = ExecuteDBTable(dbSource, dbName, sql);
 
@@ -545,6 +545,54 @@ namespace Biz.Common.Data
             }
         }
 
+        public static DataTable GetFunctions(DBSource dbSource, string dbName)
+        {
+            var sql = $@"select `name` from mysql.proc where db = '{dbName}' and `type` = 'FUNCTION' order by `name`";
+
+            var tb = ExecuteDBTable(dbSource, dbName, sql);
+
+            return tb;
+        }
+
+        public static DataTable GetFunctionsWithParams(DBSource dbSource, string dbName)
+        {
+            //var sql = @"SELECT ao.name, 1 AS number, p.parameter_id, p.name AS paramname, SCHEMA_NAME(t.schema_id) AS typeschema, t.name AS typename, p.max_length, p.precision, p.scale, p.is_cursor_ref, p.is_output, p.is_readonly, p.has_default_value, p.default_value 
+            //            FROM sys.all_parameters p
+            //            INNER JOIN sys.types t ON p.user_type_id = t.user_type_id
+            //            INNER JOIN sys.all_objects ao ON p.object_id = ao.object_id WHERE ao.type IN('P', 'RF', 'PC', 'FN', 'IF', 'TF', 'FS', 'FT') 
+            //            --AND ao.schema_id = SCHEMA_ID(N'dbo')
+            //            --AND ao.name = N'gets'
+            //            UNION ALL SELECT ao.name, np.procedure_number AS number, np.parameter_id, np.name AS paramname, SCHEMA_NAME(t.schema_id) AS typeschema, t.name AS typename, np.max_length, np.precision, np.scale, np.is_cursor_ref, np.is_output, 0 AS is_readonly, 0 AS has_default_value, NULL AS default_value
+            //            FROM sys.numbered_procedure_parameters np INNER JOIN sys.types t ON np.user_type_id = t.user_type_id INNER JOIN sys.all_objects ao ON np.object_id = ao.object_id WHERE 
+            //            --ao.schema_id = SCHEMA_ID(N'dbo')
+            //            --AND ao.name = N'gets'
+            //            ORDER BY ao.name, number, parameter_id";
+
+            var sql = $@"select `name`,`param_list`,`body_utf8` from mysql.proc where db = '{dbName}' and `type` = 'FUNCTION' order by `name`";
+
+            var tb = ExecuteDBTable(dbSource, dbName, sql);
+
+            return tb;
+        }
+
+        public static string GetFunctionBody(DBSource dbSource, string dbName, string functionname)
+        {
+            string sql = string.Format("show create function `{0}`", functionname);
+
+            var tb = ExecuteDBTable(dbSource, dbName, sql);
+            StringBuilder sb = new StringBuilder();
+
+            foreach (DataRow row in tb.Rows)
+            {
+                //sb.Append(Regex.Replace((string)row["Text"],"\n{1,}","\n").Replace("\t","    "));
+                sb.Append(((string)row["Create Function"]).TrimStart('\n').Replace("\t", "    "));
+            }
+
+
+            return sb.ToString();
+        }
+
+
         public static List<IndexEntry> GetIndexs(DBSource dbSource, string dbName, string tabname)
         {
             var indexs = new List<IndexEntry>();
@@ -581,5 +629,40 @@ namespace Biz.Common.Data
 
             ExecuteNoQuery(dbSource, dbName, sql, null);
         }
+
+        public static string GetTriggerBody(DBSource dbSource, string dbName, string functionname)
+        {
+            string sql = string.Format("SELECT * FROM INFORMATION_SCHEMA.triggers WHERE TRIGGER_SCHEMA=\"{0}\" and trigger_name=\"{1}\"", dbName, functionname);
+
+            var tb = ExecuteDBTable(dbSource, dbName, sql);
+
+            if (tb.Rows.Count == 0)
+            {
+                return string.Empty;
+            }
+
+            return $@"CREATE {tb.Rows[0].Field<string>("TRIGGER_NAME")} {tb.Rows[0].Field<string>("ACTION_TIMING")} {tb.Rows[0].Field<string>("EVENT_MANIPULATION")}
+ON {tb.Rows[0].Field<string>("EVENT_OBJECT_TABLE")} FOR EACH Row {tb.Rows[0].Field<string>("ACTION_STATEMENT")}";
+        }
+        public static List<TriggerEntity> GetTriggers(DBSource dbSource, string dbName, string tbname)
+        {
+
+            string sql = @"SHOW TRIGGERS";
+
+            var tb = ExecuteDBTable(dbSource, dbName, sql, new MySqlParameter("@name", tbname));
+
+            var x = from row in tb.AsEnumerable()
+                    select new TriggerEntity
+                    {
+                        TriggerName = row.Field<string>("Trigger"),
+                        ExecIsInsertTrigger = row.Field<string>("Event").Equals("insert",StringComparison.OrdinalIgnoreCase),//
+                        ExecIsTriggerDisabled = false,
+                        ExecIsUpdateTrigger = row.Field<string>("Event").Equals("update", StringComparison.OrdinalIgnoreCase),
+                        ExecIsDeleteTrigger = row.Field<string>("Event").Equals("delete", StringComparison.OrdinalIgnoreCase)
+                    };
+
+            return x.ToList();
+        }
+
     }
 }

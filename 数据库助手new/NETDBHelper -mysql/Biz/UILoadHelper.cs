@@ -60,7 +60,9 @@ namespace Biz
                         var procnode = new TreeNode("存储过程", 1, 1);
                         procnode.Tag = new NodeContents(NodeContentType.PROCParent);
                         dbNode.Nodes.Add(procnode);
-
+                        var funnode = new TreeNode("函数", 1, 1);
+                        funnode.Tag = new NodeContents(NodeContentType.FUNPARENT);
+                        dbNode.Nodes.Add(funnode);
                         var logicmapnode = new TreeNode("逻辑关系图", 1, 1);
                         logicmapnode.Tag = new NodeContents(NodeContentType.LOGICMAPParent);
                         dbNode.Nodes.Add(logicmapnode);
@@ -89,6 +91,76 @@ namespace Biz
             procedureNode.Nodes.Add(new TreeNode("加载中...", 17, 17));
             procedureNode.Expand();
             new Action<Form, TreeNode, DBSource>(LoadProcedure).BeginInvoke(parent, procedureNode, server, null, null);
+        }
+        public static void LoadFunctionsAnsy(Form parent, TreeNode functionNode, DBSource server, Func<string, string> gettip)
+        {
+            functionNode.Nodes.Add(new TreeNode("加载中...", 17, 17));
+            functionNode.Expand();
+            new Action<Form, TreeNode, DBSource, Func<string, string>>(LoadFunctions).BeginInvoke(parent, functionNode, server, gettip, null, null);
+        }
+
+        private static void LoadFunctions(Form parent, TreeNode tbNode, DBSource server, Func<string, string> gettip)
+        {
+            if (server == null)
+                return;
+            List<TreeNode> treeNodes = new List<TreeNode>();
+            foreach (var kv in Biz.Common.Data.MySQLHelper.GetFunctionsWithParams(server, tbNode.Parent.Text).AsEnumerable().GroupBy(p => p.Field<string>("name")))
+            {
+
+                //int imgIdx = col.IsKey ? 4 : 5;
+                TreeNode newNode = new TreeNode(kv.Key, 13, 14);
+                FunInfo funInfo = new FunInfo
+                {
+                    Name = kv.Key,
+                    IsScalar = false,
+                    IsTableValue = false,
+                    FuncParamInfos = new List<FunParamInfo>()
+                };
+                newNode.Tag = funInfo;
+                foreach (var row in kv)
+                {
+                    if (!row.IsNull("name"))
+                    {
+                        var paramliststr = Encoding.UTF8.GetString((byte[])row["param_list"]);
+                        if (!string.IsNullOrEmpty(paramliststr))
+                        {
+                            var paramlist = paramliststr.Split(',');
+                            foreach (var p in paramlist)
+                            {
+                                var funParamInfo = new FunParamInfo();
+                                var arr = p.Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries);
+                                //funParamInfo.Len = row.IsNull("length") ? -1 : row.Field<Int16>("length");
+                                //funParamInfo.HasDefaultValue = row.Field<int>("has_default_value") == 1;
+                                //funParamInfo.IsOutparam = row.Field<bool>("isoutparam");
+                                funParamInfo.Name = arr[0];
+                                funParamInfo.TypeName = arr[1];
+                                var node = new TreeNode($"{funParamInfo.Name}({funParamInfo.TypeName})",11,11);
+                                node.Tag = funParamInfo;
+                                newNode.Nodes.Add(node);
+                                funInfo.FuncParamInfos.Add(funParamInfo);
+                            }
+                        }
+                    }
+                }
+
+                if (gettip != null)
+                {
+                    var tiptext = gettip(kv.Key);
+                    if (string.IsNullOrWhiteSpace(tiptext))
+                    {
+                        newNode.ImageIndex = 19;
+                        newNode.SelectedImageIndex = 20;
+                    }
+                    else
+                    {
+                        newNode.ToolTipText = tiptext;
+                    }
+                }
+
+                treeNodes.Add(newNode);
+            }
+
+            parent.Invoke(new Action(() => { tbNode.Nodes.Clear(); tbNode.Nodes.AddRange(treeNodes.ToArray()); tbNode.Expand(); }));
         }
 
         public static void LoadIndexAnsy(Form parent, TreeNode tbNode, DBSource server, string dbname)
@@ -153,6 +225,45 @@ namespace Biz
             parent.Invoke(new Action(() => { tbNode.Nodes.Clear(); tbNode.Nodes.AddRange(treeNodes.ToArray()); tbNode.Expand(); }));
         }
 
+        public static void LoadTriggersAnsy(Form parent, TreeNode tbNode, DBSource server, string dbname)
+        {
+            tbNode.Nodes.Add(new TreeNode("加载中...", 17, 17));
+            tbNode.Expand();
+            new Action<Form, TreeNode, DBSource, string>(LoadTriggers).BeginInvoke(parent, tbNode, server, dbname, null, null);
+        }
+
+        private static void LoadTriggers(Form parent, TreeNode tbNode, DBSource server, string dbname)
+        {
+            if (server == null)
+            {
+                return;
+            }
+
+            var list = Biz.Common.Data.MySQLHelper.GetTriggers(server, dbname, tbNode.Parent.Text);
+            List<TreeNode> treeNodes = new List<TreeNode>();
+
+            foreach (var item in list)
+            {
+                TreeNode newNode = new TreeNode($"{item.TriggerName}");
+
+                newNode.Tag = item;
+
+                if (item.ExecIsTriggerDisabled)
+                {
+                    newNode.ImageIndex = newNode.SelectedImageIndex = 30;
+                }
+                else
+                {
+                    newNode.ImageIndex = newNode.SelectedImageIndex = 29;
+                }
+
+                treeNodes.Add(newNode);
+            }
+
+            parent.Invoke(new Action(() => { tbNode.Nodes.Clear(); tbNode.Nodes.AddRange(treeNodes.ToArray()); tbNode.Expand(); }));
+        }
+
+
         private static void InsertRange(TreeNode node, IEnumerable<TreeNode> nodes)
         {
             if (nodes.Count() == 0)
@@ -195,7 +306,10 @@ namespace Biz
                 InsertRange(tbNode, treeNodes.ToArray());
                 var indexnode = new TreeNode("索引", 1, 1);
                 indexnode.Tag = new NodeContents(NodeContentType.INDEXParent);
-                tbNode.Nodes.Add(indexnode); 
+                tbNode.Nodes.Add(indexnode);
+                var triggernode = new TreeNode("触发器", 1, 1);
+                triggernode.Tag = new NodeContents(NodeContentType.TRIGGERPARENT);
+                tbNode.Nodes.Add(triggernode);
                 tbNode.Expand();
             }));
         }

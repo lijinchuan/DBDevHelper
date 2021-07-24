@@ -38,6 +38,7 @@ namespace NETDBHelper.SubForm
             {
                 Util.UserLogin(TBUser.Text, resp.UserLevel);
                 LJC.FrameWork.SOA.ESBClient.Close();
+                this.Hide();
                 MessageBox.Show("登录成功");
                 this.DialogResult = DialogResult.OK;
             }

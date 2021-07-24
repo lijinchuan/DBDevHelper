@@ -17,6 +17,7 @@ namespace NETDBHelper.UC
     {
         public Func<DBSource, string, string, List<object>> OnSearch;
         public Action<DBSource, string, string, string> OnShowProc;
+        public Action<DBSource, string, string, string> OnShowFunction;
         private DBSource _dbSource;
         private string _dbName;
 
@@ -88,6 +89,24 @@ namespace NETDBHelper.UC
         {
             LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.TruncateTable(nameof(TBSearchColumn));
             this.webBrowser1.Document.InvokeScript("alert", new[] { "清理完成" });
+        }
+        public void ShowFunction(string functionname)
+        {
+            try
+            {
+                //var procbody = Biz.Common.Data.SQLHelper.GetProcedureBody(this._dbSource, this._dbName, procname);
+                //SubForm.TextBoxWin win = new SubForm.TextBoxWin($"查看存储过程 {procname}", procbody);
+                //win.ShowDialog();
+                if (OnShowFunction != null)
+                {
+                    var procbody = Biz.Common.Data.MySQLHelper.GetFunctionBody(this._dbSource, this._dbName, functionname);
+                    OnShowFunction(this._dbSource, this._dbName, functionname, procbody);
+                }
+            }
+            catch (Exception ex)
+            {
+                Util.SendMsg(this, ex.Message);
+            }
         }
 
         public void ClearCach()

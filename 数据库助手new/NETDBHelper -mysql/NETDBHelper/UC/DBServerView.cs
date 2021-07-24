@@ -23,6 +23,8 @@ namespace NETDBHelper
         public Action<string, string> OnCreateSelectSql;
         public Action<DBSource, string, string, string,CreateProceEnum> OnCreatePorcSQL;
         public Action<DBSource, string, string> OnFilterProc;
+        public Action<DBSource, string, string> OnFilterFunction;
+        public Action<DBSource, string, string> OnExecutSql;
         public Action<DBSource,string,string> OnAddSqlExecuter;
         public Action<DBSource, string, string, string> OnShowProc;
         public Action<DBSource, string, string, string> OnShowDataDic;
@@ -78,6 +80,8 @@ namespace NETDBHelper
             tv_DBServers.ImageList.Images.Add("ASC", Resources.Resource1.ASC);
             tv_DBServers.ImageList.Images.Add("DESC", Resources.Resource1.DESC);
             tv_DBServers.ImageList.Images.Add("plugin", Resources.Resource1.plugin);
+            tv_DBServers.ImageList.Images.Add("lightning", Resources.Resource1.lightning);//29
+            tv_DBServers.ImageList.Images.Add("lightning_delete", Resources.Resource1.lightning_delete);
             tv_DBServers.Nodes.Add("0", "资源管理器", 0);
             tv_DBServers.NodeMouseClick += new TreeNodeMouseClickEventHandler(tv_DBServers_NodeMouseClick);
             tv_DBServers.NodeMouseDoubleClick += Tv_DBServers_NodeMouseDoubleClick;
@@ -171,6 +175,11 @@ namespace NETDBHelper
                             FilterProc();
                             break;
                         }
+                    case "筛选函数":
+                        {
+                            FilterFunction();
+                            break;
+                        }
                 }
             }
             catch (Exception ex)
@@ -202,6 +211,20 @@ namespace NETDBHelper
                      return mark == null ? string.Empty : mark.MarkInfo;
                  });
                 TSMI_ViewColumnList.Visible = true;
+            }
+            else if (selNode.Tag is INodeContents && (selNode.Tag as INodeContents).GetNodeContentType() == NodeContentType.FUNPARENT)
+            {
+                var dbname = GetDBName(selNode).ToUpper();
+                Biz.UILoadHelper.LoadFunctionsAnsy(this.ParentForm, selNode, GetDBSource(selNode), p =>
+                {
+                    var item = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<SPInfo>("SPInfo", "DBName_SPName", new[] { dbname, p.ToUpper() }).FirstOrDefault();
+
+                    if (item != null)
+                    {
+                        return item.Mark;
+                    }
+                    return string.Empty;
+                });
             }
             else if (selNode.Tag is TableInfo)
             {
@@ -258,6 +281,10 @@ namespace NETDBHelper
             else if (selNode.Tag is INodeContents && (selNode.Tag as INodeContents).GetNodeContentType() == NodeContentType.INDEXParent)
             {
                 Biz.UILoadHelper.LoadIndexAnsy(this.ParentForm, selNode, GetDBSource(selNode), GetDBName(selNode));
+            }
+            else if (selNode.Tag is INodeContents && (selNode.Tag as INodeContents).GetNodeContentType() == NodeContentType.TRIGGERPARENT)
+            {
+                Biz.UILoadHelper.LoadTriggersAnsy(this.ParentForm, selNode, GetDBSource(selNode), GetDBName(selNode));
             }
             else if (selNode.Tag is INodeContents && (selNode.Tag as INodeContents).GetNodeContentType() == NodeContentType.LOGICMAPParent)
             {
@@ -374,6 +401,93 @@ namespace NETDBHelper
                     case "清理本地缓存":
                         {
                             ClearMarkResource();
+                            break;
+                        }
+                    case "执行存储过程":
+                        {
+                            var selnode = tv_DBServers.SelectedNode;
+                            if (selnode != null && OnExecutSql != null)
+                            {
+                                if (selnode.Tag is ProcInfo)
+                                {
+                                    var procInfo = ((ProcInfo)selnode.Tag);
+                                    StringBuilder sb = new StringBuilder();
+                                    sb.AppendLine($"exec {procInfo.Name} ");
+                                    StringBuilder sb1 = new StringBuilder($"use {GetDBName(selnode)}");
+                                    sb1.AppendLine();
+                                    sb1.AppendLine("GO");
+                                    StringBuilder sb2 = new StringBuilder();
+                                    foreach (var pa in procInfo.ProcParamInfos)
+                                    {
+                                        if (pa.IsOutparam)
+                                        {
+                                            sb.AppendLine($"{pa.Name}={pa.Name}1 output,");
+                                            sb1.AppendLine($"declare {pa.Name}1 {(Biz.Common.Data.Common.GetDBType(new TBColumn { Name = pa.Name, TypeName = pa.TypeName, Length = pa.Len }))}");
+                                            sb2.AppendLine($"select {pa.Name}1");
+                                        }
+                                        else
+                                        {
+                                            sb.AppendLine($"{pa.Name}=<{(Biz.Common.Data.Common.GetDBType(new TBColumn { Name = pa.Name, TypeName = pa.TypeName, Length = pa.Len }))}>,");
+                                        }
+                                    }
+
+                                    if (sb.Length > 2 && sb[sb.Length - 3] == ',')
+                                    {
+                                        sb = sb.Remove(sb.Length - 3, 1);
+                                    }
+                                    var sql = sb1.ToString() + sb.ToString() + sb2.ToString();
+
+                                    OnExecutSql(GetDBSource(selnode), GetDBName(selnode), sql);
+                                }
+                                else if (selnode.Tag is FunInfo)
+                                {
+                                    var funInfo = ((FunInfo)selnode.Tag);
+                                    StringBuilder sb = new StringBuilder();
+                                    sb.Append($"select {funInfo.Name}(");
+                                    StringBuilder sb1 = new StringBuilder($"use {GetDBName(selnode)};");
+                                    sb1.AppendLine();
+                                    StringBuilder sb2 = new StringBuilder();
+                                    StringBuilder sb3 = new StringBuilder();
+                                    for (var i = 0; i < funInfo.FuncParamInfos.Count; i++)
+                                    {
+                                        var pa = funInfo.FuncParamInfos[i];
+                                        if (pa.IsOutparam)
+                                        {
+
+                                        }
+                                        else
+                                        {
+                                            sb.Append($"@{pa.Name},");
+                                            sb2.AppendLine($"set @{pa.Name}=<{(Biz.Common.Data.Common.GetDBType(new TBColumn { Name = pa.Name, TypeName = pa.TypeName, Length = pa.Len }))}>;");
+                                        }
+
+                                    }
+
+                                    if (sb.Length > 2 && sb[sb.Length - 1] == ',')
+                                    {
+                                        sb = sb.Remove(sb.Length - 1, 1);
+                                        sb.Append(");");
+                                    }
+
+                                    if (sb.Length > 2 && sb[sb.Length - 3] == ',')
+                                    {
+                                        sb = sb.Remove(sb.Length - 3, 1);
+                                        if (funInfo.IsTableValue)
+                                        {
+                                            sb.Append(");");
+                                        }
+                                    }
+
+                                    if (sb2.Length > 2 && sb2[sb2.Length - 3] == ',')
+                                    {
+                                        sb2 = sb2.Remove(sb2.Length - 3, 1);
+                                    }
+
+                                    var sql = sb1.ToString() + sb2.ToString() + sb.ToString() + sb3.ToString();
+
+                                    OnExecutSql(GetDBSource(selnode), GetDBName(selnode), sql);
+                                }
+                            }
                             break;
                         }
                     default:
@@ -580,6 +694,22 @@ namespace NETDBHelper
                     Valid = true
                 });
             }
+            else if ((e.Node.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.FUNPARENT)
+            {
+                if (e.Node.Nodes.Count > 0)
+                    return;
+                var dbname = GetDBName(e.Node).ToUpper();
+                Biz.UILoadHelper.LoadFunctionsAnsy(this.ParentForm, e.Node, GetDBSource(e.Node), p =>
+                {
+                    var item = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<SPInfo>("SPInfo", "DBName_SPName", new[] { dbname, p.ToUpper() }).FirstOrDefault();
+
+                    if (item != null)
+                    {
+                        return item.Mark;
+                    }
+                    return string.Empty;
+                });
+            }
             else if ((e.Node.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.PROCParent)
             {
                 if (e.Node.Nodes.Count > 0)
@@ -639,6 +769,12 @@ namespace NETDBHelper
                 if (e.Node.Nodes.Count > 0)
                     return;
                 Biz.UILoadHelper.LoadIndexAnsy(this.ParentForm, e.Node, GetDBSource(e.Node), GetDBName(e.Node));
+            }
+            else if ((e.Node.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.TRIGGERPARENT)
+            {
+                if (e.Node.Nodes.Count > 0)
+                    return;
+                Biz.UILoadHelper.LoadTriggersAnsy(this.ParentForm, e.Node, GetDBSource(e.Node), GetDBName(e.Node));
             }
             else if ((e.Node.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.LOGICMAPParent)
             {
@@ -730,9 +866,12 @@ namespace NETDBHelper
 
                     if (nctype == NodeContentType.TB
                         || nctype == NodeContentType.PROC
+                        || nctype == NodeContentType.FUN
                         || nctype == NodeContentType.VIEW
                         || nctype == NodeContentType.INDEXParent
                         || nctype == NodeContentType.INDEX
+                        || nctype == NodeContentType.TRIGGERPARENT
+                        || nctype == NodeContentType.TRIGGER
                         || nctype == NodeContentType.LOGICMAPParent
                         || nctype == NodeContentType.LOGICMAP)
                     {
@@ -753,27 +892,38 @@ namespace NETDBHelper
                             || nctype == NodeContentType.TB
                             || nctype == NodeContentType.VIEW
                             || nctype == NodeContentType.VIEWParent
+                            || nctype == NodeContentType.TRIGGERPARENT
                             || nctype == NodeContentType.PROCParent
                             || nctype == NodeContentType.PROC
+                            || nctype == NodeContentType.FUNPARENT
+                            || nctype == NodeContentType.FUN
                             || nctype == NodeContentType.LOGICMAPParent;
 
                         导出ToolStripMenuItem.Visible = nctype == NodeContentType.VIEW
                             || nctype == NodeContentType.PROC
+                            || nctype == NodeContentType.FUN
+                            || nctype == NodeContentType.TRIGGER
                             || nctype == NodeContentType.TB;
-                        创建语句ToolStripMenuItem.Visible = 
-                            ExpdataToolStripMenuItem.Visible = nctype == NodeContentType.TB
+                        创建语句ToolStripMenuItem.Visible = nctype == NodeContentType.TB
+                            || nctype == NodeContentType.FUN
+                            || nctype == NodeContentType.TRIGGER
                             || nctype == NodeContentType.PROC;
+                        ExpdataToolStripMenuItem.Visible = nctype == NodeContentType.TB;
                         生成实体类ToolStripMenuItem.Visible = nctype == NodeContentType.VIEW
                             || nctype == NodeContentType.TB;
                         复制表名ToolStripMenuItem.Visible = nctype == NodeContentType.VIEW
                             || nctype == NodeContentType.TB
                             || nctype == NodeContentType.INDEX
+                            || nctype == NodeContentType.FUN
+                            || nctype == NodeContentType.TRIGGER
                             || nctype == NodeContentType.LOGICMAP;
                         显示前100条数据ToolStripMenuItem.Visible = nctype == NodeContentType.VIEW
                             || nctype == NodeContentType.TB;
                         备注ToolStripMenuItem.Visible = nctype == NodeContentType.TB
-                            || nctype == NodeContentType.PROC;
+                            || nctype == NodeContentType.PROC
+                            || nctype == NodeContentType.FUN;
                         表关系图ToolStripMenuItem.Visible = nctype == NodeContentType.TB;
+                        TSMI_ExeProc.Visible = nctype == NodeContentType.PROC || nctype == NodeContentType.FUN;
                         生成数据字典ToolStripMenuItem.Visible = nctype == NodeContentType.TB;
                         修改表名ToolStripMenuItem.Visible = nctype == NodeContentType.TB;
                         删除表ToolStripMenuItem.Visible = nctype == NodeContentType.TB;
@@ -800,6 +950,7 @@ namespace NETDBHelper
                         TSMI_FilterProc.Visible = nctype == NodeContentType.PROCParent;
                         性能分析工具ToolStripMenuItem.Visible = nctype == NodeContentType.SEVER;
                         SqlExecuterToolStripMenuItem.Visible = nctype == NodeContentType.DB;
+                        TSMI_FilterFunction.Visible = nctype == NodeContentType.FUNPARENT;
                     }
                 }
             }
@@ -996,6 +1147,52 @@ namespace NETDBHelper
                     });
                 }
             }
+            else if (node != null && node.Tag is FunInfo)
+            {
+                if (OnShowProc != null)
+                {
+                    var procinfo = node.Tag as FunInfo;
+                    var dbname = GetDBName(node);
+                    var body = Biz.Common.Data.MySQLHelper.GetFunctionBody(GetDBSource(node), dbname, procinfo.Name);
+                    //TextBoxWin win = new TextBoxWin("存储过程[" + node.Text + "]", body);
+                    //win.Show();
+                    OnShowProc(GetDBSource(node), dbname, procinfo.Name, body);
+
+                    LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<HLogEntity>("HLog", new HLogEntity
+                    {
+                        TypeName = node.Text,
+                        LogTime = DateTime.Now,
+                        LogType = LogTypeEnum.proc,
+                        DB = dbname,
+                        Sever = GetDBSource(node).ServerName,
+                        Valid = true
+                    });
+                }
+            }
+            else if (node != null && node.Tag is TriggerEntity)
+            {
+                if (OnShowProc != null)
+                {
+                    var procinfo = node.Tag as TriggerEntity;
+                    var dbname = GetDBName(node);
+                    var body = Biz.Common.Data.MySQLHelper.GetTriggerBody(GetDBSource(node), dbname, procinfo.TriggerName);
+                    //TextBoxWin win = new TextBoxWin("存储过程[" + node.Text + "]", body);
+                    //win.Show();
+                    OnShowProc(GetDBSource(node), dbname, procinfo.TriggerName, body);
+
+                    LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<HLogEntity>("HLog", new HLogEntity
+                    {
+                        TypeName = node.Text,
+                        LogTime = DateTime.Now,
+                        LogType = LogTypeEnum.proc,
+                        DB = dbname,
+                        Sever = GetDBSource(node).ServerName,
+                        Valid = true
+                    });
+                }
+
+            }
+
         }
 
         private void ExpdataToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1933,6 +2130,128 @@ background-color: #ffffff;
                 this.OnFilterProc(dbsource, dbname, sb.ToString());
             }
         }
+
+        private void FilterFunction()
+        {
+            var selnode = tv_DBServers.SelectedNode;
+            if (this.OnFilterFunction != null && selnode != null)
+            {
+                var dbsource = GetDBSource(selnode);
+                var dbname = GetDBName(selnode);
+                var proclist = Biz.Common.Data.MySQLHelper.GetFunctions(dbsource, dbname).AsEnumerable().Select(p => p.Field<string>("name")).ToList();
+
+                StringBuilder sb = new StringBuilder("<html>");
+                sb.Append("<head>");
+                sb.Append($"<title>查看{dbname}的函数</title>");
+                sb.Append(@"<style>
+ table {{
+width:98%;
+font-family: verdana,arial,sans-serif;
+font-size:11px;
+color:#333333;
+border-width: 1px;
+border-color: #666666;
+border-collapse: collapse;
+}}
+table th {{
+border-width: 1px;
+padding: 8px;
+border-style: solid;
+border-color: #666666;
+background-color: #dedede;
+}}
+table td {{
+border-width: 1px;
+padding: 8px;
+border-style: solid;
+border-color: #666666;
+background-color: #ffffff;
+}}</style>");
+                sb.Append("</head>");
+                sb.Append(@"<body>
+                  
+                  <script>
+                      function k(){
+                          if (event.keyCode == 13) s();
+                      }
+                      function s(){
+                       document.getElementById('clearcachtip').style.display='none';
+                       var w=document.getElementById('w').value
+                       if(/^\s*$/.test(w)){
+                           var idx=1
+                           var trs= document.getElementsByTagName('tr');
+                           for(var i=0;i<trs.length;i++){
+                               trs[i].style.display=''
+                               if(trs[i].firstChild.tagName=='TD')
+                                   trs[i].firstChild.innerText=idx++
+                            }
+                           return
+                       }
+                       var ckbody=document.getElementById('scontent').checked;
+                       if(!ckbody){
+                       var idx=1;
+                       var tds= document.getElementsByTagName('td');
+                       w=w.toUpperCase();
+                       for(var i=0;i<tds.length;i+=3){
+                           var boo=tds[i+1].innerText.toUpperCase().indexOf(w)>-1||tds[i+2].innerText.toUpperCase().indexOf(w)>-1
+                           tds[i].parentNode.style.display=boo?'':'none'
+                           if(boo) tds[i].innerText=idx++
+                       }
+                     }else{
+                         window.external.Search(w);
+                     }
+                   }
+                    
+                   function tryclearcach(){
+                       window.external.ClearCach();
+                      document.getElementById('clearcachtip').style.display='none';
+                      
+                   }
+
+                   function searchcallback(str){
+                      var searchresult= JSON.parse(str);
+                      var tds= document.getElementsByTagName('td');
+                       for(var i=0;i<tds.length;i+=3){
+                           tds[i].parentNode.style.display='none';
+                       }
+                      var idx=1;
+                      for(var j=0;j<searchresult.length;j++){
+                         var spname=searchresult[j];
+                         for(var i=0;i<tds.length;i+=3){
+                           var boo=tds[i+1].innerText==spname;
+                           if(boo){
+                               tds[i].parentNode.style.display='';
+                               tds[i].innerText=idx++;
+                               break;
+                            }
+                        }
+                      }
+                      document.getElementById('clearcachtip').style.display='';
+                  }
+                  </script>");
+                sb.AppendFormat("<script>{0}</script>", System.IO.File.ReadAllText("json2.js"));
+                sb.Append(@"<input id='w' type='text' style='height:23px; line-height:23px;width:30%;' onkeypress='k()' value=''/>
+                            <input type='checkbox' id='scontent' value='1'>搜索内容</input>
+                            <input type='button' style='font-size:12px; height:23px; line-height:18px;' value='搜索'  onclick='s()'/>");
+                sb.Append("<p/>");
+                sb.Append($"<div id='clearcachtip' style='margin-top:5px;display:none;width:98%;font-size:9pt;height:18px; line-height:18px;background-color:lightyellow;border:solid 1px lightblue'>如果没有找到，可以选择<a href='javascript:tryclearcach()'>清空缓存</a>试试</div>");
+                sb.Append("<p/>");
+                sb.Append("<table>");
+                sb.Append("<tr><th>序号</th><th>存储过程</th><th>描述</th></tr>");
+                int i = 1;
+                foreach (string name in proclist)
+                {
+                    var item = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<SPInfo>("SPInfo", "DBName_SPName", new[] { dbname.ToUpper(), name.ToUpper() }).FirstOrDefault();
+                    sb.Append($"<tr><td>{i++}</td><td><a href='javascript:window.external.ShowFunction(\"{name}\")'>{name}</a></td><td>{item?.Mark}</td></tr>");
+                }
+                sb.Append("</table>");
+                sb.Append("</body>");
+                sb.Append("</html>");
+
+                this.OnFilterFunction(dbsource, dbname, sb.ToString());
+            }
+        }
+
 
         private void 表关系图ToolStripMenuItem_Click(object sender, EventArgs e)
         {

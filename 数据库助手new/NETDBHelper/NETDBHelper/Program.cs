@@ -229,6 +229,8 @@ namespace NETDBHelper
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+
+            LJC.FrameWork.SOA.ESBClientPoolManager.MAXCLIENTCOUNT = 1;
             Application.Run(new MainFrm());
 
             BigEntityTableEngine.LocalEngine.ShutDown();
