@@ -803,7 +803,7 @@ namespace Biz.Common.Data
             return sb.ToString();
         }
 
-        public static string GetCreateTableSQL(TableInfo tableinfo,List<TBColumn> columns,DataTable indexDDL)
+        public static string GetCreateTableSQL(TableInfo tableinfo,List<TBColumn> columns,DataTable indexDDL,DataTable tableDesc,DataTable colDesc)
         {
             StringBuilder sb = new StringBuilder(string.Format("Use [{0}]", tableinfo.DBName));
             sb.AppendLine();
@@ -843,6 +843,31 @@ GO");
             }
 
             sb.AppendLine("Go");
+
+            //创建表说明
+            if (tableDesc != null)
+            {
+                var tbdesc = tableDesc.AsEnumerable().Where(p => p.Field<string>("name").Equals(tableinfo.TBName, StringComparison.OrdinalIgnoreCase))
+                    .FirstOrDefault()?.Field<string>("desc");
+
+                if (!string.IsNullOrWhiteSpace(tbdesc))
+                {
+                    sb.AppendLine($"EXEC sp_addextendedproperty N'MS_Description', N'{tbdesc}', N'SCHEMA', N'{tableinfo.Schema}',N'TABLE', N'{tableinfo.TBName}';");
+                }
+            }
+            //创建字段说明
+            if (colDesc != null)
+            {
+                foreach (var row in colDesc.AsEnumerable())
+                {
+                    var colname = row.Field<string>("ColumnName");
+                    var desc = row.Field<string>("Description");
+                    if (!string.IsNullOrWhiteSpace(desc))
+                    {
+                        sb.AppendLine($"EXEC sp_addextendedproperty N'MS_Description', N'{desc}', N'SCHEMA', N'{tableinfo.Schema}',N'TABLE', N'{tableinfo.TBName}', N'COLUMN', N'{colname}';");
+                    }
+                }
+            }
 
             return sb.ToString();
         }

@@ -180,28 +180,9 @@ namespace NETDBHelper.SubForm
                             var indexDDL = SQLHelper.GetIndexDDL(this.DBSource, tbinfo.DBName, tbinfo.TBName);
                             sb.AppendLine();
                             sb.AppendLine("--" + tbinfo.TBName);
-                            sb.AppendLine(DataHelper.GetCreateTableSQL(tbinfo, cols, indexDDL));
+                            sb.AppendLine(DataHelper.GetCreateTableSQL(tbinfo, cols, indexDDL,tableDesc,colDesc));
                             sb.AppendLine();
                             sb.AppendLine("GO");
-
-                            //创建表说明
-                            var tbdesc = tableDesc.AsEnumerable().Where(p => p.Field<string>("name").Equals(tbinfo.TBName, StringComparison.OrdinalIgnoreCase))
-                                .FirstOrDefault()?.Field<string>("desc");
-
-                            if (!string.IsNullOrWhiteSpace(tbdesc))
-                            {
-                                sb.AppendLine($"EXEC sp_addextendedproperty N'MS_Description', N'{tbdesc}'   , N'SCHEMA', N'{tbinfo.Schema}',N'TABLE', N'{tbinfo.TBName}';");
-                            }
-                            //创建字段说明
-                            foreach (var row in colDesc.AsEnumerable())
-                            {
-                                var colname = row.Field<string>("ColumnName");
-                                var desc = row.Field<string>("Description");
-                                if (!string.IsNullOrWhiteSpace(desc))
-                                {
-                                    sb.AppendLine($"EXEC sp_addextendedproperty N'MS_Description', N'{desc}'   , N'SCHEMA', N'{tbinfo.Schema}',N'TABLE', N'{tbinfo.TBName}', N'COLUMN', N'{colname}';");
-                                }
-                            }
 
                             //索引
                             if (needIndex)
