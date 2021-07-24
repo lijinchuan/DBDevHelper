@@ -122,14 +122,14 @@ namespace NETDBHelper
             if (this.TabControl.TabPages.Count == 0)
             {
                 连接对象资源管理器ToolStripMenuItem_Click(null, null);
-                Biz.WatchTask.WatchTaskInfoManage.OnTiggerError += (s, o) =>
-                {
-                    this.BeginInvoke(new Action(() =>
-                    {
-                        Util.PopMsg(s.ID, s.Name, s.ErrorMsg);
-                    }));
-                };
             }
+            Biz.WatchTask.WatchTaskInfoManage.OnTiggerError += (s, o) =>
+            {
+                this.BeginInvoke(new Action(() =>
+                {
+                    Util.PopMsg(s.ID, s.Name, s.ErrorMsg);
+                }));
+            };
             Biz.WatchTask.WatchTaskInfoManage.OnErrorDisappear += (s) =>
             {
                 this.BeginInvoke(new Action(() => {
