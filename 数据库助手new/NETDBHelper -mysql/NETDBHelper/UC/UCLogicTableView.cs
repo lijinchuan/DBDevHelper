@@ -586,7 +586,7 @@ namespace NETDBHelper.UC
                       && p.RelColName == string.Empty);
                     var logiccoldesc = logiccol?.Desc ?? string.Empty;
                     var dlg = new SubForm.InputStringDlg($"逻辑备注{tbcol.TBName.Split('*')[0]}.{tbcol.Name}", logiccoldesc);
-                    if (dlg.ShowDialog() == DialogResult.OK)
+                    dlg.DlgResult += () =>
                     {
                         if (logiccol != null)
                         {
@@ -608,7 +608,8 @@ namespace NETDBHelper.UC
                             });
                         }
                         lb.Text = $"   {tbcol.Name}({dlg.InputString})";
-                    }
+                    };
+                    dlg.ShowMe(Util.FindParent<TabPage>(this));
                 }
             };
 

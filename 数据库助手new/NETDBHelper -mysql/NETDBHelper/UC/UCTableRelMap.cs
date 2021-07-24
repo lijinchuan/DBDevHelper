@@ -78,12 +78,13 @@ namespace NETDBHelper.UC
                 if (relColumnEx != null)
                 {
                     SubForm.InputStringDlg dlg = new SubForm.InputStringDlg($"输入{relColumnEx.RelColumn.TBName}.{relColumnEx.RelColumn.ColName}和{relColumnEx.RelColumn.RelTBName}.{relColumnEx.RelColumn.RelColName}关系描述", relColumnEx.RelColumn.Desc ?? string.Empty);
-                    if (dlg.ShowDialog() == DialogResult.OK)
+                    dlg.DlgResult += () =>
                     {
                         relColumnEx.RelColumn.Desc = dlg.InputString;
                         LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Update<RelColumn>(nameof(RelColumn), relColumnEx.RelColumn);
                         this.PanelMap.Invalidate();
-                    }
+                    };
+                    dlg.ShowMe(this);
                 }
             }
         }

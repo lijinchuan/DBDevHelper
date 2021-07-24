@@ -868,6 +868,16 @@ namespace Biz.Common
             });
             KeyWordDic.Add(new SQLKeyWord
             {
+                KeyWord= "SET TRANSACTION ISOLATION LEVEL ",
+                Desc="设置事务隔离级别"
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
+                KeyWord = "SET SESSION TRANSACTION ISOLATION LEVEL ",
+                Desc = "设置当前会话事务隔离级别"
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
                 KeyWord = "show",
                 Desc = ""
             });

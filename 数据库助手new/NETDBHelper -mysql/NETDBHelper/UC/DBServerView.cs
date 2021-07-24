@@ -403,8 +403,7 @@ namespace NETDBHelper
                         cols.Add(new KeyValuePair<string, bool>(col.Name, col.IsKey));
                     }
                 }
-                StringBuilder sb = new StringBuilder("SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED ;");
-                sb.AppendLine();
+                StringBuilder sb = new StringBuilder();
                 sb.AppendLine("select");
                 sb.Append(string.Join(",\r\n", cols.Select(p => "[" + p.Key + "]")));
                 sb.AppendLine("");
@@ -412,7 +411,6 @@ namespace NETDBHelper
                 sb.Append(tb.TBName);
                 sb.Append(" limit 0,100;");
                 sb.AppendLine();
-                sb.AppendLine("SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ ;");
                 if (this.OnShowTableData != null)
                 {
                     OnShowTableData(GetDBSource(tv_DBServers.SelectedNode), tb.DBName, tb.TBName, sb.ToString());

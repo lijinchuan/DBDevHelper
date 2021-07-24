@@ -143,7 +143,7 @@ namespace NETDBHelper.UC
                 {
                     SubForm.InputStringDlg dlg = new SubForm.InputStringDlg("备注");
 
-                    if (dlg.ShowDialog() == DialogResult.OK)
+                    dlg.DlgResult += () =>
                     {
                         var logid = (int)rows[0].Cells["编号"].Value;
                         var log = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<Entity.HLogEntity>("HLog", logid);
@@ -153,7 +153,8 @@ namespace NETDBHelper.UC
                             LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Update<HLogEntity>("HLog", log);
                             BindData();
                         }
-                    }
+                    };
+                    dlg.ShowMe(this);
                 }
             }
             else if (e.ClickedItem.Text == "查看文本")
