@@ -64,8 +64,14 @@
     <Reference Include="Google.Protobuf, Version=3.6.1.0, Culture=neutral, PublicKeyToken=a7d26565bac4d604, processorArchitecture=MSIL">
       <HintPath>..\packages\Google.Protobuf.3.6.1\lib\net45\Google.Protobuf.dll</HintPath>
     </Reference>
+    <Reference Include="Ljc.Com.Blog.Model">
+      <HintPath>..\..\Lib\Ljc.Com.Blog.Model.dll</HintPath>
+    </Reference>
     <Reference Include="LJC.FrameWork">
       <HintPath>..\..\Lib\LJC.FrameWork.dll</HintPath>
+    </Reference>
+    <Reference Include="LJC.FrameWork.SOA">
+      <HintPath>..\..\Lib\LJC.FrameWork.SOA.dll</HintPath>
     </Reference>
     <Reference Include="LJC.FrameWorkV3">
       <HintPath>..\..\Lib\LJC.FrameWorkV3.dll</HintPath>
@@ -150,6 +156,12 @@
     <Compile Include="SubForm\AddTaskInfoDlg.Designer.cs">
       <DependentUpon>AddTaskInfoDlg.cs</DependentUpon>
     </Compile>
+    <Compile Include="SubForm\CopyDB.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SubForm\CopyDB.Designer.cs">
+      <DependentUpon>CopyDB.cs</DependentUpon>
+    </Compile>
     <Compile Include="SubForm\CreateEntityNavDlg.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -167,6 +179,12 @@
     </Compile>
     <Compile Include="SubForm\InputStringDlg.Designer.cs">
       <DependentUpon>InputStringDlg.cs</DependentUpon>
+    </Compile>
+    <Compile Include="SubForm\LoginDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SubForm\LoginDlg.Designer.cs">
+      <DependentUpon>LoginDlg.cs</DependentUpon>
     </Compile>
     <Compile Include="SubForm\MultiInputDlg.cs">
       <SubType>Form</SubType>
@@ -400,6 +418,9 @@
     <EmbeddedResource Include="SubForm\AddTaskInfoDlg.resx">
       <DependentUpon>AddTaskInfoDlg.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="SubForm\CopyDB.resx">
+      <DependentUpon>CopyDB.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="SubForm\CreateEntityNavDlg.resx">
       <DependentUpon>CreateEntityNavDlg.cs</DependentUpon>
     </EmbeddedResource>
@@ -408,6 +429,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="SubForm\InputStringDlg.resx">
       <DependentUpon>InputStringDlg.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SubForm\LoginDlg.resx">
+      <DependentUpon>LoginDlg.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="SubForm\MultiInputDlg.resx">
       <DependentUpon>MultiInputDlg.cs</DependentUpon>
@@ -537,6 +561,9 @@
     <None Include="Resources\table_lightning1.png" />
     <None Include="Resources\table_link.png" />
     <None Include="Resources\table_multiple.png" />
+    <Content Include="ESBConfig.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Resources\text_bold.png" />
     <None Include="Resources\text_underline.png" />
     <Content Include="Resources\text_uppercase.png" />

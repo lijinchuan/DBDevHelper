@@ -206,10 +206,20 @@ namespace NETDBHelper
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+            LJC.FrameWork.SOA.ESBClientPoolManager.MAXCLIENTCOUNT = 1;
             Application.Run(new MainFrm());
             //Application.Run(new SubForm.TestForm());
 
             BigEntityTableEngine.LocalEngine.ShutDown();
+
+            try
+            {
+                LJC.FrameWork.SOA.ESBClient.Close();
+            }
+            catch
+            {
+
+            }
         }
     }
 }

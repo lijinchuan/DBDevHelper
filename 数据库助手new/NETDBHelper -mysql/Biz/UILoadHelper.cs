@@ -30,11 +30,11 @@ namespace Biz
             new Action<Form, Action<DataTable>>(LoadServer).BeginInvoke(parentForm, onLoadComplete, null, null);
         }
 
-        public static void LoadDBsAnsy(Form parent, TreeNode serverNode, DBSource server)
+        public static void LoadDBsAnsy(Form parent, TreeNode serverNode, DBSource server, AsyncCallback callback, object @object)
         {
             serverNode.Nodes.Add(new TreeNode("加载中...", 17, 17));
             serverNode.Expand();
-            new Action<Form, TreeNode, DBSource>(LoadDBs).BeginInvoke(parent, serverNode, server, null, null);
+            new Action<Form, TreeNode, DBSource>(LoadDBs).BeginInvoke(parent, serverNode, server, callback, @object);
         }
 
         private static void LoadDBs(Form parent, TreeNode serverNode, DBSource server)
@@ -77,11 +77,11 @@ namespace Biz
                 }));
         }
 
-        public static void LoadTBsAnsy(Form parent, TreeNode dbNode, DBSource server, string dbname,Func<string, string> gettip)
+        public static void LoadTBsAnsy(Form parent, TreeNode dbNode, DBSource server, string dbname,Func<string, string> gettip, AsyncCallback callback, object @object)
         {
             dbNode.Nodes.Add(new TreeNode("加载中...", 17, 17));
             dbNode.Expand();
-            new Action<Form, TreeNode, DBSource, string, Func<string, string>>(LoadTBs).BeginInvoke(parent, dbNode, server, dbname, gettip, null, null);
+            new Action<Form, TreeNode, DBSource, string, Func<string, string>>(LoadTBs).BeginInvoke(parent, dbNode, server, dbname, gettip, callback, @object);
         }
 
         public static void LoadColumnsAnsy(Form parent, TreeNode tbNode, DBSource server, Func<TBColumn, string> gettip)

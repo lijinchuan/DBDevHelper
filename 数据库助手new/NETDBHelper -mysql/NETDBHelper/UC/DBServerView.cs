@@ -190,18 +190,47 @@ namespace NETDBHelper
             }
         }
 
-        void ReLoadDBObj(TreeNode selNode)
+        void ReLoadDBObj(TreeNode selNode, bool loadall = false)
         {
             //TreeNode selNode = tv_DBServers.SelectedNode;
-            if (selNode == null)
+            if (selNode == null || selNode.Tag == null)
                 return;
+            AsyncCallback callback = null;
+            if (loadall)
+            {
+                callback = new AsyncCallback((o) =>
+                {
+                    var node = selNode;
+                    foreach (TreeNode c in node.Nodes)
+                    {
+                        this.BeginInvoke(new Action(() =>
+                        {
+                            ReLoadDBObj(c, loadall);
+                        }));
+                    }
+                });
+            }
             TSMI_FilterProc.Visible = false;
             TSMI_ViewColumnList.Visible = false;
 
             if (selNode.Tag is ServerInfo)
             {
-                Biz.UILoadHelper.LoadDBsAnsy(this.ParentForm, selNode, GetDBSource(selNode));
+                Biz.UILoadHelper.LoadDBsAnsy(this.ParentForm, selNode, GetDBSource(selNode), callback, selNode);
                 selNode.Parent.Expand();
+            }
+            else if (selNode.Tag is DBInfo)
+            {
+                if (loadall)
+                {
+                    var node = selNode;
+                    foreach (TreeNode c in node.Nodes)
+                    {
+                        this.BeginInvoke(new Action(() =>
+                        {
+                            ReLoadDBObj(c, loadall);
+                        }));
+                    }
+                }
             }
             else if ((selNode.Tag as INodeContents).GetNodeContentType() == NodeContentType.TBParent)
             {
@@ -211,7 +240,7 @@ namespace NETDBHelper
                      var mark = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys", new
                                   [] { dbname, name.ToUpper(), string.Empty }).FirstOrDefault();
                      return mark == null ? string.Empty : mark.MarkInfo;
-                 });
+                 }, callback, selNode);
                 TSMI_ViewColumnList.Visible = true;
             }
             else if (selNode.Tag is INodeContents && (selNode.Tag as INodeContents).GetNodeContentType() == NodeContentType.FUNPARENT)
@@ -683,7 +712,7 @@ namespace NETDBHelper
                     var mark = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys", new
                                  [] { GetDBName(e.Node).ToUpper(), name.ToUpper(), string.Empty }).FirstOrDefault();
                     return mark == null ? string.Empty : mark.MarkInfo;
-                });
+                }, null, null);
 
 
                 LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<HLogEntity>("HLog", new HLogEntity
@@ -824,7 +853,7 @@ namespace NETDBHelper
 
         private void DBServerView_Load(object sender, EventArgs e)
         {
-            Bind();
+            ReLoadDBObj(tv_DBServers.Nodes[0]);
         }
 
         public void DisConnectSelectDBServer()
@@ -1211,55 +1240,12 @@ namespace NETDBHelper
             var tb = node.Tag as TableInfo;
             var cols = Biz.Common.Data.MySQLHelper.GetColumns(GetDBSource(node), tb.DBName, tb.TBName)
                 .Where(p => !p.IsID).ToList();
-            string sqltext = string.Format("select {0} from {1}", string.Join(",", cols.Select(p => string.Concat("[", p.Name, "]"))), string.Concat("[", tb.TBName, "]"));
-            var datas = Biz.Common.Data.MySQLHelper.ExecuteDBTable(GetDBSource(node), tb.DBName, sqltext, null);
-            StringBuilder sb = new StringBuilder(string.Format("Insert into {0} ({1}) values", string.Concat("`", tb.TBName, "`"), string.Join(",", cols.Select(p => string.Concat("`", p.Name, "`")))));
-            foreach (DataRow row in datas.Rows)
+            StringBuilder sql = new StringBuilder();
+            foreach (var item in MySQLHelper.ExportData(cols, true, GetDBSource(node), tb, 10000))
             {
-                StringBuilder sb1 = new StringBuilder();
-                foreach (var column in cols)
-                {
-                    object data = row[column.Name];
-                    if (data == DBNull.Value)
-                    {
-                        sb1.Append("NULL,");
-                    }
-                    else
-                    {
-                        if (column.TypeName.IndexOf("int", StringComparison.OrdinalIgnoreCase) > -1
-                            || column.TypeName.IndexOf("decimal", StringComparison.OrdinalIgnoreCase) > -1
-                            || column.TypeName.IndexOf("float", StringComparison.OrdinalIgnoreCase) > -1
-                            || column.TypeName.Equals("bit", StringComparison.OrdinalIgnoreCase)
-                            || column.TypeName.Equals("real", StringComparison.OrdinalIgnoreCase)
-                            || column.TypeName.IndexOf("money", StringComparison.OrdinalIgnoreCase) > -1
-                            || column.TypeName.Equals("timestamp", StringComparison.OrdinalIgnoreCase)
-                            || column.TypeName.IndexOf("money", StringComparison.OrdinalIgnoreCase) > -1
-                        )
-                        {
-                            sb1.AppendFormat("{0},", data);
-                        }
-                        else if (column.TypeName.Equals("boolean", StringComparison.OrdinalIgnoreCase)
-                               || column.TypeName.Equals("bool", StringComparison.OrdinalIgnoreCase))
-                        {
-                            sb1.AppendFormat("{0},", data.Equals(true) ? 1 : 0);
-                        }
-                        else if (column.TypeName.Equals("datetime", StringComparison.OrdinalIgnoreCase))
-                        {
-                            sb1.AppendFormat("'{0}',", ((DateTime)data).ToString("yyyy-MM-dd HH:mm:ss"));
-                        }
-                        else
-                        {
-                            sb1.Append(string.Concat("'", data, "',"));
-                        }
-                    }
-                }
-                if (sb1.Length > 0)
-                    sb1.Remove(sb1.Length - 1, 1);
-                sb.AppendFormat("({0}),", sb1.ToString());
+                sql.AppendLine(item);
             }
-            if (sb.Length > 0)
-                sb.Remove(sb.Length - 1, 1);
-            TextBoxWin win = new TextBoxWin("导出数据", sb.ToString());
+            TextBoxWin win = new TextBoxWin("导出数据", sql.ToString());
             win.ShowDialog();
         }
 
@@ -2381,6 +2367,11 @@ background-color: #ffffff;
                     ReLoadDBObj(currnode.Parent);
                 }
             }
+        }
+
+        private void 完全加载ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ReLoadDBObj(tv_DBServers.SelectedNode, true);
         }
     }
 }

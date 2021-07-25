@@ -664,5 +664,85 @@ ON {tb.Rows[0].Field<string>("EVENT_OBJECT_TABLE")} FOR EACH Row {tb.Rows[0].Fie
             return x.ToList();
         }
 
+
+        public static IEnumerable<string> ExportData(List<TBColumn> columns, bool notExportId, DBSource dbSource, TableInfo tableinfo, int topNum)
+        {
+            StringBuilder sb = new StringBuilder();
+            var cols = columns.Where(p => !p.IsID).ToList();
+            if (!cols.Any())
+            {
+                yield return "---------no columns----------";
+                yield break;
+            }
+
+            string sqltext = string.Format("select {0} from {1}", string.Join(",", cols.Select(p => string.Concat("[", p.Name, "]"))), string.Concat("[", tableinfo.TBName, "]"));
+            var datas = ExecuteDBTable(dbSource, tableinfo.DBName, sqltext, null);
+            int idx = 0;
+            foreach (DataRow row in datas.Rows)
+            {
+                if ((++idx) == 1)
+                {
+                    sb.AppendFormat(string.Format("Insert into {0} ({1}) values", string.Concat("`", tableinfo.TBName, "`"), string.Join(",", cols.Select(p => string.Concat("`", p.Name, "`")))));
+                }
+
+                StringBuilder sb1 = new StringBuilder();
+                foreach (var column in cols)
+                {
+                    object data = row[column.Name];
+                    if (data == DBNull.Value)
+                    {
+                        sb1.Append("NULL,");
+                    }
+                    else
+                    {
+                        if (column.TypeName.IndexOf("int", StringComparison.OrdinalIgnoreCase) > -1
+                            || column.TypeName.IndexOf("decimal", StringComparison.OrdinalIgnoreCase) > -1
+                            || column.TypeName.IndexOf("float", StringComparison.OrdinalIgnoreCase) > -1
+                            || column.TypeName.Equals("bit", StringComparison.OrdinalIgnoreCase)
+                            || column.TypeName.Equals("real", StringComparison.OrdinalIgnoreCase)
+                            || column.TypeName.IndexOf("money", StringComparison.OrdinalIgnoreCase) > -1
+                            || column.TypeName.Equals("timestamp", StringComparison.OrdinalIgnoreCase)
+                            || column.TypeName.IndexOf("money", StringComparison.OrdinalIgnoreCase) > -1
+                        )
+                        {
+                            sb1.AppendFormat("{0},", data);
+                        }
+                        else if (column.TypeName.Equals("boolean", StringComparison.OrdinalIgnoreCase)
+                               || column.TypeName.Equals("bool", StringComparison.OrdinalIgnoreCase))
+                        {
+                            sb1.AppendFormat("{0},", data.Equals(true) ? 1 : 0);
+                        }
+                        else if (column.TypeName.Equals("datetime", StringComparison.OrdinalIgnoreCase))
+                        {
+                            sb1.AppendFormat("'{0}',", ((DateTime)data).ToString("yyyy-MM-dd HH:mm:ss"));
+                        }
+                        else
+                        {
+                            sb1.Append(string.Concat("'", data, "',"));
+                        }
+                    }
+                }
+                if (sb1.Length > 0)
+                    sb1.Remove(sb1.Length - 1, 1);
+                sb.AppendFormat("({0}),", sb1.ToString());
+
+                if (idx > 10000)
+                {
+                    yield return sb.ToString();
+                    sb.Clear();
+                    idx = 0;
+                }
+            }
+            if (sb.Length > 0)
+                sb.Remove(sb.Length - 1, 1);
+
+            if (idx == 0)
+            {
+                sb.AppendLine("--------------no data--------------------");
+            }
+
+
+            yield return sb.ToString();
+        }
     }
 }

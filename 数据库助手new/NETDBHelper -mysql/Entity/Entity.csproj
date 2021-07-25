@@ -64,6 +64,7 @@
     <Compile Include="LogicMapRelColumn.cs" />
     <Compile Include="LogicMapRelColumnEx.cs" />
     <Compile Include="LogicMapTable.cs" />
+    <Compile Include="LoginUser.cs" />
     <Compile Include="MarkObjectInfo.cs" />
     <Compile Include="MSSQLTypeEnum.cs" />
     <Compile Include="INodeContents.cs" />

@@ -9,6 +9,7 @@ using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Biz.Common.Data;
 using Entity;
+using NETDBHelper.SubForm;
 using NETDBHelper.UC;
 
 namespace NETDBHelper
@@ -46,7 +47,34 @@ namespace NETDBHelper
             this.dbServerView1.OnShowRelMap += this.ShowRelMap;
             this.dbServerView1.OnAddNewLogicMap += this.AddNewLogicMap;
             this.dbServerView1.OnDeleteLogicMap += this.DeleteLogicMap;
+
+
+            复制数据库ToolStripMenuItem.Visible = Util.LoginUserLevel() >= 5;
+            登录ToolStripMenuItem.Visible = Util.LoginUserLevel() == 0;
+            登出ToolStripMenuItem.Visible = Util.LoginUserLevel() > 0;
+
+            Util.OnUserLogin += Util_OnUserLogin;
+            Util.OnUserLoginOut += Util_OnUserLoginOut;
         }
+
+        private void Util_OnUserLoginOut(LoginUser user)
+        {
+            复制数据库ToolStripMenuItem.Visible = false;
+            登录ToolStripMenuItem.Visible = true;
+            登出ToolStripMenuItem.Visible = false;
+
+            Text = Text.Split('-')[0];
+        }
+
+        private void Util_OnUserLogin(LoginUser loginUser)
+        {
+            复制数据库ToolStripMenuItem.Visible = loginUser.UserLevel >= 5;
+            登录ToolStripMenuItem.Visible = false;
+            登出ToolStripMenuItem.Visible = true;
+
+            Text += "-" + loginUser.UserName;
+        }
+
 
         protected void CreateSelectSql(string sqlname, string s)
         {
@@ -283,7 +311,7 @@ namespace NETDBHelper
             var dbnode = dbServerView1.FindNode(db.ServerName, dbName);
             if (dbnode != null)
             {
-                Biz.UILoadHelper.LoadTBsAnsy(this, dbServerView1.FindNode(dbnode, NodeContentType.TBParent), db, dbName, null);
+                Biz.UILoadHelper.LoadTBsAnsy(this, dbServerView1.FindNode(dbnode, NodeContentType.TBParent), db, dbName, null,null,null);
             }
         }
 
@@ -793,6 +821,23 @@ namespace NETDBHelper
         private void 监控任务ToolStripMenuItem_Click(object sender, EventArgs e)
         {
             new SubForm.WatchTaskList().Show();
+        }
+
+        private void 复制数据库ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var dlg = new SubForm.CopyDB();
+            dlg.ShowMe(this);
+        }
+
+        private void 登录ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            LoginDlg dlg = new LoginDlg();
+            dlg.ShowDialog();
+        }
+
+        private void 登出ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Util.LoginOut();
         }
     }
 }
