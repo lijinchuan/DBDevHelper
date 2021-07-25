@@ -99,16 +99,20 @@ namespace NETDBHelper.SubForm
             {
                 Directory.CreateDirectory(dir);
             }
-            var filename = Path.Combine(dir, "createdb_" + DateTime.Now.ToString("yyyyyMMddHHmmss") + ".sql");
-            var datafilename= Path.Combine(dir, "createdb" + DateTime.Now.ToString("yyyyyMMddHHmmss") + "_data_###.sql");
-            int datafilecount = 0;
+            dir += $"exportdb{DateTime.Now.ToString("yyyyyMMddHHmmss")}";
+            if (!Directory.Exists(dir))
+            {
+                Directory.CreateDirectory(dir);
+            }
+            var filename = Path.Combine(dir, "createdb.sql");
+            var datafilename= Path.Combine(dir, "createdb_###.data");
+            
             try
             {
                 var total = CLBDBs.CheckedItems.Count;
                 var finished = 0;
                 StringBuilder sball = new StringBuilder();
                 StringBuilder sb = new StringBuilder();
-                StringBuilder sbdata = new StringBuilder();
                 
                 foreach (var item in CLBDBs.CheckedItems)
                 {
@@ -202,29 +206,17 @@ namespace NETDBHelper.SubForm
                                 //导出前100条语句
                                 try
                                 {
-                                    if (tbinfo.TBName.Equals("Message", StringComparison.OrdinalIgnoreCase))
+                                    var data = SQLHelper.ExportData2(cols, true, DBSource, tbinfo, (int)NUDMaxNumber.Value);
+                                    if (data != null)
                                     {
-
-                                    }
-                                    foreach(var s in SQLHelper.ExportData(cols, true, DBSource, tbinfo, (int)NUDMaxNumber.Value))
-                                    {
-                                        sbdata.AppendLine($"use [{destdb}]");
-                                        sbdata.AppendLine("GO");
-                                        sbdata.AppendLine(s);
-                                        sbdata.AppendLine("GO");
-
-                                        if (maxSize > 0 && sbdata.Length > maxSize * 1024 * 1024)
+                                        if (isTest)
                                         {
-                                            if (isTest)
-                                            {
-                                                sbdata = new StringBuilder(Regex.Replace(sbdata.ToString(), $"use[\\s]+\\[?{db}\\]?", $"use [{destdb}]", RegexOptions.IgnoreCase | RegexOptions.Multiline));
-                                            }
-                                            var currDataFileName = datafilename.Replace("###", (datafilecount++).ToString());
-                                            File.WriteAllText(currDataFileName, sbdata.ToString(), Encoding.UTF8);
-                                            sbdata.Clear();
+                                            data.DBName = destdb;
                                         }
+                                        var currDataFileName = datafilename.Replace("###", tbinfo.TBName);
+                                        LJC.FrameWorkV3.EntityBuf.EntityBufCore.Serialize(data, currDataFileName);
                                     }
-                                    
+
                                 }
                                 catch (Exception)
                                 {
@@ -234,7 +226,7 @@ namespace NETDBHelper.SubForm
                                     }
                                     else
                                     {
-                                        sbdata.AppendLine("-----------导出数据出错-----------");
+                                        SendMsg("导出库" + db + ",表前" + NUDMaxNumber.Value + "条语句:" + tbinfo.TBName + "导出数据出错");
                                     }
                                 }
                                 //finished += 9;
@@ -345,12 +337,6 @@ namespace NETDBHelper.SubForm
                 if (!cancel && sball.Length > 0)
                 {
                     File.WriteAllText(filename, sball.ToString(), Encoding.UTF8);
-                }
-
-                if (!cancel && sbdata.Length > 0)
-                {
-                    var currDataFileName = datafilename.Replace("###", (datafilecount++).ToString());
-                    File.WriteAllText(currDataFileName, sbdata.ToString(), Encoding.UTF8);
                 }
 
                 SendMsg("保存成功:" + filename);

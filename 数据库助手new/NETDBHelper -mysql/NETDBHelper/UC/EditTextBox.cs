@@ -185,7 +185,7 @@ namespace NETDBHelper.UC
                 }
 
                 var tagobj = item.Tag as MarkObjectInfo;
-                var desc = tagobj?.MarkInfo;
+                var desc = tagobj?.MarkInfo??item.Desc;
                 var fullobjectname = item.ObjectName;
                 if (item.Type == 1)
                 {

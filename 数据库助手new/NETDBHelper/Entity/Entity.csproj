@@ -43,6 +43,7 @@
   <ItemGroup>
     <Compile Include="ColumnMarkSyncRecord.cs" />
     <Compile Include="CreateProceEnum.cs" />
+    <Compile Include="DataTableObject.cs" />
     <Compile Include="DBFieldMapAttribute.cs" />
     <Compile Include="DBHelperException.cs" />
     <Compile Include="DBInfo.cs" />

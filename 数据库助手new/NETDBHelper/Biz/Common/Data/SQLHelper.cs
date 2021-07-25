@@ -627,6 +627,138 @@ where a.Table_NAME='"+viewname+"' and a.TABLE_NAME=b.TABLE_NAME ORDER BY A.TABLE
             ExecuteNoQuery(dbSource, dbName, sql);
         }
 
+        public static DataTableObject ExportData2(List<TBColumn> columns, bool notExportId, DBSource dbSource, TableInfo tableinfo, int topNum)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            DataTableObject dataTableObject = new DataTableObject()
+            {
+                DBName = tableinfo.DBName,
+                TableName = tableinfo.TBName
+            };
+
+            IEnumerable<TBColumn> cols = columns.Where(p => !p.TypeName.Equals("timestamp", StringComparison.OrdinalIgnoreCase));
+            cols = cols.OrderBy(p => p.IsID ? 0 : 1);
+
+            if (!cols.Any())
+            {
+                return dataTableObject;
+            }
+
+            var idColumns = columns.Where(p => p.IsID).ToList();
+            if (!idColumns.Any())
+            {
+                idColumns = columns.Where(p => p.IsKey).ToList();
+            }
+
+            var idColumn = idColumns.Count() == 1 ? idColumns.First() : null;
+            object maxId = null;
+            var pagesize = 10000;
+            var total = 0;
+            while (true)
+            {
+                string sqltext = null;
+                DataTable datas = null;
+                if (idColumn == null)
+                {
+                    sqltext = string.Format("select top {2} {0} from [{3}].{1} with(nolock)", string.Join(",", cols.Select(p => GetConverType(p))), string.Concat("[", tableinfo.TBName, "]"), topNum, tableinfo.Schema);
+                    datas = ExecuteDBTable(dbSource, tableinfo.DBName, sqltext, null);
+                }
+                else
+                {
+                    SqlParameter[] sqlParameters = null;
+                    if (maxId != null)
+                    {
+                        sqltext = string.Format("select top {2} {0} from [{3}].{1} with(nolock) where {4}<@{4} order by {4} desc", string.Join(",", cols.Select(p => GetConverType(p))), string.Concat("[", tableinfo.TBName, "]"), pagesize, tableinfo.Schema, idColumn.Name);
+                        sqlParameters =new[] { new SqlParameter($"@{idColumn.Name}", maxId) };
+                    }
+                    else
+                    {
+                        sqltext = string.Format("select top {2} {0} from [{3}].{1} with(nolock) order by {4} desc", string.Join(",", cols.Select(p => GetConverType(p))), string.Concat("[", tableinfo.TBName, "]"), pagesize, tableinfo.Schema, idColumn.Name);
+                    }
+                    datas = ExecuteDBTable(dbSource, tableinfo.DBName, sqltext, sqlParameters);
+                    if (datas.Rows.Count >0)
+                    {
+                        maxId = datas.Rows[datas.Rows.Count - 1][idColumn.Name];
+                    }
+                    if (datas.Rows.Count < pagesize)
+                    {
+                        total = topNum;
+                    }
+                    else
+                    {
+                        total += datas.Rows.Count;
+                    }
+                }
+                
+
+                if (dataTableObject.Columns.Count == 0)
+                {
+                    foreach (DataColumn col in datas.Columns)
+                    {
+                        dataTableObject.Columns.Add(new DataTableColumn
+                        {
+                            ColumnName = col.ColumnName,
+                            ColumnType = col.DataType.FullName
+                        });
+                    }
+                }
+
+                foreach (DataRow row in datas.Rows)
+                {
+                    var datarow = new DataTableRow();
+
+                    foreach (var cell in row.ItemArray)
+                    {
+                        var datacell = new DataTableCell();
+                        if (cell == DBNull.Value)
+                        {
+                            datacell.IsDBNull = true;
+                        }
+                        else
+                        {
+                            if (cell.GetType() == typeof(byte[]))
+                            {
+                                datacell.ByteValue = (byte[])cell;
+                            }
+                            else
+                            {
+                                datacell.StringValue = cell.ToString();
+                            }
+                        }
+                        datarow.Cells.Add(datacell);
+                    }
+
+                    dataTableObject.Rows.Add(datarow);
+                }
+
+                if (total == 0 || total >= topNum)
+                {
+                    break;
+                }
+            }
+
+            return dataTableObject;
+
+            string GetConverType(TBColumn column)
+            {
+                if (column.TypeName.Equals("timestamp", StringComparison.OrdinalIgnoreCase))
+                {
+                    return string.Format("cast('' as xml).value('xs:base64Binary(sql:column(\"{0}\"))', 'varchar(max)') as [{0}]", column.Name);
+                }
+                else if (column.TypeName.Equals("binary", StringComparison.OrdinalIgnoreCase)
+                    || column.TypeName.Equals("varbinary", StringComparison.OrdinalIgnoreCase))
+                {
+                    return string.Format("cast('' as xml).value('xs:base64Binary(sql:column(\"{0}\"))', 'varchar(max)') as [{0}]", column.Name);
+                }
+                else if (column.TypeName.Equals("image", StringComparison.OrdinalIgnoreCase))
+                {
+                    return string.Format("convert(varbinary(max),[{0}]) as [{0}]", column.Name);
+                }
+                return string.Format("[{0}]", column.Name);
+            }
+        }
+
         public static IEnumerable<string> ExportData(List<TBColumn> columns, bool notExportId, DBSource dbSource, TableInfo tableinfo, int topNum)
         {
             StringBuilder sb = new StringBuilder();
@@ -683,7 +815,6 @@ where a.Table_NAME='"+viewname+"' and a.TABLE_NAME=b.TABLE_NAME ORDER BY A.TABLE
                             //|| column.TypeName.Equals("bit", StringComparison.OrdinalIgnoreCase)
                             || column.TypeName.Equals("real", StringComparison.OrdinalIgnoreCase)
                             || column.TypeName.IndexOf("money", StringComparison.OrdinalIgnoreCase) > -1
-                            || column.TypeName.IndexOf("money", StringComparison.OrdinalIgnoreCase) > -1
                         )
                         {
                             sb1.AppendFormat("{0},", data);
@@ -720,7 +851,6 @@ where a.Table_NAME='"+viewname+"' and a.TABLE_NAME=b.TABLE_NAME ORDER BY A.TABLE
                                 || column.TypeName.IndexOf("float", StringComparison.OrdinalIgnoreCase) > -1
                                 //|| column.TypeName.Equals("bit", StringComparison.OrdinalIgnoreCase)
                                 || column.TypeName.Equals("real", StringComparison.OrdinalIgnoreCase)
-                                || column.TypeName.IndexOf("money", StringComparison.OrdinalIgnoreCase) > -1
                                 || column.TypeName.IndexOf("money", StringComparison.OrdinalIgnoreCase) > -1
                             )
                             {

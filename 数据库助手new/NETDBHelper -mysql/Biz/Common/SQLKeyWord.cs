@@ -141,6 +141,11 @@ namespace Biz.Common
             });
             KeyWordDic.Add(new SQLKeyWord
             {
+                KeyWord = "autocommit",
+                Desc = "自动提交:set autocommit=[1|0]"
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
                 KeyWord = "avg",
                 Desc = "平均"
             });

@@ -36,6 +36,8 @@
             this.BtnCancel = new System.Windows.Forms.Button();
             this.BtnSelAll = new System.Windows.Forms.Button();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.label3 = new System.Windows.Forms.Label();
+            this.NUDMaxSize = new System.Windows.Forms.NumericUpDown();
             this.CBTrigger = new System.Windows.Forms.CheckBox();
             this.CBIndex = new System.Windows.Forms.CheckBox();
             this.CBView = new System.Windows.Forms.CheckBox();
@@ -51,14 +53,12 @@
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.ProcessBar = new System.Windows.Forms.ToolStripProgressBar();
             this.MsgText = new System.Windows.Forms.ToolStripStatusLabel();
-            this.NUDMaxSize = new System.Windows.Forms.NumericUpDown();
-            this.label3 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.NUDMaxSize)).BeginInit();
             this.PannelCopNumber.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.NUDMaxNumber)).BeginInit();
             this.statusStrip1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.NUDMaxSize)).BeginInit();
             this.SuspendLayout();
             // 
             // BtnSelectServer
@@ -151,6 +151,27 @@
             this.groupBox2.TabIndex = 20;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "设置";
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(31, 214);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(107, 12);
+            this.label3.TabIndex = 9;
+            this.label3.Text = "单个文件大小(M)：";
+            // 
+            // NUDMaxSize
+            // 
+            this.NUDMaxSize.Location = new System.Drawing.Point(142, 210);
+            this.NUDMaxSize.Name = "NUDMaxSize";
+            this.NUDMaxSize.Size = new System.Drawing.Size(79, 21);
+            this.NUDMaxSize.TabIndex = 8;
+            this.NUDMaxSize.Value = new decimal(new int[] {
+            30,
+            0,
+            0,
+            0});
             // 
             // CBTrigger
             // 
@@ -322,27 +343,6 @@
             this.MsgText.Spring = true;
             this.MsgText.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
-            // NUDMaxSize
-            // 
-            this.NUDMaxSize.Location = new System.Drawing.Point(142, 210);
-            this.NUDMaxSize.Name = "NUDMaxSize";
-            this.NUDMaxSize.Size = new System.Drawing.Size(79, 21);
-            this.NUDMaxSize.TabIndex = 8;
-            this.NUDMaxSize.Value = new decimal(new int[] {
-            30,
-            0,
-            0,
-            0});
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(31, 214);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(107, 12);
-            this.label3.TabIndex = 9;
-            this.label3.Text = "单个文件大小(M)：";
-            // 
             // CopyDB
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -361,16 +361,16 @@
             this.MinimizeBox = false;
             this.Name = "CopyDB";
             this.ShowInTaskbar = false;
-            this.Text = "复制数据库";
+            this.Text = "备份数据库";
             this.groupBox1.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.NUDMaxSize)).EndInit();
             this.PannelCopNumber.ResumeLayout(false);
             this.PannelCopNumber.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.NUDMaxNumber)).EndInit();
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.NUDMaxSize)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 

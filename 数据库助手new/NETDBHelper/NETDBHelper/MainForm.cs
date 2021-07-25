@@ -863,5 +863,11 @@ namespace NETDBHelper
         {
             Util.LoginOut();
         }
+
+        private void 还原数据库ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SubForm.RecoverDBDlg dlg = new RecoverDBDlg();
+            dlg.Show();
+        }
     }
 }
