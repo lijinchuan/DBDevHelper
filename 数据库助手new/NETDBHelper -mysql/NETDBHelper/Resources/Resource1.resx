@@ -262,9 +262,6 @@
   <data name="lightning_delete" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>lightning_delete.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="table_lightning1" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>table_lightning1.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
   <data name="table_link" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>table_link.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
