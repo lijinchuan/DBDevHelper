@@ -48,6 +48,11 @@ namespace Biz
                     {
                         DBInfo dbInfo = new DBInfo { DBSource = server, Name = tb.Rows[i]["Name"].ToString() };
                         TreeNode dbNode = new TreeNode(dbInfo.Name, 2, 2);
+                        var item = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys", new[] { dbInfo.Name.ToUpper(), string.Empty, string.Empty }).FirstOrDefault();
+                        if (item != null)
+                        {
+                            dbNode.ToolTipText = item.MarkInfo;
+                        }
                         dbNode.Tag = dbInfo;
                         serverNode.Nodes.Add(dbNode);
 
@@ -335,6 +340,9 @@ namespace Biz
             //var server = DBServers.FirstOrDefault(p => p.ServerName.Equals(e.Node.Parent.Text));
             if (server == null)
                 return;
+
+            long total = 0;
+
             List<TreeNode> treeNodes = new List<TreeNode>();
             DataTable tb = Biz.Common.Data.MySQLHelper.GetTBs(server, dbname);
             var y = from x in tb.AsEnumerable()
@@ -356,7 +364,18 @@ namespace Biz
                     DBName = dbname,
                     TBName = tb2.Rows[i]["name"].ToString()
                 };
-                TreeNode newNode = new TreeNode(tbinfo.TBName, 3, 3);
+                var ex = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Scan<RelTable>(nameof(RelTable), "SDT", new[] { dbname.ToLower(), tbinfo.TBName.ToLower() }, new[] { dbname.ToLower(), tbinfo.TBName.ToLower() }, 1, 1, ref total).FirstOrDefault() != null
+                         || LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Scan<RelTable>(nameof(RelTable), "SDRT", new[] { dbname.ToLower(), tbinfo.TBName.ToLower() }, new[] { dbname.ToLower(), tbinfo.TBName.ToLower() }, 1, 1, ref total).FirstOrDefault() != null;
+
+                TreeNode newNode = null;
+                if (ex)
+                {
+                    newNode = new TreeNode(tbinfo.TBName, 32, 32);
+                }
+                else
+                {
+                    newNode = new TreeNode(tbinfo.TBName, 31, 31);
+                }
                 newNode.Name = tbinfo.TBName;
                 newNode.Tag = tbinfo;
                 if (gettip != null)

@@ -534,6 +534,9 @@
     <None Include="Resources\table_lightning.png" />
     <None Include="Resources\lightning.png" />
     <None Include="Resources\lightning_delete.png" />
+    <None Include="Resources\table_lightning1.png" />
+    <None Include="Resources\table_link.png" />
+    <None Include="Resources\table_multiple.png" />
     <Content Include="Resources\text_bold.png" />
     <None Include="Resources\text_underline.png" />
     <Content Include="Resources\text_uppercase.png" />
