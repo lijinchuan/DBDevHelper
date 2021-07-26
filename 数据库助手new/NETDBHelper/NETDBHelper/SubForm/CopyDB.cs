@@ -206,15 +206,18 @@ namespace NETDBHelper.SubForm
                                 //导出前100条语句
                                 try
                                 {
-                                    var data = SQLHelper.ExportData2(cols, true, DBSource, tbinfo, (int)NUDMaxNumber.Value);
-                                    if (data != null)
+                                    int no = 0;
+                                    foreach(var data in SQLHelper.ExportData2(cols, true, DBSource, tbinfo, (int)NUDMaxNumber.Value))
                                     {
-                                        if (isTest)
+                                        if (data != null)
                                         {
-                                            data.DBName = destdb;
+                                            if (isTest)
+                                            {
+                                                data.DBName = destdb;
+                                            }
+                                            var currDataFileName = datafilename.Replace("###", tbinfo.TBName + "_" + no);
+                                            LJC.FrameWorkV3.EntityBuf.EntityBufCore.Serialize(data, currDataFileName);
                                         }
-                                        var currDataFileName = datafilename.Replace("###", tbinfo.TBName);
-                                        LJC.FrameWorkV3.EntityBuf.EntityBufCore.Serialize(data, currDataFileName);
                                     }
 
                                 }

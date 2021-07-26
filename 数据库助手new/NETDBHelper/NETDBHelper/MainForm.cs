@@ -51,9 +51,10 @@ namespace NETDBHelper
 
             this.MspPanel.TextAlign = ContentAlignment.TopLeft;
 
-            复制数据库ToolStripMenuItem.Visible = Util.LoginUserLevel() >= 5;
+            复制数据库ToolStripMenuItem.Visible = 还原数据库ToolStripMenuItem.Visible= Util.LoginUserLevel() >= 5;
             登录ToolStripMenuItem.Visible = Util.LoginUserLevel() == 0;
             登出ToolStripMenuItem.Visible = Util.LoginUserLevel() > 0;
+
 
             Util.OnUserLogin += Util_OnUserLogin;
             Util.OnUserLoginOut += Util_OnUserLoginOut;
@@ -61,7 +62,7 @@ namespace NETDBHelper
 
         private void Util_OnUserLoginOut(LoginUser user)
         {
-            复制数据库ToolStripMenuItem.Visible = false;
+            复制数据库ToolStripMenuItem.Visible = 还原数据库ToolStripMenuItem.Visible = false;
             登录ToolStripMenuItem.Visible = true;
             登出ToolStripMenuItem.Visible = false;
 
@@ -70,7 +71,7 @@ namespace NETDBHelper
 
         private void Util_OnUserLogin(LoginUser loginUser)
         {
-            复制数据库ToolStripMenuItem.Visible = loginUser.UserLevel >= 5;
+            复制数据库ToolStripMenuItem.Visible = 还原数据库ToolStripMenuItem.Visible = loginUser.UserLevel >= 5;
             登录ToolStripMenuItem.Visible = false;
             登出ToolStripMenuItem.Visible = true;
 

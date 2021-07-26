@@ -52,6 +52,12 @@ namespace Entity
 
     public class DataTableObject
     {
+        public string Schema
+        {
+            get;
+            set;
+        }
+
         public string DBName
         {
             get;
