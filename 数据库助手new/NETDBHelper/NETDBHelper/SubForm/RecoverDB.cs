@@ -15,6 +15,8 @@ namespace NETDBHelper.SubForm
 {
     public partial class RecoverDBDlg : Form
     {
+        private volatile bool isCancel = false;
+        private volatile bool isRunning = false;
         public RecoverDBDlg()
         {
             InitializeComponent();
@@ -41,11 +43,28 @@ namespace NETDBHelper.SubForm
 
         private void BtnCancel_Click(object sender, EventArgs e)
         {
-            this.Close();
+            if (isRunning)
+            {
+                if (MessageBox.Show("正在导入数据，确认取消吗？", "提示", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+                {
+                    isCancel = true;
+                }
+            }
+            if (!isRunning)
+            {
+                this.Close();
+            }
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
+            if (isRunning)
+            {
+                return;
+            }
+            isRunning = true;
+            groupBox1.Enabled = false;
+            linkLabel1.Enabled = false;
             var dir = TBPath.Text;
             if (!string.IsNullOrEmpty(dir) && System.IO.Directory.Exists(dir))
             {
@@ -80,6 +99,11 @@ namespace NETDBHelper.SubForm
                         var finished = 0;
                         foreach (var file in files)
                         {
+                            if (isCancel)
+                            {
+                                break;
+                            }
+
                             this.BeginInvoke(new Action(() =>
                             {
                                 ProcessBar.Value = finished * 100 / files.Length;
@@ -132,6 +156,11 @@ namespace NETDBHelper.SubForm
                                         table.Rows.Add(row);
                                     }
 
+                                    if (isCancel)
+                                    {
+                                        break;
+                                    }
+
                                     //批量
                                     try
                                     {
@@ -169,6 +198,20 @@ namespace NETDBHelper.SubForm
                         }), null);
 
                         LogHelper.Instance.Error("还原数据失败", ex);
+                    }
+                    finally
+                    {
+                        this.BeginInvoke(new Action(() =>
+                        {
+                            isRunning = false;
+                            groupBox1.Enabled = true;
+                            linkLabel1.Enabled = true;
+
+                            if (isCancel)
+                            {
+                                this.Close();
+                            }
+                        }));
                     }
                 }).BeginInvoke(null, null);
             }

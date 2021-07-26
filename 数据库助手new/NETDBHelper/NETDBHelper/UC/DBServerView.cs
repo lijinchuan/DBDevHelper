@@ -119,6 +119,7 @@ namespace NETDBHelper
         {
             try
             {
+                CommMenuStrip.Hide();
                 switch (e.ClickedItem.Text)
                 {
                     case "刷新":
