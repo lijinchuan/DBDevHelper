@@ -207,7 +207,7 @@ namespace NETDBHelper.SubForm
                                 try
                                 {
                                     int no = 0;
-                                    foreach(var data in SQLHelper.ExportData2(cols, true, DBSource, tbinfo, (int)NUDMaxNumber.Value))
+                                    foreach (var data in SQLHelper.ExportData2(cols, true, DBSource, tbinfo, (int)NUDMaxNumber.Value))
                                     {
                                         if (data != null)
                                         {
@@ -215,12 +215,12 @@ namespace NETDBHelper.SubForm
                                             {
                                                 data.DBName = destdb;
                                             }
-                                            var currDataFileName = datafilename.Replace("###", tbinfo.TBName + "_" + no);
+                                            var currDataFileName = datafilename.Replace("###", "[" + tbinfo.DBName + "].[" + tbinfo.TBName + "]_" + no);
                                             LJC.FrameWorkV3.EntityBuf.EntityBufCore.Serialize(data, currDataFileName);
                                             no++;
                                         }
-                                    }
 
+                                    }
                                 }
                                 catch (Exception)
                                 {

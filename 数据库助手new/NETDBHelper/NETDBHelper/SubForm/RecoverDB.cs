@@ -108,6 +108,11 @@ namespace NETDBHelper.SubForm
                             }
                             var file = fileinfo.FullName;
 
+                            if (!file.Contains("DictItem"))
+                            {
+                                continue;
+                            }
+
                             this.BeginInvoke(new Action(() =>
                             {
                                 ProcessBar.Value = finished * 100 / files.Length;
