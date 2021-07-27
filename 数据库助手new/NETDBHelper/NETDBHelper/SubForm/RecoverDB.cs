@@ -10,6 +10,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static System.Environment;
 
 namespace NETDBHelper.SubForm
 {
@@ -27,6 +28,7 @@ namespace NETDBHelper.SubForm
         private void BtnChooseDir_Click(object sender, EventArgs e)
         {
             FolderBrowserDialog dlg = new FolderBrowserDialog();
+            dlg.SelectedPath = AppDomain.CurrentDomain.BaseDirectory;
             if (dlg.ShowDialog() == DialogResult.OK)
             {
                 var sqlfile = System.IO.Path.Combine(dlg.SelectedPath, "createdb.sql");
@@ -97,6 +99,7 @@ namespace NETDBHelper.SubForm
 
                         var files = new DirectoryInfo(dir).GetFiles("*.data").OrderBy(p => p.CreationTime).Select(p => p.FullName).ToArray();
                         var finished = 0;
+                        var batchSize = 2000;
                         foreach (var file in files)
                         {
                             if (isCancel)
@@ -154,6 +157,33 @@ namespace NETDBHelper.SubForm
                                         }
 
                                         table.Rows.Add(row);
+
+                                        if (isCancel)
+                                        {
+                                            break;
+                                        }
+
+                                        if (table.Rows.Count >= batchSize)
+                                        {
+                                            //批量
+                                            try
+                                            {
+                                                Biz.Common.Data.SQLHelper.SqlBulkCopy(connsqlserver.DBSource, datatableobject.DBName, (int)TimeOutMins.Value * 60 * 1000, "[" + datatableobject.Schema + "].[" + datatableobject.TableName + "]", table);
+                                            }
+                                            catch (Exception ex)
+                                            {
+                                                if (!CBIgnoreError.Checked)
+                                                {
+                                                    throw;
+                                                }
+                                                else
+                                                {
+                                                    ex.Data.Add("file", file);
+                                                    LogHelper.Instance.Error("还原数据失败", ex);
+                                                }
+                                            }
+                                            table.Rows.Clear();
+                                        }
                                     }
 
                                     if (isCancel)
@@ -170,7 +200,7 @@ namespace NETDBHelper.SubForm
                                     {
                                         if (!CBIgnoreError.Checked)
                                         {
-                                            throw ex;
+                                            throw;
                                         }
                                         else
                                         {

@@ -217,6 +217,7 @@ namespace NETDBHelper.SubForm
                                             }
                                             var currDataFileName = datafilename.Replace("###", tbinfo.TBName + "_" + no);
                                             LJC.FrameWorkV3.EntityBuf.EntityBufCore.Serialize(data, currDataFileName);
+                                            no++;
                                         }
                                     }
 
@@ -258,6 +259,7 @@ namespace NETDBHelper.SubForm
                                 //触发器
                                 foreach (var tg in SQLHelper.GetTriggers(this.DBSource, tbinfo.DBName, tbinfo.TBName))
                                 {
+                                    sb.AppendLine($"----------触发器:{tg.TriggerName}------------");
                                     sb.AppendLine(SQLHelper.GetTriggerBody(this.DBSource, tbinfo.DBName, tg.TriggerName));
                                     sb.AppendLine("Go");
                                 }
@@ -276,6 +278,7 @@ namespace NETDBHelper.SubForm
                                 {
                                     break;
                                 }
+                                sb.AppendLine($"----------view:{v.Key}------------");
                                 var vsql = SQLHelper.GetViewCreateSql(DBSource, db, v.Key);
 
                                 sb.AppendLine(vsql);
@@ -294,6 +297,7 @@ namespace NETDBHelper.SubForm
                                 {
                                     break;
                                 }
+                                sb.AppendLine($"----------存储过程:{proc}------------");
                                 var body = SQLHelper.GetProcedureBody(DBSource, db, proc);
                                 sb.AppendLine(body);
                                 sb.AppendLine("GO");
@@ -311,6 +315,7 @@ namespace NETDBHelper.SubForm
                                 {
                                     break;
                                 }
+                                sb.AppendLine($"----------函数:{r["name"].ToString()}------------");
                                 var body = SQLHelper.GetFunctionBody(DBSource, db, r["name"].ToString());
                                 sb.AppendLine(body);
                                 sb.AppendLine("GO");

@@ -127,7 +127,7 @@ namespace Biz.Common.Data
                     prec=NumberHelper.CovertToInt(tb.Rows[i]["prec"]),
                     scale = NumberHelper.CovertToInt(tb.Rows[i]["scale"]),
                     Description=y==null?"":y.ToString(),
-                    DefaultValue=tb.Rows[i]["defaultvalue"]==DBNull.Value?null: tb.Rows[i]["defaultvalue"],
+                    DefaultValue=tb.Rows[i]["defaultvalue"]==DBNull.Value?null: DataHelper.AnalyseDefaultValue(tb.Rows[i]["defaultvalue"].ToString()),
                     TBName =tbName,
                     DBName=dbName
                 };
@@ -160,7 +160,7 @@ namespace Biz.Common.Data
                     prec = NumberHelper.CovertToInt(tb.Rows[i]["prec"]),
                     scale = NumberHelper.CovertToInt(tb.Rows[i]["scale"]),
                     Description = y == null ? "" : y.ToString(),
-                    DefaultValue = tb.Rows[i]["defaultvalue"] == DBNull.Value ? null : tb.Rows[i]["defaultvalue"],
+                    DefaultValue = tb.Rows[i]["defaultvalue"] == DBNull.Value ? null : DataHelper.AnalyseDefaultValue(tb.Rows[i]["defaultvalue"].ToString()),
                     TBName =tbName,
                     DBName=dbName
                 };
@@ -589,14 +589,14 @@ where a.Table_NAME='"+viewname+"' and a.TABLE_NAME=b.TABLE_NAME ORDER BY A.TABLE
         public static string GetViewCreateSql(DBSource dbSource, string dbName, string viewname)
         {
             //show create {procedure|function} sp_name
-            string sql = string.Format("SELECT VIEW_DEFINITION as Text FROM INFORMATION_SCHEMA.VIEWS WHERE TABLE_NAME='{0}'", viewname);
+            string sql = string.Format("sp_helptext '{0}'", viewname);
 
             var tb = ExecuteDBTable(dbSource, dbName, sql);
             StringBuilder sb = new StringBuilder();
 
             foreach (DataRow row in tb.Rows)
             {
-                sb.AppendLine((string)row["Text"]);
+                sb.Append((string)row["Text"]);
             }
 
 
@@ -662,6 +662,8 @@ where a.Table_NAME='"+viewname+"' and a.TABLE_NAME=b.TABLE_NAME ORDER BY A.TABLE
             var pagesize = 10000;
             var total = 0;
             var maxsize = 1000000;
+
+            var totalsize = 0;
             while (true)
             {
                 string sqltext = null;
@@ -679,19 +681,19 @@ where a.Table_NAME='"+viewname+"' and a.TABLE_NAME=b.TABLE_NAME ORDER BY A.TABLE
                     if (maxId != null)
                     {
                         sqltext = string.Format("select top {2} {0} from [{3}].{1} with(nolock) where {4}<@{4} order by {4} desc", string.Join(",", columns.Select(p => GetConverType(p))), string.Concat("[", tableinfo.TBName, "]"), pagesize, tableinfo.Schema, idColumn.Name);
-                        sqlParameters =new[] { new SqlParameter($"@{idColumn.Name}", maxId) };
+                        sqlParameters = new[] { new SqlParameter($"@{idColumn.Name}", maxId) };
                     }
                     else
                     {
                         sqltext = string.Format("select top {2} {0} from [{3}].{1} with(nolock) order by {4} desc", string.Join(",", columns.Select(p => GetConverType(p))), string.Concat("[", tableinfo.TBName, "]"), pagesize, tableinfo.Schema, idColumn.Name);
                     }
                     datas = ExecuteDBTable(dbSource, tableinfo.DBName, sqltext, sqlParameters);
-                    if (datas.Rows.Count >0)
+                    if (datas.Rows.Count > 0)
                     {
                         maxId = datas.Rows[datas.Rows.Count - 1][idColumn.Name];
                     }
                     total += datas.Rows.Count;
-                    if (datas.Rows.Count < pagesize)
+                    if (datas.Rows.Count < pagesize || total >= topNum)
                     {
                         isFinished = true;
                     }
@@ -720,22 +722,31 @@ where a.Table_NAME='"+viewname+"' and a.TABLE_NAME=b.TABLE_NAME ORDER BY A.TABLE
                         if (cell == DBNull.Value)
                         {
                             datacell.IsDBNull = true;
+                            totalsize += 1;
                         }
                         else
                         {
                             if (cell.GetType() == typeof(byte[]))
                             {
                                 datacell.ByteValue = (byte[])cell;
+                                totalsize += datacell.ByteValue.Length;
                             }
                             else
                             {
                                 datacell.StringValue = cell.ToString();
+                                totalsize += datacell.StringValue.Length * 2;
                             }
                         }
                         datarow.Cells.Add(datacell);
                     }
 
                     dataTableObject.Rows.Add(datarow);
+                    if (totalsize >= 1000 * 1000 * 1000)
+                    {
+                        yield return dataTableObject;
+                        dataTableObject.Rows.Clear();
+                        totalsize = 0;
+                    }
                 }
 
                 if (isFinished)
@@ -963,14 +974,17 @@ where a.Table_NAME='"+viewname+"' and a.TABLE_NAME=b.TABLE_NAME ORDER BY A.TABLE
 
         public static void SqlBulkCopy(DBSource dbSource, string connDB, int timeOut, string destTable, DataTable copytable)
         {
-            //
-            SqlBulkCopy copytask = new SqlBulkCopy(GetConnstringFromDBSource(dbSource, connDB));
-            if (timeOut > 0)
+            if (copytable.Rows.Count > 0)
             {
-                copytask.BulkCopyTimeout = timeOut / 1000;
+                //
+                SqlBulkCopy copytask = new SqlBulkCopy(GetConnstringFromDBSource(dbSource, connDB));
+                if (timeOut > 0)
+                {
+                    copytask.BulkCopyTimeout = timeOut / 1000;
+                }
+                copytask.DestinationTableName = destTable;
+                copytask.WriteToServer(copytable);
             }
-            copytask.DestinationTableName = destTable;
-            copytask.WriteToServer(copytable);
         }
     }
 }

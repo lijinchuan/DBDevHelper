@@ -205,5 +205,15 @@ namespace Biz.Common.Data
                     return typeName;
             }
         }
+
+        public static string ReplaceSQL(string sqlStr)
+        {
+            if (string.IsNullOrWhiteSpace(sqlStr))
+            {
+                return sqlStr;
+            }
+
+            return sqlStr.Replace("'", "''");
+        }
     }
 }

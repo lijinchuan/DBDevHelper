@@ -864,7 +864,7 @@ GO");
                     var desc = row.Field<string>("Description");
                     if (!string.IsNullOrWhiteSpace(desc))
                     {
-                        sb.AppendLine($"EXEC sp_addextendedproperty N'MS_Description', N'{desc}', N'SCHEMA', N'{tableinfo.Schema}',N'TABLE', N'{tableinfo.TBName}', N'COLUMN', N'{colname}';");
+                        sb.AppendLine($"EXEC sp_addextendedproperty N'MS_Description', N'{Common.ReplaceSQL(desc)}', N'SCHEMA', N'{tableinfo.Schema}',N'TABLE', N'{tableinfo.TBName}', N'COLUMN', N'{colname}';");
                     }
                 }
             }
@@ -879,9 +879,22 @@ GO");
                 return defaultvalue;
             }
 
+            defaultvalue = AnalyseDefaultValue(defaultvalue);
+
             while (defaultvalue.StartsWith("("))
             {
                 defaultvalue=defaultvalue.TrimStart('(').TrimEnd(')');
+            }
+
+            return defaultvalue;
+        }
+
+        public static string AnalyseDefaultValue(string defaultvalue)
+        {
+            var m = Regex.Match(defaultvalue, @"\[?create\]?[\s\r\n]+\[?default\]?[\s\r\n]+[\w]+[\s\r\n]+as[\s\r\n]+(\'[^\']+\'|[^\r\n\s]+)", RegexOptions.IgnoreCase | RegexOptions.Multiline);
+            if (m.Success)
+            {
+                return m.Groups[1].Value;
             }
 
             return defaultvalue;
