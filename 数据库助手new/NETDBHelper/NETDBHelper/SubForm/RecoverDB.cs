@@ -97,20 +97,21 @@ namespace NETDBHelper.SubForm
                             LBMsg.Text = "导入数据库和表完成，开始导入数据";
                         }), null);
 
-                        var files = new DirectoryInfo(dir).GetFiles("*.data").OrderBy(p => p.CreationTime).Select(p => p.FullName).ToArray();
+                        var files = new DirectoryInfo(dir).GetFiles("*.data").OrderBy(p => p.CreationTime).ToArray();
                         var finished = 0;
                         var batchSize = 2000;
-                        foreach (var file in files)
+                        foreach (var fileinfo in files)
                         {
                             if (isCancel)
                             {
                                 break;
                             }
+                            var file = fileinfo.FullName;
 
                             this.BeginInvoke(new Action(() =>
                             {
                                 ProcessBar.Value = finished * 100 / files.Length;
-                                LBMsg.Text = "导入数据：" + file;
+                                LBMsg.Text = "导入数据：" + fileinfo.Name;
                             }), null);
                             if (file.EndsWith(".data"))
                             {

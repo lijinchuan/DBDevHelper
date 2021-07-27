@@ -360,7 +360,6 @@
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "CopyDB";
-            this.ShowInTaskbar = false;
             this.Text = "备份数据库";
             this.groupBox1.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);

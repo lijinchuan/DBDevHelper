@@ -37,11 +37,11 @@ namespace NETDBHelper.SubForm
             this.ProcessBar = new System.Windows.Forms.ToolStripProgressBar();
             this.LBMsg = new System.Windows.Forms.ToolStripStatusLabel();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.label1 = new System.Windows.Forms.Label();
+            this.CBIgnoreError = new System.Windows.Forms.CheckBox();
             this.TimeOutMins = new System.Windows.Forms.NumericUpDown();
+            this.label1 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.linkLabel1 = new System.Windows.Forms.LinkLabel();
-            this.CBIgnoreError = new System.Windows.Forms.CheckBox();
             this.statusStrip1.SuspendLayout();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.TimeOutMins)).BeginInit();
@@ -105,10 +105,12 @@ namespace NETDBHelper.SubForm
             // LBMsg
             // 
             this.LBMsg.ForeColor = System.Drawing.Color.Blue;
+            this.LBMsg.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.LBMsg.Name = "LBMsg";
             this.LBMsg.Overflow = System.Windows.Forms.ToolStripItemOverflow.Never;
             this.LBMsg.Size = new System.Drawing.Size(294, 17);
             this.LBMsg.Spring = true;
+            this.LBMsg.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // groupBox1
             // 
@@ -122,14 +124,15 @@ namespace NETDBHelper.SubForm
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "选项";
             // 
-            // label1
+            // CBIgnoreError
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(18, 30);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(95, 12);
-            this.label1.TabIndex = 0;
-            this.label1.Text = "执行超时时间(M)";
+            this.CBIgnoreError.AutoSize = true;
+            this.CBIgnoreError.Location = new System.Drawing.Point(20, 62);
+            this.CBIgnoreError.Name = "CBIgnoreError";
+            this.CBIgnoreError.Size = new System.Drawing.Size(72, 16);
+            this.CBIgnoreError.TabIndex = 2;
+            this.CBIgnoreError.Text = "忽略错误";
+            this.CBIgnoreError.UseVisualStyleBackColor = true;
             // 
             // TimeOutMins
             // 
@@ -153,6 +156,15 @@ namespace NETDBHelper.SubForm
             0,
             0});
             // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(18, 30);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(95, 12);
+            this.label1.TabIndex = 0;
+            this.label1.Text = "执行超时时间(M)";
+            // 
             // label3
             // 
             this.label3.AutoSize = true;
@@ -174,16 +186,6 @@ namespace NETDBHelper.SubForm
             this.linkLabel1.Text = "第一步：手动执行数据库表创建脚本。";
             this.linkLabel1.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel1_LinkClicked);
             // 
-            // CBIgnoreError
-            // 
-            this.CBIgnoreError.AutoSize = true;
-            this.CBIgnoreError.Location = new System.Drawing.Point(20, 62);
-            this.CBIgnoreError.Name = "CBIgnoreError";
-            this.CBIgnoreError.Size = new System.Drawing.Size(72, 16);
-            this.CBIgnoreError.TabIndex = 2;
-            this.CBIgnoreError.Text = "忽略错误";
-            this.CBIgnoreError.UseVisualStyleBackColor = true;
-            // 
             // RecoverDBDlg
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -202,7 +204,6 @@ namespace NETDBHelper.SubForm
             this.MinimizeBox = false;
             this.Name = "RecoverDBDlg";
             this.ShowIcon = false;
-            this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "还原数据库";
             this.statusStrip1.ResumeLayout(false);
