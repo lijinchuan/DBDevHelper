@@ -972,12 +972,17 @@ where a.Table_NAME='"+viewname+"' and a.TABLE_NAME=b.TABLE_NAME ORDER BY A.TABLE
             return ExecuteDBTable(dbSource, dbname, SQLHelperConsts.SQL_GETINDEX_DDL, new SqlParameter("@tabname", tablename));
         }
 
-        public static void SqlBulkCopy(DBSource dbSource, string connDB, int timeOut, string destTable, DataTable copytable)
+        public static void SqlBulkCopy(DBSource dbSource, string connDB, int timeOut, string destTable, DataTable copytable,bool keepId=true)
         {
             if (copytable.Rows.Count > 0)
             {
                 //
-                SqlBulkCopy copytask = new SqlBulkCopy(GetConnstringFromDBSource(dbSource, connDB));
+                SqlBulkCopyOptions options = SqlBulkCopyOptions.Default;
+                if (keepId)
+                {
+                    options = SqlBulkCopyOptions.KeepIdentity;
+                }
+                SqlBulkCopy copytask = new SqlBulkCopy(GetConnstringFromDBSource(dbSource, connDB),options);
                 if (timeOut > 0)
                 {
                     copytask.BulkCopyTimeout = timeOut / 1000;
