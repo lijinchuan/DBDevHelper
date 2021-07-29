@@ -80,6 +80,7 @@
     <Compile Include="SPContent.cs" />
     <Compile Include="SPInfo.cs" />
     <Compile Include="SqlSaveEntity.cs" />
+    <Compile Include="StringAndBool.cs" />
     <Compile Include="TableInfo.cs" />
     <Compile Include="TBColumn.cs" />
     <Compile Include="TBSearchColumn.cs" />

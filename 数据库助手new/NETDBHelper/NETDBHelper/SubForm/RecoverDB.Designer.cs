@@ -42,14 +42,19 @@ namespace NETDBHelper.SubForm
             this.label1 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.linkLabel1 = new System.Windows.Forms.LinkLabel();
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.DBS = new System.Windows.Forms.CheckedListBox();
+            this.TBS = new System.Windows.Forms.CheckedListBox();
+            this.BtnSelAll = new System.Windows.Forms.Button();
             this.statusStrip1.SuspendLayout();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.TimeOutMins)).BeginInit();
+            this.groupBox2.SuspendLayout();
             this.SuspendLayout();
             // 
             // BtnChooseDir
             // 
-            this.BtnChooseDir.Location = new System.Drawing.Point(361, 12);
+            this.BtnChooseDir.Location = new System.Drawing.Point(817, 11);
             this.BtnChooseDir.Name = "BtnChooseDir";
             this.BtnChooseDir.Size = new System.Drawing.Size(38, 23);
             this.BtnChooseDir.TabIndex = 0;
@@ -62,13 +67,13 @@ namespace NETDBHelper.SubForm
             this.TBPath.Location = new System.Drawing.Point(12, 12);
             this.TBPath.Name = "TBPath";
             this.TBPath.ReadOnly = true;
-            this.TBPath.Size = new System.Drawing.Size(343, 21);
+            this.TBPath.Size = new System.Drawing.Size(799, 21);
             this.TBPath.TabIndex = 1;
             // 
             // BtnRecover
             // 
             this.BtnRecover.ForeColor = System.Drawing.Color.Sienna;
-            this.BtnRecover.Location = new System.Drawing.Point(239, 213);
+            this.BtnRecover.Location = new System.Drawing.Point(689, 343);
             this.BtnRecover.Name = "BtnRecover";
             this.BtnRecover.Size = new System.Drawing.Size(75, 23);
             this.BtnRecover.TabIndex = 2;
@@ -78,7 +83,7 @@ namespace NETDBHelper.SubForm
             // 
             // BtnCancel
             // 
-            this.BtnCancel.Location = new System.Drawing.Point(330, 213);
+            this.BtnCancel.Location = new System.Drawing.Point(780, 343);
             this.BtnCancel.Name = "BtnCancel";
             this.BtnCancel.Size = new System.Drawing.Size(75, 23);
             this.BtnCancel.TabIndex = 3;
@@ -91,9 +96,9 @@ namespace NETDBHelper.SubForm
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.ProcessBar,
             this.LBMsg});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 248);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 369);
             this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(411, 22);
+            this.statusStrip1.Size = new System.Drawing.Size(870, 22);
             this.statusStrip1.TabIndex = 4;
             this.statusStrip1.Text = "statusStrip1";
             // 
@@ -108,7 +113,7 @@ namespace NETDBHelper.SubForm
             this.LBMsg.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.LBMsg.Name = "LBMsg";
             this.LBMsg.Overflow = System.Windows.Forms.ToolStripItemOverflow.Never;
-            this.LBMsg.Size = new System.Drawing.Size(294, 17);
+            this.LBMsg.Size = new System.Drawing.Size(753, 17);
             this.LBMsg.Spring = true;
             this.LBMsg.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
@@ -117,9 +122,9 @@ namespace NETDBHelper.SubForm
             this.groupBox1.Controls.Add(this.CBIgnoreError);
             this.groupBox1.Controls.Add(this.TimeOutMins);
             this.groupBox1.Controls.Add(this.label1);
-            this.groupBox1.Location = new System.Drawing.Point(12, 98);
+            this.groupBox1.Location = new System.Drawing.Point(448, 45);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(387, 100);
+            this.groupBox1.Size = new System.Drawing.Size(387, 85);
             this.groupBox1.TabIndex = 5;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "选项";
@@ -186,11 +191,50 @@ namespace NETDBHelper.SubForm
             this.linkLabel1.Text = "第一步：手动执行数据库表创建脚本。";
             this.linkLabel1.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel1_LinkClicked);
             // 
+            // groupBox2
+            // 
+            this.groupBox2.Controls.Add(this.TBS);
+            this.groupBox2.Controls.Add(this.DBS);
+            this.groupBox2.Location = new System.Drawing.Point(12, 129);
+            this.groupBox2.Name = "groupBox2";
+            this.groupBox2.Size = new System.Drawing.Size(823, 208);
+            this.groupBox2.TabIndex = 9;
+            this.groupBox2.TabStop = false;
+            this.groupBox2.Text = "选择库表";
+            // 
+            // DBS
+            // 
+            this.DBS.FormattingEnabled = true;
+            this.DBS.Location = new System.Drawing.Point(11, 20);
+            this.DBS.Name = "DBS";
+            this.DBS.Size = new System.Drawing.Size(369, 180);
+            this.DBS.TabIndex = 0;
+            // 
+            // TBS
+            // 
+            this.TBS.FormattingEnabled = true;
+            this.TBS.Location = new System.Drawing.Point(386, 20);
+            this.TBS.Name = "TBS";
+            this.TBS.Size = new System.Drawing.Size(431, 180);
+            this.TBS.TabIndex = 1;
+            // 
+            // BtnSelAll
+            // 
+            this.BtnSelAll.Location = new System.Drawing.Point(12, 343);
+            this.BtnSelAll.Name = "BtnSelAll";
+            this.BtnSelAll.Size = new System.Drawing.Size(75, 23);
+            this.BtnSelAll.TabIndex = 10;
+            this.BtnSelAll.Text = "全消";
+            this.BtnSelAll.UseVisualStyleBackColor = true;
+            this.BtnSelAll.Click += new System.EventHandler(this.BtnSelAll_Click);
+            // 
             // RecoverDBDlg
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(411, 270);
+            this.ClientSize = new System.Drawing.Size(870, 391);
+            this.Controls.Add(this.BtnSelAll);
+            this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.linkLabel1);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.groupBox1);
@@ -211,6 +255,7 @@ namespace NETDBHelper.SubForm
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.TimeOutMins)).EndInit();
+            this.groupBox2.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -231,5 +276,9 @@ namespace NETDBHelper.SubForm
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.LinkLabel linkLabel1;
         private System.Windows.Forms.CheckBox CBIgnoreError;
+        private System.Windows.Forms.GroupBox groupBox2;
+        private System.Windows.Forms.CheckedListBox DBS;
+        private System.Windows.Forms.CheckedListBox TBS;
+        private System.Windows.Forms.Button BtnSelAll;
     }
 }

@@ -18,6 +18,7 @@ namespace NETDBHelper.SubForm
     {
         private volatile Task<int> saveTask = null;
         private bool cancel = false;
+        private CheckedListBox mainCLB = null;
 
         public CopyDB()
         {
@@ -27,7 +28,75 @@ namespace NETDBHelper.SubForm
             this.PannelCopNumber.Enabled = CBData.Checked;
             CBData.CheckedChanged += CBData_CheckedChanged;
 
+            mainCLB = CLBDBs;
+            CLBDBs.Click += CLBDBs_Click;
+            CLBTBS.Click += CLBTBS_Click;
             
+        }
+
+        private void CLBTBS_Click(object sender, EventArgs e)
+        {
+            mainCLB = CLBTBS;
+            if (CLBTBS.CheckedItems.Count < CLBTBS.Items.Count)
+            {
+                BtnSelAll.Text = "全选";
+            }
+            else
+            {
+                BtnSelAll.Text = "全消";
+            }
+        }
+
+        private void CLBTBS_ItemCheck(object sender, ItemCheckEventArgs e)
+        {
+            List<StringAndBool> tuples = (List<StringAndBool>)CLBTBS.Tag;
+
+            var tp = tuples.Find(p => p.Str == CLBTBS.Items[e.Index].ToString());
+            tp.Boo = e.NewValue == CheckState.Checked;
+        }
+
+        private void CLBDBs_Click(object sender, EventArgs e)
+        {
+            mainCLB = CLBDBs;
+            if (CLBDBs.CheckedItems.Count < CLBDBs.Items.Count)
+            {
+                BtnSelAll.Text = "全选";
+            }
+            else
+            {
+                BtnSelAll.Text = "全消";
+            }
+
+            CLBTBS.ItemCheck -= CLBTBS_ItemCheck;
+            this.CLBTBS.Items.Clear();
+
+            var db = (string)CLBDBs.SelectedItem;
+
+
+            var dic = (Dictionary<string, List<StringAndBool>>)CLBDBs.Tag;
+
+            if (!dic.ContainsKey(db))
+            {
+                var tbs = SQLHelper.GetTBs(DBSource, db);
+
+                var list = new List<StringAndBool>();
+                foreach (var row in tbs.AsEnumerable())
+                {
+                    list.Add(new StringAndBool(row.Field<string>("name"), true));
+                }
+                dic.Add(db, list);
+            }
+
+            var i = 0;
+            foreach (var item in dic[db])
+            {
+                this.CLBTBS.Items.Add(item.Str);
+                this.CLBTBS.SetItemChecked(i, item.Boo);
+                i++;
+            }
+            this.CLBTBS.Tag = dic[db];
+            CLBTBS.ItemCheck += CLBTBS_ItemCheck;
+
         }
 
         private void CBData_CheckedChanged(object sender, EventArgs e)
@@ -113,7 +182,9 @@ namespace NETDBHelper.SubForm
                 var finished = 0;
                 StringBuilder sball = new StringBuilder();
                 StringBuilder sb = new StringBuilder();
-                
+
+                var dbdic = (Dictionary<string, List<StringAndBool>>)this.CLBDBs.Tag;
+
                 foreach (var item in CLBDBs.CheckedItems)
                 {
                     try
@@ -145,6 +216,12 @@ namespace NETDBHelper.SubForm
 
                         var needdata = CBData.Checked && NUDMaxNumber.Value > 0;
                         var tbs = SQLHelper.GetTBs(this.DBSource, db);
+                        var tbrows = tbs.AsEnumerable().ToList();
+                        if (dbdic.ContainsKey(db))
+                        {
+                            tbrows = tbrows.AsEnumerable().Where(p => dbdic[db].Any(q => q.Boo && q.Str.Equals(p.Field<string>("name"), StringComparison.OrdinalIgnoreCase))).ToList();
+                        }
+
                         var views = SQLHelper.GetViews(DBSource, db);
                         var proclist = SQLHelper.GetProcedures(DBSource, db).ToList();
                         var functionlist = SQLHelper.GetFunctions(DBSource, db);
@@ -152,7 +229,7 @@ namespace NETDBHelper.SubForm
                         //total += tbs.Rows.Count * (needdata ? 10 : 1) + views.Count + proclist.Count + functionlist.Rows.Count;
 
                         //创建新的架构
-                        var schema=tbs.AsEnumerable().Select(p => p.Field<string>("schema")).Distinct().ToList();
+                        var schema= tbrows.Select(p => p.Field<string>("schema")).Distinct().ToList();
                         foreach(var s in schema.Where(p => !p.Equals("dbo", StringComparison.OrdinalIgnoreCase)))
                         {
                             sb.AppendLine($@"IF SCHEMA_ID('{s}') IS NULL 
@@ -164,7 +241,7 @@ namespace NETDBHelper.SubForm
                         }
 
                         //创建表
-                        foreach (var tb in tbs.AsEnumerable())
+                        foreach (var tb in tbrows)
                         {
                             if (cancel)
                             {
@@ -201,7 +278,7 @@ namespace NETDBHelper.SubForm
                             //finished++;
                             SendMsg("导出库" + db + ",表:" + tbinfo.TBName);
 
-                            if (CBData.Checked && NUDMaxNumber.Value > 0)
+                            if (needdata)
                             {
                                 //导出前100条语句
                                 try
@@ -238,7 +315,7 @@ namespace NETDBHelper.SubForm
                             }
                         }
 
-                        foreach (var tb in tbs.AsEnumerable())
+                        foreach (var tb in tbrows)
                         {
                             if (cancel)
                             {
@@ -421,6 +498,12 @@ namespace NETDBHelper.SubForm
                     this.CLBDBs.Items.Clear();
                     var dbs = Biz.Common.Data.SQLHelper.GetDBs(DBSource);
                     this.CLBDBs.Items.AddRange(dbs.AsEnumerable().Select(p => (object)p.Field<string>("name")).OrderBy(p => p.ToString()).ToArray());
+                    for(var i = 0; i < this.CLBDBs.Items.Count; i++)
+                    {
+                        CLBDBs.SetItemChecked(i, true);
+                    }
+                    BtnSelAll.Text = "全消";
+                    this.CLBDBs.Tag = new Dictionary<string, List<StringAndBool>>();
                 }
                 catch(Exception ex)
                 {
@@ -431,9 +514,21 @@ namespace NETDBHelper.SubForm
 
         private void BtnSelAll_Click(object sender, EventArgs e)
         {
-            for(int i = 0; i < this.CLBDBs.Items.Count; i++)
+            if (BtnSelAll.Text == "全选")
             {
-                this.CLBDBs.SetItemChecked(i, true);
+                for (int i = 0; i < this.mainCLB.Items.Count; i++)
+                {
+                    this.mainCLB.SetItemChecked(i, true);
+                }
+                BtnSelAll.Text = "全消";
+            }
+            else
+            {
+                for (int i = 0; i < this.mainCLB.Items.Count; i++)
+                {
+                    this.mainCLB.SetItemChecked(i, false);
+                }
+                BtnSelAll.Text = "全选";
             }
         }
     }

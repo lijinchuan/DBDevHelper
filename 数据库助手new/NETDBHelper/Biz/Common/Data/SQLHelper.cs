@@ -659,7 +659,7 @@ where a.Table_NAME='"+viewname+"' and a.TABLE_NAME=b.TABLE_NAME ORDER BY A.TABLE
 
             var idColumn = idColumns.Count() == 1 ? idColumns.First() : null;
             object maxId = null;
-            var pagesize = 10000;
+            var pagesize = Math.Min(topNum, 10000);
             var total = 0;
             var maxsize = 1000000;
 

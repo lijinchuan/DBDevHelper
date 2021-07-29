@@ -1,4 +1,5 @@
-﻿using LJC.FrameWorkV3.LogManager;
+﻿using Entity;
+using LJC.FrameWorkV3.LogManager;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -18,11 +19,58 @@ namespace NETDBHelper.SubForm
     {
         private volatile bool isCancel = false;
         private volatile bool isRunning = false;
+        private CheckedListBox mainCLB = null;
         public RecoverDBDlg()
         {
             InitializeComponent();
             linkLabel1.Enabled = false;
             BtnRecover.Enabled = false;
+
+            DBS.Click += DBS_Click;
+            TBS.Click += TBS_Click;
+        }
+
+        private void TBS_Click(object sender, EventArgs e)
+        {
+            mainCLB = TBS;
+        }
+
+        private void DBS_Click(object sender, EventArgs e)
+        {
+            mainCLB = DBS;
+            if (DBS.SelectedItem == null)
+            {
+                return;
+            }
+            TBS.ItemCheck -= TBS_ItemCheck;
+
+            var seldb = DBS.SelectedItem.ToString();
+            var souces = (Dictionary<string, List<StringAndBool>>)DBS.Tag;
+            TBS.Items.Clear();
+
+            for (var i = 0; i < souces[seldb].Count; i++)
+            {
+                var item = souces[seldb][i];
+                TBS.Items.Add(item.Str);
+                if (item.Boo)
+                {
+                    TBS.SetItemChecked(i, item.Boo);
+                }
+            }
+            TBS.ItemCheck += TBS_ItemCheck;
+            TBS.Tag = souces[seldb];
+        }
+
+        private void TBS_ItemCheck(object sender, ItemCheckEventArgs e)
+        {
+            if (TBS.Tag == null)
+            {
+                return;
+            }
+
+            var list = (List<StringAndBool>)TBS.Tag;
+            var sb = list.Find(p => p.Str == TBS.Items[e.Index].ToString());
+            sb.Boo = e.NewValue == CheckState.Checked;
         }
 
         private void BtnChooseDir_Click(object sender, EventArgs e)
@@ -37,6 +85,38 @@ namespace NETDBHelper.SubForm
                     MessageBox.Show("失败，找不到创建文件。");
                     return;
                 }
+
+                Dictionary<string, List<StringAndBool>> dbtbs = new Dictionary<string, List<StringAndBool>>();
+                var files = new DirectoryInfo(dlg.SelectedPath).GetFiles("*.data").OrderBy(p => p.CreationTime).ToArray();
+                foreach (var file in files)
+                {
+                    var m = Regex.Match(file.Name, @"\[([^\]]+)\]\.\[([^\]]+)\]");
+                    if (m.Success)
+                    {
+                        var db = m.Groups[1].Value;
+                        var tb = m.Groups[2].Value;
+                        if (!dbtbs.ContainsKey(db))
+                        {
+                            dbtbs.Add(db, new List<StringAndBool>());
+                        }
+
+                        dbtbs[db].Add(new StringAndBool(tb, true));
+                    }
+                }
+
+                DBS.Items.Clear();
+                TBS.Items.Clear();
+
+                foreach(var item in dbtbs)
+                {
+                    DBS.Items.Add(item.Key);
+                }
+                for(var i = 0; i < DBS.Items.Count; i++)
+                {
+                    DBS.SetItemChecked(i, true);
+                }
+                DBS.Tag = dbtbs;
+
                 TBPath.Text = dlg.SelectedPath;
                 linkLabel1.Enabled = true;
                 BtnRecover.Enabled = true;
@@ -79,6 +159,7 @@ namespace NETDBHelper.SubForm
 
                 new Action(() =>
                 {
+                    string file = string.Empty;
                     try
                     {
                         this.BeginInvoke(new Action(() =>
@@ -91,12 +172,19 @@ namespace NETDBHelper.SubForm
                         //sql = Regex.Replace(sql, "^[\\s]*GO[\\s]*$", ";", RegexOptions.IgnoreCase | RegexOptions.Multiline);
                         //Biz.Common.Data.SQLHelper.ExecuteNoQuery(connsqlserver.DBSource, "master", sql, 1000 * 3600);
 
+                        var source = (Dictionary<string, List<StringAndBool>>)DBS.Tag;
+
                         this.BeginInvoke(new Action(() =>
                         {
                             ProcessBar.Value = 0;
                             LBMsg.Text = "导入数据库和表完成，开始导入数据";
                         }), null);
 
+                        var seldbs = new List<string>();
+                        foreach(var item in DBS.CheckedItems)
+                        {
+                            seldbs.Add(item.ToString());
+                        }
                         var files = new DirectoryInfo(dir).GetFiles("*.data").OrderBy(p => p.CreationTime).ToArray();
                         var finished = 0;
                         var batchSize = 2000;
@@ -106,12 +194,24 @@ namespace NETDBHelper.SubForm
                             {
                                 break;
                             }
-                            var file = fileinfo.FullName;
 
-                            if (!file.Contains("DictItem"))
+                            var m = Regex.Match(fileinfo.Name, @"\[([^\]]+)\]\.\[([^\]]+)\]");
+                            if (m.Success)
                             {
-                                continue;
+                                var db = m.Groups[1].Value;
+                                var tb = m.Groups[2].Value;
+                                if (!seldbs.Contains(db))
+                                {
+                                    continue;
+                                }
+                                if (source != null && !source.ContainsKey(db) && !source[db].Any(p => p.Str == tb && p.Boo))
+                                {
+                                    continue;
+                                }
                             }
+
+
+                            file = fileinfo.FullName;
 
                             this.BeginInvoke(new Action(() =>
                             {
@@ -140,26 +240,39 @@ namespace NETDBHelper.SubForm
                                         int i = 0;
                                         foreach (var c in r.Cells)
                                         {
-                                            if (c.IsDBNull)
+                                            try
                                             {
-                                                row[i] = DBNull.Value;
-                                            }
-                                            else if (c.ByteValue != null)
-                                            {
-                                                row[i] = c.ByteValue;
-                                            }
-                                            else
-                                            {
-                                                if (table.Columns[i].DataType == typeof(Guid))
+                                                if (c.IsDBNull)
                                                 {
-                                                    row[i] = Guid.Parse(c.StringValue);
+                                                    row[i] = DBNull.Value;
+                                                }
+                                                else if (c.ByteValue != null)
+                                                {
+                                                    row[i] = c.ByteValue;
                                                 }
                                                 else
                                                 {
-                                                    row[i] = Convert.ChangeType(c.StringValue, table.Columns[i].DataType);
+                                                    if (table.Columns[i].DataType == typeof(Guid))
+                                                    {
+                                                        row[i] = Guid.Parse(c.StringValue);
+                                                    }
+                                                    else if (table.Columns[i].DataType == typeof(TimeSpan))
+                                                    {
+                                                        row[i] = TimeSpan.Parse(c.StringValue);
+                                                    }
+                                                    else
+                                                    {
+                                                        row[i] = Convert.ChangeType(c.StringValue, table.Columns[i].DataType);
+                                                    }
                                                 }
+                                                i++;
                                             }
-                                            i++;
+                                            catch (Exception ex)
+                                            {
+                                                ex.Data.Add("DataType", table.Columns[i].DataType);
+                                                ex.Data.Add("StringValue", c.StringValue);
+                                                throw;
+                                            }
                                         }
 
                                         table.Rows.Add(row);
@@ -184,7 +297,6 @@ namespace NETDBHelper.SubForm
                                                 }
                                                 else
                                                 {
-                                                    ex.Data.Add("file", file);
                                                     LogHelper.Instance.Error("还原数据失败", ex);
                                                 }
                                             }
@@ -210,7 +322,6 @@ namespace NETDBHelper.SubForm
                                         }
                                         else
                                         {
-                                            ex.Data.Add("file", file);
                                             LogHelper.Instance.Error("还原数据失败", ex);
                                         }
                                     }
@@ -233,6 +344,7 @@ namespace NETDBHelper.SubForm
                             LBMsg.Text = "失败：" + ex.Message;
                         }), null);
 
+                        ex.Data.Add("file", file);
                         LogHelper.Instance.Error("还原数据失败", ex);
                     }
                     finally
@@ -257,6 +369,30 @@ namespace NETDBHelper.SubForm
         {
             var file = Path.Combine(TBPath.Text, "createdb.sql");
             System.Diagnostics.Process.Start(file);
+        }
+
+        private void BtnSelAll_Click(object sender, EventArgs e)
+        {
+            if(mainCLB==null)
+            {
+                return;
+            }
+            if (BtnSelAll.Text == "全选")
+            {
+                for (int i = 0; i < this.mainCLB.Items.Count; i++)
+                {
+                    this.mainCLB.SetItemChecked(i, true);
+                }
+                BtnSelAll.Text = "全消";
+            }
+            else
+            {
+                for (int i = 0; i < this.mainCLB.Items.Count; i++)
+                {
+                    this.mainCLB.SetItemChecked(i, false);
+                }
+                BtnSelAll.Text = "全选";
+            }
         }
     }
 }

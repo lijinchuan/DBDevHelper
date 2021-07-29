@@ -53,6 +53,7 @@
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.ProcessBar = new System.Windows.Forms.ToolStripProgressBar();
             this.MsgText = new System.Windows.Forms.ToolStripStatusLabel();
+            this.CLBTBS = new System.Windows.Forms.CheckedListBox();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.NUDMaxSize)).BeginInit();
@@ -82,17 +83,19 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.CLBTBS);
             this.groupBox1.Controls.Add(this.CLBDBs);
             this.groupBox1.Location = new System.Drawing.Point(12, 52);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(518, 337);
             this.groupBox1.TabIndex = 16;
             this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "选择库";
+            this.groupBox1.Text = "选择库表";
             // 
             // CLBDBs
             // 
-            this.CLBDBs.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.CLBDBs.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.CLBDBs.FormattingEnabled = true;
             this.CLBDBs.Items.AddRange(new object[] {
             "1",
@@ -100,7 +103,7 @@
             "3"});
             this.CLBDBs.Location = new System.Drawing.Point(3, 17);
             this.CLBDBs.Name = "CLBDBs";
-            this.CLBDBs.Size = new System.Drawing.Size(512, 317);
+            this.CLBDBs.Size = new System.Drawing.Size(219, 308);
             this.CLBDBs.TabIndex = 0;
             // 
             // BtnOk
@@ -343,6 +346,17 @@
             this.MsgText.Spring = true;
             this.MsgText.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
+            // CLBTBS
+            // 
+            this.CLBTBS.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.CLBTBS.FormattingEnabled = true;
+            this.CLBTBS.Location = new System.Drawing.Point(228, 17);
+            this.CLBTBS.Name = "CLBTBS";
+            this.CLBTBS.Size = new System.Drawing.Size(284, 308);
+            this.CLBTBS.TabIndex = 1;
+            // 
             // CopyDB
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -402,5 +416,6 @@
         private System.Windows.Forms.CheckBox CBTrigger;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.NumericUpDown NUDMaxSize;
+        private System.Windows.Forms.CheckedListBox CLBTBS;
     }
 }
