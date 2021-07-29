@@ -72,30 +72,32 @@ namespace NETDBHelper.SubForm
 
             var db = (string)CLBDBs.SelectedItem;
 
-
-            var dic = (Dictionary<string, List<StringAndBool>>)CLBDBs.Tag;
-
-            if (!dic.ContainsKey(db))
+            if (CLBDBs.Tag != null)
             {
-                var tbs = SQLHelper.GetTBs(DBSource, db);
+                var dic = (Dictionary<string, List<StringAndBool>>)CLBDBs.Tag;
 
-                var list = new List<StringAndBool>();
-                foreach (var row in tbs.AsEnumerable())
+                if (!dic.ContainsKey(db))
                 {
-                    list.Add(new StringAndBool(row.Field<string>("name"), true));
-                }
-                dic.Add(db, list);
-            }
+                    var tbs = SQLHelper.GetTBs(DBSource, db);
 
-            var i = 0;
-            foreach (var item in dic[db])
-            {
-                this.CLBTBS.Items.Add(item.Str);
-                this.CLBTBS.SetItemChecked(i, item.Boo);
-                i++;
+                    var list = new List<StringAndBool>();
+                    foreach (var row in tbs.AsEnumerable())
+                    {
+                        list.Add(new StringAndBool(row.Field<string>("name"), true));
+                    }
+                    dic.Add(db, list);
+                }
+
+                var i = 0;
+                foreach (var item in dic[db])
+                {
+                    this.CLBTBS.Items.Add(item.Str);
+                    this.CLBTBS.SetItemChecked(i, item.Boo);
+                    i++;
+                }
+                this.CLBTBS.Tag = dic[db];
+                CLBTBS.ItemCheck += CLBTBS_ItemCheck;
             }
-            this.CLBTBS.Tag = dic[db];
-            CLBTBS.ItemCheck += CLBTBS_ItemCheck;
 
         }
 
