@@ -528,6 +528,10 @@
     <Content Include="Json2.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <None Include="Resources\application_side_contract.png" />
+    <None Include="Resources\application_side_expand.png" />
+    <None Include="Resources\application_get.png" />
+    <None Include="Resources\application_put.png" />
     <Content Include="Resources\bullet_tick.png" />
     <Content Include="Resources\computer_link.png" />
     <Content Include="Resources\connect.png" />

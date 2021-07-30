@@ -153,6 +153,7 @@ namespace NETDBHelper.SubForm
                 var connsqlserver = new ConnSQLServer();
                 if (connsqlserver.ShowDialog() != DialogResult.OK)
                 {
+                    isRunning = false;
                     MessageBox.Show("已取消。");
                     return;
                 }
