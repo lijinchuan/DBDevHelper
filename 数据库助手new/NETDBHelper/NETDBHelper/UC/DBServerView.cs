@@ -581,16 +581,17 @@ namespace NETDBHelper
                                     if (sb.Length > 2 && sb[sb.Length - 1] == ',')
                                     {
                                         sb = sb.Remove(sb.Length - 1, 1);
-                                        sb.Append(")");
                                     }
 
                                     if (sb.Length > 2 && sb[sb.Length - 3] == ',')
                                     {
                                         sb = sb.Remove(sb.Length - 3, 1);
-                                        if (funInfo.IsTableValue)
-                                        {
-                                            sb.Append(")");
-                                        }
+
+                                    }
+
+                                    if (funInfo.IsTableValue)
+                                    {
+                                        sb.Append(")");
                                     }
 
                                     if (sb2.Length > 2 && sb2[sb2.Length - 3] == ',')

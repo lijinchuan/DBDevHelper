@@ -429,25 +429,25 @@ namespace Biz.Common.Data
             //            --AND ao.name = N'gets'
             //            ORDER BY ao.name, number, parameter_id";
 
-            var sql = @"select b.*,
+            var sql = @"select b.*,a.name,
 						OBJECTPROPERTY(a.id, N'IsScalarFunction') IsScalarFunction,
                         OBJECTPROPERTY(a.id, N'IsTableFunction') IsTableFunction
 						
 						from sys.sysobjects a
 					    left join(
-						SELECT ao.object_id,ao.name, 1 AS number, p.parameter_id, p.name AS pname, SCHEMA_NAME(t.schema_id) AS typeschema, t.name AS tpname, p.max_length length, p.precision, p.scale, p.is_cursor_ref, p.is_output isoutparam, p.is_readonly, p.has_default_value, p.default_value 
+						SELECT ao.object_id, 1 AS number, p.parameter_id, p.name AS pname, SCHEMA_NAME(t.schema_id) AS typeschema, t.name AS tpname, p.max_length length, p.precision, p.scale, p.is_cursor_ref, p.is_output isoutparam, p.is_readonly, p.has_default_value, p.default_value 
                         FROM sys.parameters p
                         INNER JOIN sys.types t ON p.user_type_id = t.user_type_id
                         INNER JOIN sys.objects ao ON p.object_id = ao.object_id WHERE ao.type IN('RF', 'PC', 'FN', 'IF', 'TF', 'FS', 'FT') 
                         --AND ao.schema_id = SCHEMA_ID(N'dbo')
                         --AND ao.name = N'gets'
-                        UNION ALL SELECT ao.object_id,ao.name, np.procedure_number AS number, np.parameter_id, np.name AS pname, SCHEMA_NAME(t.schema_id) AS typeschema, t.name AS tpname, np.max_length , np.precision, np.scale, np.is_cursor_ref, np.is_output isoutparam, 0 AS is_readonly, 0 AS has_default_value, NULL AS default_value
+                        UNION ALL SELECT ao.object_id, np.procedure_number AS number, np.parameter_id, np.name AS pname, SCHEMA_NAME(t.schema_id) AS typeschema, t.name AS tpname, np.max_length , np.precision, np.scale, np.is_cursor_ref, np.is_output isoutparam, 0 AS is_readonly, 0 AS has_default_value, NULL AS default_value
                         FROM sys.numbered_procedure_parameters np INNER JOIN sys.types t ON np.user_type_id = t.user_type_id INNER JOIN sys.all_objects ao ON np.object_id = ao.object_id WHERE 1=1
                         --and ao.schema_id = SCHEMA_ID(N'dbo')
                         --AND ao.name = N'gets'
 						)b on a.id=b.object_id
 						where a.type IN('RF', 'PC', 'FN', 'IF', 'TF', 'FS', 'FT') 
-                        ORDER BY b.name, b.number, parameter_id";
+                        ORDER BY a.name, b.number, parameter_id";
 
             var tb = ExecuteDBTable(dbSource, dbName, sql);
 
