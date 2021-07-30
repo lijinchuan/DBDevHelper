@@ -412,7 +412,8 @@ namespace NETDBHelper.UC
             view.MouseLeave += View_MouseLeave;
             view.BorderStyle = BorderStyle.None;
             view.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-            //view.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
+            view.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.DisplayedCellsExceptHeaders;
+            view.RowsDefaultCellStyle.WrapMode = DataGridViewTriState.True;
             view.AllowUserToAddRows = false;
             view.RowHeadersVisible = false;
             view.KeyUp += View_KeyUp;
@@ -633,9 +634,19 @@ namespace NETDBHelper.UC
                     view.Visible = true;
 
                     view.BringToFront();
-                    view.Height = (view.Rows.GetRowsHeight(DataGridViewElementStates.Visible) / marklist.Count) * marklist.Count + view.ColumnHeadersHeight;
-
-                    view.Location = PointToClient(Control.MousePosition);
+                    
+                    var postion = PointToClient(Control.MousePosition);
+                    var parentpostion = this.Location;
+                    var offsety = 5;
+                    if (postion.X + view.Width > parentpostion.X + this.Width)
+                    {
+                        postion.Offset(parentpostion.X + this.Width - postion.X - view.Width, offsety);
+                    }
+                    else
+                    {
+                        postion.Offset(0, offsety);
+                    }
+                    view.Location = postion;
                 }
             }
         }
@@ -707,12 +718,12 @@ namespace NETDBHelper.UC
                 icount++;
             }
 
-            var limitwidth = (int)(view.Parent?.Width ?? 800 * 0.7);
+            var limitwidth = (int)(this.Width * 0.8);
             var width = Math.Min(ajustviewwith, limitwidth);
 
             view.Width = width;
 
-            var rate = width < ajustviewwith ? ((width*1.0/ajustviewwith)): 1.0;
+            var rate = width < ajustviewwith ? (width*1.0/ajustviewwith): 1.0;
             icount = 0;
             foreach (DataGridViewColumn col in view.Columns)
             {
@@ -724,6 +735,12 @@ namespace NETDBHelper.UC
                 icount++;
             }
 
+            var height = view.ColumnHeadersHeight;
+            for (var i = 0; i < Math.Min(view.Rows.Count, 10); i++)
+            {
+                height += view.Rows[i].Height;
+            }
+            view.Height = height;
         }
 
         private void View_RowPostPaint(object sender, DataGridViewRowPostPaintEventArgs e)
@@ -1089,8 +1106,6 @@ namespace NETDBHelper.UC
 
                     view.ClearSelection();
                     view.BringToFront();
-                    view.Height = (view.Rows.GetRowsHeight(DataGridViewElementStates.Visible) / count) * Math.Min(10, count) + view.ColumnHeadersHeight;
-                    //view.Height = ((view.Height- view.ColumnHeadersHeight)/count)*5+view.ColumnHeadersHeight;
 
                     var curindex = this.RichText.SelectionStart;
                     var tippt = this.RichText.GetPositionFromCharIndex(curindex);
