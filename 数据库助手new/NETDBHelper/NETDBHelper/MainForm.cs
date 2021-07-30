@@ -65,25 +65,7 @@ namespace NETDBHelper
 
         private void TSBar_Click(object sender, EventArgs e)
         {
-            if (TSBar.Tag == null)
-            {
-                TSBar.Image = Resources.Resource1.side_expand;
-                TSBar.Tag = panel1.Location;
-                var location = dbServerView1.Location;
-                location.Offset(2, 0);
-                panel1.Location = location;
-                panel1.Width += ((Point)TSBar.Tag).X - location.X;
-                dbServerView1.Hide();
-            }
-            else
-            {
-                TSBar.Image = Resources.Resource1.side_contract;
-                panel1.Width -= ((Point)TSBar.Tag).X - panel1.Location.X;
-                panel1.Location = (Point)TSBar.Tag;
-
-                TSBar.Tag = null;
-                dbServerView1.Show();
-            }
+            ChangeLeftWindow();
         }
 
         private void Util_OnUserLoginOut(LoginUser user)
@@ -895,6 +877,35 @@ namespace NETDBHelper
         {
             SubForm.RecoverDBDlg dlg = new RecoverDBDlg();
             dlg.Show();
+        }
+
+        private void ChangeLeftWindow()
+        {
+            if (TSBar.Tag == null)
+            {
+                隐藏左侧窗口ToolStripMenuItem.Enabled = false;
+                TSBar.Image = Resources.Resource1.side_expand;
+                TSBar.Tag = panel1.Location;
+                var location = dbServerView1.Location;
+                location.Offset(2, 0);
+                panel1.Location = location;
+                panel1.Width += ((Point)TSBar.Tag).X - location.X;
+                dbServerView1.Hide();
+            }
+            else
+            {
+                TSBar.Image = Resources.Resource1.side_contract;
+                panel1.Width -= ((Point)TSBar.Tag).X - panel1.Location.X;
+                panel1.Location = (Point)TSBar.Tag;
+                隐藏左侧窗口ToolStripMenuItem.Enabled = true;
+                TSBar.Tag = null;
+                dbServerView1.Show();
+            }
+        }
+
+        private void 隐藏左侧窗口ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ChangeLeftWindow();
         }
     }
 }
