@@ -58,6 +58,7 @@
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.MspPanel = new System.Windows.Forms.ToolStripStatusLabel();
             this.TSL_ClearMsg = new System.Windows.Forms.ToolStripStatusLabel();
+            this.显示左侧窗口ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mainMenuBar.SuspendLayout();
             this.panel1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
@@ -113,7 +114,8 @@
             // SubItemView
             // 
             this.SubItemView.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.隐藏左侧窗口ToolStripMenuItem});
+            this.隐藏左侧窗口ToolStripMenuItem,
+            this.显示左侧窗口ToolStripMenuItem});
             this.SubItemView.Name = "SubItemView";
             this.SubItemView.Size = new System.Drawing.Size(44, 21);
             this.SubItemView.Text = "视图";
@@ -142,48 +144,48 @@
             // ToolStripMenuItem_callsp
             // 
             this.ToolStripMenuItem_callsp.Name = "ToolStripMenuItem_callsp";
-            this.ToolStripMenuItem_callsp.Size = new System.Drawing.Size(180, 22);
+            this.ToolStripMenuItem_callsp.Size = new System.Drawing.Size(148, 22);
             this.ToolStripMenuItem_callsp.Text = "存储过程调用";
             this.ToolStripMenuItem_callsp.Click += new System.EventHandler(this.ToolStripMenuItem_callsp_Click);
             // 
             // 实体建表ToolStripMenuItem
             // 
             this.实体建表ToolStripMenuItem.Name = "实体建表ToolStripMenuItem";
-            this.实体建表ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.实体建表ToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
             this.实体建表ToolStripMenuItem.Text = "建表工具";
             // 
             // 查看日志ToolStripMenuItem
             // 
             this.查看日志ToolStripMenuItem.Name = "查看日志ToolStripMenuItem";
-            this.查看日志ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.查看日志ToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
             this.查看日志ToolStripMenuItem.Text = "查看日志";
             this.查看日志ToolStripMenuItem.Click += new System.EventHandler(this.查看日志ToolStripMenuItem_Click);
             // 
             // 常用SQLToolStripMenuItem
             // 
             this.常用SQLToolStripMenuItem.Name = "常用SQLToolStripMenuItem";
-            this.常用SQLToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.常用SQLToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
             this.常用SQLToolStripMenuItem.Text = "常用SQL";
             this.常用SQLToolStripMenuItem.Click += new System.EventHandler(this.常用SQLToolStripMenuItem_Click);
             // 
             // 监控任务ToolStripMenuItem
             // 
             this.监控任务ToolStripMenuItem.Name = "监控任务ToolStripMenuItem";
-            this.监控任务ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.监控任务ToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
             this.监控任务ToolStripMenuItem.Text = "监控任务";
             this.监控任务ToolStripMenuItem.Click += new System.EventHandler(this.监控任务ToolStripMenuItem_Click);
             // 
             // 复制数据库ToolStripMenuItem
             // 
             this.复制数据库ToolStripMenuItem.Name = "复制数据库ToolStripMenuItem";
-            this.复制数据库ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.复制数据库ToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
             this.复制数据库ToolStripMenuItem.Text = "备份数据库";
             this.复制数据库ToolStripMenuItem.Click += new System.EventHandler(this.复制数据库ToolStripMenuItem_Click);
             // 
             // 还原数据库ToolStripMenuItem
             // 
             this.还原数据库ToolStripMenuItem.Name = "还原数据库ToolStripMenuItem";
-            this.还原数据库ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.还原数据库ToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
             this.还原数据库ToolStripMenuItem.Text = "还原数据库";
             this.还原数据库ToolStripMenuItem.Click += new System.EventHandler(this.还原数据库ToolStripMenuItem_Click);
             // 
@@ -313,6 +315,13 @@
             this.TSL_ClearMsg.Visible = false;
             this.TSL_ClearMsg.Click += new System.EventHandler(this.TSL_ClearMsg_Click);
             // 
+            // 显示左侧窗口ToolStripMenuItem
+            // 
+            this.显示左侧窗口ToolStripMenuItem.Name = "显示左侧窗口ToolStripMenuItem";
+            this.显示左侧窗口ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.显示左侧窗口ToolStripMenuItem.Text = "显示左侧窗口";
+            this.显示左侧窗口ToolStripMenuItem.Click += new System.EventHandler(this.显示左侧窗口ToolStripMenuItem_Click);
+            // 
             // MainFrm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -372,6 +381,7 @@
         private System.Windows.Forms.ToolStripSeparator TSSplit;
         private System.Windows.Forms.ToolStripLabel TSBar;
         private System.Windows.Forms.ToolStripMenuItem 隐藏左侧窗口ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 显示左侧窗口ToolStripMenuItem;
     }
 }
 

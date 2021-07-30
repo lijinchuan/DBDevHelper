@@ -61,6 +61,8 @@ namespace NETDBHelper
 
             TSBar.Image = Resources.Resource1.side_contract;
             TSBar.Click += TSBar_Click;
+
+            显示左侧窗口ToolStripMenuItem.Enabled = false;
         }
 
         private void TSBar_Click(object sender, EventArgs e)
@@ -884,6 +886,7 @@ namespace NETDBHelper
             if (TSBar.Tag == null)
             {
                 隐藏左侧窗口ToolStripMenuItem.Enabled = false;
+                显示左侧窗口ToolStripMenuItem.Enabled = true;
                 TSBar.Image = Resources.Resource1.side_expand;
                 TSBar.Tag = panel1.Location;
                 var location = dbServerView1.Location;
@@ -898,12 +901,18 @@ namespace NETDBHelper
                 panel1.Width -= ((Point)TSBar.Tag).X - panel1.Location.X;
                 panel1.Location = (Point)TSBar.Tag;
                 隐藏左侧窗口ToolStripMenuItem.Enabled = true;
+                显示左侧窗口ToolStripMenuItem.Enabled = false;
                 TSBar.Tag = null;
                 dbServerView1.Show();
             }
         }
 
         private void 隐藏左侧窗口ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ChangeLeftWindow();
+        }
+
+        private void 显示左侧窗口ToolStripMenuItem_Click(object sender, EventArgs e)
         {
             ChangeLeftWindow();
         }
