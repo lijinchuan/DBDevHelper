@@ -15,6 +15,7 @@ using APIHelper.SubForm;
 using APIHelper.UC;
 using System.Threading;
 using LJC.FrameWorkV3.Data.EntityDataBase;
+using Biz;
 
 namespace APIHelper
 {
@@ -41,6 +42,39 @@ namespace APIHelper
 
             TSBSave.Click += TSBSave_Click;
             tsb_Excute.Click += Tsb_Excute_Click;
+
+            
+            TSMSetIeVersion.DropDownOpened += TSMSetIeVersion_DropDownOpened;
+            TSMSetIeVersion.DropDownItemClicked += TSMSetIeVersion_DropDownItemClicked;
+        }
+
+        private void TSMSetIeVersion_DropDownOpened(object sender, EventArgs e)
+        {
+            var ieversion = IEUtil.GetIEVersion();
+            foreach (ToolStripItem item in TSMSetIeVersion.DropDownItems)
+            {
+                if (item.Text == ieversion.ToString())
+                {
+                    item.Enabled = false;
+                }
+                else
+                {
+                    item.Enabled = true;
+                }
+            }
+        }
+
+        private void TSMSetIeVersion_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+            var version = (IEUtil.IeVersion)Enum.Parse(typeof(IEUtil.IeVersion), e.ClickedItem.Text);
+            if (IEUtil.SetIE(version))
+            {
+                Util.SendMsg(this, $"设置IE版本为{e.ClickedItem.Text}成功");
+            }
+            else
+            {
+                Util.SendMsg(this, $"设置IE版本为{e.ClickedItem.Text}失败");
+            }
         }
 
         private void Tsb_Excute_Click(object sender, EventArgs e)

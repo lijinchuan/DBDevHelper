@@ -34,6 +34,16 @@
             this.最近ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.SubItemEdit = new System.Windows.Forms.ToolStripMenuItem();
             this.代理服务器ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.TSMSetIeVersion = new System.Windows.Forms.ToolStripMenuItem();
+            this.标准ie7ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.标准ie8ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.强制ie8ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.标准ie9ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.强制ie9ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.标准ie10ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.强制ie10ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.标准ie11ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.强制ie11ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.SubItemView = new System.Windows.Forms.ToolStripMenuItem();
             this.SubItemTool = new System.Windows.Forms.ToolStripMenuItem();
             this.监控任务ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -48,6 +58,7 @@
             this.swaggerMarkUpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.SubItemHelp = new System.Windows.Forms.ToolStripMenuItem();
             this.版本ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.TSMReportError = new System.Windows.Forms.ToolStripMenuItem();
             this.panel1 = new System.Windows.Forms.Panel();
             this.TabControl = new APIHelper.UC.MyTabControl();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
@@ -58,7 +69,6 @@
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.MspPanel = new System.Windows.Forms.ToolStripStatusLabel();
             this.TSL_ClearMsg = new System.Windows.Forms.ToolStripStatusLabel();
-            this.TSMReportError = new System.Windows.Forms.ToolStripMenuItem();
             this.mainMenuBar.SuspendLayout();
             this.panel1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
@@ -100,7 +110,8 @@
             // SubItemEdit
             // 
             this.SubItemEdit.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.代理服务器ToolStripMenuItem});
+            this.代理服务器ToolStripMenuItem,
+            this.TSMSetIeVersion});
             this.SubItemEdit.Name = "SubItemEdit";
             this.SubItemEdit.Size = new System.Drawing.Size(59, 21);
             this.SubItemEdit.Text = "编辑(E)";
@@ -108,9 +119,79 @@
             // 代理服务器ToolStripMenuItem
             // 
             this.代理服务器ToolStripMenuItem.Name = "代理服务器ToolStripMenuItem";
-            this.代理服务器ToolStripMenuItem.Size = new System.Drawing.Size(136, 22);
+            this.代理服务器ToolStripMenuItem.Size = new System.Drawing.Size(195, 22);
             this.代理服务器ToolStripMenuItem.Text = "代理服务器";
             this.代理服务器ToolStripMenuItem.Click += new System.EventHandler(this.代理服务器ToolStripMenuItem_Click);
+            // 
+            // TSMSetIeVersion
+            // 
+            this.TSMSetIeVersion.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.标准ie7ToolStripMenuItem,
+            this.标准ie8ToolStripMenuItem,
+            this.强制ie8ToolStripMenuItem,
+            this.标准ie9ToolStripMenuItem,
+            this.强制ie9ToolStripMenuItem,
+            this.标准ie10ToolStripMenuItem,
+            this.强制ie10ToolStripMenuItem,
+            this.标准ie11ToolStripMenuItem,
+            this.强制ie11ToolStripMenuItem});
+            this.TSMSetIeVersion.Name = "TSMSetIeVersion";
+            this.TSMSetIeVersion.Size = new System.Drawing.Size(195, 22);
+            this.TSMSetIeVersion.Text = "指定内嵌IE浏览器版本";
+            // 
+            // 标准ie7ToolStripMenuItem
+            // 
+            this.标准ie7ToolStripMenuItem.Name = "标准ie7ToolStripMenuItem";
+            this.标准ie7ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.标准ie7ToolStripMenuItem.Text = "标准ie7";
+            // 
+            // 标准ie8ToolStripMenuItem
+            // 
+            this.标准ie8ToolStripMenuItem.Name = "标准ie8ToolStripMenuItem";
+            this.标准ie8ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.标准ie8ToolStripMenuItem.Text = "标准ie8";
+            // 
+            // 强制ie8ToolStripMenuItem
+            // 
+            this.强制ie8ToolStripMenuItem.Name = "强制ie8ToolStripMenuItem";
+            this.强制ie8ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.强制ie8ToolStripMenuItem.Text = "强制ie8";
+            // 
+            // 标准ie9ToolStripMenuItem
+            // 
+            this.标准ie9ToolStripMenuItem.Name = "标准ie9ToolStripMenuItem";
+            this.标准ie9ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.标准ie9ToolStripMenuItem.Text = "标准ie9";
+            // 
+            // 强制ie9ToolStripMenuItem
+            // 
+            this.强制ie9ToolStripMenuItem.Name = "强制ie9ToolStripMenuItem";
+            this.强制ie9ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.强制ie9ToolStripMenuItem.Text = "强制ie9";
+            // 
+            // 标准ie10ToolStripMenuItem
+            // 
+            this.标准ie10ToolStripMenuItem.Name = "标准ie10ToolStripMenuItem";
+            this.标准ie10ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.标准ie10ToolStripMenuItem.Text = "标准ie10";
+            // 
+            // 强制ie10ToolStripMenuItem
+            // 
+            this.强制ie10ToolStripMenuItem.Name = "强制ie10ToolStripMenuItem";
+            this.强制ie10ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.强制ie10ToolStripMenuItem.Text = "强制ie10";
+            // 
+            // 标准ie11ToolStripMenuItem
+            // 
+            this.标准ie11ToolStripMenuItem.Name = "标准ie11ToolStripMenuItem";
+            this.标准ie11ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.标准ie11ToolStripMenuItem.Text = "标准ie11";
+            // 
+            // 强制ie11ToolStripMenuItem
+            // 
+            this.强制ie11ToolStripMenuItem.Name = "强制ie11ToolStripMenuItem";
+            this.强制ie11ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.强制ie11ToolStripMenuItem.Text = "强制ie11";
             // 
             // SubItemView
             // 
@@ -218,8 +299,15 @@
             // 版本ToolStripMenuItem
             // 
             this.版本ToolStripMenuItem.Name = "版本ToolStripMenuItem";
-            this.版本ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.版本ToolStripMenuItem.Size = new System.Drawing.Size(149, 22);
             this.版本ToolStripMenuItem.Text = "当前版本V1.1";
+            // 
+            // TSMReportError
+            // 
+            this.TSMReportError.Name = "TSMReportError";
+            this.TSMReportError.Size = new System.Drawing.Size(149, 22);
+            this.TSMReportError.Text = "故障报告";
+            this.TSMReportError.Click += new System.EventHandler(this.TSMReportError_Click);
             // 
             // panel1
             // 
@@ -317,13 +405,6 @@
             this.TSL_ClearMsg.Visible = false;
             this.TSL_ClearMsg.Click += new System.EventHandler(this.TSL_ClearMsg_Click);
             // 
-            // TSMReportError
-            // 
-            this.TSMReportError.Name = "TSMReportError";
-            this.TSMReportError.Size = new System.Drawing.Size(180, 22);
-            this.TSMReportError.Text = "故障报告";
-            this.TSMReportError.Click += new System.EventHandler(this.TSMReportError_Click);
-            // 
             // MainFrm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -383,6 +464,16 @@
         private System.Windows.Forms.ToolStripMenuItem 最近ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 代理服务器ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem TSMReportError;
+        private System.Windows.Forms.ToolStripMenuItem TSMSetIeVersion;
+        private System.Windows.Forms.ToolStripMenuItem 标准ie7ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 标准ie8ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 强制ie8ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 标准ie9ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 强制ie9ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 标准ie10ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 强制ie10ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 标准ie11ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 强制ie11ToolStripMenuItem;
     }
 }
 
