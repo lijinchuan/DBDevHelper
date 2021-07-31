@@ -129,6 +129,43 @@ namespace APIHelper.UC
         }
 
 
+        public WebTab ChangeHTML(string url,string newHtml,Dictionary<string,string> cookies)
+        {
+            this.webBrowser1.DocumentCompleted += DocumentCompleted;
+            this.webBrowser1.Url = new Uri(url);
+
+            return this;
+
+            void DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
+            {
+                this.webBrowser1.DocumentCompleted -= DocumentCompleted;
+
+                if (cookies != null && cookies.Count > 0)
+                {
+                    HtmlElement element = webBrowser1.Document.CreateElement("script");
+                    element.SetAttribute("type", "text/javascript");
+                    element.SetAttribute("text", @"//写cookies
+                    function setCookie(name, value) {
+                        var Days = 30;
+                        var exp = new Date();
+                        exp.setTime(exp.getTime() + Days * 24 * 60 * 60 * 1000);
+                        document.cookie=name+'='+ escape(value) + '; expires ='+exp.toGMTString();
+                    }");
+                    webBrowser1.Document.Body.AppendChild(element);
+                    foreach (var kv in cookies)
+                    {
+                        webBrowser1.Document.InvokeScript("setCookie", new[] { kv.Key, kv.Value });
+                    }
+                }
+
+                HtmlElement element2 = webBrowser1.Document.CreateElement("script");
+                element2.SetAttribute("type", "text/javascript");
+                element2.SetAttribute("text", "function replacedom(dom){document.documentElement.outerHTML=dom;}");   //这里写JS代码
+                webBrowser1.Document.Body.AppendChild(element2);
+                webBrowser1.Document.InvokeScript("replacedom", new[] { newHtml });
+            }
+        }
+
         public void SetHtml(string html)
         {
             try

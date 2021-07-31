@@ -596,7 +596,39 @@ namespace APIHelper.UC
 
             this.Invoke(new Action(() =>
             {
+                TBResult.APIEnv = GetEnv();
                 var responseEx = responseExTaskList.First().Result;
+
+                var cookies = responseEx.Cookies?.Select(p => new RespCookie
+                {
+                    Path = p.Path,
+                    Domain = p.Domain,
+                    Expires = p.Expires,
+                    HasKeys = p.HasKeys,
+                    HttpOnly = p.HttpOnly,
+                    Name = p.Name,
+                    Secure = p.Secure,
+                    Value = p.Value
+                }).ToList() ?? new List<RespCookie>();
+                var apidata = GetApiData(false);
+                if (apidata.Cookies != null && apidata.Cookies.Count > 0)
+                {
+                    foreach(var c in apidata.Cookies)
+                    {
+                        if (!cookies.Any(p => p.Name == c.Name))
+                        {
+                            cookies.Add(new RespCookie
+                            {
+                                Name = c.Name,
+                                Value = c.Value,
+                                Path = "/"
+                            });
+                        }
+                    }
+                }
+                TBResult.SetCookie(cookies);
+                TBResult.Url = responseEx.ResponseUrl;
+
                 TBResult.SetHeader(responseEx.Headers);
                 if (responseEx.ResponseContent != null)
                 {
@@ -638,12 +670,9 @@ namespace APIHelper.UC
                     Secure = p.Secure,
                     Value = p.Value
                 }).ToList();
-                this.Invoke(new Action(() => TBResult.SetCookie(cookies)));
 
                 this.Invoke(new Action(() => TBResult.SetOther(responseEx.StatusCode, responseEx.StatusDescription, responseEx.RequestMills,
                     responseEx.ResponseBytes == null ? 0 : responseEx.ResponseBytes.Length)));
-
-                TBResult.APIEnv = GetEnv();
 
                 APIInvokeLog log = new APIInvokeLog
                 {

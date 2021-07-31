@@ -10,11 +10,23 @@ using System.Windows.Forms;
 using LJC.FrameWorkV3.Comm.HttpEx;
 using Entity;
 using LJC.FrameWorkV3.Data.EntityDataBase;
+using System.Text.RegularExpressions;
+using System.Runtime.InteropServices;
 
 namespace APIHelper.UC
 {
     public partial class UCApiResult : UserControl
     {
+        /// <summary>
+        /// 引用wininet.dll + 定义InternetSetCookie
+        /// </summary>
+        /// <param name="lpszUrlName">需要设置Cookie的URL</param>
+        /// <param name="lbszCookieName">Cookie名称</param>
+        /// <param name="lpszCookieData">Cookie数据</param>
+        /// <returns>设置Cookie是否成功</returns>
+        [DllImport("wininet.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        public static extern bool InternetSetCookie(string lpszUrlName, string lbszCookieName, string lpszCookieData);
+
         //private APIUrl APIUrl = null;
         private APIEnv apiEnv = null;
         private UC.UCJsonViewer UCJsonViewer = null;
@@ -79,6 +91,68 @@ namespace APIHelper.UC
             if (LBStatuCode.Tag!=null)
             {
                 System.Diagnostics.Process.Start($"https://tool.lu/httpcode/#{LBStatuCode.Tag.ToString()}");
+            }
+        }
+
+        public void ChangeHTML(string url, string newHtml, Dictionary<string, string> cookies)
+        {
+            bool isWriteCookie = false;
+
+            this.WBResult.DocumentCompleted += DocumentCompleted;
+            this.WBResult.Url = new Uri(url);
+
+            
+
+            void DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
+            {
+                HtmlElement element = WBResult.Document.CreateElement("script");
+                element.SetAttribute("type", "text/javascript");
+                element.SetAttribute("text", @"function addhead(){var oMeta = document.createElement('meta');
+                        oMeta.content='IE=edge,chrome=1';
+                        oMeta.httpEquiv='X-UA-Compatible';
+                        document.getElementsByTagName('head')[0].appendChild(oMeta);
+                       return true;}");   //这里写JS代码
+                WBResult.Document.Body.AppendChild(element);
+                var re0 = WBResult.Document.InvokeScript("addhead");
+
+                if (WBResult.Url.ToString().Equals(url, StringComparison.OrdinalIgnoreCase))
+                {
+                    this.WBResult.DocumentCompleted -= DocumentCompleted;
+                }
+                else
+                {
+                    if (isWriteCookie)
+                    {
+                        this.WBResult.DocumentCompleted -= DocumentCompleted;
+                    }
+                    else
+                    {
+                        isWriteCookie = true;
+                        if (cookies != null && cookies.Count > 0)
+                        {
+                            foreach (var kv in cookies)
+                            {
+                                InternetSetCookie(url, kv.Key, kv.Value);
+                            }
+
+                            this.WBResult.Navigate(url);
+                            return;
+                        }
+                    }
+                    
+                }
+
+                HtmlElement element2 = WBResult.Document.CreateElement("script");
+                element2.SetAttribute("type", "text/javascript");
+                element2.SetAttribute("text", "function replacedom(dom){document.documentElement.innerHTML=dom;return true;}");   //这里写JS代码
+                var re = WBResult.Document.Body.AppendChild(element2);
+                Regex reg = new Regex(@"<head>[\w\W]*</body>");
+                var m = reg.Match(newHtml);
+                if (m.Success)
+                {
+                    newHtml = m.Value;
+                }
+                var re2 = WBResult.Document.InvokeScript("replacedom", new[] { newHtml });
             }
         }
 
@@ -269,10 +343,17 @@ namespace APIHelper.UC
             }
         }
 
+        private List<RespCookie> Cookies
+        {
+            get;
+            set;
+        }
+
         public void SetCookie(List<RespCookie> webCookies)
         {
             if (webCookies != null && webCookies.Count > 0)
             {
+                this.Cookies = webCookies;
                 this.DGVCookie.DataSource = webCookies.Select(p => new
                 {
                     p.Name,
@@ -435,7 +516,17 @@ namespace APIHelper.UC
 
                     if (!isjson && !isxml)
                     {
-                        this.WBResult.DocumentText = html;
+                        //this.WBResult.DocumentText = html;
+                        Dictionary<string, string> cookies = new Dictionary<string, string>();
+                        if (Cookies != null && Cookies.Count > 0)
+                        {
+                            foreach(var c in Cookies)
+                            {
+                                cookies.Add(c.Name, c.Value);
+                            }
+                        }
+                        //this.WBResult.ScriptErrorsSuppressed = false;
+                        ChangeHTML(Url, html, cookies);
                         if (autoselecttab)
                         {
                             Tabs.SelectedTab = TPBody;
@@ -493,6 +584,12 @@ namespace APIHelper.UC
             {
                 apiEnv = value;
             }
+        }
+
+        public string Url
+        {
+            get;
+            set;
         }
 
         private void RBTree_CheckedChanged(object sender, EventArgs e)
