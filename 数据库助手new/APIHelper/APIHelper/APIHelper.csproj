@@ -580,6 +580,8 @@
     <Content Include="Json2.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <None Include="Resources\application_side_contract.png" />
+    <None Include="Resources\application_side_expand.png" />
     <Content Include="worker-xml.js">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

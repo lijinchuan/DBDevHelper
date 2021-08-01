@@ -69,6 +69,7 @@
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.MspPanel = new System.Windows.Forms.ToolStripStatusLabel();
             this.TSL_ClearMsg = new System.Windows.Forms.ToolStripStatusLabel();
+            this.TSBar = new System.Windows.Forms.ToolStripLabel();
             this.mainMenuBar.SuspendLayout();
             this.panel1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
@@ -142,55 +143,55 @@
             // 标准ie7ToolStripMenuItem
             // 
             this.标准ie7ToolStripMenuItem.Name = "标准ie7ToolStripMenuItem";
-            this.标准ie7ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.标准ie7ToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
             this.标准ie7ToolStripMenuItem.Text = "标准ie7";
             // 
             // 标准ie8ToolStripMenuItem
             // 
             this.标准ie8ToolStripMenuItem.Name = "标准ie8ToolStripMenuItem";
-            this.标准ie8ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.标准ie8ToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
             this.标准ie8ToolStripMenuItem.Text = "标准ie8";
             // 
             // 强制ie8ToolStripMenuItem
             // 
             this.强制ie8ToolStripMenuItem.Name = "强制ie8ToolStripMenuItem";
-            this.强制ie8ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.强制ie8ToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
             this.强制ie8ToolStripMenuItem.Text = "强制ie8";
             // 
             // 标准ie9ToolStripMenuItem
             // 
             this.标准ie9ToolStripMenuItem.Name = "标准ie9ToolStripMenuItem";
-            this.标准ie9ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.标准ie9ToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
             this.标准ie9ToolStripMenuItem.Text = "标准ie9";
             // 
             // 强制ie9ToolStripMenuItem
             // 
             this.强制ie9ToolStripMenuItem.Name = "强制ie9ToolStripMenuItem";
-            this.强制ie9ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.强制ie9ToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
             this.强制ie9ToolStripMenuItem.Text = "强制ie9";
             // 
             // 标准ie10ToolStripMenuItem
             // 
             this.标准ie10ToolStripMenuItem.Name = "标准ie10ToolStripMenuItem";
-            this.标准ie10ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.标准ie10ToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
             this.标准ie10ToolStripMenuItem.Text = "标准ie10";
             // 
             // 强制ie10ToolStripMenuItem
             // 
             this.强制ie10ToolStripMenuItem.Name = "强制ie10ToolStripMenuItem";
-            this.强制ie10ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.强制ie10ToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
             this.强制ie10ToolStripMenuItem.Text = "强制ie10";
             // 
             // 标准ie11ToolStripMenuItem
             // 
             this.标准ie11ToolStripMenuItem.Name = "标准ie11ToolStripMenuItem";
-            this.标准ie11ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.标准ie11ToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
             this.标准ie11ToolStripMenuItem.Text = "标准ie11";
             // 
             // 强制ie11ToolStripMenuItem
             // 
             this.强制ie11ToolStripMenuItem.Name = "强制ie11ToolStripMenuItem";
-            this.强制ie11ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.强制ie11ToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
             this.强制ie11ToolStripMenuItem.Text = "强制ie11";
             // 
             // SubItemView
@@ -339,7 +340,8 @@
             this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.TSCBServer,
             this.TSBSave,
-            this.tsb_Excute});
+            this.tsb_Excute,
+            this.TSBar});
             this.toolStrip1.Location = new System.Drawing.Point(0, 25);
             this.toolStrip1.Name = "toolStrip1";
             this.toolStrip1.Size = new System.Drawing.Size(830, 25);
@@ -404,6 +406,13 @@
             this.TSL_ClearMsg.Size = new System.Drawing.Size(16, 17);
             this.TSL_ClearMsg.Visible = false;
             this.TSL_ClearMsg.Click += new System.EventHandler(this.TSL_ClearMsg_Click);
+            // 
+            // TSBar
+            // 
+            this.TSBar.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
+            this.TSBar.Name = "TSBar";
+            this.TSBar.Size = new System.Drawing.Size(96, 22);
+            this.TSBar.Text = "";
             // 
             // MainFrm
             // 
@@ -474,6 +483,7 @@
         private System.Windows.Forms.ToolStripMenuItem 强制ie10ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 标准ie11ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 强制ie11ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripLabel TSBar;
     }
 }
 

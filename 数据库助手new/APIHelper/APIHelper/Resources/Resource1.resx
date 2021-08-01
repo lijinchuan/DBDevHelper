@@ -292,4 +292,10 @@
   <data name="obj" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>bullet_database_yellow.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="side_contract" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>application_side_contract.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="side_expand" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>application_side_expand.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
 </root>
