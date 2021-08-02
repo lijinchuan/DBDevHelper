@@ -118,6 +118,23 @@ namespace APIHelper.UC
                 if (WBResult.Url.ToString().Equals(url, StringComparison.OrdinalIgnoreCase))
                 {
                     this.WBResult.DocumentCompleted -= DocumentCompleted;
+                    if (!isWriteCookie)
+                    {
+                        isWriteCookie = true;
+                        if (cookies != null && cookies.Count > 0)
+                        {
+                            foreach (var kv in cookies)
+                            {
+                                InternetSetCookie(url, kv.Key, kv.Value + ";expires=Thu, 01-Jan-1970 00:00:01 GMT");
+                                InternetSetCookie(url, kv.Key, kv.Value+ ";path=/;expires=Thu, 01-Jan-1970 00:00:01 GMT");
+                                InternetSetCookie(url, kv.Key, kv.Value+ ";path=/;");
+                            }
+
+                            this.WBResult.Navigate(url);
+                            return;
+                        }
+                    }
+                    
                 }
                 else
                 {
@@ -139,7 +156,7 @@ namespace APIHelper.UC
                             return;
                         }
                     }
-                    
+
                 }
 
                 HtmlElement element2 = WBResult.Document.CreateElement("script");

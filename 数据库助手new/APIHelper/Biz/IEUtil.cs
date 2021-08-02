@@ -45,7 +45,7 @@ namespace Biz
             //该项必须已存在
             if (wwui != null)
             {
-                var var=(int)wwui.GetValue(productName);
+                var var=(int?)wwui.GetValue(productName);
                 switch (var)
                 {
                     case 0x1B58:
