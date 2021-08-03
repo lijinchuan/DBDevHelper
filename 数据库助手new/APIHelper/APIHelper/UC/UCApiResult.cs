@@ -17,15 +17,6 @@ namespace APIHelper.UC
 {
     public partial class UCApiResult : UserControl
     {
-        /// <summary>
-        /// 引用wininet.dll + 定义InternetSetCookie
-        /// </summary>
-        /// <param name="lpszUrlName">需要设置Cookie的URL</param>
-        /// <param name="lbszCookieName">Cookie名称</param>
-        /// <param name="lpszCookieData">Cookie数据</param>
-        /// <returns>设置Cookie是否成功</returns>
-        [DllImport("wininet.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        public static extern bool InternetSetCookie(string lpszUrlName, string lbszCookieName, string lpszCookieData);
 
         //private APIUrl APIUrl = null;
         private APIEnv apiEnv = null;
@@ -105,16 +96,6 @@ namespace APIHelper.UC
 
             void DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
             {
-                HtmlElement element = WBResult.Document.CreateElement("script");
-                element.SetAttribute("type", "text/javascript");
-                element.SetAttribute("text", @"function addhead(){var oMeta = document.createElement('meta');
-                        oMeta.content='IE=edge,chrome=1';
-                        oMeta.httpEquiv='X-UA-Compatible';
-                        document.getElementsByTagName('head')[0].appendChild(oMeta);
-                       return true;}");   //这里写JS代码
-                WBResult.Document.Body.AppendChild(element);
-                var re0 = WBResult.Document.InvokeScript("addhead");
-
                 if (WBResult.Url.ToString().Equals(url, StringComparison.OrdinalIgnoreCase))
                 {
                     this.WBResult.DocumentCompleted -= DocumentCompleted;
@@ -123,18 +104,18 @@ namespace APIHelper.UC
                         isWriteCookie = true;
                         if (cookies != null && cookies.Count > 0)
                         {
+                            var host = url.Split(':')[0] + "://" + new Uri(url).Host;
                             foreach (var kv in cookies)
                             {
-                                InternetSetCookie(url, kv.Key, kv.Value + ";expires=Thu, 01-Jan-1970 00:00:01 GMT");
-                                InternetSetCookie(url, kv.Key, kv.Value+ ";path=/;expires=Thu, 01-Jan-1970 00:00:01 GMT");
-                                InternetSetCookie(url, kv.Key, kv.Value+ ";path=/;");
+                                Biz.IEUtil.InternetSetCookie(host, kv.Key, kv.Value + ";path=/;expires=Thu, 01-Jan-1970 00:00:01 GMT");
+                                Biz.IEUtil.InternetSetCookie(host, kv.Key, kv.Value + ";path=/;");
                             }
 
                             this.WBResult.Navigate(url);
                             return;
                         }
                     }
-                    
+
                 }
                 else
                 {
@@ -147,9 +128,15 @@ namespace APIHelper.UC
                         isWriteCookie = true;
                         if (cookies != null && cookies.Count > 0)
                         {
+                            var host = url.Split(':')[0] + "://" + new Uri(url).Host;
+                            var host2 = WBResult.Url.ToString().Split(':')[0] + "://" + WBResult.Url.Host;
                             foreach (var kv in cookies)
                             {
-                                InternetSetCookie(url, kv.Key, kv.Value);
+                                Biz.IEUtil.InternetSetCookie(host, kv.Key, kv.Value + ";path=/;expires=Thu, 01-Jan-1970 00:00:01 GMT");
+                                Biz.IEUtil.InternetSetCookie(host, kv.Key, kv.Value + ";path=/;");
+
+                                Biz.IEUtil.InternetSetCookie(host2, kv.Key, kv.Value + ";path=/;expires=Thu, 01-Jan-1970 00:00:01 GMT");
+                                Biz.IEUtil.InternetSetCookie(host2, kv.Key, kv.Value + ";path=/;");
                             }
 
                             this.WBResult.Navigate(url);

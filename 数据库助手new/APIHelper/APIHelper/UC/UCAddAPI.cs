@@ -599,17 +599,7 @@ namespace APIHelper.UC
                 TBResult.APIEnv = GetEnv();
                 var responseEx = responseExTaskList.First().Result;
 
-                var cookies = responseEx.Cookies?.Select(p => new RespCookie
-                {
-                    Path = p.Path,
-                    Domain = p.Domain,
-                    Expires = p.Expires,
-                    HasKeys = p.HasKeys,
-                    HttpOnly = p.HttpOnly,
-                    Name = p.Name,
-                    Secure = p.Secure,
-                    Value = p.Value
-                }).ToList() ?? new List<RespCookie>();
+                var cookies = new List<RespCookie>();
                 var apidata = GetApiData(false);
                 if (apidata.Cookies != null && apidata.Cookies.Count > 0)
                 {

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -9,6 +10,19 @@ namespace Biz
 {
     public static class IEUtil
     {
+        /// <summary>
+        /// 引用wininet.dll + 定义InternetSetCookie
+        /// </summary>
+        /// <param name="lpszUrlName">需要设置Cookie的URL</param>
+        /// <param name="lbszCookieName">Cookie名称</param>
+        /// <param name="lpszCookieData">Cookie数据</param>
+        /// <returns>设置Cookie是否成功</returns>
+        [DllImport("wininet.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        public static extern bool InternetSetCookie(string lpszUrlName, string lbszCookieName, string lpszCookieData);
+
+        [DllImport("wininet.dll", CharSet = System.Runtime.InteropServices.CharSet.Auto, SetLastError = true)]
+        private static extern bool InternetSetOption(int hInternet, int dwOption, IntPtr lpBuffer, int dwBufferLength);
+
         /// <summary>
         /// 定义IE版本的枚举
         /// </summary>
@@ -135,6 +149,30 @@ namespace Biz
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// 使用InternetSetOption操作wininet.dll清除webbrowser里的cookie
+        /// </summary>
+        public static unsafe bool SuppressWininetBehavior()
+        {
+            /* SOURCE: http://msdn.microsoft.com/en-us/library/windows/desktop/aa385328%28v=vs.85%29.aspx
+                * INTERNET_OPTION_SUPPRESS_BEHAVIOR (81):
+                *      A general purpose option that is used to suppress behaviors on a process-wide basis. 
+                *      The lpBuffer parameter of the function must be a pointer to a DWORD containing the specific behavior to suppress. 
+                *      This option cannot be queried with InternetQueryOption. 
+                *      
+                * INTERNET_SUPPRESS_COOKIE_PERSIST (3):
+                *      Suppresses the persistence of cookies, even if the server has specified them as persistent.
+                *      Version:  Requires Internet Explorer 8.0 or later.
+                */
+            int option = (int)3/* INTERNET_SUPPRESS_COOKIE_PERSIST*/;
+            int* optionPtr = &option;
+
+            bool success = InternetSetOption(0, 81/*INTERNET_OPTION_SUPPRESS_BEHAVIOR*/, new IntPtr(optionPtr), sizeof(int));
+
+            return success;
+
         }
     }
 }

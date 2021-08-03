@@ -477,5 +477,25 @@ namespace APIHelper
                 MessageBox.Show("启动发送邮件应用失败，请手动发送邮件到：403479851@qq.com");
             }
         }
+
+        private void 重置IE浏览器COOKIEToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                var boo = Biz.IEUtil.SuppressWininetBehavior();
+                if (boo)
+                {
+                    Util.SendMsg(this, "重置COOKIE成功");
+                }
+                else
+                {
+                    Util.SendMsg(this, "重置COOKIE失败");
+                }
+            }
+            catch (Exception ex)
+            {
+                Util.SendMsg(this, "重置COOKIE出错:" + ex.Message);
+            }
+        }
     }
 }

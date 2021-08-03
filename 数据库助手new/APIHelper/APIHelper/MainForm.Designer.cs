@@ -65,11 +65,12 @@
             this.TSCBServer = new System.Windows.Forms.ToolStripLabel();
             this.TSBSave = new System.Windows.Forms.ToolStripButton();
             this.tsb_Excute = new System.Windows.Forms.ToolStripButton();
+            this.TSBar = new System.Windows.Forms.ToolStripLabel();
             this.dbServerView1 = new APIHelper.DBServerView();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.MspPanel = new System.Windows.Forms.ToolStripStatusLabel();
             this.TSL_ClearMsg = new System.Windows.Forms.ToolStripStatusLabel();
-            this.TSBar = new System.Windows.Forms.ToolStripLabel();
+            this.重置IE浏览器COOKIEToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mainMenuBar.SuspendLayout();
             this.panel1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
@@ -112,7 +113,8 @@
             // 
             this.SubItemEdit.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.代理服务器ToolStripMenuItem,
-            this.TSMSetIeVersion});
+            this.TSMSetIeVersion,
+            this.重置IE浏览器COOKIEToolStripMenuItem});
             this.SubItemEdit.Name = "SubItemEdit";
             this.SubItemEdit.Size = new System.Drawing.Size(59, 21);
             this.SubItemEdit.Text = "编辑(E)";
@@ -370,6 +372,12 @@
             this.tsb_Excute.Size = new System.Drawing.Size(52, 22);
             this.tsb_Excute.Text = "执行";
             // 
+            // TSBar
+            // 
+            this.TSBar.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
+            this.TSBar.Name = "TSBar";
+            this.TSBar.Size = new System.Drawing.Size(0, 22);
+            // 
             // dbServerView1
             // 
             this.dbServerView1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -407,12 +415,12 @@
             this.TSL_ClearMsg.Visible = false;
             this.TSL_ClearMsg.Click += new System.EventHandler(this.TSL_ClearMsg_Click);
             // 
-            // TSBar
+            // 重置IE浏览器COOKIEToolStripMenuItem
             // 
-            this.TSBar.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
-            this.TSBar.Name = "TSBar";
-            this.TSBar.Size = new System.Drawing.Size(96, 22);
-            this.TSBar.Text = "";
+            this.重置IE浏览器COOKIEToolStripMenuItem.Name = "重置IE浏览器COOKIEToolStripMenuItem";
+            this.重置IE浏览器COOKIEToolStripMenuItem.Size = new System.Drawing.Size(195, 22);
+            this.重置IE浏览器COOKIEToolStripMenuItem.Text = "重置IE浏览器COOKIE";
+            this.重置IE浏览器COOKIEToolStripMenuItem.Click += new System.EventHandler(this.重置IE浏览器COOKIEToolStripMenuItem_Click);
             // 
             // MainFrm
             // 
@@ -484,6 +492,7 @@
         private System.Windows.Forms.ToolStripMenuItem 标准ie11ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 强制ie11ToolStripMenuItem;
         private System.Windows.Forms.ToolStripLabel TSBar;
+        private System.Windows.Forms.ToolStripMenuItem 重置IE浏览器COOKIEToolStripMenuItem;
     }
 }
 
