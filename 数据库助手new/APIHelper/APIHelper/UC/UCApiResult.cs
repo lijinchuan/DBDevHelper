@@ -107,7 +107,7 @@ namespace APIHelper.UC
                             var host = url.Split(':')[0] + "://" + new Uri(url).Host;
                             foreach (var kv in cookies)
                             {
-                                Biz.IEUtil.InternetSetCookie(host, kv.Key, kv.Value + ";path=/;expires=Thu, 01-Jan-1970 00:00:01 GMT");
+                                //Biz.IEUtil.InternetSetCookie(host, kv.Key, kv.Value + ";path=/;expires=Thu, 01-Jan-1970 00:00:01 GMT");
                                 Biz.IEUtil.InternetSetCookie(host, kv.Key, kv.Value + ";path=/;");
                             }
 
@@ -132,10 +132,10 @@ namespace APIHelper.UC
                             var host2 = WBResult.Url.ToString().Split(':')[0] + "://" + WBResult.Url.Host;
                             foreach (var kv in cookies)
                             {
-                                Biz.IEUtil.InternetSetCookie(host, kv.Key, kv.Value + ";path=/;expires=Thu, 01-Jan-1970 00:00:01 GMT");
+                                //Biz.IEUtil.InternetSetCookie(host, kv.Key, kv.Value + ";path=/;expires=Thu, 01-Jan-1970 00:00:01 GMT");
                                 Biz.IEUtil.InternetSetCookie(host, kv.Key, kv.Value + ";path=/;");
 
-                                Biz.IEUtil.InternetSetCookie(host2, kv.Key, kv.Value + ";path=/;expires=Thu, 01-Jan-1970 00:00:01 GMT");
+                                //Biz.IEUtil.InternetSetCookie(host2, kv.Key, kv.Value + ";path=/;expires=Thu, 01-Jan-1970 00:00:01 GMT");
                                 Biz.IEUtil.InternetSetCookie(host2, kv.Key, kv.Value + ";path=/;");
                             }
 
@@ -150,13 +150,16 @@ namespace APIHelper.UC
                 element2.SetAttribute("type", "text/javascript");
                 element2.SetAttribute("text", "function replacedom(dom){document.documentElement.innerHTML=dom;return true;}");   //这里写JS代码
                 var re = WBResult.Document.Body.AppendChild(element2);
-                Regex reg = new Regex(@"<head>[\w\W]*</body>");
-                var m = reg.Match(newHtml);
-                if (m.Success)
+
+                var startPos = newHtml.IndexOf("<head>", StringComparison.OrdinalIgnoreCase);
+                var endPos = newHtml.LastIndexOf("</body>", StringComparison.OrdinalIgnoreCase);
+
+                if (startPos > -1 && endPos > -1)
                 {
-                    newHtml = m.Value;
+                    newHtml = newHtml.Substring(startPos, endPos - startPos + "</body>".Length);
                 }
-                var re2 = WBResult.Document.InvokeScript("replacedom", new[] { newHtml });
+
+                WBResult.Document.InvokeScript("replacedom", new[] { newHtml });
             }
         }
 
