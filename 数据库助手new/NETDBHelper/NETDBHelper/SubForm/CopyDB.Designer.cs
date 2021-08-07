@@ -30,7 +30,8 @@
         {
             this.BtnSelectServer = new System.Windows.Forms.Button();
             this.label6 = new System.Windows.Forms.Label();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.GBSelDBTB = new System.Windows.Forms.GroupBox();
+            this.CLBTBS = new System.Windows.Forms.CheckedListBox();
             this.CLBDBs = new System.Windows.Forms.CheckedListBox();
             this.BtnOk = new System.Windows.Forms.Button();
             this.BtnCancel = new System.Windows.Forms.Button();
@@ -53,8 +54,8 @@
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.ProcessBar = new System.Windows.Forms.ToolStripProgressBar();
             this.MsgText = new System.Windows.Forms.ToolStripStatusLabel();
-            this.CLBTBS = new System.Windows.Forms.CheckedListBox();
-            this.groupBox1.SuspendLayout();
+            this.BtnStop = new System.Windows.Forms.Button();
+            this.GBSelDBTB.SuspendLayout();
             this.groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.NUDMaxSize)).BeginInit();
             this.PannelCopNumber.SuspendLayout();
@@ -81,16 +82,27 @@
             this.label6.TabIndex = 14;
             this.label6.Text = "服务器：";
             // 
-            // groupBox1
+            // GBSelDBTB
             // 
-            this.groupBox1.Controls.Add(this.CLBTBS);
-            this.groupBox1.Controls.Add(this.CLBDBs);
-            this.groupBox1.Location = new System.Drawing.Point(12, 52);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(518, 337);
-            this.groupBox1.TabIndex = 16;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "选择库表";
+            this.GBSelDBTB.Controls.Add(this.CLBTBS);
+            this.GBSelDBTB.Controls.Add(this.CLBDBs);
+            this.GBSelDBTB.Location = new System.Drawing.Point(12, 52);
+            this.GBSelDBTB.Name = "GBSelDBTB";
+            this.GBSelDBTB.Size = new System.Drawing.Size(518, 337);
+            this.GBSelDBTB.TabIndex = 16;
+            this.GBSelDBTB.TabStop = false;
+            this.GBSelDBTB.Text = "选择库表";
+            // 
+            // CLBTBS
+            // 
+            this.CLBTBS.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.CLBTBS.FormattingEnabled = true;
+            this.CLBTBS.Location = new System.Drawing.Point(228, 17);
+            this.CLBTBS.Name = "CLBTBS";
+            this.CLBTBS.Size = new System.Drawing.Size(284, 308);
+            this.CLBTBS.TabIndex = 1;
             // 
             // CLBDBs
             // 
@@ -108,7 +120,7 @@
             // 
             // BtnOk
             // 
-            this.BtnOk.Location = new System.Drawing.Point(613, 404);
+            this.BtnOk.Location = new System.Drawing.Point(537, 404);
             this.BtnOk.Name = "BtnOk";
             this.BtnOk.Size = new System.Drawing.Size(75, 23);
             this.BtnOk.TabIndex = 17;
@@ -118,7 +130,7 @@
             // 
             // BtnCancel
             // 
-            this.BtnCancel.Location = new System.Drawing.Point(710, 404);
+            this.BtnCancel.Location = new System.Drawing.Point(710, 403);
             this.BtnCancel.Name = "BtnCancel";
             this.BtnCancel.Size = new System.Drawing.Size(75, 23);
             this.BtnCancel.TabIndex = 18;
@@ -346,28 +358,28 @@
             this.MsgText.Spring = true;
             this.MsgText.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
-            // CLBTBS
+            // BtnStop
             // 
-            this.CLBTBS.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.CLBTBS.FormattingEnabled = true;
-            this.CLBTBS.Location = new System.Drawing.Point(228, 17);
-            this.CLBTBS.Name = "CLBTBS";
-            this.CLBTBS.Size = new System.Drawing.Size(284, 308);
-            this.CLBTBS.TabIndex = 1;
+            this.BtnStop.Location = new System.Drawing.Point(623, 404);
+            this.BtnStop.Name = "BtnStop";
+            this.BtnStop.Size = new System.Drawing.Size(75, 23);
+            this.BtnStop.TabIndex = 22;
+            this.BtnStop.Text = "暂停";
+            this.BtnStop.UseVisualStyleBackColor = true;
+            this.BtnStop.Click += new System.EventHandler(this.BtnStop_Click);
             // 
             // CopyDB
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.BtnStop);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.BtnSelAll);
             this.Controls.Add(this.BtnCancel);
             this.Controls.Add(this.BtnOk);
-            this.Controls.Add(this.groupBox1);
+            this.Controls.Add(this.GBSelDBTB);
             this.Controls.Add(this.BtnSelectServer);
             this.Controls.Add(this.label6);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
@@ -375,7 +387,7 @@
             this.MinimizeBox = false;
             this.Name = "CopyDB";
             this.Text = "备份数据库";
-            this.groupBox1.ResumeLayout(false);
+            this.GBSelDBTB.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.NUDMaxSize)).EndInit();
@@ -393,7 +405,7 @@
 
         private System.Windows.Forms.Button BtnSelectServer;
         private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.GroupBox GBSelDBTB;
         private System.Windows.Forms.CheckedListBox CLBDBs;
         private System.Windows.Forms.Button BtnOk;
         private System.Windows.Forms.Button BtnCancel;
@@ -417,5 +429,6 @@
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.NumericUpDown NUDMaxSize;
         private System.Windows.Forms.CheckedListBox CLBTBS;
+        private System.Windows.Forms.Button BtnStop;
     }
 }

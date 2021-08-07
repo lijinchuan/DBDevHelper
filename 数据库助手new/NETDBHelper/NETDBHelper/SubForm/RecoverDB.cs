@@ -1,4 +1,5 @@
-﻿using Entity;
+﻿using Biz.Common.Data;
+using Entity;
 using LJC.FrameWorkV3.LogManager;
 using System;
 using System.Collections.Generic;
@@ -253,18 +254,7 @@ namespace NETDBHelper.SubForm
                                                 }
                                                 else
                                                 {
-                                                    if (table.Columns[i].DataType == typeof(Guid))
-                                                    {
-                                                        row[i] = Guid.Parse(c.StringValue);
-                                                    }
-                                                    else if (table.Columns[i].DataType == typeof(TimeSpan))
-                                                    {
-                                                        row[i] = TimeSpan.Parse(c.StringValue);
-                                                    }
-                                                    else
-                                                    {
-                                                        row[i] = Convert.ChangeType(c.StringValue, table.Columns[i].DataType);
-                                                    }
+                                                    row[i] = DataHelper.ConvertDBType(c.StringValue, table.Columns[i].DataType);
                                                 }
                                                 i++;
                                             }

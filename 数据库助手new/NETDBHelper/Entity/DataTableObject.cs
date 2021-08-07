@@ -81,5 +81,23 @@ namespace Entity
             get;
             set;
         } = new List<DataTableRow>();
+
+        public int TotalCount
+        {
+            get;
+            set;
+        }
+
+        public int Size
+        {
+            get;
+            set;
+        }
+
+        public string Key
+        {
+            get;
+            set;
+        }
     }
 }

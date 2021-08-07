@@ -633,7 +633,7 @@ where a.Table_NAME='"+viewname+"' and a.TABLE_NAME=b.TABLE_NAME ORDER BY A.TABLE
             ExecuteNoQuery(dbSource, dbName, sql);
         }
 
-        public static IEnumerable<DataTableObject> ExportData2(List<TBColumn> columns, bool notExportId, DBSource dbSource, TableInfo tableinfo, int topNum)
+        public static IEnumerable<DataTableObject> ExportData2(List<TBColumn> columns, bool notExportId, DBSource dbSource, TableInfo tableinfo, int topNum,Func<bool> checkCancel,CopyDBTask copyDBTask)
         {
 
             IEnumerable<TBColumn> cols = columns.Where(p => !p.TypeName.Equals("timestamp", StringComparison.OrdinalIgnoreCase));
@@ -663,9 +663,28 @@ where a.Table_NAME='"+viewname+"' and a.TABLE_NAME=b.TABLE_NAME ORDER BY A.TABLE
             var total = 0;
             var maxsize = 1000000;
 
+            var lastTask = copyDBTask.CopyTBDataTasks.Where(p => p.DB == tableinfo.DBName && p.TB == tableinfo.TBName).OrderByDescending(p => p.TotalCount).FirstOrDefault();
+            if (lastTask != null)
+            {
+                if (lastTask.Key == null)
+                {
+                    yield break;
+                }
+                //要转换下类型
+                var sqltext = string.Format("select top 1 {0} from [{2}].{1} with(nolock)",idColumn.Name,  string.Concat("[", tableinfo.TBName, "]"), tableinfo.Schema);
+                var data = ExecuteDBTable(dbSource, tableinfo.DBName, sqltext);
+                maxId = DataHelper.ConvertDBType(lastTask.Key, data.Columns[0].DataType);
+                total = lastTask.TotalCount;
+            }
+
             var totalsize = 0;
             while (true)
             {
+                if (checkCancel?.Invoke() == true)
+                {
+                    yield break;
+                }
+
                 string sqltext = null;
                 DataTable datas = null;
                 bool isFinished = false;
@@ -756,6 +775,9 @@ where a.Table_NAME='"+viewname+"' and a.TABLE_NAME=b.TABLE_NAME ORDER BY A.TABLE
 
                 if (dataTableObject.Rows.Count >= maxsize)
                 {
+                    dataTableObject.Key = maxId?.ToString();
+                    dataTableObject.TotalCount = total;
+                    dataTableObject.Size = dataTableObject.Rows.Count;
                     yield return dataTableObject;
                     dataTableObject.Rows.Clear();
                 }
@@ -763,6 +785,9 @@ where a.Table_NAME='"+viewname+"' and a.TABLE_NAME=b.TABLE_NAME ORDER BY A.TABLE
 
             if (dataTableObject.Rows.Count > 0)
             {
+                dataTableObject.Key = maxId?.ToString();
+                dataTableObject.TotalCount = total;
+                dataTableObject.Size = dataTableObject.Rows.Count;
                 yield return dataTableObject;
             }
 
