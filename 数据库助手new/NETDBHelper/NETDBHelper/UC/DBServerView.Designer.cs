@@ -68,6 +68,8 @@
             this.CommMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.ToolStripMenuItemReload = new System.Windows.Forms.ToolStripMenuItem();
             this.CommSubMenuitem_ViewConnsql = new System.Windows.Forms.ToolStripMenuItem();
+            this.过滤显示ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.完全加载ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.复制对象名ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.TSMI_ViewTableList = new System.Windows.Forms.ToolStripMenuItem();
             this.TSMI_ViewColumnList = new System.Windows.Forms.ToolStripMenuItem();
@@ -82,7 +84,6 @@
             this.CommSubMenuItem_Delete = new System.Windows.Forms.ToolStripMenuItem();
             this.TSMI_FilterProc = new System.Windows.Forms.ToolStripMenuItem();
             this.TSMI_FilterFunction = new System.Windows.Forms.ToolStripMenuItem();
-            this.完全加载ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.DBServerviewContextMenuStrip.SuspendLayout();
             this.toolStrip1.SuspendLayout();
             this.CommMenuStrip.SuspendLayout();
@@ -378,6 +379,7 @@
             this.CommMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.ToolStripMenuItemReload,
             this.CommSubMenuitem_ViewConnsql,
+            this.过滤显示ToolStripMenuItem,
             this.完全加载ToolStripMenuItem,
             this.复制对象名ToolStripMenuItem,
             this.TSMI_ViewTableList,
@@ -392,7 +394,7 @@
             this.TSMI_FilterProc,
             this.TSMI_FilterFunction});
             this.CommMenuStrip.Name = "CommMenuStrip";
-            this.CommMenuStrip.Size = new System.Drawing.Size(181, 340);
+            this.CommMenuStrip.Size = new System.Drawing.Size(181, 362);
             // 
             // ToolStripMenuItemReload
             // 
@@ -407,6 +409,20 @@
             this.CommSubMenuitem_ViewConnsql.Text = "查看连接串";
             this.CommSubMenuitem_ViewConnsql.Visible = false;
             this.CommSubMenuitem_ViewConnsql.Click += new System.EventHandler(this.查看连接串ToolStripMenuItem_Click);
+            // 
+            // 过滤显示ToolStripMenuItem
+            // 
+            this.过滤显示ToolStripMenuItem.Name = "过滤显示ToolStripMenuItem";
+            this.过滤显示ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.过滤显示ToolStripMenuItem.Text = "过滤显示";
+            this.过滤显示ToolStripMenuItem.Click += new System.EventHandler(this.过滤显示ToolStripMenuItem_Click);
+            // 
+            // 完全加载ToolStripMenuItem
+            // 
+            this.完全加载ToolStripMenuItem.Name = "完全加载ToolStripMenuItem";
+            this.完全加载ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.完全加载ToolStripMenuItem.Text = "完全加载";
+            this.完全加载ToolStripMenuItem.Click += new System.EventHandler(this.完全加载ToolStripMenuItem_Click);
             // 
             // 复制对象名ToolStripMenuItem
             // 
@@ -496,13 +512,6 @@
             this.TSMI_FilterFunction.Size = new System.Drawing.Size(180, 22);
             this.TSMI_FilterFunction.Text = "筛选函数";
             // 
-            // 完全加载ToolStripMenuItem
-            // 
-            this.完全加载ToolStripMenuItem.Name = "完全加载ToolStripMenuItem";
-            this.完全加载ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.完全加载ToolStripMenuItem.Text = "完全加载";
-            this.完全加载ToolStripMenuItem.Click += new System.EventHandler(this.完全加载ToolStripMenuItem_Click);
-            // 
             // DBServerView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -580,5 +589,6 @@
         private System.Windows.Forms.ToolStripMenuItem TTSM_DelIndex;
         private System.Windows.Forms.ToolStripMenuItem TSMI_FilterFunction;
         private System.Windows.Forms.ToolStripMenuItem 完全加载ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 过滤显示ToolStripMenuItem;
     }
 }

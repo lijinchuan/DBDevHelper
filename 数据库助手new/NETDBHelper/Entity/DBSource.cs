@@ -48,5 +48,32 @@ namespace Entity
             get;
             set;
         }
+
+        /// <summary>
+        /// 排除的DB
+        /// </summary>
+        public List<string> ExDBList
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// 排除的表
+        /// </summary>
+        public List<string> ExTBList
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// 排除的正则表达式
+        /// </summary>
+        public List<string> ExDBRegex
+        {
+            get;
+            set;
+        }
     }
 }

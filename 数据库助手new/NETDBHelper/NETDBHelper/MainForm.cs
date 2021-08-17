@@ -105,11 +105,24 @@ namespace NETDBHelper
 
                 if (dbs.Count > 0)
                 {
+                    var allDBs = Biz.Common.XMLHelper.DeSerializeFromFile<DBSourceCollection>(Resources.Resource1.DbServersFile) ?? new DBSourceCollection();
                     foreach (var ds in dbs)
                     {
                         if (!this.dbServerView1.DBServers.Contains(ds))
                         {
-                            this.dbServerView1.DBServers.Add(ds);
+                            var server = allDBs.FirstOrDefault(p => p.ServerName == ds.ServerName && p.LoginName == ds.LoginName);
+                            if (server == null)
+                            {
+                                server = allDBs.FirstOrDefault(p => p.ServerName == ds.ServerName);
+                            }
+                            if (server != null)
+                            {
+                                dbServerView1.DBServers.Add(server);
+                            }
+                            else
+                            {
+                                dbServerView1.DBServers.Add(ds);
+                            }
                         }
                     }
                     this.dbServerView1.Bind();

@@ -202,7 +202,7 @@ namespace NETDBHelper
             //            var cols = SQLHelper.GetColumns(DBSource, item.DBName, item.TBName).ToList();
             //            colsdic.Add(key, cols);
             //        }
-                    
+
             //        LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<MarkObjectInfo>("MarkObjectInfo", new MarkObjectInfo
             //        {
             //            DBName=item.DBName,
@@ -224,11 +224,11 @@ namespace NETDBHelper
             //            TBName = item.TBName
             //        });
             //    }
-                
+
             //}
 
             //保存一下
-            if (dbs.Upsert(DBSource))
+            if (dbs.Upsert(DBSource, true))
             {
                 Biz.Common.XMLHelper.Serialize(dbs, Resources.Resource1.DbServersFile);
             }

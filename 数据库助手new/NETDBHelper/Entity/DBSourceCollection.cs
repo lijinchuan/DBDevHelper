@@ -60,7 +60,7 @@ namespace Entity
             return Find(item)!=null;
         }
 
-        public bool Upsert(DBSource item)
+        public bool Upsert(DBSource item,bool isForPasswordAndAccount)
         {
             var old = Find(item);
             if (old == null)
@@ -68,13 +68,28 @@ namespace Entity
                 container.Add(item);
                 return true;
             }
-            else if(!string.Equals(item.LoginPassword,old.LoginPassword,StringComparison.OrdinalIgnoreCase))
+            else
             {
-                old = item;
-                return true;
+                if (isForPasswordAndAccount && !string.Equals(item.LoginPassword, old.LoginPassword, StringComparison.OrdinalIgnoreCase))
+                {
+                    old.LoginName = item.LoginName;
+                    old.LoginPassword = item.LoginPassword;
+                    return true;
+                }
+                else
+                {
+                    old.ConnDB = item.ConnDB;
+                    old.ExDBList = item.ExDBList;
+                    old.ExDBRegex = item.ExDBRegex;
+                    old.ExTBList = item.ExTBList;
+                    old.IDType = item.IDType;
+                    old.ID = item.ID;
+                    old.LoginName = item.LoginName;
+                    old.LoginPassword = item.LoginPassword;
+                    old.ServerName = item.ServerName;
+                    return true;
+                }
             }
-
-            return false;
         }
 
         public void CopyTo(DBSource[] array, int arrayIndex)

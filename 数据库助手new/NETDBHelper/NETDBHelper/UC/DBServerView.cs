@@ -1055,6 +1055,7 @@ namespace NETDBHelper
                         TSMI_MulMarkLocal.Visible = nctype == NodeContentType.COLUMN;
                         TSMI_FilterProc.Visible = nctype == NodeContentType.PROCParent;
                         TSMI_FilterFunction.Visible = nctype == NodeContentType.FUNPARENT;
+                        过滤显示ToolStripMenuItem.Visible = nctype == NodeContentType.SEVER;
                     }
                 }
             }
@@ -2639,6 +2640,13 @@ background-color: #ffffff;
         private void 完全加载ToolStripMenuItem_Click(object sender, EventArgs e)
         {
             ReLoadDBObj(tv_DBServers.SelectedNode, true);
+        }
+
+        private void 过滤显示ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SubForm.DBFilter dlg = new DBFilter();
+            dlg.ShowMe(this.Parent);
+            dlg.SetDBSource(GetDBSource(this.tv_DBServers.SelectedNode)).Init(0, false);
         }
     }
 }
