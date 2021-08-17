@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Entity;
 
 namespace NETDBHelper.UC
 {
@@ -17,10 +18,11 @@ namespace NETDBHelper.UC
             InitializeComponent();
         }
 
-        public void SetCode(string dbname,string code)
+        public void SetCode(DBSource dbSource,string dbname,string code)
         {
             this.sqlEditBox1.Text = code;
             this.sqlEditBox1.DBName = dbname;
+            this.sqlEditBox1.DBServer = dbSource;
         }
     }
 }

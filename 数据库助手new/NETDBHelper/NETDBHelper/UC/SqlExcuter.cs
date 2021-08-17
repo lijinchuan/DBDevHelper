@@ -53,6 +53,7 @@ namespace NETDBHelper.UC
             this.Server = server;
             this.DB = db;
             this.sqlEditBox1.DBName = db;
+            this.sqlEditBox1.DBServer = server;
             this.sqlEditBox1.Text = sql;
 
             this.TBInfo.ScrollBars = ScrollBars.Both;
@@ -793,6 +794,7 @@ namespace NETDBHelper.UC
             this.Server =(DBSource)recoverData[1] ;
             this.DB = (string)recoverData[2];
             this.sqlEditBox1.DBName = (string)recoverData[2];
+            this.sqlEditBox1.DBServer = this.Server;
             this.sqlEditBox1.Text = (string)recoverData[3];
 
             this.TBInfo.ScrollBars = ScrollBars.Both;

@@ -58,8 +58,14 @@ namespace NETDBHelper.UC
 
         public DBSource DBSource
         {
-            get;
-            set;
+            get
+            {
+                return this.tb_sql.DBServer;
+            }
+            set
+            {
+                this.tb_sql.DBServer = value;
+            }
         }
 
         public string DBName

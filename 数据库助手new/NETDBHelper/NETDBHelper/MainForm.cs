@@ -243,7 +243,7 @@ namespace NETDBHelper
         private void ShowProc(DBSource dBSource,string dbname, string procname, string procbody)
         {
             UC.SQLCodePanel panel = new SQLCodePanel();
-            panel.SetCode(dbname,procbody);
+            panel.SetCode(dBSource,dbname,procbody);
             panel.Text = $"存储过程-{procname}";
             this.TabControl.TabPages.Add(panel);
             this.TabControl.SelectedTab = panel;
@@ -252,7 +252,7 @@ namespace NETDBHelper
         private void ShowFunction(DBSource dBSource, string dbname, string procname, string procbody)
         {
             UC.SQLCodePanel panel = new SQLCodePanel();
-            panel.SetCode(dbname, procbody);
+            panel.SetCode(dBSource,dbname, procbody);
             panel.Text = $"函数-{procname}";
             this.TabControl.TabPages.Add(panel);
             this.TabControl.SelectedTab = panel;
@@ -780,7 +780,7 @@ namespace NETDBHelper
             var tip= $"视图{dbname}.{viewname}-{source.ServerName}";
             UC.SQLCodePanel panel = new SQLCodePanel();
             panel.ToolTipText = tip;
-            panel.SetCode(dbname, sql);
+            panel.SetCode(source,dbname, sql);
             panel.Text = title;
             this.TabControl.TabPages.Add(panel);
             this.TabControl.SelectedTab = panel;

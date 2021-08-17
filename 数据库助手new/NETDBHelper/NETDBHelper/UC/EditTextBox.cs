@@ -121,8 +121,15 @@ namespace NETDBHelper.UC
                 count = 0;
 
                 HashSet<string> hash = new HashSet<string>();
+                var exdbhash = new HashSet<string>(DBServer.ExDBList?.Select(p => p.ToUpper()) ?? new List<string>());
+                var extbhash = new HashSet<string>(DBServer.ExTBList?.Select(p => p.ToUpper()) ?? new List<string>());
                 foreach (var m in markColumnInfoList)
                 {
+                    if (m.Servername != DBServer.ServerName || exdbhash.Contains(m.DBName) || extbhash.Contains(m.DBName + "," + m.TBName?.Split('.').Last()))
+                    {
+                        continue;
+                    }
+                    
                     if (string.IsNullOrWhiteSpace(m.ColumnName))
                     {
                         ThinkInfoLib.RemoveAll(p => p.Type == 1 &&((MarkObjectInfo)p.Tag)?.DBName.Equals(m.DBName,StringComparison.OrdinalIgnoreCase)==true&& p.ObjectName.Equals(m.TBName, StringComparison.OrdinalIgnoreCase));
@@ -332,6 +339,12 @@ namespace NETDBHelper.UC
                     replaceobjectname
                 };
             }).ToList();
+        }
+
+        public DBSource DBServer
+        {
+            get;
+            set;
         }
 
         private string _dbname;
