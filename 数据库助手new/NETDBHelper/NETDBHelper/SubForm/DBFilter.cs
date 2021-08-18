@@ -149,7 +149,7 @@ namespace NETDBHelper.SubForm
 
             var db = (string)CLBDBs.SelectedItem;
 
-            if (CLBDBs.Tag != null)
+            if (CLBDBs.Tag != null && _canChooseTB)
             {
                 var dic = (Dictionary<string, List<StringAndBool>>)CLBDBs.Tag;
 
@@ -281,6 +281,10 @@ namespace NETDBHelper.SubForm
 
         private void BtnSelAll_Click(object sender, EventArgs e)
         {
+            if (mainCLB == null)
+            {
+                return;
+            }
             if (BtnSelAll.Text == "全选")
             {
                 for (int i = 0; i < this.mainCLB.Items.Count; i++)
