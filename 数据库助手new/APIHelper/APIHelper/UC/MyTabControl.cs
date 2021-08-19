@@ -436,9 +436,10 @@ namespace APIHelper.UC
             }
             else
             {
-                if (e.Control is TabPage)
+                if ((e.Control as TabPage) != null)
                 {
                     tabExDic.Add(TabCount - 1, new TabTableTabEx((TabPage)e.Control, TabCount - 1));
+                    OnSelected(new TabControlEventArgs(e.Control as TabPage, 0, TabControlAction.Selected));
                 }
             }
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +7,7 @@ using System.Text;
 namespace Entity
 {
     [Serializable]
-    public class ParamInfo
+    public class ParamInfo:ICloneable
     {
         public bool Checked
         {
@@ -31,5 +32,10 @@ namespace Entity
             get;
             set;
         } = "";
+
+        public object Clone()
+        {
+            return this.MemberwiseClone();
+        }
     }
 }
