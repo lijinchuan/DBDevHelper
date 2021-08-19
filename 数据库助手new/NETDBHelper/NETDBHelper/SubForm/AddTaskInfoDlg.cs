@@ -72,6 +72,8 @@ namespace NETDBHelper.SubForm
 
             }
             this.CBDB.SelectedValue = info.ConnDB;
+            TBSql.DBServer = DBSource;
+            TBSql.DBName = info.ConnDB;
             this.BtnAdd.Text = "修改";
         }
 
@@ -97,6 +99,8 @@ namespace NETDBHelper.SubForm
 
                     this.CBDB.DisplayMember = "name";
                     this.CBDB.ValueMember = "name";
+
+                    TBSql.DBServer = DBSource;
                 }
                 catch
                 {
@@ -210,6 +214,11 @@ namespace NETDBHelper.SubForm
         private void BtnCanel_Click(object sender, EventArgs e)
         {
             this.DialogResult = DialogResult.Cancel;
+        }
+
+        private void CBDB_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            TBSql.DBName = CBDB.SelectedItem.ToString();
         }
     }
 }
