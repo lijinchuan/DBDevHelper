@@ -653,7 +653,7 @@ namespace APIHelper.UC
                 {
                     Path = p.Path,
                     Domain = p.Domain,
-                    Expires = p.Expires,
+                    Expires = p.Expires <= new DateTime(1970, 1, 1) ? new DateTime(1970, 1, 1) : p.Expires,
                     HasKeys = p.HasKeys,
                     HttpOnly = p.HttpOnly,
                     Name = p.Name,

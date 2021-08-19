@@ -125,7 +125,7 @@ namespace Entity
         {
             get;
             set;
-        }
+        } = new DateTime(1970, 1, 1);
 
         public StringBuilder GetRequestDetail()
         {
