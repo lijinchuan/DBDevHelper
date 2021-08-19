@@ -33,11 +33,11 @@
             this.Tabs = new System.Windows.Forms.TabControl();
             this.TPBody = new System.Windows.Forms.TabPage();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.RBTree = new System.Windows.Forms.RadioButton();
             this.RBFormat = new System.Windows.Forms.RadioButton();
             this.RBRow = new System.Windows.Forms.RadioButton();
             this.CBEncode = new System.Windows.Forms.ComboBox();
             this.TPBrowser = new System.Windows.Forms.TabPage();
-            this.WBResult = new System.Windows.Forms.WebBrowser();
             this.TPHeader = new System.Windows.Forms.TabPage();
             this.DGVHeader = new System.Windows.Forms.DataGridView();
             this.TPCookie = new System.Windows.Forms.TabPage();
@@ -52,11 +52,9 @@
             this.复制ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.查找ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.更新环境变量ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.RBTree = new System.Windows.Forms.RadioButton();
             this.Tabs.SuspendLayout();
             this.TPBody.SuspendLayout();
             this.panel1.SuspendLayout();
-            this.TPBrowser.SuspendLayout();
             this.TPHeader.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.DGVHeader)).BeginInit();
             this.TPCookie.SuspendLayout();
@@ -116,6 +114,18 @@
             this.panel1.Size = new System.Drawing.Size(292, 29);
             this.panel1.TabIndex = 4;
             // 
+            // RBTree
+            // 
+            this.RBTree.AutoSize = true;
+            this.RBTree.Location = new System.Drawing.Point(75, 7);
+            this.RBTree.Name = "RBTree";
+            this.RBTree.Size = new System.Drawing.Size(71, 16);
+            this.RBTree.TabIndex = 3;
+            this.RBTree.TabStop = true;
+            this.RBTree.Text = "树形列表";
+            this.RBTree.UseVisualStyleBackColor = true;
+            this.RBTree.CheckedChanged += new System.EventHandler(this.RBTree_CheckedChanged);
+            // 
             // RBFormat
             // 
             this.RBFormat.AutoSize = true;
@@ -149,7 +159,6 @@
             // 
             // TPBrowser
             // 
-            this.TPBrowser.Controls.Add(this.WBResult);
             this.TPBrowser.Location = new System.Drawing.Point(4, 22);
             this.TPBrowser.Name = "TPBrowser";
             this.TPBrowser.Padding = new System.Windows.Forms.Padding(3);
@@ -157,15 +166,6 @@
             this.TPBrowser.TabIndex = 4;
             this.TPBrowser.Text = "浏览器";
             this.TPBrowser.UseVisualStyleBackColor = true;
-            // 
-            // WBResult
-            // 
-            this.WBResult.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.WBResult.Location = new System.Drawing.Point(3, 3);
-            this.WBResult.MinimumSize = new System.Drawing.Size(20, 20);
-            this.WBResult.Name = "WBResult";
-            this.WBResult.Size = new System.Drawing.Size(461, 341);
-            this.WBResult.TabIndex = 0;
             // 
             // TPHeader
             // 
@@ -304,18 +304,6 @@
             this.更新环境变量ToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
             this.更新环境变量ToolStripMenuItem.Text = "更新环境变量";
             // 
-            // RBTree
-            // 
-            this.RBTree.AutoSize = true;
-            this.RBTree.Location = new System.Drawing.Point(75, 7);
-            this.RBTree.Name = "RBTree";
-            this.RBTree.Size = new System.Drawing.Size(71, 16);
-            this.RBTree.TabIndex = 3;
-            this.RBTree.TabStop = true;
-            this.RBTree.Text = "树形列表";
-            this.RBTree.UseVisualStyleBackColor = true;
-            this.RBTree.CheckedChanged += new System.EventHandler(this.RBTree_CheckedChanged);
-            // 
             // UCApiResult
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -328,7 +316,6 @@
             this.TPBody.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
-            this.TPBrowser.ResumeLayout(false);
             this.TPHeader.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.DGVHeader)).EndInit();
             this.TPCookie.ResumeLayout(false);
@@ -365,7 +352,6 @@
         private System.Windows.Forms.TabPage TPErrors;
         private System.Windows.Forms.TextBox TBErrors;
         private System.Windows.Forms.TabPage TPBrowser;
-        private System.Windows.Forms.WebBrowser WBResult;
         private System.Windows.Forms.ToolStripMenuItem 更新环境变量ToolStripMenuItem;
         private System.Windows.Forms.RadioButton RBTree;
     }

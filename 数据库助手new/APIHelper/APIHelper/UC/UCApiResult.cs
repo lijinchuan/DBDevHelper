@@ -21,6 +21,9 @@ namespace APIHelper.UC
         //private APIUrl APIUrl = null;
         private APIEnv apiEnv = null;
         private UC.UCJsonViewer UCJsonViewer = null;
+
+        private WebBrowser WBResult = null;
+
         public UCApiResult()
         {
             InitializeComponent();
@@ -63,7 +66,6 @@ namespace APIHelper.UC
             this.CMSTool.ItemClicked += CMSTool_ItemClicked;
 
             TBErrors.ForeColor = Color.Red;
-            WBResult.ScriptErrorsSuppressed = true;
 
             LBStatuCode.DoubleClick += LBStatuCode_DoubleClick;
             LBStatuCode.Cursor = Cursors.Hand;
@@ -74,7 +76,23 @@ namespace APIHelper.UC
             UCJsonViewer.Visible = false;
             UCJsonViewer.Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right | AnchorStyles.Bottom;
             this.TPBody.Controls.Add(UCJsonViewer);
-            
+
+            WBResult = new WebBrowser();
+            WBResult.ScriptErrorsSuppressed = true;
+            WBResult.Dock = DockStyle.Fill;
+            TPBrowser.Controls.Add(WBResult);
+        }
+
+        /// <summary>
+        /// 清理资源
+        /// </summary>
+        public void ClearResource()
+        {
+            if (WBResult != null)
+            {
+                TPBrowser.Controls.Remove(WBResult);
+                WBResult.Dispose();
+            }
         }
 
         private void LBStatuCode_DoubleClick(object sender, EventArgs e)
@@ -89,8 +107,8 @@ namespace APIHelper.UC
         {
             bool isWriteCookie = false;
 
-            this.WBResult.DocumentCompleted += DocumentCompleted;
-            this.WBResult.Url = new Uri(url);
+            WBResult.DocumentCompleted += DocumentCompleted;
+            WBResult.Url = new Uri(url);
 
             
 
@@ -98,7 +116,7 @@ namespace APIHelper.UC
             {
                 if (WBResult.Url.ToString().Equals(url, StringComparison.OrdinalIgnoreCase))
                 {
-                    this.WBResult.DocumentCompleted -= DocumentCompleted;
+                    WBResult.DocumentCompleted -= DocumentCompleted;
                     if (!isWriteCookie)
                     {
                         isWriteCookie = true;
@@ -111,7 +129,7 @@ namespace APIHelper.UC
                                 Biz.IEUtil.InternetSetCookie(host, kv.Key, kv.Value + ";path=/;");
                             }
 
-                            this.WBResult.Navigate(url);
+                            WBResult.Navigate(url);
                             return;
                         }
                     }
@@ -121,7 +139,7 @@ namespace APIHelper.UC
                 {
                     if (isWriteCookie)
                     {
-                        this.WBResult.DocumentCompleted -= DocumentCompleted;
+                        WBResult.DocumentCompleted -= DocumentCompleted;
                     }
                     else
                     {
@@ -139,7 +157,7 @@ namespace APIHelper.UC
                                 Biz.IEUtil.InternetSetCookie(host2, kv.Key, kv.Value + ";path=/;");
                             }
 
-                            this.WBResult.Navigate(url);
+                            WBResult.Navigate(url);
                             return;
                         }
                     }
@@ -410,11 +428,11 @@ namespace APIHelper.UC
                     TBResult.Visible = true;
                     UCJsonViewer.Visible = false;
                     this.TBResult.Text = html;
-                    this.WBResult.DocumentText = html;
+                    WBResult.DocumentText = html;
                 }
                 else if (RBTree.Checked)
                 {
-                    this.WBResult.DocumentText = html;
+                    WBResult.DocumentText = html;
                     UCJsonViewer.DataSource = html;
                     UCJsonViewer.Location = TBResult.Location;
                     UCJsonViewer.Height = TBResult.Height;
@@ -478,18 +496,18 @@ namespace APIHelper.UC
                             {
                                 Tabs.SelectedTab = TPBrowser;
                             }
-                            this.WBResult.DocumentCompleted += (s, e) =>
+                            WBResult.DocumentCompleted += (s, e) =>
                             {
-                                this.WBResult.Document.InvokeScript("maxWin", null);
-                                this.WBResult.Document.InvokeScript("setText", new[] { html });
+                                WBResult.Document.InvokeScript("maxWin", null);
+                                WBResult.Document.InvokeScript("setText", new[] { html });
                             };
-                            if (this.WBResult.Url?.AbsoluteUri.Contains("jsonviewer.html") != true)
+                            if (WBResult.Url?.AbsoluteUri.Contains("jsonviewer.html") != true)
                             {
-                                this.WBResult.Url = new Uri(AppDomain.CurrentDomain.BaseDirectory + "jsonviewer.html");
+                                WBResult.Url = new Uri(AppDomain.CurrentDomain.BaseDirectory + "jsonviewer.html");
                             }
                             else
                             {
-                                this.WBResult.Document.InvokeScript("setText", new[] { html });
+                                WBResult.Document.InvokeScript("setText", new[] { html });
                             }
                         }
                         else if (isxml)
@@ -499,19 +517,19 @@ namespace APIHelper.UC
                                 Tabs.SelectedTab = TPBrowser;
                             }
                             //this.WBResult.ScriptErrorsSuppressed = false;
-                            this.WBResult.DocumentCompleted += (s, e) =>
+                            WBResult.DocumentCompleted += (s, e) =>
                             {
                                 //this.WBResult.Document.InvokeScript("maxWin", new object[] { this.Width, this.Height });
-                                this.WBResult.Document.InvokeScript("setText", new[] { html });
+                                WBResult.Document.InvokeScript("setText", new[] { html });
                             };
-                            if (this.WBResult.Url?.AbsoluteUri.Contains("xml.html") != true)
+                            if (WBResult.Url?.AbsoluteUri.Contains("xml.html") != true)
                             {
-                                this.WBResult.AllowNavigation = false;
-                                this.WBResult.Url = new Uri(AppDomain.CurrentDomain.BaseDirectory + "xml.html");
+                                WBResult.AllowNavigation = false;
+                                WBResult.Url = new Uri(AppDomain.CurrentDomain.BaseDirectory + "xml.html");
                             }
                             else
                             {
-                                this.WBResult.Document.InvokeScript("setText", new[] { html });
+                                WBResult.Document.InvokeScript("setText", new[] { html });
                             }
                         }
                     }
