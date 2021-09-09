@@ -15,6 +15,7 @@ namespace Entity
         DELETE = 5,
         XDELETE = 6,
         TRACE = 7,
-        OPTIONS = 8
+        OPTIONS = 8,
+        PATCH=9
     }
 }

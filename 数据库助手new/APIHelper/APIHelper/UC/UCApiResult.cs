@@ -97,7 +97,7 @@ namespace APIHelper.UC
 
         private void LBStatuCode_DoubleClick(object sender, EventArgs e)
         {
-            if (LBStatuCode.Tag!=null)
+            if (LBStatuCode.Tag != null)
             {
                 System.Diagnostics.Process.Start($"https://tool.lu/httpcode/#{LBStatuCode.Tag.ToString()}");
             }
@@ -110,7 +110,7 @@ namespace APIHelper.UC
             WBResult.DocumentCompleted += DocumentCompleted;
             WBResult.Url = new Uri(url);
 
-            
+
 
             void DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
             {
@@ -164,6 +164,11 @@ namespace APIHelper.UC
 
                 }
 
+                if (newHtml == WBResult.DocumentText)
+                {
+                    return;
+                }
+
                 HtmlElement element2 = WBResult.Document.CreateElement("script");
                 element2.SetAttribute("type", "text/javascript");
                 element2.SetAttribute("text", "function replacedom(dom){document.documentElement.innerHTML=dom;return true;}");   //这里写JS代码
@@ -174,10 +179,21 @@ namespace APIHelper.UC
 
                 if (startPos > -1 && endPos > -1)
                 {
-                    newHtml = newHtml.Substring(startPos, endPos - startPos + "</body>".Length);
+                    newHtml = newHtml.Substring(startPos, endPos - startPos) + "</body>";
                 }
 
                 WBResult.Document.InvokeScript("replacedom", new[] { newHtml });
+
+                var docHeader = WBResult.Document.GetElementsByTagName("head");
+                if (docHeader.Count > 0)
+                {
+                    var id = Guid.NewGuid().ToString("N");
+                    HtmlElement element3 = WBResult.Document.CreateElement("script");
+                    element3.SetAttribute("type", "text/javascript");
+                    element3.SetAttribute("id", id);
+                    element3.SetAttribute("text", "var scripts =[];var ss= document.getElementsByTagName(\"SCRIPT\"); for(var i=0;i<ss.length;i++){scripts.push(ss[i]); ss[i].remove();};for(var i=0;i<scripts.length;i++){if(scripts[i].id=='" + id+ "' || !scripts[i].innerHTML) continue;var newScript = document.createElement(\"SCRIPT\");alert(scripts[i].innerHTML);newScript.innerHTML=scripts[i].innerHTML;document.getElementsByTagName(\"HEAD\").item(0).appendChild(newScript);}");   //这里写JS代码
+                    docHeader[0].AppendChild(element3);
+                }
             }
         }
 
