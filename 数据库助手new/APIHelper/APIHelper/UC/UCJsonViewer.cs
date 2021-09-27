@@ -56,11 +56,7 @@ namespace APIHelper.UC
             base.OnLoad(e);
             if (!string.IsNullOrWhiteSpace(DataSource) && sourcechanged)
             {
-                waitbox.Waiting(this, new Action(() =>
-                 {
-                     this.BeginInvoke(new Action(() =>
-                     BindTreeView(this.DTV, DataSource)));
-                 }));
+                waitbox.Waiting(this, () => BindTreeView(this.DTV, DataSource));
                 sourcechanged = false;
             }
         }
@@ -69,11 +65,8 @@ namespace APIHelper.UC
         {
             if (!string.IsNullOrWhiteSpace(DataSource)&&sourcechanged)
             {
-                waitbox.Waiting(this, new Action(() =>
-                {
-                    this.BeginInvoke(new Action(() =>
-                    BindTreeView(this.DTV, DataSource)));
-                }));
+                waitbox.Waiting(this, () =>
+                    BindTreeView(this.DTV, DataSource));
                 sourcechanged = false;
             }
         }
