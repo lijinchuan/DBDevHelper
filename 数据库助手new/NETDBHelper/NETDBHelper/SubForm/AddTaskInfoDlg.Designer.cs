@@ -1,4 +1,6 @@
-﻿namespace NETDBHelper.SubForm
+﻿using NETDBHelper.UC;
+
+namespace NETDBHelper.SubForm
 {
     partial class AddTaskInfoDlg
     {
@@ -28,6 +30,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.CBValid = new System.Windows.Forms.CheckBox();
             this.TBErrmsg = new System.Windows.Forms.TextBox();
@@ -46,10 +49,10 @@
             this.TBConditionValue = new System.Windows.Forms.TextBox();
             this.CLB_Condition = new System.Windows.Forms.CheckedListBox();
             this.label3 = new System.Windows.Forms.Label();
-            this.TBSql = new System.Windows.Forms.TextBox();
             this.TBName = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
+            this.TBSql = new NETDBHelper.UC.SQLEditBox();
             this.groupBox1.SuspendLayout();
             this.PanelEqualValue.SuspendLayout();
             this.SuspendLayout();
@@ -79,7 +82,7 @@
             this.groupBox1.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.groupBox1.Location = new System.Drawing.Point(0, 0);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(597, 366);
+            this.groupBox1.Size = new System.Drawing.Size(875, 501);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             // 
@@ -97,7 +100,7 @@
             // 
             // TBErrmsg
             // 
-            this.TBErrmsg.Location = new System.Drawing.Point(83, 293);
+            this.TBErrmsg.Location = new System.Drawing.Point(85, 401);
             this.TBErrmsg.Name = "TBErrmsg";
             this.TBErrmsg.Size = new System.Drawing.Size(491, 21);
             this.TBErrmsg.TabIndex = 17;
@@ -105,7 +108,7 @@
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(13, 298);
+            this.label8.Location = new System.Drawing.Point(15, 406);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(65, 12);
             this.label8.TabIndex = 16;
@@ -118,6 +121,7 @@
             this.CBDB.Name = "CBDB";
             this.CBDB.Size = new System.Drawing.Size(200, 20);
             this.CBDB.TabIndex = 15;
+            this.CBDB.SelectedIndexChanged += new System.EventHandler(this.CBDB_SelectedIndexChanged);
             // 
             // label7
             // 
@@ -149,7 +153,7 @@
             // 
             // BtnCanel
             // 
-            this.BtnCanel.Location = new System.Drawing.Point(473, 331);
+            this.BtnCanel.Location = new System.Drawing.Point(770, 465);
             this.BtnCanel.Name = "BtnCanel";
             this.BtnCanel.Size = new System.Drawing.Size(75, 23);
             this.BtnCanel.TabIndex = 11;
@@ -159,7 +163,7 @@
             // 
             // BtnAdd
             // 
-            this.BtnAdd.Location = new System.Drawing.Point(377, 332);
+            this.BtnAdd.Location = new System.Drawing.Point(674, 466);
             this.BtnAdd.Name = "BtnAdd";
             this.BtnAdd.Size = new System.Drawing.Size(75, 23);
             this.BtnAdd.TabIndex = 10;
@@ -173,14 +177,14 @@
             this.CBTimeDw.FormattingEnabled = true;
             this.CBTimeDw.Items.AddRange(new object[] {
             "秒"});
-            this.CBTimeDw.Location = new System.Drawing.Point(184, 261);
+            this.CBTimeDw.Location = new System.Drawing.Point(186, 369);
             this.CBTimeDw.Name = "CBTimeDw";
             this.CBTimeDw.Size = new System.Drawing.Size(40, 20);
             this.CBTimeDw.TabIndex = 9;
             // 
             // TBRate
             // 
-            this.TBRate.Location = new System.Drawing.Point(83, 260);
+            this.TBRate.Location = new System.Drawing.Point(85, 368);
             this.TBRate.Name = "TBRate";
             this.TBRate.Size = new System.Drawing.Size(100, 21);
             this.TBRate.TabIndex = 8;
@@ -188,7 +192,7 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(15, 262);
+            this.label5.Location = new System.Drawing.Point(17, 370);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(65, 12);
             this.label5.TabIndex = 7;
@@ -198,7 +202,7 @@
             // 
             this.PanelEqualValue.Controls.Add(this.label4);
             this.PanelEqualValue.Controls.Add(this.TBConditionValue);
-            this.PanelEqualValue.Location = new System.Drawing.Point(179, 198);
+            this.PanelEqualValue.Location = new System.Drawing.Point(181, 306);
             this.PanelEqualValue.Name = "PanelEqualValue";
             this.PanelEqualValue.Size = new System.Drawing.Size(200, 45);
             this.PanelEqualValue.TabIndex = 6;
@@ -226,7 +230,7 @@
             "空值触发",
             "非空值触发",
             "特定值触发"});
-            this.CLB_Condition.Location = new System.Drawing.Point(84, 189);
+            this.CLB_Condition.Location = new System.Drawing.Point(86, 297);
             this.CLB_Condition.Name = "CLB_Condition";
             this.CLB_Condition.Size = new System.Drawing.Size(95, 52);
             this.CLB_Condition.TabIndex = 0;
@@ -234,19 +238,11 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(37, 189);
+            this.label3.Location = new System.Drawing.Point(39, 297);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(41, 12);
             this.label3.TabIndex = 4;
             this.label3.Text = "条件：";
-            // 
-            // TBSql
-            // 
-            this.TBSql.Location = new System.Drawing.Point(84, 81);
-            this.TBSql.Multiline = true;
-            this.TBSql.Name = "TBSql";
-            this.TBSql.Size = new System.Drawing.Size(501, 92);
-            this.TBSql.TabIndex = 3;
             // 
             // TBName
             // 
@@ -273,17 +269,28 @@
             this.label1.TabIndex = 0;
             this.label1.Text = "名称：";
             // 
+            // TBSql
+            // 
+            this.TBSql.DBName = null;
+            this.TBSql.DBServer = null;
+            this.TBSql.Location = new System.Drawing.Point(84, 81);
+            this.TBSql.Name = "TBSql";
+            this.TBSql.SelectedText = "";
+            this.TBSql.Size = new System.Drawing.Size(779, 210);
+            this.TBSql.TabIndex = 3;
+            // 
             // AddTaskInfoDlg
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(597, 366);
+            this.ClientSize = new System.Drawing.Size(875, 501);
             this.Controls.Add(this.groupBox1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "AddTaskInfoDlg";
             this.ShowIcon = false;
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "添加/编辑监控任务";
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
@@ -299,7 +306,7 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.TextBox TBName;
-        private System.Windows.Forms.TextBox TBSql;
+        private SQLEditBox TBSql;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.CheckedListBox CLB_Condition;
         private System.Windows.Forms.Panel PanelEqualValue;

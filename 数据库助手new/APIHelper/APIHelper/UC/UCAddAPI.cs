@@ -653,7 +653,7 @@ namespace APIHelper.UC
                 {
                     Path = p.Path,
                     Domain = p.Domain,
-                    Expires = p.Expires,
+                    Expires = p.Expires <= new DateTime(1970, 1, 1) ? new DateTime(1970, 1, 1) : p.Expires,
                     HasKeys = p.HasKeys,
                     HttpOnly = p.HttpOnly,
                     Name = p.Name,
@@ -817,12 +817,12 @@ namespace APIHelper.UC
             if (this._apiData != null)
             {
                 this.XWWWFormUrlEncoded = this._apiData.XWWWFormUrlEncoded;
-                this.Params = this._apiData.Params;
+                this.Params = this._apiData.Params?.Select(p => (ParamInfo)p.Clone()).ToList();
                 this.rawTextBox.Text = this._apiData.RawText;
-                this.Headers = this._apiData.Headers;
-                this.FormDatas = this._apiData.FormDatas;
-                this.Cookies = this._apiData.Cookies;
-                this.Multipart_form_data = this._apiData.Multipart_form_data;
+                this.Headers = this._apiData.Headers?.Select(p => (ParamInfo)p.Clone()).ToList();
+                this.FormDatas = this._apiData.FormDatas?.Select(p => (ParamInfo)p.Clone()).ToList();
+                this.Cookies = this._apiData.Cookies?.Select(p => (ParamInfo)p.Clone()).ToList();
+                this.Multipart_form_data = this._apiData.Multipart_form_data?.Select(p => (ParamInfo)p.Clone()).ToList();
                 this.UCBearToken.Token = this._apiData.BearToken;
                 this.UCApiKey.AddTo = this._apiData.ApiKeyAddTo;
                 this.UCApiKey.Key = this._apiData.ApiKeyName;
@@ -1389,7 +1389,7 @@ namespace APIHelper.UC
 
         void ISaveAble.Save()
         {
-            //Save(true);
+            Save(true);
         }
 
         public void Execute()

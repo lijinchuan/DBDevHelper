@@ -87,6 +87,7 @@ namespace APIHelper.UC
                         foreach (var tab in tbpages)
                         {
                             this.TabPages.Remove(tab);
+                            tab.Dispose();
                         }
                         break;
                     }
@@ -372,6 +373,7 @@ namespace APIHelper.UC
                                 else if (tab.Value.CloseButtonBand.Contains(e.X, e.Y))
                                 {
                                     this.TabPages.Remove(tab.Value.TabPage);
+                                    tab.Value.TabPage.Dispose();
                                     break;
                                 }
                             }
@@ -434,9 +436,10 @@ namespace APIHelper.UC
             }
             else
             {
-                if (e.Control is TabPage)
+                if ((e.Control as TabPage) != null)
                 {
                     tabExDic.Add(TabCount - 1, new TabTableTabEx((TabPage)e.Control, TabCount - 1));
+                    OnSelected(new TabControlEventArgs(e.Control as TabPage, 0, TabControlAction.Selected));
                 }
             }
 
