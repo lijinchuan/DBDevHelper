@@ -332,8 +332,8 @@ namespace Biz.Common.Data
             sb.DataSource = dbSource.ServerName;
             sb.InitialCatalog = connDB;
             sb.Pooling = true;
-            sb.MaxPoolSize = 20;
-            sb.MinPoolSize = 10;
+            sb.MaxPoolSize = 100;
+            sb.MinPoolSize = 5;
             sb.ConnectTimeout = 30;
             if (dbSource.IDType == IDType.sqlserver)
             {
@@ -1007,13 +1007,15 @@ where a.Table_NAME='"+viewname+"' and a.TABLE_NAME=b.TABLE_NAME ORDER BY A.TABLE
                 {
                     options = SqlBulkCopyOptions.KeepIdentity;
                 }
-                SqlBulkCopy copytask = new SqlBulkCopy(GetConnstringFromDBSource(dbSource, connDB),options);
-                if (timeOut > 0)
+                using (SqlBulkCopy copytask = new SqlBulkCopy(GetConnstringFromDBSource(dbSource, connDB), options))
                 {
-                    copytask.BulkCopyTimeout = timeOut / 1000;
+                    if (timeOut > 0)
+                    {
+                        copytask.BulkCopyTimeout = timeOut / 1000;
+                    }
+                    copytask.DestinationTableName = destTable;
+                    copytask.WriteToServer(copytable);
                 }
-                copytask.DestinationTableName = destTable;
-                copytask.WriteToServer(copytable);
             }
         }
     }
