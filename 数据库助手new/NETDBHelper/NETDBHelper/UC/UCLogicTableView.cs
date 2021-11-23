@@ -45,8 +45,6 @@ namespace NETDBHelper.UC
 
         public Action<LogicMapRelColumn> OnAddNewRelColumn;
 
-        private int LbIdx = 0;
-
         public UCLogicTableView()
         {
             InitializeComponent();
@@ -195,17 +193,8 @@ namespace NETDBHelper.UC
             e.Graphics.DrawRectangle(Pens.DarkOliveGreen, 0, 0, this.Width - 1, this.Height - 1);
         }
 
-        private void BindColumns()
+        private void BindInputColumns(IEnumerable<LogicMapRelColumn> collist,IEnumerable<LogicMapRelColumn> relcollist)
         {
-
-            var collist = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Scan<LogicMapRelColumn>(nameof(LogicMapRelColumn),
-                "LSDTC", new object[] { this._logicMapId, DBName.ToLower(), this.TBName.ToLower() },
-                new object[] { this._logicMapId, DBName.ToLower(), this.TBName.ToLower() }, 1, int.MaxValue);
-
-            var relcollist = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Scan<LogicMapRelColumn>(nameof(LogicMapRelColumn),
-                "LSDRTC", new object[] { this._logicMapId, this.DBName.ToLower(), this.TBName.ToLower() },
-                new object[] { this._logicMapId, this.DBName.ToLower(), this.TBName.ToLower() }, 1, int.MaxValue);
-
             this.CBCoumns.Items.Clear();
 
             this.CBCoumns.Items.AddRange(ColumnsList.Where(p => !collist.Any(q => q.ColName.Equals(p.Name, StringComparison.OrdinalIgnoreCase))
@@ -227,7 +216,7 @@ namespace NETDBHelper.UC
                     var col = ColumnsList.FirstOrDefault(p => p.Name.Equals(item.ColName, StringComparison.OrdinalIgnoreCase));
                     if (col != null)
                     {
-                        AddColumnLable(col,ref logicMapRelColumns);
+                        AddColumnLable(ColumnsPanel,CBCoumns,col, ref logicMapRelColumns);
                     }
                 }
 
@@ -242,11 +231,84 @@ namespace NETDBHelper.UC
                     var col = ColumnsList.FirstOrDefault(p => p.Name.Equals(item.RelColName, StringComparison.OrdinalIgnoreCase));
                     if (col != null)
                     {
-                        AddColumnLable(col,ref logicMapRelColumns);
+                        AddColumnLable(ColumnsPanel, CBCoumns, col, ref logicMapRelColumns);
                     }
                 }
 
             }
+        }
+
+        private void BindOutputColumns(IEnumerable<LogicMapRelColumn> collist, IEnumerable<LogicMapRelColumn> relcollist)
+        {
+            this.CBCoumnsOutput.Items.Clear();
+
+            this.CBCoumnsOutput.Items.AddRange(ColumnsList.Where(p => !collist.Any(q => q.ColName.Equals(p.Name, StringComparison.OrdinalIgnoreCase))
+            && !relcollist.Any(q =>q.RelColName.Equals(p.Name, StringComparison.OrdinalIgnoreCase))).ToArray());
+
+            this.CBCoumnsOutput.SelectedIndex = -1;
+            this.CBCoumnsOutput.Visible = true;
+            this.CBCoumnsOutput.DisplayMember = "Name";
+            this.CBCoumnsOutput.SelectedIndexChanged += CBCoumnsOutput_SelectedIndexChanged; ;
+
+            HashSet<string> ha = new HashSet<string>();
+            List<LogicMapRelColumn> logicMapRelColumns = null;
+            foreach (var item in collist)
+            {
+                if (!ha.Contains(item.ColName))
+                {
+                    ha.Add(item.ColName);
+
+                    var col = ColumnsList.FirstOrDefault(p => p.Name.Equals(item.ColName, StringComparison.OrdinalIgnoreCase));
+                    if (col != null)
+                    {
+                        AddColumnLable(ColumnsPanelOutPut,CBCoumnsOutput,col, ref logicMapRelColumns);
+                    }
+                }
+
+            }
+
+            foreach (var item in relcollist.Where(q => !q.IsOutPut))
+            {
+                if (!ha.Contains(item.RelColName))
+                {
+                    ha.Add(item.RelColName);
+
+                    var col = ColumnsList.FirstOrDefault(p => p.Name.Equals(item.RelColName, StringComparison.OrdinalIgnoreCase));
+                    if (col != null)
+                    {
+                        AddColumnLable(ColumnsPanelOutPut, CBCoumnsOutput, col, ref logicMapRelColumns);
+                    }
+                }
+
+            }
+        }
+
+        private void CBCoumnsOutput_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (CBCoumnsOutput.SelectedIndex != -1)
+            {
+                List<LogicMapRelColumn> logicMapRelColumns = null;
+                AddColumnLable(ColumnsPanelOutPut, CBCoumnsOutput, (TBColumn)CBCoumnsOutput.SelectedItem, ref logicMapRelColumns);
+                var selectedindex = CBCoumnsOutput.SelectedIndex;
+                CBCoumnsOutput.SelectedIndex = -1;
+                CBCoumnsOutput.Items.RemoveAt(selectedindex);
+            }
+        }
+
+        private void BindColumns()
+        {
+
+            var collist = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Scan<LogicMapRelColumn>(nameof(LogicMapRelColumn),
+                "LSDTC", new object[] { this._logicMapId, DBName.ToLower(), this.TBName.ToLower() },
+                new object[] { this._logicMapId, DBName.ToLower(), this.TBName.ToLower() }, 1, int.MaxValue);
+
+            var relcollist = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Scan<LogicMapRelColumn>(nameof(LogicMapRelColumn),
+                "LSDRTC", new object[] { this._logicMapId, this.DBName.ToLower(), this.TBName.ToLower() },
+                new object[] { this._logicMapId, this.DBName.ToLower(), this.TBName.ToLower() }, 1, int.MaxValue);
+
+            BindInputColumns(collist.Where(p => !p.IsOutPut), relcollist.Where(p => !p.IsOutPut));
+
+            BindOutputColumns(collist.Where(p => p.IsOutPut), relcollist.Where(p => p.IsOutPut));
 
             if (this.OnComplete != null)
             {
@@ -274,8 +336,26 @@ namespace NETDBHelper.UC
             return Rectangle.Empty;
         }
 
-        private void AddColumnLable(TBColumn tbcol, ref List<LogicMapRelColumn> logicMapRelColumns)
+        private void AddColumnLable(Panel panel,ComboBox cbCol, TBColumn tbcol, ref List<LogicMapRelColumn> logicMapRelColumns)
         {
+            if (panel != ColumnsPanelOutPut && panel.Location.Y + panel.Height >= ColumnsPanelOutPut.Location.Y)
+            {
+                var newPos = ColumnsPanelOutPut.Location;
+                newPos.Offset(0, panel.Location.Y + panel.Height - ColumnsPanelOutPut.Location.Y + 10);
+                this.groupBox1.Location = new Point(0, newPos.Y - 5);
+                ColumnsPanelOutPut.Location = newPos;
+                this.Height = ColumnsPanelOutPut.Location.Y + ColumnsPanelOutPut.Height + 1;
+            }
+
+            var lbIdx = 0;
+            foreach(Control ctl in panel.Controls)
+            {
+                if(ctl.Tag is TBColumn)
+                {
+                    lbIdx++;
+                }
+            }
+
             var lb = new Label();
             lb.AutoSize = false;
             lb.ImageAlign = ContentAlignment.MiddleLeft;
@@ -301,25 +381,24 @@ namespace NETDBHelper.UC
             }
             lb.UseMnemonic = true;
 
-            if (LbIdx % 2 == 1)
+            if (lbIdx % 2 == 1)
             {
                 lb.BackColor = Color.LightYellow;
             }
-            LbIdx++;
 
             lb.Text = "   " + tbcol.Name;
-            lb.Location = CBCoumns.Location;
+            lb.Location = cbCol.Location;
             lb.Tag = tbcol;
             lb.Height = 20;
             var loc = lb.Location;
             loc.Offset(0, lb.Height);
-            CBCoumns.Location = loc;
+            cbCol.Location = loc;
             lb.Width = this.Width - 2;
-            ColumnsPanel.Controls.Add(lb);
+            panel.Controls.Add(lb);
 
-            if (this.ColumnsPanel.Height < this.CBCoumns.Location.Y + this.CBCoumns.Height + 10)
+            if (panel.Height < cbCol.Location.Y + cbCol.Height + 10)
             {
-                this.ColumnsPanel.Height = this.CBCoumns.Location.Y + this.CBCoumns.Height + 10;
+                panel.Height = cbCol.Location.Y + cbCol.Height + 10;
 
                 //using (var g = this.CreateGraphics())
                 //{
@@ -329,7 +408,14 @@ namespace NETDBHelper.UC
                 //    }
                 //}
 
-                this.Height = this.ColumnsPanel.Location.Y + this.ColumnsPanel.Height + 1;
+                if (panel != ColumnsPanelOutPut && panel.Location.Y + panel.Height >= ColumnsPanelOutPut.Location.Y)
+                {
+                    var newPos = ColumnsPanelOutPut.Location;
+                    newPos.Offset(0, panel.Location.Y + panel.Height - ColumnsPanelOutPut.Location.Y + 10);
+                    ColumnsPanelOutPut.Location = newPos;
+                    this.groupBox1.Location = new Point(0, newPos.Y - 5);
+                }
+                this.Height = ColumnsPanelOutPut.Location.Y + ColumnsPanelOutPut.Height + 1;
                 this.Invalidate();
             }
 
@@ -448,7 +534,7 @@ namespace NETDBHelper.UC
                         }
 
                         //处理
-                        Point start = this.Parent.PointToClient(this.ColumnsPanel.PointToScreen(new Point(lb.Location.X + lb.Width, lb.Location.Y + lb.Height / 2)));
+                        Point start = this.Parent.PointToClient(panel.PointToScreen(new Point(lb.Location.X + lb.Width, lb.Location.Y + lb.Height / 2)));
                         Point dest = this.Parent.PointToClient(lb.PointToScreen(dragEnd));
                         start.Offset(-(this.Parent as Panel).AutoScrollPosition.X, -(this.Parent as Panel).AutoScrollPosition.Y);
                         dest.Offset(-(this.Parent as Panel).AutoScrollPosition.X, -(this.Parent as Panel).AutoScrollPosition.Y);
@@ -639,7 +725,7 @@ namespace NETDBHelper.UC
             if (CBCoumns.SelectedIndex != -1)
             {
                 List<LogicMapRelColumn> logicMapRelColumns = null;
-                AddColumnLable((TBColumn)CBCoumns.SelectedItem,ref logicMapRelColumns);
+                AddColumnLable(ColumnsPanel,CBCoumns,(TBColumn)CBCoumns.SelectedItem,ref logicMapRelColumns);
                 var selectedindex = CBCoumns.SelectedIndex;
                 CBCoumns.SelectedIndex = -1;
                 CBCoumns.Items.RemoveAt(selectedindex);

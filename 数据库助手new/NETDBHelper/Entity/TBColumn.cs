@@ -88,6 +88,15 @@ namespace Entity
             set;
         }
 
+        /// <summary>
+        /// 是否是输出参数
+        /// </summary>
+        public bool IsOutPut
+        {
+            get;
+            set;
+        }
+
         public NodeContentType GetNodeContentType()
         {
             return NodeContentType.COLUMN;

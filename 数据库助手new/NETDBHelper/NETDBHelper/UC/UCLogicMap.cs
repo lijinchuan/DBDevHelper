@@ -922,10 +922,15 @@ namespace NETDBHelper.UC
         {
             foreach (var v in this.ucTableViews)
             {
-                var panel = v.Controls.Find("ColumnsPanel", false).FirstOrDefault();
-                if (panel != null)
+                //var ctlId = isOutPut ? "ColumnsPanelOutPut" : "ColumnsPanel";
+                //var panel =v.Controls.Find(ctlId, false).FirstOrDefault();
+                //if (panel != null)
                 {
-                    var ct = panel.GetChildAtPoint(panel.PointToClient(screenpt));
+                    var ct = v.GetChildAtPoint(v.PointToClient(screenpt));
+                    if(ct is Panel)
+                    {
+                        ct= ct.GetChildAtPoint(ct.PointToClient(screenpt));
+                    }
                     if (ct is Label && ct.Tag is TBColumn)
                     {
                         var col = (ct.Tag as TBColumn);

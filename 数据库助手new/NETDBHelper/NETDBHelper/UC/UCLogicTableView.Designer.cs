@@ -32,7 +32,11 @@
             this.ColumnsPanel = new System.Windows.Forms.Panel();
             this.LBTabname = new System.Windows.Forms.Label();
             this.CBTables = new System.Windows.Forms.ComboBox();
+            this.ColumnsPanelOutPut = new System.Windows.Forms.Panel();
+            this.CBCoumnsOutput = new System.Windows.Forms.ComboBox();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.ColumnsPanel.SuspendLayout();
+            this.ColumnsPanelOutPut.SuspendLayout();
             this.SuspendLayout();
             // 
             // CBCoumns
@@ -48,7 +52,7 @@
             this.ColumnsPanel.Controls.Add(this.CBCoumns);
             this.ColumnsPanel.Location = new System.Drawing.Point(2, 43);
             this.ColumnsPanel.Name = "ColumnsPanel";
-            this.ColumnsPanel.Size = new System.Drawing.Size(142, 148);
+            this.ColumnsPanel.Size = new System.Drawing.Size(142, 78);
             this.ColumnsPanel.TabIndex = 5;
             // 
             // LBTabname
@@ -68,16 +72,45 @@
             this.CBTables.Size = new System.Drawing.Size(147, 20);
             this.CBTables.TabIndex = 3;
             // 
+            // ColumnsPanelOutPut
+            // 
+            this.ColumnsPanelOutPut.Controls.Add(this.CBCoumnsOutput);
+            this.ColumnsPanelOutPut.Location = new System.Drawing.Point(2, 133);
+            this.ColumnsPanelOutPut.Name = "ColumnsPanelOutPut";
+            this.ColumnsPanelOutPut.Size = new System.Drawing.Size(142, 81);
+            this.ColumnsPanelOutPut.TabIndex = 6;
+            // 
+            // CBCoumnsOutput
+            // 
+            this.CBCoumnsOutput.FormattingEnabled = true;
+            this.CBCoumnsOutput.Location = new System.Drawing.Point(1, 1);
+            this.CBCoumnsOutput.Name = "CBCoumnsOutput";
+            this.CBCoumnsOutput.Size = new System.Drawing.Size(136, 20);
+            this.CBCoumnsOutput.TabIndex = 0;
+            // 
+            // groupBox1
+            // 
+            this.groupBox1.BackColor = System.Drawing.Color.Silver;
+            this.groupBox1.ForeColor = System.Drawing.Color.White;
+            this.groupBox1.Location = new System.Drawing.Point(2, 127);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(142, 1);
+            this.groupBox1.TabIndex = 7;
+            this.groupBox1.TabStop = false;
+            // 
             // UCLogicTableView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.groupBox1);
+            this.Controls.Add(this.ColumnsPanelOutPut);
             this.Controls.Add(this.ColumnsPanel);
             this.Controls.Add(this.LBTabname);
             this.Controls.Add(this.CBTables);
             this.Name = "UCLogicTableView";
-            this.Size = new System.Drawing.Size(147, 191);
+            this.Size = new System.Drawing.Size(147, 216);
             this.ColumnsPanel.ResumeLayout(false);
+            this.ColumnsPanelOutPut.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -88,5 +121,8 @@
         private System.Windows.Forms.Panel ColumnsPanel;
         private System.Windows.Forms.Label LBTabname;
         private System.Windows.Forms.ComboBox CBTables;
+        private System.Windows.Forms.Panel ColumnsPanelOutPut;
+        private System.Windows.Forms.ComboBox CBCoumnsOutput;
+        private System.Windows.Forms.GroupBox groupBox1;
     }
 }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Entity
+namespace Entity.OldVesion
 {
     /// <summary>
     /// 关联字段
@@ -59,24 +59,6 @@ namespace Entity
         }
 
         public string Desc
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// 是否是输出
-        /// </summary>
-        public bool IsOutPut
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// 是否是虚拟
-        /// </summary>
-        public bool IsVirtual
         {
             get;
             set;

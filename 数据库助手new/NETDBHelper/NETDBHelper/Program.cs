@@ -223,9 +223,27 @@ namespace NETDBHelper
 
             BigEntityTableEngine.LocalEngine.CreateTable<LogicMap>(p => p.ID, p => p.AddIndex("DB_LogicName", m => m.Asc(f => f.DBName).Asc(f => f.LogicName)));
             BigEntityTableEngine.LocalEngine.CreateTable<LogicMapTable>(p => p.ID, p => p.AddIndex("LogicID", m => m.Asc(f => f.LogicID)));
-            BigEntityTableEngine.LocalEngine.CreateTable<LogicMapRelColumn>(p => p.ID, p => p.AddIndex("LogicID", m => m.Asc(f => f.LogicID))
+            //BigEntityTableEngine.LocalEngine.CreateTable<LogicMapRelColumn>(p => p.ID, p => p.AddIndex("LogicID", m => m.Asc(f => f.LogicID))
+            //.AddIndex("LSDTC", m => m.Asc(f => f.LogicID).Asc(f => f.DBName).Asc(f => f.TBName))
+            //.AddIndex("LSDRTC", m => m.Asc(f => f.LogicID).Asc(f => f.RelDBName).Asc(f => f.RelTBName)));
+
+            var indexInfos = new IndexBuilder<LogicMapRelColumn>().AddIndex("LogicID", m => m.Asc(f => f.LogicID))
             .AddIndex("LSDTC", m => m.Asc(f => f.LogicID).Asc(f => f.DBName).Asc(f => f.TBName))
-            .AddIndex("LSDRTC", m => m.Asc(f => f.LogicID).Asc(f => f.RelDBName).Asc(f => f.RelTBName)));
+            .AddIndex("LSDRTC", m => m.Asc(f => f.LogicID).Asc(f => f.RelDBName).Asc(f => f.RelTBName)).Build();
+            BigEntityTableEngine.LocalEngine.Upgrade<Entity.OldVesion.LogicMapRelColumn, LogicMapRelColumn>(nameof(LogicMapRelColumn),
+                s => new LogicMapRelColumn
+            {
+                ColName=s.ColName,
+                DBName=s.DBName,
+                Desc=s.Desc,
+                IsOutPut=false,
+                IsVirtual=false,
+                LogicID=s.LogicID,
+                RelColName=s.RelColName,
+                RelDBName=s.RelDBName,
+                RelTBName=s.RelTBName,
+                TBName=s.TBName
+            }, nameof(LogicMapRelColumn.ID), true, indexInfos);
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
