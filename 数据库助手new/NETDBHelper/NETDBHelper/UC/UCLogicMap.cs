@@ -465,8 +465,8 @@ namespace NETDBHelper.UC
 
                         foreach (var rc in allrelcolumnlist)
                         {
-                            var startpt = this.FindColumnScreenStartPoint(rc.DBName, rc.TBName, rc.ColName);
-                            var destpt = this.FindColumnScreenEndPoint(rc.RelDBName, rc.RelTBName, rc.RelColName);
+                            var startpt = FindColumnScreenStartPoint(rc.DBName, rc.TBName, rc.ColName,rc.IsOutPut);
+                            var destpt = FindColumnScreenEndPoint(rc.RelDBName, rc.RelTBName, rc.RelColName,rc.ReIsOutPut);
                             if (!startpt.IsEmpty && !destpt.IsEmpty)
                             {
                                 var p1 = parent.PointToClient(startpt);
@@ -514,7 +514,7 @@ namespace NETDBHelper.UC
                     if (col == null || item.Start.IsEmpty || !col.Name.Equals(item.RelColumn.ColName, StringComparison.OrdinalIgnoreCase)
                         || !col.TBName.Equals(item.RelColumn.TBName, StringComparison.OrdinalIgnoreCase))
                     {
-                        startpt = this.FindColumnScreenStartPoint(item.RelColumn.DBName, item.RelColumn.TBName, item.RelColumn.ColName);
+                        startpt = this.FindColumnScreenStartPoint(item.RelColumn.DBName, item.RelColumn.TBName, item.RelColumn.ColName,item.RelColumn.IsOutPut);
                         if (!startpt.IsEmpty)
                         {
                             item.Start = startpt;
@@ -526,7 +526,7 @@ namespace NETDBHelper.UC
                     if (col == null || item.Dest.IsEmpty || !col.Name.Equals(item.RelColumn.RelColName, StringComparison.OrdinalIgnoreCase)
                         || !col.TBName.Equals(item.RelColumn.RelTBName, StringComparison.OrdinalIgnoreCase))
                     {
-                        destpt = this.FindColumnScreenEndPoint(item.RelColumn.RelDBName, item.RelColumn.RelTBName, item.RelColumn.RelColName);
+                        destpt = this.FindColumnScreenEndPoint(item.RelColumn.RelDBName, item.RelColumn.RelTBName, item.RelColumn.RelColName,item.RelColumn.ReIsOutPut);
                         if (!destpt.IsEmpty)
                         {
                             item.Dest = destpt;
@@ -875,13 +875,13 @@ namespace NETDBHelper.UC
             }
         }
 
-        public Point FindColumnScreenStartPoint(string dbname, string tbname, string colname)
+        public Point FindColumnScreenStartPoint(string dbname, string tbname, string colname,bool isOutPut)
         {
             foreach (var v in this.ucTableViews)
             {
                 if (v.DataBaseName.Equals(dbname, StringComparison.OrdinalIgnoreCase) && v.TableName?.Equals(tbname, StringComparison.OrdinalIgnoreCase) == true)
                 {
-                    var rect = v.FindTBColumnScreenRect(colname);
+                    var rect = v.FindTBColumnScreenRect(colname,isOutPut);
                     if (!rect.IsEmpty)
                     {
                         var pt = rect.Location;
@@ -896,13 +896,13 @@ namespace NETDBHelper.UC
             return Point.Empty;
         }
 
-        public Point FindColumnScreenEndPoint(string dbname, string tbname, string colname)
+        public Point FindColumnScreenEndPoint(string dbname, string tbname, string colname,bool isOutPut)
         {
             foreach (var v in this.ucTableViews)
             {
                 if (v.DataBaseName.Equals(dbname, StringComparison.OrdinalIgnoreCase) && v.TableName?.Equals(tbname, StringComparison.OrdinalIgnoreCase) == true)
                 {
-                    var rect = v.FindTBColumnScreenRect(colname);
+                    var rect = v.FindTBColumnScreenRect(colname,isOutPut);
                     if (!rect.IsEmpty)
                     {
                         var pt = rect.Location;

@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Entity
 {
-    public class TBColumn : INodeContents
+    public class TBColumn : INodeContents,ICloneable
     {
         public string DBName
         {
@@ -95,6 +95,11 @@ namespace Entity
         {
             get;
             set;
+        }
+
+        public object Clone()
+        {
+            return this.MemberwiseClone();
         }
 
         public NodeContentType GetNodeContentType()

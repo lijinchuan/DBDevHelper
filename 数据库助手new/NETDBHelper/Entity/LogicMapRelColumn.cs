@@ -74,9 +74,27 @@ namespace Entity
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        public bool ReIsOutPut
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
         /// 是否是虚拟
         /// </summary>
         public bool IsVirtual
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// 是否是虚拟
+        /// </summary>
+        public bool ReIsVirtual
         {
             get;
             set;

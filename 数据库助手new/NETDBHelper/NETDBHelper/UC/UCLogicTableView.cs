@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
 using System.Data;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Entity;
 using Biz.Common.Data;
@@ -112,7 +109,7 @@ namespace NETDBHelper.UC
             TBName = tbname;
             issamedb = samedb;
 
-            this._logicMapId = logicMapId;
+            _logicMapId = logicMapId;
 
             LBTabname.BackColor = Color.LightBlue;
             LBTabname.Visible = false;
@@ -120,15 +117,15 @@ namespace NETDBHelper.UC
             LBTabname.Height = 20;
             LBTabname.ForeColor = Color.Blue;
             
-            this.ColumnsPanel.Location = new Point(1, LBTabname.Height + 1);
-            this.ColumnsPanel.Width = LBTabname.Width - 2;
-            this.ColumnsPanel.Height = this.Height - this.LBTabname.Height - 2;
+            ColumnsPanel.Location = new Point(1, LBTabname.Height + 1);
+            ColumnsPanel.Width = LBTabname.Width - 2;
+            //this.ColumnsPanel.Height = Height - ColumnsPanelOutPut.Height - LBTabname.Height - 2;
 
-            this.CBTables.Height = 20;
-            this.FunLoadTables = funcLoadTables;
+            CBTables.Height = 20;
+            FunLoadTables = funcLoadTables;
 
-            this.OnComplete = onComplete;
-            this.BorderStyle = BorderStyle.None;
+            OnComplete = onComplete;
+            BorderStyle = BorderStyle.None;
 
             onCheckConflict = checkConflict;
 
@@ -138,6 +135,7 @@ namespace NETDBHelper.UC
             }
 
             CBCoumns.Visible = false;
+            CBCoumnsOutput.Visible = false;
         }
 
 
@@ -145,16 +143,16 @@ namespace NETDBHelper.UC
         {
             if (CBTables.SelectedIndex != -1)
             {
-                this.TBName = CBTables.Text;
+                TBName = CBTables.Text;
                 LBTabname.Text = issamedb ? $"{TBName}" : $"[{DBName}].{TBName}";
 
-                this.LBTabname.Visible = true;
-                this.LBTabname.Location = new Point(1, 1);
-                this.LBTabname.Width = this.Width - 2;
-                this.CBTables.Visible = false;
+                LBTabname.Visible = true;
+                LBTabname.Location = new Point(1, 1);
+                LBTabname.Width = this.Width - 2;
+                CBTables.Visible = false;
 
                 ColumnsList = SQLHelper.GetColumns(DBSource, DBName, CBTables.SelectedItem.ToString()).ToList();
-                if (this.TBName.IndexOf('*') > -1)
+                if (TBName.IndexOf('*') > -1)
                 {
                     ColumnsList.ForEach(p => p.TBName = this.TBName);
                 }
@@ -267,7 +265,7 @@ namespace NETDBHelper.UC
 
             }
 
-            foreach (var item in relcollist.Where(q => !q.IsOutPut))
+            foreach (var item in relcollist)
             {
                 if (!ha.Contains(item.RelColName))
                 {
@@ -298,7 +296,7 @@ namespace NETDBHelper.UC
         private void BindColumns()
         {
 
-            var collist = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Scan<LogicMapRelColumn>(nameof(LogicMapRelColumn),
+            var collist = BigEntityTableEngine.LocalEngine.Scan<LogicMapRelColumn>(nameof(LogicMapRelColumn),
                 "LSDTC", new object[] { this._logicMapId, DBName.ToLower(), this.TBName.ToLower() },
                 new object[] { this._logicMapId, DBName.ToLower(), this.TBName.ToLower() }, 1, int.MaxValue);
 
@@ -306,9 +304,9 @@ namespace NETDBHelper.UC
                 "LSDRTC", new object[] { this._logicMapId, this.DBName.ToLower(), this.TBName.ToLower() },
                 new object[] { this._logicMapId, this.DBName.ToLower(), this.TBName.ToLower() }, 1, int.MaxValue);
 
-            BindInputColumns(collist.Where(p => !p.IsOutPut), relcollist.Where(p => !p.IsOutPut));
+            BindInputColumns(collist.Where(p => !p.IsOutPut), relcollist.Where(p => !p.ReIsOutPut));
 
-            BindOutputColumns(collist.Where(p => p.IsOutPut), relcollist.Where(p => p.IsOutPut));
+            BindOutputColumns(collist.Where(p => p.IsOutPut), relcollist.Where(p => p.ReIsOutPut));
 
             if (this.OnComplete != null)
             {
@@ -316,9 +314,10 @@ namespace NETDBHelper.UC
             }
         }
 
-        public Rectangle FindTBColumnScreenRect(string colname)
+        public Rectangle FindTBColumnScreenRect(string colname,bool isOutPut)
         {
-            foreach (Control lb in this.ColumnsPanel.Controls)
+            var pannel = isOutPut ? ColumnsPanelOutPut : ColumnsPanel;
+            foreach (Control lb in pannel.Controls)
             {
                 if (lb is Label)
                 {
@@ -336,8 +335,11 @@ namespace NETDBHelper.UC
             return Rectangle.Empty;
         }
 
-        private void AddColumnLable(Panel panel,ComboBox cbCol, TBColumn tbcol, ref List<LogicMapRelColumn> logicMapRelColumns)
+        private void AddColumnLable(Panel panel,ComboBox cbCol, TBColumn tbcolumn, ref List<LogicMapRelColumn> logicMapRelColumns)
         {
+            var tbcol = tbcolumn.Clone() as TBColumn;
+            tbcol.IsOutPut = panel == ColumnsPanelOutPut;
+
             if (panel != ColumnsPanelOutPut && panel.Location.Y + panel.Height >= ColumnsPanelOutPut.Location.Y)
             {
                 var newPos = ColumnsPanelOutPut.Location;
@@ -439,7 +441,8 @@ namespace NETDBHelper.UC
                         TBName = tbcol.TBName.ToLower(),
                         RelColName = string.Empty,
                         RelDBName = string.Empty,
-                        RelTBName = string.Empty
+                        RelTBName = string.Empty,
+                        IsOutPut=panel==ColumnsPanelOutPut
                     });
                 }
                 else
@@ -594,15 +597,17 @@ namespace NETDBHelper.UC
                                 RelDBName = col.DBName.ToLower(),
                                 RelTBName = col.TBName.ToLower(),
                                 TBName = this.TBName.ToLower(),
-                                LogicID = _logicMapId
+                                LogicID = _logicMapId,
+                                IsOutPut = panel == ColumnsPanelOutPut,
+                                ReIsOutPut = col.IsOutPut
                             };
-                            var relcollist = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine
+                            var relcollist = BigEntityTableEngine.LocalEngine
                             .Scan<LogicMapRelColumn>(nameof(LogicMapRelColumn), "LSDTC", new object[] { newrelcolumn.LogicID, newrelcolumn.DBName, newrelcolumn.TBName },
                             new object[] { newrelcolumn.LogicID, newrelcolumn.DBName, newrelcolumn.TBName }, 1, int.MaxValue);
 
-                            if (!relcollist.Any(p => p.RelDBName.ToLower() == newrelcolumn.RelDBName && p.RelTBName.ToLower() == newrelcolumn.RelTBName && p.RelColName.ToLower() == newrelcolumn.RelColName))
+                            if (!relcollist.Any(p => p.IsOutPut == newrelcolumn.IsOutPut && p.ReIsOutPut == newrelcolumn.ReIsOutPut && p.RelDBName.ToLower() == newrelcolumn.RelDBName && p.RelTBName.ToLower() == newrelcolumn.RelTBName && p.RelColName.ToLower() == newrelcolumn.RelColName))
                             {
-                                LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<LogicMapRelColumn>(nameof(LogicMapRelColumn), newrelcolumn);
+                                BigEntityTableEngine.LocalEngine.Insert(nameof(LogicMapRelColumn), newrelcolumn);
                                 //通知父控件
                                 if (OnAddNewRelColumn != null)
                                 {
@@ -677,7 +682,7 @@ namespace NETDBHelper.UC
                         if (logiccol != null)
                         {
                             logiccol.Desc = dlg.InputString;
-                            BigEntityTableEngine.LocalEngine.Update<LogicMapRelColumn>(nameof(LogicMapRelColumn), logiccol);
+                            BigEntityTableEngine.LocalEngine.Update(nameof(LogicMapRelColumn), logiccol);
                         }
                         else
                         {
@@ -690,7 +695,8 @@ namespace NETDBHelper.UC
                                 RelColName = string.Empty,
                                 RelDBName = string.Empty,
                                 RelTBName = string.Empty,
-                                Desc = dlg.InputString
+                                Desc = dlg.InputString,
+                                IsOutPut=panel==ColumnsPanelOutPut
                             });
                         }
                         lb.Text = $"   {tbcol.Name}({dlg.InputString})";
@@ -785,6 +791,23 @@ namespace NETDBHelper.UC
 
             ColumnsPanel.DoubleClick += ColumnsPanel_DoubleClick;
             this.CBCoumns.Visible = false;
+
+            ColumnsPanelOutPut.DoubleClick += ColumnsPanelOutPut_DoubleClick;
+            CBCoumns.Visible = false;
+
+            groupBox1.BackColor = Color.LightBlue;
+            this.SizeChanged += UCLogicTableView_SizeChanged;
+        }
+
+        private void UCLogicTableView_SizeChanged(object sender, EventArgs e)
+        {
+            this.groupBox1.Width = this.Width;
+            
+        }
+
+        private void ColumnsPanelOutPut_DoubleClick(object sender, EventArgs e)
+        {
+            CBCoumnsOutput.Visible = !CBCoumnsOutput.Visible;
         }
 
         private void ColumnsPanel_DoubleClick(object sender, EventArgs e)
@@ -888,12 +911,12 @@ namespace NETDBHelper.UC
                 var pt = this.Location;
                 pt.Offset(-(this.Parent as Panel).AutoScrollPosition.X, -(this.Parent as Panel).AutoScrollPosition.Y);
 
-                LogicMapTable tb = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<LogicMapTable>(nameof(LogicMapTable), this.LogicMapTableId);
+                LogicMapTable tb = BigEntityTableEngine.LocalEngine.Find<LogicMapTable>(nameof(LogicMapTable), this.LogicMapTableId);
                 
                 tb.Posx = pt.X;
                 tb.Posy = pt.Y;
 
-                LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Update(nameof(LogicMapTable), tb);
+                BigEntityTableEngine.LocalEngine.Update(nameof(LogicMapTable), tb);
             }
         }
     }
