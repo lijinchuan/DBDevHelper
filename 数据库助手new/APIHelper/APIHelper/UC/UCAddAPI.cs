@@ -428,7 +428,7 @@ namespace APIHelper.UC
                     {
                         if (cookie.Checked)
                         {
-                            httpRequestEx.AppendCookie(ReplaceEvnParams(cookie.Name, ref apiEnvParams), WebUtility.UrlEncode(ReplaceEvnParams(cookie.Value, ref apiEnvParams)), new Uri(url).Host, "/");
+                            httpRequestEx.AppendCookie(ReplaceEvnParams(cookie.Name, ref apiEnvParams), ReplaceEvnParams(cookie.Value, ref apiEnvParams), new Uri(url).Host, "/");
                         }
                     }
                 }
@@ -1214,7 +1214,7 @@ namespace APIHelper.UC
                 Checked=p.Checked,
                 Desc=p.Desc,
                 Name= notReplaceEvnParams ? p.Name : ReplaceEvnParams(p.Name, ref apiEnvParams),
-                Value= notReplaceEvnParams ? p.Value : WebUtility.UrlEncode(ReplaceEvnParams(p.Value, ref apiEnvParams))
+                Value= notReplaceEvnParams ? p.Value : ReplaceEvnParams(p.Value, ref apiEnvParams)
             }).ToList();
             apidata.Multipart_form_data = this.Multipart_form_data?.Select(p => new ParamInfo
             {

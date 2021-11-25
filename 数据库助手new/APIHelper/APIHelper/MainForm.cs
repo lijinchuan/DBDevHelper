@@ -497,5 +497,12 @@ namespace APIHelper
                 Util.SendMsg(this, "重置COOKIE出错:" + ex.Message);
             }
         }
+
+        private void uRLEncodeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SubForm.URLEncodeDlg dlg = new URLEncodeDlg();
+
+            dlg.Show();
+        }
     }
 }

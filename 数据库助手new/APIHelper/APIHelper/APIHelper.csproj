@@ -184,6 +184,12 @@
     <Compile Include="SubForm\InputStringDlg.Designer.cs">
       <DependentUpon>InputStringDlg.cs</DependentUpon>
     </Compile>
+    <Compile Include="SubForm\URLEncodeDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SubForm\URLEncodeDlg.Designer.cs">
+      <DependentUpon>URLEncodeDlg.cs</DependentUpon>
+    </Compile>
     <Compile Include="SubForm\MD5Dlg.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -452,6 +458,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="SubForm\InputStringDlg.resx">
       <DependentUpon>InputStringDlg.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SubForm\URLEncodeDlg.resx">
+      <DependentUpon>URLEncodeDlg.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="SubForm\MD5Dlg.resx">
       <DependentUpon>MD5Dlg.cs</DependentUpon>

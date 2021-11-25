@@ -44,6 +44,7 @@
             this.强制ie10ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.标准ie11ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.强制ie11ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.重置IE浏览器COOKIEToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.SubItemView = new System.Windows.Forms.ToolStripMenuItem();
             this.SubItemTool = new System.Windows.Forms.ToolStripMenuItem();
             this.监控任务ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -70,7 +71,7 @@
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.MspPanel = new System.Windows.Forms.ToolStripStatusLabel();
             this.TSL_ClearMsg = new System.Windows.Forms.ToolStripStatusLabel();
-            this.重置IE浏览器COOKIEToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.uRLEncodeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mainMenuBar.SuspendLayout();
             this.panel1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
@@ -196,6 +197,13 @@
             this.强制ie11ToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
             this.强制ie11ToolStripMenuItem.Text = "强制ie11";
             // 
+            // 重置IE浏览器COOKIEToolStripMenuItem
+            // 
+            this.重置IE浏览器COOKIEToolStripMenuItem.Name = "重置IE浏览器COOKIEToolStripMenuItem";
+            this.重置IE浏览器COOKIEToolStripMenuItem.Size = new System.Drawing.Size(195, 22);
+            this.重置IE浏览器COOKIEToolStripMenuItem.Text = "重置IE浏览器COOKIE";
+            this.重置IE浏览器COOKIEToolStripMenuItem.Click += new System.EventHandler(this.重置IE浏览器COOKIEToolStripMenuItem_Click);
+            // 
             // SubItemView
             // 
             this.SubItemView.Name = "SubItemView";
@@ -207,6 +215,7 @@
             this.SubItemTool.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.监控任务ToolStripMenuItem,
             this.mD5签名ToolStripMenuItem,
+            this.uRLEncodeToolStripMenuItem,
             this.gUIDToolStripMenuItem,
             this.时间戳ToolStripMenuItem,
             this.bASE64ToolStripMenuItem,
@@ -415,12 +424,12 @@
             this.TSL_ClearMsg.Visible = false;
             this.TSL_ClearMsg.Click += new System.EventHandler(this.TSL_ClearMsg_Click);
             // 
-            // 重置IE浏览器COOKIEToolStripMenuItem
+            // uRLEncodeToolStripMenuItem
             // 
-            this.重置IE浏览器COOKIEToolStripMenuItem.Name = "重置IE浏览器COOKIEToolStripMenuItem";
-            this.重置IE浏览器COOKIEToolStripMenuItem.Size = new System.Drawing.Size(195, 22);
-            this.重置IE浏览器COOKIEToolStripMenuItem.Text = "重置IE浏览器COOKIE";
-            this.重置IE浏览器COOKIEToolStripMenuItem.Click += new System.EventHandler(this.重置IE浏览器COOKIEToolStripMenuItem_Click);
+            this.uRLEncodeToolStripMenuItem.Name = "uRLEncodeToolStripMenuItem";
+            this.uRLEncodeToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
+            this.uRLEncodeToolStripMenuItem.Text = "URLEncode";
+            this.uRLEncodeToolStripMenuItem.Click += new System.EventHandler(this.uRLEncodeToolStripMenuItem_Click);
             // 
             // MainFrm
             // 
@@ -493,6 +502,7 @@
         private System.Windows.Forms.ToolStripMenuItem 强制ie11ToolStripMenuItem;
         private System.Windows.Forms.ToolStripLabel TSBar;
         private System.Windows.Forms.ToolStripMenuItem 重置IE浏览器COOKIEToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem uRLEncodeToolStripMenuItem;
     }
 }
 
