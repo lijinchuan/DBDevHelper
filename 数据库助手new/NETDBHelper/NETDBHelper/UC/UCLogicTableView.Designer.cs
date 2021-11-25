@@ -75,7 +75,7 @@
             // ColumnsPanelOutPut
             // 
             this.ColumnsPanelOutPut.Controls.Add(this.CBCoumnsOutput);
-            this.ColumnsPanelOutPut.Location = new System.Drawing.Point(2, 133);
+            this.ColumnsPanelOutPut.Location = new System.Drawing.Point(1, 133);
             this.ColumnsPanelOutPut.Name = "ColumnsPanelOutPut";
             this.ColumnsPanelOutPut.Size = new System.Drawing.Size(142, 81);
             this.ColumnsPanelOutPut.TabIndex = 6;
@@ -90,7 +90,7 @@
             // 
             // groupBox1
             // 
-            this.groupBox1.BackColor = System.Drawing.Color.Silver;
+            this.groupBox1.BackColor = System.Drawing.Color.SaddleBrown;
             this.groupBox1.ForeColor = System.Drawing.Color.White;
             this.groupBox1.Location = new System.Drawing.Point(2, 127);
             this.groupBox1.Name = "groupBox1";

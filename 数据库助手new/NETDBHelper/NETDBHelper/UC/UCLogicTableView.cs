@@ -51,9 +51,10 @@ namespace NETDBHelper.UC
         {
             if (!string.IsNullOrWhiteSpace(LBTabname.Text))
             {
+                var panels = new[] { ColumnsPanel,ColumnsPanelOutPut};
                 var isoverflow = false;
-                var maxwidth = this.Width * 1f;
-                using (var g = this.CreateGraphics())
+                var maxwidth = Width * 1f;
+                using (var g = CreateGraphics())
                 {
                     var size = g.MeasureString(LBTabname.Text, this.LBTabname.Font);
                     if (size.Width > this.LBTabname.Width)
@@ -61,18 +62,21 @@ namespace NETDBHelper.UC
                         isoverflow = true;
                         maxwidth = size.Width;
                     }
-                    foreach (var ctl in this.ColumnsPanel.Controls)
+                    foreach (var pannel in panels)
                     {
-                        if (ctl is Label)
+                        foreach (var ctl in pannel.Controls)
                         {
-                            var lb = ctl as Label;
-                            var size2 = g.MeasureString(lb.Text, lb.Font);
-                            if (size2.Width > lb.Width)
+                            if (ctl is Label)
                             {
-                                isoverflow = true;
-                                if (size2.Width > maxwidth)
+                                var lb = ctl as Label;
+                                var size2 = g.MeasureString(lb.Text, lb.Font);
+                                if (size2.Width > lb.Width)
                                 {
-                                    maxwidth = size2.Width;
+                                    isoverflow = true;
+                                    if (size2.Width > maxwidth)
+                                    {
+                                        maxwidth = size2.Width;
+                                    }
                                 }
                             }
                         }
@@ -85,11 +89,17 @@ namespace NETDBHelper.UC
                     this.LBTabname.Width = (int)maxwidth;
                     this.ColumnsPanel.Width = (int)maxwidth;
                     this.CBCoumns.Width = (int)maxwidth - 2;
-                    foreach(var ctl in this.ColumnsPanel.Controls)
+                    this.ColumnsPanelOutPut.Width = (int)maxwidth;
+                    this.CBCoumnsOutput.Width = (int)maxwidth - 2;
+                    this.groupBox1.Width = this.Width;
+                    foreach (var pannel in panels)
                     {
-                        if(ctl is Label)
+                        foreach (var ctl in pannel.Controls)
                         {
-                            (ctl as Label).Width = (int)maxwidth;
+                            if (ctl is Label)
+                            {
+                                (ctl as Label).Width = (int)maxwidth;
+                            }
                         }
                     }
                 }
@@ -644,7 +654,7 @@ namespace NETDBHelper.UC
                             }
                         }
 
-                        this.Parent.Invalidate();
+                        Parent.Invalidate();
 
                         isDraging = false;
                         //处理结束事件
@@ -794,15 +804,6 @@ namespace NETDBHelper.UC
 
             ColumnsPanelOutPut.DoubleClick += ColumnsPanelOutPut_DoubleClick;
             CBCoumns.Visible = false;
-
-            groupBox1.BackColor = Color.LightBlue;
-            this.SizeChanged += UCLogicTableView_SizeChanged;
-        }
-
-        private void UCLogicTableView_SizeChanged(object sender, EventArgs e)
-        {
-            this.groupBox1.Width = this.Width;
-            
         }
 
         private void ColumnsPanelOutPut_DoubleClick(object sender, EventArgs e)
