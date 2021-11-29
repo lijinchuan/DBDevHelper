@@ -17,7 +17,7 @@ using LJC.FrameWorkV3.Data.EntityDataBase;
 
 namespace NETDBHelper.UC
 {
-    public partial class UCLogicMap : TabPage
+    public partial class UCLogicMap : UserControl//TabPage
     {
         private int _logicMapId = 0;
         DBSource DBSource = null;
@@ -1234,6 +1234,11 @@ namespace NETDBHelper.UC
                     PanelMap.VerticalScroll.Value = sy;
                 }
             }
+        }
+
+        private void 添加中间表ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }
