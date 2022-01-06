@@ -306,11 +306,11 @@ namespace NETDBHelper.UC
         private void BindColumns()
         {
 
-            var collist = BigEntityTableEngine.LocalEngine.Scan<LogicMapRelColumn>(nameof(LogicMapRelColumn),
+            var collist = BigEntityTableRemotingEngine.Scan<LogicMapRelColumn>(nameof(LogicMapRelColumn),
                 "LSDTC", new object[] { this._logicMapId, DBName.ToLower(), this.TBName.ToLower() },
                 new object[] { this._logicMapId, DBName.ToLower(), this.TBName.ToLower() }, 1, int.MaxValue);
 
-            var relcollist = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Scan<LogicMapRelColumn>(nameof(LogicMapRelColumn),
+            var relcollist = BigEntityTableRemotingEngine.Scan<LogicMapRelColumn>(nameof(LogicMapRelColumn),
                 "LSDRTC", new object[] { this._logicMapId, this.DBName.ToLower(), this.TBName.ToLower() },
                 new object[] { this._logicMapId, this.DBName.ToLower(), this.TBName.ToLower() }, 1, int.MaxValue);
 
@@ -438,13 +438,13 @@ namespace NETDBHelper.UC
                 long total = 0;
                 if (logicMapRelColumns == null)
                 {
-                    logicMapRelColumns = BigEntityTableEngine.LocalEngine.Scan<LogicMapRelColumn>(nameof(LogicMapRelColumn), "LogicID",
+                    logicMapRelColumns = BigEntityTableRemotingEngine.Scan<LogicMapRelColumn>(nameof(LogicMapRelColumn), "LogicID",
                         new object[] { _logicMapId }, new object[] { this._logicMapId }, 1, int.MaxValue, ref total);
                 }
                 if (!logicMapRelColumns.Any(p => p.IsOutPut == isOutPut && p.DBName.Equals(tbcol.DBName, StringComparison.OrdinalIgnoreCase) && p.TBName.Equals(tbcol.TBName, StringComparison.OrdinalIgnoreCase) && p.ColName.Equals(tbcol.Name, StringComparison.OrdinalIgnoreCase))
                     && !logicMapRelColumns.Any(p => p.IsOutPut == isOutPut && p.RelDBName.Equals(tbcol.DBName, StringComparison.OrdinalIgnoreCase) && p.RelTBName.Equals(tbcol.TBName, StringComparison.OrdinalIgnoreCase) && p.RelColName.Equals(tbcol.Name, StringComparison.OrdinalIgnoreCase)))
                 {
-                    BigEntityTableEngine.LocalEngine.Insert(nameof(LogicMapRelColumn), new LogicMapRelColumn
+                    BigEntityTableRemotingEngine.Insert(nameof(LogicMapRelColumn), new LogicMapRelColumn
                     {
                         LogicID = _logicMapId,
                         ColName = tbcol.Name.ToLower(),
@@ -612,13 +612,13 @@ namespace NETDBHelper.UC
                                 IsOutPut = isOutPut,
                                 ReIsOutPut = col.IsOutPut
                             };
-                            var relcollist = BigEntityTableEngine.LocalEngine
+                            var relcollist = BigEntityTableRemotingEngine
                             .Scan<LogicMapRelColumn>(nameof(LogicMapRelColumn), "LSDTC", new object[] { newrelcolumn.LogicID, newrelcolumn.DBName, newrelcolumn.TBName },
                             new object[] { newrelcolumn.LogicID, newrelcolumn.DBName, newrelcolumn.TBName }, 1, int.MaxValue);
 
                             if (!relcollist.Any(p => p.IsOutPut == newrelcolumn.IsOutPut && p.ReIsOutPut == newrelcolumn.ReIsOutPut && p.RelDBName.ToLower() == newrelcolumn.RelDBName && p.RelTBName.ToLower() == newrelcolumn.RelTBName && p.RelColName.ToLower() == newrelcolumn.RelColName))
                             {
-                                BigEntityTableEngine.LocalEngine.Insert(nameof(LogicMapRelColumn), newrelcolumn);
+                                BigEntityTableRemotingEngine.Insert(nameof(LogicMapRelColumn), newrelcolumn);
                                 //通知父控件
                                 if (OnAddNewRelColumn != null)
                                 {
@@ -681,7 +681,7 @@ namespace NETDBHelper.UC
                 if (_logicMapId > 0)
                 {
                     long total = 0;
-                    var allcols = BigEntityTableEngine.LocalEngine.Scan<LogicMapRelColumn>(nameof(LogicMapRelColumn), "LogicID",
+                    var allcols = BigEntityTableRemotingEngine.Scan<LogicMapRelColumn>(nameof(LogicMapRelColumn), "LogicID",
                         new object[] { this._logicMapId }, new object[] { this._logicMapId }, 1, int.MaxValue, ref total);
                     var logiccol = allcols.FirstOrDefault(p => p.IsOutPut == (panel == ColumnsPanelOutPut) && p.DBName.Equals(tbcol.DBName, StringComparison.OrdinalIgnoreCase)
                       && p.TBName.Equals(tbcol.TBName, StringComparison.OrdinalIgnoreCase) && p.ColName.Equals(tbcol.Name, StringComparison.OrdinalIgnoreCase)
@@ -693,11 +693,11 @@ namespace NETDBHelper.UC
                         if (logiccol != null)
                         {
                             logiccol.Desc = dlg.InputString;
-                            BigEntityTableEngine.LocalEngine.Update(nameof(LogicMapRelColumn), logiccol);
+                            BigEntityTableRemotingEngine.Update(nameof(LogicMapRelColumn), logiccol);
                         }
                         else
                         {
-                            BigEntityTableEngine.LocalEngine.Insert(nameof(LogicMapRelColumn), new LogicMapRelColumn
+                            BigEntityTableRemotingEngine.Insert(nameof(LogicMapRelColumn), new LogicMapRelColumn
                             {
                                 LogicID = _logicMapId,
                                 ColName = tbcol.Name.ToLower(),
@@ -722,7 +722,7 @@ namespace NETDBHelper.UC
             lb.MouseHover += (s, e) =>
             {
                 var col = (lb.Tag as TBColumn);
-                var desc = BigEntityTableEngine.LocalEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys",
+                var desc = BigEntityTableRemotingEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys",
                     new[] { col.DBName.ToUpper(), col.TBName.ToUpper(), col.Name.ToUpper() }).FirstOrDefault();
                 if (desc != null)
                 {
@@ -788,7 +788,7 @@ namespace NETDBHelper.UC
             {
                 if (!string.IsNullOrWhiteSpace(DBName) && !string.IsNullOrWhiteSpace(TBName))
                 {
-                    var desc = BigEntityTableEngine.LocalEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys", new[] { DBName.ToUpper(), TBName.ToUpper(), string.Empty }).FirstOrDefault();
+                    var desc = BigEntityTableRemotingEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys", new[] { DBName.ToUpper(), TBName.ToUpper(), string.Empty }).FirstOrDefault();
                     if (desc != null)
                     {
                         Util.SendMsg(this, desc.MarkInfo);
@@ -913,12 +913,12 @@ namespace NETDBHelper.UC
                 var pt = this.Location;
                 pt.Offset(-(this.Parent as Panel).AutoScrollPosition.X, -(this.Parent as Panel).AutoScrollPosition.Y);
 
-                LogicMapTable tb = BigEntityTableEngine.LocalEngine.Find<LogicMapTable>(nameof(LogicMapTable), this.LogicMapTableId);
+                LogicMapTable tb = BigEntityTableRemotingEngine.Find<LogicMapTable>(nameof(LogicMapTable), this.LogicMapTableId);
                 
                 tb.Posx = pt.X;
                 tb.Posy = pt.Y;
 
-                BigEntityTableEngine.LocalEngine.Update(nameof(LogicMapTable), tb);
+                BigEntityTableRemotingEngine.Update(nameof(LogicMapTable), tb);
             }
         }
     }

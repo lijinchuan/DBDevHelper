@@ -14,6 +14,7 @@ using System.Threading;
 using NPOI.SS.UserModel;
 using NPOI.HSSF.UserModel;
 using Biz.Common.Data;
+using LJC.FrameWorkV3.Data.EntityDataBase;
 
 namespace NETDBHelper.UC
 {
@@ -280,7 +281,7 @@ namespace NETDBHelper.UC
                             }));
                         }
                     }
-                    LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<HLogEntity>("HLog", new HLogEntity
+                    BigEntityTableRemotingEngine.Insert<HLogEntity>("HLog", new HLogEntity
                     {
                         TypeName = "sql",
                         LogTime = DateTime.Now,

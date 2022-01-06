@@ -114,7 +114,7 @@ namespace NETDBHelper.UC
             {
                 foreach(DataGridViewRow log in logs)
                 {
-                    LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Delete<Entity.HLogEntity>("HLog", (int)log.Cells["编号"].Value);
+                    BigEntityTableRemotingEngine.Delete<Entity.HLogEntity>("HLog", (int)log.Cells["编号"].Value);
                 }
                 BindData();
             }
@@ -145,11 +145,11 @@ namespace NETDBHelper.UC
                     dlg.DlgResult += () =>
                       {
                           var logid = (int)rows[0].Cells["编号"].Value;
-                          var log = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<Entity.HLogEntity>("HLog", logid);
+                          var log = BigEntityTableRemotingEngine.Find<Entity.HLogEntity>("HLog", logid);
                           if (log != null)
                           {
                               log.TypeName = dlg.InputString;
-                              LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Update<HLogEntity>("HLog", log);
+                              BigEntityTableRemotingEngine.Update("HLog", log);
                               BindData();
                           }
                       };
@@ -253,7 +253,7 @@ namespace NETDBHelper.UC
                     object logs = null;
                     if (string.IsNullOrWhiteSpace(TBSearchKey.Text) || TBSearchKey.Text.Equals(TBSearchKey.Tag))
                     {
-                        logs = BigEntityTableEngine.LocalEngine.ScanDesc<HLogEntity>("HLog", "LogTime",
+                        logs = BigEntityTableRemotingEngine.ScanDesc<HLogEntity>("HLog", "LogTime",
                             new object[] { BeginDate.Value }, new object[] { EndDate.Value }, PageIndex == 0 ? 1 : PageIndex, pageSize, ref total).Select(p => new
                             {
                                 编号 = p.ID,
@@ -267,7 +267,7 @@ namespace NETDBHelper.UC
                     }
                     else
                     {
-                        var list = BigEntityTableEngine.LocalEngine.Scan<HLogEntity>("HLog", "LogTime",
+                        var list = BigEntityTableRemotingEngine.Scan<HLogEntity>("HLog", "LogTime",
                             new object[] { BeginDate.Value }, new object[] { EndDate.Value }, 1, int.MaxValue, ref total);
                         var key = TBSearchKey.Text;
                         list = list.Where(p => (p.Info ?? "").Contains(key) || (p.DB ?? "").Contains(key) || (p.TypeName ?? "").Contains(key)).ToList();

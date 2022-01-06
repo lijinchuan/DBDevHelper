@@ -82,7 +82,7 @@ namespace NETDBHelper.UC
                     dlg.DlgResult += () =>
                       {
                           relColumnEx.RelColumn.Desc = dlg.InputString;
-                          LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Update<RelColumn>(nameof(RelColumn), relColumnEx.RelColumn);
+                          LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableRemotingEngine.Update<RelColumn>(nameof(RelColumn), relColumnEx.RelColumn);
                           this.PanelMap.Invalidate();
                       };
                     dlg.ShowMe(this);
@@ -209,7 +209,7 @@ namespace NETDBHelper.UC
                 var rc = e.ClickedItem.Tag as RelColumn;
                 if (MessageBox.Show("是否要删除关联", "提示", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                 {
-                    if(LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Delete<RelColumn>(nameof(RelColumn),
+                    if(LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableRemotingEngine.Delete<RelColumn>(nameof(RelColumn),
                         rc.Id))
                     {
                         TSMDelRelColumn.DropDownItems.Remove(e.ClickedItem);
@@ -236,7 +236,7 @@ namespace NETDBHelper.UC
             List<Tuple<string, string>> reltblist = new List<Tuple<string, string>>();
             reltblist.Add(new Tuple<string, string>(this._DBName.ToLower(), this.Tbname.ToLower()));
 
-            var list = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<RelTable>(nameof(RelTable),
+            var list = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableRemotingEngine.Find<RelTable>(nameof(RelTable),
                 p =>
                 {
                     return p.DBName.Equals(this._DBName, StringComparison.OrdinalIgnoreCase)
@@ -246,7 +246,7 @@ namespace NETDBHelper.UC
             reltblist.AddRange(list.Select(p => new Tuple<string, string>(p.RelDBName, p.RelTBName)));
             reltblist.AddRange(list.Select(p => new Tuple<string, string>(p.DBName, p.TBName)));
 
-            var allrelcolumnlist = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<RelColumn>(nameof(RelColumn), r =>
+            var allrelcolumnlist = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableRemotingEngine.Find<RelColumn>(nameof(RelColumn), r =>
             {
                 return (this._DBName.Equals(r.DBName, StringComparison.OrdinalIgnoreCase)
                 && this.Tbname.Equals(r.TBName, StringComparison.OrdinalIgnoreCase))
@@ -375,7 +375,7 @@ namespace NETDBHelper.UC
                     {
                         relColumnIces = new List<RelColumnEx>();
                         var othertables = ucTableViews.Where(p => !string.IsNullOrEmpty(p.TableName)).Select(p => new Tuple<string, string>(p.DataBaseName, p.TableName)).Distinct().ToList();
-                        var allrelcolumnlist = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<RelColumn>(nameof(RelColumn), r =>
+                        var allrelcolumnlist = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableRemotingEngine.Find<RelColumn>(nameof(RelColumn), r =>
                          {
                              return (r.DBName.Equals(this._DBName, StringComparison.OrdinalIgnoreCase) || r.RelDBName.Equals(this._DBName, StringComparison.OrdinalIgnoreCase))
                              && (othertables.Any(p => p.Item1.Equals(r.DBName, StringComparison.OrdinalIgnoreCase) && p.Item2.Equals(r.TBName, StringComparison.OrdinalIgnoreCase))
@@ -984,14 +984,14 @@ namespace NETDBHelper.UC
                             RelDBName = v.DataBaseName.ToLower(),
                             RelTBName = v.TableName.ToLower()
                         };
-                        var boo = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<RelTable>(nameof(RelTable),
+                        var boo = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableRemotingEngine.Find<RelTable>(nameof(RelTable),
                                 p => p.DBName.Equals(newreltable.DBName, StringComparison.OrdinalIgnoreCase)
                                     && p.TBName.Equals(newreltable.TBName, StringComparison.OrdinalIgnoreCase)
                                     && p.RelDBName.Equals(newreltable.RelDBName, StringComparison.OrdinalIgnoreCase)
                                     && p.RelTBName.Equals(newreltable.RelTBName, StringComparison.OrdinalIgnoreCase)).Any();
                         if (!boo)
                         {
-                            LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<RelTable>(nameof(RelTable), newreltable);
+                            LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableRemotingEngine.Insert<RelTable>(nameof(RelTable), newreltable);
                         }
                     }
                     this.PanelMap.Invalidate();
@@ -1021,13 +1021,13 @@ namespace NETDBHelper.UC
                         var v = view;
                         if (!string.IsNullOrWhiteSpace(v.TableName) && !v.TableName.Equals(this.Tbname, StringComparison.OrdinalIgnoreCase))
                         {
-                            foreach (var item in LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<RelTable>(nameof(RelTable),
+                            foreach (var item in LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableRemotingEngine.Find<RelTable>(nameof(RelTable),
                                     p => p.DBName.Equals(this._DBName, StringComparison.OrdinalIgnoreCase)
                                         && p.TBName.Equals(this.Tbname, StringComparison.OrdinalIgnoreCase)
                                         && p.RelDBName.Equals(v.DataBaseName, StringComparison.OrdinalIgnoreCase)
                                         && p.RelTBName.Equals(v.TableName, StringComparison.OrdinalIgnoreCase)).ToList())
                             {
-                                LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Delete<RelTable>(nameof(RelTable), item.Id);
+                                LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableRemotingEngine.Delete<RelTable>(nameof(RelTable), item.Id);
                             }
                         }
                         this.PanelMap.Controls.Remove(ct);

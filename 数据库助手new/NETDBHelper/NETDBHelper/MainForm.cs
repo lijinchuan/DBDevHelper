@@ -12,6 +12,7 @@ using Biz.Common.Data;
 using Entity;
 using Entity.WatchTask;
 using ICSharpCode.SharpZipLib.Zip;
+using LJC.FrameWorkV3.Data.EntityDataBase;
 using NETDBHelper.SubForm;
 using NETDBHelper.UC;
 
@@ -328,7 +329,7 @@ namespace NETDBHelper
                 foreach (DataRow row in tbs.Rows)
                 {
                     var tbname = row["name"].ToString();
-                    var searchColumns = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<TBSearchColumn>("TBSearchColumn", "DBName_TBName", new[] { n.ToLower(), tbname.ToLower() }).ToArray();
+                    var searchColumns = BigEntityTableRemotingEngine.Find<TBSearchColumn>("TBSearchColumn", "DBName_TBName", new[] { n.ToLower(), tbname.ToLower() }).ToArray();
                     if (searchColumns.Length == 0)
                     {
                         try
@@ -344,7 +345,7 @@ namespace NETDBHelper
                                     Name = p.Name,
                                     Description = p.Description
                                 }).ToArray();
-                                LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.InsertBatch<TBSearchColumn>("TBSearchColumn", searchColumns);
+                                BigEntityTableRemotingEngine.InsertBatch<TBSearchColumn>("TBSearchColumn", searchColumns);
                             }
                         }
                         catch (Exception ex)
@@ -404,17 +405,17 @@ namespace NETDBHelper
                 int finishcount = 0;
                 foreach(var proc in proclist)
                 {
-                    var spcontent = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<SPContent>("SPContent", "SPName", new[] { proc }).FirstOrDefault();
+                    var spcontent = BigEntityTableRemotingEngine.Find<SPContent>("SPContent", "SPName", new[] { proc }).FirstOrDefault();
                     if (spcontent == null)
                     {
                         try
                         {
-                            var body = Biz.Common.Data.SQLHelper.GetProcedureBody(dbsource, dbname, proc);
+                            var body = SQLHelper.GetProcedureBody(dbsource, dbname, proc);
                         
                             if (!string.IsNullOrEmpty(body))
                             {
                                 spcontent = new SPContent { SPName = proc, Content = body };
-                                LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<SPContent>("SPContent", new SPContent
+                                BigEntityTableRemotingEngine.Insert<SPContent>("SPContent", new SPContent
                                 {
                                     Content=body,
                                     SPName=proc
@@ -488,7 +489,7 @@ namespace NETDBHelper
                 int finishcount = 0;
                 foreach (var proc in proclist)
                 {
-                    var spcontent = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<FunContent>("FunContent", "FunName", new[] { proc }).FirstOrDefault();
+                    var spcontent = BigEntityTableRemotingEngine.Find<FunContent>("FunContent", "FunName", new[] { proc }).FirstOrDefault();
                     if (spcontent == null)
                     {
                         try
@@ -498,7 +499,7 @@ namespace NETDBHelper
                             if (!string.IsNullOrEmpty(body))
                             {
                                 spcontent = new FunContent { FunName = proc, Content = body };
-                                LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<FunContent>("FunContent", new FunContent
+                                BigEntityTableRemotingEngine.Insert("FunContent", new FunContent
                                 {
                                     Content = body,
                                     FunName = proc
@@ -928,6 +929,13 @@ namespace NETDBHelper
         private void 显示左侧窗口ToolStripMenuItem_Click(object sender, EventArgs e)
         {
             ChangeLeftWindow();
+        }
+
+        private void 服务器设置ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var dlg = new ServerSettingDlg();
+
+            dlg.ShowDialog();
         }
     }
 }

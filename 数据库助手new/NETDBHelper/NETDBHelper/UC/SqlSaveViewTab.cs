@@ -79,7 +79,7 @@ namespace NETDBHelper.UC
             {
                 foreach (DataGridViewRow log in logs)
                 {
-                    LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Delete<Entity.SqlSaveEntity>("SqlSave", (int)log.Cells["编号"].Value);
+                    BigEntityTableRemotingEngine.Delete<Entity.SqlSaveEntity>("SqlSave", (int)log.Cells["编号"].Value);
                 }
                 BindData();
             }
@@ -110,11 +110,11 @@ namespace NETDBHelper.UC
                     if (dlg.ShowDialog() == DialogResult.OK)
                     {
                         var id = (int)rows[0].Cells["编号"].Value;
-                        var entity = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<Entity.SqlSaveEntity>("SqlSave", id);
+                        var entity = BigEntityTableRemotingEngine.Find<Entity.SqlSaveEntity>("SqlSave", id);
                         if (entity != null)
                         {
                             entity.Desc = dlg.InputString;
-                            LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Update<Entity.SqlSaveEntity>("SqlSave", entity);
+                            BigEntityTableRemotingEngine.Update("SqlSave", entity);
                             BindData();
                         }
                     }
@@ -202,12 +202,12 @@ namespace NETDBHelper.UC
             if (string.IsNullOrEmpty(word))
             {
 
-                lists = BigEntityTableEngine.LocalEngine.Scan<Entity.SqlSaveEntity>("SqlSave", "SqlSave",
+                lists = BigEntityTableRemotingEngine.Scan<Entity.SqlSaveEntity>("SqlSave", "SqlSave",
                     new object[] { 0 }, new object[] { int.MaxValue }, PageIndex == 0 ? 1 : PageIndex, pageSize, ref total).ToList();
             }
             else
             {
-                lists = BigEntityTableEngine.LocalEngine.Find<Entity.SqlSaveEntity>("SqlSave", p => p.Desc.IndexOf(word) > -1).ToList();
+                lists = BigEntityTableRemotingEngine.Find<Entity.SqlSaveEntity>("SqlSave", p => p.Desc.IndexOf(word) > -1).ToList();
                 total = lists.Count;
                 if (total > pageSize)
                 {

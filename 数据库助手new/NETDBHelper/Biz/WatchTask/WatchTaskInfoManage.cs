@@ -26,7 +26,7 @@ namespace Biz.WatchTask
 
         public WatchTaskInfo Get(int taskid)
         {
-            return BigEntityTableEngine.LocalEngine.Find<WatchTaskInfo>(nameof(WatchTaskInfo), taskid);
+            return BigEntityTableRemotingEngine.Find<WatchTaskInfo>(nameof(WatchTaskInfo), taskid);
         }
 
         public bool AddWatchTask(WatchTaskInfo req)
@@ -44,12 +44,12 @@ namespace Biz.WatchTask
                 throw new Exception("name不能为空");
             }
             long total = 0;
-            if (BigEntityTableEngine.LocalEngine.Scan<WatchTaskInfo>(nameof(WatchTaskInfo), "Name", new[] { req.Name }, new[] { req.Name }, 1, 1, ref total).FirstOrDefault() != null)
+            if (BigEntityTableRemotingEngine.Scan<WatchTaskInfo>(nameof(WatchTaskInfo), "Name", new[] { req.Name }, new[] { req.Name }, 1, 1, ref total).FirstOrDefault() != null)
             {
                 throw new Exception("name不能重复");
             }
 
-            BigEntityTableEngine.LocalEngine.Insert<WatchTaskInfo>(nameof(WatchTaskInfo), new WatchTaskInfo
+            BigEntityTableRemotingEngine.Insert<WatchTaskInfo>(nameof(WatchTaskInfo), new WatchTaskInfo
             {
                 DBServer = req.DBServer,
                 ErrorMsg = req.ErrorMsg,
@@ -85,7 +85,7 @@ namespace Biz.WatchTask
                 throw new Exception("name不能为空");
             }
 
-            var old = BigEntityTableEngine.LocalEngine.Find<WatchTaskInfo>(nameof(WatchTaskInfo), req.ID);
+            var old = BigEntityTableRemotingEngine.Find<WatchTaskInfo>(nameof(WatchTaskInfo), req.ID);
             if (old == null)
             {
                 throw new Exception("数据不存在");
@@ -93,7 +93,7 @@ namespace Biz.WatchTask
             if (old.Name != req.Name)
             {
                 long total = 0;
-                if (BigEntityTableEngine.LocalEngine.Scan<WatchTaskInfo>(nameof(WatchTaskInfo), "Name", new[] { req.Name }, new[] { req.Name }, 1, 1, ref total).FirstOrDefault() != null)
+                if (BigEntityTableRemotingEngine.Scan<WatchTaskInfo>(nameof(WatchTaskInfo), "Name", new[] { req.Name }, new[] { req.Name }, 1, 1, ref total).FirstOrDefault() != null)
                 {
                     throw new Exception("name不能重复");
                 }
@@ -105,7 +105,7 @@ namespace Biz.WatchTask
                 throw new Exception("数据未发生改变");
             }
 
-            return BigEntityTableEngine.LocalEngine.Update<WatchTaskInfo>(nameof(WatchTaskInfo), new WatchTaskInfo
+            return BigEntityTableRemotingEngine.Update<WatchTaskInfo>(nameof(WatchTaskInfo), new WatchTaskInfo
             {
                 ID = req.ID,
                 DBServer = req.DBServer,
@@ -125,12 +125,12 @@ namespace Biz.WatchTask
 
         public List<WatchTaskInfo> GetWatchTaskList()
         {
-            return BigEntityTableEngine.LocalEngine.List<WatchTaskInfo>(nameof(WatchTaskInfo), 1, int.MaxValue).ToList();
+            return BigEntityTableRemotingEngine.List<WatchTaskInfo>(nameof(WatchTaskInfo), 1, int.MaxValue).ToList();
         }
 
         public bool DelWatchTask(WatchTaskInfo req)
         {
-            return BigEntityTableEngine.LocalEngine.Delete<WatchTaskInfo>(nameof(WatchTaskInfo), req.ID);
+            return BigEntityTableRemotingEngine.Delete<WatchTaskInfo>(nameof(WatchTaskInfo), req.ID);
         }
 
         public bool FindAndUpdate(int taskid,Func<WatchTaskInfo,bool> update)
@@ -146,7 +146,7 @@ namespace Biz.WatchTask
                 {
                     throw new Exception("ID不可修改");
                 }
-                return BigEntityTableEngine.LocalEngine.Update(nameof(WatchTaskInfo), task);
+                return BigEntityTableRemotingEngine.Update(nameof(WatchTaskInfo), task);
             }
             else
             {
@@ -157,7 +157,7 @@ namespace Biz.WatchTask
         public List<WatchTaskLog> GetLogs(int taskid, DateTime start, DateTime end)
         {
             long total = 0;
-            var list = BigEntityTableEngine.LocalEngine.ScanDesc<WatchTaskLog>(nameof(WatchTaskLog), "TaskId-CDate", new object[] { taskid, start },
+            var list = BigEntityTableRemotingEngine.ScanDesc<WatchTaskLog>(nameof(WatchTaskLog), "TaskId-CDate", new object[] { taskid, start },
                 new object[] { taskid, end }, 1, int.MaxValue, ref total);
 
             return list;
@@ -171,7 +171,7 @@ namespace Biz.WatchTask
                 {
                     return;
                 }
-                foreach (var item in BigEntityTableEngine.LocalEngine.List<WatchTaskInfo>(nameof(WatchTaskInfo), 1, int.MaxValue))
+                foreach (var item in BigEntityTableRemotingEngine.List<WatchTaskInfo>(nameof(WatchTaskInfo), 1, int.MaxValue))
                 {
                     if (!item.IsValid)
                     {
@@ -207,7 +207,7 @@ namespace Biz.WatchTask
                         if (haserror)
                         {
                             var content = item.ErrorMsg;
-                            BigEntityTableEngine.LocalEngine.Insert<WatchTaskLog>(nameof(WatchTaskLog), new WatchTaskLog
+                            BigEntityTableRemotingEngine.Insert<WatchTaskLog>(nameof(WatchTaskLog), new WatchTaskLog
                             {
                                 CDate=DateTime.Now,
                                 TaskId=item.ID,
@@ -219,7 +219,7 @@ namespace Biz.WatchTask
                         item.LastSuccessTime = DateTime.Now;
                         if (!StopTaskLoop)
                         {
-                            BigEntityTableEngine.LocalEngine.Update<WatchTaskInfo>(nameof(WatchTaskInfo), item);
+                            BigEntityTableRemotingEngine.Update<WatchTaskInfo>(nameof(WatchTaskInfo), item);
 
                             if (haserror && OnTiggerError != null)
                             {
@@ -233,7 +233,7 @@ namespace Biz.WatchTask
                     }
                     catch (Exception ex)
                     {
-                        BigEntityTableEngine.LocalEngine.Insert<WatchTaskLog>(nameof(WatchTaskLog), new WatchTaskLog
+                        BigEntityTableRemotingEngine.Insert<WatchTaskLog>(nameof(WatchTaskLog), new WatchTaskLog
                         {
                             CDate = DateTime.Now,
                             TaskId = item.ID,

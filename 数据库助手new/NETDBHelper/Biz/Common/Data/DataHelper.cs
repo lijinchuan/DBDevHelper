@@ -568,7 +568,7 @@ namespace Biz.Common.Data
 
             //类注释
             string tbdesc = null;
-            var item = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys", new[] { dbname.ToUpper(), tbname.ToUpper(), string.Empty }).FirstOrDefault();
+            var item = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableRemotingEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys", new[] { dbname.ToUpper(), tbname.ToUpper(), string.Empty }).FirstOrDefault();
             if (item == null)
             {
                 var tb = SQLHelper.GetTableDescription(dbsource, dbname, tbname);

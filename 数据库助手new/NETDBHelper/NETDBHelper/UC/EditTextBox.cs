@@ -13,6 +13,7 @@ using Entity;
 using LJC.FrameWork.Data.EntityDataBase;
 using System.Threading;
 using System.IO;
+using LJC.FrameWorkV3.Data.EntityDataBase;
 
 namespace NETDBHelper.UC
 {
@@ -105,7 +106,7 @@ namespace NETDBHelper.UC
 
             if (ThinkInfoLib == null)
             {
-                var markColumnInfoList = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.List<MarkObjectInfo>("MarkObjectInfo", 1, int.MaxValue);
+                var markColumnInfoList = BigEntityTableRemotingEngine.List<MarkObjectInfo>("MarkObjectInfo", 1, int.MaxValue);
                 ThinkInfoLib = new List<ThinkInfo>();
 
                 foreach (var o in SQLKeyWordHelper.GetKeyWordList())
@@ -613,7 +614,7 @@ namespace NETDBHelper.UC
                 var marklist = new List<MarkObjectInfo>();
                 foreach (var key in keys)
                 {
-                    var findresult = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys", key).FirstOrDefault();
+                    var findresult = BigEntityTableRemotingEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys", key).FirstOrDefault();
                     if (findresult != null)
                     {
                         marklist.Add(findresult);
@@ -1466,7 +1467,7 @@ namespace NETDBHelper.UC
             var nameinput = new SubForm.InputStringDlg("备注");
             if (nameinput.ShowDialog() == DialogResult.OK)
             {
-                if (LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<SqlSaveEntity>("SqlSave", new SqlSaveEntity
+                if (BigEntityTableRemotingEngine.Insert("SqlSave", new SqlSaveEntity
                 {
                     Desc = nameinput.InputString,
                     MDate = DateTime.Now,

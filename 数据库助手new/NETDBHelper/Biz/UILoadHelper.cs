@@ -55,7 +55,7 @@ namespace Biz
                     }
 
                     TreeNode dbNode = new TreeNode(dbInfo.Name, 2, 2);
-                    var item = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys", new[] { dbInfo.Name.ToUpper(), string.Empty, string.Empty }).FirstOrDefault();
+                    var item = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableRemotingEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys", new[] { dbInfo.Name.ToUpper(), string.Empty, string.Empty }).FirstOrDefault();
                     if (item != null)
                     {
                         dbNode.ToolTipText = item.MarkInfo;
@@ -173,8 +173,8 @@ namespace Biz
                 //    tbinfo.TBName = tbinfo.Schema + "." + tbinfo.TBName;
                 //}
 
-                var ex = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Scan<RelTable>(nameof(RelTable), "SDT", new[] { dbname.ToLower(), tbinfo.TBName.ToLower() }, new[] { dbname.ToLower(), tbinfo.TBName.ToLower() }, 1, 1, ref total).FirstOrDefault() != null
-                || LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Scan<RelTable>(nameof(RelTable), "SDRT", new[] { dbname.ToLower(), tbinfo.TBName.ToLower() }, new[] { dbname.ToLower(), tbinfo.TBName.ToLower() }, 1, 1, ref total).FirstOrDefault() != null;
+                var ex = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableRemotingEngine.Scan<RelTable>(nameof(RelTable), "SDT", new[] { dbname.ToLower(), tbinfo.TBName.ToLower() }, new[] { dbname.ToLower(), tbinfo.TBName.ToLower() }, 1, 1, ref total).FirstOrDefault() != null
+                || LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableRemotingEngine.Scan<RelTable>(nameof(RelTable), "SDRT", new[] { dbname.ToLower(), tbinfo.TBName.ToLower() }, new[] { dbname.ToLower(), tbinfo.TBName.ToLower() }, 1, 1, ref total).FirstOrDefault() != null;
 
                 tbinfo.Desc = tbdesc.AsEnumerable().
                     FirstOrDefault(p => p.Field<string>("tablename").Equals(tbinfo.TBName, StringComparison.OrdinalIgnoreCase))
@@ -480,7 +480,7 @@ namespace Biz
 
         public static void LoadLogicMaps(Form parent, TreeNode tbNode, string dbname)
         {
-            var logicmaplist = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<LogicMap>(nameof(LogicMap),
+            var logicmaplist = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableRemotingEngine.Find<LogicMap>(nameof(LogicMap),
                 p => p.DBName.Equals(dbname, StringComparison.OrdinalIgnoreCase)).ToList();
 
 

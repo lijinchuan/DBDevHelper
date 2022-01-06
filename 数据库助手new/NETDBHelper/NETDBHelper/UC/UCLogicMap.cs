@@ -44,7 +44,7 @@ namespace NETDBHelper.UC
 
         public UCLogicMap(DBSource dbSource, int logicMapId)
         {
-            var logicmap = BigEntityTableEngine.LocalEngine.Find<LogicMap>(nameof(LogicMap), logicMapId);
+            var logicmap = BigEntityTableRemotingEngine.Find<LogicMap>(nameof(LogicMap), logicMapId);
             if (logicmap == null)
             {
 
@@ -124,7 +124,7 @@ namespace NETDBHelper.UC
                     dlg.DlgResult += () =>
                       {
                           relColumnEx.RelColumn.Desc = dlg.InputString;
-                          BigEntityTableEngine.LocalEngine.Update<LogicMapRelColumn>(nameof(LogicMapRelColumn), relColumnEx.RelColumn);
+                          BigEntityTableRemotingEngine.Update<LogicMapRelColumn>(nameof(LogicMapRelColumn), relColumnEx.RelColumn);
                           this.PanelMap.Invalidate();
                       };
                     dlg.ShowMe(this);
@@ -277,7 +277,7 @@ namespace NETDBHelper.UC
                 var rc = e.ClickedItem.Tag as LogicMapRelColumn;
                 if (MessageBox.Show("是否要删除关联", "提示", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                 {
-                    if (BigEntityTableEngine.LocalEngine.Delete<LogicMapRelColumn>(nameof(LogicMapRelColumn),
+                    if (BigEntityTableRemotingEngine.Delete<LogicMapRelColumn>(nameof(LogicMapRelColumn),
                         rc.ID))
                     {
                         TSMDelRelColumn.DropDownItems.Remove(e.ClickedItem);
@@ -305,14 +305,14 @@ namespace NETDBHelper.UC
                 if (MessageBox.Show($"要删除字段【{col.Name}】吗", "询问", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                 {
                     long total = 0;
-                    var logiccollist= BigEntityTableEngine.LocalEngine.Scan<LogicMapRelColumn>(nameof(LogicMapRelColumn), "LogicID",
+                    var logiccollist= BigEntityTableRemotingEngine.Scan<LogicMapRelColumn>(nameof(LogicMapRelColumn), "LogicID",
                         new object[] { _logicMapId }, new object[] { _logicMapId }, 1, int.MaxValue, ref total).ToList();
                     var logiccol = logiccollist.FirstOrDefault(p => p.DBName.Equals(col.DBName, StringComparison.OrdinalIgnoreCase)
                       && p.TBName.Equals(col.TBName, StringComparison.OrdinalIgnoreCase)
                       && p.ColName.Equals(col.Name, StringComparison.OrdinalIgnoreCase) && p.RelColName == string.Empty);
                     if (logiccol != null)
                     {
-                        BigEntityTableEngine.LocalEngine.Delete<LogicMapRelColumn>(nameof(LogicMapRelColumn), logiccol.ID);
+                        BigEntityTableRemotingEngine.Delete<LogicMapRelColumn>(nameof(LogicMapRelColumn), logiccol.ID);
                         Util.SendMsg(this, $"操作成功");
                     }
                     else
@@ -335,14 +335,14 @@ namespace NETDBHelper.UC
 
             List<Tuple<string, string>> reltblist = new List<Tuple<string, string>>();
 
-            var list = BigEntityTableEngine.LocalEngine.Find<LogicMapTable>(nameof(LogicMapTable),
+            var list = BigEntityTableRemotingEngine.Find<LogicMapTable>(nameof(LogicMapTable),
                 p =>
                 {
                     return p.LogicID == this._logicMapId;
                 }).ToList();
             reltblist.AddRange(list.Select(p => new Tuple<string, string>(p.DBName, p.TBName)));
 
-            var allrelcolumnlist = BigEntityTableEngine.LocalEngine.Find<LogicMapRelColumn>(nameof(LogicMapRelColumn), r =>
+            var allrelcolumnlist = BigEntityTableRemotingEngine.Find<LogicMapRelColumn>(nameof(LogicMapRelColumn), r =>
             {
                 return r.LogicID == this._logicMapId;
             }).ToList();
@@ -460,7 +460,7 @@ namespace NETDBHelper.UC
                     {
                         relColumnIces = new List<LogicMapRelColumnEx>();
                         var othertables = ucTableViews.Where(p => !string.IsNullOrEmpty(p.TableName)).Select(p => new Tuple<string, string>(p.DataBaseName, p.TableName)).Distinct().ToList();
-                        var allrelcolumnlist = BigEntityTableEngine.LocalEngine.Scan<LogicMapRelColumn>(nameof(LogicMapRelColumn), "LogicID", new object[] { this._logicMapId },
+                        var allrelcolumnlist = BigEntityTableRemotingEngine.Scan<LogicMapRelColumn>(nameof(LogicMapRelColumn), "LogicID", new object[] { this._logicMapId },
                             new object[] { this._logicMapId }, 1, int.MaxValue);
 
                         foreach (var rc in allrelcolumnlist)
@@ -1072,12 +1072,12 @@ namespace NETDBHelper.UC
                         Posx = pt.X,
                         Posy = pt.Y
                     };
-                    var boo = BigEntityTableEngine.LocalEngine.Find<LogicMapTable>(nameof(LogicMapTable),
+                    var boo = BigEntityTableRemotingEngine.Find<LogicMapTable>(nameof(LogicMapTable),
                             p => p.LogicID == this._logicMapId && p.DBName.Equals(newreltable.DBName, StringComparison.OrdinalIgnoreCase)
                                 && p.TBName.Equals(newreltable.TBName, StringComparison.OrdinalIgnoreCase)).Any();
                     if (!boo)
                     {
-                        BigEntityTableEngine.LocalEngine.Insert(nameof(LogicMapTable), newreltable);
+                        BigEntityTableRemotingEngine.Insert(nameof(LogicMapTable), newreltable);
                         v.LogicMapTableId = newreltable.ID;
                     }
                 }
@@ -1111,11 +1111,11 @@ namespace NETDBHelper.UC
                     {
                         var v = view;
 
-                        foreach (var item in BigEntityTableEngine.LocalEngine.Find<LogicMapTable>(nameof(LogicMapTable),
+                        foreach (var item in BigEntityTableRemotingEngine.Find<LogicMapTable>(nameof(LogicMapTable),
                                 p => p.LogicID == this._logicMapId && p.DBName.Equals(v.DataBaseName, StringComparison.OrdinalIgnoreCase)
                                     && p.TBName.Equals(v.TableName, StringComparison.OrdinalIgnoreCase)).ToList())
                         {
-                            BigEntityTableEngine.LocalEngine.Delete<LogicMapTable>(nameof(LogicMapTable), item.ID);
+                            BigEntityTableRemotingEngine.Delete<LogicMapTable>(nameof(LogicMapTable), item.ID);
                         }
                         this.PanelMap.Controls.Remove(ct);
                     }

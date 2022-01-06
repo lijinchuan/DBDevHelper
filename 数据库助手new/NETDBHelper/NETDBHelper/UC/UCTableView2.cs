@@ -126,11 +126,11 @@ namespace NETDBHelper.UC
         private void BindColumns()
         {
 
-            var collist = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Scan<RelColumn>(nameof(RelColumn),
+            var collist = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableRemotingEngine.Scan<RelColumn>(nameof(RelColumn),
                 "SDTC", new[] { DBName.ToLower(), this.TBName.ToLower() },
                 new[] { DBName.ToLower(), this.TBName.ToLower() }, 1, int.MaxValue);
 
-            var relcollist = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Scan<RelColumn>(nameof(RelColumn),
+            var relcollist = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableRemotingEngine.Scan<RelColumn>(nameof(RelColumn),
                 "SDRTC", new[] { this.DBName.ToLower(), this.TBName.ToLower() },
                 new[] { this.DBName.ToLower(), this.TBName.ToLower() }, 1, int.MaxValue);
 
@@ -357,13 +357,13 @@ namespace NETDBHelper.UC
                                 ServerName = DBSource.ServerName.ToLower(),
                                 TBName = this.TBName.ToLower()
                             };
-                            var relcollist = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine
+                            var relcollist = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableRemotingEngine
                             .Scan<RelColumn>(nameof(RelColumn), "SDTC", new[] { newrelcolumn.DBName, newrelcolumn.TBName },
                             new[] { newrelcolumn.DBName, newrelcolumn.TBName }, 1, int.MaxValue);
 
                             if (!relcollist.Any(p => p.RelDBName.ToLower() == newrelcolumn.RelDBName && p.RelTBName.ToLower() == newrelcolumn.RelTBName && p.RelColName.ToLower() == newrelcolumn.RelColName))
                             {
-                                LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<RelColumn>(nameof(RelColumn), newrelcolumn);
+                                LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableRemotingEngine.Insert<RelColumn>(nameof(RelColumn), newrelcolumn);
                                 //通知父控件
                                 if (OnAddNewRelColumn != null)
                                 {

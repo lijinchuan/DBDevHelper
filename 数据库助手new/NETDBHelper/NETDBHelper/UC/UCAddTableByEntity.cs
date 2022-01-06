@@ -59,7 +59,7 @@ namespace NETDBHelper.UC
                     string s = DataHelper.GetCreateTableSQL(this.DBName, inputdlg.InputString, tb,null);
                     this.etbSQL.Text = s;
                     this.etbSQL.MarkKeyWords(true);
-                    Biz.Common.Data.SQLHelper.ExecuteNoQuery(this.DB, this.DBName, s, null);
+                    SQLHelper.ExecuteNoQuery(this.DB, this.DBName, s, null);
                     this.labErr.Text= "执行成功";
                     if (OnNewTableAdd != null)
                     {
