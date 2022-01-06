@@ -348,7 +348,8 @@ namespace NETDBHelper.UC
         private void AddColumnLable(Panel panel,ComboBox cbCol, TBColumn tbcolumn, ref List<LogicMapRelColumn> logicMapRelColumns)
         {
             var tbcol = tbcolumn.Clone() as TBColumn;
-            tbcol.IsOutPut = panel == ColumnsPanelOutPut;
+            var isOutPut = panel == ColumnsPanelOutPut;
+            tbcol.IsOutPut = isOutPut;
 
             if (panel != ColumnsPanelOutPut && panel.Location.Y + panel.Height >= ColumnsPanelOutPut.Location.Y)
             {
@@ -420,7 +421,7 @@ namespace NETDBHelper.UC
                 //    }
                 //}
 
-                if (panel != ColumnsPanelOutPut && panel.Location.Y + panel.Height >= ColumnsPanelOutPut.Location.Y)
+                if (!isOutPut && panel.Location.Y + panel.Height >= ColumnsPanelOutPut.Location.Y)
                 {
                     var newPos = ColumnsPanelOutPut.Location;
                     newPos.Offset(0, panel.Location.Y + panel.Height - ColumnsPanelOutPut.Location.Y + 10);
@@ -438,10 +439,10 @@ namespace NETDBHelper.UC
                 if (logicMapRelColumns == null)
                 {
                     logicMapRelColumns = BigEntityTableEngine.LocalEngine.Scan<LogicMapRelColumn>(nameof(LogicMapRelColumn), "LogicID",
-                        new object[] { this._logicMapId }, new object[] { this._logicMapId }, 1, int.MaxValue, ref total);
+                        new object[] { _logicMapId }, new object[] { this._logicMapId }, 1, int.MaxValue, ref total);
                 }
-                if (!logicMapRelColumns.Any(p => p.DBName.Equals(tbcol.DBName, StringComparison.OrdinalIgnoreCase) && p.TBName.Equals(tbcol.TBName, StringComparison.OrdinalIgnoreCase) && p.ColName.Equals(tbcol.Name, StringComparison.OrdinalIgnoreCase))
-                    && !logicMapRelColumns.Any(p => p.RelDBName.Equals(tbcol.DBName, StringComparison.OrdinalIgnoreCase) && p.RelTBName.Equals(tbcol.TBName, StringComparison.OrdinalIgnoreCase) && p.RelColName.Equals(tbcol.Name, StringComparison.OrdinalIgnoreCase)))
+                if (!logicMapRelColumns.Any(p => p.IsOutPut == isOutPut && p.DBName.Equals(tbcol.DBName, StringComparison.OrdinalIgnoreCase) && p.TBName.Equals(tbcol.TBName, StringComparison.OrdinalIgnoreCase) && p.ColName.Equals(tbcol.Name, StringComparison.OrdinalIgnoreCase))
+                    && !logicMapRelColumns.Any(p => p.IsOutPut == isOutPut && p.RelDBName.Equals(tbcol.DBName, StringComparison.OrdinalIgnoreCase) && p.RelTBName.Equals(tbcol.TBName, StringComparison.OrdinalIgnoreCase) && p.RelColName.Equals(tbcol.Name, StringComparison.OrdinalIgnoreCase)))
                 {
                     BigEntityTableEngine.LocalEngine.Insert(nameof(LogicMapRelColumn), new LogicMapRelColumn
                     {
@@ -452,12 +453,12 @@ namespace NETDBHelper.UC
                         RelColName = string.Empty,
                         RelDBName = string.Empty,
                         RelTBName = string.Empty,
-                        IsOutPut=panel==ColumnsPanelOutPut
+                        IsOutPut = isOutPut
                     });
                 }
                 else
                 {
-                    var logiccol = logicMapRelColumns.FirstOrDefault(p => p.DBName.Equals(tbcol.DBName, StringComparison.OrdinalIgnoreCase)
+                    var logiccol = logicMapRelColumns.FirstOrDefault(p => p.IsOutPut == isOutPut && p.DBName.Equals(tbcol.DBName, StringComparison.OrdinalIgnoreCase)
                       && p.TBName.Equals(tbcol.TBName, StringComparison.OrdinalIgnoreCase) && p.ColName.Equals(tbcol.Name, StringComparison.OrdinalIgnoreCase)
                       && p.RelColName == string.Empty);
 
@@ -608,7 +609,7 @@ namespace NETDBHelper.UC
                                 RelTBName = col.TBName.ToLower(),
                                 TBName = this.TBName.ToLower(),
                                 LogicID = _logicMapId,
-                                IsOutPut = panel == ColumnsPanelOutPut,
+                                IsOutPut = isOutPut,
                                 ReIsOutPut = col.IsOutPut
                             };
                             var relcollist = BigEntityTableEngine.LocalEngine
@@ -629,7 +630,7 @@ namespace NETDBHelper.UC
                         {
                             if (points != null)
                             {
-                                using (var g = this.Parent.CreateGraphics())
+                                using (var g = Parent.CreateGraphics())
                                 {
                                     //g.SmoothingMode = SmoothingMode.AntiAlias;
                                     using (var p = new Pen(this.Parent.BackColor, 2))
@@ -682,7 +683,7 @@ namespace NETDBHelper.UC
                     long total = 0;
                     var allcols = BigEntityTableEngine.LocalEngine.Scan<LogicMapRelColumn>(nameof(LogicMapRelColumn), "LogicID",
                         new object[] { this._logicMapId }, new object[] { this._logicMapId }, 1, int.MaxValue, ref total);
-                    var logiccol = allcols.FirstOrDefault(p => p.DBName.Equals(tbcol.DBName, StringComparison.OrdinalIgnoreCase)
+                    var logiccol = allcols.FirstOrDefault(p => p.IsOutPut == (panel == ColumnsPanelOutPut) && p.DBName.Equals(tbcol.DBName, StringComparison.OrdinalIgnoreCase)
                       && p.TBName.Equals(tbcol.TBName, StringComparison.OrdinalIgnoreCase) && p.ColName.Equals(tbcol.Name, StringComparison.OrdinalIgnoreCase)
                       && p.RelColName == string.Empty);
                     var logiccoldesc = logiccol?.Desc ?? string.Empty;
@@ -800,10 +801,10 @@ namespace NETDBHelper.UC
             };
 
             ColumnsPanel.DoubleClick += ColumnsPanel_DoubleClick;
-            this.CBCoumns.Visible = false;
+            CBCoumns.Visible = false;
 
             ColumnsPanelOutPut.DoubleClick += ColumnsPanelOutPut_DoubleClick;
-            CBCoumns.Visible = false;
+            CBCoumnsOutput.Visible = false;
         }
 
         private void ColumnsPanelOutPut_DoubleClick(object sender, EventArgs e)
@@ -813,7 +814,7 @@ namespace NETDBHelper.UC
 
         private void ColumnsPanel_DoubleClick(object sender, EventArgs e)
         {
-            this.CBCoumns.Visible = !this.CBCoumns.Visible;
+            CBCoumns.Visible = !this.CBCoumns.Visible;
         }
 
         private void LBTabname_DoubleClick(object sender, EventArgs e)

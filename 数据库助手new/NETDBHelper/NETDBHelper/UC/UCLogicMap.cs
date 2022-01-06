@@ -17,7 +17,7 @@ using LJC.FrameWorkV3.Data.EntityDataBase;
 
 namespace NETDBHelper.UC
 {
-    public partial class UCLogicMap : UserControl//TabPage
+    public partial class UCLogicMap : TabPage
     {
         private int _logicMapId = 0;
         DBSource DBSource = null;
@@ -124,7 +124,7 @@ namespace NETDBHelper.UC
                     dlg.DlgResult += () =>
                       {
                           relColumnEx.RelColumn.Desc = dlg.InputString;
-                          LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Update<LogicMapRelColumn>(nameof(LogicMapRelColumn), relColumnEx.RelColumn);
+                          BigEntityTableEngine.LocalEngine.Update<LogicMapRelColumn>(nameof(LogicMapRelColumn), relColumnEx.RelColumn);
                           this.PanelMap.Invalidate();
                       };
                     dlg.ShowMe(this);
@@ -460,7 +460,7 @@ namespace NETDBHelper.UC
                     {
                         relColumnIces = new List<LogicMapRelColumnEx>();
                         var othertables = ucTableViews.Where(p => !string.IsNullOrEmpty(p.TableName)).Select(p => new Tuple<string, string>(p.DataBaseName, p.TableName)).Distinct().ToList();
-                        var allrelcolumnlist = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Scan<LogicMapRelColumn>(nameof(LogicMapRelColumn), "LogicID", new object[] { this._logicMapId },
+                        var allrelcolumnlist = BigEntityTableEngine.LocalEngine.Scan<LogicMapRelColumn>(nameof(LogicMapRelColumn), "LogicID", new object[] { this._logicMapId },
                             new object[] { this._logicMapId }, 1, int.MaxValue);
 
                         foreach (var rc in allrelcolumnlist)

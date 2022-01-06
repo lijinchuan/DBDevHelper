@@ -125,7 +125,7 @@ namespace NETDBHelper.UC
                 var extbhash = new HashSet<string>(DBServer.ExTBList?.Select(p => p.ToUpper()) ?? new List<string>());
                 foreach (var m in markColumnInfoList)
                 {
-                    if (m.Servername != DBServer.ServerName || exdbhash.Contains(m.DBName) || extbhash.Contains(m.DBName + "," + m.TBName?.Split('.').Last()))
+                    if (/*m.Servername != DBServer.ServerName ||*/ exdbhash.Contains(m.DBName) || extbhash.Contains(m.DBName + "," + m.TBName?.Split('.').Last()))
                     {
                         continue;
                     }
