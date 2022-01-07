@@ -430,41 +430,51 @@ namespace Biz
             parent.Invoke(new Action(() => { tbNode.Nodes.Clear(); tbNode.Nodes.AddRange(treeNodes.ToArray()); tbNode.Expand(); }));
         }
 
-        public static void LoadViewsAnsy(Form parent, TreeNode tbNode, DBSource server)
+        public static void LoadViewsAnsy(Form parent, TreeNode tbNode, DBSource server, Func<ViewInfo, string> getviewtip, Func<ViewColumn, string> gettip)
         {
             tbNode.Nodes.Add(new TreeNode("加载中...", 17, 17));
             tbNode.Expand();
-            new Action<Form, TreeNode, DBSource>(LoadViews).BeginInvoke(parent, tbNode, server, null, null);
+            new Action<Form, TreeNode, DBSource, Func<ViewInfo, string>, Func<ViewColumn, string>>(LoadViews).BeginInvoke(parent, tbNode, server,getviewtip,gettip, null, null);
         }
 
-        private static void LoadViews(Form parent, TreeNode tbNode, DBSource server)
+        private static void LoadViews(Form parent, TreeNode tbNode, DBSource server, Func<ViewInfo, string> getviewtip, Func<ViewColumn, string> gettip)
         {
             if (server == null)
             {
                 return;
             }
 
-            var list = Biz.Common.Data.SQLHelper.GetViews(server, tbNode.Parent.Text);
+            var list = Common.Data.SQLHelper.GetViews(server, tbNode.Parent.Text);
             List<TreeNode> treeNodes = new List<TreeNode>();
 
             foreach (var item in list)
             {
-                TreeNode newNode = new TreeNode(item.Key, item.Value.Select(p => new TreeNode
-                {
-                    Text = p.Name + "(" + p.TypeName + (p.Length == -1 ? "" : ("(" + p.Length + ")")) + ")",
-                    ImageIndex = 5,
-                    SelectedImageIndex = 5,
-                    Tag = p
+                TreeNode newNode = new TreeNode(item.Key, item.Value.Select(p => {
+                    var node = new TreeNode
+                    {
+                        Text = p.Name + "(" + p.TypeName + (p.Length == -1 ? "" : ("(" + p.Length + ")")) + ")",
+                        ImageIndex = 5,
+                        SelectedImageIndex = 5,
+                        Tag = p
+                    };
+
+                    node.ToolTipText = gettip(p);
+                    if (string.IsNullOrWhiteSpace(node.ToolTipText))
+                    {
+                        node.ImageIndex = node.SelectedImageIndex = 18;
+                    }
+
+                    return node;
                 }).ToArray());
 
                 newNode.ImageIndex = newNode.SelectedImageIndex = 15;
-
-                newNode.Tag = new ViewInfo
+                var viewInfo= new ViewInfo
                 {
                     DBName = tbNode.Parent.Text,
                     Name = item.Key
                 };
-
+                newNode.Tag = viewInfo;
+                newNode.ToolTipText = getviewtip(viewInfo);
                 treeNodes.Add(newNode);
             }
 

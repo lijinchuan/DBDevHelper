@@ -292,7 +292,23 @@ namespace NETDBHelper
             }
             else if (selNode.Tag is INodeContents && (selNode.Tag as INodeContents).GetNodeContentType() == NodeContentType.VIEWParent)
             {
-                Biz.UILoadHelper.LoadViewsAnsy(this.ParentForm, selNode, GetDBSource(selNode));
+                Biz.UILoadHelper.LoadViewsAnsy(this.ParentForm, selNode, GetDBSource(selNode), (view) =>
+                {
+                    var dbname = GetDBName(selNode).ToUpper();
+                    var dbsource = GetDBSource(selNode);
+                    var mark = BigEntityTableRemotingEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys", new
+                                [] { dbname, view.Name.ToUpper(), string.Empty }).FirstOrDefault();
+
+                    return mark == null ? string.Empty : mark.MarkInfo;
+                }, (col) =>
+                {
+                    var dbname = GetDBName(selNode).ToUpper();
+                    var dbsource = GetDBSource(selNode);
+                    var mark = BigEntityTableRemotingEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys", new
+                                [] { dbname, col.TBName.ToUpper(), col.Name.ToUpper() }).FirstOrDefault();
+
+                    return mark == null ? string.Empty : mark.MarkInfo;
+                });
             }
             else if (selNode.Tag is TableInfo)
             {
@@ -307,7 +323,7 @@ namespace NETDBHelper
 
                      if (mark == null && !synccolumnmark)
                      {
-                         BigEntityTableRemotingEngine.Insert<MarkObjectInfo>("MarkObjectInfo", new MarkObjectInfo
+                         BigEntityTableRemotingEngine.Insert("MarkObjectInfo", new MarkObjectInfo
                          {
                              DBName = dbname.ToUpper(),
                              ColumnName = col.Name.ToUpper(),
@@ -735,7 +751,13 @@ namespace NETDBHelper
             if (node == null)
                 return null;
             if (node.Tag is TableInfo)
+            {
                 return (node.Tag as TableInfo).TBName;
+            }
+            else if (node.Tag is ViewInfo)
+            {
+                return (node.Tag as ViewInfo).Name;
+            }
             return GetTBName(node.Parent);
         }
 
@@ -763,7 +785,7 @@ namespace NETDBHelper
                       var mark = BigEntityTableRemotingEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys", new
                                    [] { GetDBName(e.Node).ToUpper(), name.ToUpper(), string.Empty }).FirstOrDefault();
                       return mark == null ? string.Empty : mark.MarkInfo;
-                  },null,null);
+                  }, null, null);
 
                 BigEntityTableRemotingEngine.Insert<HLogEntity>("HLog", new HLogEntity
                 {
@@ -811,7 +833,23 @@ namespace NETDBHelper
             {
                 if (e.Node.Nodes.Count > 0)
                     return;
-                Biz.UILoadHelper.LoadViewsAnsy(this.ParentForm, e.Node, GetDBSource(e.Node));
+                Biz.UILoadHelper.LoadViewsAnsy(ParentForm, e.Node, GetDBSource(e.Node), (view) =>
+                {
+                    var dbname = GetDBName(e.Node).ToUpper();
+                    var dbsource = GetDBSource(e.Node);
+                    var mark = BigEntityTableRemotingEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys", new
+                                [] { dbname, view.Name.ToUpper(), string.Empty }).FirstOrDefault();
+
+                    return mark == null ? string.Empty : mark.MarkInfo;
+                }, (col) =>
+                 {
+                     var dbname = GetDBName(e.Node).ToUpper();
+                     var dbsource = GetDBSource(e.Node);
+                     var mark = BigEntityTableRemotingEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys", new
+                                 [] { dbname, col.TBName.ToUpper(), col.Name.ToUpper() }).FirstOrDefault();
+
+                     return mark == null ? string.Empty : mark.MarkInfo;
+                 });
             }
             else if (e.Node.Tag is TableInfo)
             {
@@ -1023,10 +1061,11 @@ namespace NETDBHelper
                             || nctype == NodeContentType.TB;
                         清理备注ToolStripMenuItem.Visible = nctype == NodeContentType.TB;
                         备注ToolStripMenuItem.Visible = nctype == NodeContentType.TB
+                            || nctype == NodeContentType.VIEW
                             || nctype == NodeContentType.PROC
                             || nctype == NodeContentType.FUN;
                         表关系图ToolStripMenuItem.Visible = nctype == NodeContentType.TB;
-                        TSMI_ExeProc.Visible = nctype == NodeContentType.PROC|| nctype == NodeContentType.FUN;
+                        TSMI_ExeProc.Visible = nctype == NodeContentType.PROC || nctype == NodeContentType.FUN;
                         生成数据字典ToolStripMenuItem.Visible = nctype == NodeContentType.TB;
                         SyncDataToolStripMenuItem.Visible = nctype == NodeContentType.TB;
                         修改表名ToolStripMenuItem.Visible = nctype == NodeContentType.TB;
@@ -1051,6 +1090,7 @@ namespace NETDBHelper
                         CommSubMenuitem_ViewConnsql.Visible = nctype == NodeContentType.DB;
                         CommSubMenuitem_ReorderColumn.Visible = nctype == NodeContentType.COLUMN;
                         备注本地ToolStripMenuItem.Visible = nctype == NodeContentType.COLUMN
+                            || nctype == NodeContentType.VIEWCOLUMN
                             || nctype == NodeContentType.DB;
                         TSMI_MulMarkLocal.Visible = nctype == NodeContentType.COLUMN;
                         TSMI_FilterProc.Visible = nctype == NodeContentType.PROCParent;
@@ -1754,6 +1794,31 @@ background-color: #ffffff;
                     MessageBox.Show("备注成功");
                 }
             }
+            else if (selnode != null && selnode.Tag is ViewColumn)
+            {
+                var tbcol = ((ViewColumn)selnode.Tag);
+                var tbname = GetTBName(selnode);
+                var servername = GetDBSource(selnode).ServerName;
+                var dbname = GetDBName(selnode);
+                var item = BigEntityTableRemotingEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys", new[] { dbname.ToUpper(), tbname.ToUpper(), tbcol.Name.ToUpper() }).FirstOrDefault();
+
+                if (item == null)
+                {
+                    item = new MarkObjectInfo { ColumnName = tbcol.Name.ToUpper(), DBName = dbname.ToUpper(), TBName = tbname.ToUpper(), Servername = servername };
+                }
+                InputStringDlg dlg = new InputStringDlg($"备注字段[{tbname}.{tbcol.Name}]", item.MarkInfo);
+                if (dlg.ShowDialog() == DialogResult.OK)
+                {
+                    if (selnode.ImageIndex == 18)
+                    {
+                        selnode.ImageIndex = selnode.SelectedImageIndex = 5;
+                    }
+                    item.MarkInfo = dlg.InputString;
+                    BigEntityTableRemotingEngine.Upsert("MarkObjectInfo", item);
+                    selnode.ToolTipText = item.MarkInfo;
+                    MessageBox.Show("备注成功");
+                }
+            }
             else if (selnode != null && selnode.Tag is ProcInfo)
             {
                 var servername = GetDBSource(selnode).ServerName;
@@ -1857,6 +1922,24 @@ background-color: #ffffff;
                         item = new MarkObjectInfo { ColumnName = string.Empty, DBName = tb.DBName.ToUpper(), TBName = tb.TBName.ToUpper(), Servername = GetDBSource(currnode).ServerName, MarkInfo = string.Empty };
                     }
                     InputStringDlg dlg = new InputStringDlg($"备注:{tb.TBName}", item.MarkInfo);
+                    if (dlg.ShowDialog() == DialogResult.OK)
+                    {
+                        item.MarkInfo = dlg.InputString;
+                        BigEntityTableRemotingEngine.Upsert<MarkObjectInfo>("MarkObjectInfo", item);
+                        currnode.ToolTipText = item.MarkInfo;
+                        MessageBox.Show("备注成功");
+                    }
+                }
+                else if (currnode.Tag != null && currnode.Tag is ViewInfo)
+                {
+                    var tb = (ViewInfo)currnode.Tag;
+                    var item = BigEntityTableRemotingEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys", new[] { tb.DBName.ToUpper(), tb.Name.ToUpper(), string.Empty }).FirstOrDefault();
+
+                    if (item == null)
+                    {
+                        item = new MarkObjectInfo { ColumnName = string.Empty, DBName = tb.DBName.ToUpper(), TBName = tb.Name.ToUpper(), Servername = GetDBSource(currnode).ServerName, MarkInfo = string.Empty };
+                    }
+                    InputStringDlg dlg = new InputStringDlg($"备注:{tb.Name}", item.MarkInfo);
                     if (dlg.ShowDialog() == DialogResult.OK)
                     {
                         item.MarkInfo = dlg.InputString;
