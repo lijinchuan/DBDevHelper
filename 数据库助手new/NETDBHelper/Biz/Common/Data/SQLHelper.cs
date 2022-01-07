@@ -6,7 +6,6 @@ using System.Data.SqlClient;
 using Entity;
 using System.Data;
 using static Entity.IndexEntry;
-using System.Text.RegularExpressions;
 
 namespace Biz.Common.Data
 {
@@ -41,6 +40,8 @@ namespace Biz.Common.Data
         {
             return ExecuteDBTable(dbSource, dbName, SQLHelperConsts.GetTBs, null);
         }
+
+        
 
         public static DataTable GetTBsDesc(DBSource dbSource, string dbName,string tablename)
         {
@@ -132,6 +133,16 @@ namespace Biz.Common.Data
                     DBName=dbName
                 };
             }
+        }
+
+        public static IEnumerable<TBColumn> GetTBOrViewColumns(DBSource dbSource,string dbName,string tbOrView)
+        {
+            var li = GetViews(dbSource, dbName, tbOrView);
+            if (li.Count == 1)
+            {
+                return li.First().Value;
+            }
+            return GetColumns(dbSource, dbName, tbOrView);
         }
 
         public static IEnumerable<TBColumn> GetColumns(DBSource dbSource, string dbName, string tbName)
@@ -550,7 +561,7 @@ namespace Biz.Common.Data
             return x.ToList();
         }
 
-        public static List<KeyValuePair<string,List<Entity.ViewColumn>>> GetViews(DBSource dbSource,string dbname)
+        public static List<KeyValuePair<string,List<ViewColumn>>> GetViews(DBSource dbSource,string dbname)
         {
             string sql = @"SELECT a.TABLE_NAME,b.COLUMN_NAME,B.IS_NULLABLE,B.DATA_TYPE,isnull(B.CHARACTER_MAXIMUM_LENGTH,-1) CHARACTER_MAXIMUM_LENGTH FROM INFORMATION_SCHEMA.VIEWS a,INFORMATION_SCHEMA.COLUMNS b
 where a.TABLE_NAME=b.TABLE_NAME ORDER BY A.TABLE_NAME,B.ORDINAL_POSITION";
@@ -562,13 +573,15 @@ where a.TABLE_NAME=b.TABLE_NAME ORDER BY A.TABLE_NAME,B.ORDINAL_POSITION";
                 Select(p => new KeyValuePair<string, List<ViewColumn>>(p.Key, p.Select(q => new ViewColumn
                 {
                     Name=q.Field<string>("COLUMN_NAME"),
-                    TypeName=q.Field<string>("DATA_TYPE"),
+                    DBName = dbname,
+                    TBName = q.Field<string>("TABLE_NAME"),
+                    TypeName =q.Field<string>("DATA_TYPE"),
                     Length=q.Field<int>("CHARACTER_MAXIMUM_LENGTH"),
                     IsNullAble=q.Field<string>("IS_NULLABLE").Equals("YES")
                 }).ToList())).ToList();
         }
 
-        public static List<KeyValuePair<string, List<Entity.TBColumn>>> GetViews(DBSource dbSource, string dbname,string viewname)
+        public static List<KeyValuePair<string, List<TBColumn>>> GetViews(DBSource dbSource, string dbname,string viewname)
         {
             string sql = @"SELECT a.TABLE_NAME,b.COLUMN_NAME,B.IS_NULLABLE,B.DATA_TYPE,isnull(B.CHARACTER_MAXIMUM_LENGTH,-1) CHARACTER_MAXIMUM_LENGTH FROM INFORMATION_SCHEMA.VIEWS a,INFORMATION_SCHEMA.COLUMNS b
 where a.Table_NAME='"+viewname+"' and a.TABLE_NAME=b.TABLE_NAME ORDER BY A.TABLE_NAME,B.ORDINAL_POSITION";
@@ -580,6 +593,8 @@ where a.Table_NAME='"+viewname+"' and a.TABLE_NAME=b.TABLE_NAME ORDER BY A.TABLE
                 Select(p => new KeyValuePair<string, List<TBColumn>>(p.Key, p.Select(q => new TBColumn
                 {
                     Name = q.Field<string>("COLUMN_NAME"),
+                    DBName=dbname,
+                    TBName=viewname,
                     TypeName = q.Field<string>("DATA_TYPE"),
                     Length = q.Field<int>("CHARACTER_MAXIMUM_LENGTH"),
                     IsNullAble = q.Field<string>("IS_NULLABLE").Equals("YES")

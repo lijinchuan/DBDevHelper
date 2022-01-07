@@ -42,6 +42,16 @@ namespace NETDBHelper.UC
             InitializeComponent();
         }
 
+        private List<string> GetTBViewNames(DBSource source,string dbname)
+        {
+            var tbs = SQLHelper.GetTBs(source, dbname);
+            var views = SQLHelper.GetViews(source, dbname);
+            var names = tbs.AsEnumerable().Select(p => p.Field<string>("name").ToLower()).ToList();
+            names.AddRange(views.Select(p => p.Key.ToLower()));
+
+            return names;
+        }
+             
         public UCLogicMap(DBSource dbSource, int logicMapId)
         {
             var logicmap = BigEntityTableRemotingEngine.Find<LogicMap>(nameof(LogicMap), logicMapId);
@@ -66,8 +76,7 @@ namespace NETDBHelper.UC
 
             tableColumnList = new Dictionary<string, List<string>>();
 
-            var tbs = SQLHelper.GetTBs(this.DBSource, logicmap.DBName);
-            tableColumnList.Add(logicmap.DBName.ToLower(), tbs.AsEnumerable().Select(p => p.Field<string>("name").ToLower()).ToList());
+            tableColumnList.Add(logicmap.DBName.ToLower(), GetTBViewNames(DBSource,logicmap.DBName));
 
             this.CMSOpMenu.VisibleChanged += CMSOpMenu_VisibleChanged;
             TSMDelRelColumn.DropDownItemClicked += TSMDelRelColumn_DropDownItemClicked;
@@ -124,7 +133,7 @@ namespace NETDBHelper.UC
                     dlg.DlgResult += () =>
                       {
                           relColumnEx.RelColumn.Desc = dlg.InputString;
-                          BigEntityTableRemotingEngine.Update<LogicMapRelColumn>(nameof(LogicMapRelColumn), relColumnEx.RelColumn);
+                          BigEntityTableRemotingEngine.Update(nameof(LogicMapRelColumn), relColumnEx.RelColumn);
                           this.PanelMap.Invalidate();
                       };
                     dlg.ShowMe(this);
@@ -367,14 +376,13 @@ namespace NETDBHelper.UC
                     {
                         if (!string.IsNullOrWhiteSpace(tb.TableName))
                         {
-                            tblist.Add(Tuple.Create<string, string>(tb.DataBaseName.ToLower(), tb.TableName.ToLower()));
+                            tblist.Add(Tuple.Create(tb.DataBaseName.ToLower(), tb.TableName.ToLower()));
                         }
                     }
 
                     if (!tableColumnList.ContainsKey(item.Item1))
                     {
-                        var tbs = SQLHelper.GetTBs(this.DBSource, item.Item1);
-                        tableColumnList.Add(item.Item1, tbs.AsEnumerable().Select(p => p.Field<string>("name").ToLower()).ToList());
+                        tableColumnList.Add(item.Item1, GetTBViewNames(DBSource,item.Item1));
                     }
 
                     return tableColumnList[item.Item1].Select(p => new Tuple<string, string>(item.Item1, p)).Where(p => !tblist.Contains(p)).OrderBy(p => p).ToList();
@@ -521,7 +529,7 @@ namespace NETDBHelper.UC
                         }
                         haschange = true;
                     }
-                    oldendpos.Offset(this.PanelMap.AutoScrollPosition.X, this.PanelMap.AutoScrollPosition.Y);
+                    oldendpos.Offset(this.PanelMap.AutoScrollPosition.X, PanelMap.AutoScrollPosition.Y);
                     col = FindColumn(oldendpos);
                     if (col == null || item.Dest.IsEmpty || !col.Name.Equals(item.RelColumn.RelColName, StringComparison.OrdinalIgnoreCase)
                         || !col.TBName.Equals(item.RelColumn.RelTBName, StringComparison.OrdinalIgnoreCase))
@@ -1043,7 +1051,7 @@ namespace NETDBHelper.UC
 
         private void AddTable(string db,string tbname,bool adjustLoaction=true)
         {
-            var location = this.PanelMap.PointToClient(new Point(this.CMSOpMenu.Left, this.CMSOpMenu.Top));
+            var location = PanelMap.PointToClient(new Point(this.CMSOpMenu.Left, this.CMSOpMenu.Top));
             UCLogicTableView tv = new UCLogicTableView(DBSource, _DBName.Equals(db, StringComparison.OrdinalIgnoreCase), db, tbname,this._logicMapId, () =>
             {
                 var list = new List<Tuple<string, string>>();
@@ -1053,8 +1061,8 @@ namespace NETDBHelper.UC
                 }
                 if (!tableColumnList.ContainsKey(db.ToLower()))
                 {
-                    var tbs = SQLHelper.GetTBs(this.DBSource, db);
-                    tableColumnList.Add(db.ToLower(), tbs.AsEnumerable().Select(p => p.Field<string>("name").ToLower()).ToList());
+                    var tbs = SQLHelper.GetTBs(DBSource, db);
+                    tableColumnList.Add(db.ToLower(), GetTBViewNames(DBSource,db));
                 }
                 return tableColumnList[db.ToLower()].Select(p => new Tuple<string, string>(db.ToLower(), p)).Where(p => !list.Contains(p)).OrderBy(p => p).ToList();
             }, v =>

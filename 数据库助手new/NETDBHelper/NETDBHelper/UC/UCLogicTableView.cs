@@ -771,7 +771,7 @@ namespace NETDBHelper.UC
                 this.LBTabname.Location = new Point(1, 1);
                 this.LBTabname.Width = this.Width - 2;
                 this.CBTables.Visible = false;
-                ColumnsList = SQLHelper.GetColumns(DBSource, DBName, realtbname).ToList();
+                ColumnsList = SQLHelper.GetTBOrViewColumns(DBSource, DBName, realtbname).ToList();
                 if (this.TBName.IndexOf('*') > -1)
                 {
                     ColumnsList.ForEach(p => p.TBName = this.TBName);
