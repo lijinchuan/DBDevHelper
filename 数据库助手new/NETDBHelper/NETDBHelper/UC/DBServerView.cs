@@ -2668,7 +2668,7 @@ background-color: #ffffff;
                     BigEntityTableRemotingEngine.Delete<LogicMap>(nameof(LogicMap), logicmap.ID);
                     if (this.OnDeleteLogicMap != null)
                     {
-                        this.OnDeleteLogicMap(GetDBName(currnode), logicmap);
+                        OnDeleteLogicMap(GetDBName(currnode), logicmap);
                     }
                     ReLoadDBObj(currnode.Parent);
                 }
@@ -2680,13 +2680,13 @@ background-color: #ffffff;
             var _node = tv_DBServers.SelectedNode;
             var ds = GetDBSource(_node);
             var tb = _node.Parent.Tag as TableInfo;
-            var cols = Biz.Common.Data.SQLHelper.GetColumns(ds, tb.DBName, tb.TBName).ToList();
+            var cols = SQLHelper.GetColumns(ds, tb.DBName, tb.TBName).ToList();
             WinCreateIndex win = new WinCreateIndex(cols);
             if (win.ShowDialog() == DialogResult.OK && MessageBox.Show("要创建索引吗？") == DialogResult.OK)
             {
                 try
                 {
-                    Biz.Common.Data.SQLHelper.CreateIndex(ds, tb.DBName, tb.TBName, win.IndexName, win.IsUnique(), win.IsPrimaryKey(), win.IsAutoIncr(), win.IsClustered(), win.IndexColumns);
+                    SQLHelper.CreateIndex(ds, tb.DBName, tb.TBName, win.IndexName, win.IsUnique(), win.IsPrimaryKey(), win.IsAutoIncr(), win.IsClustered(), win.IndexColumns);
                     MessageBox.Show("创建索引成功");
                     ReLoadDBObj(_node);
                 }
@@ -2708,7 +2708,7 @@ background-color: #ffffff;
                     var ds = GetDBSource(_node);
                     try
                     {
-                        Biz.Common.Data.SQLHelper.DropIndex(ds, GetDBName(_node), GetTBName(_node), idx.IndexName.Equals("primary", StringComparison.OrdinalIgnoreCase), idx.IndexName);
+                        SQLHelper.DropIndex(ds, GetDBName(_node), GetTBName(_node), idx.IndexName.Equals("primary", StringComparison.OrdinalIgnoreCase), idx.IndexName);
                         MessageBox.Show("删除成功");
                         ReLoadDBObj(_node.Parent);
                     }
