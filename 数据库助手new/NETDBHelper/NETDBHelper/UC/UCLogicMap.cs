@@ -86,6 +86,14 @@ namespace NETDBHelper.UC
             TSMI_CopyTableName.Click += TSMI_CopyTableName_Click;
             TSMI_CopyColName.Click += TSMI_CopyColName_Click;
             TSMI_CopyTable.Click += TSMI_CopyTable_Click;
+            TSMI_AddNote.Click += TSMI_AddNote_Click;
+        }
+
+        private void TSMI_AddNote_Click(object sender, EventArgs e)
+        {
+            this.CMSOpMenu.Visible = false;
+            var tbname = "#note_" + Guid.NewGuid().ToString("N");
+            AddTable(_DBName, tbname);
         }
 
         private void TSMI_CopyTable_Click(object sender, EventArgs e)
@@ -928,7 +936,7 @@ namespace NETDBHelper.UC
 
         public TBColumn FindColumn(Point screenpt)
         {
-            foreach (var v in this.ucTableViews)
+            foreach (var v in ucTableViews)
             {
                 //var ctlId = isOutPut ? "ColumnsPanelOutPut" : "ColumnsPanel";
                 //var panel =v.Controls.Find(ctlId, false).FirstOrDefault();
@@ -939,7 +947,7 @@ namespace NETDBHelper.UC
                     {
                         ct= ct.GetChildAtPoint(ct.PointToClient(screenpt));
                     }
-                    if (ct is Label && ct.Tag is TBColumn)
+                    if (ct?.Tag is TBColumn)
                     {
                         var col = (ct.Tag as TBColumn);
                         //MessageBox.Show(col.Name);
@@ -1051,8 +1059,8 @@ namespace NETDBHelper.UC
 
         private void AddTable(string db,string tbname,bool adjustLoaction=true)
         {
-            var location = PanelMap.PointToClient(new Point(this.CMSOpMenu.Left, this.CMSOpMenu.Top));
-            UCLogicTableView tv = new UCLogicTableView(DBSource, _DBName.Equals(db, StringComparison.OrdinalIgnoreCase), db, tbname,this._logicMapId, () =>
+            var location = PanelMap.PointToClient(new Point(CMSOpMenu.Left, CMSOpMenu.Top));
+            UCLogicTableView tv = new UCLogicTableView(DBSource, _DBName.Equals(db, StringComparison.OrdinalIgnoreCase), db, tbname,_logicMapId, () =>
             {
                 var list = new List<Tuple<string, string>>();
                 foreach (var tb in ucTableViews)

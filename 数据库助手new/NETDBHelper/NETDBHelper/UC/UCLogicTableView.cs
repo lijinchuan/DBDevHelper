@@ -38,6 +38,8 @@ namespace NETDBHelper.UC
         private Point TitleDragStart = Point.Empty;
         private Point TitleDragEnd = Point.Empty;
 
+        private TextBox NoteTextBox = null;
+
         private Func<Point, Point, bool, bool> onCheckConflict;
 
         public Action<LogicMapRelColumn> OnAddNewRelColumn;
@@ -45,6 +47,14 @@ namespace NETDBHelper.UC
         public UCLogicTableView()
         {
             InitializeComponent();
+        }
+
+        private bool IsNoteTable
+        {
+            get
+            {
+                return TBName?.StartsWith("#note_",StringComparison.Ordinal)==true;
+            }
         }
 
         public void Check()
@@ -138,14 +148,6 @@ namespace NETDBHelper.UC
             BorderStyle = BorderStyle.None;
 
             onCheckConflict = checkConflict;
-
-            if (!string.IsNullOrWhiteSpace(tbname))
-            {
-                LBTabname.Text = issamedb ? $"{tbname}" : $"[{dbname}].{tbname}";
-            }
-
-            CBCoumns.Visible = false;
-            CBCoumnsOutput.Visible = false;
         }
 
 
@@ -305,27 +307,41 @@ namespace NETDBHelper.UC
 
         private void BindColumns()
         {
-
-            var collist = BigEntityTableRemotingEngine.Scan<LogicMapRelColumn>(nameof(LogicMapRelColumn),
-                "LSDTC", new object[] { this._logicMapId, DBName.ToLower(), this.TBName.ToLower() },
-                new object[] { this._logicMapId, DBName.ToLower(), this.TBName.ToLower() }, 1, int.MaxValue);
-
-            var relcollist = BigEntityTableRemotingEngine.Scan<LogicMapRelColumn>(nameof(LogicMapRelColumn),
-                "LSDRTC", new object[] { this._logicMapId, this.DBName.ToLower(), this.TBName.ToLower() },
-                new object[] { this._logicMapId, this.DBName.ToLower(), this.TBName.ToLower() }, 1, int.MaxValue);
-
-            BindInputColumns(collist.Where(p => !p.IsOutPut), relcollist.Where(p => !p.ReIsOutPut));
-
-            BindOutputColumns(collist.Where(p => p.IsOutPut), relcollist.Where(p => p.ReIsOutPut));
-
-            if (this.OnComplete != null)
+            if (!IsNoteTable)
             {
-                this.OnComplete(this);
+                var collist = BigEntityTableRemotingEngine.Scan<LogicMapRelColumn>(nameof(LogicMapRelColumn),
+                    "LSDTC", new object[] { this._logicMapId, DBName.ToLower(), this.TBName.ToLower() },
+                    new object[] { this._logicMapId, DBName.ToLower(), this.TBName.ToLower() }, 1, int.MaxValue);
+
+                var relcollist = BigEntityTableRemotingEngine.Scan<LogicMapRelColumn>(nameof(LogicMapRelColumn),
+                    "LSDRTC", new object[] { this._logicMapId, this.DBName.ToLower(), this.TBName.ToLower() },
+                    new object[] { this._logicMapId, this.DBName.ToLower(), this.TBName.ToLower() }, 1, int.MaxValue);
+
+                BindInputColumns(collist.Where(p => !p.IsOutPut), relcollist.Where(p => !p.ReIsOutPut));
+
+                BindOutputColumns(collist.Where(p => p.IsOutPut), relcollist.Where(p => p.ReIsOutPut));
+            }
+            else
+            {
+                DrawAble(NoteTextBox, ColumnsPanel, false);
+            }
+
+            if (OnComplete != null)
+            {
+                OnComplete(this);
             }
         }
 
         public Rectangle FindTBColumnScreenRect(string colname,bool isOutPut)
         {
+            if (IsNoteTable)
+            {
+                if (colname.Equals("Text", StringComparison.OrdinalIgnoreCase))
+                {
+                    return NoteTextBox.Parent.RectangleToScreen(NoteTextBox.Bounds);
+                }
+                return Rectangle.Empty;
+            }
             var pannel = isOutPut ? ColumnsPanelOutPut : ColumnsPanel;
             foreach (Control lb in pannel.Controls)
             {
@@ -345,130 +361,8 @@ namespace NETDBHelper.UC
             return Rectangle.Empty;
         }
 
-        private void AddColumnLable(Panel panel,ComboBox cbCol, TBColumn tbcolumn, ref List<LogicMapRelColumn> logicMapRelColumns)
+        private void DrawAble(Control lb,Panel panel,bool isOutPut)
         {
-            var tbcol = tbcolumn.Clone() as TBColumn;
-            var isOutPut = panel == ColumnsPanelOutPut;
-            tbcol.IsOutPut = isOutPut;
-
-            if (panel != ColumnsPanelOutPut && panel.Location.Y + panel.Height >= ColumnsPanelOutPut.Location.Y)
-            {
-                var newPos = ColumnsPanelOutPut.Location;
-                newPos.Offset(0, panel.Location.Y + panel.Height - ColumnsPanelOutPut.Location.Y + 10);
-                this.groupBox1.Location = new Point(0, newPos.Y - 5);
-                ColumnsPanelOutPut.Location = newPos;
-                this.Height = ColumnsPanelOutPut.Location.Y + ColumnsPanelOutPut.Height + 1;
-            }
-
-            var lbIdx = 0;
-            foreach(Control ctl in panel.Controls)
-            {
-                if(ctl.Tag is TBColumn)
-                {
-                    lbIdx++;
-                }
-            }
-
-            var lb = new Label();
-            lb.AutoSize = false;
-            lb.ImageAlign = ContentAlignment.MiddleLeft;
-            if (tbcol.IsString())
-            {
-                lb.Image = SQLTypeRs.CHAR;
-            }
-            else if (tbcol.IsDateTime())
-            {
-                lb.Image = SQLTypeRs.DATE;
-            }
-            else if (tbcol.IsNumber())
-            {
-                lb.Image = SQLTypeRs.NUMBER;
-            }
-            else if (tbcol.IsBoolean())
-            {
-                lb.Image = SQLTypeRs.BOOL;
-            }
-            else if (tbcol.IsUnique())
-            {
-                lb.Image = SQLTypeRs.UNIQ;
-            }
-            lb.UseMnemonic = true;
-
-            if (lbIdx % 2 == 1)
-            {
-                lb.BackColor = Color.LightYellow;
-            }
-
-            lb.Text = "   " + tbcol.Name;
-            lb.Location = cbCol.Location;
-            lb.Tag = tbcol;
-            lb.Height = 20;
-            var loc = lb.Location;
-            loc.Offset(0, lb.Height);
-            cbCol.Location = loc;
-            lb.Width = this.Width - 2;
-            panel.Controls.Add(lb);
-
-            if (panel.Height < cbCol.Location.Y + cbCol.Height + 10)
-            {
-                panel.Height = cbCol.Location.Y + cbCol.Height + 10;
-
-                //using (var g = this.CreateGraphics())
-                //{
-                //    using (var p = new Pen(this.BackColor, 1))
-                //    {
-                //        g.DrawRectangle(p, 0, 0, this.Width - 1, this.Height - 1);
-                //    }
-                //}
-
-                if (!isOutPut && panel.Location.Y + panel.Height >= ColumnsPanelOutPut.Location.Y)
-                {
-                    var newPos = ColumnsPanelOutPut.Location;
-                    newPos.Offset(0, panel.Location.Y + panel.Height - ColumnsPanelOutPut.Location.Y + 10);
-                    ColumnsPanelOutPut.Location = newPos;
-                    this.groupBox1.Location = new Point(0, newPos.Y - 5);
-                }
-                this.Height = ColumnsPanelOutPut.Location.Y + ColumnsPanelOutPut.Height + 1;
-                this.Invalidate();
-            }
-
-            //加到库
-            if (_logicMapId > 0)
-            {
-                long total = 0;
-                if (logicMapRelColumns == null)
-                {
-                    logicMapRelColumns = BigEntityTableRemotingEngine.Scan<LogicMapRelColumn>(nameof(LogicMapRelColumn), "LogicID",
-                        new object[] { _logicMapId }, new object[] { this._logicMapId }, 1, int.MaxValue, ref total);
-                }
-                if (!logicMapRelColumns.Any(p => p.IsOutPut == isOutPut && p.DBName.Equals(tbcol.DBName, StringComparison.OrdinalIgnoreCase) && p.TBName.Equals(tbcol.TBName, StringComparison.OrdinalIgnoreCase) && p.ColName.Equals(tbcol.Name, StringComparison.OrdinalIgnoreCase))
-                    && !logicMapRelColumns.Any(p => p.IsOutPut == isOutPut && p.RelDBName.Equals(tbcol.DBName, StringComparison.OrdinalIgnoreCase) && p.RelTBName.Equals(tbcol.TBName, StringComparison.OrdinalIgnoreCase) && p.RelColName.Equals(tbcol.Name, StringComparison.OrdinalIgnoreCase)))
-                {
-                    BigEntityTableRemotingEngine.Insert(nameof(LogicMapRelColumn), new LogicMapRelColumn
-                    {
-                        LogicID = _logicMapId,
-                        ColName = tbcol.Name.ToLower(),
-                        DBName = tbcol.DBName.ToLower(),
-                        TBName = tbcol.TBName.ToLower(),
-                        RelColName = string.Empty,
-                        RelDBName = string.Empty,
-                        RelTBName = string.Empty,
-                        IsOutPut = isOutPut
-                    });
-                }
-                else
-                {
-                    var logiccol = logicMapRelColumns.FirstOrDefault(p => p.IsOutPut == isOutPut && p.DBName.Equals(tbcol.DBName, StringComparison.OrdinalIgnoreCase)
-                      && p.TBName.Equals(tbcol.TBName, StringComparison.OrdinalIgnoreCase) && p.ColName.Equals(tbcol.Name, StringComparison.OrdinalIgnoreCase)
-                      && p.RelColName == string.Empty);
-
-                    if (logiccol != null && logiccol.Desc != null)
-                    {
-                        lb.Text = $"   {tbcol.Name}({logiccol.Desc})";
-                    }
-                }
-            }
-
             bool isDraging = false;
             Point dragStart = Point.Empty;
             Point dragEnd = Point.Empty;
@@ -492,7 +386,7 @@ namespace NETDBHelper.UC
 
                     if (pp.Y >= parentpannel.Height - parentpannel.AutoScrollPosition.Y)
                     {
-                        if(parentpannel.VerticalScroll.Value< parentpannel.VerticalScroll.Maximum)
+                        if (parentpannel.VerticalScroll.Value < parentpannel.VerticalScroll.Maximum)
                         {
                             parentpannel.VerticalScroll.Value += 50;
                         }
@@ -674,6 +568,133 @@ namespace NETDBHelper.UC
                     dragEnd = new Point(ee.X, ee.Y);
                 }
             };
+        }
+
+        private void AddColumnLable(Panel panel,ComboBox cbCol, TBColumn tbcolumn, ref List<LogicMapRelColumn> logicMapRelColumns)
+        {
+            var tbcol = tbcolumn.Clone() as TBColumn;
+            var isOutPut = panel == ColumnsPanelOutPut;
+            tbcol.IsOutPut = isOutPut;
+
+            if (panel != ColumnsPanelOutPut && panel.Location.Y + panel.Height >= ColumnsPanelOutPut.Location.Y)
+            {
+                var newPos = ColumnsPanelOutPut.Location;
+                newPos.Offset(0, panel.Location.Y + panel.Height - ColumnsPanelOutPut.Location.Y + 10);
+                this.groupBox1.Location = new Point(0, newPos.Y - 5);
+                ColumnsPanelOutPut.Location = newPos;
+                this.Height = ColumnsPanelOutPut.Location.Y + ColumnsPanelOutPut.Height + 1;
+            }
+
+            var lbIdx = 0;
+            foreach(Control ctl in panel.Controls)
+            {
+                if(ctl.Tag is TBColumn)
+                {
+                    lbIdx++;
+                }
+            }
+
+            var lb = new Label();
+            lb.AutoSize = false;
+            lb.ImageAlign = ContentAlignment.MiddleLeft;
+            if (tbcol.IsString())
+            {
+                lb.Image = SQLTypeRs.CHAR;
+            }
+            else if (tbcol.IsDateTime())
+            {
+                lb.Image = SQLTypeRs.DATE;
+            }
+            else if (tbcol.IsNumber())
+            {
+                lb.Image = SQLTypeRs.NUMBER;
+            }
+            else if (tbcol.IsBoolean())
+            {
+                lb.Image = SQLTypeRs.BOOL;
+            }
+            else if (tbcol.IsUnique())
+            {
+                lb.Image = SQLTypeRs.UNIQ;
+            }
+            lb.UseMnemonic = true;
+
+            if (lbIdx % 2 == 1)
+            {
+                lb.BackColor = Color.LightYellow;
+            }
+
+            lb.Text = "   " + tbcol.Name;
+            lb.Location = cbCol.Location;
+            lb.Tag = tbcol;
+            lb.Height = 20;
+            var loc = lb.Location;
+            loc.Offset(0, lb.Height);
+            cbCol.Location = loc;
+            lb.Width = this.Width - 2;
+            panel.Controls.Add(lb);
+
+            if (panel.Height < cbCol.Location.Y + cbCol.Height + 10)
+            {
+                panel.Height = cbCol.Location.Y + cbCol.Height + 10;
+
+                //using (var g = this.CreateGraphics())
+                //{
+                //    using (var p = new Pen(this.BackColor, 1))
+                //    {
+                //        g.DrawRectangle(p, 0, 0, this.Width - 1, this.Height - 1);
+                //    }
+                //}
+
+                if (!isOutPut && panel.Location.Y + panel.Height >= ColumnsPanelOutPut.Location.Y)
+                {
+                    var newPos = ColumnsPanelOutPut.Location;
+                    newPos.Offset(0, panel.Location.Y + panel.Height - ColumnsPanelOutPut.Location.Y + 10);
+                    ColumnsPanelOutPut.Location = newPos;
+                    this.groupBox1.Location = new Point(0, newPos.Y - 5);
+                }
+                this.Height = ColumnsPanelOutPut.Location.Y + ColumnsPanelOutPut.Height + 1;
+                this.Invalidate();
+            }
+
+            //加到库
+            if (_logicMapId > 0)
+            {
+                long total = 0;
+                if (logicMapRelColumns == null)
+                {
+                    logicMapRelColumns = BigEntityTableRemotingEngine.Scan<LogicMapRelColumn>(nameof(LogicMapRelColumn), "LogicID",
+                        new object[] { _logicMapId }, new object[] { this._logicMapId }, 1, int.MaxValue, ref total);
+                }
+                if (!logicMapRelColumns.Any(p => p.IsOutPut == isOutPut && p.DBName.Equals(tbcol.DBName, StringComparison.OrdinalIgnoreCase) && p.TBName.Equals(tbcol.TBName, StringComparison.OrdinalIgnoreCase) && p.ColName.Equals(tbcol.Name, StringComparison.OrdinalIgnoreCase))
+                    && !logicMapRelColumns.Any(p => p.IsOutPut == isOutPut && p.RelDBName.Equals(tbcol.DBName, StringComparison.OrdinalIgnoreCase) && p.RelTBName.Equals(tbcol.TBName, StringComparison.OrdinalIgnoreCase) && p.RelColName.Equals(tbcol.Name, StringComparison.OrdinalIgnoreCase)))
+                {
+                    BigEntityTableRemotingEngine.Insert(nameof(LogicMapRelColumn), new LogicMapRelColumn
+                    {
+                        LogicID = _logicMapId,
+                        ColName = tbcol.Name.ToLower(),
+                        DBName = tbcol.DBName.ToLower(),
+                        TBName = tbcol.TBName.ToLower(),
+                        RelColName = string.Empty,
+                        RelDBName = string.Empty,
+                        RelTBName = string.Empty,
+                        IsOutPut = isOutPut
+                    });
+                }
+                else
+                {
+                    var logiccol = logicMapRelColumns.FirstOrDefault(p => p.IsOutPut == isOutPut && p.DBName.Equals(tbcol.DBName, StringComparison.OrdinalIgnoreCase)
+                      && p.TBName.Equals(tbcol.TBName, StringComparison.OrdinalIgnoreCase) && p.ColName.Equals(tbcol.Name, StringComparison.OrdinalIgnoreCase)
+                      && p.RelColName == string.Empty);
+
+                    if (logiccol != null && logiccol.Desc != null)
+                    {
+                        lb.Text = $"   {tbcol.Name}({logiccol.Desc})";
+                    }
+                }
+            }
+
+            DrawAble(lb, panel, isOutPut);
 
 
             lb.DoubleClick += (s, ee) =>
@@ -753,58 +774,126 @@ namespace NETDBHelper.UC
         {
             base.OnLoad(e);
 
-            if (string.IsNullOrWhiteSpace(TBName))
+            if (IsNoteTable)
             {
-                CBTables.DataSource = FunLoadTables().Select(p => p.Item2).OrderBy(p => p).ToList();
-                CBTables.SelectedIndex = -1;
-                this.LBTabname.Visible = false;
-                this.CBTables.Visible = true;
-                this.CBTables.Location = new Point(1, 1);
-                this.CBTables.Width = this.Width - 2;
-                this.CBTables.SelectedIndexChanged += CBTables_SelectedIndexChanged;
-            }
-            else
-            {
-                var realtbname = TBName.Split('*')[0];
-                this.LBTabname.Text = issamedb ? $"{realtbname}" : $"[{DBName}].{realtbname}";
-                this.LBTabname.Visible = true;
-                this.LBTabname.Location = new Point(1, 1);
-                this.LBTabname.Width = this.Width - 2;
-                this.CBTables.Visible = false;
-                ColumnsList = SQLHelper.GetTBOrViewColumns(DBSource, DBName, realtbname).ToList();
-                if (this.TBName.IndexOf('*') > -1)
+                LBTabname.Visible = true;
+                LBTabname.Text = "说明";
+                LBTabname.Location = new Point(1, 1);
+                LBTabname.Width = Width - 2;
+                groupBox1.Visible = false;
+                ColumnsPanelOutPut.Visible = false;
+                CBTables.Visible = false;
+                CBCoumns.Visible = false;
+                NoteTextBox = new TextBox();
+                NoteTextBox.Location = new Point(1, 1);
+                NoteTextBox.Width = Width - 2;
+                NoteTextBox.Multiline = true;
+                ColumnsPanel.Controls.Add(NoteTextBox);
+                NoteTextBox.Dock = DockStyle.Fill;
+
+                var colum = new TBColumn
                 {
-                    ColumnsList.ForEach(p => p.TBName = this.TBName);
+                    DBName = DBName,
+                    Name = "Text",
+                    TBName = TBName,
+                    TypeName = "Varchar",
+                    Length = -1
+                };
+                NoteTextBox.Tag = colum;
+
+                ColumnsList = new List<TBColumn> { colum};
+
+                var noteTable = BigEntityTableRemotingEngine.Find<TempNotesTable>(nameof(TempNotesTable), nameof(TempNotesTable.TBName), new object[] { TBName.ToUpper() }).FirstOrDefault();
+                if (noteTable != null)
+                {
+                    NoteTextBox.Text = noteTable.Text;
                 }
-                BindColumns();
 
-            }
-
-            this.LBTabname.MouseMove += OnLBTabnameMouseMove;
-            this.LBTabname.MouseDown += OnLBTabnameMouseDown;
-            this.LBTabname.MouseUp += OnLBTabnameMouseUp;
-            this.LBTabname.DoubleClick += LBTabname_DoubleClick;
-            this.LBTabname.MouseHover += (ss, ee) =>
-            {
-                if (!string.IsNullOrWhiteSpace(DBName) && !string.IsNullOrWhiteSpace(TBName))
+                NoteTextBox.LostFocus += (s, ee) =>
                 {
-                    var desc = BigEntityTableRemotingEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys", new[] { DBName.ToUpper(), TBName.ToUpper(), string.Empty }).FirstOrDefault();
-                    if (desc != null)
+                    noteTable = BigEntityTableRemotingEngine.Find<TempNotesTable>(nameof(TempNotesTable), nameof(TempNotesTable.TBName), new object[] { TBName.ToUpper() }).FirstOrDefault();
+                    if (noteTable == null)
                     {
-                        Util.SendMsg(this, desc.MarkInfo);
+                        noteTable = new TempNotesTable
+                        {
+                            DBName = DBName.ToUpper(),
+                            TBName = TBName.ToUpper(),
+                            Text = NoteTextBox.Text
+                        };
+                        BigEntityTableRemotingEngine.Insert(nameof(TempNotesTable), noteTable);
                     }
                     else
                     {
-                        Util.SendMsg(this, string.Empty);
+                        if (noteTable.Text != NoteTextBox.Text)
+                        {
+                            noteTable.Text = NoteTextBox.Text;
+                            BigEntityTableRemotingEngine.Update(nameof(TempNotesTable), noteTable);
+                        }
                     }
+                };
+
+                this.LBTabname.MouseMove += OnLBTabnameMouseMove;
+                this.LBTabname.MouseDown += OnLBTabnameMouseDown;
+                this.LBTabname.MouseUp += OnLBTabnameMouseUp;
+
+                BindColumns();
+                this.Height = ColumnsPanel.Location.Y + ColumnsPanel.Height + 1;
+            }
+            else
+            {
+
+                if (string.IsNullOrWhiteSpace(TBName))
+                {
+                    CBTables.DataSource = FunLoadTables().Select(p => p.Item2).OrderBy(p => p).ToList();
+                    CBTables.SelectedIndex = -1;
+                    this.LBTabname.Visible = false;
+                    this.CBTables.Visible = true;
+                    this.CBTables.Location = new Point(1, 1);
+                    this.CBTables.Width = this.Width - 2;
+                    this.CBTables.SelectedIndexChanged += CBTables_SelectedIndexChanged;
                 }
-            };
+                else
+                {
+                    var realtbname = TBName.Split('*')[0];
+                    LBTabname.Text = issamedb ? $"{realtbname}" : $"[{DBName}].{realtbname}";
+                    LBTabname.Visible = true;
+                    LBTabname.Location = new Point(1, 1);
+                    LBTabname.Width = Width - 2;
+                    CBTables.Visible = false;
+                    ColumnsList = SQLHelper.GetTBOrViewColumns(DBSource, DBName, realtbname).ToList();
+                    if (TBName.IndexOf('*') > -1)
+                    {
+                        ColumnsList.ForEach(p => p.TBName = this.TBName);
+                    }
+                    BindColumns();
+                }
 
-            ColumnsPanel.DoubleClick += ColumnsPanel_DoubleClick;
-            CBCoumns.Visible = false;
+                this.LBTabname.MouseMove += OnLBTabnameMouseMove;
+                this.LBTabname.MouseDown += OnLBTabnameMouseDown;
+                this.LBTabname.MouseUp += OnLBTabnameMouseUp;
+                this.LBTabname.DoubleClick += LBTabname_DoubleClick;
+                this.LBTabname.MouseHover += (ss, ee) =>
+                {
+                    if (!string.IsNullOrWhiteSpace(DBName) && !string.IsNullOrWhiteSpace(TBName))
+                    {
+                        var desc = BigEntityTableRemotingEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys", new[] { DBName.ToUpper(), TBName.ToUpper(), string.Empty }).FirstOrDefault();
+                        if (desc != null)
+                        {
+                            Util.SendMsg(this, desc.MarkInfo);
+                        }
+                        else
+                        {
+                            Util.SendMsg(this, string.Empty);
+                        }
+                    }
+                };
 
-            ColumnsPanelOutPut.DoubleClick += ColumnsPanelOutPut_DoubleClick;
-            CBCoumnsOutput.Visible = false;
+                ColumnsPanel.DoubleClick += ColumnsPanel_DoubleClick;
+                CBCoumns.Visible = false;
+
+                ColumnsPanelOutPut.DoubleClick += ColumnsPanelOutPut_DoubleClick;
+                CBCoumnsOutput.Visible = false;
+            }
         }
 
         private void ColumnsPanelOutPut_DoubleClick(object sender, EventArgs e)
@@ -814,7 +903,7 @@ namespace NETDBHelper.UC
 
         private void ColumnsPanel_DoubleClick(object sender, EventArgs e)
         {
-            CBCoumns.Visible = !this.CBCoumns.Visible;
+            CBCoumns.Visible = !CBCoumns.Visible;
         }
 
         private void LBTabname_DoubleClick(object sender, EventArgs e)

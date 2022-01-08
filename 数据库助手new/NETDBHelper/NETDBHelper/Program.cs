@@ -245,6 +245,8 @@ namespace NETDBHelper
                 TBName=s.TBName
             }, nameof(LogicMapRelColumn.ID), true, indexInfos);
 
+            BigEntityTableEngine.LocalEngine.CreateTable<TempNotesTable>(p => p.Id, b => b.AddIndex(nameof(TempNotesTable.TBName), m => m.Asc(k => k.TBName)));
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 

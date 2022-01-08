@@ -86,6 +86,7 @@
     <Compile Include="TableInfo.cs" />
     <Compile Include="TBColumn.cs" />
     <Compile Include="TBSearchColumn.cs" />
+    <Compile Include="TempNotesTable.cs" />
     <Compile Include="TriggerEntity.cs" />
     <Compile Include="ViewColumn.cs" />
     <Compile Include="ViewInfo.cs" />

@@ -120,7 +120,8 @@ namespace NETDBHelper.SubForm
                                 nameof(LogicMap),
                                 nameof(LogicMapTable),
                                 "HLog",
-                                nameof(LogicMapRelColumn)
+                                nameof(LogicMapRelColumn),
+                                nameof(TempNotesTable)
                             }
                         }
                     }
