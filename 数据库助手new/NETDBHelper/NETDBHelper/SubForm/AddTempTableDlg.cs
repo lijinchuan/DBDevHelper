@@ -59,6 +59,8 @@ namespace NETDBHelper.SubForm
             PBAdd.Click += PBAdd_Click;
             PBRem.Click += PBRem_Click;
 
+            CBType.DataSource = Enum.GetNames(typeof(MSSQLTypeEnum));
+
             if (string.IsNullOrWhiteSpace(tbName))
             {
                 tbName = "$" + Guid.NewGuid().ToString("N");
@@ -75,8 +77,6 @@ namespace NETDBHelper.SubForm
                 tempTB = temptb;
 
                 TBDisplayTableName.Text = tempTB.DisplayName;
-
-                CBType.DataSource = Enum.GetNames(typeof(MSSQLTypeEnum));
 
                 var cols = BigEntityTableRemotingEngine.Find<TempTBColumn>(nameof(TempTBColumn), nameof(TempTBColumn.TBId), new object[] { tempTB.Id }).ToList();
                 if (cols.Count > 0)
@@ -300,29 +300,37 @@ namespace NETDBHelper.SubForm
                 MessageBox.Show("名称不能为空");
                 return;
             }
+            var columns = GetColumns().ToList();
+            if (columns.Any(p => string.IsNullOrWhiteSpace(p.TypeName) || string.IsNullOrWhiteSpace(p.Name)))
+            {
+                MessageBox.Show("名称和类型不能为空");
+                return;
+            }
+            if (columns.Select(p => p.Name.ToUpper()).GroupBy(p => p).Any(p => p.Count() > 1))
+            {
+                MessageBox.Show("字段不能重复");
+                return;
+            }
+            if (columns.Count > 0 && tempTB.Id > 0)
+            {
+                var cols = BigEntityTableRemotingEngine.Find<TempTBColumn>(nameof(TempTBColumn), nameof(TempTBColumn.TBId), new object[] { tempTB.Id }).ToList();
+                if (cols.Count > 0)
+                {
+                    var exCols = cols.Where(p => columns.Any(q => q.Name.Equals(p.Name, StringComparison.OrdinalIgnoreCase))).ToList();
+                    if (exCols.Count > 0)
+                    {
+                        MessageBox.Show("字段不能重复:" + string.Join(" ", exCols.Select(p => p.Name)));
+                        return;
+                    }
+                }
+            }
 
             tempTB.DisplayName = TBDisplayTableName.Text.Trim();
             if (BigEntityTableRemotingEngine.Upsert(nameof(TempTB), tempTB))
             {
-                var columns = GetColumns().ToList();
+                
                 if (columns.Count > 0)
                 {
-
-                    if (columns.Select(p => p.Name.ToUpper()).GroupBy(p => p).Any(p => p.Count() > 1))
-                    {
-                        MessageBox.Show("字段不能重复");
-                        return;
-                    }
-                    var cols = BigEntityTableRemotingEngine.Find<TempTBColumn>(nameof(TempTBColumn), nameof(TempTBColumn.TBId), new object[] { tempTB.Id }).ToList();
-                    if (cols.Count > 0)
-                    {
-                        var exCols = cols.Where(p => columns.Any(q => q.Name.Equals(p.Name, StringComparison.OrdinalIgnoreCase))).ToList();
-                        if (exCols.Count > 0)
-                        {
-                            MessageBox.Show("字段不能重复:" + string.Join(" ", exCols.Select(p => p.Name)));
-                            return;
-                        }
-                    }
                     foreach (var col in columns)
                     {
                         col.TBId = tempTB.Id;

@@ -844,6 +844,7 @@ namespace NETDBHelper.UC
                 NoteTextBox.Multiline = true;
                 ColumnsPanel.Controls.Add(NoteTextBox);
                 NoteTextBox.Dock = DockStyle.Fill;
+                NoteTextBox.BorderStyle = BorderStyle.None;
 
                 var colum = new TBColumn
                 {
