@@ -31,15 +31,15 @@
             this.components = new System.ComponentModel.Container();
             this.CMSOpMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.添加表ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.添加中间表ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.TSMI_AddTempTable = new System.Windows.Forms.ToolStripMenuItem();
             this.delStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.TSMDelRelColumn = new System.Windows.Forms.ToolStripMenuItem();
             this.TSMI_Export = new System.Windows.Forms.ToolStripMenuItem();
             this.TSMI_CopyTableName = new System.Windows.Forms.ToolStripMenuItem();
             this.TSMI_CopyColName = new System.Windows.Forms.ToolStripMenuItem();
             this.TSMI_CopyTable = new System.Windows.Forms.ToolStripMenuItem();
-            this.PanelMap = new System.Windows.Forms.Panel();
             this.TSMI_AddNote = new System.Windows.Forms.ToolStripMenuItem();
+            this.PanelMap = new System.Windows.Forms.Panel();
             this.CMSOpMenu.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -47,7 +47,7 @@
             // 
             this.CMSOpMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.添加表ToolStripMenuItem,
-            this.添加中间表ToolStripMenuItem,
+            this.TSMI_AddTempTable,
             this.delStripMenuItem,
             this.TSMDelRelColumn,
             this.TSMI_Export,
@@ -64,12 +64,12 @@
             this.添加表ToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
             this.添加表ToolStripMenuItem.Text = "添加表";
             // 
-            // 添加中间表ToolStripMenuItem
+            // TSMI_AddTempTable
             // 
-            this.添加中间表ToolStripMenuItem.Name = "添加中间表ToolStripMenuItem";
-            this.添加中间表ToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
-            this.添加中间表ToolStripMenuItem.Text = "添加中间表";
-            this.添加中间表ToolStripMenuItem.Click += new System.EventHandler(this.添加中间表ToolStripMenuItem_Click);
+            this.TSMI_AddTempTable.Name = "TSMI_AddTempTable";
+            this.TSMI_AddTempTable.Size = new System.Drawing.Size(148, 22);
+            this.TSMI_AddTempTable.Text = "添加中间表";
+            this.TSMI_AddTempTable.Click += new System.EventHandler(this.添加中间表ToolStripMenuItem_Click);
             // 
             // delStripMenuItem
             // 
@@ -107,6 +107,12 @@
             this.TSMI_CopyTable.Size = new System.Drawing.Size(148, 22);
             this.TSMI_CopyTable.Text = "复制表";
             // 
+            // TSMI_AddNote
+            // 
+            this.TSMI_AddNote.Name = "TSMI_AddNote";
+            this.TSMI_AddNote.Size = new System.Drawing.Size(148, 22);
+            this.TSMI_AddNote.Text = "添加注释";
+            // 
             // PanelMap
             // 
             this.PanelMap.ContextMenuStrip = this.CMSOpMenu;
@@ -115,12 +121,6 @@
             this.PanelMap.Name = "PanelMap";
             this.PanelMap.Size = new System.Drawing.Size(200, 100);
             this.PanelMap.TabIndex = 0;
-            // 
-            // TSMI_AddNote
-            // 
-            this.TSMI_AddNote.Name = "TSMI_AddNote";
-            this.TSMI_AddNote.Size = new System.Drawing.Size(148, 22);
-            this.TSMI_AddNote.Text = "添加注释";
             // 
             // UCLogicMap
             // 
@@ -141,7 +141,7 @@
         private System.Windows.Forms.ToolStripMenuItem TSMI_CopyTableName;
         private System.Windows.Forms.ToolStripMenuItem TSMI_CopyColName;
         private System.Windows.Forms.ToolStripMenuItem TSMI_CopyTable;
-        private System.Windows.Forms.ToolStripMenuItem 添加中间表ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem TSMI_AddTempTable;
         private System.Windows.Forms.ToolStripMenuItem TSMI_AddNote;
     }
 }

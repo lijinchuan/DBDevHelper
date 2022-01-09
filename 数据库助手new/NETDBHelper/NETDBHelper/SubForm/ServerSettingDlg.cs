@@ -10,7 +10,7 @@ using System.Windows.Forms;
 
 namespace NETDBHelper.SubForm
 {
-    public partial class ServerSettingDlg : Form
+    public partial class ServerSettingDlg : SubBaseDlg
     {
         public ServerSettingDlg()
         {
@@ -121,7 +121,9 @@ namespace NETDBHelper.SubForm
                                 nameof(LogicMapTable),
                                 "HLog",
                                 nameof(LogicMapRelColumn),
-                                nameof(TempNotesTable)
+                                nameof(TempNotesTable),
+                                nameof(TempTB),
+                                nameof(TempTBColumn)
                             }
                         }
                     }

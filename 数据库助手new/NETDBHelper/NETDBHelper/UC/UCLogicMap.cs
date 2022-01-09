@@ -87,6 +87,16 @@ namespace NETDBHelper.UC
             TSMI_CopyColName.Click += TSMI_CopyColName_Click;
             TSMI_CopyTable.Click += TSMI_CopyTable_Click;
             TSMI_AddNote.Click += TSMI_AddNote_Click;
+            TSMI_AddTempTable.Click += TSMI_AddTempTable_Click;
+        }
+
+        private void TSMI_AddTempTable_Click(object sender, EventArgs e)
+        {
+            var dlg = new SubForm.AddTempTableDlg(DBSource, null);
+            if (dlg.ShowDialog() == DialogResult.OK)
+            {
+                AddTable(_DBName, dlg.TempTB.TBName);
+            }
         }
 
         private void TSMI_AddNote_Click(object sender, EventArgs e)
@@ -280,6 +290,16 @@ namespace NETDBHelper.UC
                 delStripMenuItem.Enabled = TSMI_CopyTableName.Enabled = TSMI_CopyTable.Enabled = ct is UCLogicTableView;
                 TSMI_CopyColName.Enabled = FindColumn(location) != null;
                 添加表ToolStripMenuItem.Enabled = !TSMI_CopyTableName.Enabled;
+                if(ct is UCLogicTableView)
+                {
+                    var view = ct as UCLogicTableView;
+                    TSMI_CopyTable.Enabled = !view.IsTempTable && !view.IsNoteTable;
+                }
+                else
+                {
+                    TSMI_CopyTable.Enabled = false;
+                }
+                
             }
             else
             {
@@ -292,6 +312,7 @@ namespace NETDBHelper.UC
             if (e.ClickedItem.Tag is LogicMapRelColumn)
             {
                 var rc = e.ClickedItem.Tag as LogicMapRelColumn;
+                this.CMSOpMenu.Visible = false;
                 if (MessageBox.Show("是否要删除关联", "提示", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                 {
                     if (BigEntityTableRemotingEngine.Delete<LogicMapRelColumn>(nameof(LogicMapRelColumn),
@@ -421,7 +442,7 @@ namespace NETDBHelper.UC
 
         private void 添加表ToolStripMenuItem_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e)
         {
-
+            this.CMSOpMenu.Visible = false;
             AddTable(e.ClickedItem.Text,null);
         }
 
@@ -1123,6 +1144,7 @@ namespace NETDBHelper.UC
                 var view = ((UCLogicTableView)ct);
                 if (!string.IsNullOrWhiteSpace(view.RpTableName))
                 {
+                    this.CMSOpMenu.Visible = false;
                     if (string.IsNullOrEmpty(view.TableName) || MessageBox.Show($"要删除和表{view.RpTableName}关联关系吗?", "询问", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
                     {
                         var v = view;

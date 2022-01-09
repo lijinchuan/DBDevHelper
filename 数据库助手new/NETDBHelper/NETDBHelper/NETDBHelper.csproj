@@ -141,6 +141,12 @@
     <Compile Include="SubForm\AddTaskInfoDlg.Designer.cs">
       <DependentUpon>AddTaskInfoDlg.cs</DependentUpon>
     </Compile>
+    <Compile Include="SubForm\AddTempTableDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SubForm\AddTempTableDlg.Designer.cs">
+      <DependentUpon>AddTempTableDlg.cs</DependentUpon>
+    </Compile>
     <Compile Include="SubForm\CopyDB.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -200,6 +206,12 @@
     </Compile>
     <Compile Include="SubForm\ServerSettingDlg.Designer.cs">
       <DependentUpon>ServerSettingDlg.cs</DependentUpon>
+    </Compile>
+    <Compile Include="SubForm\SubBaseDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SubForm\SubBaseDlg.Designer.cs">
+      <DependentUpon>SubBaseDlg.cs</DependentUpon>
     </Compile>
     <Compile Include="SubForm\SyncDataWin.cs">
       <SubType>Form</SubType>
@@ -407,6 +419,9 @@
     <EmbeddedResource Include="SubForm\AddTaskInfoDlg.resx">
       <DependentUpon>AddTaskInfoDlg.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="SubForm\AddTempTableDlg.resx">
+      <DependentUpon>AddTempTableDlg.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="SubForm\CopyDB.resx">
       <DependentUpon>CopyDB.cs</DependentUpon>
     </EmbeddedResource>
@@ -436,6 +451,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="SubForm\ServerSettingDlg.resx">
       <DependentUpon>ServerSettingDlg.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SubForm\SubBaseDlg.resx">
+      <DependentUpon>SubBaseDlg.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="SubForm\SyncDataWin.resx">
       <DependentUpon>SyncDataWin.cs</DependentUpon>
@@ -550,6 +568,8 @@
     <None Include="Resources\application_side_expand.png" />
     <None Include="Resources\application_get.png" />
     <None Include="Resources\application_put.png" />
+    <None Include="Resources\bullet_minus.png" />
+    <None Include="Resources\bullet_plus.png" />
     <Content Include="Resources\bullet_tick.png" />
     <Content Include="Resources\computer_link.png" />
     <Content Include="Resources\connect.png" />

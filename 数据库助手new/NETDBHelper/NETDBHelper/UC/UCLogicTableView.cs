@@ -49,11 +49,19 @@ namespace NETDBHelper.UC
             InitializeComponent();
         }
 
-        private bool IsNoteTable
+        public bool IsNoteTable
         {
             get
             {
                 return TBName?.StartsWith("#note_",StringComparison.Ordinal)==true;
+            }
+        }
+
+        public bool IsTempTable
+        {
+            get
+            {
+                return TBName?.StartsWith("$", StringComparison.Ordinal) == true;
             }
         }
 
@@ -176,7 +184,7 @@ namespace NETDBHelper.UC
         {
             get
             {
-                return this.TBName;
+                return TBName;
             }
         }
 
@@ -184,6 +192,15 @@ namespace NETDBHelper.UC
         {
             get
             {
+                if (IsTempTable)
+                {
+                    return "临时表";
+                }
+
+                if (IsNoteTable)
+                {
+                    return "备注";
+                }
                 return TBName?.Split('*')[0];
             }
         }
@@ -307,11 +324,15 @@ namespace NETDBHelper.UC
 
         private void BindColumns()
         {
-            if (!IsNoteTable)
+            if(IsNoteTable)
+            {
+                DrawAble(NoteTextBox, ColumnsPanel, false);
+            }
+            else
             {
                 var collist = BigEntityTableRemotingEngine.Scan<LogicMapRelColumn>(nameof(LogicMapRelColumn),
-                    "LSDTC", new object[] { this._logicMapId, DBName.ToLower(), this.TBName.ToLower() },
-                    new object[] { this._logicMapId, DBName.ToLower(), this.TBName.ToLower() }, 1, int.MaxValue);
+                   "LSDTC", new object[] { this._logicMapId, DBName.ToLower(), this.TBName.ToLower() },
+                   new object[] { this._logicMapId, DBName.ToLower(), this.TBName.ToLower() }, 1, int.MaxValue);
 
                 var relcollist = BigEntityTableRemotingEngine.Scan<LogicMapRelColumn>(nameof(LogicMapRelColumn),
                     "LSDRTC", new object[] { this._logicMapId, this.DBName.ToLower(), this.TBName.ToLower() },
@@ -320,10 +341,6 @@ namespace NETDBHelper.UC
                 BindInputColumns(collist.Where(p => !p.IsOutPut), relcollist.Where(p => !p.ReIsOutPut));
 
                 BindOutputColumns(collist.Where(p => p.IsOutPut), relcollist.Where(p => p.ReIsOutPut));
-            }
-            else
-            {
-                DrawAble(NoteTextBox, ColumnsPanel, false);
             }
 
             if (OnComplete != null)
@@ -570,6 +587,43 @@ namespace NETDBHelper.UC
             };
         }
 
+        private void ClearColumnLable()
+        {
+            List<Control> remlist = new List<Control>();
+            foreach (Control ctl in ColumnsPanel.Controls)
+            {
+                if (ctl.Tag is TBColumn)
+                {
+                    remlist.Add(ctl);
+                }
+            }
+            if (remlist.Count > 0)
+            {
+                CBCoumns.Location = remlist[0].Location;
+            }
+            foreach (var ctl in remlist)
+            {
+                ColumnsPanel.Controls.Remove(ctl);
+            }
+
+            remlist.Clear();
+            foreach (Control ctl in ColumnsPanelOutPut.Controls)
+            {
+                if (ctl.Tag is TBColumn)
+                {
+                    remlist.Add(ctl);
+                }
+            }
+            if (remlist.Count > 0)
+            {
+                CBCoumnsOutput.Location = remlist[0].Location;
+            }
+            foreach (var ctl in remlist)
+            {
+                ColumnsPanelOutPut.Controls.Remove(ctl);
+            }
+        }
+
         private void AddColumnLable(Panel panel,ComboBox cbCol, TBColumn tbcolumn, ref List<LogicMapRelColumn> logicMapRelColumns)
         {
             var tbcol = tbcolumn.Clone() as TBColumn;
@@ -801,7 +855,7 @@ namespace NETDBHelper.UC
                 };
                 NoteTextBox.Tag = colum;
 
-                ColumnsList = new List<TBColumn> { colum};
+                ColumnsList = new List<TBColumn> { colum };
 
                 var noteTable = BigEntityTableRemotingEngine.Find<TempNotesTable>(nameof(TempNotesTable), nameof(TempNotesTable.TBName), new object[] { TBName.ToUpper() }).FirstOrDefault();
                 if (noteTable != null)
@@ -838,6 +892,47 @@ namespace NETDBHelper.UC
 
                 BindColumns();
                 this.Height = ColumnsPanel.Location.Y + ColumnsPanel.Height + 1;
+            }
+            else if (IsTempTable)
+            {
+                var temptb = BigEntityTableRemotingEngine.Find<TempTB>(nameof(TempTB), TempTB.INDEX_DB_TB, new object[] { TBName }).FirstOrDefault();
+                if (temptb == null)
+                {
+                    return;
+                }
+                LBTabname.Text = $"#{temptb.DisplayName}";
+                LBTabname.Visible = true;
+                LBTabname.Location = new Point(1, 1);
+                LBTabname.Width = Width - 2;
+                CBTables.Visible = false;
+                var cols = BigEntityTableRemotingEngine.Find<TempTBColumn>(nameof(TempTBColumn), nameof(TempTBColumn.TBId), new object[] { temptb.Id }).ToList();
+
+                ColumnsList = cols.Select(p => new TBColumn
+                {
+                    DBName=DBName,
+                    TBName=TBName,
+                    Name=p.Name,
+                    TypeName=p.TypeName
+                }).ToList();
+                BindColumns();
+
+                this.LBTabname.MouseMove += OnLBTabnameMouseMove;
+                this.LBTabname.MouseDown += OnLBTabnameMouseDown;
+                this.LBTabname.MouseUp += OnLBTabnameMouseUp;
+                this.LBTabname.DoubleClick += LBTabname_DoubleClick;
+                this.LBTabname.MouseHover += (ss, ee) =>
+                {
+                    if (!string.IsNullOrWhiteSpace(DBName) && !string.IsNullOrWhiteSpace(TBName))
+                    {
+                        Util.SendMsg(this, "临时表");
+                    }
+                };
+
+                ColumnsPanel.DoubleClick += ColumnsPanel_DoubleClick;
+                CBCoumns.Visible = false;
+
+                ColumnsPanelOutPut.DoubleClick += ColumnsPanelOutPut_DoubleClick;
+                CBCoumnsOutput.Visible = false;
             }
             else
             {
@@ -912,6 +1007,24 @@ namespace NETDBHelper.UC
             {
                 this.LBTabname.Visible = false;
                 this.CBTables.Visible = true;
+            }
+
+            if (IsTempTable)
+            {
+                var dlg = new SubForm.AddTempTableDlg(DBSource, TBName);
+                if (dlg.ShowDialog() == DialogResult.OK)
+                {
+                    ColumnsList = dlg.TempTBColumns.Select(p => new TBColumn
+                    {
+                        DBName = DBName,
+                        TBName = TBName,
+                        Name = p.Name,
+                        TypeName = p.TypeName
+                    }).ToList();
+                    LBTabname.Text = "#"+dlg.TempTB.DisplayName;
+                    ClearColumnLable();
+                    BindColumns();
+                }
             }
         }
 
