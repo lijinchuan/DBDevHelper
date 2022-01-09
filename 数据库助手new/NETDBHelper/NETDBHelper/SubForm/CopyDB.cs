@@ -609,7 +609,7 @@ namespace NETDBHelper.SubForm
                 try
                 {
                     this.CLBDBs.Items.Clear();
-                    var dbs = Biz.Common.Data.SQLHelper.GetDBs(DBSource);
+                    var dbs = SQLHelper.GetDBs(DBSource);
                     this.CLBDBs.Items.AddRange(dbs.AsEnumerable().Select(p => (object)p.Field<string>("name")).OrderBy(p => p.ToString()).ToArray());
                     for(var i = 0; i < this.CLBDBs.Items.Count; i++)
                     {

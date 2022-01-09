@@ -201,6 +201,12 @@
     <Compile Include="SubForm\RecoverDB.Designer.cs">
       <DependentUpon>RecoverDB.cs</DependentUpon>
     </Compile>
+    <Compile Include="SubForm\SearchDBDataDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SubForm\SearchDBDataDlg.Designer.cs">
+      <DependentUpon>SearchDBDataDlg.cs</DependentUpon>
+    </Compile>
     <Compile Include="SubForm\ServerSettingDlg.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -448,6 +454,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="SubForm\RecoverDB.resx">
       <DependentUpon>RecoverDB.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SubForm\SearchDBDataDlg.resx">
+      <DependentUpon>SearchDBDataDlg.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="SubForm\ServerSettingDlg.resx">
       <DependentUpon>ServerSettingDlg.cs</DependentUpon>
