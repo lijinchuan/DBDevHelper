@@ -91,13 +91,13 @@ namespace NETDBHelper.SubForm
             sb.Boo = e.NewValue == CheckState.Checked;
         }
 
-        private bool FilterFun(object val, DataTableColumn col)
+        private bool FilterFun(object val,string key, DataTableColumn col)
         {
             if (val == null)
             {
                 return false;
             }
-            var key = TBKeyword.Text.Trim();
+            
 
             if (CBEquals.Checked)
             {
@@ -120,9 +120,9 @@ namespace NETDBHelper.SubForm
             
         }
 
-        private bool Filter(object val, DataTableObject dataTableObject, DataTableColumn col)
+        private bool Filter(object val,string key, DataTableObject dataTableObject, DataTableColumn col)
         {
-            var boo = FilterFun(val, col);
+            var boo = FilterFun(val,key,col);
             if (boo)
             {
                 BeginInvoke(new Action(() =>
@@ -168,6 +168,8 @@ namespace NETDBHelper.SubForm
                 MessageBox.Show("没有数据，请先缓存数据");
                 return;
             }
+
+            var key = TBKeyword.Text.Trim();
 
             if (!string.IsNullOrEmpty(dir))
             {
@@ -250,9 +252,9 @@ namespace NETDBHelper.SubForm
                                                     }
                                                     else
                                                     {
-                                                        var val = DataHelper.ConvertDBType(c.StringValue, Type.GetType(datatableobject.Columns[i].ColumnType));
+                                                        //var val = DataHelper.ConvertDBType(c.StringValue, Type.GetType(datatableobject.Columns[i].ColumnType));
 
-                                                        if (Filter(val, datatableobject, datatableobject.Columns[i]))
+                                                        if (Filter(c.StringValue, key, datatableobject, datatableobject.Columns[i]))
                                                         {
                                                             hash.Add(datatableobject.Columns[i].ColumnName);
                                                         }
@@ -321,6 +323,10 @@ namespace NETDBHelper.SubForm
 
         private void ChooseDir(string path)
         {
+            if (!Directory.Exists(path))
+            {
+                return;
+            }
             Dictionary<string, List<StringAndBool>> dbtbs = new Dictionary<string, List<StringAndBool>>();
             var files = new DirectoryInfo(path).GetFiles("*.data").OrderBy(p => p.CreationTime).ToArray();
             foreach (var file in files)
