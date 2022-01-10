@@ -648,6 +648,173 @@ where a.Table_NAME='"+viewname+"' and a.TABLE_NAME=b.TABLE_NAME ORDER BY A.TABLE
             ExecuteNoQuery(dbSource, dbName, sql);
         }
 
+        public static IEnumerable<DataTableObject> ExportData2(List<TBColumn> columns, DataTableObject dataTableObject, DBSource dbSource, TableInfo tableinfo, int topNum, Func<bool> checkCancel)
+        {
+
+            IEnumerable<TBColumn> cols = columns.Where(p => !p.TypeName.Equals("timestamp", StringComparison.OrdinalIgnoreCase));
+            //cols = cols.OrderBy(p => p.IsID ? 0 : 1);
+
+            if (!cols.Any())
+            {
+                yield break;
+            }
+
+            var idColumns = columns.Where(p => p.IsID).ToList();
+            if (!idColumns.Any())
+            {
+                idColumns = columns.Where(p => p.IsKey).ToList();
+            }
+
+            var idColumn = idColumns.Count == 1 ? idColumns.First() : null;
+            if (dataTableObject == null || idColumn == null)
+            {
+                dataTableObject = new DataTableObject()
+                {
+                    Schema = tableinfo.Schema,
+                    DBName = tableinfo.DBName,
+                    TableName = tableinfo.TBName
+                };
+            }
+
+            object maxId = dataTableObject.Key;
+            var pagesize = Math.Min(topNum, 10000);
+            var total = dataTableObject.TotalCount;
+            var maxsize = 1000000;
+
+            var totalsize = dataTableObject.Size;
+
+            while (true)
+            {
+                if (checkCancel?.Invoke() == true)
+                {
+                    yield break;
+                }
+
+                string sqltext = null;
+                DataTable datas = null;
+                bool isFinished = false;
+                if (idColumn == null)
+                {
+                    sqltext = string.Format("select top {2} {0} from [{3}].{1} with(nolock)", string.Join(",", columns.Select(p => GetConverType(p))), string.Concat("[", tableinfo.TBName, "]"), topNum, tableinfo.Schema);
+                    datas = ExecuteDBTable(dbSource, tableinfo.DBName, sqltext, null);
+                    isFinished = true;
+                }
+                else
+                {
+                    SqlParameter[] sqlParameters = null;
+                    if (maxId != null)
+                    {
+                        sqltext = string.Format("select top {2} {0} from [{3}].{1} with(nolock) where [{4}]<@{4} order by [{4}] desc", string.Join(",", columns.Select(p => GetConverType(p))), string.Concat("[", tableinfo.TBName, "]"), pagesize, tableinfo.Schema, idColumn.Name);
+                        sqlParameters = new[] { new SqlParameter($"@{idColumn.Name}", maxId) };
+                    }
+                    else
+                    {
+                        sqltext = string.Format("select top {2} {0} from [{3}].{1} with(nolock) order by [{4}] desc", string.Join(",", columns.Select(p => GetConverType(p))), string.Concat("[", tableinfo.TBName, "]"), pagesize, tableinfo.Schema, idColumn.Name);
+                    }
+                    datas = ExecuteDBTable(dbSource, tableinfo.DBName, sqltext, sqlParameters);
+                    if (datas.Rows.Count > 0)
+                    {
+                        maxId = datas.Rows[datas.Rows.Count - 1][idColumn.Name];
+                    }
+                    total += datas.Rows.Count;
+                    if (datas.Rows.Count < pagesize)
+                    {
+                        isFinished = true;
+                    }
+                }
+
+                if (dataTableObject.Columns.Count == 0)
+                {
+                    foreach (DataColumn col in datas.Columns)
+                    {
+                        dataTableObject.Columns.Add(new DataTableColumn
+                        {
+                            ColumnName = col.ColumnName,
+                            ColumnType = col.DataType.FullName
+                        });
+                    }
+                }
+
+                foreach (DataRow row in datas.Rows)
+                {
+                    var datarow = new DataTableRow();
+
+                    foreach (var cell in row.ItemArray)
+                    {
+                        var datacell = new DataTableCell();
+                        if (cell == DBNull.Value)
+                        {
+                            datacell.IsDBNull = true;
+                            totalsize += 1;
+                        }
+                        else
+                        {
+                            if (cell.GetType() == typeof(byte[]))
+                            {
+                                datacell.ByteValue = (byte[])cell;
+                                totalsize += datacell.ByteValue.Length;
+                            }
+                            else
+                            {
+                                datacell.StringValue = cell.ToString();
+                                totalsize += datacell.StringValue.Length * 2;
+                            }
+                        }
+                        datarow.Cells.Add(datacell);
+                    }
+
+                    dataTableObject.Rows.Add(datarow);
+                    if (totalsize >= 1000 * 1000 * 1000)
+                    {
+                        yield return dataTableObject;
+                        dataTableObject.Rows.Clear();
+                        totalsize = 0;
+                    }
+                }
+
+                if (isFinished)
+                {
+                    break;
+                }
+
+                if (dataTableObject.Rows.Count >= maxsize)
+                {
+                    dataTableObject.Key = maxId?.ToString();
+                    dataTableObject.TotalCount = total;
+                    dataTableObject.Size = dataTableObject.Rows.Count;
+                    yield return dataTableObject;
+                    dataTableObject.Rows.Clear();
+                }
+            }
+
+            if (dataTableObject.Rows.Count > 0)
+            {
+                dataTableObject.Key = maxId?.ToString();
+                dataTableObject.TotalCount = total;
+                dataTableObject.Size = dataTableObject.Rows.Count;
+                yield return dataTableObject;
+            }
+
+            string GetConverType(TBColumn column)
+            {
+                if (column.TypeName.Equals("timestamp", StringComparison.OrdinalIgnoreCase))
+                {
+                    //return string.Format("cast('' as xml).value('xs:base64Binary(sql:column(\"{0}\"))', 'varchar(max)') as [{0}]", column.Name);
+                    return string.Format("null as [{0}]", column.Name);
+                }
+                //else if (column.TypeName.Equals("binary", StringComparison.OrdinalIgnoreCase)
+                //    || column.TypeName.Equals("varbinary", StringComparison.OrdinalIgnoreCase))
+                //{
+                //    return string.Format("cast('' as xml).value('xs:base64Binary(sql:column(\"{0}\"))', 'varchar(max)') as [{0}]", column.Name);
+                //}
+                //else if (column.TypeName.Equals("image", StringComparison.OrdinalIgnoreCase))
+                //{
+                //    return string.Format("convert(varbinary(max),[{0}]) as [{0}]", column.Name);
+                //}
+                return string.Format("[{0}]", column.Name);
+            }
+        }
+
         public static IEnumerable<DataTableObject> ExportData2(List<TBColumn> columns, bool notExportId, DBSource dbSource, TableInfo tableinfo, int topNum,Func<bool> checkCancel,CopyDBTask copyDBTask)
         {
 
@@ -672,7 +839,7 @@ where a.Table_NAME='"+viewname+"' and a.TABLE_NAME=b.TABLE_NAME ORDER BY A.TABLE
                 idColumns = columns.Where(p => p.IsKey).ToList();
             }
 
-            var idColumn = idColumns.Count() == 1 ? idColumns.First() : null;
+            var idColumn = idColumns.Count == 1 ? idColumns.First() : null;
             object maxId = null;
             var pagesize = Math.Min(topNum, 10000);
             var total = 0;

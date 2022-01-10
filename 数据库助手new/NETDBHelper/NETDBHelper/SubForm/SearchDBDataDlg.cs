@@ -21,6 +21,8 @@ namespace NETDBHelper.SubForm
         private volatile bool isRunning = false;
         private CheckedListBox mainCLB = null;
 
+        private static string dir = Application.StartupPath + "\\temp\\cachdb";
+
         public SearchDBDataDlg()
         {
             InitializeComponent();
@@ -30,10 +32,20 @@ namespace NETDBHelper.SubForm
         {
             base.OnLoad(e);
 
-            BtnSearch.Enabled = false;
+            this.GVResult.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.DisplayedCells;
+
+            this.GVResult.BorderStyle = BorderStyle.None;
+            this.GVResult.GridColor = Color.LightBlue;
+
+            this.GVResult.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
+            this.GVResult.AllowUserToResizeRows = true;
 
             DBS.Click += DBS_Click;
             TBS.Click += TBS_Click;
+
+            PBCachData.Image = Resources.Resource1.drive_disk;
+
+            ChooseDir(dir);
         }
 
         private void TBS_Click(object sender, EventArgs e)
@@ -132,17 +144,32 @@ namespace NETDBHelper.SubForm
 
         private void BtnSearch_Click(object sender, EventArgs e)
         {
-            if (isRunning)
-            {
-                return;
-            }
             if (string.IsNullOrWhiteSpace(TBKeyword.Text))
             {
                 return;
             }
+
+            if (isRunning)
+            {
+                return;
+            }
+            
             isRunning = true;
-            var dir = TBPath.Text;
-            if (!string.IsNullOrEmpty(dir) && Directory.Exists(dir))
+            GVResult.Rows.Clear();
+            FileInfo[] files = null;
+            if (Directory.Exists(dir))
+            {
+                files = new DirectoryInfo(dir).GetFiles("*.data").OrderBy(p => p.CreationTime).ToArray();
+            }
+
+            if (files == null || files.Length == 0)
+            {
+                isRunning = false;
+                MessageBox.Show("没有数据，请先缓存数据");
+                return;
+            }
+
+            if (!string.IsNullOrEmpty(dir))
             {
 
                 new Action(() =>
@@ -165,7 +192,7 @@ namespace NETDBHelper.SubForm
                         {
                             seldbs.Add(item.ToString());
                         }
-                        var files = new DirectoryInfo(dir).GetFiles("*.data").OrderBy(p => p.CreationTime).ToArray();
+                        
                         var finished = 0;
                         foreach (var fileinfo in files)
                         {
@@ -292,54 +319,40 @@ namespace NETDBHelper.SubForm
             }
         }
 
-        private void BtnChooseDir_Click(object sender, EventArgs e)
+        private void ChooseDir(string path)
         {
-            FolderBrowserDialog dlg = new FolderBrowserDialog();
-            dlg.SelectedPath = AppDomain.CurrentDomain.BaseDirectory;
-            if (dlg.ShowDialog() == DialogResult.OK)
+            Dictionary<string, List<StringAndBool>> dbtbs = new Dictionary<string, List<StringAndBool>>();
+            var files = new DirectoryInfo(path).GetFiles("*.data").OrderBy(p => p.CreationTime).ToArray();
+            foreach (var file in files)
             {
-                var sqlfile = System.IO.Path.Combine(dlg.SelectedPath, "createdb.sql");
-                if (!System.IO.File.Exists(sqlfile))
+                var m = Regex.Match(file.Name, @"\[([^\]]+)\]\.\[([^\]]+)\]");
+                if (m.Success)
                 {
-                    MessageBox.Show("失败，找不到创建文件。");
-                    return;
-                }
-
-                Dictionary<string, List<StringAndBool>> dbtbs = new Dictionary<string, List<StringAndBool>>();
-                var files = new DirectoryInfo(dlg.SelectedPath).GetFiles("*.data").OrderBy(p => p.CreationTime).ToArray();
-                foreach (var file in files)
-                {
-                    var m = Regex.Match(file.Name, @"\[([^\]]+)\]\.\[([^\]]+)\]");
-                    if (m.Success)
+                    var db = m.Groups[1].Value;
+                    var tb = m.Groups[2].Value;
+                    if (!dbtbs.ContainsKey(db))
                     {
-                        var db = m.Groups[1].Value;
-                        var tb = m.Groups[2].Value;
-                        if (!dbtbs.ContainsKey(db))
-                        {
-                            dbtbs.Add(db, new List<StringAndBool>());
-                        }
-
-                        dbtbs[db].Add(new StringAndBool(tb, true));
+                        dbtbs.Add(db, new List<StringAndBool>());
                     }
+
+                    dbtbs[db].Add(new StringAndBool(tb, true));
                 }
-
-                DBS.Items.Clear();
-                TBS.Items.Clear();
-
-                foreach (var item in dbtbs)
-                {
-                    DBS.Items.Add(item.Key);
-                }
-                for (var i = 0; i < DBS.Items.Count; i++)
-                {
-                    DBS.SetItemChecked(i, true);
-                }
-                DBS.Tag = dbtbs;
-
-                TBPath.Text = dlg.SelectedPath;
-
-                BtnSearch.Enabled = true;
             }
+
+            DBS.Items.Clear();
+            TBS.Items.Clear();
+
+            foreach (var item in dbtbs)
+            {
+                DBS.Items.Add(item.Key);
+            }
+            for (var i = 0; i < DBS.Items.Count; i++)
+            {
+                DBS.SetItemChecked(i, true);
+            }
+            DBS.Tag = dbtbs;
+
+            BtnSearch.Enabled = true;
         }
 
         private void BtnStop_Click(object sender, EventArgs e)
@@ -354,6 +367,42 @@ namespace NETDBHelper.SubForm
             if (!isRunning)
             {
                 this.Close();
+            }
+        }
+
+        private void PBCachData_Click(object sender, EventArgs e)
+        {
+            new SubForm.CachDB().ShowDialog();
+        }
+
+        private void BtnSelAll_Click(object sender, EventArgs e)
+        {
+            var reg = TBReg.Text;
+            if (BtnSelAll.Text == "全选")
+            {
+                for (int i = 0; i < mainCLB.Items.Count; i++)
+                {
+                    mainCLB.SetItemChecked(i, IsMatch(mainCLB.Items[i].ToString()));
+                }
+                BtnSelAll.Text = "全消";
+            }
+            else
+            {
+                for (int i = 0; i < mainCLB.Items.Count; i++)
+                {
+                    mainCLB.SetItemChecked(i, !IsMatch(mainCLB.Items[i].ToString()));
+                }
+                BtnSelAll.Text = "全选";
+            }
+
+            bool IsMatch(string item)
+            {
+                if (string.IsNullOrEmpty(reg))
+                {
+                    return true;
+                }
+
+                return Regex.IsMatch(item, reg, RegexOptions.IgnoreCase);
             }
         }
     }
