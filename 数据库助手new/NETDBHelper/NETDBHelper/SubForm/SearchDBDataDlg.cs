@@ -116,7 +116,7 @@ namespace NETDBHelper.SubForm
                 return Regex.IsMatch(val.ToString(), key);
             }
 
-            return val.ToString().IndexOf(key, StringComparison.OrdinalIgnoreCase) > 0;
+            return val.ToString().IndexOf(key, StringComparison.OrdinalIgnoreCase) > -1;
             
         }
 
@@ -212,7 +212,7 @@ namespace NETDBHelper.SubForm
                                 {
                                     continue;
                                 }
-                                if (source != null && !source.ContainsKey(db) && !source[db].Any(p => p.Str == tb && p.Boo))
+                                if (source != null && source.ContainsKey(db) && !source[db].Any(p => p.Str == tb && p.Boo))
                                 {
                                     continue;
                                 }

@@ -206,7 +206,7 @@ namespace NETDBHelper.SubForm
                                 {
                                     continue;
                                 }
-                                if (source != null && !source.ContainsKey(db) && !source[db].Any(p => p.Str == tb && p.Boo))
+                                if (source != null && source.ContainsKey(db) && !source[db].Any(p => p.Str == tb && p.Boo))
                                 {
                                     continue;
                                 }

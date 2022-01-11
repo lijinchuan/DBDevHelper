@@ -942,7 +942,7 @@ namespace NETDBHelper
         {
             var dlg = new SearchDBDataDlg();
 
-            dlg.ShowDialog();
+            dlg.Show();
         }
     }
 }

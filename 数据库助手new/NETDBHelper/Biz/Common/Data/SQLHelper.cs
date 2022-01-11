@@ -704,12 +704,12 @@ where a.Table_NAME='"+viewname+"' and a.TABLE_NAME=b.TABLE_NAME ORDER BY A.TABLE
                     SqlParameter[] sqlParameters = null;
                     if (maxId != null)
                     {
-                        sqltext = string.Format("select top {2} {0} from [{3}].{1} with(nolock) where [{4}]<@{4} order by [{4}] desc", string.Join(",", columns.Select(p => GetConverType(p))), string.Concat("[", tableinfo.TBName, "]"), pagesize, tableinfo.Schema, idColumn.Name);
+                        sqltext = string.Format("select top {2} {0} from [{3}].{1} with(nolock) where [{4}]>@{4} order by [{4}] ASC", string.Join(",", columns.Select(p => GetConverType(p))), string.Concat("[", tableinfo.TBName, "]"), pagesize, tableinfo.Schema, idColumn.Name);
                         sqlParameters = new[] { new SqlParameter($"@{idColumn.Name}", maxId) };
                     }
                     else
                     {
-                        sqltext = string.Format("select top {2} {0} from [{3}].{1} with(nolock) order by [{4}] desc", string.Join(",", columns.Select(p => GetConverType(p))), string.Concat("[", tableinfo.TBName, "]"), pagesize, tableinfo.Schema, idColumn.Name);
+                        sqltext = string.Format("select top {2} {0} from [{3}].{1} with(nolock) order by [{4}] ASC", string.Join(",", columns.Select(p => GetConverType(p))), string.Concat("[", tableinfo.TBName, "]"), pagesize, tableinfo.Schema, idColumn.Name);
                     }
                     datas = ExecuteDBTable(dbSource, tableinfo.DBName, sqltext, sqlParameters);
                     if (datas.Rows.Count > 0)
