@@ -172,10 +172,7 @@ namespace NETDBHelper.UC
                 CBTables.Visible = false;
 
                 ColumnsList = SQLHelper.GetColumns(DBSource, DBName, CBTables.SelectedItem.ToString()).ToList();
-                if (TBName.IndexOf('*') > -1)
-                {
-                    ColumnsList.ForEach(p => p.TBName = this.TBName);
-                }
+                ColumnsList.ForEach(p => p.TBName = TrimTableName(TBName));
                 BindColumns();
             }
         }
@@ -211,6 +208,11 @@ namespace NETDBHelper.UC
             {
                 return this.DBName;
             }
+        }
+
+        public string TrimTableName(string tbname)
+        {
+            return tbname.Split('*')[0];
         }
 
         protected override void OnPaint(PaintEventArgs e)
@@ -762,7 +764,7 @@ namespace NETDBHelper.UC
                       && p.TBName.Equals(tbcol.TBName, StringComparison.OrdinalIgnoreCase) && p.ColName.Equals(tbcol.Name, StringComparison.OrdinalIgnoreCase)
                       && p.RelColName == string.Empty);
                     var logiccoldesc = logiccol?.Desc ?? string.Empty;
-                    var dlg = new SubForm.InputStringDlg($"逻辑备注{tbcol.TBName.Split('*')[0]}.{tbcol.Name}", logiccoldesc);
+                    var dlg = new SubForm.InputStringDlg($"逻辑备注{TrimTableName(tbcol.TBName)}.{tbcol.Name}", logiccoldesc);
                     dlg.DlgResult += () =>
                     {
                         if (logiccol != null)
@@ -798,7 +800,7 @@ namespace NETDBHelper.UC
             {
                 var col = (lb.Tag as TBColumn);
                 var desc = BigEntityTableRemotingEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys",
-                    new[] { col.DBName.ToUpper(), col.TBName.ToUpper(), col.Name.ToUpper() }).FirstOrDefault();
+                    new[] { col.DBName.ToUpper(),TrimTableName(col.TBName).ToUpper(), col.Name.ToUpper() }).FirstOrDefault();
                 if (desc != null)
                 {
                     Util.SendMsg(this, desc.MarkInfo);
@@ -950,7 +952,7 @@ namespace NETDBHelper.UC
                 }
                 else
                 {
-                    var realtbname = TBName.Split('*')[0];
+                    var realtbname = TrimTableName(TBName);
                     LBTabname.Text = issamedb ? $"{realtbname}" : $"[{DBName}].{realtbname}";
                     LBTabname.Visible = true;
                     LBTabname.Location = new Point(1, 1);
@@ -972,7 +974,7 @@ namespace NETDBHelper.UC
                 {
                     if (!string.IsNullOrWhiteSpace(DBName) && !string.IsNullOrWhiteSpace(TBName))
                     {
-                        var desc = BigEntityTableRemotingEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys", new[] { DBName.ToUpper(), TBName.ToUpper(), string.Empty }).FirstOrDefault();
+                        var desc = BigEntityTableRemotingEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys", new[] { DBName.ToUpper(),TrimTableName(TBName).ToUpper(), string.Empty }).FirstOrDefault();
                         if (desc != null)
                         {
                             Util.SendMsg(this, desc.MarkInfo);
