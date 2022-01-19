@@ -33,21 +33,13 @@ html{
 }
 body{
 	font:12px Verdana,Arial,Tahoma;
-    width:800px;
+    width:780px;
 }
 #emoji1{
 		font-family: ""Apple Color Emoji"",""Segoe UI Emoji"",NotoColorEmoji,""Segoe UI Symbol"",""Android Emoji"",EmojiSymbols;
 }
                    .tbox dd{
 	border-top:1px solid #C5DDBC;
-}
-.pleft {
-    width: 800px;
-    float: left;
-    overflow: hidden;
-}
-.listbox {
-    width: 800px;
 }
 .listbox th {
     height: 25px;
@@ -64,9 +56,6 @@ body{
     letter-spacing: 5px;
     word-break: break-all;
 }
-.ta {
-    width: 800px;
-}
 .tbox dd strong{
 	color:#696;
 }
@@ -78,16 +67,14 @@ body{
 }
 
 .tbox table {
-    width: 100%;
+    width: 98%;
     border-collapse: collapse;
-    width: 620px;
     margin-left: 8px;
 }
 
 .tbox table td{
-    width: 100%;
     border-collapse: collapse;
-    width: 790px;
+    width: 100%;
     margin-left: 8px;
 }
               </style>
