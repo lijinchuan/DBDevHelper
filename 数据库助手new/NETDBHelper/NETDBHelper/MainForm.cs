@@ -944,5 +944,11 @@ namespace NETDBHelper
 
             dlg.Show();
         }
+
+        private void 符号大全ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SubForm.SymbolsDlg dlg = new SymbolsDlg();
+            dlg.Show();
+        }
     }
 }

@@ -46,6 +46,7 @@
             this.监控任务ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.复制数据库ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.还原数据库ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.搜索数据库ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.SubItemHelp = new System.Windows.Forms.ToolStripMenuItem();
             this.登录ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.登出ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -60,7 +61,7 @@
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.MspPanel = new System.Windows.Forms.ToolStripStatusLabel();
             this.TSL_ClearMsg = new System.Windows.Forms.ToolStripStatusLabel();
-            this.搜索数据库ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.符号大全ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mainMenuBar.SuspendLayout();
             this.panel1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
@@ -155,7 +156,8 @@
             this.监控任务ToolStripMenuItem,
             this.复制数据库ToolStripMenuItem,
             this.还原数据库ToolStripMenuItem,
-            this.搜索数据库ToolStripMenuItem});
+            this.搜索数据库ToolStripMenuItem,
+            this.符号大全ToolStripMenuItem});
             this.SubItemTool.Name = "SubItemTool";
             this.SubItemTool.Size = new System.Drawing.Size(44, 21);
             this.SubItemTool.Text = "工具";
@@ -207,6 +209,13 @@
             this.还原数据库ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.还原数据库ToolStripMenuItem.Text = "还原数据库";
             this.还原数据库ToolStripMenuItem.Click += new System.EventHandler(this.还原数据库ToolStripMenuItem_Click);
+            // 
+            // 搜索数据库ToolStripMenuItem
+            // 
+            this.搜索数据库ToolStripMenuItem.Name = "搜索数据库ToolStripMenuItem";
+            this.搜索数据库ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.搜索数据库ToolStripMenuItem.Text = "搜索数据库";
+            this.搜索数据库ToolStripMenuItem.Click += new System.EventHandler(this.搜索数据库ToolStripMenuItem_Click);
             // 
             // SubItemHelp
             // 
@@ -334,12 +343,12 @@
             this.TSL_ClearMsg.Visible = false;
             this.TSL_ClearMsg.Click += new System.EventHandler(this.TSL_ClearMsg_Click);
             // 
-            // 搜索数据库ToolStripMenuItem
+            // 符号大全ToolStripMenuItem
             // 
-            this.搜索数据库ToolStripMenuItem.Name = "搜索数据库ToolStripMenuItem";
-            this.搜索数据库ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.搜索数据库ToolStripMenuItem.Text = "搜索数据库";
-            this.搜索数据库ToolStripMenuItem.Click += new System.EventHandler(this.搜索数据库ToolStripMenuItem_Click);
+            this.符号大全ToolStripMenuItem.Name = "符号大全ToolStripMenuItem";
+            this.符号大全ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.符号大全ToolStripMenuItem.Text = "符号大全";
+            this.符号大全ToolStripMenuItem.Click += new System.EventHandler(this.符号大全ToolStripMenuItem_Click);
             // 
             // MainFrm
             // 
@@ -403,6 +412,7 @@
         private System.Windows.Forms.ToolStripMenuItem 显示左侧窗口ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 服务器设置ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 搜索数据库ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 符号大全ToolStripMenuItem;
     }
 }
 

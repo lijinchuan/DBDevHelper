@@ -225,6 +225,12 @@
     <Compile Include="SubForm\SubBaseDlg.Designer.cs">
       <DependentUpon>SubBaseDlg.cs</DependentUpon>
     </Compile>
+    <Compile Include="SubForm\SymbolsDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SubForm\SymbolsDlg.Designer.cs">
+      <DependentUpon>SymbolsDlg.cs</DependentUpon>
+    </Compile>
     <Compile Include="SubForm\SyncDataWin.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -472,6 +478,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="SubForm\SubBaseDlg.resx">
       <DependentUpon>SubBaseDlg.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SubForm\SymbolsDlg.resx">
+      <DependentUpon>SymbolsDlg.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="SubForm\SyncDataWin.resx">
       <DependentUpon>SyncDataWin.cs</DependentUpon>
