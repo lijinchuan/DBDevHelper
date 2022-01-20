@@ -597,6 +597,7 @@
     <None Include="Resources\application_put.png" />
     <None Include="Resources\bullet_minus.png" />
     <None Include="Resources\bullet_plus.png" />
+    <None Include="Resources\arrow_nsew.png" />
     <Content Include="Resources\bullet_tick.png" />
     <Content Include="Resources\computer_link.png" />
     <Content Include="Resources\connect.png" />

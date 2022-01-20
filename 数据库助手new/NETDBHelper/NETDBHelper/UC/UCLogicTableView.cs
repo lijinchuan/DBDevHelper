@@ -34,15 +34,13 @@ namespace NETDBHelper.UC
 
         private Action<UCLogicTableView> OnComplete;
 
-        private bool IsTitleDraging = false;
-        private Point TitleDragStart = Point.Empty;
-        private Point TitleDragEnd = Point.Empty;
-
         private TextBox NoteTextBox = null;
 
         private Func<Point, Point, bool, bool> onCheckConflict;
 
         public Action<LogicMapRelColumn> OnAddNewRelColumn;
+
+        private PictureBox pbDraw = null;
 
         public UCLogicTableView()
         {
@@ -170,6 +168,8 @@ namespace NETDBHelper.UC
                 LBTabname.Location = new Point(1, 1);
                 LBTabname.Width = this.Width - 2;
                 CBTables.Visible = false;
+
+                pbDraw.Visible = true;
 
                 ColumnsList = SQLHelper.GetColumns(DBSource, DBName, CBTables.SelectedItem.ToString()).ToList();
                 ColumnsList.ForEach(p => p.TBName = TrimTableName(TBName));
@@ -328,7 +328,7 @@ namespace NETDBHelper.UC
         {
             if(IsNoteTable)
             {
-                DrawAble(NoteTextBox, ColumnsPanel, false);
+                SetLinkAble(NoteTextBox, ColumnsPanel, false);
             }
             else
             {
@@ -380,7 +380,85 @@ namespace NETDBHelper.UC
             return Rectangle.Empty;
         }
 
-        private void DrawAble(Control lb,Panel panel,bool isOutPut)
+        private void SetDrawAble(Control control)
+        {
+            bool IsTitleDraging = false;
+            Point TitleDragStart = Point.Empty;
+            Point TitleDragEnd = Point.Empty;
+            control.MouseMove += (s, e) =>
+                {
+                    if (e.Button == MouseButtons.Left)
+                    {
+                        var pt = this.PointToScreen(e.Location);
+                        IsTitleDraging = Math.Abs(pt.X - TitleDragEnd.X) > 2 || Math.Abs(pt.Y - TitleDragEnd.Y) > 2; //&& ((DragEnd.X > DragStart.X && dragSource != tabExDic.Last().Value) || (DragEnd.X < DragStart.X && dragSource != tabExDic.First().Value));
+                    if (IsTitleDraging)
+                        {
+                            TitleDragStart = TitleDragEnd;
+                            TitleDragEnd = pt;
+                        }
+
+                        if (IsTitleDraging)
+                        {
+                            OnTabDragOver(null);
+                        }
+
+                    }
+
+                };
+            control.MouseDown += (s,e)=>
+            {
+                if (e.Button == MouseButtons.Left)
+                {
+                    //IsDraging = true;
+                    TitleDragStart = this.PointToScreen(new Point(e.X, e.Y));
+                    TitleDragEnd = this.PointToScreen(new Point(e.X, e.Y));
+                }
+            };
+            control.MouseUp += (s,e)=>
+            {
+                bool isdragendevent = false;
+                if (e.Button == MouseButtons.Left)
+                {
+                    if (!IsTitleDraging && TitleDragStart != Point.Empty)
+                    {
+                        var pt = this.PointToScreen(e.Location);
+                        IsTitleDraging = Math.Abs(pt.X - TitleDragStart.X) > 0 || Math.Abs(pt.Y - TitleDragStart.Y) > 0; //&& ((DragEnd.X > DragStart.X && dragSource != tabExDic.Last().Value) || (DragEnd.X < DragStart.X && dragSource != tabExDic.First().Value));
+                    }
+
+                    if (IsTitleDraging)
+                    {
+                        isdragendevent = true;
+
+                    }
+
+                    if (isdragendevent)
+                    {
+                        OnTabDragEnd(null);
+                    }
+
+                    if (IsTitleDraging)
+                    {
+
+                        IsTitleDraging = false;
+                    }
+                }
+                control.Cursor = Cursors.Default;
+                TitleDragStart = Point.Empty;
+                TitleDragEnd = Point.Empty;
+            };
+
+            void OnTabDragOver(DragEventArgs drgevent)
+            {
+                var loc = Location;
+                loc.Offset(TitleDragEnd.X - TitleDragStart.X, TitleDragEnd.Y - TitleDragStart.Y);
+                Location = loc;
+                control.Cursor = Cursors.Hand;
+                Invalidate();
+                //this.Parent.Invalidate(true);
+            }
+        }
+
+        private void SetLinkAble(Control lb,Control panel,bool isOutPut)
         {
             bool isDraging = false;
             Point dragStart = Point.Empty;
@@ -750,7 +828,7 @@ namespace NETDBHelper.UC
                 }
             }
 
-            DrawAble(lb, panel, isOutPut);
+            SetLinkAble(lb, panel, isOutPut);
 
 
             lb.DoubleClick += (s, ee) =>
@@ -889,10 +967,6 @@ namespace NETDBHelper.UC
                     }
                 };
 
-                this.LBTabname.MouseMove += OnLBTabnameMouseMove;
-                this.LBTabname.MouseDown += OnLBTabnameMouseDown;
-                this.LBTabname.MouseUp += OnLBTabnameMouseUp;
-
                 BindColumns();
                 this.Height = ColumnsPanel.Location.Y + ColumnsPanel.Height + 1;
             }
@@ -919,9 +993,6 @@ namespace NETDBHelper.UC
                 }).ToList();
                 BindColumns();
 
-                this.LBTabname.MouseMove += OnLBTabnameMouseMove;
-                this.LBTabname.MouseDown += OnLBTabnameMouseDown;
-                this.LBTabname.MouseUp += OnLBTabnameMouseUp;
                 this.LBTabname.DoubleClick += LBTabname_DoubleClick;
                 this.LBTabname.MouseHover += (ss, ee) =>
                 {
@@ -966,9 +1037,6 @@ namespace NETDBHelper.UC
                     BindColumns();
                 }
 
-                this.LBTabname.MouseMove += OnLBTabnameMouseMove;
-                this.LBTabname.MouseDown += OnLBTabnameMouseDown;
-                this.LBTabname.MouseUp += OnLBTabnameMouseUp;
                 this.LBTabname.DoubleClick += LBTabname_DoubleClick;
                 this.LBTabname.MouseHover += (ss, ee) =>
                 {
@@ -992,6 +1060,23 @@ namespace NETDBHelper.UC
                 ColumnsPanelOutPut.DoubleClick += ColumnsPanelOutPut_DoubleClick;
                 CBCoumnsOutput.Visible = false;
             }
+
+            pbDraw = new PictureBox();
+            pbDraw.BackColor = Color.Transparent;
+            pbDraw.Image = Resource1.arrow_nsew;
+            
+            var loc = CBTables.Location;
+            loc.Offset(1, 1);
+            pbDraw.Location = loc;
+            pbDraw.Width = Resource1.arrow_nsew.Width;
+            pbDraw.Height = Resource1.arrow_nsew.Height;
+            LBTabname.Padding = new Padding(Resource1.arrow_nsew.Width, LBTabname.Padding.Top, LBTabname.Padding.Right, LBTabname.Padding.Bottom);
+            Controls.Add(pbDraw);
+            pbDraw.BringToFront();
+            SetDrawAble(pbDraw);
+            pbDraw.Visible = !CBTables.Visible;
+
+            SetLinkAble(LBTabname, LBTabname.Parent, false);
         }
 
         private void ColumnsPanelOutPut_DoubleClick(object sender, EventArgs e)
@@ -1029,83 +1114,6 @@ namespace NETDBHelper.UC
                     BindColumns();
                 }
             }
-        }
-
-        protected void OnLBTabnameMouseMove(object sender, MouseEventArgs e)
-        {
-            if (e.Button == MouseButtons.Left)
-            {
-                //var rect = new Rectangle(this.Location, this.Size);
-                //if (rect.Contains(e.Location))
-                {
-                    var pt = this.PointToScreen(e.Location);
-                    IsTitleDraging = Math.Abs(pt.X - TitleDragEnd.X) > 2 || Math.Abs(pt.Y - TitleDragEnd.Y) > 2; //&& ((DragEnd.X > DragStart.X && dragSource != tabExDic.Last().Value) || (DragEnd.X < DragStart.X && dragSource != tabExDic.First().Value));
-                    if (IsTitleDraging)
-                    {
-                        TitleDragStart = TitleDragEnd;
-                        TitleDragEnd = pt;
-                    }
-
-                    if (IsTitleDraging)
-                    {
-                        OnTabDragOver(null);
-                    }
-                }
-
-            }
-        }
-
-        protected void OnLBTabnameMouseUp(object sender, MouseEventArgs e)
-        {
-            bool isdragendevent = false;
-            if (e.Button == MouseButtons.Left)
-            {
-                if (!IsTitleDraging && TitleDragStart != Point.Empty)
-                {
-                    var pt = this.PointToScreen(e.Location);
-                    IsTitleDraging = Math.Abs(pt.X - TitleDragStart.X) > 0 || Math.Abs(pt.Y - TitleDragStart.Y) > 0; //&& ((DragEnd.X > DragStart.X && dragSource != tabExDic.Last().Value) || (DragEnd.X < DragStart.X && dragSource != tabExDic.First().Value));
-                }
-
-                if (IsTitleDraging)
-                {
-                    isdragendevent = true;
-
-                }
-
-                if (isdragendevent)
-                {
-                    OnTabDragEnd(null);
-                }
-
-                if (IsTitleDraging)
-                {
-
-                    IsTitleDraging = false;
-                }
-            }
-
-            TitleDragStart = Point.Empty;
-            TitleDragEnd = Point.Empty;
-        }
-
-        protected void OnLBTabnameMouseDown(object sender, MouseEventArgs e)
-        {
-            if (e.Button == MouseButtons.Left)
-            {
-                //IsDraging = true;
-                TitleDragStart = this.PointToScreen(new Point(e.X, e.Y));
-                TitleDragEnd = this.PointToScreen(new Point(e.X, e.Y));
-            }
-        }
-
-        private void OnTabDragOver(DragEventArgs drgevent)
-        {
-            var loc = this.Location;
-            loc.Offset(TitleDragEnd.X - TitleDragStart.X, TitleDragEnd.Y - TitleDragStart.Y);
-            this.Location = loc;
-
-            this.Invalidate();
-            //this.Parent.Invalidate(true);
         }
 
         private void OnTabDragEnd(DragEventArgs drgevent)
