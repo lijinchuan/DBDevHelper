@@ -163,7 +163,12 @@ namespace NETDBHelper.UC
             {
                 TBName = CBTables.Text;
                 LBTabname.Text = issamedb ? $"{TBName}" : $"[{DBName}].{TBName}";
-
+                LBTabname.Tag = new TBColumn
+                {
+                    DBName=DBName,
+                    TBName=TBName,
+                    Name=DBName+"."+TBName
+                };
                 LBTabname.Visible = true;
                 LBTabname.Location = new Point(1, 1);
                 LBTabname.Width = this.Width - 2;
@@ -358,6 +363,19 @@ namespace NETDBHelper.UC
                 if (colname.Equals("Text", StringComparison.OrdinalIgnoreCase))
                 {
                     return NoteTextBox.Parent.RectangleToScreen(NoteTextBox.Bounds);
+                }
+                return Rectangle.Empty;
+            }
+            if (colname.IndexOf('.') > -1)
+            {
+                colname =TrimTableName(colname.Split('.')[1]);
+                if (IsTempTable)
+                {
+                    colname = "#" + colname;
+                }
+                if (LBTabname.Text.Equals(colname, StringComparison.OrdinalIgnoreCase))
+                {
+                    return LBTabname.Parent.RectangleToScreen(LBTabname.Bounds);
                 }
                 return Rectangle.Empty;
             }
@@ -1075,6 +1093,16 @@ namespace NETDBHelper.UC
             pbDraw.BringToFront();
             SetDrawAble(pbDraw);
             pbDraw.Visible = !CBTables.Visible;
+
+            if (!string.IsNullOrWhiteSpace(TBName))
+            {
+                LBTabname.Tag = new TBColumn
+                {
+                    DBName = DBName,
+                    TBName = TBName,
+                    Name = DBName + "." + TBName
+                };
+            }
 
             SetLinkAble(LBTabname, LBTabname.Parent, false);
         }
