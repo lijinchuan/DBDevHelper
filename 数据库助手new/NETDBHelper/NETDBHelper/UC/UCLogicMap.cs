@@ -88,6 +88,12 @@ namespace NETDBHelper.UC
             TSMI_CopyTable.Click += TSMI_CopyTable_Click;
             TSMI_AddNote.Click += TSMI_AddNote_Click;
             TSMI_AddTempTable.Click += TSMI_AddTempTable_Click;
+            TSMI_Invalidate.Click += TSMI_Invalidate_Click;
+        }
+
+        private void TSMI_Invalidate_Click(object sender, EventArgs e)
+        {
+            PanelMap.Invalidate();
         }
 
         private void TSMI_AddTempTable_Click(object sender, EventArgs e)
@@ -278,7 +284,7 @@ namespace NETDBHelper.UC
                 else
                 {
                     //location.Offset(-this.PanelMap.AutoScrollPosition.X, -this.PanelMap.AutoScrollPosition.Y);
-                    var col = this.FindColumn(location);
+                    var col = FindColumn(location);
                     if (col != null)
                     {
                         TSMDelRelColumn.Enabled = true;
@@ -376,13 +382,13 @@ namespace NETDBHelper.UC
             var list = BigEntityTableRemotingEngine.Find<LogicMapTable>(nameof(LogicMapTable),
                 p =>
                 {
-                    return p.LogicID == this._logicMapId;
+                    return p.LogicID == _logicMapId;
                 }).ToList();
             reltblist.AddRange(list.Select(p => new Tuple<string, string>(p.DBName, p.TBName)));
 
             var allrelcolumnlist = BigEntityTableRemotingEngine.Find<LogicMapRelColumn>(nameof(LogicMapRelColumn), r =>
             {
-                return r.LogicID == this._logicMapId;
+                return r.LogicID == _logicMapId;
             }).ToList();
 
             reltblist.AddRange(allrelcolumnlist.Select(p => new Tuple<string, string>(p.DBName, p.TBName)));
@@ -398,7 +404,7 @@ namespace NETDBHelper.UC
                     continue;
                 }
 
-                UCLogicTableView tv = new UCLogicTableView(DBSource, this._DBName.Equals(item.Item1, StringComparison.OrdinalIgnoreCase), item.Item1, item.Item2,this._logicMapId, () =>
+                UCLogicTableView tv = new UCLogicTableView(DBSource, _DBName.Equals(item.Item1, StringComparison.OrdinalIgnoreCase), item.Item1, item.Item2,this._logicMapId, () =>
                 {
                     var tblist = new List<Tuple<string, string>>();
                     foreach (var tb in ucTableViews)
@@ -448,7 +454,7 @@ namespace NETDBHelper.UC
 
         private void PanelMap_Paint(object sender, PaintEventArgs e)
         {
-            DrawLinkLine(this.PanelMap, e.Graphics);
+            DrawLinkLine(PanelMap, e.Graphics);
         }
 
         private Point GetMax(Point p1, Point p2)
@@ -496,7 +502,7 @@ namespace NETDBHelper.UC
                     if (relColumnIces == null)
                     {
                         relColumnIces = new List<LogicMapRelColumnEx>();
-                        var othertables = ucTableViews.Where(p => !string.IsNullOrEmpty(p.TableName)).Select(p => new Tuple<string, string>(p.DataBaseName, p.TableName)).Distinct().ToList();
+                        //var othertables = ucTableViews.Where(p => !string.IsNullOrEmpty(p.TableName)).Select(p => new Tuple<string, string>(p.DataBaseName, p.TableName)).Distinct().ToList();
                         var allrelcolumnlist = BigEntityTableRemotingEngine.Scan<LogicMapRelColumn>(nameof(LogicMapRelColumn), "LogicID", new object[] { this._logicMapId },
                             new object[] { this._logicMapId }, 1, int.MaxValue);
 
@@ -545,25 +551,25 @@ namespace NETDBHelper.UC
                     oldstartpos.Offset(-20, 0);
                     oldendpos.Offset(20, 0);
                     Point startpt = Point.Empty, destpt = Point.Empty;
-                    oldstartpos.Offset(this.PanelMap.AutoScrollPosition.X, this.PanelMap.AutoScrollPosition.Y);
+                    oldstartpos.Offset(PanelMap.AutoScrollPosition.X, PanelMap.AutoScrollPosition.Y);
                     var col = FindColumn(oldstartpos);
                     bool haschange = false;
                     if (col == null || item.Start.IsEmpty || !col.Name.Equals(item.RelColumn.ColName, StringComparison.OrdinalIgnoreCase)
                         || !col.TBName.Equals(item.RelColumn.TBName, StringComparison.OrdinalIgnoreCase))
                     {
-                        startpt = this.FindColumnScreenStartPoint(item.RelColumn.DBName, item.RelColumn.TBName, item.RelColumn.ColName,item.RelColumn.IsOutPut);
+                        startpt = FindColumnScreenStartPoint(item.RelColumn.DBName, item.RelColumn.TBName, item.RelColumn.ColName,item.RelColumn.IsOutPut);
                         if (!startpt.IsEmpty)
                         {
                             item.Start = startpt;
                         }
                         haschange = true;
                     }
-                    oldendpos.Offset(this.PanelMap.AutoScrollPosition.X, PanelMap.AutoScrollPosition.Y);
+                    oldendpos.Offset(PanelMap.AutoScrollPosition.X, PanelMap.AutoScrollPosition.Y);
                     col = FindColumn(oldendpos);
                     if (col == null || item.Dest.IsEmpty || !col.Name.Equals(item.RelColumn.RelColName, StringComparison.OrdinalIgnoreCase)
                         || !col.TBName.Equals(item.RelColumn.RelTBName, StringComparison.OrdinalIgnoreCase))
                     {
-                        destpt = this.FindColumnScreenEndPoint(item.RelColumn.RelDBName, item.RelColumn.RelTBName, item.RelColumn.RelColName,item.RelColumn.ReIsOutPut);
+                        destpt = FindColumnScreenEndPoint(item.RelColumn.RelDBName, item.RelColumn.RelTBName, item.RelColumn.RelColName,item.RelColumn.ReIsOutPut);
                         if (!destpt.IsEmpty)
                         {
                             item.Dest = destpt;
@@ -621,9 +627,9 @@ namespace NETDBHelper.UC
                                 p.CustomEndCap = arrowCap;
                             }
                             var p1 = points[i - 1];
-                            p1.Offset(this.PanelMap.AutoScrollPosition.X, this.PanelMap.AutoScrollPosition.Y);
+                            p1.Offset(PanelMap.AutoScrollPosition.X, this.PanelMap.AutoScrollPosition.Y);
                             var p2 = points[i];
-                            p2.Offset(this.PanelMap.AutoScrollPosition.X, this.PanelMap.AutoScrollPosition.Y);
+                            p2.Offset(PanelMap.AutoScrollPosition.X, this.PanelMap.AutoScrollPosition.Y);
                             g.DrawLine(p, p1, p2);
                             //g.DrawPie(p, new RectangleF(points[i], new SizeF(5, 5)), 0, 360);
                         }
@@ -635,7 +641,7 @@ namespace NETDBHelper.UC
                             List<Tuple<Point, Point>> linelist = new List<Tuple<Point, Point>>();
                             for (int i = 1; i <= points.Length - 1; i++)
                             {
-                                linelist.Add(Tuple.Create<Point, Point>(points[i - 1], points[i]));
+                                linelist.Add(Tuple.Create(points[i - 1], points[i]));
                             }
                             linelist = linelist.OrderByDescending(q => Math.Max(Math.Abs(q.Item1.X - q.Item2.X), Math.Abs(q.Item1.Y - q.Item2.Y))).ToList();
                             for (var x = 0; x < linelist.Count; x++)
@@ -705,7 +711,7 @@ namespace NETDBHelper.UC
                                     {
                                         var rect = tb.Bounds;
                                         var newrect = rect;//new Rectangle(rect.X - 15, rect.Y - 15, rect.Width + 30, rect.Height + 30);
-                                        newrect.Offset(-this.PanelMap.AutoScrollPosition.X, -this.PanelMap.AutoScrollPosition.Y);
+                                        newrect.Offset(-PanelMap.AutoScrollPosition.X, -PanelMap.AutoScrollPosition.Y);
                                         if (p1.X == p2.X)
                                         {
                                             if (Math.Abs(newrect.X - p1.X) < 10)
@@ -871,7 +877,7 @@ namespace NETDBHelper.UC
 
                                         var rect = new Rectangle(xstart, p1.Y, (int)sf.Width + 20, (int)sf.Height);
                                         rect.Offset((int)(Math.Abs(xend - xstart) / 2 - sf.Width / 2), -(int)(sf.Height / 2));
-                                        rect.Offset(this.PanelMap.AutoScrollPosition.X, this.PanelMap.AutoScrollPosition.Y);
+                                        rect.Offset(PanelMap.AutoScrollPosition.X, PanelMap.AutoScrollPosition.Y);
                                         item.DescRect = rect;
                                         g.DrawString(item.RelColumn.Desc, f, new SolidBrush(p.Color), item.DescRect);
                                     }
@@ -922,7 +928,7 @@ namespace NETDBHelper.UC
                     if (!rect.IsEmpty)
                     {
                         var pt = rect.Location;
-                        pt.Offset(-this.PanelMap.AutoScrollPosition.X, -this.PanelMap.AutoScrollPosition.Y);
+                        pt.Offset(-PanelMap.AutoScrollPosition.X, -PanelMap.AutoScrollPosition.Y);
                         var offsetx = new Random(Guid.NewGuid().GetHashCode()).Next(2, rect.Height - 2);
                         pt.Offset(rect.Width + 6, offsetx);
                         return pt;
@@ -943,7 +949,7 @@ namespace NETDBHelper.UC
                     if (!rect.IsEmpty)
                     {
                         var pt = rect.Location;
-                        pt.Offset(-this.PanelMap.AutoScrollPosition.X, -this.PanelMap.AutoScrollPosition.Y);
+                        pt.Offset(-PanelMap.AutoScrollPosition.X, -PanelMap.AutoScrollPosition.Y);
                         var offsetx = new Random(Guid.NewGuid().GetHashCode()).Next(2, rect.Height - 2);
                         //pt.Offset(-10, rect.Height / 2);
                         pt.Offset(-10, offsetx);

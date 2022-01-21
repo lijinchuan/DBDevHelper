@@ -40,6 +40,7 @@
             this.TSMI_CopyTable = new System.Windows.Forms.ToolStripMenuItem();
             this.TSMI_AddNote = new System.Windows.Forms.ToolStripMenuItem();
             this.PanelMap = new System.Windows.Forms.Panel();
+            this.TSMI_Invalidate = new System.Windows.Forms.ToolStripMenuItem();
             this.CMSOpMenu.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -54,9 +55,10 @@
             this.TSMI_CopyTableName,
             this.TSMI_CopyColName,
             this.TSMI_CopyTable,
-            this.TSMI_AddNote});
+            this.TSMI_AddNote,
+            this.TSMI_Invalidate});
             this.CMSOpMenu.Name = "CMSOpMenu";
-            this.CMSOpMenu.Size = new System.Drawing.Size(149, 202);
+            this.CMSOpMenu.Size = new System.Drawing.Size(149, 224);
             // 
             // 添加表ToolStripMenuItem
             // 
@@ -122,6 +124,12 @@
             this.PanelMap.Size = new System.Drawing.Size(200, 100);
             this.PanelMap.TabIndex = 0;
             // 
+            // TSMI_Invalidate
+            // 
+            this.TSMI_Invalidate.Name = "TSMI_Invalidate";
+            this.TSMI_Invalidate.Size = new System.Drawing.Size(148, 22);
+            this.TSMI_Invalidate.Text = "刷新";
+            // 
             // UCLogicMap
             // 
             this.Controls.Add(this.PanelMap);
@@ -143,5 +151,6 @@
         private System.Windows.Forms.ToolStripMenuItem TSMI_CopyTable;
         private System.Windows.Forms.ToolStripMenuItem TSMI_AddTempTable;
         private System.Windows.Forms.ToolStripMenuItem TSMI_AddNote;
+        private System.Windows.Forms.ToolStripMenuItem TSMI_Invalidate;
     }
 }

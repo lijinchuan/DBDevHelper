@@ -368,7 +368,15 @@ namespace NETDBHelper.UC
             }
             if (colname.IndexOf('.') > -1)
             {
-                colname =TrimTableName(colname.Split('.')[1]);
+                var subColanme = TrimTableName(colname).Split('.');
+                if (subColanme[0].Equals(DBName, StringComparison.OrdinalIgnoreCase))
+                {
+                    colname = subColanme[1];
+                }
+                else
+                {
+                    colname = $"[{subColanme[0]}].{subColanme[1]}";
+                }
                 if (IsTempTable)
                 {
                     colname = "#" + colname;
@@ -385,12 +393,9 @@ namespace NETDBHelper.UC
                 if (lb is Label)
                 {
                     var tag = (lb as Label).Tag;
-                    if (tag is TBColumn)
+                    if (tag is TBColumn && (tag as TBColumn).Name.Equals(colname, StringComparison.OrdinalIgnoreCase))
                     {
-                        if ((tag as TBColumn).Name.Equals(colname, StringComparison.OrdinalIgnoreCase))
-                        {
-                            return lb.Parent.RectangleToScreen(lb.Bounds);
-                        }
+                        return lb.Parent.RectangleToScreen(lb.Bounds);
                     }
                 }
             }
@@ -486,7 +491,7 @@ namespace NETDBHelper.UC
             {
                 if (ee.Button == MouseButtons.Left)
                 {
-                    var parentpannel = this.Parent as Panel;
+                    var parentpannel = Parent as ScrollableControl;
                     var pp = parentpannel.PointToClient(lb.PointToScreen(ee.Location));
                     pp.Offset(-parentpannel.AutoScrollPosition.X, -parentpannel.AutoScrollPosition.Y);
 
@@ -587,7 +592,7 @@ namespace NETDBHelper.UC
                             }
                         }
 
-                        this.Invalidate();
+                        Invalidate();
                     }
                 }
             };
