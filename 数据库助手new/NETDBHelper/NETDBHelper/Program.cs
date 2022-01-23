@@ -230,20 +230,38 @@ namespace NETDBHelper
             var indexInfos = new IndexBuilder<LogicMapRelColumn>().AddIndex("LogicID", m => m.Asc(f => f.LogicID))
             .AddIndex("LSDTC", m => m.Asc(f => f.LogicID).Asc(f => f.DBName).Asc(f => f.TBName))
             .AddIndex("LSDRTC", m => m.Asc(f => f.LogicID).Asc(f => f.RelDBName).Asc(f => f.RelTBName)).Build();
-            BigEntityTableEngine.LocalEngine.Upgrade<Entity.OldVesion.LogicMapRelColumn, LogicMapRelColumn>(nameof(LogicMapRelColumn),
+
+            //BigEntityTableEngine.LocalEngine.Upgrade<Entity.OldVesion.LogicMapRelColumn, LogicMapRelColumn>(nameof(LogicMapRelColumn),
+            //    s => new LogicMapRelColumn
+            //{
+            //    ColName=s.ColName,
+            //    DBName=s.DBName,
+            //    Desc=s.Desc,
+            //    IsOutPut=false,
+            //    IsVirtual=false,
+            //    LogicID=s.LogicID,
+            //    RelColName=s.RelColName,
+            //    RelDBName=s.RelDBName,
+            //    RelTBName=s.RelTBName,
+            //    TBName=s.TBName
+            //}, nameof(LogicMapRelColumn.ID), true, indexInfos);
+
+            BigEntityTableEngine.LocalEngine.Upgrade<Entity.OldVesion.LogicMapRelColumnV2, LogicMapRelColumn>(nameof(LogicMapRelColumn),
                 s => new LogicMapRelColumn
-            {
-                ColName=s.ColName,
-                DBName=s.DBName,
-                Desc=s.Desc,
-                IsOutPut=false,
-                IsVirtual=false,
-                LogicID=s.LogicID,
-                RelColName=s.RelColName,
-                RelDBName=s.RelDBName,
-                RelTBName=s.RelTBName,
-                TBName=s.TBName
-            }, nameof(LogicMapRelColumn.ID), true, indexInfos);
+                {
+                    ColName = s.ColName,
+                    DBName = s.DBName,
+                    Desc = s.Desc,
+                    IsOutPut = false,
+                    IsVirtual = false,
+                    LogicID = s.LogicID,
+                    RelColName = s.RelColName,
+                    RelDBName = s.RelDBName,
+                    RelTBName = s.RelTBName,
+                    TBName = s.TBName,
+                    ReIsOutPut=s.ReIsOutPut,
+                    ReIsVirtual=s.ReIsVirtual
+                }, nameof(LogicMapRelColumn.ID), true, indexInfos);
 
             BigEntityTableEngine.LocalEngine.CreateTable<TempNotesTable>(p => p.Id, b => b.AddIndex(nameof(TempNotesTable.TBName), m => m.Asc(k => k.TBName)));
 

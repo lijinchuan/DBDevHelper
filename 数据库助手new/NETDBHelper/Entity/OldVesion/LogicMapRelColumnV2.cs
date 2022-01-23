@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Entity
+namespace Entity.OldVesion
 {
     /// <summary>
     /// 关联字段
     /// </summary>
-    public class LogicMapRelColumn
+    public class LogicMapRelColumnV2
     {
         public int ID
         {
@@ -95,15 +95,6 @@ namespace Entity
         /// 是否是虚拟
         /// </summary>
         public bool ReIsVirtual
-        {
-            get;
-            set;
-        }
-        
-        /// <summary>
-        /// 0-innerJon 1-left/right join 2-fulljoin
-        /// </summary>
-        public int JoinType
         {
             get;
             set;

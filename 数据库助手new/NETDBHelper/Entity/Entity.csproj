@@ -71,6 +71,7 @@
     <Compile Include="MSSQLTypeEnum.cs" />
     <Compile Include="NodeContents.cs" />
     <Compile Include="NodeContentType.cs" />
+    <Compile Include="OldVesion\LogicMapRelColumnV2.cs" />
     <Compile Include="OldVesion\LogicMapRelColumn.cs" />
     <Compile Include="ProcInfo.cs" />
     <Compile Include="ProcParamInfo.cs" />

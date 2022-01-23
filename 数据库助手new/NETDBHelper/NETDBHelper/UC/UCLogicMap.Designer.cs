@@ -39,8 +39,12 @@
             this.TSMI_CopyColName = new System.Windows.Forms.ToolStripMenuItem();
             this.TSMI_CopyTable = new System.Windows.Forms.ToolStripMenuItem();
             this.TSMI_AddNote = new System.Windows.Forms.ToolStripMenuItem();
-            this.PanelMap = new System.Windows.Forms.Panel();
             this.TSMI_Invalidate = new System.Windows.Forms.ToolStripMenuItem();
+            this.TSMIJoinType = new System.Windows.Forms.ToolStripMenuItem();
+            this.TSMIInnerJoin = new System.Windows.Forms.ToolStripMenuItem();
+            this.TSMILeftRightJoin = new System.Windows.Forms.ToolStripMenuItem();
+            this.TSMIFullJoin = new System.Windows.Forms.ToolStripMenuItem();
+            this.PanelMap = new System.Windows.Forms.Panel();
             this.CMSOpMenu.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -56,64 +60,99 @@
             this.TSMI_CopyColName,
             this.TSMI_CopyTable,
             this.TSMI_AddNote,
-            this.TSMI_Invalidate});
+            this.TSMI_Invalidate,
+            this.TSMIJoinType});
             this.CMSOpMenu.Name = "CMSOpMenu";
-            this.CMSOpMenu.Size = new System.Drawing.Size(149, 224);
+            this.CMSOpMenu.Size = new System.Drawing.Size(181, 268);
             // 
             // 添加表ToolStripMenuItem
             // 
             this.添加表ToolStripMenuItem.Name = "添加表ToolStripMenuItem";
-            this.添加表ToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
+            this.添加表ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.添加表ToolStripMenuItem.Text = "添加表";
             // 
             // TSMI_AddTempTable
             // 
             this.TSMI_AddTempTable.Name = "TSMI_AddTempTable";
-            this.TSMI_AddTempTable.Size = new System.Drawing.Size(148, 22);
+            this.TSMI_AddTempTable.Size = new System.Drawing.Size(180, 22);
             this.TSMI_AddTempTable.Text = "添加中间表";
             this.TSMI_AddTempTable.Click += new System.EventHandler(this.添加中间表ToolStripMenuItem_Click);
             // 
             // delStripMenuItem
             // 
             this.delStripMenuItem.Name = "delStripMenuItem";
-            this.delStripMenuItem.Size = new System.Drawing.Size(148, 22);
+            this.delStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.delStripMenuItem.Text = "删除表";
             // 
             // TSMDelRelColumn
             // 
             this.TSMDelRelColumn.Name = "TSMDelRelColumn";
-            this.TSMDelRelColumn.Size = new System.Drawing.Size(148, 22);
+            this.TSMDelRelColumn.Size = new System.Drawing.Size(180, 22);
             this.TSMDelRelColumn.Text = "删除字段关联";
             // 
             // TSMI_Export
             // 
             this.TSMI_Export.Name = "TSMI_Export";
-            this.TSMI_Export.Size = new System.Drawing.Size(148, 22);
+            this.TSMI_Export.Size = new System.Drawing.Size(180, 22);
             this.TSMI_Export.Text = "导出为图片";
             // 
             // TSMI_CopyTableName
             // 
             this.TSMI_CopyTableName.Name = "TSMI_CopyTableName";
-            this.TSMI_CopyTableName.Size = new System.Drawing.Size(148, 22);
+            this.TSMI_CopyTableName.Size = new System.Drawing.Size(180, 22);
             this.TSMI_CopyTableName.Text = "复制表名";
             // 
             // TSMI_CopyColName
             // 
             this.TSMI_CopyColName.Name = "TSMI_CopyColName";
-            this.TSMI_CopyColName.Size = new System.Drawing.Size(148, 22);
+            this.TSMI_CopyColName.Size = new System.Drawing.Size(180, 22);
             this.TSMI_CopyColName.Text = "复制字段名";
             // 
             // TSMI_CopyTable
             // 
             this.TSMI_CopyTable.Name = "TSMI_CopyTable";
-            this.TSMI_CopyTable.Size = new System.Drawing.Size(148, 22);
+            this.TSMI_CopyTable.Size = new System.Drawing.Size(180, 22);
             this.TSMI_CopyTable.Text = "复制表";
             // 
             // TSMI_AddNote
             // 
             this.TSMI_AddNote.Name = "TSMI_AddNote";
-            this.TSMI_AddNote.Size = new System.Drawing.Size(148, 22);
+            this.TSMI_AddNote.Size = new System.Drawing.Size(180, 22);
             this.TSMI_AddNote.Text = "添加注释";
+            // 
+            // TSMI_Invalidate
+            // 
+            this.TSMI_Invalidate.Name = "TSMI_Invalidate";
+            this.TSMI_Invalidate.Size = new System.Drawing.Size(180, 22);
+            this.TSMI_Invalidate.Text = "刷新";
+            // 
+            // TSMIJoinType
+            // 
+            this.TSMIJoinType.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.TSMIInnerJoin,
+            this.TSMILeftRightJoin,
+            this.TSMIFullJoin});
+            this.TSMIJoinType.Name = "TSMIJoinType";
+            this.TSMIJoinType.Size = new System.Drawing.Size(180, 22);
+            this.TSMIJoinType.Text = "关联方式";
+            // 
+            // TSMIInnerJoin
+            // 
+            this.TSMIInnerJoin.Name = "TSMIInnerJoin";
+            this.TSMIInnerJoin.Size = new System.Drawing.Size(180, 22);
+            this.TSMIInnerJoin.Text = "一对一";
+            // 
+            // TSMILeftRightJoin
+            // 
+            this.TSMILeftRightJoin.Name = "TSMILeftRightJoin";
+            this.TSMILeftRightJoin.Size = new System.Drawing.Size(180, 22);
+            this.TSMILeftRightJoin.Text = "一对多";
+            // 
+            // TSMIFullJoin
+            // 
+            this.TSMIFullJoin.Name = "TSMIFullJoin";
+            this.TSMIFullJoin.Size = new System.Drawing.Size(180, 22);
+            this.TSMIFullJoin.Text = "多对多";
             // 
             // PanelMap
             // 
@@ -121,18 +160,13 @@
             this.PanelMap.Dock = System.Windows.Forms.DockStyle.Fill;
             this.PanelMap.Location = new System.Drawing.Point(0, 0);
             this.PanelMap.Name = "PanelMap";
-            this.PanelMap.Size = new System.Drawing.Size(200, 100);
+            this.PanelMap.Size = new System.Drawing.Size(150, 150);
             this.PanelMap.TabIndex = 0;
-            // 
-            // TSMI_Invalidate
-            // 
-            this.TSMI_Invalidate.Name = "TSMI_Invalidate";
-            this.TSMI_Invalidate.Size = new System.Drawing.Size(148, 22);
-            this.TSMI_Invalidate.Text = "刷新";
             // 
             // UCLogicMap
             // 
             this.Controls.Add(this.PanelMap);
+            this.Name = "UCLogicMap";
             this.CMSOpMenu.ResumeLayout(false);
             this.ResumeLayout(false);
 
@@ -152,5 +186,9 @@
         private System.Windows.Forms.ToolStripMenuItem TSMI_AddTempTable;
         private System.Windows.Forms.ToolStripMenuItem TSMI_AddNote;
         private System.Windows.Forms.ToolStripMenuItem TSMI_Invalidate;
+        private System.Windows.Forms.ToolStripMenuItem TSMIJoinType;
+        private System.Windows.Forms.ToolStripMenuItem TSMIInnerJoin;
+        private System.Windows.Forms.ToolStripMenuItem TSMILeftRightJoin;
+        private System.Windows.Forms.ToolStripMenuItem TSMIFullJoin;
     }
 }

@@ -80,6 +80,7 @@ namespace NETDBHelper.UC
 
             this.CMSOpMenu.VisibleChanged += CMSOpMenu_VisibleChanged;
             TSMDelRelColumn.DropDownItemClicked += TSMDelRelColumn_DropDownItemClicked;
+            TSMIJoinType.DropDownItemClicked += TSMIJoinType_DropDownItemClicked;
             TSMDelRelColumn.Click += TSMDelRelColumn_Click;
             TSMI_Export.Click += TSMI_Export_Click;
             delStripMenuItem.Click += delStripMenuItem_Click;
@@ -89,6 +90,39 @@ namespace NETDBHelper.UC
             TSMI_AddNote.Click += TSMI_AddNote_Click;
             TSMI_AddTempTable.Click += TSMI_AddTempTable_Click;
             TSMI_Invalidate.Click += TSMI_Invalidate_Click;
+        }
+
+        private void TSMIJoinType_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+            if (TSMIJoinType.Tag is LogicMapRelColumnEx)
+            {
+                var rel = (LogicMapRelColumnEx)TSMIJoinType.Tag;
+                var joinType = 0;
+                switch (e.ClickedItem.Text)
+                {
+                    case "一对一":
+                        {
+                            joinType = 0;
+                            break;
+                        }
+                    case "一对多":
+                        {
+                            joinType = 1;
+                            break;
+                        }
+                    case "多对多":
+                        {
+                            joinType = 2;
+                            break;
+                        }
+                }
+                if (rel.RelColumn.JoinType != joinType)
+                {
+                    rel.RelColumn.JoinType = joinType;
+                    BigEntityTableRemotingEngine.Update(nameof(LogicMapRelColumn), rel.RelColumn);
+                    PanelMap.Invalidate();
+                }
+            }
         }
 
         private void TSMI_Invalidate_Click(object sender, EventArgs e)
@@ -223,6 +257,11 @@ namespace NETDBHelper.UC
                         g.TranslateTransform(this.PanelMap.AutoScrollPosition.X, this.PanelMap.AutoScrollPosition.Y);
                         using (var p = new Pen(relColumnEx.LineColor, 2))
                         {
+                            if (relColumnEx.RelColumn.JoinType == 2)
+                            {
+                                p.DashStyle = DashStyle.Dash;
+                                // p.DashPattern = new float[] { 5, 5 };
+                            }
                             var points = relColumnEx.LinkLines;
                             for (var i = 1; i < points.Length; i++)
                             {
@@ -232,8 +271,11 @@ namespace NETDBHelper.UC
                                 }
                                 else
                                 {
-                                    AdjustableArrowCap arrowCap = new AdjustableArrowCap(p.Width * 2 + 1, p.Width + 2 + 1, true);
-                                    p.CustomEndCap = arrowCap;
+                                    if (relColumnEx.RelColumn.JoinType == 1)
+                                    {
+                                        AdjustableArrowCap arrowCap = new AdjustableArrowCap(p.Width * 2 + 1, p.Width + 2 + 1, true);
+                                        p.CustomEndCap = arrowCap;
+                                    }
                                 }
                                 g.DrawLine(p, points[i - 1], points[i]);
                             }
@@ -254,7 +296,7 @@ namespace NETDBHelper.UC
 
         private int GetDrawWidth()
         {
-            return Math.Max(this.PanelMap.Width, this.PanelMap.HorizontalScroll.Maximum);
+            return Math.Max(PanelMap.Width, this.PanelMap.HorizontalScroll.Maximum);
         }
 
         private int GetDrawHeight()
@@ -268,10 +310,12 @@ namespace NETDBHelper.UC
             if (CMSOpMenu.Visible)
             {
                 TSMDelRelColumn.Enabled = false;
-                var location = new Point(this.CMSOpMenu.Left, this.CMSOpMenu.Top);
+                TSMIJoinType.Enabled = false;
+                TSMIJoinType.Tag = null;
+                var location = new Point(CMSOpMenu.Left, this.CMSOpMenu.Top);
                 if (hashotline)
                 {
-                    var relColumnEx = this.FindHotLine(this.PanelMap.PointToClient(location));
+                    var relColumnEx = FindHotLine(this.PanelMap.PointToClient(location));
                     if (relColumnEx != null)
                     {
                         var ts = new ToolStripMenuItem();
@@ -279,7 +323,8 @@ namespace NETDBHelper.UC
                         ts.Tag = relColumnEx.RelColumn;
                         TSMDelRelColumn.DropDownItems.Add(ts);
                     }
-                    TSMDelRelColumn.Enabled = TSMDelRelColumn.DropDownItems.Count > 0;
+                    TSMDelRelColumn.Enabled = TSMIJoinType.Enabled = TSMDelRelColumn.DropDownItems.Count > 0;
+                    TSMIJoinType.Tag = relColumnEx;
                 }
                 else
                 {
@@ -325,9 +370,9 @@ namespace NETDBHelper.UC
                         rc.ID))
                     {
                         TSMDelRelColumn.DropDownItems.Remove(e.ClickedItem);
-                        this.relColumnIces.RemoveAll(p => p.RelColumn.ID == ((LogicMapRelColumn)e.ClickedItem.Tag).ID);
+                        relColumnIces.RemoveAll(p => p.RelColumn.ID == ((LogicMapRelColumn)e.ClickedItem.Tag).ID);
                     }
-                    this.PanelMap.Invalidate();
+                    PanelMap.Invalidate();
                 }
             }
         }
@@ -618,20 +663,29 @@ namespace NETDBHelper.UC
                     item.LineColor = colors[colori];
                     using (var p = new Pen(colors[colori++], item.IsHotLine ? 2 : 1))
                     {
+                        if (item.RelColumn.JoinType == 2)
+                        {
+                            p.DashStyle = DashStyle.Dash;
+                            // p.DashPattern = new float[] { 5, 5 };
+                        }
                         var points = item.LinkLines;
 
                         for (int i = 1; i <= points.Length - 1; i++)
                         {
                             if (i == points.Length - 1)
                             {
-                                AdjustableArrowCap arrowCap = new AdjustableArrowCap(p.Width * 2 + 1, p.Width + 2 + 1, true);
-                                p.CustomEndCap = arrowCap;
+                                if (item.RelColumn.JoinType == 1)
+                                {
+                                    AdjustableArrowCap arrowCap = new AdjustableArrowCap(p.Width * 2 + 1, p.Width + 2 + 1, true);
+                                    p.CustomEndCap = arrowCap;
+                                }
                             }
                             var p1 = points[i - 1];
                             p1.Offset(PanelMap.AutoScrollPosition.X, this.PanelMap.AutoScrollPosition.Y);
                             var p2 = points[i];
                             p2.Offset(PanelMap.AutoScrollPosition.X, this.PanelMap.AutoScrollPosition.Y);
                             g.DrawLine(p, p1, p2);
+                            
                             //g.DrawPie(p, new RectangleF(points[i], new SizeF(5, 5)), 0, 360);
                         }
 
