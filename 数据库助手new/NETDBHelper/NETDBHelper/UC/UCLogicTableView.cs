@@ -163,11 +163,11 @@ namespace NETDBHelper.UC
             {
                 TBName = CBTables.Text;
                 LBTabname.Text = issamedb ? $"{TBName}" : $"[{DBName}].{TBName}";
-                LBTabname.Tag = new TBColumn
+                LBTabname.Tag = pbDraw.Tag = new TBColumn
                 {
-                    DBName=DBName,
-                    TBName=TBName,
-                    Name=DBName+"."+TBName
+                    DBName = DBName,
+                    TBName = TBName,
+                    Name = DBName + "." + TBName
                 };
                 LBTabname.Visible = true;
                 LBTabname.Location = new Point(1, 1);
@@ -358,14 +358,6 @@ namespace NETDBHelper.UC
 
         public Rectangle FindTBColumnScreenRect(string colname,bool isOutPut)
         {
-            if (IsNoteTable)
-            {
-                if (colname.Equals("Text", StringComparison.OrdinalIgnoreCase))
-                {
-                    return NoteTextBox.Parent.RectangleToScreen(NoteTextBox.Bounds);
-                }
-                return Rectangle.Empty;
-            }
             if (colname.IndexOf('.') > -1)
             {
                 var subColanme = TrimTableName(colname).Split('.');
@@ -377,16 +369,31 @@ namespace NETDBHelper.UC
                 {
                     colname = $"[{subColanme[0]}].{subColanme[1]}";
                 }
-                if (IsTempTable)
+
+                //if (IsTempTable)
+                //{
+                //    colname = "#" + colname;
+                //}
+                if ((IsNoteTable || IsTempTable) && colname.Equals(TableName, StringComparison.OrdinalIgnoreCase))
                 {
-                    colname = "#" + colname;
+                    return LBTabname.Parent.RectangleToScreen(LBTabname.Bounds);
                 }
-                if (LBTabname.Text.Equals(colname, StringComparison.OrdinalIgnoreCase))
+                else if (LBTabname.Text.Equals(colname, StringComparison.OrdinalIgnoreCase))
                 {
                     return LBTabname.Parent.RectangleToScreen(LBTabname.Bounds);
                 }
                 return Rectangle.Empty;
             }
+
+            if (IsNoteTable)
+            {
+                if (colname.Equals("Text", StringComparison.OrdinalIgnoreCase))
+                {
+                    return NoteTextBox.Parent.RectangleToScreen(NoteTextBox.Bounds);
+                }
+                return Rectangle.Empty;
+            }
+            
             var pannel = isOutPut ? ColumnsPanelOutPut : ColumnsPanel;
             foreach (Control lb in pannel.Controls)
             {
@@ -1101,7 +1108,7 @@ namespace NETDBHelper.UC
 
             if (!string.IsNullOrWhiteSpace(TBName))
             {
-                LBTabname.Tag = new TBColumn
+                LBTabname.Tag = pbDraw.Tag = new TBColumn
                 {
                     DBName = DBName,
                     TBName = TBName,

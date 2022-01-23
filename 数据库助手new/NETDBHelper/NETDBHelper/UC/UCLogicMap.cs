@@ -543,8 +543,9 @@ namespace NETDBHelper.UC
             }
             else
             {
+                var validRelColumnIces = relColumnIces.Where(p => !string.IsNullOrEmpty(p.RelColumn.RelColName)).ToList();
                 //更新下
-                foreach (var item in relColumnIces)
+                foreach (var item in validRelColumnIces)
                 {
                     var oldstartpos = item.Start;
                     var oldendpos = item.Dest;
