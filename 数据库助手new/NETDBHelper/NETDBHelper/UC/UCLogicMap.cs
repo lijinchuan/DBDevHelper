@@ -172,7 +172,8 @@ namespace NETDBHelper.UC
 
                     if (i < 1000)
                     {
-                        AddTable(view.DataBaseName, name2, false);
+                        var newtb = AddTable(view.DataBaseName, name2, false);
+                        newtb.BringToFront();
                     }
                 }
             }
@@ -1139,7 +1140,7 @@ namespace NETDBHelper.UC
             return false;
         }
 
-        private void AddTable(string db,string tbname,bool adjustLoaction=true)
+        private UCLogicTableView AddTable(string db,string tbname,bool adjustLoaction=true)
         {
             var location = PanelMap.PointToClient(new Point(CMSOpMenu.Left, CMSOpMenu.Top));
             UCLogicTableView tv = new UCLogicTableView(DBSource, _DBName.Equals(db, StringComparison.OrdinalIgnoreCase), db, tbname,_logicMapId, () =>
@@ -1195,6 +1196,8 @@ namespace NETDBHelper.UC
             };
             tv.Location = location;
             this.PanelMap.Controls.Add(tv);
+
+            return tv;
         }
 
         private void delStripMenuItem_Click(object sender, EventArgs e)
