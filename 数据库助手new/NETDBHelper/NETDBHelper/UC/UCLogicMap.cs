@@ -954,7 +954,7 @@ namespace NETDBHelper.UC
             }
             else
             {
-                Util.ClearMsg(this, "uctablerelmap");
+                //Util.ClearMsg(this, "uctablerelmap");
             }
         }
 
