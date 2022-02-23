@@ -1200,5 +1200,33 @@ where a.Table_NAME='"+viewname+"' and a.TABLE_NAME=b.TABLE_NAME ORDER BY A.TABLE
                 }
             }
         }
+
+        /// <summary>
+        /// 获取外键
+        /// </summary>
+        /// <param name="dbSource"></param>
+        /// <param name="dbName"></param>
+        /// <returns></returns>
+        public static List<ForeignKey> GetForeignKeys(DBSource dbSource, string dbName)
+        {
+            var tb = SQLHelper.ExecuteDBTable(dbSource, dbName, SQLHelperConsts.SQL_GETFOREIGNKYES);
+
+            var list = new List<ForeignKey>();
+
+            foreach (var item in tb.AsEnumerable())
+            {
+                list.Add(new ForeignKey
+                {
+                    ColName = item.Field<string>(nameof(ForeignKey.ColName)),
+                    DBName = dbName,
+                    FKName = item.Field<string>(nameof(ForeignKey.FKName)),
+                    ForeignColName = item.Field<string>(nameof(ForeignKey.ForeignColName)),
+                    ForeignTableName = item.Field<string>(nameof(ForeignKey.ForeignTableName)),
+                    TableName = item.Field<string>(nameof(ForeignKey.TableName)),
+                });
+            }
+
+            return list;
+        }
     }
 }
