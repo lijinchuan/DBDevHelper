@@ -182,64 +182,68 @@ namespace NETDBHelper.UC
             }
 
             List<ThinkInfo> thinkresut = new List<ThinkInfo>();
-            foreach (var item in ThinkInfoLib)
-            {
-                if (!string.IsNullOrEmpty(searchtable) && (item.Type != 2 || !searchtable.Equals((item.Tag as MarkObjectInfo).TBName, StringComparison.OrdinalIgnoreCase)))
-                {
-                    continue;
-                }
 
-                var tagobj = item.Tag as MarkObjectInfo;
-                var desc = tagobj?.MarkInfo??item.Desc;
-                var fullobjectname = item.ObjectName;
-                if (item.Type == 1)
-                {
-                    if (!tagobj.DBName.Equals(_dbname))
-                    {
-                        fullobjectname = $"{tagobj.DBName}.{item.ObjectName}";
-                    }
-                }
-                else if (item.Type == 2)
-                {
-                    if (!tagobj.DBName.Equals(_dbname))
-                    {
-                        fullobjectname = $"{tagobj.DBName}.{item.ObjectName}";
-                    }
-                }
-                if (item.ObjectName.Equals(keys, StringComparison.OrdinalIgnoreCase)
-                    || (item.ObjectName.Equals(keys, StringComparison.OrdinalIgnoreCase) == true))
-                {
-                    item.Score = (byte)(byte.MaxValue - (byte)fullobjectname.IndexOf(keys, StringComparison.OrdinalIgnoreCase));
-                    thinkresut.Add(item);
-                    continue;
-                }
+            thinkresut = LJC.FrameWorkV3.Comm.StringHelper.SubSearch(ThinkInfoLib.Select(p => new LJC.FrameWorkV3.Comm.SubSearchSourceItem(p.ObjectName + " " + p.Desc, p)), keys, 3, 200)
+                .Select(p => (ThinkInfo)p).ToList();
 
-                if (item.ObjectName.StartsWith(keys, StringComparison.OrdinalIgnoreCase)
-                    || (desc?.StartsWith(keys, StringComparison.OrdinalIgnoreCase)) == true)
-                {
-                    item.Score = (byte)(byte.MaxValue - 1 - (byte)fullobjectname.Length);
-                    thinkresut.Add(item);
-                    continue;
-                }
+            //foreach (var item in ThinkInfoLib)
+            //{
+            //    if (!string.IsNullOrEmpty(searchtable) && (item.Type != 2 || !searchtable.Equals((item.Tag as MarkObjectInfo).TBName, StringComparison.OrdinalIgnoreCase)))
+            //    {
+            //        continue;
+            //    }
 
-                int pos = fullobjectname.IndexOf(keys, StringComparison.OrdinalIgnoreCase);
-                if (pos > -1)
-                {
-                    item.Score = Math.Max((byte)(byte.MaxValue - (byte)fullobjectname.Length - (byte)pos), (byte)0);
-                    thinkresut.Add(item);
-                    continue;
-                }
-                else
-                {
-                    pos = desc?.IndexOf(keys, StringComparison.OrdinalIgnoreCase) ?? -1;
-                    if (pos > -1)
-                    {
-                        item.Score = Math.Max((byte)(byte.MaxValue - fullobjectname.Length - (byte)item.Desc.Length - (byte)pos), (byte)0);
-                        thinkresut.Add(item);
-                        continue;
-                    }
-                }
-            }
+            //    var tagobj = item.Tag as MarkObjectInfo;
+            //    var desc = tagobj?.MarkInfo??item.Desc;
+            //    var fullobjectname = item.ObjectName;
+            //    if (item.Type == 1)
+            //    {
+            //        if (!tagobj.DBName.Equals(_dbname))
+            //        {
+            //            fullobjectname = $"{tagobj.DBName}.{item.ObjectName}";
+            //        }
+            //    }
+            //    else if (item.Type == 2)
+            //    {
+            //        if (!tagobj.DBName.Equals(_dbname))
+            //        {
+            //            fullobjectname = $"{tagobj.DBName}.{item.ObjectName}";
+            //        }
+            //    }
+            //    if (item.ObjectName.Equals(keys, StringComparison.OrdinalIgnoreCase)
+            //        || (item.ObjectName.Equals(keys, StringComparison.OrdinalIgnoreCase) == true))
+            //    {
+            //        item.Score = (byte)(byte.MaxValue - (byte)fullobjectname.IndexOf(keys, StringComparison.OrdinalIgnoreCase));
+            //        thinkresut.Add(item);
+            //        continue;
+            //    }
+
+            //    if (item.ObjectName.StartsWith(keys, StringComparison.OrdinalIgnoreCase)
+            //        || (desc?.StartsWith(keys, StringComparison.OrdinalIgnoreCase)) == true)
+            //    {
+            //        item.Score = (byte)(byte.MaxValue - 1 - (byte)fullobjectname.Length);
+            //        thinkresut.Add(item);
+            //        continue;
+            //    }
+
+            //    int pos = fullobjectname.IndexOf(keys, StringComparison.OrdinalIgnoreCase);
+            //    if (pos > -1)
+            //    {
+            //        item.Score = Math.Max((byte)(byte.MaxValue - (byte)fullobjectname.Length - (byte)pos), (byte)0);
+            //        thinkresut.Add(item);
+            //        continue;
+            //    }
+            //    else
+            //    {
+            //        pos = desc?.IndexOf(keys, StringComparison.OrdinalIgnoreCase) ?? -1;
+            //        if (pos > -1)
+            //        {
+            //            item.Score = Math.Max((byte)(byte.MaxValue - fullobjectname.Length - (byte)item.Desc.Length - (byte)pos), (byte)0);
+            //            thinkresut.Add(item);
+            //            continue;
+            //        }
+            //    }
+            //}
 
             foreach(var item in TableSet.Select(p => p).ToList())
             {
