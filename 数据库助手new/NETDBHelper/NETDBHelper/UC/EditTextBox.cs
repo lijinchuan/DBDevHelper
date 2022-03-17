@@ -60,7 +60,7 @@ namespace NETDBHelper.UC
             /// <summary>
             /// 匹配打分
             /// </summary>
-            public byte Score
+            public double Score
             {
                 get;
                 set;
@@ -130,10 +130,10 @@ namespace NETDBHelper.UC
                     {
                         continue;
                     }
-                    
+
                     if (string.IsNullOrWhiteSpace(m.ColumnName))
                     {
-                        ThinkInfoLib.RemoveAll(p => p.Type == 1 &&((MarkObjectInfo)p.Tag)?.DBName.Equals(m.DBName,StringComparison.OrdinalIgnoreCase)==true&& p.ObjectName.Equals(m.TBName, StringComparison.OrdinalIgnoreCase));
+                        ThinkInfoLib.RemoveAll(p => p.Type == 1 && ((MarkObjectInfo)p.Tag)?.DBName.Equals(m.DBName, StringComparison.OrdinalIgnoreCase) == true && p.ObjectName.Equals(m.TBName, StringComparison.OrdinalIgnoreCase));
                         ThinkInfoLib.Add(new ThinkInfo { Type = 1, ObjectName = m.TBName.ToLower(), Tag = m, Desc = m.MarkInfo });
                     }
                     else
@@ -183,8 +183,22 @@ namespace NETDBHelper.UC
 
             List<ThinkInfo> thinkresut = new List<ThinkInfo>();
 
-            thinkresut = LJC.FrameWorkV3.Comm.StringHelper.SubSearch(ThinkInfoLib.Select(p => new LJC.FrameWorkV3.Comm.SubSearchSourceItem(p.ObjectName + " " + p.Desc, p)), keys, 3, 200)
+            var sourceList = ThinkInfoLib.Select(p => new LJC.FrameWorkV3.Comm.SubSearchSourceItem(p.ObjectName.ToUpper(), p)).ToList();
+            sourceList.AddRange(ThinkInfoLib.Where(p => !string.IsNullOrWhiteSpace(p.Desc)).Select(p => new LJC.FrameWorkV3.Comm.SubSearchSourceItem(p.Desc.ToUpper(), p)).ToList());
+            thinkresut = LJC.FrameWorkV3.Comm.StringHelper.SubSearch(sourceList, keys.ToUpper(), 3, 1000)
                 .Select(p => (ThinkInfo)p).ToList();
+
+            int score = 0;
+            ThinkInfo lastItem = null;
+            foreach (var item in thinkresut)
+            {
+                if (lastItem != null && !item.ObjectName.Equals(lastItem.ObjectName, StringComparison.OrdinalIgnoreCase))
+                {
+                    score++;
+                }
+                item.Score = score;
+                lastItem = item;
+            }
 
             //foreach (var item in ThinkInfoLib)
             //{
@@ -245,7 +259,7 @@ namespace NETDBHelper.UC
             //    }
             //}
 
-            foreach(var item in TableSet.Select(p => p).ToList())
+            foreach (var item in TableSet.Select(p => p).ToList())
             {
                 if (this.RichText.Text.IndexOf(item, StringComparison.OrdinalIgnoreCase) == -1)
                 {
@@ -273,7 +287,7 @@ namespace NETDBHelper.UC
                     }
                 }
                 return true;
-            }).OrderByDescending(p => p.Score).ThenBy(p=>p.ObjectName.Length).Take(250).ToList();
+            }).ToList();
 
             foreach (var p in thinkresut)
             {
@@ -284,12 +298,13 @@ namespace NETDBHelper.UC
                     if (!markcolumn.DBName.Equals(_dbname, StringComparison.OrdinalIgnoreCase))
                     {
                         tablename = $"{markcolumn.DBName.ToLower()}.dbo.{ p.ObjectName}";
+                        p.Score++;
                     }
                     else
                     {
                         tablename = p.ObjectName;
                     }
-                    if(!TableSet.Contains(tablename, StringComparer.OrdinalIgnoreCase))
+                    if (!TableSet.Contains(tablename, StringComparer.OrdinalIgnoreCase))
                     {
                         TableSet.Add(tablename);
                     }
@@ -297,7 +312,8 @@ namespace NETDBHelper.UC
             }
 
             count = thinkresut.Count;
-            return thinkresut.Select(p=> {
+            return thinkresut.OrderBy(p => p.Score).Select(p =>
+            {
                 string objectname = null;
                 string replaceobjectname = null;
                 bool issamedb = true;
@@ -313,7 +329,7 @@ namespace NETDBHelper.UC
                     {
                         objectname = $"{markcolumn.DBName.ToLower()}.dbo.{markcolumn.TBName.ToLower()}.{p.ObjectName}";
                     }
-                    replaceobjectname= $"{markcolumn.TBName.ToLower()}.{p.ObjectName}";
+                    replaceobjectname = $"{markcolumn.TBName.ToLower()}.{p.ObjectName}";
                 }
                 else if (p.Type == 1)
                 {
@@ -340,10 +356,10 @@ namespace NETDBHelper.UC
                     建议 = objectname,
                     说明 = p.Desc,
                     p.Type,
-                    Issamedb=issamedb,
+                    Issamedb = issamedb,
                     replaceobjectname
                 };
-            }).ToList();
+            }).Take(200).ToList();
         }
 
         public DBSource DBServer
