@@ -202,5 +202,13 @@ GROUP BY IndexName,
  else 'create index ['+a.indexname+'] on ['+a.[schema]+'].['+a.tablename+']('+a.IndexColumn+') '+
  (case when b.IndexColumn is null then '' else 'include('+b.IndexColumn+') ' end)+'WITH(ONLINE=OFF,FillFactor=90)' end INDEX_DDL
   from #IDX2 a left join #IDX3 b on a.indexname=b.indexname";
+
+        /// <summary>
+        /// 获取外键
+        /// </summary>
+        public const string SQL_GETFOREIGNKYES = @"SELECT f.name AS FKName,OBJECT_NAME(f.parent_object_id) AS TableName,COL_NAME(fc.parent_object_id,fc.parent_column_id) AS ColName,
+OBJECT_NAME (f.referenced_object_id) AS ForeignTableName,COL_NAME(fc.referenced_object_id,fc.referenced_column_id) AS ForeignColName
+FROM sys.foreign_keys AS f
+INNER JOIN sys.foreign_key_columns AS fc ON f.OBJECT_ID = fc.constraint_object_id";
     }
 }

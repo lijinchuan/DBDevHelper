@@ -81,6 +81,7 @@ namespace NETDBHelper
             tv_DBServers.ImageList.Images.Add("lightning_delete", Resources.Resource1.lightning_delete);
             tv_DBServers.ImageList.Images.Add("table", Resources.Resource1.table);
             tv_DBServers.ImageList.Images.Add("table_link", Resources.Resource1.table_link);
+            tv_DBServers.ImageList.Images.Add("key_go", Resources.Resource1.key_go);
             tv_DBServers.Nodes.Add("0", "资源管理器", 0);
             tv_DBServers.NodeMouseClick += new TreeNodeMouseClickEventHandler(tv_DBServers_NodeMouseClick);
             tv_DBServers.NodeMouseDoubleClick += Tv_DBServers_NodeMouseDoubleClick;

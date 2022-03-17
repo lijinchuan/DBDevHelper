@@ -124,6 +124,8 @@ namespace APIHelper
             InitializeComponent();
             InitFrm();
             Instance = this;
+
+            LJC.FrameWorkV3.LogManager.LogHelper.Instance.Debug("进入主窗口程序");
         }
 
         protected override void OnLoad(EventArgs e)

@@ -6,6 +6,8 @@ using System.Windows.Forms;
 using Entity;
 using System.Data;
 using System.Threading;
+using LJC.FrameWorkV3.Comm;
+using Biz.Common.Data;
 
 namespace Biz
 {
@@ -99,12 +101,16 @@ namespace Biz
             new Action<Form, TreeNode, DBSource, Func<TBColumn, string>>(LoadColumns).BeginInvoke(parent, tbNode, server, gettip, null, null);
         }
 
-        private static void LoadColumns(Form parent, TreeNode tbNode, DBSource server, Func<TBColumn, string> gettip)
+        private static void LoadColumns(Form parent, TreeNode tbNode, DBSource server,Func<TBColumn, string> gettip)
         {
             if (server == null)
                 return;
+
             List<TreeNode> treeNodes = new List<TreeNode>();
             var tb = tbNode.Tag as TableInfo;
+
+            List<ForeignKey> foreignKeys = LocalCacheManager<List<ForeignKey>>.Find($"{tb.DBName}", () => SQLHelper.GetForeignKeys(server, tb.DBName), 1);
+
             foreach (TBColumn col in Biz.Common.Data.SQLHelper.GetColumns(server, tb.DBName, tb.TBId, tb.TBName))
             {
                 int imgIdx = col.IsKey ? 4 : 5;
@@ -120,6 +126,33 @@ namespace Biz
                 {
                     newNode.ImageIndex = newNode.SelectedImageIndex = 18;
                 }
+
+                var fks = foreignKeys.Where(p => (p.TableName.Equals(tb.TBName, StringComparison.OrdinalIgnoreCase) && p.ColName.Equals(col.Name, StringComparison.OrdinalIgnoreCase))
+                 || (p.ForeignTableName.Equals(tb.TBName, StringComparison.OrdinalIgnoreCase) && p.ForeignColName.Equals(col.Name, StringComparison.OrdinalIgnoreCase))).ToList();
+
+                if (fks.Any())
+                {
+                    var fkdesc = string.Empty;
+                    foreach(var fk in fks)
+                    {
+                        if (fk.TableName.Equals(tb.TBName, StringComparison.OrdinalIgnoreCase) && fk.ColName.Equals(col.Name, StringComparison.OrdinalIgnoreCase))
+                        {
+                            fkdesc += $" 外键{fk.ForeignTableName}.{fk.ForeignColName} ";
+                        }
+                        else
+                        {
+                            fkdesc += $" 是{fk.TableName}的外键:{fk.ColName} ";
+                        }
+                    }
+                    newNode.ToolTipText += fkdesc;
+                    if (!col.IsKey)
+                    {
+                        newNode.ImageIndex = 29;
+                    }
+                }
+
+
+
                 treeNodes.Add(newNode);
             }
             parent.Invoke(new Action(() =>
