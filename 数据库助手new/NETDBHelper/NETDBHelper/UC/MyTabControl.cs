@@ -230,16 +230,21 @@ namespace NETDBHelper.UC
                         break;
                     }
                 }
-                IsDraging = Math.Abs(DragEnd.X - DragStart.X) > 10; //&& ((DragEnd.X > DragStart.X && dragSource != tabExDic.Last().Value) || (DragEnd.X < DragStart.X && dragSource != tabExDic.First().Value));
-
+                
                 if (dragSource != null && CanDragOut && Math.Abs(DragEnd.Y - DragStart.Y) >= 6)
                 {
-                    TabPages.Remove(dragSource.TabPage);
-                    var dlg = new SubForm.DragOutDlg(this, dragSource.TabPage);
-                    dlg.Text = dragSource.TabPage.Text;
-                    dlg.Show();
-                    return;
+                    if (dragSource.StripRect.Contains(e.X, DragStart.Y))
+                    {
+                        TabPages.Remove(dragSource.TabPage);
+                        var dlg = new SubForm.DragOutDlg(this, dragSource.TabPage);
+                        dlg.Text = dragSource.TabPage.Text;
+                        dlg.Show();
+                        DragEnd = Point.Empty;
+                        DragStart = Point.Empty;
+                        return;
+                    }
                 }
+                IsDraging = Math.Abs(DragEnd.X - DragStart.X) > 10; //&& ((DragEnd.X > DragStart.X && dragSource != tabExDic.Last().Value) || (DragEnd.X < DragStart.X && dragSource != tabExDic.First().Value));
 
                 foreach (var tab in tabExDic)
                 {
