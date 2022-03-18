@@ -32,6 +32,15 @@ namespace NETDBHelper.UC
         private Point DragStart = Point.Empty;
         private Point DragEnd = Point.Empty;
 
+        /// <summary>
+        /// 是否可以拖出
+        /// </summary>
+        public bool CanDragOut
+        {
+            get;
+            set;
+        } = true;
+
 
         public MyTabControl()
         {
@@ -223,6 +232,14 @@ namespace NETDBHelper.UC
                 }
                 IsDraging = Math.Abs(DragEnd.X - DragStart.X) > 10; //&& ((DragEnd.X > DragStart.X && dragSource != tabExDic.Last().Value) || (DragEnd.X < DragStart.X && dragSource != tabExDic.First().Value));
 
+                if (dragSource != null && CanDragOut && Math.Abs(DragEnd.Y - DragStart.Y) >= 6)
+                {
+                    TabPages.Remove(dragSource.TabPage);
+                    var dlg = new SubForm.DragOutDlg(this, dragSource.TabPage);
+                    dlg.Text = dragSource.TabPage.Text;
+                    dlg.Show();
+                    return;
+                }
 
                 foreach (var tab in tabExDic)
                 {

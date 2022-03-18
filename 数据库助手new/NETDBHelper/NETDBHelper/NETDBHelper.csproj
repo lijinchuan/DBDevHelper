@@ -171,6 +171,12 @@
     <Compile Include="SubForm\DBFilter.Designer.cs">
       <DependentUpon>DBFilter.cs</DependentUpon>
     </Compile>
+    <Compile Include="SubForm\DragOutDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SubForm\DragOutDlg.Designer.cs">
+      <DependentUpon>DragOutDlg.cs</DependentUpon>
+    </Compile>
     <Compile Include="SubForm\FindDlg.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -451,6 +457,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="SubForm\DBFilter.resx">
       <DependentUpon>DBFilter.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SubForm\DragOutDlg.resx">
+      <DependentUpon>DragOutDlg.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="SubForm\FindDlg.resx">
       <DependentUpon>FindDlg.cs</DependentUpon>
