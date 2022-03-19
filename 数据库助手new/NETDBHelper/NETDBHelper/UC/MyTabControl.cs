@@ -401,8 +401,8 @@ namespace NETDBHelper.UC
         {
             SizeF textSize = this.CreateGraphics().MeasureString(e.Control.Text, defaultFont, new SizeF(200, 10), StringFormat.GenericDefault);
             textSize.Width += 35;
-            
-            if (moretabtablelist.Count > 0 || (this.tabExDic.Count > 0 && this.Width - this.tabExDic.Last().Value.StripRect.Location.X - this.tabExDic.Last().Value.StripRect.Width < 20 + textSize.Width))
+
+            if (moretabtablelist.Count > 0 || (this.Width > 200 && this.tabExDic.Count > 0 && this.Width - this.tabExDic.Last().Value.StripRect.Location.X - this.tabExDic.Last().Value.StripRect.Width < 20 + textSize.Width))
             {
                 var tabpage = (TabPage)e.Control;
                 var list = new List<TabPage>();
