@@ -139,7 +139,7 @@ namespace NETDBHelper.UC
                 MessageBoxDefaultButton.Button2) == DialogResult.No)
                 return;
             this.tb_Msg.Text = "";
-            DataTable tb = Biz.Common.Data.SQLHelper.GetKeys(this.DBSource, this.DBName, this.TBName);
+            DataTable tb = Biz.Common.Data.SQLHelper.GetKeys(this.DBSource, this.DBName, this.TBName, null);
             if (tb.Rows.Count == 0)
             {
                 //MessageBox.Show("查找不到主键，不能删除记录！");

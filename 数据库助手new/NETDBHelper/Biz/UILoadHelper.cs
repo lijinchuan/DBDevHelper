@@ -111,7 +111,7 @@ namespace Biz
 
             List<ForeignKey> foreignKeys = LocalCacheManager<List<ForeignKey>>.Find($"{tb.DBName}", () => SQLHelper.GetForeignKeys(server, tb.DBName), 1);
 
-            foreach (TBColumn col in Biz.Common.Data.SQLHelper.GetColumns(server, tb.DBName, tb.TBId, tb.TBName))
+            foreach (TBColumn col in Biz.Common.Data.SQLHelper.GetColumns(server, tb.DBName, tb.TBId, tb.TBName,tb.Schema))
             {
                 int imgIdx = col.IsKey ? 4 : 5;
                 TreeNode newNode = new TreeNode(string.Concat(col.Name, "(", col.TypeName, ")"), imgIdx, imgIdx);

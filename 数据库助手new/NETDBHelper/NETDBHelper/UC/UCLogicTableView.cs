@@ -176,7 +176,7 @@ namespace NETDBHelper.UC
 
                 pbDraw.Visible = true;
 
-                ColumnsList = SQLHelper.GetColumns(DBSource, DBName, CBTables.SelectedItem.ToString()).ToList();
+                ColumnsList = SQLHelper.GetColumns(DBSource, DBName, CBTables.SelectedItem.ToString(), null).ToList();
                 ColumnsList.ForEach(p => p.TBName = TrimTableName(TBName));
                 BindColumns();
             }

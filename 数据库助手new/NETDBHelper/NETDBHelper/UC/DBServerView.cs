@@ -1277,7 +1277,7 @@ namespace NETDBHelper
             StringBuilder sb = new StringBuilder(string.Format("CREATE TABLE `{0}`(", node.Text));
             sb.AppendLine();
             var tableinfo = node.Tag as TableInfo;
-            foreach (TBColumn col in Biz.Common.Data.SQLHelper.GetColumns(GetDBSource(node), tableinfo.DBName, tableinfo.TBId, tableinfo.TBName))
+            foreach (TBColumn col in Biz.Common.Data.SQLHelper.GetColumns(GetDBSource(node), tableinfo.DBName, tableinfo.TBId, tableinfo.TBName,tableinfo.Schema))
             {
                 sb.AppendFormat("`{0}` {1} {2} {3},", col.Name, Biz.Common.Data.Common.GetDBType(col), (col.IsID || col.IsKey) ? "NOT NULL" : (col.IsNullAble ? "NULL" : "NOT NULL"), col.IsID ? "AUTO_INCREMENT" : "");
                 if (col.IsID)
@@ -1304,7 +1304,7 @@ namespace NETDBHelper
                 return;
             }
             var tableinfo = node.Tag as TableInfo;
-            var cols = Biz.Common.Data.SQLHelper.GetColumns(GetDBSource(node), tableinfo.DBName, tableinfo.TBId, tableinfo.TBName);
+            var cols = Biz.Common.Data.SQLHelper.GetColumns(GetDBSource(node), tableinfo.DBName, tableinfo.TBId, tableinfo.TBName, tableinfo.Schema);
             if (isNotExportKey)
             {
                 cols = cols.Where(p => !p.IsID);
@@ -1375,7 +1375,7 @@ namespace NETDBHelper
             string dbname = tableinfo.DBName,
             tbname = tableinfo.TBName, tid = tableinfo.TBId;
 
-            var cols = Biz.Common.Data.SQLHelper.GetColumns(dbsource, dbname, tid, tbname).ToList();
+            var cols = Biz.Common.Data.SQLHelper.GetColumns(dbsource, dbname, tid, tbname,tableinfo.Schema).ToList();
 
             SubForm.WinCreateSelectSpNav nav = new WinCreateSelectSpNav(cols);
 
@@ -1406,7 +1406,7 @@ namespace NETDBHelper
             {
                 var tableinfo = node.Tag as TableInfo;
 
-                var cols = Biz.Common.Data.SQLHelper.GetColumns(GetDBSource(node), tableinfo.DBName, tableinfo.TBId, tableinfo.TBName).ToList();
+                var cols = Biz.Common.Data.SQLHelper.GetColumns(GetDBSource(node), tableinfo.DBName, tableinfo.TBId, tableinfo.TBName, tableinfo.Schema).ToList();
                 var tableDesc = SQLHelper.GetTableDescription(GetDBSource(node), tableinfo.DBName, tableinfo.TBName);
 
                 var colDesc = SQLHelper.GetTableColsDescription(GetDBSource(node), tableinfo.DBName, tableinfo.TBName);
@@ -1531,7 +1531,7 @@ namespace NETDBHelper
             int topNum = 1000;
             int.TryParse(dlg.InputString, out topNum);
 
-            var cols = Biz.Common.Data.SQLHelper.GetColumns(GetDBSource(node), tableinfo.DBName, tableinfo.TBId, tableinfo.TBName).ToList();
+            var cols = Biz.Common.Data.SQLHelper.GetColumns(GetDBSource(node), tableinfo.DBName, tableinfo.TBId, tableinfo.TBName, tableinfo.Schema).ToList();
             
             if (cols.ToList().Exists(p => p.IsID))
             {
@@ -1561,7 +1561,7 @@ namespace NETDBHelper
                 //库名
                 string tbname = string.Format("[{0}].[{1}]", tableinfo.DBName, tableinfo.TBName);
 
-                var tbclumns = Biz.Common.Data.SQLHelper.GetColumns(this.GetDBSource(selnode), tableinfo.DBName, tableinfo.TBId, tableinfo.TBName).ToList();
+                var tbclumns = Biz.Common.Data.SQLHelper.GetColumns(this.GetDBSource(selnode), tableinfo.DBName, tableinfo.TBId, tableinfo.TBName, tableinfo.Schema).ToList();
 
                 var tbmark = BigEntityTableRemotingEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys", new
                                  [] { tableinfo.DBName.ToUpper(), tableinfo.TBName.ToUpper(), string.Empty }).FirstOrDefault();
@@ -2008,7 +2008,7 @@ background-color: #ffffff;
                         return;
                     }
                     var tb = (TableInfo)currnode.Tag;
-                    var cols = SQLHelper.GetColumns(GetDBSource(currnode), tb.DBName, tb.TBId, tb.TBName).ToList();
+                    var cols = SQLHelper.GetColumns(GetDBSource(currnode), tb.DBName, tb.TBId, tb.TBName,tb.Schema).ToList();
                     
                     var markedcolumns = BigEntityTableRemotingEngine.Scan<MarkObjectInfo>("MarkObjectInfo", "keys", new[] { tb.DBName.ToUpper(), tb.TBName.ToUpper(), LJC.FrameWorkV3.Data.EntityDataBase.Consts.STRINGCOMPAIRMIN },
                         new[] { tb.DBName.ToUpper(), tb.TBName.ToUpper(), LJC.FrameWorkV3.Data.EntityDataBase.Consts.STRINGCOMPAIRMAX }, 1, int.MaxValue);
@@ -2681,7 +2681,7 @@ background-color: #ffffff;
             var _node = tv_DBServers.SelectedNode;
             var ds = GetDBSource(_node);
             var tb = _node.Parent.Tag as TableInfo;
-            var cols = SQLHelper.GetColumns(ds, tb.DBName, tb.TBName).ToList();
+            var cols = SQLHelper.GetColumns(ds, tb.DBName, tb.TBName,tb.Schema).ToList();
             WinCreateIndex win = new WinCreateIndex(cols);
             if (win.ShowDialog() == DialogResult.OK && MessageBox.Show("要创建索引吗？") == DialogResult.OK)
             {

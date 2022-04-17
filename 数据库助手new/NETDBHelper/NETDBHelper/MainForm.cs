@@ -329,12 +329,13 @@ namespace NETDBHelper
                 foreach (DataRow row in tbs.Rows)
                 {
                     var tbname = row["name"].ToString();
+                    var schema = row["schema"].ToString();
                     var searchColumns = BigEntityTableRemotingEngine.Find<TBSearchColumn>("TBSearchColumn", "DBName_TBName", new[] { n.ToLower(), tbname.ToLower() }).ToArray();
                     if (searchColumns.Length == 0)
                     {
                         try
                         {
-                            var cols = Biz.Common.Data.SQLHelper.GetColumns(d, n, tbname).ToArray();
+                            var cols = Biz.Common.Data.SQLHelper.GetColumns(d, n, tbname, schema).ToArray();
 
                             if (cols.Length > 0)
                             {

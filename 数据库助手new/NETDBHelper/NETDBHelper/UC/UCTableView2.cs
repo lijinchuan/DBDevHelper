@@ -95,7 +95,7 @@ namespace NETDBHelper.UC
                 this.LBTabname.Width = this.Width - 2;
                 this.CBTables.Visible = false;
 
-                ColumnsList = SQLHelper.GetColumns(DBSource, DBName, CBTables.SelectedItem.ToString()).ToList();
+                ColumnsList = SQLHelper.GetColumns(DBSource, DBName, CBTables.SelectedItem.ToString(),null).ToList();
                 BindColumns();
             }
         }
@@ -453,7 +453,7 @@ namespace NETDBHelper.UC
                 this.LBTabname.Location = new Point(1, 1);
                 this.LBTabname.Width = this.Width - 2;
                 this.CBTables.Visible = false;
-                ColumnsList = SQLHelper.GetColumns(DBSource, DBName, TBName).ToList();
+                ColumnsList = SQLHelper.GetColumns(DBSource, DBName, TBName,null).ToList();
                 BindColumns();
 
             }

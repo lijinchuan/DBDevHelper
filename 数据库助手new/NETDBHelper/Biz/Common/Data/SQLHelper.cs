@@ -41,7 +41,11 @@ namespace Biz.Common.Data
             return ExecuteDBTable(dbSource, dbName, SQLHelperConsts.GetTBs, null);
         }
 
-        
+        public static DataTable GetTB(DBSource dbSource, string dbName, string name)
+        {
+            return ExecuteDBTable(dbSource, dbName, SQLHelperConsts.GetTB, new SqlParameter("@NAME", name));
+        }
+
 
         public static DataTable GetTBsDesc(DBSource dbSource, string dbName,string tablename)
         {
@@ -51,14 +55,29 @@ namespace Biz.Common.Data
             return ExecuteDBTable(dbSource, dbName, SQLHelperConsts.SQL_GetTBsDesc, new SqlParameter("@tablename", name));
         }
 
-        public static DataTable GetKeys(DBSource dbSource, string dbName, string tbName)
+        public static DataTable GetKeys(DBSource dbSource, string dbName, string tbName,string owner)
         {
-            return ExecuteDBTable(dbSource, dbName, SQLHelperConsts.GetKeyColumn, new SqlParameter("@TABLE_NAME", tbName));
+            var sqlparameters = new List<SqlParameter>();
+            sqlparameters.Add(new SqlParameter("@TABLE_NAME", tbName));
+            if (!string.IsNullOrWhiteSpace(owner))
+            {
+                sqlparameters.Add(new SqlParameter("@TABLE_OWNER", owner));
+            }
+            else
+            {
+                sqlparameters.Add(new SqlParameter("@TABLE_OWNER", "dbo"));
+            }
+            return ExecuteDBTable(dbSource, dbName, SQLHelperConsts.GetKeyColumn, sqlparameters.ToArray());
         }
 
-        public static string GetIdColumName(DBSource dbSource, string dbName, string tbName)
+        public static string GetIdColumName(DBSource dbSource, string dbName, string tbName, string owner)
         {
-            var tb= ExecuteDBTable(dbSource, dbName, SQLHelperConsts.GetIdColumn, new SqlParameter("@TABLE_NAME", tbName));
+            var objectId = tbName;
+            if (!string.IsNullOrWhiteSpace(owner) && !owner.Equals("dbo", StringComparison.OrdinalIgnoreCase))
+            {
+                objectId = owner + "." + objectId;
+            }
+            var tb = ExecuteDBTable(dbSource, dbName, SQLHelperConsts.GetIdColumn, new SqlParameter("@TABLE_NAME", tbName), new SqlParameter("@OBJECT_ID", objectId));
             if (tb.Rows.Count == 0)
                 return string.Empty;
             return tb.Rows[0][0].ToString();
@@ -95,13 +114,21 @@ namespace Biz.Common.Data
             }
         }
 
-        public static IEnumerable<TBColumn> GetColumns(DBSource dbSource, string dbName, string tbid,string tbName)
+        public static IEnumerable<TBColumn> GetColumns(DBSource dbSource, string dbName, string tbid,string tbName,string tbOwner)
         {
+            if (string.IsNullOrWhiteSpace(tbOwner))
+            {
+                var tbrows = GetTB(dbSource, dbName, tbName).Rows;
+                if (tbrows.Count > 0)
+                {
+                    tbOwner = tbrows[0].Field<string>("schema");
+                }
+            }
             var tb= ExecuteDBTable(dbSource, dbName, SQLHelperConsts.GetColumns, new SqlParameter("@id", tbid));
             //查主键
-            var tb2 = GetKeys(dbSource, dbName, tbName);
+            var tb2 = GetKeys(dbSource, dbName, tbName, tbOwner);
             //查自增键
-            string idColumnName = GetIdColumName(dbSource, dbName, tbName);
+            string idColumnName = GetIdColumName(dbSource, dbName, tbName, tbOwner);
             //描述
             DataTable tbDesc = GetTableColsDescription(dbSource, dbName,tbName);
             
@@ -142,16 +169,16 @@ namespace Biz.Common.Data
             {
                 return li.First().Value;
             }
-            return GetColumns(dbSource, dbName, tbOrView);
+            return GetColumns(dbSource, dbName, tbOrView,null);
         }
 
-        public static IEnumerable<TBColumn> GetColumns(DBSource dbSource, string dbName, string tbName)
+        public static IEnumerable<TBColumn> GetColumns(DBSource dbSource, string dbName, string tbName, string tbOwner)
         {
             var tb = ExecuteDBTable(dbSource, dbName, SQLHelperConsts.GetColumnsByTableName, new SqlParameter("@name", tbName));
             //查主键
-            var tb2 = GetKeys(dbSource, dbName, tbName);
+            var tb2 = GetKeys(dbSource, dbName, tbName, tbOwner);
             //查自增键
-            string idColumnName = GetIdColumName(dbSource, dbName, tbName);
+            string idColumnName = GetIdColumName(dbSource, dbName, tbName, tbOwner);
             //描述
             DataTable tbDesc = GetTableColsDescription(dbSource, dbName, tbName);
 
@@ -581,20 +608,25 @@ where a.TABLE_NAME=b.TABLE_NAME ORDER BY A.TABLE_NAME,B.ORDINAL_POSITION";
                 }).ToList())).ToList();
         }
 
-        public static List<KeyValuePair<string, List<TBColumn>>> GetViews(DBSource dbSource, string dbname,string viewname)
+        public static List<KeyValuePair<TableInfo, List<TBColumn>>> GetViews(DBSource dbSource, string dbname, string viewname)
         {
-            string sql = @"SELECT a.TABLE_NAME,b.COLUMN_NAME,B.IS_NULLABLE,B.DATA_TYPE,isnull(B.CHARACTER_MAXIMUM_LENGTH,-1) CHARACTER_MAXIMUM_LENGTH FROM INFORMATION_SCHEMA.VIEWS a,INFORMATION_SCHEMA.COLUMNS b
-where a.Table_NAME='"+viewname+"' and a.TABLE_NAME=b.TABLE_NAME ORDER BY A.TABLE_NAME,B.ORDINAL_POSITION";
+            string sql = @"SELECT a.TABLE_NAME,a.TABLE_SCHEMA,b.COLUMN_NAME,B.IS_NULLABLE,B.DATA_TYPE,isnull(B.CHARACTER_MAXIMUM_LENGTH,-1) CHARACTER_MAXIMUM_LENGTH FROM INFORMATION_SCHEMA.VIEWS a,INFORMATION_SCHEMA.COLUMNS b
+where a.Table_NAME='" + viewname + "' and a.TABLE_NAME=b.TABLE_NAME ORDER BY A.TABLE_NAME,B.ORDINAL_POSITION";
 
             var tb = ExecuteDBTable(dbSource, dbname, sql);
 
 
-            return tb.AsEnumerable().GroupBy(p => p.Field<string>("TABLE_NAME")).
-                Select(p => new KeyValuePair<string, List<TBColumn>>(p.Key, p.Select(q => new TBColumn
+            return tb.AsEnumerable().GroupBy(p => new { name = p.Field<string>("TABLE_NAME"), schema = p.Field<string>("TABLE_SCHEMA") }).
+                Select(p => new KeyValuePair<TableInfo, List<TBColumn>>(new TableInfo
+                {
+                    DBName = dbname,
+                    Schema = p.Key.schema,
+                    TBName = p.Key.name
+                }, p.Select(q => new TBColumn
                 {
                     Name = q.Field<string>("COLUMN_NAME"),
-                    DBName=dbname,
-                    TBName=viewname,
+                    DBName = dbname,
+                    TBName = viewname,
                     TypeName = q.Field<string>("DATA_TYPE"),
                     Length = q.Field<int>("CHARACTER_MAXIMUM_LENGTH"),
                     IsNullAble = q.Field<string>("IS_NULLABLE").Equals("YES")

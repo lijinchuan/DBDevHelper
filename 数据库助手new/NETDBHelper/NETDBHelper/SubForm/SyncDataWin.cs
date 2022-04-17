@@ -159,7 +159,7 @@ namespace NETDBHelper.SubForm
                     throw new Exception("请选择主键");
                 }
 
-                return SQLHelper.GetColumns(DBSource,ConnDB,GetSourceTBName).AsEnumerable().First(p=>p.Name==CBByCol.SelectedItem.ToString());
+                return SQLHelper.GetColumns(DBSource, ConnDB, GetSourceTBName, null).AsEnumerable().First(p => p.Name == CBByCol.SelectedItem.ToString());
             }
         }
 
@@ -279,7 +279,7 @@ namespace NETDBHelper.SubForm
         {
             try
             {
-                var cols = SQLHelper.GetColumns(DBSource, ConnDB, GetSourceTBName);
+                var cols = SQLHelper.GetColumns(DBSource, ConnDB, GetSourceTBName, null);
 
                 this.CBFields.Items.Clear();
                 CBKey.Items.Clear();

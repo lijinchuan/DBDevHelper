@@ -297,15 +297,16 @@ namespace NETDBHelper.SubForm
                             {
                                 break;
                             }
+                            var owner = tb["schema"].ToString();
                             var tbinfo = new TableInfo
                             {
                                 DBName = db,
-                                Schema = tb["schema"].ToString(),
+                                Schema = owner,
                                 TBId = tb["id"].ToString(),
                                 TBName = tb["name"].ToString()
                             };
 
-                            var cols = SQLHelper.GetColumns(this.DBSource, tbinfo.DBName, tbinfo.TBId, tbinfo.TBName).ToList();
+                            var cols = SQLHelper.GetColumns(this.DBSource, tbinfo.DBName, tbinfo.TBId, tbinfo.TBName,owner).ToList();
 
                             if (needCreateSql)
                             {
@@ -481,6 +482,8 @@ namespace NETDBHelper.SubForm
                                     //finished++;
                                 }
                             }
+
+                            //用户自定义类型
 
 
                             if (isTest)

@@ -13,6 +13,8 @@ namespace Biz.Common.Data
         //public const string GetTBs = @"select [id],name from sysobjects(nolock) where type='U'";
         public const string GetTBs = @"select object_id as id,name,SCHEMA_NAME(schema_id) AS [schema] from sys.tables ";
 
+        public const string GetTB = @"select object_id as id,name,SCHEMA_NAME(schema_id) AS [schema] from sys.tables where name=@NAME";
+
         public const string GetColumns = @"select [syscolumns].name
                                            ,[systypes].name type
                                            ,[syscolumns].length
@@ -50,11 +52,11 @@ namespace Biz.Common.Data
         //public const string GetKeyColumn = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE(nolock) WHERE TABLE_NAME=@TABLE_NAME";
 
         //exec sp_pkeys 'TB_Tresume'
-        public const string GetKeyColumn = "exec sp_pkeys @TABLE_NAME";
+        public const string GetKeyColumn = "exec sp_pkeys @TABLE_NAME,@TABLE_OWNER";
         /// <summary>
         /// 获取自增键
         /// </summary>
-        public const string GetIdColumn = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.columns(nolock) WHERE TABLE_NAME=@TABLE_NAME AND COLUMNPROPERTY(OBJECT_ID(@TABLE_NAME),COLUMN_NAME,'IsIdentity')=1";
+        public const string GetIdColumn = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.columns(nolock) WHERE TABLE_NAME=@TABLE_NAME AND COLUMNPROPERTY(OBJECT_ID(@OBJECT_ID),COLUMN_NAME,'IsIdentity')=1";
 
         public const string GetTableColsDescription = @"SELECT  
                                     [TableName] = OBJECT_NAME(c.object_id), 
