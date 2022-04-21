@@ -36,13 +36,19 @@ namespace NETDBHelper.UC
             set;
         }
 
+        private string tbOwner
+        {
+            get;
+            set;
+        }
+
         public CreateProceEnum proceType
         {
             get;
             set;
         }
 
-        public CreateProc(DBSource dbSource,string connDB,string table,string tableID,CreateProceEnum proceType)
+        public CreateProc(DBSource dbSource,string connDB,string table,string tableID,string tbOwner,CreateProceEnum proceType)
             :base()
         {
             InitializeComponent();
@@ -52,6 +58,7 @@ namespace NETDBHelper.UC
             this.editTextBox1.DBServer = dbSource;
             this.table = table;
             this.tableID = tableID;
+            this.tbOwner = tbOwner;
             this.proceType = proceType;
         }
 
@@ -60,7 +67,7 @@ namespace NETDBHelper.UC
             if (this.proceType == CreateProceEnum.Insert)
             {
                 this.Text = "Insert[" + table + "]";
-                this.editTextBox1.Text = Biz.Common.Data.DataHelper.GetInsertProcSql(dbSource, connDB, tableID, table);
+                this.editTextBox1.Text = Biz.Common.Data.DataHelper.GetInsertProcSql(dbSource, connDB, tableID, table,tbOwner);
                 this.editTextBox1.MarkKeyWords(true);
                 Clipboard.SetText(this.editTextBox1.Text);
                 MainFrm.SendMsg(string.Format("sql语句已经复制到剪贴板。"));
@@ -68,7 +75,7 @@ namespace NETDBHelper.UC
             else if (this.proceType == CreateProceEnum.Update)
             {
                 this.Text = "Update[" + table + "]";
-                this.editTextBox1.Text = Biz.Common.Data.DataHelper.GetUpdateProcSql(dbSource, connDB, tableID, table);
+                this.editTextBox1.Text = Biz.Common.Data.DataHelper.GetUpdateProcSql(dbSource, connDB, tableID, table,tbOwner);
                 this.editTextBox1.MarkKeyWords(true);
                 Clipboard.SetText(this.editTextBox1.Text);
                 MainFrm.SendMsg(string.Format("sql语句已经复制到剪贴板。"));
@@ -76,7 +83,7 @@ namespace NETDBHelper.UC
             else if (this.proceType == CreateProceEnum.Delete)
             {
                 this.Text = "Delete[" + table + "]";
-                this.editTextBox1.Text = Biz.Common.Data.DataHelper.GetDeleteSql(dbSource, connDB, tableID, table);
+                this.editTextBox1.Text = Biz.Common.Data.DataHelper.GetDeleteSql(dbSource, connDB, tableID, table,tbOwner);
                 this.editTextBox1.MarkKeyWords(true);
                 Clipboard.SetText(this.editTextBox1.Text);
                 MainFrm.SendMsg(string.Format("sql语句已经复制到剪贴板。"));
@@ -84,7 +91,7 @@ namespace NETDBHelper.UC
             else if (this.proceType == CreateProceEnum.Upsert)
             {
                 this.Text = "Upsert[" + table + "]";
-                this.editTextBox1.Text = Biz.Common.Data.DataHelper.GetUpsertProcsql(dbSource, connDB, tableID, table);
+                this.editTextBox1.Text = Biz.Common.Data.DataHelper.GetUpsertProcsql(dbSource, connDB, tableID, table,tbOwner);
                 this.editTextBox1.MarkKeyWords(true);
                 Clipboard.SetText(this.editTextBox1.Text);
                 MainFrm.SendMsg(string.Format("sql语句已经复制到剪贴板。"));
@@ -92,7 +99,7 @@ namespace NETDBHelper.UC
             else if (this.proceType == CreateProceEnum.BatchInsert)
             {
                 this.Text = "bulkcopy[" + table + "]";
-                this.editTextBox1.Text = Biz.Common.Data.DataHelper.GetBatInsertProcSql(dbSource, connDB, tableID, table);
+                this.editTextBox1.Text = Biz.Common.Data.DataHelper.GetBatInsertProcSql(dbSource, connDB, tableID, table,tbOwner);
                 this.editTextBox1.MarkKeyWords(true);
                 Clipboard.SetText(this.editTextBox1.Text);
                 MainFrm.SendMsg(string.Format("sql语句已经复制到剪贴板。"));

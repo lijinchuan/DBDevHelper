@@ -221,9 +221,9 @@ namespace Biz.Common.Data
         }
 
 
-        public static string GetBatInsertProcSql(DBSource dbSource, string dbName, string tbid, string tbName)
+        public static string GetBatInsertProcSql(DBSource dbSource, string dbName, string tbid, string tbName,string tbOwner)
         {
-            var cols = SQLHelper.GetColumns(dbSource, dbName, tbid, tbName).ToList();
+            var cols = SQLHelper.GetColumns(dbSource, dbName, tbid, tbName, tbOwner).ToList();
 
             string idcolname = string.Empty;
             var idcol=cols.Find(p => p.IsID);
@@ -294,7 +294,7 @@ namespace Biz.Common.Data
             return sb.ToString();
         }
 
-        public static string GetDeleteSql(DBSource dbSource, string dbName, string tbid, string tbName)
+        public static string GetDeleteSql(DBSource dbSource, string dbName, string tbid, string tbName,string tbOwner)
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("SET LOCK_TIMEOUT 1000");
@@ -303,7 +303,7 @@ namespace Biz.Common.Data
             sb.AppendLine(string.Format("USE [{0}]", dbName));
             sb.AppendLine("GO");
             sb.AppendLine(string.Format("CREATE PROCEDURE [dbo].[{0}_{1}_delete]", dbName, tbName));
-            var cols = SQLHelper.GetColumns(dbSource, dbName, tbid, tbName).Where(p => p.TypeName.IndexOf("timestamp", StringComparison.OrdinalIgnoreCase) == -1).ToList();
+            var cols = SQLHelper.GetColumns(dbSource, dbName, tbid, tbName,tbOwner).Where(p => p.TypeName.IndexOf("timestamp", StringComparison.OrdinalIgnoreCase) == -1).ToList();
             
             var idcol = cols.Find(p => p.IsID);
             var keys = cols.Where(p => p.IsKey && !p.IsID).ToList();
@@ -347,7 +347,7 @@ namespace Biz.Common.Data
             return sb.ToString();
         }
 
-        public static string GetUpsertProcsql(DBSource dbSource, string dbName, string tbid, string tbName)
+        public static string GetUpsertProcsql(DBSource dbSource, string dbName, string tbid, string tbName,string tbOwner)
         {
 
             StringBuilder sb = new StringBuilder();
@@ -357,7 +357,7 @@ namespace Biz.Common.Data
             sb.AppendLine(string.Format("USE [{0}]", dbName));
             sb.AppendLine("GO");
             sb.AppendLine(string.Format("CREATE PROCEDURE [dbo].[{0}_{1}_upsert]", dbName, tbName));
-            var cols = SQLHelper.GetColumns(dbSource, dbName, tbid, tbName).Where(p => p.TypeName.IndexOf("timestamp", StringComparison.OrdinalIgnoreCase) == -1).ToList();
+            var cols = SQLHelper.GetColumns(dbSource, dbName, tbid, tbName,tbOwner).Where(p => p.TypeName.IndexOf("timestamp", StringComparison.OrdinalIgnoreCase) == -1).ToList();
             var idcol = cols.Find(p => p.IsID);
             var keys = cols.Where(p => p.IsKey && !p.IsID).ToList();
 
@@ -432,7 +432,7 @@ namespace Biz.Common.Data
             return false;
         }
 
-        public static string GetUpdateProcSql(DBSource dbSource, string dbName, string tbid, string tbName)
+        public static string GetUpdateProcSql(DBSource dbSource, string dbName, string tbid, string tbName,string tbOwner)
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("SET LOCK_TIMEOUT 1000");
@@ -441,7 +441,7 @@ namespace Biz.Common.Data
             sb.AppendLine(string.Format("USE [{0}]", dbName));
             sb.AppendLine("GO");
             sb.AppendLine(string.Format("CREATE PROCEDURE [dbo].[{0}_{1}_update]", dbName, tbName));
-            var cols = SQLHelper.GetColumns(dbSource, dbName, tbid, tbName).Where(p=>p.TypeName.IndexOf("timestamp",StringComparison.OrdinalIgnoreCase)==-1).ToList();
+            var cols = SQLHelper.GetColumns(dbSource, dbName, tbid, tbName,tbOwner).Where(p=>p.TypeName.IndexOf("timestamp",StringComparison.OrdinalIgnoreCase)==-1).ToList();
             //foreach(TBColumn x in cols)
             for (int i = 0; i < cols.Count(); i++)
             {
@@ -490,7 +490,7 @@ namespace Biz.Common.Data
             return sb.ToString();
         }
 
-        public static string GetInsertProcSql(DBSource dbSource, string dbName, string tbid, string tbName)
+        public static string GetInsertProcSql(DBSource dbSource, string dbName, string tbid, string tbName, string tbOwner)
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("SET LOCK_TIMEOUT 1000");
@@ -499,7 +499,7 @@ namespace Biz.Common.Data
             sb.AppendLine(string.Format("USE [{0}]",dbName));
             sb.AppendLine("GO");
             sb.AppendLine(string.Format("CREATE PROCEDURE [dbo].[{0}_{1}_insert]",dbName,tbName));
-            var cols=SQLHelper.GetColumns(dbSource, dbName, tbid, tbName).ToList();
+            var cols=SQLHelper.GetColumns(dbSource, dbName, tbid, tbName,tbOwner).ToList();
             //foreach(TBColumn x in cols)
             for (int i = 0; i < cols.Count();i++ )
             {
@@ -532,7 +532,7 @@ namespace Biz.Common.Data
             return sb.ToString();
         }
 
-        public static Tuple<string,string> CreateTableEntity(DBSource dbsource, string dbname, string tbname, string tid,string classnamespace,bool isview, bool isSupportProtobuf,
+        public static Tuple<string,string> CreateTableEntity(DBSource dbsource, string dbname, string tbname,string tbOwner, string tid,string classnamespace,bool isview, bool isSupportProtobuf,
             bool isSupportDBMapperAttr, bool isSupportJsonproterty, bool isSupportMvcDisplay,bool isReaderEntity,Func<string,string> getDesc, out bool hasKey)
         {
             hasKey = false;
@@ -600,7 +600,7 @@ namespace Biz.Common.Data
                 sb.AppendLine(string.Format("        public const string TbName=\"{0}.{1}\";", dbname, tbname));
             }
 
-            var cols =isview? SQLHelper.GetViews(dbsource,dbname,tbname).First().Value: SQLHelper.GetColumns(dbsource, dbname, tid, tbname);
+            var cols =isview? SQLHelper.GetViews(dbsource,dbname,tbname).First().Value: SQLHelper.GetColumns(dbsource, dbname, tid, tbname,tbOwner);
             
             //TreeNode selNode = tv_DBServers.SelectedNode;
             int idx = 1;

@@ -232,9 +232,9 @@ namespace NETDBHelper
             }
         }
 
-        private void CreateProcSql(DBSource dbSource, string dbName, string tableID, string table,CreateProceEnum createProcType)
+        private void CreateProcSql(DBSource dbSource, string dbName, string tableID, string table,string tbOwner,CreateProceEnum createProcType)
         {
-            UC.CreateProc cp = new CreateProc(dbSource, dbName, table, tableID, createProcType);
+            UC.CreateProc cp = new CreateProc(dbSource, dbName, table, tableID,tbOwner, createProcType);
             cp.Create();
             this.TabControl.TabPages.Add(cp);
             

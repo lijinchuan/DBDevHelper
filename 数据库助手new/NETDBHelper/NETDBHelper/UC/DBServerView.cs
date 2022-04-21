@@ -21,7 +21,7 @@ namespace NETDBHelper
         public Action<DBSource, string, string, string> OnShowTableData;
         public Action<DBSource, string> OnAddEntityTB;
         public Action<string, string> OnCreateSelectSql;
-        public Action<DBSource, string, string, string, CreateProceEnum> OnCreatePorcSQL;
+        public Action<DBSource, string, string, string,string, CreateProceEnum> OnCreatePorcSQL;
         public Action<DBSource, string, string, string> OnShowProc;
         public Action<DBSource, string, string, string> OnShowDataDic;
         public Action<DBSource, string, string> OnViewTable;
@@ -452,7 +452,7 @@ namespace NETDBHelper
                             if (_node.Tag is TableInfo && this.OnCreatePorcSQL != null)
                             {
                                 var tableinfo = _node.Tag as TableInfo;
-                                this.OnCreatePorcSQL(GetDBSource(_node), tableinfo.DBName, tableinfo.TBId, tableinfo.TBName, CreateProceEnum.Insert);
+                                this.OnCreatePorcSQL(GetDBSource(_node), tableinfo.DBName, tableinfo.TBId, tableinfo.TBName,tableinfo.Schema, CreateProceEnum.Insert);
                             }
                             break;
                         }
@@ -462,7 +462,7 @@ namespace NETDBHelper
                             if (_node.Tag is TableInfo && this.OnCreatePorcSQL != null)
                             {
                                 var tableinfo = _node.Tag as TableInfo;
-                                this.OnCreatePorcSQL(GetDBSource(_node), tableinfo.DBName, tableinfo.TBId, tableinfo.TBName, CreateProceEnum.BatchInsert);
+                                this.OnCreatePorcSQL(GetDBSource(_node), tableinfo.DBName, tableinfo.TBId, tableinfo.TBName,tableinfo.Schema, CreateProceEnum.BatchInsert);
                             }
                             break;
                         }
@@ -712,8 +712,9 @@ namespace NETDBHelper
                 var tbname = tv_DBServers.SelectedNode.Text;
                 string dbname = GetDBName(tv_DBServers.SelectedNode);
                 var tid = (tv_DBServers.SelectedNode.Tag as TableInfo)?.TBId;
+                var tbOwner = (tv_DBServers.SelectedNode.Tag as TableInfo)?.Schema;
 
-                var tp = DataHelper.CreateTableEntity(dbsource, dbname, tbname, tid, DefaultEntityNamespace, tv_DBServers.SelectedNode.Tag is ViewInfo,
+                var tp = DataHelper.CreateTableEntity(dbsource, dbname, tbname, tbOwner, tid, DefaultEntityNamespace, tv_DBServers.SelectedNode.Tag is ViewInfo,
                     isSupportProtobuf, isSupportDBMapperAttr, isSupportJsonproterty, isSupportMvcDisplay, dlg.ReaderEntityCode, name =>
                       {
                           var mark = BigEntityTableRemotingEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys", new
@@ -1263,7 +1264,7 @@ namespace NETDBHelper
             if (this.OnCreatePorcSQL != null)
             {
                 var tableinfo = _node.Tag as TableInfo;
-                this.OnCreatePorcSQL(GetDBSource(_node), tableinfo.DBName, tableinfo.TBId, tableinfo.TBName, CreateProceEnum.Insert);
+                this.OnCreatePorcSQL(GetDBSource(_node), tableinfo.DBName, tableinfo.TBId, tableinfo.TBName,tableinfo.Schema, CreateProceEnum.Insert);
             }
         }
 
@@ -1733,7 +1734,7 @@ background-color: #ffffff;
             if (this.OnCreatePorcSQL != null)
             {
                 var tabeinfo = _node.Tag as TableInfo;
-                this.OnCreatePorcSQL(GetDBSource(_node), tabeinfo.DBName, tabeinfo.TBId, tabeinfo.TBName, CreateProceEnum.BatchInsert);
+                this.OnCreatePorcSQL(GetDBSource(_node), tabeinfo.DBName, tabeinfo.TBId, tabeinfo.TBName,tabeinfo.Schema, CreateProceEnum.BatchInsert);
             }
         }
 
@@ -1743,7 +1744,7 @@ background-color: #ffffff;
             if (this.OnCreatePorcSQL != null)
             {
                 var tabeinfo = _node.Tag as TableInfo;
-                this.OnCreatePorcSQL(GetDBSource(_node), tabeinfo.DBName, tabeinfo.TBId, tabeinfo.TBName, CreateProceEnum.Update);
+                this.OnCreatePorcSQL(GetDBSource(_node), tabeinfo.DBName, tabeinfo.TBId, tabeinfo.TBName,tabeinfo.Schema, CreateProceEnum.Update);
             }
         }
 
@@ -1753,7 +1754,7 @@ background-color: #ffffff;
             if (this.OnCreatePorcSQL != null)
             {
                 var tabeinfo = _node.Tag as TableInfo;
-                this.OnCreatePorcSQL(GetDBSource(_node), tabeinfo.DBName, tabeinfo.TBId, tabeinfo.TBName, CreateProceEnum.Delete);
+                this.OnCreatePorcSQL(GetDBSource(_node), tabeinfo.DBName, tabeinfo.TBId, tabeinfo.TBName,tabeinfo.Schema, CreateProceEnum.Delete);
             }
         }
 
@@ -1763,7 +1764,7 @@ background-color: #ffffff;
             if (this.OnCreatePorcSQL != null)
             {
                 var tabeinfo = _node.Tag as TableInfo;
-                this.OnCreatePorcSQL(GetDBSource(_node), tabeinfo.DBName, tabeinfo.TBId, tabeinfo.TBName, CreateProceEnum.Upsert);
+                this.OnCreatePorcSQL(GetDBSource(_node), tabeinfo.DBName, tabeinfo.TBId, tabeinfo.TBName,tabeinfo.Schema, CreateProceEnum.Upsert);
             }
         }
 

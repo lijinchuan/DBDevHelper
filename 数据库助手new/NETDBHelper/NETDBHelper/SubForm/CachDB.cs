@@ -287,7 +287,7 @@ namespace NETDBHelper.SubForm
                             }
 
 
-                            var cols = SQLHelper.GetColumns(DBSource, tbinfo.DBName, tbinfo.TBId, tbinfo.TBName).ToList();
+                            var cols = SQLHelper.GetColumns(DBSource, tbinfo.DBName, tbinfo.TBId, tbinfo.TBName,tbinfo.Schema).ToList();
 
                             //导出前100条语句
                             try
