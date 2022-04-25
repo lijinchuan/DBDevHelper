@@ -744,5 +744,41 @@ ON {tb.Rows[0].Field<string>("EVENT_OBJECT_TABLE")} FOR EACH Row {tb.Rows[0].Fie
 
             yield return sb.ToString();
         }
+        private static List<ViewColumn> GetViewColums(DBSource dbSource, string dbname, string viewName)
+        {
+            var sql = "SHOW FULL COLUMNS FROM " + viewName + ";";
+
+            var tb = ExecuteDBTable(dbSource, dbname, sql);
+
+            var list = tb.AsEnumerable().Select(p => {
+                var typeWithLen = p.Field<string>("Type");
+                var g = Regex.Match(typeWithLen, @"\((\d{1,})");
+                return new ViewColumn
+                {
+                    DBName = dbname,
+                    IsNullAble = "YES".Equals(p.Field<string>("Null"), StringComparison.OrdinalIgnoreCase),
+                    TypeName = typeWithLen.Split('(').First(),
+                    Length = g.Success ? int.Parse(g.Groups[1].Value) : -1,
+                    Name = p.Field<string>("Field"),
+                    TBName = viewName
+                };
+            }).ToList();
+
+            return list;
+        }
+
+        public static List<KeyValuePair<string, List<ViewColumn>>> GetViews(DBSource dbSource, string dbname)
+        {
+            string sql = @"select TABLE_NAME from  information_schema.views where TABLE_SCHEMA=@dbname";
+
+            var tb = ExecuteDBTable(dbSource, dbname, sql, new MySqlParameter("@dbname", dbname));
+
+            return tb.AsEnumerable().Select(p =>
+            {
+                var name = p.Field<string>("TABLE_NAME");
+
+                return new KeyValuePair<string, List<ViewColumn>>(name, GetViewColums(dbSource, dbname, name));
+            }).ToList();
+        }
     }
 }

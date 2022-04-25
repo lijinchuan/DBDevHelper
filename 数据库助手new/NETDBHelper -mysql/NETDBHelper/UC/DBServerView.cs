@@ -561,6 +561,29 @@ namespace NETDBHelper
                     OnShowTableData(GetDBSource(tv_DBServers.SelectedNode), tb.DBName, tb.TBName, sb.ToString());
                 }
             }
+
+            if (tv_DBServers.SelectedNode != null && tv_DBServers.SelectedNode.Tag is ViewInfo)
+            {
+                var viewinfo = tv_DBServers.SelectedNode.Tag as ViewInfo;
+                List<KeyValuePair<string, bool>> cols = new List<KeyValuePair<string, bool>>();
+                foreach (TreeNode node in tv_DBServers.SelectedNode.Nodes)
+                {
+                    var viewcol = node.Tag as ViewColumn;
+                    cols.Add(new KeyValuePair<string, bool>(viewcol.Name, viewcol.IsKey));
+                }
+                StringBuilder sb = new StringBuilder();
+                sb.AppendLine("select");
+                sb.Append(string.Join(",\r\n", cols.Select(p => "[" + p.Key + "]")));
+                sb.AppendLine("");
+                sb.Append(" from ");
+                sb.Append(viewinfo.Name);
+                sb.Append(" limit 0,100;");
+                sb.AppendLine();
+                if (this.OnShowTableData != null)
+                {
+                    OnShowTableData(GetDBSource(tv_DBServers.SelectedNode), viewinfo.DBName, viewinfo.Name, sb.ToString());
+                }
+            }
         }
 
         void CreateEntityClass()
@@ -746,6 +769,26 @@ namespace NETDBHelper
                 if (e.Node.Nodes.Count > 0)
                     return;
                 Biz.UILoadHelper.LoadProcedureAnsy(this.ParentForm, e.Node, GetDBSource(e.Node));
+            }
+            else if (e.Node.Tag is INodeContents && (e.Node.Tag as INodeContents).GetNodeContentType() == NodeContentType.VIEWParent)
+            {
+                Biz.UILoadHelper.LoadViewsAnsy(this.ParentForm, e.Node, GetDBSource(e.Node), (view) =>
+                {
+                    var dbname = GetDBName(e.Node).ToUpper();
+                    var dbsource = GetDBSource(e.Node);
+                    var mark = BigEntityTableRemotingEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys", new
+                                [] { dbname, view.Name.ToUpper(), string.Empty }).FirstOrDefault();
+
+                    return mark == null ? string.Empty : mark.MarkInfo;
+                }, (col) =>
+                {
+                    var dbname = GetDBName(e.Node).ToUpper();
+                    var dbsource = GetDBSource(e.Node);
+                    var mark = BigEntityTableRemotingEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys", new
+                                [] { dbname, col.TBName.ToUpper(), col.Name.ToUpper() }).FirstOrDefault();
+
+                    return mark == null ? string.Empty : mark.MarkInfo;
+                });
             }
             else if (e.Node.Tag is TableInfo)
             {
