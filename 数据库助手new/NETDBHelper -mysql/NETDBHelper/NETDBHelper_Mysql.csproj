@@ -156,6 +156,12 @@
     <Compile Include="SubForm\AddTaskInfoDlg.Designer.cs">
       <DependentUpon>AddTaskInfoDlg.cs</DependentUpon>
     </Compile>
+    <Compile Include="SubForm\CachDB.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SubForm\CachDB.designer.cs">
+      <DependentUpon>CachDB.cs</DependentUpon>
+    </Compile>
     <Compile Include="SubForm\CopyDB.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -203,6 +209,18 @@
     </Compile>
     <Compile Include="SubForm\RecoverDB.designer.cs">
       <DependentUpon>RecoverDB.cs</DependentUpon>
+    </Compile>
+    <Compile Include="SubForm\SearchDBDataDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SubForm\SearchDBDataDlg.designer.cs">
+      <DependentUpon>SearchDBDataDlg.cs</DependentUpon>
+    </Compile>
+    <Compile Include="SubForm\SubBaseDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SubForm\SubBaseDlg.designer.cs">
+      <DependentUpon>SubBaseDlg.cs</DependentUpon>
     </Compile>
     <Compile Include="SubForm\SubFrmPerformAnalysis.cs">
       <SubType>Form</SubType>
@@ -424,6 +442,9 @@
     <EmbeddedResource Include="SubForm\AddTaskInfoDlg.resx">
       <DependentUpon>AddTaskInfoDlg.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="SubForm\CachDB.resx">
+      <DependentUpon>CachDB.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="SubForm\CopyDB.resx">
       <DependentUpon>CopyDB.cs</DependentUpon>
     </EmbeddedResource>
@@ -447,6 +468,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="SubForm\RecoverDB.resx">
       <DependentUpon>RecoverDB.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SubForm\SearchDBDataDlg.resx">
+      <DependentUpon>SearchDBDataDlg.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SubForm\SubBaseDlg.resx">
+      <DependentUpon>SubBaseDlg.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="SubForm\SubFrmPerformAnalysis.resx">
       <DependentUpon>SubFrmPerformAnalysis.cs</DependentUpon>
@@ -573,6 +600,7 @@
     <Content Include="ESBConfig.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <None Include="Resources\drive_disk.png" />
     <Content Include="Resources\text_bold.png" />
     <None Include="Resources\text_underline.png" />
     <Content Include="Resources\text_uppercase.png" />

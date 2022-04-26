@@ -49,7 +49,7 @@ namespace NETDBHelper
             this.dbServerView1.OnDeleteLogicMap += this.DeleteLogicMap;
 
 
-            复制数据库ToolStripMenuItem.Visible = 还原数据库ToolStripMenuItem.Visible = Util.LoginUserLevel() >= 5;
+            复制数据库ToolStripMenuItem.Visible = 还原数据库ToolStripMenuItem.Visible = 搜索数据库ToolStripMenuItem.Visible= Util.LoginUserLevel() >= 5;
             登录ToolStripMenuItem.Visible = Util.LoginUserLevel() == 0;
             登出ToolStripMenuItem.Visible = Util.LoginUserLevel() > 0;
 
@@ -59,7 +59,7 @@ namespace NETDBHelper
 
         private void Util_OnUserLoginOut(LoginUser user)
         {
-            复制数据库ToolStripMenuItem.Visible = 还原数据库ToolStripMenuItem.Visible = false;
+            复制数据库ToolStripMenuItem.Visible = 还原数据库ToolStripMenuItem.Visible= 搜索数据库ToolStripMenuItem.Visible = false;
             登录ToolStripMenuItem.Visible = true;
             登出ToolStripMenuItem.Visible = false;
 
@@ -68,7 +68,7 @@ namespace NETDBHelper
 
         private void Util_OnUserLogin(LoginUser loginUser)
         {
-            复制数据库ToolStripMenuItem.Visible = 还原数据库ToolStripMenuItem.Visible = loginUser.UserLevel >= 5;
+            复制数据库ToolStripMenuItem.Visible = 还原数据库ToolStripMenuItem.Visible = 搜索数据库ToolStripMenuItem.Visible = loginUser.UserLevel >= 5;
             登录ToolStripMenuItem.Visible = false;
             登出ToolStripMenuItem.Visible = true;
 
@@ -843,6 +843,13 @@ namespace NETDBHelper
         private void 还原数据库ToolStripMenuItem_Click(object sender, EventArgs e)
         {
             SubForm.RecoverDBDlg dlg = new RecoverDBDlg();
+            dlg.Show();
+        }
+
+        private void 搜索数据库ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var dlg = new SearchDBDataDlg();
+
             dlg.Show();
         }
     }
