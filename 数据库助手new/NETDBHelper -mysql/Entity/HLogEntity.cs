@@ -11,7 +11,9 @@ namespace Entity
         table,
         view,
         proc,
-        sql
+        sql,
+        func,
+        trigger
     }
 
     public class HLogEntity

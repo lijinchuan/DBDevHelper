@@ -442,11 +442,11 @@ namespace NETDBHelper
             Instance.SetMsg(msg);
         }
 
-        private void ShowProc(DBSource dBSource, string dbname, string procname, string procbody)
+        private void ShowProc(DBSource dBSource, string dbname,string typename, string procname, string procbody)
         {
             UC.SQLCodePanel panel = new SQLCodePanel();
             panel.SetCode(dbname, procbody);
-            panel.Text = $"存储过程-{procname}";
+            panel.Text = $"{typename}-{dbname}.{procname}";
             this.TabControl.TabPages.Add(panel);
             this.TabControl.SelectedTab = panel;
         }
@@ -569,7 +569,7 @@ namespace NETDBHelper
             UC.WebTab panel = new WebTab(dbsource, dbname);
             panel.SetHtml(html);
             panel.Text = tit;
-            panel.OnShowProc += (s, d, p, b) => this.ShowProc(s, d, p, b);
+            panel.OnShowProc += (s, d, t, p, b) => this.ShowProc(s, d, t, p, b);
             panel.OnSearch += (s, n, w) =>
             {
                 List<object> lst = new List<object>();

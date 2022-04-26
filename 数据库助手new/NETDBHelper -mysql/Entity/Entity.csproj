@@ -42,8 +42,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ColumnMarkSyncRecord.cs" />
+    <Compile Include="CopyDBTask.cs" />
     <Compile Include="CreateProceEnum.cs" />
     <Compile Include="DataBaseMapperAttr.cs" />
+    <Compile Include="DataTableObject.cs" />
     <Compile Include="DBHelperException.cs" />
     <Compile Include="DBInfo.cs" />
     <Compile Include="DBMapAttribute.cs" />
@@ -57,6 +59,7 @@
     <Compile Include="IDataExport.cs" />
     <Compile Include="IDType.cs" />
     <Compile Include="IndexColumnInfo.cs" />
+    <Compile Include="IndexDDL.cs" />
     <Compile Include="IndexEntry.cs" />
     <Compile Include="IndexTBColumn.cs" />
     <Compile Include="IRecoverAble.cs" />
@@ -81,6 +84,7 @@
     <Compile Include="SPContent.cs" />
     <Compile Include="SPInfo.cs" />
     <Compile Include="SqlSaveEntity.cs" />
+    <Compile Include="StringAndBool.cs" />
     <Compile Include="TableInfo.cs" />
     <Compile Include="TBColumn.cs" />
     <Compile Include="TBSearchColumn.cs" />

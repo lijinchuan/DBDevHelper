@@ -26,7 +26,7 @@ namespace NETDBHelper
         public Action<DBSource, string, string> OnFilterFunction;
         public Action<DBSource, string, string> OnExecutSql;
         public Action<DBSource,string,string> OnAddSqlExecuter;
-        public Action<DBSource, string, string, string> OnShowProc;
+        public Action<DBSource, string,string, string, string> OnShowProc;
         public Action<DBSource, string, string, string> OnShowDataDic;
         public Action<DBSource, string, string> OnViewTable;
         public Action<DBSource, string, string> OnViewCloumns;
@@ -979,6 +979,7 @@ namespace NETDBHelper
                             || nctype == NodeContentType.TRIGGER
                             || nctype == NodeContentType.TB;
                         创建语句ToolStripMenuItem.Visible = nctype == NodeContentType.TB
+                            || nctype == NodeContentType.VIEW
                             || nctype == NodeContentType.FUN
                             || nctype == NodeContentType.TRIGGER
                             || nctype == NodeContentType.PROC;
@@ -1193,13 +1194,29 @@ namespace NETDBHelper
         }
 
         private void 创建语句ToolStripMenuItem_Click(object sender, EventArgs e)
-        { 
+        {
             var node = this.tv_DBServers.SelectedNode;
             if (node != null && node.Tag is TableInfo)
             {
-                var tb = node.Tag as TableInfo;
-                TextBoxWin win = new TextBoxWin("创建表" + node.Text, MySQLHelper.GetCreateSQL(GetDBSource(node), tb.DBName, tb.TBName));
-                win.ShowDialog();
+                if (OnShowProc != null)
+                {
+                    var tb = node.Tag as TableInfo;
+                    var dbname = GetDBName(node);
+                    var body = MySQLHelper.GetCreateTableSQL(GetDBSource(node), tb.DBName, tb.TBName);
+                    //TextBoxWin win = new TextBoxWin("存储过程[" + node.Text + "]", body);
+                    //win.Show();
+                    OnShowProc(GetDBSource(node), dbname, "表", tb.TBName, body);
+
+                    BigEntityTableEngine.LocalEngine.Insert("HLog", new HLogEntity
+                    {
+                        TypeName = node.Text,
+                        LogTime = DateTime.Now,
+                        LogType = LogTypeEnum.table,
+                        DB = dbname,
+                        Sever = GetDBSource(node).ServerName,
+                        Valid = true
+                    });
+                }
             }
             else if (node != null && node.Tag is ProcInfo)
             {
@@ -1207,14 +1224,14 @@ namespace NETDBHelper
                 {
                     var procinfo = node.Tag as ProcInfo;
                     var dbname = GetDBName(node);
-                    var body = Biz.Common.Data.MySQLHelper.GetProcedureBody(GetDBSource(node), dbname, procinfo.Name);
+                    var body = MySQLHelper.GetProcedureBody(GetDBSource(node), dbname, procinfo.Name);
                     //TextBoxWin win = new TextBoxWin("存储过程[" + node.Text + "]", "drop PROCEDURE if exists " + node.Text + ";\r\n\r\n" + body.Replace("\n","\r\n"));
                     //win.ShowDialog();
                     //body = Regex.Replace(body, @"\\n", "\r\n");
                     //body = Regex.Replace(body, "(?!\n);", "\r\n");
-                    OnShowProc(GetDBSource(node), dbname, procinfo.Name, body);
+                    OnShowProc(GetDBSource(node), dbname,"存储过程", procinfo.Name, body);
 
-                    LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<HLogEntity>("HLog", new HLogEntity
+                    BigEntityTableEngine.LocalEngine.Insert("HLog", new HLogEntity
                     {
                         TypeName = procinfo.Name,
                         LogTime = DateTime.Now,
@@ -1231,16 +1248,16 @@ namespace NETDBHelper
                 {
                     var procinfo = node.Tag as FunInfo;
                     var dbname = GetDBName(node);
-                    var body = Biz.Common.Data.MySQLHelper.GetFunctionBody(GetDBSource(node), dbname, procinfo.Name);
+                    var body = MySQLHelper.GetFunctionBody(GetDBSource(node), dbname, procinfo.Name);
                     //TextBoxWin win = new TextBoxWin("存储过程[" + node.Text + "]", body);
                     //win.Show();
-                    OnShowProc(GetDBSource(node), dbname, procinfo.Name, body);
+                    OnShowProc(GetDBSource(node), dbname,"函数", procinfo.Name, body);
 
-                    LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<HLogEntity>("HLog", new HLogEntity
+                    BigEntityTableEngine.LocalEngine.Insert("HLog", new HLogEntity
                     {
                         TypeName = node.Text,
                         LogTime = DateTime.Now,
-                        LogType = LogTypeEnum.proc,
+                        LogType = LogTypeEnum.func,
                         DB = dbname,
                         Sever = GetDBSource(node).ServerName,
                         Valid = true
@@ -1253,16 +1270,16 @@ namespace NETDBHelper
                 {
                     var procinfo = node.Tag as TriggerEntity;
                     var dbname = GetDBName(node);
-                    var body = Biz.Common.Data.MySQLHelper.GetTriggerBody(GetDBSource(node), dbname, procinfo.TriggerName);
+                    var body = MySQLHelper.GetTriggerBody(GetDBSource(node), dbname, procinfo.TriggerName);
                     //TextBoxWin win = new TextBoxWin("存储过程[" + node.Text + "]", body);
                     //win.Show();
-                    OnShowProc(GetDBSource(node), dbname, procinfo.TriggerName, body);
+                    OnShowProc(GetDBSource(node), dbname,"触发器", procinfo.TriggerName, body);
 
-                    LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<HLogEntity>("HLog", new HLogEntity
+                    BigEntityTableEngine.LocalEngine.Insert("HLog", new HLogEntity
                     {
                         TypeName = node.Text,
                         LogTime = DateTime.Now,
-                        LogType = LogTypeEnum.proc,
+                        LogType = LogTypeEnum.trigger,
                         DB = dbname,
                         Sever = GetDBSource(node).ServerName,
                         Valid = true
@@ -1270,7 +1287,28 @@ namespace NETDBHelper
                 }
 
             }
+            else if (node != null && node.Tag is ViewInfo)
+            {
+                if (OnShowProc != null)
+                {
+                    var procinfo = node.Tag as ViewInfo;
+                    var dbname = GetDBName(node);
+                    var body = MySQLHelper.GetCreateViewSQL(GetDBSource(node), dbname, procinfo.Name);
+                    //TextBoxWin win = new TextBoxWin("存储过程[" + node.Text + "]", body);
+                    //win.Show();
+                    OnShowProc(GetDBSource(node), dbname,"视图", procinfo.Name, body);
 
+                    BigEntityTableEngine.LocalEngine.Insert("HLog", new HLogEntity
+                    {
+                        TypeName = node.Text,
+                        LogTime = DateTime.Now,
+                        LogType = LogTypeEnum.view,
+                        DB = dbname,
+                        Sever = GetDBSource(node).ServerName,
+                        Valid = true
+                    });
+                }
+            }
         }
 
         private void ExpdataToolStripMenuItem_Click(object sender, EventArgs e)

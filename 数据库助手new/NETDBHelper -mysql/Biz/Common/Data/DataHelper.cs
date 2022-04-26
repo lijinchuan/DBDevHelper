@@ -345,5 +345,21 @@ namespace Biz.Common.Data
 
             return list;
         }
+
+        public static object ConvertDBType(string stringVal, Type DataTableDataType)
+        {
+            if (DataTableDataType == typeof(Guid))
+            {
+                return Guid.Parse(stringVal);
+            }
+            else if (DataTableDataType == typeof(TimeSpan))
+            {
+                return TimeSpan.Parse(stringVal);
+            }
+            else
+            {
+                return Convert.ChangeType(stringVal, DataTableDataType);
+            }
+        }
     }
 }

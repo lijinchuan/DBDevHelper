@@ -113,7 +113,7 @@ namespace Biz.Common.Data
             {
                 var body= (string)tb.Rows[0]["Create Procedure"];
                 body = Regex.Replace(body, @"\n", "\r\n");
-                body = Regex.Replace(body, "(?!\n);", "\r\n");
+                body = Regex.Replace(body, "(?!\n);", ";\r\n");
 
                 return body;
             }
@@ -121,7 +121,7 @@ namespace Biz.Common.Data
             return string.Empty;
         }
 
-        public static string GetCreateSQL(DBSource dbSource, string dbName, string tbName)
+        public static string GetCreateTableSQL(DBSource dbSource, string dbName, string tbName)
         {
             //show create {procedure|function} sp_name
             string sql = string.Format("show create table {0}", tbName);
@@ -131,6 +131,25 @@ namespace Biz.Common.Data
             if (tb.Rows.Count > 0)
             {
                 var body= (string)tb.Rows[0]["Create Table"];
+                body = Regex.Replace(body, @"\n", "\r\n");
+                body = Regex.Replace(body, "(?!\n);", "\r\n");
+
+                return body;
+            }
+
+            return string.Empty;
+        }
+
+        public static string GetCreateViewSQL(DBSource dbSource, string dbName, string viewName)
+        {
+            //show create {procedure|function} sp_name
+            string sql = string.Format("show create view `{0}`.`{1}`", dbName,viewName);
+
+            var tb = ExecuteDBTable(dbSource, dbName, sql);
+
+            if (tb.Rows.Count > 0)
+            {
+                var body = (string)tb.Rows[0]["Create View"];
                 body = Regex.Replace(body, @"\n", "\r\n");
                 body = Regex.Replace(body, "(?!\n);", "\r\n");
 
@@ -615,6 +634,27 @@ namespace Biz.Common.Data
             return x.ToList();
         }
 
+        public static List<IndexDDL> GetIndexDDL(DBSource dbSource, string dbName, string tabname)
+        {
+            var indexs = new List<IndexEntry>();
+
+            var tb = ExecuteDBTable(dbSource, dbName, MySqlHelperConsts.GetIndexDDL,new MySqlParameter[]{
+                    new MySqlParameter("@TABLE_SCHEMA",dbName),
+                    new MySqlParameter("@TABLE_NAME",tabname)
+                });
+
+            var x = from row in tb.AsEnumerable().Select(p => new IndexDDL
+                {
+                    DBName = dbName,
+                    TableName = tabname,
+                    IndexName = p.Field<string>("INDEX_NAME"),
+                    DDL = p.Field<string>("Show_Add_Indexes")
+                }
+            ) select row;
+
+            return x.ToList();
+        }
+
         public static void DropIndex(DBSource dbSource, string dbName,string tbName,bool primarykey, string indexName)
         {
             string sql = null;
@@ -641,7 +681,7 @@ namespace Biz.Common.Data
                 return string.Empty;
             }
 
-            return $@"CREATE {tb.Rows[0].Field<string>("TRIGGER_NAME")} {tb.Rows[0].Field<string>("ACTION_TIMING")} {tb.Rows[0].Field<string>("EVENT_MANIPULATION")}
+            return $@"CREATE trigger {tb.Rows[0].Field<string>("TRIGGER_NAME")} {tb.Rows[0].Field<string>("ACTION_TIMING")} {tb.Rows[0].Field<string>("EVENT_MANIPULATION")}
 ON {tb.Rows[0].Field<string>("EVENT_OBJECT_TABLE")} FOR EACH Row {tb.Rows[0].Field<string>("ACTION_STATEMENT")}";
         }
         public static List<TriggerEntity> GetTriggers(DBSource dbSource, string dbName, string tbname)
@@ -649,13 +689,14 @@ ON {tb.Rows[0].Field<string>("EVENT_OBJECT_TABLE")} FOR EACH Row {tb.Rows[0].Fie
 
             string sql = @"SHOW TRIGGERS";
 
-            var tb = ExecuteDBTable(dbSource, dbName, sql, new MySqlParameter("@name", tbname));
+            var tb = ExecuteDBTable(dbSource, dbName, sql);
 
             var x = from row in tb.AsEnumerable()
+                    where row.Field<string>("Table").Equals(tbname, StringComparison.OrdinalIgnoreCase)
                     select new TriggerEntity
                     {
                         TriggerName = row.Field<string>("Trigger"),
-                        ExecIsInsertTrigger = row.Field<string>("Event").Equals("insert",StringComparison.OrdinalIgnoreCase),//
+                        ExecIsInsertTrigger = row.Field<string>("Event").Equals("insert", StringComparison.OrdinalIgnoreCase),//
                         ExecIsTriggerDisabled = false,
                         ExecIsUpdateTrigger = row.Field<string>("Event").Equals("update", StringComparison.OrdinalIgnoreCase),
                         ExecIsDeleteTrigger = row.Field<string>("Event").Equals("delete", StringComparison.OrdinalIgnoreCase)
@@ -779,6 +820,183 @@ ON {tb.Rows[0].Field<string>("EVENT_OBJECT_TABLE")} FOR EACH Row {tb.Rows[0].Fie
 
                 return new KeyValuePair<string, List<ViewColumn>>(name, GetViewColums(dbSource, dbname, name));
             }).ToList();
+        }
+
+        public static IEnumerable<DataTableObject> ExportData2(List<TBColumn> columns, bool notExportId, DBSource dbSource, TableInfo tableinfo, int topNum, Func<bool> checkCancel, CopyDBTask copyDBTask)
+        {
+
+            IEnumerable<TBColumn> cols = columns.Where(p => !p.TypeName.Equals("timestamp", StringComparison.OrdinalIgnoreCase));
+            //cols = cols.OrderBy(p => p.IsID ? 0 : 1);
+
+            if (!cols.Any())
+            {
+                yield break;
+            }
+
+            DataTableObject dataTableObject = new DataTableObject()
+            {
+                DBName = tableinfo.DBName,
+                TableName = tableinfo.TBName
+            };
+
+            var idColumns = columns.Where(p => p.IsID).ToList();
+            if (!idColumns.Any())
+            {
+                idColumns = columns.Where(p => p.IsKey).ToList();
+            }
+
+            var idColumn = idColumns.Count == 1 ? idColumns.First() : null;
+            object maxId = null;
+            var pagesize = Math.Min(topNum, 10000);
+            var total = 0;
+            var maxsize = 1000000;
+
+            var lastTask = copyDBTask.CopyTBDataTasks.Where(p => p.DB == tableinfo.DBName && p.TB == tableinfo.TBName).OrderByDescending(p => p.TotalCount).FirstOrDefault();
+            if (lastTask != null)
+            {
+                if (lastTask.Key == null)
+                {
+                    yield break;
+                }
+                //要转换下类型
+                var sqltext = string.Format("select {0} from `{2}`.`{1}` limit 0,1", idColumn.Name, tableinfo.TBName, tableinfo.DBName);
+                var data = ExecuteDBTable(dbSource, tableinfo.DBName, sqltext);
+                maxId = DataHelper.ConvertDBType(lastTask.Key, data.Columns[0].DataType);
+                total = lastTask.TotalCount;
+            }
+
+            var totalsize = 0;
+            while (true)
+            {
+                if (checkCancel?.Invoke() == true)
+                {
+                    yield break;
+                }
+
+                string sqltext = null;
+                DataTable datas = null;
+                bool isFinished = false;
+                if (idColumn == null)
+                {
+                    sqltext = string.Format("select  {0} from `{3}`.`{1}` limit 0,{2}", string.Join(",", columns.Select(p => GetConverType(p))), tableinfo.TBName, topNum, tableinfo.DBName);
+                    datas = ExecuteDBTable(dbSource, tableinfo.DBName, sqltext, null);
+                    isFinished = true;
+                }
+                else
+                {
+                    MySqlParameter[] sqlParameters = null;
+                    if (maxId != null)
+                    {
+                        sqltext = string.Format("select {0} from `{3}`.`{1}` where `{4}`<@{4} order by `{4}` desc  limit 0,{2}", string.Join(",", columns.Select(p => GetConverType(p))), tableinfo.TBName, pagesize, tableinfo.DBName, idColumn.Name);
+                        sqlParameters = new[] { new MySqlParameter($"@{idColumn.Name}", maxId) };
+                    }
+                    else
+                    {
+                        sqltext = string.Format("select {0} from `{3}`.`{1}` order by `{4}` desc  limit 0,{2}", string.Join(",", columns.Select(p => GetConverType(p))), tableinfo.TBName, pagesize, tableinfo.DBName, idColumn.Name);
+                    }
+                    datas = ExecuteDBTable(dbSource, tableinfo.DBName, sqltext, sqlParameters);
+                    if (datas.Rows.Count > 0)
+                    {
+                        maxId = datas.Rows[datas.Rows.Count - 1][idColumn.Name];
+                    }
+                    total += datas.Rows.Count;
+                    if (datas.Rows.Count < pagesize || total >= topNum)
+                    {
+                        isFinished = true;
+                    }
+                }
+
+
+                if (dataTableObject.Columns.Count == 0)
+                {
+                    foreach (DataColumn col in datas.Columns)
+                    {
+                        dataTableObject.Columns.Add(new DataTableColumn
+                        {
+                            ColumnName = col.ColumnName,
+                            ColumnType = col.DataType.FullName
+                        });
+                    }
+                }
+
+                foreach (DataRow row in datas.Rows)
+                {
+                    var datarow = new DataTableRow();
+
+                    foreach (var cell in row.ItemArray)
+                    {
+                        var datacell = new DataTableCell();
+                        if (cell == DBNull.Value)
+                        {
+                            datacell.IsDBNull = true;
+                            totalsize += 1;
+                        }
+                        else
+                        {
+                            if (cell.GetType() == typeof(byte[]))
+                            {
+                                datacell.ByteValue = (byte[])cell;
+                                totalsize += datacell.ByteValue.Length;
+                            }
+                            else
+                            {
+                                datacell.StringValue = cell.ToString();
+                                totalsize += datacell.StringValue.Length * 2;
+                            }
+                        }
+                        datarow.Cells.Add(datacell);
+                    }
+
+                    dataTableObject.Rows.Add(datarow);
+                    if (totalsize >= 1000 * 1000 * 1000)
+                    {
+                        yield return dataTableObject;
+                        dataTableObject.Rows.Clear();
+                        totalsize = 0;
+                    }
+                }
+
+                if (isFinished)
+                {
+                    break;
+                }
+
+                if (dataTableObject.Rows.Count >= maxsize)
+                {
+                    dataTableObject.Key = maxId?.ToString();
+                    dataTableObject.TotalCount = total;
+                    dataTableObject.Size = dataTableObject.Rows.Count;
+                    yield return dataTableObject;
+                    dataTableObject.Rows.Clear();
+                }
+            }
+
+            if (dataTableObject.Rows.Count > 0)
+            {
+                dataTableObject.Key = maxId?.ToString();
+                dataTableObject.TotalCount = total;
+                dataTableObject.Size = dataTableObject.Rows.Count;
+                yield return dataTableObject;
+            }
+
+            string GetConverType(TBColumn column)
+            {
+                if (column.TypeName.Equals("timestamp", StringComparison.OrdinalIgnoreCase))
+                {
+                    //return string.Format("cast('' as xml).value('xs:base64Binary(sql:column(\"{0}\"))', 'varchar(max)') as [{0}]", column.Name);
+                    return string.Format("`{0}`", column.Name);
+                }
+                //else if (column.TypeName.Equals("binary", StringComparison.OrdinalIgnoreCase)
+                //    || column.TypeName.Equals("varbinary", StringComparison.OrdinalIgnoreCase))
+                //{
+                //    return string.Format("cast('' as xml).value('xs:base64Binary(sql:column(\"{0}\"))', 'varchar(max)') as [{0}]", column.Name);
+                //}
+                //else if (column.TypeName.Equals("image", StringComparison.OrdinalIgnoreCase))
+                //{
+                //    return string.Format("convert(varbinary(max),[{0}]) as [{0}]", column.Name);
+                //}
+                return string.Format("`{0}`", column.Name);
+            }
         }
     }
 }

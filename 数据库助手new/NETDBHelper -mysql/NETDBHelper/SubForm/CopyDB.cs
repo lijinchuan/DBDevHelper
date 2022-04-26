@@ -18,6 +18,9 @@ namespace NETDBHelper.SubForm
     {
         private volatile Task<int> saveTask = null;
         private bool cancel = false;
+        private bool stop = false;
+        private CheckedListBox mainCLB = null;
+        private CopyDBTask currentTask = null;
 
         public CopyDB()
         {
@@ -27,7 +30,78 @@ namespace NETDBHelper.SubForm
             this.PannelCopNumber.Enabled = CBData.Checked;
             CBData.CheckedChanged += CBData_CheckedChanged;
 
-            
+            mainCLB = CLBDBs;
+            CLBDBs.Click += CLBDBs_Click;
+            CLBTBS.Click += CLBTBS_Click;
+
+
+        }
+
+        private void CLBTBS_Click(object sender, EventArgs e)
+        {
+            mainCLB = CLBTBS;
+            if (CLBTBS.CheckedItems.Count < CLBTBS.Items.Count)
+            {
+                BtnSelAll.Text = "全选";
+            }
+            else
+            {
+                BtnSelAll.Text = "全消";
+            }
+        }
+
+        private void CLBTBS_ItemCheck(object sender, ItemCheckEventArgs e)
+        {
+            List<StringAndBool> tuples = (List<StringAndBool>)CLBTBS.Tag;
+
+            var tp = tuples.Find(p => p.Str == CLBTBS.Items[e.Index].ToString());
+            tp.Boo = e.NewValue == CheckState.Checked;
+        }
+
+        private void CLBDBs_Click(object sender, EventArgs e)
+        {
+            mainCLB = CLBDBs;
+            if (CLBDBs.CheckedItems.Count < CLBDBs.Items.Count)
+            {
+                BtnSelAll.Text = "全选";
+            }
+            else
+            {
+                BtnSelAll.Text = "全消";
+            }
+
+            CLBTBS.ItemCheck -= CLBTBS_ItemCheck;
+            this.CLBTBS.Items.Clear();
+
+            var db = (string)CLBDBs.SelectedItem;
+
+            if (CLBDBs.Tag != null)
+            {
+                var dic = (Dictionary<string, List<StringAndBool>>)CLBDBs.Tag;
+
+                if (!dic.ContainsKey(db))
+                {
+                    var tbs = MySQLHelper.GetTBs(DBSource, db);
+
+                    var list = new List<StringAndBool>();
+                    foreach (var row in tbs.AsEnumerable())
+                    {
+                        list.Add(new StringAndBool(row.Field<string>("name"), true));
+                    }
+                    dic.Add(db, list);
+                }
+
+                var i = 0;
+                foreach (var item in dic[db])
+                {
+                    this.CLBTBS.Items.Add(item.Str);
+                    this.CLBTBS.SetItemChecked(i, item.Boo);
+                    i++;
+                }
+                this.CLBTBS.Tag = dic[db];
+                CLBTBS.ItemCheck += CLBTBS_ItemCheck;
+            }
+
         }
 
         private void CBData_CheckedChanged(object sender, EventArgs e)
@@ -45,6 +119,8 @@ namespace NETDBHelper.SubForm
                 pt.Offset(this.OwnerCtl.Width / 2 - this.Width / 2, this.OwnerCtl.Height / 2 - this.Height / 2);
                 this.Location = pt;
             }
+
+            BtnStop.Enabled = false;
         }
 
         private Control OwnerCtl = null;
@@ -60,12 +136,13 @@ namespace NETDBHelper.SubForm
         {
             if (saveTask != null)
             {
-                if (MessageBox.Show("取消任务吗?", "提示", MessageBoxButtons.YesNo, MessageBoxIcon.Question)==DialogResult.Yes)
+                if (MessageBox.Show("取消任务吗?", "提示", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                 {
                     cancel = true;
                 }
                 return;
             }
+
             if (this.Modal)
             {
                 this.DialogResult = DialogResult.Abort;
@@ -94,27 +171,78 @@ namespace NETDBHelper.SubForm
         private async Task<int> Save(bool isTest,bool needIndex,bool needView,bool needProc,bool needFunc,bool needTrigger,int maxSize)
         {
             bool haserror = true;
-            var dir = Application.StartupPath + "\\temp\\";
-            if (!Directory.Exists(dir))
+            var dir = string.Empty;
+            var filename = string.Empty;
+            var dbdic = (Dictionary<string, List<StringAndBool>>)this.CLBDBs.Tag;
+            var needCreateSql = true;
+            if (currentTask == null)
             {
-                Directory.CreateDirectory(dir);
+                dir = Application.StartupPath + "\\temp\\";
+                if (!Directory.Exists(dir))
+                {
+                    Directory.CreateDirectory(dir);
+                }
+                dir += $"exportdb{DateTime.Now.ToString("yyyyyMMddHHmmss")}";
+                if (!Directory.Exists(dir))
+                {
+                    Directory.CreateDirectory(dir);
+                }
+                currentTask = new CopyDBTask
+                {
+                    Dir = dir
+                };
+                filename = Path.Combine(dir, "createdb.sql");
+                foreach (string item in CLBDBs.CheckedItems)
+                {
+                    currentTask.TargetDBList.Add(item);
+                }
+
+                currentTask.TargetTBList.AddRange(dbdic.SelectMany(p => p.Value.Select(q => new CopyDBTask.CopyTB
+                {
+                    TB = q.Str,
+                    DB = p.Key
+                })));
             }
-            var filename = Path.Combine(dir, "createdb_" + DateTime.Now.ToString("yyyyyMMddHHmmss") + ".sql");
-            var datafilename= Path.Combine(dir, "createdb" + DateTime.Now.ToString("yyyyyMMddHHmmss") + "_data_###.sql");
-            int datafilecount = 0;
+            else
+            {
+                dir = currentTask.Dir;
+                filename = Path.Combine(dir, "createdb.sql");
+
+                if (currentTask.CopyTBDataTasks.Count > 0 && dbdic.Any(p => !currentTask.TargetDBList.Contains(p.Key) ||
+                p.Value.Where(p2 => p2.Boo).Any(p3 => currentTask.CopyTBDataTasks.Any(q => q.DB == p.Key)
+                && !currentTask.CopyTBDataTasks.Any(q => q.DB == p.Key && p3.Str == q.TB))))
+                {
+                    currentTask.TargetDBList = dbdic.Select(p => p.Key).ToList();
+                    currentTask.TargetTBList = dbdic.SelectMany(p => p.Value.Select(q => new CopyDBTask.CopyTB
+                    {
+                        TB = q.Str,
+                        DB = p.Key
+                    })).ToList();
+
+                    File.Delete(filename);
+                }
+                else
+                {
+                    if (File.Exists(filename))
+                    {
+                        needCreateSql = false;
+                    }
+                }
+            }
+            var datafilename = Path.Combine(dir, "createdb_###.data");
+
             try
             {
                 var total = CLBDBs.CheckedItems.Count;
                 var finished = 0;
                 StringBuilder sball = new StringBuilder();
                 StringBuilder sb = new StringBuilder();
-                StringBuilder sbdata = new StringBuilder();
-                
+
                 foreach (var item in CLBDBs.CheckedItems)
                 {
                     try
                     {
-                        if (cancel)
+                        if (cancel || stop)
                         {
                             break;
                         }
@@ -125,103 +253,109 @@ namespace NETDBHelper.SubForm
 
                         if (isTest)
                         {
-                            destdb += "-" + DateTime.Now.ToString("yyyyMMddHHmm");
+                            destdb += "_" + DateTime.Now.ToString("yyyyMMddHHmm");
                         }
 
                         sb.Clear();
-                        sb.AppendLine("use [master]");
-                        sb.AppendLine("GO");
-                        sb.AppendLine("create database [" + destdb + "]");
-                        sb.AppendLine("GO");
+                        sb.AppendLine("SET NAMES utf8mb4;");
+                        sb.AppendLine("CREATE SCHEMA " + destdb + ";");
                         sb.AppendLine();
-                        sb.AppendLine("use [" + db + "]");
-                        sb.AppendLine("GO");
+                        sb.AppendLine("use " + db + ";");
+                        sb.AppendLine();
 
                         var needdata = CBData.Checked && NUDMaxNumber.Value > 0;
                         var tbs = MySQLHelper.GetTBs(this.DBSource, db);
-                        //var views = MySQLHelper.GetViews(DBSource, db);
+                        var tbrows = tbs.AsEnumerable().ToList();
+                        if (dbdic.ContainsKey(db))
+                        {
+                            tbrows = tbrows.AsEnumerable().Where(p => dbdic[db].Any(q => q.Boo && q.Str.Equals(p.Field<string>("name"), StringComparison.OrdinalIgnoreCase))).ToList();
+                        }
+
+                        var views = MySQLHelper.GetViews(DBSource, db);
                         var proclist = MySQLHelper.GetProcedures(DBSource, db).ToList();
                         var functionlist = MySQLHelper.GetFunctions(DBSource, db);
 
                         //total += tbs.Rows.Count * (needdata ? 10 : 1) + views.Count + proclist.Count + functionlist.Rows.Count;
 
-                        //创建新的架构
-                        var schema=tbs.AsEnumerable().Select(p => p.Field<string>("schema")).Distinct().ToList();
-                        foreach(var s in schema.Where(p => !p.Equals("dbo", StringComparison.OrdinalIgnoreCase)))
-                        {
-                            sb.AppendLine($@"IF SCHEMA_ID('{s}') IS NULL 
-    BEGIN
-        EXEC('CREATE SCHEMA [{s}] AUTHORIZATION [dbo]')
-    END");
-
-                            sb.AppendLine("GO");
-                        }
-
                         //创建表
-                        foreach (var tb in tbs.AsEnumerable())
+                        foreach (var tb in tbrows)
                         {
-                            if (cancel)
+                            if (cancel || stop)
                             {
                                 break;
                             }
                             var tbinfo = new TableInfo
                             {
                                 DBName = db,
-                                TBId = tb["id"].ToString(),
                                 TBName = tb["name"].ToString()
                             };
 
                             var cols = MySQLHelper.GetColumns(this.DBSource, tbinfo.DBName, tbinfo.TBName).ToList();
-                            var colDesc = MySQLHelper.GetTableColsDescription(DBSource, db, tbinfo.TBName);
 
-                            //var indexDDL = MySQLHelper.GetIndexDDL(this.DBSource, tbinfo.DBName, tbinfo.TBName);
-                            //sb.AppendLine();
-                            //sb.AppendLine("--" + tbinfo.TBName);
-                            //sb.AppendLine(MySQLHelper.GetCreateSQL(this.DBSource, tbinfo.DBName, tbinfo.TBName));
-                            //sb.AppendLine();
-                            //sb.AppendLine("GO");
+                            if (needCreateSql)
+                            {
+                                sb.AppendLine();
+                                sb.AppendLine("-- " + tbinfo.TBName);
+                                sb.Append(MySQLHelper.GetCreateTableSQL(this.DBSource,tbinfo.DBName,tbinfo.TBName));
+                                sb.Append(";");
+                                sb.AppendLine();
 
-                            ////索引
-                            //if (needIndex)
-                            //{
-                            //    foreach (var idx in indexDDL.AsEnumerable().Where(p => !p.Field<bool>("is_primary_key")))
-                            //    {
-                            //        sb.AppendLine(idx.Field<string>("INDEX_DDL"));
-                            //        sb.AppendLine("GO");
-                            //    }
-                            //}
+                                //索引
+                                if (needIndex)
+                                {
+                                    //var indexDDL = MySQLHelper.GetIndexDDL(this.DBSource, tbinfo.DBName, tbinfo.TBName);
+                                    //foreach (var idx in indexDDL.AsEnumerable().Where(p => !"PRIMARY".Equals(p.IndexName, StringComparison.OrdinalIgnoreCase)))
+                                    //{
+                                    //    sb.AppendLine();
+                                    //    sb.AppendLine(idx.DDL);
+                                    //    sb.AppendLine();
+                                    //}
+                                }
 
-                            //finished++;
-                            SendMsg("导出库" + db + ",表:" + tbinfo.TBName);
+                                //finished++;
+                                SendMsg("导出库" + db + ",表:" + tbinfo.TBName);
+                            }
 
-                            if (CBData.Checked && NUDMaxNumber.Value > 0)
+                            if (needdata)
                             {
                                 //导出前100条语句
                                 try
                                 {
-                                    if (tbinfo.TBName.Equals("Message", StringComparison.OrdinalIgnoreCase))
+                                    int no = 0;
+                                    foreach (var data in MySQLHelper.ExportData2(cols, true, DBSource, tbinfo, (int)NUDMaxNumber.Value, () => cancel || stop, currentTask))
                                     {
-
-                                    }
-                                    foreach(var s in MySQLHelper.ExportData(cols, true, DBSource, tbinfo, (int)NUDMaxNumber.Value))
-                                    {
-                                        sbdata.AppendLine($"use [{destdb}]");
-                                        sbdata.AppendLine("GO");
-                                        sbdata.AppendLine(s);
-                                        sbdata.AppendLine("GO");
-
-                                        if (maxSize > 0 && sbdata.Length > maxSize * 1024 * 1024)
+                                        if (cancel)
+                                        {
+                                            break;
+                                        }
+                                        if (data != null && data.Rows.Count > 0)
                                         {
                                             if (isTest)
                                             {
-                                                sbdata = new StringBuilder(Regex.Replace(sbdata.ToString(), $"use[\\s]+\\[?{db}\\]?", $"use [{destdb}]", RegexOptions.IgnoreCase | RegexOptions.Multiline));
+                                                data.DBName = destdb;
                                             }
-                                            var currDataFileName = datafilename.Replace("###", (datafilecount++).ToString());
-                                            File.WriteAllText(currDataFileName, sbdata.ToString(), Encoding.UTF8);
-                                            sbdata.Clear();
+                                            var currDataFileName = datafilename.Replace("###", "`" + tbinfo.DBName + "`.`" + tbinfo.TBName + "`_" + no);
+                                            while (File.Exists(currDataFileName))
+                                            {
+                                                no++;
+                                                currDataFileName = datafilename.Replace("###", "`" + tbinfo.DBName + "`.`" + tbinfo.TBName + "`_" + no);
+                                            }
+                                            LJC.FrameWorkV3.EntityBuf.EntityBufCore.Serialize(data, currDataFileName);
+                                            currentTask.CopyTBDataTasks.Add(new CopyDBTask.CopyTBDataTask
+                                            {
+                                                DB = tbinfo.DBName,
+                                                TB = tbinfo.TBName,
+                                                Key = data.Key,
+                                                Size = data.Size,
+                                                TotalCount = data.TotalCount
+                                            });
+                                            no++;
+                                        }
+                                        if (stop)
+                                        {
+                                            break;
                                         }
                                     }
-                                    
                                 }
                                 catch (Exception)
                                 {
@@ -231,7 +365,7 @@ namespace NETDBHelper.SubForm
                                     }
                                     else
                                     {
-                                        sbdata.AppendLine("-----------导出数据出错-----------");
+                                        SendMsg("导出库" + db + ",表前" + NUDMaxNumber.Value + "条语句:" + tbinfo.TBName + "导出数据出错");
                                     }
                                 }
                                 //finished += 9;
@@ -239,99 +373,124 @@ namespace NETDBHelper.SubForm
                             }
                         }
 
-                        foreach (var tb in tbs.AsEnumerable())
+                        foreach (var tb in tbrows)
                         {
-                            if (cancel)
+                            if (cancel || stop)
                             {
                                 break;
                             }
                             var tbinfo = new TableInfo
                             {
                                 DBName = db,
-                                //Schema = tb["schema"].ToString(),
-                                TBId = tb["id"].ToString(),
                                 TBName = tb["name"].ToString()
                             };
 
-                            
 
-                            if (needTrigger)
+                            if (needCreateSql)
                             {
-                                //触发器
-                                foreach (var tg in MySQLHelper.GetTriggers(this.DBSource, tbinfo.DBName, tbinfo.TBName))
+                                if (needTrigger)
                                 {
-                                    sb.AppendLine(MySQLHelper.GetTriggerBody(this.DBSource, tbinfo.DBName, tg.TriggerName));
-                                    sb.AppendLine("Go");
+                                    //触发器
+                                    foreach (var tg in MySQLHelper.GetTriggers(this.DBSource, tbinfo.DBName, tbinfo.TBName))
+                                    {
+                                        sb.AppendLine($"/*----------触发器:{tg.TriggerName}------------*/");
+                                        
+                                        sb.AppendLine("DELIMITER $$");
+                                        sb.Append(MySQLHelper.GetTriggerBody(this.DBSource, tbinfo.DBName, tg.TriggerName));
+                                        sb.Append(" $$");
+                                        sb.AppendLine();
+                                        sb.AppendLine("DELIMITER ;");
+
+                                        sb.AppendLine();
+                                    }
                                 }
-                            }
 
-                            //finished++;
-                            SendMsg("导出库" + db + ",表触发器:" + tbinfo.TBName);
-                        }
-
-                        ////视图
-                        //if (needView)
-                        //{
-                        //    foreach (var v in views)
-                        //    {
-                        //        if (cancel)
-                        //        {
-                        //            break;
-                        //        }
-                        //        var vsql = MySQLHelper.GetViewCreateSql(DBSource, db, v.Key);
-
-                        //        sb.AppendLine(vsql);
-                        //        sb.AppendLine("GO");
-                        //        SendMsg("导出库" + db + ",视图:" + v.Key);
-                        //        //finished++;
-                        //    }
-                        //}
-
-                        //存储过程
-                        if (needProc)
-                        {
-                            foreach (var proc in proclist)
-                            {
-                                if (cancel)
-                                {
-                                    break;
-                                }
-                                var body = MySQLHelper.GetProcedureBody(DBSource, db, proc);
-                                sb.AppendLine(body);
-                                sb.AppendLine("GO");
-                                SendMsg("导出库" + db + ",存储过程:" + proc);
                                 //finished++;
+                                SendMsg("导出库" + db + ",表触发器:" + tbinfo.TBName);
                             }
                         }
 
-                        //函数
-                        if (needFunc)
+                        if (needCreateSql)
                         {
-                            foreach (var r in functionlist.AsEnumerable())
+                            //视图
+                            if (needView)
                             {
-                                if (cancel)
+                                foreach (var v in views)
                                 {
-                                    break;
+                                    if (cancel || stop)
+                                    {
+                                        break;
+                                    }
+                                    sb.AppendLine($"/*----------view:{v.Key}------------*/");
+                                    var vsql = MySQLHelper.GetCreateViewSQL(DBSource, db, v.Key);
+
+                                    sb.AppendLine(vsql);
+                                    SendMsg("导出库" + db + ",视图:" + v.Key);
+                                    //finished++;
                                 }
-                                var body = MySQLHelper.GetFunctionBody(DBSource, db, r["name"].ToString());
-                                sb.AppendLine(body);
-                                sb.AppendLine("GO");
-                                SendMsg("导出库" + db + ",函数:" + r["name"].ToString());
-                                //finished++;
                             }
+
+                            //存储过程
+                            if (needProc)
+                            {
+                                foreach (var proc in proclist)
+                                {
+                                    if (cancel || stop)
+                                    {
+                                        break;
+                                    }
+                                    sb.AppendLine($"/*----------存储过程:{proc}------------*/");
+                                    var body = MySQLHelper.GetProcedureBody(DBSource, db, proc);
+                                   
+                                    sb.AppendLine("DELIMITER $$");
+                                    sb.Append(body);
+                                    sb.Append(" $$");
+                                    sb.AppendLine();
+                                    sb.AppendLine("DELIMITER ;");
+                                    sb.AppendLine();
+                                    SendMsg("导出库" + db + ",存储过程:" + proc);
+                                    //finished++;
+                                }
+                            }
+
+                            //函数
+                            if (needFunc)
+                            {
+                                foreach (var r in functionlist.AsEnumerable())
+                                {
+                                    if (cancel || stop)
+                                    {
+                                        break;
+                                    }
+                                    sb.AppendLine($"/*----------函数:{r["name"].ToString()}------------*/");
+                                    var body = MySQLHelper.GetFunctionBody(DBSource, db, r["name"].ToString());
+                                   
+                                    sb.AppendLine("DELIMITER $$");
+                                    sb.Append(body);
+                                    sb.Append(" $$");
+                                    sb.AppendLine();
+                                    sb.AppendLine("DELIMITER ;");
+                                    sb.AppendLine();
+                                    SendMsg("导出库" + db + ",函数:" + r["name"].ToString());
+                                    //finished++;
+                                }
+                            }
+
+                            //用户自定义类型
+
+
+                            if (isTest)
+                            {
+                                sb = new StringBuilder(Regex.Replace(sb.ToString(), $"use[\\s]+\\`?{db}\\`?", $"use `{destdb}`", RegexOptions.IgnoreCase | RegexOptions.Multiline));
+                            }
+
+                            sball.Append(sb);
+                            sball.AppendLine("/*===库分隔线===*/");
                         }
 
                         finished++;
 
                         PublishFinished(total, finished);
-
-                        if (isTest)
-                        {
-                            sb =new StringBuilder(Regex.Replace(sb.ToString(), $"use[\\s]+\\[?{db}\\]?", $"use [{destdb}]",RegexOptions.IgnoreCase|RegexOptions.Multiline));
-                        }
-
-                        sball.Append(sb);
-                        sball.AppendLine("/*===库分隔线===*/");
                     }
                     catch (Exception ex)
                     {
@@ -339,55 +498,78 @@ namespace NETDBHelper.SubForm
                     }
                 }
 
-                if (!cancel && sball.Length > 0)
+                if (needCreateSql && sball.Length > 0)
                 {
                     File.WriteAllText(filename, sball.ToString(), Encoding.UTF8);
                 }
 
-                if (!cancel && sbdata.Length > 0)
+                if (finished == total)
                 {
-                    var currDataFileName = datafilename.Replace("###", (datafilecount++).ToString());
-                    File.WriteAllText(currDataFileName, sbdata.ToString(), Encoding.UTF8);
+                    PublishFinished(100, 100);
+                    SendMsg("保存成功:" + filename);
+
+                    System.Diagnostics.Process.Start(dir);
+
+                    haserror = false;
+                    currentTask = null;
                 }
-
-                SendMsg("保存成功:" + filename);
-
-                System.Diagnostics.Process.Start(dir);
-
-                haserror = false;
                 return await Task.FromResult(1);
             }
             catch (Exception ex)
             {
                 SendMsg(ex.Message);
-
                 return await Task.FromResult(0);
             }
             finally
             {
-                PublishFinished(100, 100);
-                this.BeginInvoke(new Action(()=>{
-                    this.saveTask = null;
-                    this.BtnOk.Enabled = true;
-                    this.groupBox1.Enabled = true;
-                    this.groupBox2.Enabled = true;
-                    if (!haserror)
+                if (cancel)
+                {
+                    if (MessageBox.Show("要删除备份目录吗?", "提示", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                     {
-                        if (this.Modal)
+                        try
                         {
-                            //Biz.Common.Data.SQLHelper.
-
-                            this.DialogResult = DialogResult.OK;
-
+                            Directory.Delete(dir, true);
                         }
-                        else
+                        catch
                         {
-                            this.Close();
+                            MessageBox.Show($"删除失败:{dir}，需要手工删除。");
                         }
                     }
-                }));
 
-                
+                    this.BeginInvoke(new Action(() =>
+                    {
+                        this.saveTask = null;
+                        this.BtnOk.Enabled = true;
+                        BtnStop.Enabled = false;
+                        BtnStop.Text = "暂停";
+                        this.GBSelDBTB.Enabled = true;
+                        this.groupBox2.Enabled = true;
+                        this.currentTask = null;
+                        cancel = false;
+                    }));
+                }
+                else if (stop)
+                {
+                    this.BeginInvoke(new Action(() =>
+                    {
+                        BtnStop.Enabled = true;
+                        this.GBSelDBTB.Enabled = true;
+                        stop = false;
+                    }));
+                }
+                else
+                {
+                    this.BeginInvoke(new Action(() =>
+                    {
+                        this.saveTask = null;
+                        this.BtnOk.Enabled = true;
+                        BtnStop.Enabled = false;
+                        BtnStop.Text = "暂停";
+                        this.GBSelDBTB.Enabled = true;
+                        this.groupBox2.Enabled = true;
+                        this.currentTask = null;
+                    }));
+                }
             }
         }
 
@@ -405,8 +587,9 @@ namespace NETDBHelper.SubForm
         private void BtnOk_Click(object sender, EventArgs e)
         {
             this.BtnOk.Enabled = false;
-            this.groupBox1.Enabled = false;
+            this.GBSelDBTB.Enabled = false;
             this.groupBox2.Enabled = false;
+            this.BtnStop.Enabled = true;
             //this.BtnCancel.Enabled = false;
             PublishFinished(100, 0);
             saveTask = Task.Run(() => Save(CBTest.Checked, CBIndex.Checked, CBView.Checked, CBProc.Checked, CBFunc.Checked, CBTrigger.Checked, (int)NUDMaxSize.Value));
@@ -424,8 +607,14 @@ namespace NETDBHelper.SubForm
                     this.CLBDBs.Items.Clear();
                     var dbs = MySQLHelper.GetDBs(DBSource);
                     this.CLBDBs.Items.AddRange(dbs.AsEnumerable().Select(p => (object)p.Field<string>("name")).OrderBy(p => p.ToString()).ToArray());
+                    for (var i = 0; i < this.CLBDBs.Items.Count; i++)
+                    {
+                        CLBDBs.SetItemChecked(i, true);
+                    }
+                    BtnSelAll.Text = "全消";
+                    this.CLBDBs.Tag = new Dictionary<string, List<StringAndBool>>();
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     Util.SendMsg(this.OwnerCtl ?? this, ex.Message);
                 }
@@ -434,9 +623,55 @@ namespace NETDBHelper.SubForm
 
         private void BtnSelAll_Click(object sender, EventArgs e)
         {
-            for(int i = 0; i < this.CLBDBs.Items.Count; i++)
+            var reg = TBReg.Text;
+            if (BtnSelAll.Text == "全选")
             {
-                this.CLBDBs.SetItemChecked(i, true);
+                for (int i = 0; i < mainCLB.Items.Count; i++)
+                {
+                    mainCLB.SetItemChecked(i, IsMatch(mainCLB.Items[i].ToString()));
+                }
+                BtnSelAll.Text = "全消";
+            }
+            else
+            {
+                for (int i = 0; i < mainCLB.Items.Count; i++)
+                {
+                    mainCLB.SetItemChecked(i, !IsMatch(mainCLB.Items[i].ToString()));
+                }
+                BtnSelAll.Text = "全选";
+            }
+
+            bool IsMatch(string item)
+            {
+                if (string.IsNullOrEmpty(reg))
+                {
+                    return true;
+                }
+
+                return Regex.IsMatch(item, reg, RegexOptions.IgnoreCase);
+            }
+        }
+
+        private void BtnStop_Click(object sender, EventArgs e)
+        {
+            if (BtnStop.Text == "暂停")
+            {
+                if (MessageBox.Show("要暂停吗?", "提示", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                {
+                    BtnStop.Enabled = false;
+                    stop = true;
+                    BtnStop.Text = "继续";
+                }
+            }
+            else if (BtnStop.Text == "继续")
+            {
+                if (MessageBox.Show("要继续吗?", "提示", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                {
+                    BtnStop.Enabled = true;
+                    stop = false;
+                    saveTask = Task.Run(() => Save(CBTest.Checked, CBIndex.Checked, CBView.Checked, CBProc.Checked, CBFunc.Checked, CBTrigger.Checked, (int)NUDMaxSize.Value));
+                    BtnStop.Text = "暂停";
+                }
             }
         }
     }
