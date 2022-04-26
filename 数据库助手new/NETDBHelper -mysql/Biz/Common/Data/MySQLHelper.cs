@@ -7,6 +7,7 @@ using System.Data;
 using Entity;
 using System.Text.RegularExpressions;
 using static Entity.IndexEntry;
+using System.Data.SqlClient;
 
 namespace Biz.Common.Data
 {
@@ -34,10 +35,10 @@ namespace Biz.Common.Data
 
         public static DataTable GetDBs(DBSource dbSource)
         {
-            var dt= ExecuteDBTable(dbSource, null, MySqlHelperConsts.GetDBs, null);
-            
+            var dt = ExecuteDBTable(dbSource, null, MySqlHelperConsts.GetDBs, null);
+
             dt.Columns[0].ColumnName = "name";
-            dt=dt.AsEnumerable().Where(p => p["name"].ToString() != "information_schema" && p["name"].ToString() != "mysql" && p["name"].ToString() != "performance_schema").CopyToDataTable();
+            dt = dt.AsEnumerable().Where(p => p["name"].ToString() != "information_schema" && p["name"].ToString() != "mysql" && p["name"].ToString() != "performance_schema").CopyToDataTable();
             return dt;
         }
 
@@ -51,7 +52,7 @@ namespace Biz.Common.Data
         /// </returns>
         public static DataTable GetTableColsDescription(DBSource dbSource, string dbName, string tbName)
         {
-            var tb= ExecuteDBTable(dbSource, dbName, MySqlHelperConsts.GetTableColsDescription,new MySqlParameter("@db", dbName),new MySqlParameter("@tb",tbName));
+            var tb = ExecuteDBTable(dbSource, dbName, MySqlHelperConsts.GetTableColsDescription, new MySqlParameter("@db", dbName), new MySqlParameter("@tb", tbName));
             tb.Columns["column_name"].ColumnName = "ColumnName";
             tb.Columns["column_comment"].ColumnName = "Description";
             return tb;
@@ -59,14 +60,14 @@ namespace Biz.Common.Data
 
         public static DataTable GetTBs(DBSource dbSource, string dbName)
         {
-            var tb= ExecuteDBTable(dbSource, dbName, string.Format(MySqlHelperConsts.GetTBs,dbName), null);
+            var tb = ExecuteDBTable(dbSource, dbName, string.Format(MySqlHelperConsts.GetTBs, dbName), null);
             tb.Columns[0].ColumnName = "name";
             return tb;
         }
 
-        public static IEnumerable<TBColumn> GetColumns(DBSource dbSource, string dbName,string tbName)
+        public static IEnumerable<TBColumn> GetColumns(DBSource dbSource, string dbName, string tbName)
         {
-            var tb = ExecuteDBTable(dbSource, dbName, MySqlHelperConsts.GetColumns, new MySqlParameter("@db", dbName),new MySqlParameter("@tb",tbName));
+            var tb = ExecuteDBTable(dbSource, dbName, MySqlHelperConsts.GetColumns, new MySqlParameter("@db", dbName), new MySqlParameter("@tb", tbName));
             var idColumnName = GetAutoIncrementColName(dbSource, dbName, tbName);
             for (int i = 0; i < tb.Rows.Count; i++)
             {
@@ -92,7 +93,7 @@ namespace Biz.Common.Data
             }
         }
 
-        public static IEnumerable<string> GetProcedures(DBSource dbSource,string dbName)
+        public static IEnumerable<string> GetProcedures(DBSource dbSource, string dbName)
         {
             var tb = ExecuteDBTable(dbSource, dbName, string.Format("select name from mysql.proc where db='{0}' AND `type` = 'PROCEDURE' ", dbName));
 
@@ -102,7 +103,7 @@ namespace Biz.Common.Data
             return y;
         }
 
-        public static string GetProcedureBody(DBSource dbSource,string dbName,string procedure)
+        public static string GetProcedureBody(DBSource dbSource, string dbName, string procedure)
         {
             //show create {procedure|function} sp_name
             string sql = string.Format("show create procedure {0}", procedure);
@@ -111,7 +112,7 @@ namespace Biz.Common.Data
 
             if (tb.Rows.Count > 0)
             {
-                var body= (string)tb.Rows[0]["Create Procedure"];
+                var body = (string)tb.Rows[0]["Create Procedure"];
                 body = Regex.Replace(body, @"\n", "\r\n");
                 body = Regex.Replace(body, "(?!\n);", ";\r\n");
 
@@ -130,7 +131,7 @@ namespace Biz.Common.Data
 
             if (tb.Rows.Count > 0)
             {
-                var body= (string)tb.Rows[0]["Create Table"];
+                var body = (string)tb.Rows[0]["Create Table"];
                 body = Regex.Replace(body, @"\n", "\r\n");
                 body = Regex.Replace(body, "(?!\n);", "\r\n");
 
@@ -143,7 +144,7 @@ namespace Biz.Common.Data
         public static string GetCreateViewSQL(DBSource dbSource, string dbName, string viewName)
         {
             //show create {procedure|function} sp_name
-            string sql = string.Format("show create view `{0}`.`{1}`", dbName,viewName);
+            string sql = string.Format("show create view `{0}`.`{1}`", dbName, viewName);
 
             var tb = ExecuteDBTable(dbSource, dbName, sql);
 
@@ -176,7 +177,7 @@ namespace Biz.Common.Data
 
         public static DataTable ExecuteDBTable(DBSource dbSource, string connDB, string sql, params MySqlParameter[] sqlParams)
         {
-            
+
             MySqlCommand cmd = new MySqlCommand();
             cmd.Connection = new MySqlConnection(GetConnstringFromDBSource(dbSource, connDB));
             cmd.CommandText = sql;
@@ -216,7 +217,7 @@ namespace Biz.Common.Data
             }
         }
 
-        public static string GetConnstringFromDBSource(DBSource dbSource, string connDB)
+        public static string GetConnstringFromDBSource(DBSource dbSource, string connDB, bool? sqlServerMode = true, bool? allowBatch = true, bool? allowLoadLocalInfile = false)
         {
             if (dbSource == null)
                 return null;
@@ -226,11 +227,22 @@ namespace Biz.Common.Data
             sb.Database = connDB;
             sb.Pooling = true;
             sb.ConnectionTimeout = 30;
-            sb.SqlServerMode = true;
-            sb.AllowBatch = true;
+            if (sqlServerMode.HasValue)
+            {
+                sb.SqlServerMode = sqlServerMode.Value;
+            }
+            if (allowBatch.HasValue)
+            {
+                sb.AllowBatch = allowBatch.Value;
+            }
             sb.MinimumPoolSize = 1;
             sb.MaximumPoolSize = 5;
             sb.AllowUserVariables = true;
+            if (allowLoadLocalInfile.HasValue)
+            {
+                sb.AllowLoadLocalInfile = allowLoadLocalInfile.Value;
+            }
+
             if (dbSource.IDType == IDType.uidpwd)
             {
                 sb.UserID = dbSource.LoginName;
@@ -327,7 +339,7 @@ namespace Biz.Common.Data
             if (dBSource == null)
                 return;
 
-            string delSql = "drop database "+database;
+            string delSql = "drop database " + database;
             ExecuteNoQuery(dBSource, database, delSql);
         }
 
@@ -342,7 +354,7 @@ namespace Biz.Common.Data
             var key = list.FirstOrDefault(p => p.IsKey);
             if (key != null)
             {
-                var newrow=tb.NewRow();
+                var newrow = tb.NewRow();
                 newrow["COLUMN_NAME"] = key.Name;
                 tb.Rows.Add(newrow);
             }
@@ -375,7 +387,7 @@ namespace Biz.Common.Data
             StringBuilder sb = new StringBuilder();
             sb.AppendFormat("USE {0};", dbname);
             sb.AppendLine();
-            sb.AppendLine(string.Format("drop PROCEDURE if exists {0};",spname));
+            sb.AppendLine(string.Format("drop PROCEDURE if exists {0};", spname));
             sb.AppendLine();
             sb.AppendLine();
             sb.AppendLine("/* =============================================");
@@ -429,7 +441,7 @@ namespace Biz.Common.Data
             //foreach (var col in cols)
             foreach (var col in conditioncols)
             {
-                sb.AppendLine(string.Format("/*{0}*/",string.IsNullOrWhiteSpace(col.Description)?col.Name:col.Description));
+                sb.AppendLine(string.Format("/*{0}*/", string.IsNullOrWhiteSpace(col.Description) ? col.Name : col.Description));
                 sb.AppendLine(string.Format("	if @{0} is not null then", col.Name));
                 sb.AppendLine("	begin");
                 sb.AppendLine();
@@ -459,7 +471,7 @@ namespace Biz.Common.Data
                 sb.AppendLine(" end;");
                 sb.AppendLine(" else");
                 sb.AppendLine(" begin");
-                sb.AppendLine(string.Format("       set @{0}=true;",col.Name));
+                sb.AppendLine(string.Format("       set @{0}=true;", col.Name));
                 sb.AppendLine("       set @where=concat(@where,' and ?');");
                 sb.AppendLine(" end;");
                 sb.AppendLine(" end if;");
@@ -480,7 +492,7 @@ namespace Biz.Common.Data
             sb.AppendLine();
             sb.AppendLine("set @limit=(@pageIndex-1)*@pageSize;");
             sb.Append(" set @sql = concat('");
-            sb.Append(string.Format("	Select {0} From ", string.Join(",",outputcols.Select(p => "`" + p.Name + "`"))));
+            sb.Append(string.Format("	Select {0} From ", string.Join(",", outputcols.Select(p => "`" + p.Name + "`"))));
             sb.Append(string.Format("	`{0}` ',@where", tbname));
             sb.AppendLine(", @OrderBy,' limit ?,?');");
             sb.AppendLine();
@@ -498,7 +510,7 @@ namespace Biz.Common.Data
             return sb.ToString();
         }
 
-        public static void CreateIndex(DBSource dbSource, string dbName, string tabname, string indexname,bool unique,bool primarykey,bool autoIncr, List<IndexTBColumn> cols)
+        public static void CreateIndex(DBSource dbSource, string dbName, string tabname, string indexname, bool unique, bool primarykey, bool autoIncr, List<IndexTBColumn> cols)
         {
             string sql = string.Empty;
 
@@ -537,22 +549,22 @@ namespace Biz.Common.Data
 
                 ExecuteNoQuery(dbSource, dbName, sql, null);
             }
-           
-            
+
+
         }
 
         public static string GetAutoIncrementColName(DBSource dbSource, string dbName, string tabname)
         {
             //string sql=string.Format("select * from information_schema.`TABLES` where table_name='{0}' and TABLE_SCHEMA='{1}'",tabname,dbName);
 
-//            string sql = string.Format(@"SELECT
-//  TABLE_SCHEMA,TABLE_NAME,COLUMN_NAME
-//FROM
-//  information_schema.KEY_COLUMN_USAGE", dbName, tabname);
+            //            string sql = string.Format(@"SELECT
+            //  TABLE_SCHEMA,TABLE_NAME,COLUMN_NAME
+            //FROM
+            //  information_schema.KEY_COLUMN_USAGE", dbName, tabname);
 
-            string sql = string.Format("select COLUMN_NAME FROM information_schema.COLUMNS where TABLE_SCHEMA='{0}' and TABLE_NAME='{1}' and EXTRA='auto_increment'",dbName,tabname);
+            string sql = string.Format("select COLUMN_NAME FROM information_schema.COLUMNS where TABLE_SCHEMA='{0}' and TABLE_NAME='{1}' and EXTRA='auto_increment'", dbName, tabname);
 
-            var tb=ExecuteDBTable(dbSource,dbName,sql,null);
+            var tb = ExecuteDBTable(dbSource, dbName, sql, null);
 
             if (tb.Rows.Count == 0)
             {
@@ -615,9 +627,9 @@ namespace Biz.Common.Data
         public static List<IndexEntry> GetIndexs(DBSource dbSource, string dbName, string tabname)
         {
             var indexs = new List<IndexEntry>();
-            string sql = string.Format("show index from `{0}`",tabname);
+            string sql = string.Format("show index from `{0}`", tabname);
 
-            var tb= ExecuteDBTable(dbSource, dbName, sql);
+            var tb = ExecuteDBTable(dbSource, dbName, sql);
 
             var x = from row in tb.AsEnumerable()
                     group row by row.Field<string>("Key_name") into pp
@@ -627,7 +639,7 @@ namespace Biz.Common.Data
                         Cols = pp.OrderBy(c => c.Field<object>("Seq_in_index")).Select(c => new IndexCol
                         {
                             Col = c.Field<string>("Column_name"),
-                            IsDesc=c.Field<string>("Collation")!="A"
+                            IsDesc = c.Field<string>("Collation") != "A"
                         }).ToArray()
                     };
 
@@ -638,24 +650,25 @@ namespace Biz.Common.Data
         {
             var indexs = new List<IndexEntry>();
 
-            var tb = ExecuteDBTable(dbSource, dbName, MySqlHelperConsts.GetIndexDDL,new MySqlParameter[]{
+            var tb = ExecuteDBTable(dbSource, dbName, MySqlHelperConsts.GetIndexDDL, new MySqlParameter[]{
                     new MySqlParameter("@TABLE_SCHEMA",dbName),
                     new MySqlParameter("@TABLE_NAME",tabname)
                 });
 
             var x = from row in tb.AsEnumerable().Select(p => new IndexDDL
-                {
-                    DBName = dbName,
-                    TableName = tabname,
-                    IndexName = p.Field<string>("INDEX_NAME"),
-                    DDL = p.Field<string>("Show_Add_Indexes")
-                }
-            ) select row;
+            {
+                DBName = dbName,
+                TableName = tabname,
+                IndexName = p.Field<string>("INDEX_NAME"),
+                DDL = p.Field<string>("Show_Add_Indexes")
+            }
+            )
+                    select row;
 
             return x.ToList();
         }
 
-        public static void DropIndex(DBSource dbSource, string dbName,string tbName,bool primarykey, string indexName)
+        public static void DropIndex(DBSource dbSource, string dbName, string tbName, bool primarykey, string indexName)
         {
             string sql = null;
             if (primarykey)
@@ -791,7 +804,8 @@ ON {tb.Rows[0].Field<string>("EVENT_OBJECT_TABLE")} FOR EACH Row {tb.Rows[0].Fie
 
             var tb = ExecuteDBTable(dbSource, dbname, sql);
 
-            var list = tb.AsEnumerable().Select(p => {
+            var list = tb.AsEnumerable().Select(p =>
+            {
                 var typeWithLen = p.Field<string>("Type");
                 var g = Regex.Match(typeWithLen, @"\((\d{1,})");
                 return new ViewColumn
@@ -996,6 +1010,25 @@ ON {tb.Rows[0].Field<string>("EVENT_OBJECT_TABLE")} FOR EACH Row {tb.Rows[0].Fie
                 //    return string.Format("convert(varbinary(max),[{0}]) as [{0}]", column.Name);
                 //}
                 return string.Format("`{0}`", column.Name);
+            }
+        }
+
+        public static void SqlBulkCopy(DBSource dbSource, string connDB, int timeOut, string destTable, DataTable copytable)
+        {
+            if (copytable.Rows.Count > 0)
+            {
+                using (var conn = new MySqlConnector.MySqlConnection(GetConnstringFromDBSource(dbSource, connDB, null, null, true)))
+                {
+                    conn.Open();
+                    var copytask = new MySqlConnector.MySqlBulkCopy(conn);
+                    if (timeOut > 0)
+                    {
+                        copytask.BulkCopyTimeout = timeOut / 1000;
+                    }
+
+                    copytask.DestinationTableName = destTable;
+                    copytask.WriteToServer(copytable);
+                }
             }
         }
     }
