@@ -360,7 +360,8 @@ namespace NETDBHelper
                     {
                         foreach (var c in searchColumns)
                         {
-                            if (c.Name.IndexOf(w, StringComparison.OrdinalIgnoreCase) > -1 || c.Description?.IndexOf(w, StringComparison.OrdinalIgnoreCase) > -1)
+                            if (c.Name.IndexOf(w, StringComparison.OrdinalIgnoreCase) > -1 || c.Description?.IndexOf(w, StringComparison.OrdinalIgnoreCase) > -1
+                            || Regex.IsMatch(c.Name, w, RegexOptions.IgnoreCase))
                             {
                                 lst.Add(c);
                             }

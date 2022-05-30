@@ -2174,15 +2174,16 @@ background-color: #ffffff;
                        var idx=1;
                        var tds= document.getElementsByTagName('td');
                        w=w.toUpperCase();
+                       var regx=new RegExp(w,'i')
                        for(var i=0;i<tds.length;i+=3){
-                           var boo=tds[i+1].innerText.toUpperCase().indexOf(w)>-1||tds[i+2].innerText.toUpperCase().indexOf(w)>-1
+                           var boo=tds[i+1].innerText.toUpperCase().indexOf(w)>-1||tds[i+2].innerText.toUpperCase().indexOf(w)>-1||regx.test(tds[i+1].innerText)
                            tds[i].parentNode.style.display=boo?'':'none'
                            if(boo) tds[i].innerText=idx++
                        }
                    }
                    
                   </script>");
-                sb.Append("<input id='w' type='text' style='height:23px; line-height:23px;' onkeypress='k()' value=''/><input type='button' style='font-size:12px; height:23px; line-height:18px;' value='搜索'  onclick='s()'/>");
+                sb.Append("<input id='w' type='text' style='height:23px; line-height:23px;' onkeypress='k()' value=''/><input type='button' style='font-size:12px; height:23px; line-height:18px;' value='搜索'  onclick='s()'/><span style='color:red;'>* 支持正则</span>");
                 sb.Append("<p/>");
                 sb.Append("<table>");
                 sb.Append("<tr><th>序号</th><th>表名</th><th>描述</th></tr>");
@@ -2263,8 +2264,9 @@ background-color: #ffffff;
                        var idx=1;
                        var tds= document.getElementsByTagName('td');
                        w=w.toUpperCase();
+                       var regx=new RegExp(w,'i')
                        for(var i=0;i<tds.length;i+=4){
-                           var boo=tds[i+2].innerText.toUpperCase().indexOf(w)>-1||tds[i+3].innerText.toUpperCase().indexOf(w)>-1
+                           var boo=tds[i+2].innerText.toUpperCase().indexOf(w)>-1||tds[i+3].innerText.toUpperCase().indexOf(w)>-1||regx.test(tds[i+2].innerText)
                            tds[i].parentNode.style.display=boo?'':'none'
                            if(boo) tds[i].innerText=idx++
                        }
@@ -2333,7 +2335,7 @@ background-color: #ffffff;
                 sb.AppendFormat("<script>{0}</script>", System.IO.File.ReadAllText("json2.js"));
                 sb.Append(@"<input id='w' type='text' style='height:23px; line-height:23px;width:30%;' onkeypress='k()' value=''/>
                             <input type='checkbox' id='scontent' value='1'>全库搜索</input>
-                            <input type='button' style='font-size:12px; height:23px; line-height:18px;' value='搜索'  onclick='s()'/>");
+                            <input type='button' style='font-size:12px; height:23px; line-height:18px;' value='搜索'  onclick='s()'/><span style='color:red;'>* 支持正则</span>");
                 sb.Append("<p/>");
                 sb.Append($"<div id='clearcachtip' style='margin-top:5px;display:none;width:98%;font-size:9pt;height:18px; line-height:18px;background-color:lightyellow;border:solid 1px lightblue'>如果没有找到，可以选择<a href='javascript:tryclearcach()'>清空缓存</a>试试</div>");
                 sb.Append("<p/>");
@@ -2417,8 +2419,9 @@ background-color: #ffffff;
                        var idx=1;
                        var tds= document.getElementsByTagName('td');
                        w=w.toUpperCase();
+                       var regx=new RegExp(w,'i')
                        for(var i=0;i<tds.length;i+=3){
-                           var boo=tds[i+1].innerText.toUpperCase().indexOf(w)>-1||tds[i+2].innerText.toUpperCase().indexOf(w)>-1
+                           var boo=tds[i+1].innerText.toUpperCase().indexOf(w)>-1||tds[i+2].innerText.toUpperCase().indexOf(w)>-1||regx.test(tds[i+1].innerText)
                            tds[i].parentNode.style.display=boo?'':'none'
                            if(boo) tds[i].innerText=idx++
                        }
@@ -2457,7 +2460,7 @@ background-color: #ffffff;
                 sb.AppendFormat("<script>{0}</script>",System.IO.File.ReadAllText("json2.js"));
                 sb.Append(@"<input id='w' type='text' style='height:23px; line-height:23px;width:30%;' onkeypress='k()' value=''/>
                             <input type='checkbox' id='scontent' value='1'>搜索内容</input>
-                            <input type='button' style='font-size:12px; height:23px; line-height:18px;' value='搜索'  onclick='s()'/>");
+                            <input type='button' style='font-size:12px; height:23px; line-height:18px;' value='搜索'  onclick='s()'/><span style='color:red;'>* 支持正则</span>");
                 sb.Append("<p/>");
                 sb.Append($"<div id='clearcachtip' style='margin-top:5px;display:none;width:98%;font-size:9pt;height:18px; line-height:18px;background-color:lightyellow;border:solid 1px lightblue'>如果没有找到，可以选择<a href='javascript:tryclearcach()'>清空缓存</a>试试</div>");
                 sb.Append("<p/>");
@@ -2539,8 +2542,9 @@ background-color: #ffffff;
                        var idx=1;
                        var tds= document.getElementsByTagName('td');
                        w=w.toUpperCase();
+                       var regx=new RegExp(w,'i')
                        for(var i=0;i<tds.length;i+=3){
-                           var boo=tds[i+1].innerText.toUpperCase().indexOf(w)>-1||tds[i+2].innerText.toUpperCase().indexOf(w)>-1
+                           var boo=tds[i+1].innerText.toUpperCase().indexOf(w)>-1||tds[i+2].innerText.toUpperCase().indexOf(w)>-1||regx.test(tds[i+1].innerText)
                            tds[i].parentNode.style.display=boo?'':'none'
                            if(boo) tds[i].innerText=idx++
                        }
@@ -2579,7 +2583,7 @@ background-color: #ffffff;
                 sb.AppendFormat("<script>{0}</script>", System.IO.File.ReadAllText("json2.js"));
                 sb.Append(@"<input id='w' type='text' style='height:23px; line-height:23px;width:30%;' onkeypress='k()' value=''/>
                             <input type='checkbox' id='scontent' value='1'>搜索内容</input>
-                            <input type='button' style='font-size:12px; height:23px; line-height:18px;' value='搜索'  onclick='s()'/>");
+                            <input type='button' style='font-size:12px; height:23px; line-height:18px;' value='搜索'  onclick='s()'/><span style='color:red;'>* 支持正则</span>");
                 sb.Append("<p/>");
                 sb.Append($"<div id='clearcachtip' style='margin-top:5px;display:none;width:98%;font-size:9pt;height:18px; line-height:18px;background-color:lightyellow;border:solid 1px lightblue'>如果没有找到，可以选择<a href='javascript:tryclearcach()'>清空缓存</a>试试</div>");
                 sb.Append("<p/>");
