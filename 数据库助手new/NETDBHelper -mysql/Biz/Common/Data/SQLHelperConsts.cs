@@ -48,5 +48,14 @@ namespace Biz.Common.Data
                                     AND OBJECT_NAME(c.object_id) =@TbName
                                 ORDER  
                                     BY OBJECT_NAME(c.object_id), c.column_id";
+
+
+        /// <summary>
+        /// 获取外键
+        /// </summary>
+        public const string SQL_GETFOREIGNKYES = @"SELECT a.* FROM information_schema.KEY_COLUMN_USAGE a
+JOIN information_schema.TABLE_CONSTRAINTS b
+on a.CONSTRAINT_NAME=b.CONSTRAINT_NAME and a.CONSTRAINT_SCHEMA=b.CONSTRAINT_SCHEMA and a.TABLE_SCHEMA=b.TABLE_SCHEMA and a.TABLE_NAME=b.TABLE_NAME
+where b.CONSTRAINT_TYPE = 'FOREIGN KEY' and b.TABLE_SCHEMA=@TABLE_SCHEMA";
     }
 }

@@ -264,11 +264,58 @@ namespace NETDBHelper.SubForm
                         sb.AppendLine();
 
                         var needdata = CBData.Checked && NUDMaxNumber.Value > 0;
+
+                        var foreignKeys = MySQLHelper.GetForeignKeys(this.DBSource, db);
+                        List<string> foreignTables = new List<string>();
+                        foreach (var fk in foreignKeys)
+                        {
+                            int m = 0, n = 0;
+                            for (m = 0; m < foreignTables.Count; m++)
+                            {
+                                if (foreignTables[m].Equals(fk.TableName))
+                                {
+                                    break;
+                                }
+                            }
+                            for (n = 0; n < foreignTables.Count; n++)
+                            {
+                                if (foreignTables[n].Equals(fk.ForeignTableName))
+                                {
+                                    break;
+                                }
+                            }
+                            if (n < m)
+                            {
+                                continue;
+                            }
+                            else if (m == foreignTables.Count && n == foreignTables.Count)
+                            {
+                                foreignTables.Add(fk.ForeignTableName);
+                                foreignTables.Add(fk.TableName);
+                            }
+                            else if (n == foreignTables.Count)
+                            {
+                                foreignTables.Insert(m, fk.ForeignTableName);
+                            }
+                        }
+
+
                         var tbs = MySQLHelper.GetTBs(this.DBSource, db);
                         var tbrows = tbs.AsEnumerable().ToList();
                         if (dbdic.ContainsKey(db))
                         {
-                            tbrows = tbrows.AsEnumerable().Where(p => dbdic[db].Any(q => q.Boo && q.Str.Equals(p.Field<string>("name"), StringComparison.OrdinalIgnoreCase))).ToList();
+                            tbrows = tbrows.AsEnumerable().Where(p => dbdic[db].Any(q => q.Boo && q.Str.Equals(p.Field<string>("name"), StringComparison.OrdinalIgnoreCase)))
+                                .OrderBy(p=>
+                                {
+                                    for(var m = 0; m < foreignTables.Count; m++)
+                                    {
+                                        if (foreignTables[m].Equals(p.Field<string>("name"), StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            return m;
+                                        }
+                                    }
+                                    return int.MaxValue;
+                                }).ToList();
                         }
 
                         var views = MySQLHelper.GetViews(DBSource, db);

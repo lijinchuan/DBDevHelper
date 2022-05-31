@@ -601,6 +601,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <None Include="Resources\drive_disk.png" />
+    <None Include="Resources\key_go.png" />
     <Content Include="Resources\text_bold.png" />
     <None Include="Resources\text_underline.png" />
     <Content Include="Resources\text_uppercase.png" />

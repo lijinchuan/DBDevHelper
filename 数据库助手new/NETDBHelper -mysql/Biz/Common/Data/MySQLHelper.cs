@@ -1197,5 +1197,33 @@ ON {tb.Rows[0].Field<string>("EVENT_OBJECT_TABLE")} FOR EACH Row {tb.Rows[0].Fie
                 }
             }
         }
+
+        /// <summary>
+        /// 获取外键
+        /// </summary>
+        /// <param name="dbSource"></param>
+        /// <param name="dbName"></param>
+        /// <returns></returns>
+        public static List<ForeignKey> GetForeignKeys(DBSource dbSource, string dbName)
+        {
+            var tb = MySQLHelper.ExecuteDBTable(dbSource, dbName, SQLHelperConsts.SQL_GETFOREIGNKYES, new[] { new MySqlParameter("@TABLE_SCHEMA", dbName) });
+
+            var list = new List<ForeignKey>();
+
+            foreach (var item in tb.AsEnumerable())
+            {
+                list.Add(new ForeignKey
+                {
+                    ColName = item.Field<string>("COLUMN_NAME"),
+                    DBName = dbName,
+                    FKName = item.Field<string>("CONSTRAINT_NAME"),
+                    ForeignColName = item.Field<string>("REFERENCED_COLUMN_NAME"),
+                    ForeignTableName = item.Field<string>("REFERENCED_TABLE_NAME"),
+                    TableName = item.Field<string>("TABLE_NAME"),
+                });
+            }
+
+            return list;
+        }
     }
 }
