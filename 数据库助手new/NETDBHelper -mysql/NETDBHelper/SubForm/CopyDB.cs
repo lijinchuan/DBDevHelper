@@ -265,41 +265,10 @@ namespace NETDBHelper.SubForm
 
                         var needdata = CBData.Checked && NUDMaxNumber.Value > 0;
 
+                        
                         var foreignKeys = MySQLHelper.GetForeignKeys(this.DBSource, db);
-                        List<string> foreignTables = new List<string>();
-                        foreach (var fk in foreignKeys)
-                        {
-                            int m = 0, n = 0;
-                            for (m = 0; m < foreignTables.Count; m++)
-                            {
-                                if (foreignTables[m].Equals(fk.TableName))
-                                {
-                                    break;
-                                }
-                            }
-                            for (n = 0; n < foreignTables.Count; n++)
-                            {
-                                if (foreignTables[n].Equals(fk.ForeignTableName))
-                                {
-                                    break;
-                                }
-                            }
-                            if (n < m)
-                            {
-                                continue;
-                            }
-                            else if (m == foreignTables.Count && n == foreignTables.Count)
-                            {
-                                foreignTables.Add(fk.ForeignTableName);
-                                foreignTables.Add(fk.TableName);
-                            }
-                            else if (n == foreignTables.Count)
-                            {
-                                foreignTables.Insert(m, fk.ForeignTableName);
-                            }
-                        }
 
-
+                        var foreignTables = DataHelper.SortForeignKeys(foreignKeys);
                         var tbs = MySQLHelper.GetTBs(this.DBSource, db);
                         var tbrows = tbs.AsEnumerable().ToList();
                         if (dbdic.ContainsKey(db))
@@ -459,6 +428,8 @@ namespace NETDBHelper.SubForm
 
                         if (needCreateSql)
                         {
+                            var templist = new List<Tuple<string, string, int>>();
+
                             //视图
                             if (needView)
                             {
@@ -468,12 +439,9 @@ namespace NETDBHelper.SubForm
                                     {
                                         break;
                                     }
-                                    sb.AppendLine($"/*----------view:{v.Key}------------*/");
+                                    
                                     var vsql = MySQLHelper.GetCreateViewSQL(DBSource, db, v.Key);
-
-                                    sb.AppendLine(vsql);
-                                    SendMsg("导出库" + db + ",视图:" + v.Key);
-                                    //finished++;
+                                    templist.Add(new Tuple<string, string, int>(v.Key, vsql, 1));
                                 }
                             }
 
@@ -486,17 +454,9 @@ namespace NETDBHelper.SubForm
                                     {
                                         break;
                                     }
-                                    sb.AppendLine($"/*----------存储过程:{proc}------------*/");
+
                                     var body = MySQLHelper.GetProcedureBody(DBSource, db, proc);
-                                   
-                                    sb.AppendLine("DELIMITER $$");
-                                    sb.Append(body);
-                                    sb.Append(" $$");
-                                    sb.AppendLine();
-                                    sb.AppendLine("DELIMITER ;");
-                                    sb.AppendLine();
-                                    SendMsg("导出库" + db + ",存储过程:" + proc);
-                                    //finished++;
+                                    templist.Add(new Tuple<string, string, int>(proc, body, 2));
                                 }
                             }
 
@@ -509,18 +469,57 @@ namespace NETDBHelper.SubForm
                                     {
                                         break;
                                     }
-                                    sb.AppendLine($"/*----------函数:{r["name"].ToString()}------------*/");
-                                    var body = MySQLHelper.GetFunctionBody(DBSource, db, r["name"].ToString());
-                                   
+                                    
+                                    var name = r["name"].ToString();
+                                    var body = MySQLHelper.GetFunctionBody(DBSource, db, name);
+                                    templist.Add(new Tuple<string, string, int>(name, body, 3));
+                                }
+                            }
+
+                            var sortProceList = DataHelper.SortProcList(templist);
+                            foreach (var temp in templist.OrderBy(p =>
+                            {
+                                var m = 0;
+                                for (m = 0; m < sortProceList.Count; m++)
+                                {
+                                    if (sortProceList[m].Equals(p.Item1, StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        return m;
+                                    }
+                                }
+
+                                return m;
+                            }))
+                            {
+                                if (temp.Item3 == 1)
+                                {
+                                    sb.AppendLine($"-- view:{temp.Item1}");
+                                    sb.AppendLine(temp.Item2);
+                                    SendMsg("导出库" + db + ",视图:" + temp.Item1);
+                                }
+                                else if (temp.Item3 == 2)
+                                {
+                                    sb.AppendLine($"-- 存储过程:{temp.Item1}");
                                     sb.AppendLine("DELIMITER $$");
-                                    sb.Append(body);
+                                    sb.Append(temp.Item2);
                                     sb.Append(" $$");
                                     sb.AppendLine();
                                     sb.AppendLine("DELIMITER ;");
                                     sb.AppendLine();
-                                    SendMsg("导出库" + db + ",函数:" + r["name"].ToString());
-                                    //finished++;
+                                    SendMsg("导出库" + db + ",存储过程:" + temp.Item1);
                                 }
+                                else if (temp.Item3 == 3)
+                                {
+                                    sb.AppendLine($"-- 函数:{temp.Item1}");
+                                    sb.AppendLine("DELIMITER $$");
+                                    sb.Append(temp.Item2);
+                                    sb.Append(" $$");
+                                    sb.AppendLine();
+                                    sb.AppendLine("DELIMITER ;");
+                                    sb.AppendLine();
+                                    SendMsg("导出库" + db + ",函数:" + temp.Item1);
+                                }
+                                //finished++;
                             }
 
                             //用户自定义类型

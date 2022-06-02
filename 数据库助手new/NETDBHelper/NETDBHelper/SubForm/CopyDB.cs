@@ -11,6 +11,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Linq;
 
 namespace NETDBHelper.SubForm
 {
@@ -265,10 +266,24 @@ namespace NETDBHelper.SubForm
 
                         var needdata = CBData.Checked && NUDMaxNumber.Value > 0;
                         var tbs = SQLHelper.GetTBs(this.DBSource, db);
+                        var foreignKeys = SQLHelper.GetForeignKeys(this.DBSource, db);
+                        List<string> foreignTables = DataHelper.SortForeignKeys(foreignKeys);
+
                         var tbrows = tbs.AsEnumerable().ToList();
                         if (dbdic.ContainsKey(db))
                         {
-                            tbrows = tbrows.AsEnumerable().Where(p => dbdic[db].Any(q => q.Boo && q.Str.Equals(p.Field<string>("name"), StringComparison.OrdinalIgnoreCase))).ToList();
+                            tbrows = tbrows.AsEnumerable().Where(p => dbdic[db].Any(q => q.Boo && q.Str.Equals(p.Field<string>("name"), StringComparison.OrdinalIgnoreCase)))
+                                .OrderBy(p =>
+                                {
+                                    for (var m = 0; m < foreignTables.Count; m++)
+                                    {
+                                        if (foreignTables[m].Equals(p.Field<string>("name"), StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            return m;
+                                        }
+                                    }
+                                    return int.MaxValue;
+                                }).ToList();
                         }
 
                         var views = SQLHelper.GetViews(DBSource, db);
@@ -428,6 +443,8 @@ namespace NETDBHelper.SubForm
 
                         if (needCreateSql)
                         {
+                            var templist = new List<Tuple<string, string,int>>();
+
                             //视图
                             if (needView)
                             {
@@ -437,31 +454,23 @@ namespace NETDBHelper.SubForm
                                     {
                                         break;
                                     }
-                                    sb.AppendLine($"----------view:{v.Key}------------");
                                     var vsql = SQLHelper.GetViewCreateSql(DBSource, db, v.Key);
 
-                                    sb.AppendLine(vsql);
-                                    sb.AppendLine("GO");
-                                    SendMsg("导出库" + db + ",视图:" + v.Key);
-                                    //finished++;
+                                    templist.Add(new Tuple<string, string, int>(v.Key, vsql, 1));
                                 }
                             }
 
                             //存储过程
                             if (needProc)
-                            {
+                            {                       
                                 foreach (var proc in proclist)
                                 {
                                     if (cancel || stop)
                                     {
                                         break;
                                     }
-                                    sb.AppendLine($"----------存储过程:{proc}------------");
                                     var body = SQLHelper.GetProcedureBody(DBSource, db, proc);
-                                    sb.AppendLine(body);
-                                    sb.AppendLine("GO");
-                                    SendMsg("导出库" + db + ",存储过程:" + proc);
-                                    //finished++;
+                                    templist.Add(new Tuple<string, string, int>(proc, body, 2));
                                 }
                             }
 
@@ -474,14 +483,53 @@ namespace NETDBHelper.SubForm
                                     {
                                         break;
                                     }
-                                    sb.AppendLine($"----------函数:{r["name"].ToString()}------------");
-                                    var body = SQLHelper.GetFunctionBody(DBSource, db, r["name"].ToString());
-                                    sb.AppendLine(body);
-                                    sb.AppendLine("GO");
-                                    SendMsg("导出库" + db + ",函数:" + r["name"].ToString());
-                                    //finished++;
+
+                                    var name= r["name"].ToString();
+                                    var body = SQLHelper.GetFunctionBody(DBSource, db, name);
+                                    templist.Add(new Tuple<string, string,int>(name, body, 3));
                                 }
                             }
+
+                            var sortProceList = DataHelper.SortProcList(templist);
+                            foreach (var temp in templist.OrderBy(p =>
+                            {
+                                var m = 0;
+                                for (m = 0; m < sortProceList.Count; m++)
+                                {
+                                    if (sortProceList[m].Equals(p.Item1, StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        return m;
+                                    }
+                                }
+
+                                return m;
+                            }))
+                            {
+                                if(temp.Item3 == 1)
+                                {
+                                    sb.AppendLine($"----------view:{temp.Item1}------------");
+                                    sb.AppendLine(temp.Item2);
+                                    sb.AppendLine("GO");
+                                    SendMsg("导出库" + db + ",视图:" + temp.Item1);
+                                }
+                                else if (temp.Item3==2)
+                                {
+                                    sb.AppendLine($"----------存储过程:{temp.Item1}------------");
+                                    sb.AppendLine(temp.Item2);
+                                    sb.AppendLine("GO");
+                                    SendMsg("导出库" + db + ",存储过程:" + temp.Item1);
+                                }
+                                else if (temp.Item3 == 3)
+                                {
+                                    sb.AppendLine($"----------函数:{temp.Item1}------------");
+                                    sb.AppendLine(temp.Item2);
+                                    sb.AppendLine("GO");
+                                    SendMsg("导出库" + db + ",函数:" + temp.Item1);
+                                }
+                                //finished++;
+                            }
+
+                            
 
                             //用户自定义类型
 

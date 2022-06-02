@@ -915,5 +915,151 @@ GO");
                 return Convert.ChangeType(stringVal, DataTableDataType);
             }
         }
+
+        /// <summary>
+        /// 对外键进行排序
+        /// </summary>
+        /// <param name="foreignKeys"></param>
+        /// <returns></returns>
+        public static List<string> SortForeignKeys(List<ForeignKey> foreignKeys)
+        {
+            List<string> foreignTables = new List<string>();
+            var hasChange = true;
+            while (hasChange)
+            {
+                hasChange = false;
+                foreach (var fk in foreignKeys)
+                {
+                    int m;
+                    for (m = 0; m < foreignTables.Count; m++)
+                    {
+                        if (foreignTables[m].Equals(fk.TableName))
+                        {
+                            break;
+                        }
+                    }
+                    int n;
+                    for (n = 0; n < foreignTables.Count; n++)
+                    {
+                        if (foreignTables[n].Equals(fk.ForeignTableName))
+                        {
+                            break;
+                        }
+                    }
+                    if (n < m)
+                    {
+                        if (m == foreignTables.Count)
+                        {
+                            foreignTables.Add(fk.TableName);
+                        }
+                        continue;
+                    }
+                    else if (m == foreignTables.Count && n == foreignTables.Count)
+                    {
+                        foreignTables.Add(fk.ForeignTableName);
+                        foreignTables.Add(fk.TableName);
+                    }
+                    else if (n == foreignTables.Count)
+                    {
+                        foreignTables.Insert(m, fk.ForeignTableName);
+                    }
+                    else
+                    {
+                        foreignTables.RemoveAt(n);
+                        foreignTables.Insert(m, fk.ForeignTableName);
+                        hasChange = true;
+                        break;
+                    }
+                }
+            }
+            return foreignTables;
+        }
+
+        public static List<string> SortProcList(List<Tuple<string, string,int>> sourceList)
+        {
+            var foreignTables = new List<string>();
+
+            //引用，被引用
+            List<Tuple<string, string,int>> refList = new List<Tuple<string, string,int>>();
+
+            for (var i = 0; i < sourceList.Count; i++)
+            {
+                var refItem = sourceList[i];
+                for (var j = 0; j < sourceList.Count; j++)
+                {
+                    if (i == j)
+                    {
+                        continue;
+                    }
+                    var checkItem = sourceList[j];
+                    //if (Regex.IsMatch(checkItem.Item2, $@"[\r\n\s\.\[]{refItem.Item1}[\r\n\s\]{{1,}}]\(", RegexOptions.IgnoreCase))
+                    if (checkItem.Item2.IndexOf(refItem.Item1, StringComparison.OrdinalIgnoreCase) > 0 
+                        && Regex.IsMatch(checkItem.Item2, $@"[\r\n\s\.\[\t]+{refItem.Item1}[\t\r\n\s\]\(]{{1,}}", RegexOptions.IgnoreCase))
+                    {
+                        if (refList.Any(p => p.Item1.Equals(refItem.Item1, StringComparison.OrdinalIgnoreCase)
+                         && p.Item2.Equals(checkItem.Item1, StringComparison.OrdinalIgnoreCase)))
+                        {
+                            throw new Exception($"{checkItem.Item1}与{refItem.Item1}重复引用");
+                        }
+                        if (checkItem.Item1.Equals("GetPostTypeResumeCount", StringComparison.OrdinalIgnoreCase) && refItem.Item1.Equals("fun_getPosTypesName", StringComparison.OrdinalIgnoreCase))
+                        {
+
+                        }
+                        refList.Add(new Tuple<string, string,int>(checkItem.Item1, refItem.Item1,refItem.Item3));
+                    }
+                }
+            }
+
+            var hasChange = true;
+            while (hasChange)
+            {
+                hasChange = false;
+                foreach (var fk in refList)
+                {
+                    int m;
+                    for (m = 0; m < foreignTables.Count; m++)
+                    {
+                        if (foreignTables[m].Equals(fk.Item1))
+                        {
+                            break;
+                        }
+                    }
+                    int n;
+                    for (n = 0; n < foreignTables.Count; n++)
+                    {
+                        if (foreignTables[n].Equals(fk.Item2))
+                        {
+                            break;
+                        }
+                    }
+                    if (n < m)
+                    {
+                        if (m == foreignTables.Count)
+                        {
+                            foreignTables.Add(fk.Item1);
+                        }
+                        continue;
+                    }
+                    else if (m == foreignTables.Count && n == foreignTables.Count)
+                    {
+                        foreignTables.Add(fk.Item2);
+                        foreignTables.Add(fk.Item1);
+                    }
+                    else if (n == foreignTables.Count)
+                    {
+                        foreignTables.Insert(m, fk.Item2);
+                    }
+                    else
+                    {
+                        foreignTables.RemoveAt(n);
+                        foreignTables.Insert(m, fk.Item2);
+                        hasChange = true;
+                        break;
+                    }
+                }
+            }
+
+            return foreignTables;
+        }
     }
 }
