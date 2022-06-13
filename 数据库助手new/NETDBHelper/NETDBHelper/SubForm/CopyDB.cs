@@ -169,7 +169,7 @@ namespace NETDBHelper.SubForm
 
         private async Task<int> Save(bool isTest, bool needIndex, bool needView, bool needProc, bool needFunc, bool needTrigger, int maxSize)
         {
-            bool haserror = true;
+            bool hasNotSupport = false;
             var dir = string.Empty;
             var filename = string.Empty;
             var dbdic = (Dictionary<string, List<StringAndBool>>)this.CLBDBs.Tag;
@@ -529,9 +529,20 @@ namespace NETDBHelper.SubForm
                                 //finished++;
                             }
 
-                            
+
 
                             //用户自定义类型
+                            var userTypeTb = SQLHelper.GetUserTypes(this.DBSource, db);
+                            if (userTypeTb.Rows.Count > 0)
+                            {
+                                hasNotSupport = true;
+                                foreach(DataRow r in userTypeTb.Rows)
+                                {
+                                    sb.AppendLine($"----------不支持的类型，用户自定义类型:{r.Field<string>("name")}------------");
+
+                                    sb.AppendLine("GO");
+                                }
+                            }
 
 
                             if (isTest)
@@ -562,10 +573,12 @@ namespace NETDBHelper.SubForm
                 {
                     PublishFinished(100, 100);
                     SendMsg("保存成功:" + filename);
-
+                    if (hasNotSupport)
+                    {
+                        MessageBox.Show("有用户自定义类型数据，请手动导出。");
+                    }
                     System.Diagnostics.Process.Start(dir);
 
-                    haserror = false;
                     currentTask = null;
                 }
                 return await Task.FromResult(1);

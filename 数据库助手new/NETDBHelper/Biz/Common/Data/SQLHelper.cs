@@ -1260,5 +1260,26 @@ where a.Table_NAME='" + viewname + "' and a.TABLE_NAME=b.TABLE_NAME ORDER BY A.T
 
             return list;
         }
+
+        public static DataTable GetUserTypes(DBSource dbSource, string dbName)
+        {
+            var sql = @"select name,
+system_type_id,
+user_type_id,
+schema_id,
+principal_id,
+max_length,
+precision,
+scale,
+collation_name,
+is_nullable,
+is_user_defined,
+is_assembly_type,
+default_object_id,
+rule_object_id,
+is_table_type from sys.types where is_user_defined=1";
+
+            return ExecuteDBTable(dbSource, dbName, sql);
+        }
     }
 }
