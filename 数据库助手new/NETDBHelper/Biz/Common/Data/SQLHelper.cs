@@ -6,6 +6,7 @@ using System.Data.SqlClient;
 using Entity;
 using System.Data;
 using static Entity.IndexEntry;
+using System.Text.RegularExpressions;
 
 namespace Biz.Common.Data
 {
@@ -428,14 +429,17 @@ namespace Biz.Common.Data
             var tb = ExecuteDBTable(dbSource, dbName, sql);
             StringBuilder sb = new StringBuilder();
 
-            foreach(DataRow row in tb.Rows)
+            foreach (DataRow row in tb.Rows)
             {
                 //sb.Append(Regex.Replace((string)row["Text"],"\n{1,}","\n").Replace("\t","    "));
                 sb.Append(((string)row["Text"]).TrimStart('\n').Replace("\t", "    "));
             }
-            
 
-            return sb.ToString();
+            var body = sb.ToString();
+
+            body = Regex.Replace(body, @"(?<=CREATE[\r\n\s\t]+(?:PROCEDURE|proc)[\r\n\s\t]+\[\w+\]\.\[)([\w]+)", procedure, RegexOptions.IgnoreCase);
+
+            return body;
         }
 
         public static DataTable GetFunctions(DBSource dbSource, string dbName)
@@ -505,8 +509,11 @@ namespace Biz.Common.Data
                 sb.Append(((string)row["Text"]).TrimStart('\n').Replace("\t", "    "));
             }
 
+            var body = sb.ToString();
 
-            return sb.ToString();
+            body = Regex.Replace(body, @"(?<=CREATE[\r\n\s\t]+function[\r\n\s\t]+\[\w+\]\.\[)([\w]+)", functionname, RegexOptions.IgnoreCase);
+
+            return body;
         }
 
         public static string GetTriggerBody(DBSource dbSource, string dbName, string functionname)
@@ -643,11 +650,16 @@ where a.Table_NAME='" + viewname + "' and a.TABLE_NAME=b.TABLE_NAME ORDER BY A.T
 
             foreach (DataRow row in tb.Rows)
             {
-                sb.Append((string)row["Text"]);
+                var text = (string)row["Text"];
+                //CREATE View [dbo].[V_TB_HxrOffer_Ext_bak20210315]
+                sb.Append(text);
             }
 
+            var body = sb.ToString();
 
-            return sb.ToString();
+            body = Regex.Replace(body, @"(?<=CREATE[\r\n\s\t]+View[\r\n\s\t]+\[\w+\]\.\[)([\w]+)", viewname, RegexOptions.IgnoreCase);
+
+            return body;
         }
 
         public static void CreateIndex(DBSource dbSource, string dbName, string tbname, string indexname, bool unique, bool primarykey, bool autoIncr, bool isclustered, List<IndexTBColumn> cols)

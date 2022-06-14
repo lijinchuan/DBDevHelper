@@ -1038,7 +1038,6 @@ GO");
                         {
                             foreignTables.Add(fk.Item1);
                         }
-                        continue;
                     }
                     else if (m == foreignTables.Count && n == foreignTables.Count)
                     {

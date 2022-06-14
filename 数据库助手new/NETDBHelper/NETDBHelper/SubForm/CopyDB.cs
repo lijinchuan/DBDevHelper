@@ -491,6 +491,7 @@ namespace NETDBHelper.SubForm
                             }
 
                             var sortProceList = DataHelper.SortProcList(templist);
+                            var sortPorceList2 = sortProceList.Where(p => p.Equals("V_TB_HxrOffer_Ext")).ToList();
                             foreach (var temp in templist.OrderBy(p =>
                             {
                                 var m = 0;
