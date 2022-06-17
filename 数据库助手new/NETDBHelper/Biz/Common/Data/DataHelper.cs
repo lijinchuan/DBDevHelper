@@ -930,6 +930,11 @@ GO");
                 hasChange = false;
                 foreach (var fk in foreignKeys)
                 {
+                    if (fk.TableName.Equals(fk.ForeignTableName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        continue;
+                    }
+
                     int m;
                     for (m = 0; m < foreignTables.Count; m++)
                     {
@@ -952,7 +957,6 @@ GO");
                         {
                             foreignTables.Add(fk.TableName);
                         }
-                        continue;
                     }
                     else if (m == foreignTables.Count && n == foreignTables.Count)
                     {
@@ -1016,6 +1020,10 @@ GO");
                 hasChange = false;
                 foreach (var fk in refList)
                 {
+                    if (fk.Item1.Equals(fk.Item2, StringComparison.OrdinalIgnoreCase))
+                    {
+                        continue;
+                    }
                     int m;
                     for (m = 0; m < foreignTables.Count; m++)
                     {

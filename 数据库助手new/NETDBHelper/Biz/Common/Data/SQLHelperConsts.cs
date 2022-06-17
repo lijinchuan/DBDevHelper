@@ -8,7 +8,7 @@ namespace Biz.Common.Data
     internal class SQLHelperConsts
     {
         public const string GetDBs = @"select [name] from [master].[sys].[databases](nolock)
-            where not [name] in('master','tempdb','model','msdb')";
+            where is_distributor<>1 and not [name] in('master','tempdb','model','msdb')";
 
         //public const string GetTBs = @"select [id],name from sysobjects(nolock) where type='U'";
         public const string GetTBs = @"select object_id as id,name,SCHEMA_NAME(schema_id) AS [schema] from sys.tables ";
