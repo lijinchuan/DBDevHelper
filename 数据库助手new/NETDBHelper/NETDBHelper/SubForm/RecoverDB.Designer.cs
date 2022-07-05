@@ -43,9 +43,10 @@ namespace NETDBHelper.SubForm
             this.label3 = new System.Windows.Forms.Label();
             this.linkLabel1 = new System.Windows.Forms.LinkLabel();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.DBS = new System.Windows.Forms.CheckedListBox();
             this.TBS = new System.Windows.Forms.CheckedListBox();
+            this.DBS = new System.Windows.Forms.CheckedListBox();
             this.BtnSelAll = new System.Windows.Forms.Button();
+            this.CBClear = new System.Windows.Forms.CheckBox();
             this.statusStrip1.SuspendLayout();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.TimeOutMins)).BeginInit();
@@ -119,6 +120,7 @@ namespace NETDBHelper.SubForm
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.CBClear);
             this.groupBox1.Controls.Add(this.CBIgnoreError);
             this.groupBox1.Controls.Add(this.TimeOutMins);
             this.groupBox1.Controls.Add(this.label1);
@@ -202,14 +204,6 @@ namespace NETDBHelper.SubForm
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "选择库表";
             // 
-            // DBS
-            // 
-            this.DBS.FormattingEnabled = true;
-            this.DBS.Location = new System.Drawing.Point(11, 20);
-            this.DBS.Name = "DBS";
-            this.DBS.Size = new System.Drawing.Size(369, 180);
-            this.DBS.TabIndex = 0;
-            // 
             // TBS
             // 
             this.TBS.FormattingEnabled = true;
@@ -217,6 +211,14 @@ namespace NETDBHelper.SubForm
             this.TBS.Name = "TBS";
             this.TBS.Size = new System.Drawing.Size(431, 180);
             this.TBS.TabIndex = 1;
+            // 
+            // DBS
+            // 
+            this.DBS.FormattingEnabled = true;
+            this.DBS.Location = new System.Drawing.Point(11, 20);
+            this.DBS.Name = "DBS";
+            this.DBS.Size = new System.Drawing.Size(369, 180);
+            this.DBS.TabIndex = 0;
             // 
             // BtnSelAll
             // 
@@ -227,6 +229,16 @@ namespace NETDBHelper.SubForm
             this.BtnSelAll.Text = "全消";
             this.BtnSelAll.UseVisualStyleBackColor = true;
             this.BtnSelAll.Click += new System.EventHandler(this.BtnSelAll_Click);
+            // 
+            // CBClear
+            // 
+            this.CBClear.AutoSize = true;
+            this.CBClear.Location = new System.Drawing.Point(110, 62);
+            this.CBClear.Name = "CBClear";
+            this.CBClear.Size = new System.Drawing.Size(84, 16);
+            this.CBClear.TabIndex = 3;
+            this.CBClear.Text = "清空目标表";
+            this.CBClear.UseVisualStyleBackColor = true;
             // 
             // RecoverDBDlg
             // 
@@ -280,5 +292,6 @@ namespace NETDBHelper.SubForm
         private System.Windows.Forms.CheckedListBox DBS;
         private System.Windows.Forms.CheckedListBox TBS;
         private System.Windows.Forms.Button BtnSelAll;
+        private System.Windows.Forms.CheckBox CBClear;
     }
 }

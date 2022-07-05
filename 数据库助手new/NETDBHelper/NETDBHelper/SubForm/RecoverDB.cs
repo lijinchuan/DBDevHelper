@@ -145,10 +145,18 @@ namespace NETDBHelper.SubForm
             {
                 return;
             }
+
+            
+
             isRunning = true;
             groupBox1.Enabled = false;
             linkLabel1.Enabled = false;
             var dir = TBPath.Text;
+            var successDir = Path.Combine(dir, "success");
+            if (!Directory.Exists(successDir))
+            {
+                Directory.CreateDirectory(successDir);
+            }
             if (!string.IsNullOrEmpty(dir) && System.IO.Directory.Exists(dir))
             {
                 var connsqlserver = new ConnSQLServer();
@@ -278,7 +286,11 @@ namespace NETDBHelper.SubForm
                                             //批量
                                             try
                                             {
-                                                Biz.Common.Data.SQLHelper.SqlBulkCopy(connsqlserver.DBSource, datatableobject.DBName, (int)TimeOutMins.Value * 60 * 1000, "[" + datatableobject.Schema + "].[" + datatableobject.TableName + "]", table);
+                                                if (CBClear.Checked)
+                                                {
+                                                    SQLHelper.ExecuteNoQuery(connsqlserver.DBSource, datatableobject.DBName, $"truncate table [{datatableobject.TableName}]");
+                                                }
+                                                SQLHelper.SqlBulkCopy(connsqlserver.DBSource, datatableobject.DBName, (int)TimeOutMins.Value * 60 * 1000, "[" + datatableobject.Schema + "].[" + datatableobject.TableName + "]", table);
                                             }
                                             catch (Exception ex)
                                             {
@@ -321,10 +333,13 @@ namespace NETDBHelper.SubForm
                             finished++;
                         }
 
-                        this.BeginInvoke(new Action(() =>
+                        BeginInvoke(new Action(() =>
                         {
                             ProcessBar.Value = 100;
                             LBMsg.Text = "完成";
+
+                            LJC.FrameWorkV3.Comm.IOUtil.MoveFileToDir(file, successDir);
+
                         }), null);
                     }
                     catch (Exception ex)
