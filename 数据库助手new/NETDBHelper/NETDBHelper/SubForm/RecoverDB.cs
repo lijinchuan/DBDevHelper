@@ -234,6 +234,19 @@ namespace NETDBHelper.SubForm
 
                                 if (datatableobject != null)
                                 {
+                                    bool hasError = false;
+                                    if (CBClear.Checked)
+                                    {
+                                        try
+                                        {
+                                            SQLHelper.ExecuteNoQuery(connsqlserver.DBSource, datatableobject.DBName, $"truncate table [{datatableobject.DBName}].[{datatableobject.Schema}].[{datatableobject.TableName}]");
+                                        }
+                                        catch
+                                        {
+                                            SQLHelper.ExecuteNoQuery(connsqlserver.DBSource, datatableobject.DBName, $"delete [{datatableobject.DBName}].[{datatableobject.Schema}].[{datatableobject.TableName}]");
+                                        }
+                                    }
+
                                     DataTable table = new DataTable();
                                     foreach (var col in datatableobject.Columns)
                                     {
@@ -286,21 +299,18 @@ namespace NETDBHelper.SubForm
                                             //批量
                                             try
                                             {
-                                                if (CBClear.Checked)
-                                                {
-                                                    SQLHelper.ExecuteNoQuery(connsqlserver.DBSource, datatableobject.DBName, $"truncate table [{datatableobject.TableName}]");
-                                                }
                                                 SQLHelper.SqlBulkCopy(connsqlserver.DBSource, datatableobject.DBName, (int)TimeOutMins.Value * 60 * 1000, "[" + datatableobject.Schema + "].[" + datatableobject.TableName + "]", table);
                                             }
                                             catch (Exception ex)
                                             {
+                                                hasError = true;
                                                 if (!CBIgnoreError.Checked)
                                                 {
                                                     throw;
                                                 }
                                                 else
                                                 {
-                                                    LogHelper.Instance.Error("还原数据失败", ex);
+                                                    LogHelper.Instance.Error($"{datatableobject.DBName}.{datatableobject.Schema}.{datatableobject.TableName}还原数据失败", ex);
                                                 }
                                             }
                                             table.Rows.Clear();
@@ -315,7 +325,12 @@ namespace NETDBHelper.SubForm
                                     //批量
                                     try
                                     {
-                                        Biz.Common.Data.SQLHelper.SqlBulkCopy(connsqlserver.DBSource, datatableobject.DBName, (int)TimeOutMins.Value * 60 * 1000, "[" + datatableobject.Schema + "].[" + datatableobject.TableName + "]", table);
+                                        SQLHelper.SqlBulkCopy(connsqlserver.DBSource, datatableobject.DBName, (int)TimeOutMins.Value * 60 * 1000, "[" + datatableobject.Schema + "].[" + datatableobject.TableName + "]", table);
+
+                                        if (!hasError)
+                                        {
+                                            LJC.FrameWorkV3.Comm.IOUtil.MoveFileToDir(file, successDir);
+                                        }
                                     }
                                     catch (Exception ex)
                                     {
@@ -325,7 +340,7 @@ namespace NETDBHelper.SubForm
                                         }
                                         else
                                         {
-                                            LogHelper.Instance.Error("还原数据失败", ex);
+                                            LogHelper.Instance.Error($"{datatableobject.DBName}.{datatableobject.Schema}.{datatableobject.TableName}还原数据失败", ex);
                                         }
                                     }
                                 }
@@ -338,8 +353,6 @@ namespace NETDBHelper.SubForm
                             ProcessBar.Value = 100;
                             LBMsg.Text = "完成";
 
-                            LJC.FrameWorkV3.Comm.IOUtil.MoveFileToDir(file, successDir);
-
                         }), null);
                     }
                     catch (Exception ex)
@@ -347,7 +360,7 @@ namespace NETDBHelper.SubForm
                         this.BeginInvoke(new Action(() =>
                         {
                             ProcessBar.Value = 100;
-                            LBMsg.Text = "失败：" + ex.Message;
+                            LBMsg.Text = new FileInfo(file).Name + "出错:" + ex.Message;
                         }), null);
 
                         ex.Data.Add("file", file);
