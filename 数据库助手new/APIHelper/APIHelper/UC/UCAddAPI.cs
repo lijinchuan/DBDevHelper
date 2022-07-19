@@ -351,7 +351,10 @@ namespace APIHelper.UC
             for(var i = 0; i < number; i++)
             {
                 UCAddAPI.CheckForIllegalCrossThreadCalls = false;
-                url = ReplaceEvnParams(url, ref apiEnvParams);
+                if (i == 0)
+                {
+                    url = ReplaceEvnParams(url, ref apiEnvParams);
+                }
                 HttpRequestEx httpRequestEx = new HttpRequestEx();
                 httpRequestEx.TimeOut = 3600 * 8;
 
@@ -371,8 +374,10 @@ namespace APIHelper.UC
 
                 }
 
-                url = ReplaceParams(ref url, Params, apiEnvParams);
-
+                if (i == 0)
+                {
+                    url = ReplaceParams(ref url, Params, apiEnvParams);
+                }
                 //httpRequestEx.Cookies.Add(new System.Net.Cookie()
 
                 if (Headers?.Count() > 0)
@@ -446,13 +451,16 @@ namespace APIHelper.UC
                     }
                     else
                     {
-                        if (url.IndexOf('?') == -1)
+                        if (i == 0)
                         {
-                            url += $"?{ReplaceEvnParams(UCApiKey.Key, ref apiEnvParams)}={ReplaceEvnParams(UCApiKey.Val, ref apiEnvParams)}";
-                        }
-                        else
-                        {
-                            url += $"&{ReplaceEvnParams(UCApiKey.Key, ref apiEnvParams)}={ReplaceEvnParams(UCApiKey.Val, ref apiEnvParams)}";
+                            if (url.IndexOf('?') == -1)
+                            {
+                                url += $"?{ReplaceEvnParams(UCApiKey.Key, ref apiEnvParams)}={ReplaceEvnParams(UCApiKey.Val, ref apiEnvParams)}";
+                            }
+                            else
+                            {
+                                url += $"&{ReplaceEvnParams(UCApiKey.Key, ref apiEnvParams)}={ReplaceEvnParams(UCApiKey.Val, ref apiEnvParams)}";
+                            }
                         }
                     }
                 }
