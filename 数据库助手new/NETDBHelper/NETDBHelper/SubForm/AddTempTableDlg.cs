@@ -63,7 +63,7 @@ namespace NETDBHelper.SubForm
 
             if (string.IsNullOrWhiteSpace(tbName))
             {
-                tbName = "$" + Guid.NewGuid().ToString("N");
+                tbName = Util.NameTempTable();
             }
             else
             {

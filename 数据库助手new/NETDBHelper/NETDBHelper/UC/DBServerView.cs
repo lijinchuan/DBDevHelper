@@ -2671,7 +2671,7 @@ background-color: #ffffff;
             {
                 var logicmap = currnode.Tag as LogicMap;
                 var logicmapCopy = BigEntityTableEngine.LocalEngine.Find<LogicMap>(nameof(LogicMap), logicmap.ID);
-                var inputNameDlg = new SubForm.InputStringDlg($"复制逻辑关系图{logicmap.LogicName}", "输入名称");
+                var inputNameDlg = new SubForm.InputStringDlg($"复制逻辑关系图{logicmap.LogicName}", "输入名称", "输入名称");
                 if (inputNameDlg.ShowDialog() == DialogResult.OK)
                 {
                     var logicTables = BigEntityTableEngine.LocalEngine.Find<LogicMapTable>(nameof(LogicMapTable), "LogicID", new object[] { logicmap.ID }).ToList();
@@ -2679,6 +2679,7 @@ background-color: #ffffff;
 
                     logicmapCopy.ID = 0;
                     logicmapCopy.LogicName = inputNameDlg.InputString;
+                    Dictionary<string, string> tableMapping = new Dictionary<string, string>();
                     if(BigEntityTableEngine.LocalEngine.Insert(nameof(LogicMap), logicmapCopy))
                     {
                         if (logicTables.Any())
@@ -2687,8 +2688,44 @@ background-color: #ffffff;
                             {
                                 p.ID = 0;
                                 p.LogicID = logicmapCopy.ID;
+
+                                if (Util.IsNoteTable(p.TBName))
+                                {
+                                    var noteTable = BigEntityTableEngine.LocalEngine.Find<TempNotesTable>(nameof(TempNotesTable), nameof(TempNotesTable.TBName), new object[] { p.TBName.ToUpper() }).FirstOrDefault();
+                                    var newName = Util.NameNoteTalbe();
+                                    tableMapping.Add(p.TBName, newName);
+                                    noteTable.TBName = newName;
+                                    noteTable.Id = 0;
+                                    p.TBName = newName;
+                                    BigEntityTableEngine.LocalEngine.Insert(nameof(TempNotesTable), noteTable);
+                                    BigEntityTableEngine.LocalEngine.Insert(nameof(LogicMapTable), p);
+                                }
+                                else if (Util.IsTempTable(p.TBName))
+                                {
+                                    var temptb = BigEntityTableRemotingEngine.Find<TempTB>(nameof(TempTB), TempTB.INDEX_DB_TB, new object[] { p.TBName }).FirstOrDefault();
+                                    var temptbCol= BigEntityTableRemotingEngine.Find<TempTBColumn>(nameof(TempTBColumn), nameof(TempTBColumn.TBId), new object[] { temptb.Id }).ToList();
+                                    var newName = Util.NameTempTable();
+                                    tableMapping.Add(p.TBName, newName);
+                                    p.TBName = newName;
+                                    temptb.TBName = newName;
+                                    temptb.Id = 0;
+                                    if (BigEntityTableEngine.LocalEngine.Insert(nameof(TempTB), temptb))
+                                    {
+                                        temptbCol.ForEach(q =>
+                                        {
+                                            q.Id = 0;
+                                            q.TBId = temptb.Id;
+                                        });
+                                        BigEntityTableEngine.LocalEngine.InsertBatch(nameof(TempTBColumn), temptbCol);
+                                        BigEntityTableEngine.LocalEngine.Insert(nameof(LogicMapTable), p);
+                                    }
+                                    
+                                }
+                                else
+                                {
+                                    BigEntityTableEngine.LocalEngine.Insert(nameof(LogicMapTable), p);
+                                }
                             });
-                            BigEntityTableEngine.LocalEngine.InsertBatch(nameof(LogicMapTable), logicTables);
                         }
 
                         if (logicMapRelColumns.Any())
@@ -2697,6 +2734,14 @@ background-color: #ffffff;
                             {
                                 p.ID = 0;
                                 p.LogicID = logicmapCopy.ID;
+                                if (tableMapping.ContainsKey(p.TBName))
+                                {
+                                    p.TBName = tableMapping[p.TBName];
+                                }
+                                if (tableMapping.ContainsKey(p.RelTBName))
+                                {
+                                    p.RelTBName = tableMapping[p.RelTBName];
+                                }
                             });
                             BigEntityTableEngine.LocalEngine.InsertBatch(nameof(LogicMapRelColumn), logicMapRelColumns);
                         }

@@ -142,7 +142,7 @@ namespace NETDBHelper.UC
         private void TSMI_AddNote_Click(object sender, EventArgs e)
         {
             this.CMSOpMenu.Visible = false;
-            var tbname = Util.NameTempTalbe();
+            var tbname = Util.NameNoteTalbe();
             AddTable(_DBName, tbname);
         }
 

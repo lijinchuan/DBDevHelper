@@ -175,18 +175,23 @@ namespace NETDBHelper
 
         public static bool IsNoteTable(string tableName)
         {
-            return tableName?.StartsWith("#note_", StringComparison.Ordinal) == true;
+            return tableName?.StartsWith("#note_", StringComparison.OrdinalIgnoreCase) == true;
 
         }
 
         public static bool IsTempTable(string tableName)
         {
-            return tableName?.StartsWith("$", StringComparison.Ordinal) == true;
+            return tableName?.StartsWith("$", StringComparison.OrdinalIgnoreCase) == true;
         }
 
-        public static string NameTempTalbe()
+        public static string NameNoteTalbe()
         {
-            return "#note_" + Guid.NewGuid().ToString("N");
+            return ("#note_" + Guid.NewGuid().ToString("N")).ToUpper();
+        }
+
+        public static string NameTempTable()
+        {
+            return "$" + Guid.NewGuid().ToString("N");
         }
     }
 }
