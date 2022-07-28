@@ -172,5 +172,21 @@ namespace NETDBHelper
                 OnUserLoginOut(oldLoinUser);
             }
         }
+
+        public static bool IsNoteTable(string tableName)
+        {
+            return tableName?.StartsWith("#note_", StringComparison.Ordinal) == true;
+
+        }
+
+        public static bool IsTempTable(string tableName)
+        {
+            return tableName?.StartsWith("$", StringComparison.Ordinal) == true;
+        }
+
+        public static string NameTempTalbe()
+        {
+            return "#note_" + Guid.NewGuid().ToString("N");
+        }
     }
 }

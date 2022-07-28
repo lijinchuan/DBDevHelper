@@ -1075,6 +1075,7 @@ namespace NETDBHelper
                         SubMenuItem_Proc.Visible = nctype == NodeContentType.TB;
                         新增逻辑关系图ToolStripMenuItem.Visible = nctype == NodeContentType.LOGICMAPParent;
                         删除逻辑关系图ToolStripMenuItem.Visible = nctype == NodeContentType.LOGICMAP;
+                        复制逻辑关系图ToolStripMenuItem.Visible= nctype == NodeContentType.LOGICMAP;
 
                         TSM_ManIndex.Visible = nctype == NodeContentType.INDEX
                         || nctype == NodeContentType.INDEXParent;
@@ -2660,6 +2661,49 @@ background-color: #ffffff;
                     break;
                 }
 
+            }
+        }
+
+        private void 复制逻辑关系图ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var currnode = this.tv_DBServers.SelectedNode;
+            if (currnode != null && currnode.Tag is LogicMap)
+            {
+                var logicmap = currnode.Tag as LogicMap;
+                var logicmapCopy = BigEntityTableEngine.LocalEngine.Find<LogicMap>(nameof(LogicMap), logicmap.ID);
+                var inputNameDlg = new SubForm.InputStringDlg($"复制逻辑关系图{logicmap.LogicName}", "输入名称");
+                if (inputNameDlg.ShowDialog() == DialogResult.OK)
+                {
+                    var logicTables = BigEntityTableEngine.LocalEngine.Find<LogicMapTable>(nameof(LogicMapTable), "LogicID", new object[] { logicmap.ID }).ToList();
+                    var logicMapRelColumns = BigEntityTableEngine.LocalEngine.Find<LogicMapRelColumn>(nameof(LogicMapRelColumn), "LogicID", new object[] { logicmap.ID }).ToList();
+
+                    logicmapCopy.ID = 0;
+                    logicmapCopy.LogicName = inputNameDlg.InputString;
+                    if(BigEntityTableEngine.LocalEngine.Insert(nameof(LogicMap), logicmapCopy))
+                    {
+                        if (logicTables.Any())
+                        {
+                            logicTables.ForEach(p =>
+                            {
+                                p.ID = 0;
+                                p.LogicID = logicmapCopy.ID;
+                            });
+                            BigEntityTableEngine.LocalEngine.InsertBatch(nameof(LogicMapTable), logicTables);
+                        }
+
+                        if (logicMapRelColumns.Any())
+                        {
+                            logicMapRelColumns.ForEach(p =>
+                            {
+                                p.ID = 0;
+                                p.LogicID = logicmapCopy.ID;
+                            });
+                            BigEntityTableEngine.LocalEngine.InsertBatch(nameof(LogicMapRelColumn), logicMapRelColumns);
+                        }
+                    }
+
+                    ReLoadDBObj(currnode.Parent);
+                }
             }
         }
 

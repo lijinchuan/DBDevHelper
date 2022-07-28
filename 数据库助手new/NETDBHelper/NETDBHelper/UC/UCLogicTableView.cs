@@ -51,7 +51,7 @@ namespace NETDBHelper.UC
         {
             get
             {
-                return TBName?.StartsWith("#note_",StringComparison.Ordinal)==true;
+                return Util.IsNoteTable(TBName);
             }
         }
 
@@ -59,7 +59,7 @@ namespace NETDBHelper.UC
         {
             get
             {
-                return TBName?.StartsWith("$", StringComparison.Ordinal) == true;
+                return Util.IsTempTable(TBName);
             }
         }
 
