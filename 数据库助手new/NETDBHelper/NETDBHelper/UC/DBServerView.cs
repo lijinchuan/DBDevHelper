@@ -2211,8 +2211,8 @@ background-color: #ffffff;
             if (this.OnViewCloumns != null && selnode != null)
             {
                 var dbname = GetDBName(selnode);
-                
-                var allcolumns = BigEntityTableRemotingEngine.Find<MarkObjectInfo>("MarkObjectInfo", p => !string.IsNullOrEmpty(p.ColumnName) && p.DBName.Equals(dbname, StringComparison.OrdinalIgnoreCase));
+
+                var allcolumns = BigEntityTableRemotingEngine.Find<MarkObjectInfo>("MarkObjectInfo", p => !string.IsNullOrEmpty(p.ColumnName) && p.DBName.Equals(dbname, StringComparison.OrdinalIgnoreCase), true, int.MaxValue);
 
                 StringBuilder sb = new StringBuilder("<html>");
                 sb.Append("<head>");
