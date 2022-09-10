@@ -167,6 +167,7 @@ namespace NETDBHelper.UC
             this.Parent.MouseClick += Parent_MouseClick;
             this.Parent.MouseDown += Parent_MouseDown;
             this.Parent.MouseMove += Parent_MouseMove;
+            Parent.MouseLeave += Parent_MouseLeave;
             this.Parent.MouseUp += Parent_MouseUp;
             this.Parent.Resize += Parent_Resize;
             if(!this.Parent.Controls.Contains(morelistbox))
@@ -177,6 +178,11 @@ namespace NETDBHelper.UC
             {
                 Parent.Controls.Add(TipLable);
             }
+        }
+
+        private void Parent_MouseLeave(object sender, EventArgs e)
+        {
+            parentMouseX = parentMouseY = 0;
         }
 
         private void Parent_Resize(object sender, EventArgs e)

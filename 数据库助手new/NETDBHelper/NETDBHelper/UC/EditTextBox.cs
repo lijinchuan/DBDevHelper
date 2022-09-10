@@ -14,6 +14,8 @@ using LJC.FrameWork.Data.EntityDataBase;
 using System.Threading;
 using System.IO;
 using LJC.FrameWorkV3.Data.EntityDataBase;
+using LJC.FrameWorkV3.Comm;
+using LJC.FrameWorkV3.LogManager;
 
 namespace NETDBHelper.UC
 {
@@ -82,7 +84,7 @@ namespace NETDBHelper.UC
         private Color defaultSelectionColor;
         //internal KeyWordManager keywordman = new KeyWordManager();
         private KeyWordManager _keyWords=new KeyWordManager();
-        private WatchTimer _timer = new WatchTimer(3);
+        private LJC.FrameWork.Comm.WatchTimer _timer = new LJC.FrameWork.Comm.WatchTimer(3);
         private System.Threading.Timer backtimer = null;
         private List<int> _markedLines = new List<int>();
         private int _lastMarketedLines = -1;
@@ -96,6 +98,7 @@ namespace NETDBHelper.UC
         /// 备选库
         /// </summary>
         private List<ThinkInfo> ThinkInfoLib = null;
+        private List<SubSearchSourceItem> sourceList = null;
         private HashSet<string> TableSet = new HashSet<string>();
         private object GetObjects(string keys, ref int count)
         {
@@ -104,9 +107,12 @@ namespace NETDBHelper.UC
                 return null;
             }
 
-            if (ThinkInfoLib == null)
+            ProcessTraceUtil.StartTrace();
+
+            if (sourceList == null)
             {
-                var markColumnInfoList = BigEntityTableRemotingEngine.List<MarkObjectInfo>("MarkObjectInfo", 1, int.MaxValue);
+                var markColumnInfoList = BigEntityTableRemotingEngine.List<MarkObjectInfo>("MarkObjectInfo", 1, int.MaxValue).ToList();
+                ProcessTraceUtil.Trace("BigEntityTableRemotingEngine.List<MarkObjectInfo>");
                 ThinkInfoLib = new List<ThinkInfo>();
 
                 foreach (var o in SQLKeyWordHelper.GetKeyWordList())
@@ -124,6 +130,7 @@ namespace NETDBHelper.UC
                 HashSet<string> hash = new HashSet<string>();
                 var exdbhash = new HashSet<string>(DBServer.ExDBList?.Select(p => p.ToUpper()) ?? new List<string>());
                 var extbhash = new HashSet<string>(DBServer.ExTBList?.Select(p => p.ToUpper()) ?? new List<string>());
+                var tbHash = new HashSet<string>();
                 foreach (var m in markColumnInfoList)
                 {
                     if (/*m.Servername != DBServer.ServerName ||*/ exdbhash.Contains(m.DBName) || extbhash.Contains(m.DBName + "," + m.TBName?.Split('.').Last()))
@@ -133,8 +140,13 @@ namespace NETDBHelper.UC
 
                     if (string.IsNullOrWhiteSpace(m.ColumnName))
                     {
-                        ThinkInfoLib.RemoveAll(p => p.Type == 1 && ((MarkObjectInfo)p.Tag)?.DBName.Equals(m.DBName, StringComparison.OrdinalIgnoreCase) == true && p.ObjectName.Equals(m.TBName, StringComparison.OrdinalIgnoreCase));
-                        ThinkInfoLib.Add(new ThinkInfo { Type = 1, ObjectName = m.TBName.ToLower(), Tag = m, Desc = m.MarkInfo });
+                        var key = $"{m.TBName.ToUpper()}";
+                        //ThinkInfoLib.RemoveAll(p => p.Type == 1 && ((MarkObjectInfo)p.Tag)?.DBName.Equals(m.DBName, StringComparison.OrdinalIgnoreCase) == true && p.ObjectName.Equals(m.TBName, StringComparison.OrdinalIgnoreCase));
+                        if (!tbHash.Contains(key))
+                        {
+                            ThinkInfoLib.Add(new ThinkInfo { Type = 1, ObjectName = m.TBName.ToLower(), Tag = m, Desc = m.MarkInfo });
+                            tbHash.Add(key);
+                        }
                     }
                     else
                     {
@@ -157,6 +169,11 @@ namespace NETDBHelper.UC
                             ThinkInfoLib.Add(thinkinfo);
 
                             hash.Add(key);
+                            Regex reg = new Regex($"[\r\n\\[\\s]+{m.TBName}[\r\n\\]\\s]+", RegexOptions.IgnoreCase);
+                            if (!TableSet.Contains(m.TBName, StringComparer.OrdinalIgnoreCase) && reg.IsMatch(RichText.Text))
+                            {
+                                TableSet.Add(m.TBName);
+                            }
                         }
                         string desc = m.ColumnType;
                         if (!string.IsNullOrWhiteSpace(m.MarkInfo))
@@ -171,6 +188,9 @@ namespace NETDBHelper.UC
                         break;
                     }
                 }
+
+                sourceList = ThinkInfoLib.Select(p => new SubSearchSourceItem(p.ObjectName.ToUpper(), p)).ToList();
+                sourceList.AddRange(ThinkInfoLib.Where(p => !string.IsNullOrWhiteSpace(p.Desc)).Select(p => new SubSearchSourceItem(p.Desc.ToUpper(), p)).ToList());
             }
 
             var searchtable = string.Empty;
@@ -183,10 +203,14 @@ namespace NETDBHelper.UC
 
             List<ThinkInfo> thinkresut = new List<ThinkInfo>();
 
-            var sourceList = ThinkInfoLib.Select(p => new LJC.FrameWorkV3.Comm.SubSearchSourceItem(p.ObjectName.ToUpper(), p)).ToList();
-            sourceList.AddRange(ThinkInfoLib.Where(p => !string.IsNullOrWhiteSpace(p.Desc)).Select(p => new LJC.FrameWorkV3.Comm.SubSearchSourceItem(p.Desc.ToUpper(), p)).ToList());
+            ProcessTraceUtil.Trace("start search");
+            ThinkInfoLib.ForEach(p => p.Score = 0);
+            ProcessTraceUtil.Trace("start subsearch");
+
             thinkresut = LJC.FrameWorkV3.Comm.StringHelper.SubSearch(sourceList, keys.ToUpper(), 3, 1000)
                 .Select(p => (ThinkInfo)p).ToList();
+
+            ProcessTraceUtil.Trace("SubSearch");
 
             int score = 0;
             ThinkInfo lastItem = null;
@@ -289,6 +313,8 @@ namespace NETDBHelper.UC
                 return true;
             }).ToList();
 
+            ProcessTraceUtil.Trace("处理结果");
+
             foreach (var p in thinkresut)
             {
                 if (p.Type == 1)
@@ -312,7 +338,7 @@ namespace NETDBHelper.UC
             }
 
             count = thinkresut.Count;
-            return thinkresut.OrderBy(p => p.Score).Select(p =>
+            var ret= thinkresut.OrderBy(p => p.Score).Select(p =>
             {
                 string objectname = null;
                 string replaceobjectname = null;
@@ -360,6 +386,12 @@ namespace NETDBHelper.UC
                     replaceobjectname
                 };
             }).Take(200).ToList();
+
+            ProcessTraceUtil.Trace("排序结果");
+
+            LogHelper.Instance.Debug(ProcessTraceUtil.PrintTrace(100));
+
+            return ret;
         }
 
         public DBSource DBServer
