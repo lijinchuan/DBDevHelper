@@ -1601,18 +1601,18 @@ namespace NETDBHelper
                     Match m = rg.Match(node.Text);
                     if (m.Success)
                     {
-                        var y = (from x in tbDesc.AsEnumerable()
+                        object y = null;
+                        var mark = BigEntityTableRemotingEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys", new
+                                [] { GetDBName(selnode).ToUpper(), GetTBName(selnode).ToUpper(), m.Groups[1].Value.ToUpper() }).FirstOrDefault();
+                        if (mark != null && !string.IsNullOrWhiteSpace(mark.MarkInfo))
+                        {
+                            y = mark.MarkInfo;
+                        }
+                        else
+                        {
+                            y = (from x in tbDesc.AsEnumerable()
                                  where string.Equals((string)x["ColumnName"], m.Groups[1].Value, StringComparison.OrdinalIgnoreCase)
                                  select x["Description"]).FirstOrDefault();
-
-                        if (y == null || string.IsNullOrEmpty(y.ToString()))
-                        {
-                            var mark = BigEntityTableRemotingEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys", new
-                                [] { GetDBName(selnode).ToUpper(), GetTBName(selnode).ToUpper(), m.Groups[1].Value.ToUpper() }).FirstOrDefault();
-                            if (mark != null)
-                            {
-                                y = mark.MarkInfo;
-                            }
                         }
 
                         //字段描述
@@ -2211,8 +2211,8 @@ background-color: #ffffff;
             if (this.OnViewCloumns != null && selnode != null)
             {
                 var dbname = GetDBName(selnode);
-                
-                var allcolumns = BigEntityTableRemotingEngine.Find<MarkObjectInfo>("MarkObjectInfo", p => !string.IsNullOrEmpty(p.ColumnName) && p.DBName.Equals(dbname, StringComparison.OrdinalIgnoreCase));
+
+                var allcolumns = BigEntityTableRemotingEngine.Find<MarkObjectInfo>("MarkObjectInfo", p => !string.IsNullOrEmpty(p.ColumnName) && p.DBName.Equals(dbname, StringComparison.OrdinalIgnoreCase), true, int.MaxValue);
 
                 StringBuilder sb = new StringBuilder("<html>");
                 sb.Append("<head>");
