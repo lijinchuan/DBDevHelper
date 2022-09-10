@@ -170,7 +170,7 @@ namespace NETDBHelper.UC
 
                             hash.Add(key);
                             Regex reg = new Regex($"[\r\n\\[\\s]+{m.TBName}[\r\n\\]\\s]+", RegexOptions.IgnoreCase);
-                            if (!TableSet.Contains(m.TBName, StringComparer.OrdinalIgnoreCase) && reg.IsMatch(RichText.Text))
+                            if (!TableSet.Contains(m.TBName, StringComparer.OrdinalIgnoreCase) && RichText.Text.IndexOf(m.TBName, StringComparison.OrdinalIgnoreCase) > -1 && reg.IsMatch(RichText.Text))
                             {
                                 TableSet.Add(m.TBName);
                             }
@@ -500,7 +500,7 @@ namespace NETDBHelper.UC
             
             this.ParentChanged += EditTextBox_ParentChanged;
 
-            this.RichText.ImeMode = ImeMode.On;
+            this.RichText.ImeMode = ImeMode.Close;
 
             this.RichText.HideSelection = false;
 
