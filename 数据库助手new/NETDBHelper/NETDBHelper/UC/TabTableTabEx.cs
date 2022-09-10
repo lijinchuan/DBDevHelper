@@ -41,6 +41,18 @@ namespace NETDBHelper.UC
             set;
         }
 
+        public bool Visible
+        {
+            get;
+            set;
+        }
+
+        public bool IsHidTitle
+        {
+            get;
+            set;
+        }
+
         public TabTableTabEx(TabPage page,int tabindex)
         {
             this.TabPage = page;
