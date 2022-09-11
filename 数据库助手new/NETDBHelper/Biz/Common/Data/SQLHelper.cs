@@ -692,6 +692,36 @@ where a.Table_NAME='" + viewname + "' and a.TABLE_NAME=b.TABLE_NAME ORDER BY A.T
             ExecuteNoQuery(dbSource, dbName, sql);
         }
 
+        private static string GetConverType(TBColumn column)
+        {
+            if (column.TypeName.Equals("timestamp", StringComparison.OrdinalIgnoreCase))
+            {
+                //return string.Format("cast('' as xml).value('xs:base64Binary(sql:column(\"{0}\"))', 'varchar(max)') as [{0}]", column.Name);
+                return string.Format("null as [{0}]", column.Name);
+            }
+            //else if (column.TypeName.Equals("binary", StringComparison.OrdinalIgnoreCase)
+            //    || column.TypeName.Equals("varbinary", StringComparison.OrdinalIgnoreCase))
+            //{
+            //    return string.Format("cast('' as xml).value('xs:base64Binary(sql:column(\"{0}\"))', 'varchar(max)') as [{0}]", column.Name);
+            //}
+            //else if (column.TypeName.Equals("image", StringComparison.OrdinalIgnoreCase))
+            //{
+            //    return string.Format("convert(varbinary(max),[{0}]) as [{0}]", column.Name);
+            //}
+            return string.Format("[{0}]", column.Name);
+        }
+
+        public static DataColumnCollection GetDateTableColumns(DBSource dbSource, IEnumerable<TBColumn> columns, TableInfo tableinfo)
+        {
+            SqlParameter[] sqlParameters = null;
+            
+            var sqltext = string.Format("select top {2} {0} from [{3}].{1} with(nolock)", string.Join(",", columns.Select(p => GetConverType(p))), string.Concat("[", tableinfo.TBName, "]"), 0, tableinfo.Schema);
+
+            var datas = ExecuteDBTable(dbSource, tableinfo.DBName, sqltext, sqlParameters);
+
+            return datas.Columns;
+        }
+
         public static IEnumerable<DataTableObject> ExportData2(List<TBColumn> columns, DataTableObject dataTableObject, DBSource dbSource, TableInfo tableinfo, int topNum, Func<bool> checkCancel)
         {
 
@@ -837,25 +867,6 @@ where a.Table_NAME='" + viewname + "' and a.TABLE_NAME=b.TABLE_NAME ORDER BY A.T
                 dataTableObject.TotalCount = total;
                 dataTableObject.Size = dataTableObject.Rows.Count;
                 yield return dataTableObject;
-            }
-
-            string GetConverType(TBColumn column)
-            {
-                if (column.TypeName.Equals("timestamp", StringComparison.OrdinalIgnoreCase))
-                {
-                    //return string.Format("cast('' as xml).value('xs:base64Binary(sql:column(\"{0}\"))', 'varchar(max)') as [{0}]", column.Name);
-                    return string.Format("null as [{0}]", column.Name);
-                }
-                //else if (column.TypeName.Equals("binary", StringComparison.OrdinalIgnoreCase)
-                //    || column.TypeName.Equals("varbinary", StringComparison.OrdinalIgnoreCase))
-                //{
-                //    return string.Format("cast('' as xml).value('xs:base64Binary(sql:column(\"{0}\"))', 'varchar(max)') as [{0}]", column.Name);
-                //}
-                //else if (column.TypeName.Equals("image", StringComparison.OrdinalIgnoreCase))
-                //{
-                //    return string.Format("convert(varbinary(max),[{0}]) as [{0}]", column.Name);
-                //}
-                return string.Format("[{0}]", column.Name);
             }
         }
 

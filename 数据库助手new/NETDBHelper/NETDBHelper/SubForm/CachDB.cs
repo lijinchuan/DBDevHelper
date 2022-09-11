@@ -257,11 +257,12 @@ namespace NETDBHelper.SubForm
                             int no = 0;
 
                             DataTableObject datatableobject = null;
+                            int olddatatableobjectcount = 0;
                             //清除掉旧缓存
                             if (CBReplaceAll.Checked)
                             {
                                 var idx = 0;
-                                var delfilename= datafilename.Replace("###", "[" + tbinfo.DBName + "].[" + tbinfo.TBName + "]_" + idx);
+                                var delfilename = datafilename.Replace("###", "[" + tbinfo.DBName + "].[" + tbinfo.TBName + "]_" + idx);
                                 while (File.Exists(delfilename))
                                 {
                                     File.Delete(delfilename);
@@ -274,7 +275,7 @@ namespace NETDBHelper.SubForm
                             {
                                 var idx = 0;
                                 string lastFile = null;
-                                while(File.Exists(datafilename.Replace("###", "[" + tbinfo.DBName + "].[" + tbinfo.TBName + "]_" + idx)))
+                                while (File.Exists(datafilename.Replace("###", "[" + tbinfo.DBName + "].[" + tbinfo.TBName + "]_" + idx)))
                                 {
                                     lastFile = datafilename.Replace("###", "[" + tbinfo.DBName + "].[" + tbinfo.TBName + "]_" + idx);
                                     no = idx;
@@ -289,10 +290,26 @@ namespace NETDBHelper.SubForm
 
                                 ProcessTraceUtil.Trace($"读取最新数据文件:{tbinfo.TBName}");
                             }
+                            var cols = SQLHelper.GetColumns(DBSource, tbinfo.DBName, tbinfo.TBId, tbinfo.TBName, tbinfo.Schema).ToList();
 
-
-                            var cols = SQLHelper.GetColumns(DBSource, tbinfo.DBName, tbinfo.TBId, tbinfo.TBName,tbinfo.Schema).ToList();
-                            if (datatableobject != null && cols.Count != datatableobject.Columns.Count)
+                            var dataTableCols = SQLHelper.GetDateTableColumns(DBSource, cols, tbinfo);
+                            Func<bool> checkCols = () =>
+                            {
+                                if(dataTableCols.Count != datatableobject.Columns.Count)
+                                {
+                                    return false;
+                                }
+                                for (var i = 0; i < dataTableCols.Count; i++)
+                                {
+                                    if (!datatableobject.Columns[i].ColumnName.Equals(dataTableCols[i].ColumnName, StringComparison.OrdinalIgnoreCase)
+                                    || datatableobject.Columns[i].ColumnType != dataTableCols[i].DataType.FullName)
+                                    {
+                                        return false;
+                                    }
+                                }
+                                return true;
+                            };
+                            if (datatableobject != null && !checkCols())
                             {
                                 var idx = 0;
                                 var delfilename = datafilename.Replace("###", "[" + tbinfo.DBName + "].[" + tbinfo.TBName + "]_" + idx);
@@ -307,6 +324,11 @@ namespace NETDBHelper.SubForm
                                 datatableobject = null;
 
                                 ProcessTraceUtil.Trace($"检查表结构发生变化，删除表数据文件:{tbinfo.TBName}");
+                            }
+
+                            if (datatableobject != null)
+                            {
+                                olddatatableobjectcount = datatableobject.Rows.Count;
                             }
 
                             //导出前100条语句
@@ -337,7 +359,7 @@ namespace NETDBHelper.SubForm
                                         });
                                         no++;
 
-                                        ProcessTraceUtil.Trace($"读取数据:{data.Rows.Count}条");
+                                        ProcessTraceUtil.Trace($"读取数据:{data.Rows.Count - olddatatableobjectcount}条");
                                     }
                                     else
                                     {
