@@ -155,6 +155,7 @@ namespace NETDBHelper.SubForm
             }
             
             isRunning = true;
+            bool hasError = false;
             GVResult.Rows.Clear();
             FileInfo[] files = null;
             if (Directory.Exists(dir))
@@ -236,6 +237,19 @@ namespace NETDBHelper.SubForm
                                     foreach (var r in datatableobject.Rows)
                                     {
                                         int i = 0;
+                                        if (r.Cells.Count != datatableobject.Columns.Count)
+                                        {
+                                            if (CBIgnoreError.Checked)
+                                            {
+                                                LogHelper.Instance.Error($"表{datatableobject.DBName}.{datatableobject.Schema}.{datatableobject.TableName}数据结构发生变化，需要重新同步");
+                                                hasError = true;
+                                                break;
+                                            }
+                                            else
+                                            {
+                                                throw new Exception($"表{datatableobject.DBName}.{datatableobject.Schema}.{datatableobject.TableName}数据结构发生变化，需要重新同步");
+                                            }
+                                        }
                                         foreach (var c in r.Cells)
                                         {
                                             if (!hash.Contains(datatableobject.Columns[i].ColumnName))
@@ -263,9 +277,19 @@ namespace NETDBHelper.SubForm
                                                 }
                                                 catch (Exception ex)
                                                 {
+                                                    ex.Data.Add("table", $"{datatableobject.DBName}.{datatableobject.DBName}.{datatableobject.TableName}");
                                                     ex.Data.Add("DataType", datatableobject.Columns[i].ColumnType);
                                                     ex.Data.Add("StringValue", c.StringValue);
-                                                    throw;
+                                                    if (CBIgnoreError.Checked)
+                                                    {
+                                                        hasError = true;
+                                                        LogHelper.Instance.Error(ex);
+                                                    }
+                                                    else
+                                                    {
+                                                       
+                                                        throw;
+                                                    }
                                                 }
                                             }
 
@@ -291,6 +315,14 @@ namespace NETDBHelper.SubForm
                         {
                             ProcessBar.Value = 100;
                             LBMsg.Text = "完成";
+                            if (hasError)
+                            {
+                                LBMsg.Text += "，搜索中有错误，请查询错误日志。";
+                            }
+                            else
+                            {
+                                LBMsg.Text += "。";
+                            }
                         }), null);
                     }
                     catch (Exception ex)

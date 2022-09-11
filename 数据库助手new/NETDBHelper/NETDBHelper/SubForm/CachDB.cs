@@ -1,5 +1,7 @@
 ﻿using Biz.Common.Data;
 using Entity;
+using LJC.FrameWorkV3.Comm;
+using LJC.FrameWorkV3.LogManager;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -215,21 +217,21 @@ namespace NETDBHelper.SubForm
 
             try
             {
+                ProcessTraceUtil.StartTrace();
                 var total = CLBDBs.CheckedItems.Count;
                 var finished = 0;
 
                 foreach (var item in CLBDBs.CheckedItems)
                 {
+                    var db = item.ToString();
                     try
                     {
                         if (cancel || stop)
                         {
                             break;
                         }
-
                         //创建库
-                        var db = item.ToString();
-
+                        ProcessTraceUtil.Trace(db);
                         var tbs = SQLHelper.GetTBs(DBSource, db);
                         var tbrows = tbs.AsEnumerable().ToList();
                         if (dbdic.ContainsKey(db))
@@ -266,7 +268,7 @@ namespace NETDBHelper.SubForm
                                     idx++;
                                     delfilename = datafilename.Replace("###", "[" + tbinfo.DBName + "].[" + tbinfo.TBName + "]_" + idx);
                                 }
-
+                                ProcessTraceUtil.Trace($"删除表数据文件:{tbinfo.TBName}");
                             }
                             else
                             {
@@ -284,10 +286,28 @@ namespace NETDBHelper.SubForm
                                     datatableobject = (DataTableObject)LJC.FrameWorkV3.EntityBuf.EntityBufCore.DeSerialize(typeof(DataTableObject), lastFile);
                                     File.Delete(lastFile);
                                 }
+
+                                ProcessTraceUtil.Trace($"读取最新数据文件:{tbinfo.TBName}");
                             }
 
 
                             var cols = SQLHelper.GetColumns(DBSource, tbinfo.DBName, tbinfo.TBId, tbinfo.TBName,tbinfo.Schema).ToList();
+                            if (datatableobject != null && cols.Count != datatableobject.Columns.Count)
+                            {
+                                var idx = 0;
+                                var delfilename = datafilename.Replace("###", "[" + tbinfo.DBName + "].[" + tbinfo.TBName + "]_" + idx);
+                                while (File.Exists(delfilename))
+                                {
+                                    File.Delete(delfilename);
+                                    idx++;
+                                    delfilename = datafilename.Replace("###", "[" + tbinfo.DBName + "].[" + tbinfo.TBName + "]_" + idx);
+                                }
+
+                                LogHelper.Instance.Info($"{datatableobject.DBName}.{datatableobject.Schema}.{datatableobject.TableName}结构变化，全量同步");
+                                datatableobject = null;
+
+                                ProcessTraceUtil.Trace($"检查表结构发生变化，删除表数据文件:{tbinfo.TBName}");
+                            }
 
                             //导出前100条语句
                             try
@@ -316,6 +336,12 @@ namespace NETDBHelper.SubForm
                                             TotalCount = data.TotalCount
                                         });
                                         no++;
+
+                                        ProcessTraceUtil.Trace($"读取数据:{data.Rows.Count}条");
+                                    }
+                                    else
+                                    {
+                                        ProcessTraceUtil.Trace($"读取数据:0条");
                                     }
                                     if (stop)
                                     {
@@ -323,8 +349,10 @@ namespace NETDBHelper.SubForm
                                     }
                                 }
                             }
-                            catch (Exception)
+                            catch (Exception ex)
                             {
+                                ex.Data.Add("table",$"{tbinfo.DBName}.{tbinfo.TBName}");
+                                LogHelper.Instance.Error(ex);
                                 if (!CBIgnoreError.Checked)
                                 {
                                     throw;
@@ -344,6 +372,8 @@ namespace NETDBHelper.SubForm
                     }
                     catch (Exception ex)
                     {
+                        ex.Data.Add("db", $"{db}");
+                        LogHelper.Instance.Error(ex);
                         throw ex;
                     }
                 }
@@ -360,11 +390,13 @@ namespace NETDBHelper.SubForm
             }
             catch (Exception ex)
             {
+                LogHelper.Instance.Error(ex);
                 SendMsg(ex.Message);
                 return await Task.FromResult(0);
             }
             finally
             {
+                LogHelper.Instance.Debug(ProcessTraceUtil.PrintTrace());
                 if (cancel)
                 {
                     this.BeginInvoke(new Action(() =>
