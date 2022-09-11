@@ -164,9 +164,9 @@
             this.CBReplaceAll.AutoSize = true;
             this.CBReplaceAll.Location = new System.Drawing.Point(41, 268);
             this.CBReplaceAll.Name = "CBReplaceAll";
-            this.CBReplaceAll.Size = new System.Drawing.Size(96, 16);
+            this.CBReplaceAll.Size = new System.Drawing.Size(180, 16);
             this.CBReplaceAll.TabIndex = 10;
-            this.CBReplaceAll.Text = "全量更新数据";
+            this.CBReplaceAll.Text = "全量更新数据，默认增量更新";
             this.CBReplaceAll.UseVisualStyleBackColor = true;
             // 
             // label3
