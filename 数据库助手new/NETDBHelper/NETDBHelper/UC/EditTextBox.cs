@@ -84,7 +84,7 @@ namespace NETDBHelper.UC
         private Color defaultSelectionColor;
         //internal KeyWordManager keywordman = new KeyWordManager();
         private KeyWordManager _keyWords=new KeyWordManager();
-        private LJC.FrameWork.Comm.WatchTimer _timer = new LJC.FrameWork.Comm.WatchTimer(3);
+        private LJC.FrameWork.Comm.WatchTimer _timer = new LJC.FrameWork.Comm.WatchTimer(300);
         private System.Threading.Timer backtimer = null;
         private List<int> _markedLines = new List<int>();
         private int _lastMarketedLines = -1;
@@ -131,6 +131,57 @@ namespace NETDBHelper.UC
                 var exdbhash = new HashSet<string>(DBServer.ExDBList?.Select(p => p.ToUpper()) ?? new List<string>());
                 var extbhash = new HashSet<string>(DBServer.ExTBList?.Select(p => p.ToUpper()) ?? new List<string>());
                 var tbHash = new HashSet<string>();
+
+                var tbs= markColumnInfoList.Where(p => !string.IsNullOrWhiteSpace(p.ColumnName)).GroupBy(p=>new { p.DBName,p.TBName,p.Servername}).Select(p => p.First()).ToList();
+                var tbnamemanger = new LJC.FrameWorkV3.CodeExpression.KeyWordMatch.KeyWordManager();
+                foreach(var tb in tbs)
+                {
+                    tbnamemanger.AddKeyWord($"{tb.TBName.ToUpper()}",tb);
+                }
+                var matchresult = tbnamemanger.MatchKeyWord(RichText.Text.ToUpper());
+                foreach (var m in matchresult)
+                {
+                    if (m.PostionStart > 0)
+                    {
+                        var lastch = RichText.Text[m.PostionStart - 1];
+                        if (lastch != ' ' && lastch != '[' && lastch != '\t' && lastch != '\r' && lastch != '\n')
+                        {
+                            continue;
+                        }
+                    }
+                    if (m.PostionEnd < RichText.Text.Length - 1)
+                    {
+                        var nextch = RichText.Text[m.PostionEnd + 1];
+                        if (nextch != ' ' && nextch != ']' && nextch != '\t' && nextch != '\r' && nextch != '\n')
+                        {
+                            continue;
+                        }
+                    }
+                    var tag = m.Tag as MarkObjectInfo;
+                    var key = (1 + "_" + tag.DBName + tag.TBName).ToUpper();
+                    if (!hash.Contains(key))
+                    {
+                        if (!TableSet.Contains(tag.TBName))
+                        {
+                            TableSet.Add(tag.TBName);
+                        }
+                        var thinkinfo = new ThinkInfo
+                        {
+                            Type = 1,
+                            ObjectName = tag.TBName.ToLower(),
+                            Tag = new MarkObjectInfo
+                            {
+                                DBName = tag.DBName,
+                                Servername = tag.Servername,
+                                TBName = tag.TBName
+                            },
+                            Desc = string.Empty
+                        };
+                        ThinkInfoLib.Add(thinkinfo);
+                        hash.Add(key);
+                    }
+                }
+
                 foreach (var m in markColumnInfoList)
                 {
                     if (/*m.Servername != DBServer.ServerName ||*/ exdbhash.Contains(m.DBName) || extbhash.Contains(m.DBName + "," + m.TBName?.Split('.').Last()))
@@ -150,31 +201,6 @@ namespace NETDBHelper.UC
                     }
                     else
                     {
-                        var key = (1 + "_" + m.DBName + m.TBName).ToUpper();
-                        if (!hash.Contains(key))
-                        //if (!ThinkInfoLib.Any(p => p.Type == 1&& ((MarkObjectInfo)p.Tag)?.DBName.Equals(m.DBName, StringComparison.OrdinalIgnoreCase) == true && p.ObjectName.Equals(m.TBName, StringComparison.OrdinalIgnoreCase)))
-                        {
-                            var thinkinfo = new ThinkInfo
-                            {
-                                Type = 1,
-                                ObjectName = m.TBName.ToLower(),
-                                Tag = new MarkObjectInfo
-                                {
-                                    DBName = m.DBName,
-                                    Servername = m.Servername,
-                                    TBName = m.TBName
-                                },
-                                Desc = string.Empty
-                            };
-                            ThinkInfoLib.Add(thinkinfo);
-
-                            hash.Add(key);
-                            Regex reg = new Regex($"[\r\n\\[\\s]+{m.TBName}[\r\n\\]\\s]+", RegexOptions.IgnoreCase);
-                            if (!TableSet.Contains(m.TBName, StringComparer.OrdinalIgnoreCase) && RichText.Text.IndexOf(m.TBName, StringComparison.OrdinalIgnoreCase) > -1 && reg.IsMatch(RichText.Text))
-                            {
-                                TableSet.Add(m.TBName);
-                            }
-                        }
                         string desc = m.ColumnType;
                         if (!string.IsNullOrWhiteSpace(m.MarkInfo))
                         {
@@ -194,11 +220,12 @@ namespace NETDBHelper.UC
             }
 
             var searchtable = string.Empty;
-            if (keys.IndexOf('.') > -1)
+            var searchKeys = keys;
+            if (searchKeys.IndexOf('.') > -1)
             {
-                var keyarr = keys.Split('.');
+                var keyarr = searchKeys.Split('.');
                 searchtable = keyarr[keyarr.Length - 2];
-                keys = keyarr.Last();
+                searchKeys = keyarr.Last();
             }
 
             List<ThinkInfo> thinkresut = new List<ThinkInfo>();
@@ -207,8 +234,15 @@ namespace NETDBHelper.UC
             ThinkInfoLib.ForEach(p => p.Score = 0);
             ProcessTraceUtil.Trace("start subsearch");
 
-            thinkresut = LJC.FrameWorkV3.Comm.StringHelper.SubSearch(sourceList, keys.ToUpper(), 3, 1000)
-                .Select(p => (ThinkInfo)p).ToList();
+            if (!string.IsNullOrWhiteSpace(searchKeys))
+            {
+                thinkresut = LJC.FrameWorkV3.Comm.StringHelper.SubSearch(sourceList, searchKeys.ToUpper(), 3, 1000)
+                    .Select(p => (ThinkInfo)p).ToList();
+            }
+            else if (!string.IsNullOrWhiteSpace(searchtable))
+            {
+                thinkresut = ThinkInfoLib.Where(p => (p.Tag as MarkObjectInfo)?.TBName?.Equals(searchtable, StringComparison.OrdinalIgnoreCase) == true).ToList();
+            }
 
             ProcessTraceUtil.Trace("SubSearch");
 
@@ -293,6 +327,10 @@ namespace NETDBHelper.UC
 
             thinkresut = thinkresut.Where(p =>
             {
+                if (!string.IsNullOrEmpty(searchtable) && (p.Type != 2 || !searchtable.Equals((p.Tag as MarkObjectInfo).TBName, StringComparison.OrdinalIgnoreCase)))
+                {
+                    return false;
+                }
                 if (p.Type == 2)
                 {
                     var markcolumn = (MarkObjectInfo)p.Tag;
