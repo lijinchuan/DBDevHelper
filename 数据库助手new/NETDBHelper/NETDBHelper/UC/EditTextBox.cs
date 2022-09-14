@@ -84,9 +84,9 @@ namespace NETDBHelper.UC
         private Color defaultSelectionColor;
         //internal KeyWordManager keywordman = new KeyWordManager();
         private KeyWordManager _keyWords=new KeyWordManager();
-        private LJC.FrameWork.Comm.WatchTimer _timer = new LJC.FrameWork.Comm.WatchTimer(300);
+        private LJC.FrameWork.Comm.WatchTimer _timer = new LJC.FrameWork.Comm.WatchTimer(6);
         private System.Threading.Timer backtimer = null;
-        private List<int> _markedLines = new List<int>();
+        private HashSet<int> _markedLines = new HashSet<int>();
         private int _lastMarketedLines = -1;
         private int _lastInputChar = '\0';
         private Point _currpt = Point.Empty;
@@ -1246,17 +1246,17 @@ namespace NETDBHelper.UC
             int line = this.RichText.GetLineFromCharIndex(this.RichText.GetFirstCharIndexOfCurrentLine());
             if (_lastInputChar == '\r' || _lastInputChar == '\n')
             {
-                _markedLines.RemoveAll(p => p == line || p == line - 1);
+                _markedLines.RemoveWhere(p => p == line || p == line - 1);
                 SetLineNo(true);
             }
             else if (_lastInputChar == '\b')
             {
-                _markedLines.RemoveAll(p => p == line);
+                _markedLines.RemoveWhere(p => p == line);
                 SetLineNo();
             }
             else
             {
-                _markedLines.RemoveAll(p => p == line);
+                _markedLines.RemoveWhere(p => p == line);
             }
             _lastMarketedLines = -1;
             _lastInputChar='\0';
@@ -1275,6 +1275,7 @@ namespace NETDBHelper.UC
 
         void SetLineNo(bool addNewLine = false)
         {
+            ProcessTraceUtil.Trace("StartSetLineNo");
             int line1 = CurrentClientScreenStartLine + 1;
             int line2 = CurrentClientScreentEndLine + 1;
             if (addNewLine)
@@ -1285,32 +1286,55 @@ namespace NETDBHelper.UC
             int offset = 0;
             int strLen = this.RichText.GetCharIndexFromPosition(new Point(0, 0)) + 1;
             int linesLen = RichText.Lines.Length;
+            var lineHeight = 0;
+            var linesIsEmpty = RichText.Lines.Skip(line1 - 1).Take(line2 - line1 + 1).Select(p => p.FirstOrDefault() == default(char)).ToArray();
             for (int i = line1; i <= line2 && i <= linesLen; i++)
             {
                 //要算上一个换行符
-                var curlen = RichText.Lines[i - 1].Length;
-                if (curlen == 0)
+                var isEmpty = linesIsEmpty[i - line1];
+                if (isEmpty)
                 {
                     if (i == line1)
                     {
                         continue;
                     }
                     Point p = new Point(2, 0);
-                    p.Y = offset + (offset==0?0:this.Font.Height) + 1;
+                    p.Y = offset + (offset == 0 ? 0 : this.Font.Height) + 1;
                     offset = p.Y;
                     nos.Add(i, p);
                     strLen += 1;
                 }
                 else
                 {
-                    Point p = this.RichText.GetPositionFromCharIndex(strLen);
+                    Point p;
+                    if (lineHeight == 0)
+                    {
+                        p = this.RichText.GetPositionFromCharIndex(strLen);
+
+                        if (nos.Count > 0)
+                        {
+                            lineHeight = p.Y - offset;
+                        }
+
+                        strLen += RichText.Lines[i - 1].Length + 1;
+
+                    }
+                    else
+                    {
+                        p = new Point(2, offset + lineHeight);
+                    }
+
                     offset = p.Y;
                     p.X = 2;
+
                     nos.Add(i, p);
-                    strLen += RichText.Lines[i - 1].Length + 1;
                 }
             }
+            ProcessTraceUtil.Trace("nos");
+
             this.ScaleNos.LineNos = nos;
+
+            ProcessTraceUtil.Trace("SetLineNo");
         }
 
         void RichText_VScroll(object sender, EventArgs e)
@@ -1376,7 +1400,7 @@ namespace NETDBHelper.UC
                 int line1 = CurrentClientScreenStartLine;
                 if (_lastMarketedLines == line1)
                     return;
-
+                ProcessTraceUtil.StartTrace();
                 int line2 = CurrentClientScreentEndLine + 1;
                 //if (line2 == 1)
                 //{
@@ -1387,6 +1411,8 @@ namespace NETDBHelper.UC
                 int oldSelectLen = this.RichText.SelectionLength;
 
                 int totalIndex = this.RichText.GetCharIndexFromPosition(new Point(0, 0));
+
+                ProcessTraceUtil.Trace("totalIndex:"+ totalIndex);
                 //if (oldStart < totalIndex)
                 //{
                 //    oldStart = totalIndex + RichText.Lines[line1].Length + 1;
@@ -1403,12 +1429,11 @@ namespace NETDBHelper.UC
                 var linesLen = this.RichText.Lines.Length;
                 for (int l = line1; l <= line2 && l < linesLen; l++)
                 {
-                    totalIndex = this.RichText.GetFirstCharIndexFromLine(l);
-                    string express = RichText.Lines[l] + " ";
-
                     if (!_markedLines.Contains(l))
                     {
                         _markedLines.Add(l);
+                        totalIndex = this.RichText.GetFirstCharIndexFromLine(l);
+                        string express = RichText.Lines[l] + " ";
 
                         var nodeindex = express.IndexOf("--");
                         if (nodeindex > -1)
@@ -1432,16 +1457,21 @@ namespace NETDBHelper.UC
                                 tb.Rows.Add(row);
                             }
                         }
+
+                        ProcessTraceUtil.Trace("MatchKeyWord:" + l);
                     }
                 }
 
-                this.RichText.LockPaint = true;
                 foreach (DataRow row in tb.Rows)
                 {
+                    this.RichText.LockPaint = true;
                     this.RichText.SelectionStart = (int)row[0];
                     this.RichText.SelectionLength = (int)row[1];
                     this.RichText.SelectionColor = (Color)row[2];
+                    this.RichText.LockPaint = false;
                 }
+
+                ProcessTraceUtil.Trace("setColor:" + tb.Rows.Count);
 
                 if (this.RichText.SelectionStart != oldStart)
                 {
@@ -1454,10 +1484,12 @@ namespace NETDBHelper.UC
             }
             finally
             {
-                this.RichText.LockPaint = false;
+                
                 this.RichText.SelectionChanged += RichText_SelectionChanged;
                 if (reSetLineNo)
                     SetLineNo();
+
+                LogHelper.Instance.Debug(ProcessTraceUtil.PrintTrace(100));
             }
             
         }
