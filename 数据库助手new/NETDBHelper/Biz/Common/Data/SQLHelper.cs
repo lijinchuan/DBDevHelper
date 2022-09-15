@@ -201,7 +201,7 @@ namespace Biz.Common.Data
                          select x["Description"]).FirstOrDefault();
                 yield return new TBColumn
                 {
-                    IsKey = (tb2.AsEnumerable()).FirstOrDefault(p => p[0].ToString().Equals(tb.Rows[i]["name"].ToString(), StringComparison.OrdinalIgnoreCase)) != null,
+                    IsKey = (tb2.AsEnumerable()).FirstOrDefault(p => p.Field<string>("COLUMN_NAME").Equals(tb.Rows[i]["name"].ToString(), StringComparison.OrdinalIgnoreCase)) != null,
                     Length = int.Parse(tb.Rows[i]["length"].ToString()),
                     Name = tb.Rows[i]["name"].ToString(),
                     TypeName = tb.Rows[i]["type"].ToString(),

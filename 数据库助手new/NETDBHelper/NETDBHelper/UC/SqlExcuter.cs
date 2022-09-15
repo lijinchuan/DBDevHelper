@@ -237,7 +237,7 @@ namespace NETDBHelper.UC
                             string targetTable = null;
                             if (ts.Tables.Count == 1)
                             {
-                                var regex = new Regex(@"^[\r\n\s\t]*select[\r\n\s\t]+(?:top[\r\n\s\t]+\d{1,}[\r\n\s\t]+)?(?:\*|(?:\[?\w+\]?\.){0,}\[\w+\][\,\r\n\s\t]+)+from[\r\n\s\t]+(?:\[?\w+\]?\.){0,}\[?(\w+)\]?", RegexOptions.IgnoreCase);
+                                var regex = new Regex(@"^[\r\n\s\t]*select[\r\n\s\t]+(?:top[\r\n\s\t]+\d{1,}[\r\n\s\t]+)?(?:\*[\r\n\s\t]*|(?:\[?\w+\]?\.){0,}\[\w+\][\,\r\n\s\t]+)+from[\r\n\s\t]+(?:\[?\w+\]?\.){0,}\[?(\w+)\]?", RegexOptions.IgnoreCase);
                                 var m = regex.Match(seltext);
                                 if (m.Success)
                                 {
@@ -379,7 +379,7 @@ namespace NETDBHelper.UC
                     else
                     {
                         oldVal = tagVal.Value;
-                        if (oldVal == newVal)
+                        if (object.Equals(oldVal, newVal))
                         {
                             errorMsg = "值没有修改";
                         }
@@ -396,6 +396,7 @@ namespace NETDBHelper.UC
 
                 if (MessageBox.Show("要修改值吗?", "修改确认", MessageBoxButtons.YesNo) != DialogResult.Yes)
                 {
+                    //gv.CancelEdit();
                     gv[e.ColumnIndex, e.RowIndex].Value = oldVal;
                     return;
                 }
@@ -496,33 +497,35 @@ namespace NETDBHelper.UC
                             }
                         }
 
-                        if (parameList.Count == 0)
+                        if (checkPass)
                         {
-                            errorMsg = $"没有主键值，无法更新到表{tb.TableName}";
-                            checkPass = false;
-                        }
-                        else
-                        {
-                            parameList.Add(new SqlParameter
+                            if (parameList.Count == 0)
                             {
-                                ParameterName = $"@{updateColName}",
-                                Value = newVal
-                            });
-
-                            var ret = SQLHelper.ExecuteNoQuery(Server, DB, sbsql.ToString(), parameList.ToArray());
-
-                            Util.SendMsg(this, $"更新{(ret > 0 ? "成功" : "失败")}");
-                            gv.CancelEdit();
-                            BigEntityTableRemotingEngine.Insert("HLog", new HLogEntity
+                                errorMsg = $"没有主键值，无法更新到表{tb.TableName}";
+                                checkPass = false;
+                            }
+                            else
                             {
-                                TypeName = tb.TableName,
-                                LogTime = DateTime.Now,
-                                LogType = LogTypeEnum.sql,
-                                DB = DB,
-                                Sever = Server.ServerName,
-                                Info = $"更新字段:{updateColName},更新为:{newVal}，前值为:{oldVal}，结果:{ret}",
-                                Valid = true
-                            });
+                                parameList.Add(new SqlParameter
+                                {
+                                    ParameterName = $"@{updateColName}",
+                                    Value = newVal
+                                });
+
+                                var ret = SQLHelper.ExecuteNoQuery(Server, DB, sbsql.ToString(), parameList.ToArray());
+
+                                Util.SendMsg(this, $"更新{(ret > 0 ? "成功" : "失败")}");
+                                BigEntityTableRemotingEngine.Insert("HLog", new HLogEntity
+                                {
+                                    TypeName = tb.TableName,
+                                    LogTime = DateTime.Now,
+                                    LogType = LogTypeEnum.sql,
+                                    DB = DB,
+                                    Sever = Server.ServerName,
+                                    Info = $"更新字段:{updateColName},主键:{(string.Join(";", parameList.Take(parameList.Count - 1).Select(p => p.ParameterName.TrimStart('@') + ":" + p.Value)))},更新为:{newVal}，前值为:{oldVal}，结果:{(ret > 0 ? "成功" : "失败")}",
+                                    Valid = true
+                                });
+                            }
                         }
                     }
 
@@ -534,6 +537,7 @@ namespace NETDBHelper.UC
 
                 if (!string.IsNullOrEmpty(errorMsg))
                 {
+                    gv[e.ColumnIndex, e.RowIndex].Value = oldVal;
                     Util.SendMsg(this, errorMsg);
                 }
             }
