@@ -520,7 +520,7 @@ namespace NETDBHelper.UC
                                 LogType = LogTypeEnum.sql,
                                 DB = DB,
                                 Sever = Server.ServerName,
-                                Info = $"更新字段:{updateColName},更新为:{newVal}，前值为:{oldVal}，结果:{ret}",
+                                Info = $"更新字段:{updateColName},主键:{(string.Join(";", parameList.Take(parameList.Count - 1).Select(p => p.ParameterName.TrimStart('@') + ":" + p.Value)))},更新为:{newVal}，前值为:{oldVal}，结果:{(ret > 0 ? "成功" : "失败")}",
                                 Valid = true
                             });
                         }
