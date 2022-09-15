@@ -15,6 +15,8 @@ using NPOI.SS.UserModel;
 using NPOI.HSSF.UserModel;
 using Biz.Common.Data;
 using LJC.FrameWorkV3.Data.EntityDataBase;
+using System.Text.RegularExpressions;
+using System.Data.SqlClient;
 
 namespace NETDBHelper.UC
 {
@@ -194,7 +196,7 @@ namespace NETDBHelper.UC
                     }));
 
                     DateTime now = DateTime.Now;
-                    var ts = Biz.Common.Data.SQLHelper.ExecuteDataSet(Server, DB, seltext, (s, e) =>
+                    var ts = SQLHelper.ExecuteDataSet(Server, DB, seltext, (s, e) =>
                      {
                          this.Invoke(new Action(() =>
                          {
@@ -230,26 +232,50 @@ namespace NETDBHelper.UC
                             dgv.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.DisplayedCells;
                             dgv.AllowUserToResizeRows = true;
                             page.Controls.Add(dgv);
-                            dgv.CellDoubleClick += (s, e) =>
-                            {
-                                if (dgv.CurrentCell.Value != null && dgv.CurrentCell.ValueType == typeof(string))
-                                {
-                                    var cell = dgv.CurrentCell;
 
-                                    if (cell.Style.WrapMode == DataGridViewTriState.True)
-                                    {
-                                        cell.Style.WrapMode = DataGridViewTriState.False;
-                                        dgv.EndEdit();
-                                    }
-                                    else
-                                    {
-                                        cell.Style.WrapMode = DataGridViewTriState.True;
-                                        cell.ReadOnly = false;
-                                        dgv.ReadOnly = false;
-                                        dgv.BeginEdit(true);
-                                    }
+                            bool canEdit = false;
+                            string targetTable = null;
+                            if (ts.Tables.Count == 1)
+                            {
+                                var regex = new Regex(@"^[\r\n\s\t]*select[\r\n\s\t]+(?:top[\r\n\s\t]+\d{1,}[\r\n\s\t]+)?(?:\*|(?:\[?\w+\]?\.){0,}\[\w+\][\,\r\n\s\t]+)+from[\r\n\s\t]+(?:\[?\w+\]?\.){0,}\[?(\w+)\]?", RegexOptions.IgnoreCase);
+                                var m = regex.Match(seltext);
+                                if (m.Success)
+                                {
+                                    canEdit = true;
+                                    targetTable = m.Groups[1].Value;
+                                    tb.TableName = targetTable;
                                 }
-                            };
+                            }
+
+                            if (canEdit) {
+                                dgv.CellDoubleClick += (s, e) =>
+                                {
+                                    if (dgv.CurrentCell.Value != null && (dgv.CurrentCell.ValueType == typeof(string)
+                                    || dgv.CurrentCell.ValueType == typeof(bool)
+                                    || dgv.CurrentCell.ValueType == typeof(int)
+                                    || dgv.CurrentCell.ValueType == typeof(DateTime)
+                                    || dgv.CurrentCell.ValueType == typeof(Int64)))
+                                    {
+                                        var cell = dgv.CurrentCell;
+
+                                        if (cell.Style.WrapMode == DataGridViewTriState.True)
+                                        {
+                                            cell.Style.WrapMode = DataGridViewTriState.False;
+                                            dgv.EndEdit();
+                                        }
+                                        else
+                                        {
+                                            cell.Style.WrapMode = DataGridViewTriState.True;
+                                            cell.ReadOnly = false;
+                                            dgv.ReadOnly = false;
+                                            dgv.BeginEdit(true);
+                                        }
+                                    }
+                                };
+                                dgv.CellBeginEdit += Dgv_CellBeginEdit;
+                                dgv.CellEndEdit += Dgv_CellEndEdit;
+                                dgv.CellValueChanged += Dgv_CellValueChanged;
+                            }
                             dgv.BorderStyle = System.Windows.Forms.BorderStyle.None;
                             dgv.DataError += (s, e) =>
                             {
@@ -314,6 +340,203 @@ namespace NETDBHelper.UC
             this.loadbox.tag = exthread;
             this.loadbox.OnStop += Stop;
             exthread.Start();
+        }
+
+        private void Dgv_CellValueChanged(object sender, DataGridViewCellEventArgs e)
+        {
+            
+        }
+
+        private void Dgv_CellBeginEdit(object sender, DataGridViewCellCancelEventArgs e)
+        {
+            var dgv = sender as DataGridView;
+            dgv.Tag = new KeyValuePair<DataGridViewCellCancelEventArgs, object>(e, dgv[e.ColumnIndex, e.RowIndex].Value);
+        }
+
+        private void Dgv_CellEndEdit(object sender, DataGridViewCellEventArgs e)
+        {
+            if (sender is DataGridView)
+            {
+                var gv = sender as DataGridView;
+                var tb = gv.DataSource as DataTable;
+
+                string errorMsg = string.Empty;
+
+                var updateColName = gv.Columns[e.ColumnIndex].Name;
+                var newVal = gv[e.ColumnIndex, e.RowIndex].Value;
+                object oldVal = null;
+                if (gv.Tag == null)
+                {
+                    errorMsg = "没有记录到旧值";
+                }
+                else
+                {
+                    var tagVal = (KeyValuePair<DataGridViewCellCancelEventArgs, object>)gv.Tag;
+                    if (tagVal.Key.RowIndex != e.RowIndex || tagVal.Key.ColumnIndex != e.ColumnIndex)
+                    {
+                        errorMsg = "没有记录到旧的值";
+                    }
+                    else
+                    {
+                        oldVal = tagVal.Value;
+                        if (oldVal == newVal)
+                        {
+                            errorMsg = "值没有修改";
+                        }
+                    }
+                }
+
+                gv.Tag = null;
+
+                if (!string.IsNullOrEmpty(errorMsg))
+                {
+                    Util.SendMsg(this, errorMsg);
+                    return;
+                }
+
+                if (MessageBox.Show("要修改值吗?", "修改确认", MessageBoxButtons.YesNo) != DialogResult.Yes)
+                {
+                    gv[e.ColumnIndex, e.RowIndex].Value = oldVal;
+                    return;
+                }
+
+                var tbinfo = SQLHelper.GetTB(Server, DB, tb.TableName);
+                if (tbinfo != null)
+                {
+                    var cols = SQLHelper.GetColumns(Server, DB, tb.TableName, tbinfo.Schema);
+
+                    var orgtablecolumns = SQLHelper.GetDateTableColumns(Server, cols, tbinfo);
+
+                    var checkPass = true;
+
+                    foreach (DataColumn col in tb.Columns)
+                    {
+                        var findCol = false;
+                        foreach (DataColumn orgcol in orgtablecolumns)
+                        {
+                            if (orgcol.ColumnName.ToLower() == col.ColumnName.ToLower())
+                            {
+                                if (orgcol.DataType != col.DataType)
+                                {
+                                    checkPass = false;
+                                    errorMsg = $"字段{col.ColumnName}与目标表{tb.TableName}类型不同";
+                                }
+                                else
+                                {
+                                    findCol = true;
+                                }
+                                break;
+                            }
+                        }
+                        if (!checkPass)
+                        {
+                            break;
+                        }
+                        if (!findCol)
+                        {
+                            errorMsg = $"字段{col.ColumnName}在目标表{tb.TableName}不存在";
+                            checkPass = false;
+                            break;
+                        }
+                    }
+                    if (checkPass)
+                    {
+                        var parameList = new List<SqlParameter>();
+                        StringBuilder sbsql = new StringBuilder();
+
+                        sbsql.Append($"update [{tb.TableName}] set [{updateColName}]=@{updateColName} where ");
+
+                        foreach (var keycol in cols.Where(p => p.IsID))
+                        {
+                            if (!gv.Columns.Contains(keycol.Name))
+                            {
+                                break;
+                            }
+
+                            if (keycol.Name.Equals(updateColName, StringComparison.OrdinalIgnoreCase))
+                            {
+                                errorMsg = "不能更新自增长键";
+                                checkPass = false;
+                                break;
+                            }
+
+                            parameList.Add(new SqlParameter
+                            {
+                                ParameterName = $"@{keycol.Name}",
+                                Value = gv[keycol.Name, e.RowIndex].Value
+                            });
+
+                            sbsql.Append($"[{keycol.Name}]=@{keycol.Name}");
+                        }
+
+                        if (parameList.Count == 0)
+                        {
+                            foreach (var keycol in cols.Where(p => p.IsKey || p.IsID))
+                            {
+                                if (!gv.Columns.Contains(keycol.Name))
+                                {
+                                    checkPass = false;
+                                    break;
+                                }
+
+                                if (keycol.Name.Equals(updateColName, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    errorMsg = "不能更新主键";
+                                    checkPass = false;
+                                    break;
+                                }
+
+                                parameList.Add(new SqlParameter
+                                {
+                                    ParameterName = $"@{keycol.Name}",
+                                    Value = gv[keycol.Name, e.RowIndex].Value
+                                });
+
+                                sbsql.Append($"[{keycol.Name}]=@{keycol.Name}");
+                            }
+                        }
+
+                        if (parameList.Count == 0)
+                        {
+                            errorMsg = $"没有主键值，无法更新到表{tb.TableName}";
+                            checkPass = false;
+                        }
+                        else
+                        {
+                            parameList.Add(new SqlParameter
+                            {
+                                ParameterName = $"@{updateColName}",
+                                Value = newVal
+                            });
+
+                            var ret = SQLHelper.ExecuteNoQuery(Server, DB, sbsql.ToString(), parameList.ToArray());
+
+                            Util.SendMsg(this, $"更新{(ret > 0 ? "成功" : "失败")}");
+                            gv.CancelEdit();
+                            BigEntityTableRemotingEngine.Insert("HLog", new HLogEntity
+                            {
+                                TypeName = tb.TableName,
+                                LogTime = DateTime.Now,
+                                LogType = LogTypeEnum.sql,
+                                DB = DB,
+                                Sever = Server.ServerName,
+                                Info = $"更新字段:{updateColName},更新为:{newVal}，前值为:{oldVal}，结果:{ret}",
+                                Valid = true
+                            });
+                        }
+                    }
+
+                }
+                else
+                {
+                    errorMsg = $"{tb.TableName}表不存在";
+                }
+
+                if (!string.IsNullOrEmpty(errorMsg))
+                {
+                    Util.SendMsg(this, errorMsg);
+                }
+            }
         }
 
         private void 清空ToolStripMenuItem_Click(object sender, EventArgs e)

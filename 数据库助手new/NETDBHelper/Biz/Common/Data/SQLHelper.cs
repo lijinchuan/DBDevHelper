@@ -42,9 +42,20 @@ namespace Biz.Common.Data
             return ExecuteDBTable(dbSource, dbName, SQLHelperConsts.GetTBs, null);
         }
 
-        public static DataTable GetTB(DBSource dbSource, string dbName, string name)
+        public static TableInfo GetTB(DBSource dbSource, string dbName, string name)
         {
-            return ExecuteDBTable(dbSource, dbName, SQLHelperConsts.GetTB, new SqlParameter("@NAME", name));
+            var tb = ExecuteDBTable(dbSource, dbName, SQLHelperConsts.GetTB, new SqlParameter("@NAME", name));
+            if (tb.Rows.Count == 0)
+            {
+                return null;
+            }
+            return new TableInfo
+            {
+                Schema = tb.Rows[0].Field<string>("schema"),
+                DBName=dbName,
+                TBId=tb.Rows[0].Field<int>("id").ToString(),
+                TBName=name
+            };
         }
 
 
@@ -119,10 +130,10 @@ namespace Biz.Common.Data
         {
             if (string.IsNullOrWhiteSpace(tbOwner))
             {
-                var tbrows = GetTB(dbSource, dbName, tbName).Rows;
-                if (tbrows.Count > 0)
+                var tbinfo = GetTB(dbSource, dbName, tbName);
+                if (tbinfo != null)
                 {
-                    tbOwner = tbrows[0].Field<string>("schema");
+                    tbOwner = tbinfo.Schema;
                 }
             }
             var tb= ExecuteDBTable(dbSource, dbName, SQLHelperConsts.GetColumns, new SqlParameter("@id", tbid));
@@ -260,12 +271,12 @@ namespace Biz.Common.Data
             }
         }
 
-        public static void ExecuteNoQuery(DBSource dbSource, string connDB, string sql, params SqlParameter[] sqlParams)
+        public static int ExecuteNoQuery(DBSource dbSource, string connDB, string sql, params SqlParameter[] sqlParams)
         {
-            ExecuteNoQuery(dbSource, connDB, sql, 30000, sqlParams);
+            return ExecuteNoQuery(dbSource, connDB, sql, 30000, sqlParams);
         }
 
-        public static void ExecuteNoQuery(DBSource dbSource, string connDB, string sql,int timeout, params SqlParameter[] sqlParams)
+        public static int ExecuteNoQuery(DBSource dbSource, string connDB, string sql,int timeout, params SqlParameter[] sqlParams)
         {
             var conn = new SqlConnection(GetConnstringFromDBSource(dbSource, connDB));
             SqlCommand cmd = conn.CreateCommand();
@@ -279,7 +290,7 @@ namespace Biz.Common.Data
             try
             {
                 conn.Open();
-                cmd.ExecuteNonQuery();
+                return cmd.ExecuteNonQuery();
             }
             finally
             {
