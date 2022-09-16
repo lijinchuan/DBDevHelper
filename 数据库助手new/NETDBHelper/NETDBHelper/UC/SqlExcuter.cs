@@ -49,6 +49,56 @@ namespace NETDBHelper.UC
 
         ContextMenuStrip datastrip = null;
 
+        private void CanAdjust()
+        {
+            var mousePos = Point.Empty;
+            this.MouseMove += mouseMouse;
+
+            void mouseUp(object s, MouseEventArgs e)
+            {
+                mousePos = Point.Empty;
+                this.MouseUp -= mouseUp;
+                this.Cursor = Cursors.Default;
+            }
+
+            void mouseMouse(object s, MouseEventArgs e)
+            {
+                if (e.Y - this.tabControl1.Location.Y < 5 && e.Y - this.tabControl1.Location.Y > 0)
+                {
+                    this.Cursor = Cursors.SizeNS;
+                    if ((e.Button & MouseButtons.Left) == MouseButtons.Left)
+                    {
+                        if (mousePos == Point.Empty)
+                        {
+                            mousePos = new Point(e.X, e.Y);
+                            this.MouseUp += mouseUp;
+                        }
+                    }
+                }
+
+                if (mousePos != Point.Empty && (e.Button & MouseButtons.Left) == MouseButtons.Left)
+                {
+                    if (Math.Abs(e.Y - mousePos.Y) > 10 && Math.Abs(e.Y - mousePos.Y) < 100)
+                    {
+                        if (sqlEditBox1.Height + e.Y - mousePos.Y >= 50 && sqlEditBox1.Height + e.Y - mousePos.Y <= this.Height - 50
+                                   && this.tabControl1.Height + mousePos.Y - e.Y >= 50 && this.tabControl1.Height + mousePos.Y - e.Y <= this.Height - 50)
+                        {
+                            sqlEditBox1.Height += e.Y - mousePos.Y;
+                            this.tabControl1.Height += mousePos.Y - e.Y;
+                            var newLoaction = this.tabControl1.Location;
+                            newLoaction.Offset(0, mousePos.Y - e.Y);
+                            this.tabControl1.Location = newLoaction;
+                            mousePos = new Point(e.X, e.Y);
+                        }
+                    }
+                }
+                else if (Math.Abs(e.Y - this.tabControl1.Location.Y) > 10 && (e.Button & MouseButtons.Left) == MouseButtons.None)
+                {
+                    this.Cursor = Cursors.Default;
+                }
+            }
+        }
+
         public SqlExcuter(DBSource server, string db, string sql)
         {
             InitializeComponent();
@@ -81,42 +131,7 @@ namespace NETDBHelper.UC
             datastrip.Items.Add("导出全部表格数据");
             datastrip.ItemClicked += Datastrip_ItemClicked;
 
-            var mousePos = Point.Empty;
-            this.MouseMove += mouseMouse;
-            this.MouseUp += (s, e) =>
-            {
-                mousePos = Point.Empty;
-            };
-
-            void mouseMouse(object s, MouseEventArgs e)
-            {
-                if (Math.Abs(e.Y - this.tabControl1.Location.Y) < 15)
-                {
-                    if ((e.Button & MouseButtons.Left) == MouseButtons.Left)
-                    {
-                        this.Cursor = Cursors.WaitCursor;
-                        if (mousePos == Point.Empty)
-                        {
-                            mousePos = new Point(e.X, e.Y);
-                        }
-                        else
-                        {
-                            if (Math.Abs(e.Y - mousePos.Y) > 5)
-                            {
-                                sqlEditBox1.Height += e.Y - mousePos.Y;
-                                //var oldLocation = this.sqlEditBox1.Location;
-                                //oldLocation.Offset(0, (-e.Y + mousePos.Y) * 2);
-                                //sqlEditBox1.Location = oldLocation;
-                                this.tabControl1.Height += mousePos.Y - e.Y;
-                                var newLoaction = this.tabControl1.Location;
-                                newLoaction.Offset(0, mousePos.Y - e.Y);
-                                this.tabControl1.Location = newLoaction;
-                                mousePos = new Point(e.X, e.Y);
-                            }
-                        }
-                    }
-                }
-            }
+            CanAdjust();
         }
 
         private void Datastrip_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
@@ -1083,6 +1098,8 @@ namespace NETDBHelper.UC
             datastrip.Items.Add("导出表格数据");
             datastrip.Items.Add("导出全部表格数据");
             datastrip.ItemClicked += Datastrip_ItemClicked;
+
+            CanAdjust();
 
             return this;
         }

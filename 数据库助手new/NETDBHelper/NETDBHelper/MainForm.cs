@@ -71,6 +71,56 @@ namespace NETDBHelper
             ChangeLeftWindow();
         }
 
+        private void CanAdjust()
+        {
+            var mousePos = Point.Empty;
+            MouseMove += mouseMouse;
+
+            void mouseUp(object s, MouseEventArgs e)
+            {
+                mousePos = Point.Empty;
+                MouseUp -= mouseUp;
+                Cursor = Cursors.Default;
+            }
+
+            void mouseMouse(object s, MouseEventArgs e)
+            {
+                if (e.X - panel1.Location.X < 5 && e.X - panel1.Location.X > 0)
+                {
+                    this.Cursor = Cursors.SizeWE;
+                    if ((e.Button & MouseButtons.Left) == MouseButtons.Left)
+                    {
+                        if (mousePos == Point.Empty)
+                        {
+                            mousePos = new Point(e.X, e.Y);
+                            this.MouseUp += mouseUp;
+                        }
+                    }
+                }
+
+                if (mousePos != Point.Empty && (e.Button & MouseButtons.Left) == MouseButtons.Left)
+                {
+                    if (Math.Abs(e.X - mousePos.X) > 10 && Math.Abs(e.X - mousePos.X) < 100)
+                    {
+                        if (dbServerView1.Width + e.X - mousePos.X >= 50 && dbServerView1.Width + e.X - mousePos.X <= this.Width - 50
+                                   && panel1.Width + mousePos.X - e.X >= 50 && panel1.Width + mousePos.X - e.X <= this.Width - 50)
+                        {
+                            dbServerView1.Width += e.X - mousePos.X;
+                            panel1.Width += mousePos.X - e.X;
+                            var newLoaction = panel1.Location;
+                            newLoaction.Offset(e.X - mousePos.X, 0);
+                            panel1.Location = newLoaction;
+                            mousePos = new Point(e.X, e.Y);
+                        }
+                    }
+                }
+                else if (Math.Abs(e.X - dbServerView1.Location.X) > 10 && (e.Button & MouseButtons.Left) == MouseButtons.None)
+                {
+                    Cursor = Cursors.Default;
+                }
+            }
+        }
+
         private void Util_OnUserLoginOut(LoginUser user)
         {
             复制数据库ToolStripMenuItem.Visible = 搜索数据库ToolStripMenuItem.Visible = 还原数据库ToolStripMenuItem.Visible = false;
@@ -149,6 +199,8 @@ namespace NETDBHelper
                         this.TabControl.SelectedIndex = 0;
                     }
                 }
+
+                CanAdjust();
             }
             catch (Exception ex)
             {
