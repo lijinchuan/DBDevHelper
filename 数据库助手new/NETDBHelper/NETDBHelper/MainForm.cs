@@ -85,7 +85,7 @@ namespace NETDBHelper
 
             void mouseMouse(object s, MouseEventArgs e)
             {
-                if (e.X - panel1.Location.X < 5 && e.X - panel1.Location.X > 0)
+                if (panel1.Location.X - e.X < 5 && panel1.Location.X - e.X > 0)
                 {
                     this.Cursor = Cursors.SizeWE;
                     if ((e.Button & MouseButtons.Left) == MouseButtons.Left)
@@ -114,7 +114,7 @@ namespace NETDBHelper
                         }
                     }
                 }
-                else if (Math.Abs(e.X - dbServerView1.Location.X) > 10 && (e.Button & MouseButtons.Left) == MouseButtons.None)
+                else if (Math.Abs(panel1.Location.X - e.X) > 10 && (e.Button & MouseButtons.Left) == MouseButtons.None)
                 {
                     Cursor = Cursors.Default;
                 }
