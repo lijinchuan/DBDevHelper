@@ -75,6 +75,21 @@ namespace NETDBHelper
         {
             var mousePos = Point.Empty;
             MouseMove += mouseMouse;
+            foreach (Control ctl in dbServerView1.Controls)
+            {
+                if (ctl.Width >= dbServerView1.Width * 0.8 && ctl.Height >= dbServerView1.Height * 0.8)
+                {
+                    ctl.MouseMove += (s, e) =>
+                     {
+                         Cursor = Cursors.Default;
+                     };
+                }
+            }
+
+            panel1.MouseMove+= (s, e) =>
+            {
+                Cursor = Cursors.Default;
+            };
 
             void mouseUp(object s, MouseEventArgs e)
             {
