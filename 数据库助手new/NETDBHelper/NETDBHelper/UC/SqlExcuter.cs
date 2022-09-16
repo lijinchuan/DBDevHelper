@@ -80,6 +80,43 @@ namespace NETDBHelper.UC
             datastrip.Items.Add("导出表格数据");
             datastrip.Items.Add("导出全部表格数据");
             datastrip.ItemClicked += Datastrip_ItemClicked;
+
+            var mousePos = Point.Empty;
+            this.MouseMove += mouseMouse;
+            this.MouseUp += (s, e) =>
+            {
+                mousePos = Point.Empty;
+            };
+
+            void mouseMouse(object s, MouseEventArgs e)
+            {
+                if (Math.Abs(e.Y - this.tabControl1.Location.Y) < 15)
+                {
+                    if ((e.Button & MouseButtons.Left) == MouseButtons.Left)
+                    {
+                        this.Cursor = Cursors.WaitCursor;
+                        if (mousePos == Point.Empty)
+                        {
+                            mousePos = new Point(e.X, e.Y);
+                        }
+                        else
+                        {
+                            if (Math.Abs(e.Y - mousePos.Y) > 5)
+                            {
+                                sqlEditBox1.Height += e.Y - mousePos.Y;
+                                //var oldLocation = this.sqlEditBox1.Location;
+                                //oldLocation.Offset(0, (-e.Y + mousePos.Y) * 2);
+                                //sqlEditBox1.Location = oldLocation;
+                                this.tabControl1.Height += mousePos.Y - e.Y;
+                                var newLoaction = this.tabControl1.Location;
+                                newLoaction.Offset(0, mousePos.Y - e.Y);
+                                this.tabControl1.Location = newLoaction;
+                                mousePos = new Point(e.X, e.Y);
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         private void Datastrip_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
