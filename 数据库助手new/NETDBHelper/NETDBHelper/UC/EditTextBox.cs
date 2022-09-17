@@ -1339,19 +1339,19 @@ namespace NETDBHelper.UC
 
         void RichText_VScroll(object sender, EventArgs e)
         {
-            if (RichText.SelectionLength == 0)
-            {
-                var currline = RichText.GetLineFromCharIndex(RichText.SelectionStart);
+            //if (RichText.SelectionLength == 0)
+            //{
+            //    var currline = RichText.GetLineFromCharIndex(RichText.SelectionStart);
 
-                if (currline > CurrentClientScreentEndLine && currline + 1 != RichText.Lines.Length)
-                {
-                    RichText.SelectionStart = RichText.GetFirstCharIndexFromLine(CurrentClientScreentEndLine);
-                }
-                else if (currline < CurrentClientScreenStartLine)
-                {
-                    RichText.SelectionStart = RichText.GetFirstCharIndexFromLine(CurrentClientScreenStartLine);
-                }
-            }
+            //    if (currline > CurrentClientScreentEndLine && currline + 1 != RichText.Lines.Length)
+            //    {
+            //        RichText.SelectionStart = RichText.GetFirstCharIndexFromLine(CurrentClientScreentEndLine);
+            //    }
+            //    else if (currline < CurrentClientScreenStartLine)
+            //    {
+            //        RichText.SelectionStart = RichText.GetFirstCharIndexFromLine(CurrentClientScreenStartLine);
+            //    }
+            //}
             _timer.SetTimeOutCallBack(() =>
                 {
                     this.Invoke(new Action<bool>(MarkKeyWords), true);
@@ -1392,6 +1392,13 @@ namespace NETDBHelper.UC
         /// <returns></returns>
         public void MarkKeyWords(bool reSetLineNo)
         {
+            ProcessTraceUtil.StartTrace();
+
+            if (reSetLineNo)
+                SetLineNo();
+
+            int oldVPos = RichText.VerticalPosition;
+            int oldHPos = RichText.HorizontalPosition;
             try
             {
                 this.RichText.SelectionChanged -= RichText_SelectionChanged;
@@ -1400,8 +1407,8 @@ namespace NETDBHelper.UC
                 int line1 = CurrentClientScreenStartLine;
                 if (_lastMarketedLines == line1)
                     return;
-                ProcessTraceUtil.StartTrace();
-                int line2 = CurrentClientScreentEndLine + 1;
+
+                int line2 = (int)((CurrentClientScreentEndLine + 1) * 1.5);
                 //if (line2 == 1)
                 //{
                 //    return;
@@ -1472,23 +1479,29 @@ namespace NETDBHelper.UC
                 }
 
                 ProcessTraceUtil.Trace("setColor:" + tb.Rows.Count);
-
+                RichText.LockPaint = true;
                 if (this.RichText.SelectionStart != oldStart)
                 {
                     this.RichText.SelectionStart = oldStart;
                 }
-                this.RichText.SelectionLength = oldSelectLen;
-                //this.RichText.SelectionColor = oldSelectColor;
+                if (this.RichText.SelectionLength != oldSelectLen)
+                {
+                    this.RichText.SelectionLength = oldSelectLen;
+                }
+                
+                this.RichText.HorizontalPosition = oldHPos;
+                this.RichText.VerticalPosition = oldVPos;
+                RichText.LockPaint = false;
                 _lastMarketedLines = line1;
+
+                ProcessTraceUtil.Trace("resetPostion");
 
             }
             finally
             {
                 
                 this.RichText.SelectionChanged += RichText_SelectionChanged;
-                if (reSetLineNo)
-                    SetLineNo();
-
+                
                 LogHelper.Instance.Debug(ProcessTraceUtil.PrintTrace(100));
             }
             
