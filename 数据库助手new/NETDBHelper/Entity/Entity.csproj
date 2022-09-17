@@ -41,6 +41,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AnnotationInfo.cs" />
     <Compile Include="ColumnMarkSyncRecord.cs" />
     <Compile Include="CopyDBTask.cs" />
     <Compile Include="CreateProceEnum.cs" />

@@ -944,18 +944,20 @@ namespace NETDBHelper.UC
             string pre = "", last = "";
             int pi = curindex - charstartindex - 1;
 
+            var currLineText = RichText.Lines[currline];
             //判断是否是注释部分
-            var nodeindex = this.RichText.Lines[currline]?.IndexOf("--");
+            var nodeindex = currLineText?.IndexOf("--");
             if (nodeindex > -1 && pi >= nodeindex)
             {
                 start = -1;
                 return string.Empty;
             }
 
+            var linesLen = RichText.Lines.Length;
             while (pi >= 0)
             {
 
-                var ch = this.RichText.Lines[currline][pi];
+                var ch = currLineText[pi];
 
                 if ((ch >= 'A' && ch <= 'Z') || (ch >= 48 && ch <= 57) || (ch >= 'a' && ch <= 'z')
                     || ch == '_' || ch == '@' || (includedot && ch == '.')
@@ -970,11 +972,11 @@ namespace NETDBHelper.UC
                 }
             }
             pi = curindex - charstartindex;
-            if (this.RichText.Lines.Length > currline)
+            if (linesLen > currline)
             {
-                while (pi < this.RichText.Lines[currline].Length)
+                while (pi < currLineText.Length)
                 {
-                    var ch = this.RichText.Lines[currline][pi];
+                    var ch = currLineText[pi];
 
                     if ((ch >= 'A' && ch <= 'Z') || (ch >= 48 && ch <= 57) || (ch >= 'a' && ch <= 'z')
                         || ch == '_' || ch == '@' || (includedot && ch == '.')
@@ -1006,8 +1008,10 @@ namespace NETDBHelper.UC
             string pre = "", last = "";
             int pi = curindex - charstartindex - 1;
 
+            var currLineText = RichText.Lines[currline];
+            var linesLen = RichText.Lines.Length;
             //判断是否是注释部分
-            var nodeindex = this.RichText.Lines[currline]?.IndexOf("--");
+            var nodeindex = currLineText?.IndexOf("--");
             if (nodeindex > -1 && pi >= nodeindex)
             {
                 word = string.Empty;
@@ -1017,7 +1021,7 @@ namespace NETDBHelper.UC
             while (pi >= 0)
             {
 
-                var ch = this.RichText.Lines[currline][pi];
+                var ch = currLineText[pi];
 
                 if ((ch >= 'A' && ch <= 'Z') || (ch >= 48 && ch <= 57) || (ch >= 'a' && ch <= 'z') 
                     || ch == '_' || ch == '.' || ch == '@'
@@ -1032,11 +1036,11 @@ namespace NETDBHelper.UC
                 }
             }
             pi = curindex - charstartindex;
-            if (this.RichText.Lines.Length > currline)
+            if (linesLen > currline)
             {
-                while (pi < this.RichText.Lines[currline].Length)
+                while (pi < currLineText.Length)
                 {
-                    var ch = this.RichText.Lines[currline][pi];
+                    var ch = currLineText[pi];
 
                     if ((ch >= 'A' && ch <= 'Z') || (ch >= 48 && ch <= 57) || (ch >= 'a' && ch <= 'z')
                         || ch == '_' || ch == '.' || ch == '@'
@@ -1393,6 +1397,75 @@ namespace NETDBHelper.UC
         }
 
         /// <summary>
+        /// 注释信息
+        /// </summary>
+        /// <returns></returns>
+        private List<AnnotationInfo> GetAnnotations()
+        {
+            List<AnnotationInfo> annotationInfos = new List<AnnotationInfo>();
+            var texts = RichText.Lines;
+            Stack<Tuple<int, int>> stack = new Stack<Tuple<int, int>>();
+            var len = 0;
+            for (var l = 0; l < texts.Length; l++)
+            {
+                var text = texts[l];
+                if (text != null)
+                {
+                    for (var i = 0; i < text.Length; i++)
+                    {
+                        if (i > 0 && text[i] == '*' && text[i - 1] == '/')
+                        {
+                            if (stack.Count == 0)
+                            {
+                                len = -(i - 1);
+                            }
+                            stack.Push(new Tuple<int, int>(i - 1, l));
+                        }
+                        else if (i > 0 && text[i] == '/' && text[i - 1] == '*')
+                        {
+                            if (stack.Count > 1)
+                            {
+                                stack.Pop();
+                            }
+                            else if (stack.Count == 1)
+                            {
+                                var item = stack.Pop();
+                                len += i + 1;
+                                annotationInfos.Add(new AnnotationInfo
+                                {
+                                    Start = item.Item1,
+                                    StartLine = item.Item2,
+                                    End = i,
+                                    EndLine = l,
+                                    Len = len
+                                });
+                            }
+                        }
+                    }
+                }
+                if (stack.Count > 0)
+                {
+                    len += text.Length + 1;//加上换行符号
+                }
+            }
+
+            if (stack.Count > 0)
+            {
+                var item = stack.First();
+                annotationInfos.Add(new AnnotationInfo
+                {
+                    Start = item.Item1,
+                    StartLine = item.Item2,
+                    End = texts.Last().Length,
+                    EndLine = texts.Length - 1,
+                    Len = len
+                });
+            }
+
+            return annotationInfos;
+        }
+
+        /// <summary>
         /// 分解过程
         /// </summary>
         /// <param name="express"></param>
@@ -1433,9 +1506,7 @@ namespace NETDBHelper.UC
                 int oldStart = this.RichText.SelectionStart;
                 int oldSelectLen = this.RichText.SelectionLength;
 
-                int totalIndex = this.RichText.GetCharIndexFromPosition(new Point(0, 0));
-
-                ProcessTraceUtil.Trace("totalIndex:" + totalIndex);
+                ProcessTraceUtil.Trace("totalIndex:");
                 //if (oldStart < totalIndex)
                 //{
                 //    oldStart = totalIndex + RichText.Lines[line1].Length + 1;
@@ -1449,13 +1520,49 @@ namespace NETDBHelper.UC
 
                 DataTable tb = Biz.Common.Data.DataHelper.CreateFatTable("pos", "len", "color");
 
+                Lazy<List<AnnotationInfo>> annotationInfos = new Lazy<List<AnnotationInfo>>(() => GetAnnotations());
+
+                foreach (var a in annotationInfos.Value)
+                {
+                    for (var l = a.StartLine; l <= a.EndLine; l++)
+                    {
+                        if (!_markedLines.Contains(l))
+                        {
+                            var totalIndex = RichText.GetFirstCharIndexFromLine(a.StartLine);
+                            DataRow row = tb.NewRow();
+                            row[0] = totalIndex + a.Start;
+                            row[1] = a.Len;
+                            row[2] = Color.Gray;
+                            tb.Rows.Add(row);
+
+                            if (a.Start == 0)
+                            {
+                                _markedLines.Add(a.StartLine);
+                            }
+
+                            if (a.End == RichText.Lines[a.EndLine].Length)
+                            {
+                                _markedLines.Add(a.EndLine);
+                            }
+
+                            for (var k = a.StartLine + 1; k <= a.EndLine - 1; k++)
+                            {
+                                _markedLines.Add(k);
+                            }
+
+                            break;
+                        }
+                    }
+                }
+
                 var linesLen = this.RichText.Lines.Length;
                 for (int l = line1; l <= line2 && l < linesLen; l++)
                 {
                     if (!_markedLines.Contains(l))
                     {
                         _markedLines.Add(l);
-                        totalIndex = this.RichText.GetFirstCharIndexFromLine(l);
+
+                        var totalIndex = RichText.GetFirstCharIndexFromLine(l);
                         string express = RichText.Lines[l] + " ";
 
                         var nodeindex = express.IndexOf("--");
@@ -1470,6 +1577,12 @@ namespace NETDBHelper.UC
                         }
                         foreach (var m in this.KeyWords.MatchKeyWord(express.ToLower()))
                         {
+                            if (annotationInfos.Value.Any(p => (p.StartLine < l && p.EndLine > l)
+                            || (p.StartLine == l && p.Start <= m.PostionStart)
+                            || (p.EndLine == l && p.End >= m.PostionStart)))
+                            {
+                                continue;
+                            }
                             if ((m.PostionStart == 0 || "[]{},|%#!<>=();+-*/\r\n 　".IndexOf(express[m.PostionStart - 1]) > -1)
                                 && (m.PostionEnd == express.Length - 1 || "[]{},|%#!<>=();+-*/\r\n 　".IndexOf(express[m.PostionEnd + 1]) > -1))
                             {
