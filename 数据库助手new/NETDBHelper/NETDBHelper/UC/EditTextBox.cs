@@ -1337,8 +1337,14 @@ namespace NETDBHelper.UC
             ProcessTraceUtil.Trace("SetLineNo");
         }
 
+        int LastScrollVPos = 0;
+
         void RichText_VScroll(object sender, EventArgs e)
         {
+            var isDown = true;
+            var vpos = RichText.VerticalPosition;
+            isDown = vpos > LastScrollVPos;
+            LastScrollVPos = vpos;
             //if (RichText.SelectionLength == 0)
             //{
             //    var currline = RichText.GetLineFromCharIndex(RichText.SelectionStart);
@@ -1352,11 +1358,12 @@ namespace NETDBHelper.UC
             //        RichText.SelectionStart = RichText.GetFirstCharIndexFromLine(CurrentClientScreenStartLine);
             //    }
             //}
-            _timer.SetTimeOutCallBack(() =>
+            _timer.ReSetTimeOutCallBack(() =>
                 {
-                    this.Invoke(new Action<bool>(MarkKeyWords), true);
-                    this.Invoke(new Action(() => {
-                        
+                    this.Invoke(new Action<bool, bool>(MarkKeyWords), true, isDown);
+                    this.Invoke(new Action(() =>
+                    {
+
                     }));
                 });
         }
@@ -1390,7 +1397,7 @@ namespace NETDBHelper.UC
         /// </summary>
         /// <param name="express"></param>
         /// <returns></returns>
-        public void MarkKeyWords(bool reSetLineNo)
+        public void MarkKeyWords(bool reSetLineNo, bool isDown = true)
         {
             ProcessTraceUtil.StartTrace();
 
@@ -1408,7 +1415,16 @@ namespace NETDBHelper.UC
                 if (_lastMarketedLines == line1)
                     return;
 
-                int line2 = (int)((CurrentClientScreentEndLine + 1) * 1.5);
+                int line2 = CurrentClientScreentEndLine + 1;
+
+                if (!isDown)
+                {
+                    line1 = Math.Max(0, line1 - (int)((line2 - line1) * 0.5));
+                }
+                else
+                {
+                    line2 = (int)(line2 * 1.5);
+                }
                 //if (line2 == 1)
                 //{
                 //    return;
@@ -1419,7 +1435,7 @@ namespace NETDBHelper.UC
 
                 int totalIndex = this.RichText.GetCharIndexFromPosition(new Point(0, 0));
 
-                ProcessTraceUtil.Trace("totalIndex:"+ totalIndex);
+                ProcessTraceUtil.Trace("totalIndex:" + totalIndex);
                 //if (oldStart < totalIndex)
                 //{
                 //    oldStart = totalIndex + RichText.Lines[line1].Length + 1;
@@ -1488,7 +1504,7 @@ namespace NETDBHelper.UC
                 {
                     this.RichText.SelectionLength = oldSelectLen;
                 }
-                
+
                 this.RichText.HorizontalPosition = oldHPos;
                 this.RichText.VerticalPosition = oldVPos;
                 RichText.LockPaint = false;
@@ -1499,12 +1515,12 @@ namespace NETDBHelper.UC
             }
             finally
             {
-                
+
                 this.RichText.SelectionChanged += RichText_SelectionChanged;
-                
+
                 LogHelper.Instance.Debug(ProcessTraceUtil.PrintTrace(100));
             }
-            
+
         }
 
         private void 粘贴ToolStripMenuItem_Click(object sender, EventArgs e)
