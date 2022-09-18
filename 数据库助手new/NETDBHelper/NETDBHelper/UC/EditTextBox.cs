@@ -89,6 +89,7 @@ namespace NETDBHelper.UC
         private HashSet<int> _markedLines = new HashSet<int>();
         private int _lastMarketedLines = -1;
         private int _lastInputChar = '\0';
+        private GrammarAnalysisResult _lastGrammarAnalysisResult = null;
         private Point _currpt = Point.Empty;
         private DateTime _pointtiptime = DateTime.MaxValue;
 
@@ -1248,6 +1249,7 @@ namespace NETDBHelper.UC
             #endregion
 
             int line = this.RichText.GetLineFromCharIndex(this.RichText.GetFirstCharIndexOfCurrentLine());
+            
             if (_lastInputChar == '\r' || _lastInputChar == '\n')
             {
                 _markedLines.RemoveWhere(p => p == line || p == line - 1);
@@ -1262,6 +1264,17 @@ namespace NETDBHelper.UC
             {
                 _markedLines.RemoveWhere(p => p == line);
             }
+            if (_lastGrammarAnalysisResult != null)
+            {
+                foreach (var g in _lastGrammarAnalysisResult?.AnnotationInfos.Where(p => p.StartLine <= line && p.EndLine >= line))
+                {
+                    _markedLines.RemoveWhere(p => p >= g.StartLine && p <= g.EndLine);
+                }
+                foreach (var g in _lastGrammarAnalysisResult?.StringInfos.Where(p => p.StartLine <= line && p.EndLine >= line))
+                {
+                    _markedLines.RemoveWhere(p => p >= g.StartLine && p <= g.EndLine);
+                }
+            }
             _lastMarketedLines = -1;
             _lastInputChar='\0';
 
@@ -1274,6 +1287,9 @@ namespace NETDBHelper.UC
             this.RichText.SelectionStart = oldstart;
             this.RichText.SelectionLength = oldlen;
             this.RichText.LockPaint = false;
+
+            _lastGrammarAnalysisResult = GrammarAnalysis();
+
             MarkKeyWords(false);
         }
 
@@ -1400,7 +1416,7 @@ namespace NETDBHelper.UC
         /// 注释信息
         /// </summary>
         /// <returns></returns>
-        private GrammarAnalysisResult GetAnnotations()
+        private GrammarAnalysisResult GrammarAnalysis()
         {
             var result = new GrammarAnalysisResult
             {
@@ -1577,10 +1593,13 @@ namespace NETDBHelper.UC
 
                 DataTable tb = Biz.Common.Data.DataHelper.CreateFatTable("pos", "len", "color");
 
-                var annotationInfos = new Lazy<GrammarAnalysisResult>(() => GetAnnotations());
+                var grammarAnalysisResult = new Lazy<GrammarAnalysisResult>(() => GrammarAnalysis());
+                var annotationInfos = new Lazy<List<GrammarInfo>>(() => grammarAnalysisResult.Value.AnnotationInfos.Where(p => p.EndLine >= line1 && p.StartLine <= line2).ToList());
+                var stringInfos= new Lazy<List<GrammarInfo>>(() => grammarAnalysisResult.Value.StringInfos.Where(p => p.EndLine >= line1 && p.StartLine <= line2).ToList());
 
-                foreach (var a in annotationInfos.Value.AnnotationInfos)
+                foreach (var a in annotationInfos.Value)
                 {
+
                     for (var l = a.StartLine; l <= a.EndLine; l++)
                     {
                         if (!_markedLines.Contains(l))
@@ -1612,7 +1631,7 @@ namespace NETDBHelper.UC
                     }
                 }
 
-                foreach (var a in annotationInfos.Value.StringInfos)
+                foreach (var a in stringInfos.Value)
                 {
                     for (var l = a.StartLine; l <= a.EndLine; l++)
                     {
@@ -1657,13 +1676,13 @@ namespace NETDBHelper.UC
 
                         foreach (var m in this.KeyWords.MatchKeyWord(express.ToLower()))
                         {
-                            if (annotationInfos.Value.AnnotationInfos.Any(p => (p.StartLine < l && p.EndLine > l)
+                            if (annotationInfos.Value.Any(p => (p.StartLine < l && p.EndLine > l)
                             || (p.StartLine == l && p.Start <= m.PostionStart)
                             || (p.EndLine == l && p.End >= m.PostionStart)))
                             {
                                 continue;
                             }
-                            if (annotationInfos.Value.StringInfos.Any(p => (p.StartLine < l && p.EndLine > l)
+                            if (stringInfos.Value.Any(p => (p.StartLine < l && p.EndLine > l)
                             || (p.StartLine == l && p.EndLine == l && p.Start <= m.PostionStart && p.End >= m.PostionStart)
                             || (p.StartLine == l && p.EndLine != l && p.Start <= m.PostionStart)
                             || (p.StartLine != l && p.EndLine == l && p.End >= m.PostionStart)))
