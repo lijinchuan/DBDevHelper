@@ -8,7 +8,7 @@ namespace Entity
     /// <summary>
     /// 注释
     /// </summary>
-    public class AnnotationInfo
+    public class GrammarInfo
     {
         public int Start
         {

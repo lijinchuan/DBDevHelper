@@ -1400,20 +1400,27 @@ namespace NETDBHelper.UC
         /// 注释信息
         /// </summary>
         /// <returns></returns>
-        private List<AnnotationInfo> GetAnnotations()
+        private GrammarAnalysisResult GetAnnotations()
         {
-            List<AnnotationInfo> annotationInfos = new List<AnnotationInfo>();
+            var result = new GrammarAnalysisResult
+            {
+                AnnotationInfos=new List<GrammarInfo>(),
+                StringInfos=new List<GrammarInfo>()
+            };
             var texts = RichText.Lines;
             Stack<Tuple<int, int>> stack = new Stack<Tuple<int, int>>();
             var len = 0;
+            int strPos = -1, strStartLine = -1;
             for (var l = 0; l < texts.Length; l++)
             {
                 var text = texts[l];
+                var textLen = 0;
                 if (text != null)
                 {
+                    textLen = text.Length;
                     for (var i = 0; i < text.Length; i++)
                     {
-                        if (i > 0 && text[i] == '*' && text[i - 1] == '/')
+                        if (strPos == -1 && i > 0 && text[i] == '*' && text[i - 1] == '/')
                         {
                             if (stack.Count == 0)
                             {
@@ -1421,7 +1428,7 @@ namespace NETDBHelper.UC
                             }
                             stack.Push(new Tuple<int, int>(i - 1, l));
                         }
-                        else if (i > 0 && text[i] == '/' && text[i - 1] == '*')
+                        else if (strPos == -1 && i > 0 && text[i] == '/' && text[i - 1] == '*')
                         {
                             if (stack.Count > 1)
                             {
@@ -1431,7 +1438,7 @@ namespace NETDBHelper.UC
                             {
                                 var item = stack.Pop();
                                 len += i + 1;
-                                annotationInfos.Add(new AnnotationInfo
+                                result.AnnotationInfos.Add(new GrammarInfo
                                 {
                                     Start = item.Item1,
                                     StartLine = item.Item2,
@@ -1441,18 +1448,57 @@ namespace NETDBHelper.UC
                                 });
                             }
                         }
+                        else if (stack.Count == 0 && text[i] == '\'')
+                        {
+                            if (strPos == -1)
+                            {
+                                strPos = i;
+                                strStartLine = l;
+                                len = -i;
+                            }
+                            else if (i == textLen - 1 || text[i + 1] != '\'')
+                            {
+                                len += i + 1;
+                                result.StringInfos.Add(new GrammarInfo
+                                {
+                                    Start = strPos,
+                                    StartLine = strStartLine,
+                                    End = i,
+                                    EndLine = l,
+                                    Len = len
+                                });
+                                strPos = -1;
+                            }
+                            else if (text[i + 1] == '\'')
+                            {
+                                i++;
+                            }
+                        }
+                        else if (stack.Count == 0 && strPos == -1 && text[i] == '-' && textLen - 1 > i && text[i + 1] == '-')
+                        {
+                            result.AnnotationInfos.Add(new GrammarInfo
+                            {
+                                Start = i,
+                                StartLine = l,
+                                End = textLen - 1,
+                                EndLine = l,
+                                Len = textLen - i
+                            });
+                            break;
+                        }
                     }
                 }
-                if (stack.Count > 0)
+                if (stack.Count > 0
+                    || strPos > -1)
                 {
-                    len += text.Length + 1;//加上换行符号
+                    len += textLen + 1;//加上换行符号
                 }
             }
 
             if (stack.Count > 0)
             {
                 var item = stack.First();
-                annotationInfos.Add(new AnnotationInfo
+                result.AnnotationInfos.Add(new GrammarInfo
                 {
                     Start = item.Item1,
                     StartLine = item.Item2,
@@ -1461,8 +1507,19 @@ namespace NETDBHelper.UC
                     Len = len
                 });
             }
+            else if (strPos > -1)
+            {
+                result.StringInfos.Add(new GrammarInfo
+                {
+                    Start = strPos,
+                    StartLine = strStartLine,
+                    End = texts.Last().Length,
+                    EndLine = texts.Length - 1,
+                    Len = len
+                });
+            }
 
-            return annotationInfos;
+            return result;
         }
 
         /// <summary>
@@ -1520,9 +1577,9 @@ namespace NETDBHelper.UC
 
                 DataTable tb = Biz.Common.Data.DataHelper.CreateFatTable("pos", "len", "color");
 
-                Lazy<List<AnnotationInfo>> annotationInfos = new Lazy<List<AnnotationInfo>>(() => GetAnnotations());
+                var annotationInfos = new Lazy<GrammarAnalysisResult>(() => GetAnnotations());
 
-                foreach (var a in annotationInfos.Value)
+                foreach (var a in annotationInfos.Value.AnnotationInfos)
                 {
                     for (var l = a.StartLine; l <= a.EndLine; l++)
                     {
@@ -1555,6 +1612,39 @@ namespace NETDBHelper.UC
                     }
                 }
 
+                foreach (var a in annotationInfos.Value.StringInfos)
+                {
+                    for (var l = a.StartLine; l <= a.EndLine; l++)
+                    {
+                        if (!_markedLines.Contains(l))
+                        {
+                            var totalIndex = RichText.GetFirstCharIndexFromLine(a.StartLine);
+                            DataRow row = tb.NewRow();
+                            row[0] = totalIndex + a.Start;
+                            row[1] = a.Len;
+                            row[2] = Color.DarkRed;
+                            tb.Rows.Add(row);
+
+                            if (a.Start == 0)
+                            {
+                                _markedLines.Add(a.StartLine);
+                            }
+
+                            if (a.End == RichText.Lines[a.EndLine].Length)
+                            {
+                                _markedLines.Add(a.EndLine);
+                            }
+
+                            for (var k = a.StartLine + 1; k <= a.EndLine - 1; k++)
+                            {
+                                _markedLines.Add(k);
+                            }
+
+                            break;
+                        }
+                    }
+                }
+
                 var linesLen = this.RichText.Lines.Length;
                 for (int l = line1; l <= line2 && l < linesLen; l++)
                 {
@@ -1565,21 +1655,18 @@ namespace NETDBHelper.UC
                         var totalIndex = RichText.GetFirstCharIndexFromLine(l);
                         string express = RichText.Lines[l] + " ";
 
-                        var nodeindex = express.IndexOf("--");
-                        if (nodeindex > -1)
-                        {
-                            DataRow row = tb.NewRow();
-                            row[0] = totalIndex + nodeindex;
-                            row[1] = express.Length - nodeindex;
-                            row[2] = Color.Gray;
-                            tb.Rows.Add(row);
-                            express = express.Substring(0, nodeindex + 1);
-                        }
                         foreach (var m in this.KeyWords.MatchKeyWord(express.ToLower()))
                         {
-                            if (annotationInfos.Value.Any(p => (p.StartLine < l && p.EndLine > l)
+                            if (annotationInfos.Value.AnnotationInfos.Any(p => (p.StartLine < l && p.EndLine > l)
                             || (p.StartLine == l && p.Start <= m.PostionStart)
                             || (p.EndLine == l && p.End >= m.PostionStart)))
+                            {
+                                continue;
+                            }
+                            if (annotationInfos.Value.StringInfos.Any(p => (p.StartLine < l && p.EndLine > l)
+                            || (p.StartLine == l && p.EndLine == l && p.Start <= m.PostionStart && p.End >= m.PostionStart)
+                            || (p.StartLine == l && p.EndLine != l && p.Start <= m.PostionStart)
+                            || (p.StartLine != l && p.EndLine == l && p.End >= m.PostionStart)))
                             {
                                 continue;
                             }

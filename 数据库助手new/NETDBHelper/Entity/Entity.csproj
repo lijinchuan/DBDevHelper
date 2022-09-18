@@ -41,7 +41,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AnnotationInfo.cs" />
+    <Compile Include="GrammarInfo.cs" />
     <Compile Include="ColumnMarkSyncRecord.cs" />
     <Compile Include="CopyDBTask.cs" />
     <Compile Include="CreateProceEnum.cs" />
@@ -56,6 +56,7 @@
     <Compile Include="FunContent.cs" />
     <Compile Include="FunInfo.cs" />
     <Compile Include="FunParamInfo.cs" />
+    <Compile Include="GrammarAnalysisResult.cs" />
     <Compile Include="HLogEntity.cs" />
     <Compile Include="IDataExport.cs" />
     <Compile Include="IDType.cs" />
