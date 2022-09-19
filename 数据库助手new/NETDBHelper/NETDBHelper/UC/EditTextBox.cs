@@ -1188,15 +1188,31 @@ namespace NETDBHelper.UC
 
         private void ClearMarkedLine(int[] lines)
         {
+            if (lines.Length == 0)
+            {
+                return;
+            }
+            lines = lines.OrderBy(p => p).ToArray();
             this.RichText.LockPaint = true;
             var oldstart = this.RichText.SelectionStart;
             var oldlen = this.RichText.SelectionLength;
-            foreach (var line in lines)
+            int selectionStart = RichText.GetFirstCharIndexFromLine(lines.First());
+
+            for (var i = 1; i < lines.Length; i++)
             {
-                this.RichText.SelectionStart = this.RichText.GetFirstCharIndexFromLine(line);
-                this.RichText.SelectionLength = this.RichText.Lines[line].Length;
-                this.RichText.SelectionColor = Color.Black;
+                if (lines[i] - lines[i - 1] != 1)
+                {
+                    this.RichText.SelectionStart = selectionStart;
+                    this.RichText.SelectionLength = RichText.GetFirstCharIndexFromLine(lines[i]) - selectionStart + RichText.Lines[lines[i]].Length;
+                    this.RichText.SelectionColor = Color.Black;
+                    selectionStart = RichText.GetFirstCharIndexFromLine(lines[i]);
+                }
             }
+
+            this.RichText.SelectionStart = selectionStart;
+            this.RichText.SelectionLength = RichText.GetFirstCharIndexFromLine(lines[lines.Length - 1]) - selectionStart + RichText.Lines[lines[lines.Length - 1]].Length;
+            this.RichText.SelectionColor = Color.Black;
+
             this.RichText.SelectionStart = oldstart;
             this.RichText.SelectionLength = oldlen;
             this.RichText.LockPaint = false;
@@ -1296,30 +1312,7 @@ namespace NETDBHelper.UC
 
             ClearMarkedLine(new[] { line });
 
-            var grammarAnalysis = GrammarAnalysis();
-            if (_lastGrammarAnalysisResult != null)
-            {
-                //B有A没有，清除B
-                //A有B没有，清除A
-                var exstringInfos = _lastGrammarAnalysisResult.StringInfos.Except(grammarAnalysis.StringInfos,new GrammarInfoComparer()).ToList();
-                if (exstringInfos.Any())
-                {
-                    var lines = new List<int>();
-                    foreach (var info in exstringInfos)
-                    {
-                        for (var i = info.StartLine; i <= info.EndLine; i++)
-                        {
-                            lines.Add(i);
-                            _markedLines.Remove(i);
-                        }
-
-                    }
-                    ClearMarkedLine(lines.Distinct().ToArray());
-                }
-            }
-
             MarkKeyWords(false);
-            _lastGrammarAnalysisResult = grammarAnalysis;
         }
 
         void SetLineNo(bool addNewLine = false)
@@ -1623,6 +1616,40 @@ namespace NETDBHelper.UC
                 DataTable tb = Biz.Common.Data.DataHelper.CreateFatTable("pos", "len", "color");
 
                 var grammarAnalysisResult = new Lazy<GrammarAnalysisResult>(() => GrammarAnalysis());
+                if (_lastGrammarAnalysisResult != null)
+                {
+                    var lines = new List<int>();
+                    //B有A没有，清除B
+                    //A有B没有，清除A
+                    var exstringInfos = _lastGrammarAnalysisResult.StringInfos.Except(grammarAnalysisResult.Value.StringInfos, new GrammarInfoComparer()).ToList();
+                    if (exstringInfos.Any())
+                    {
+
+                        foreach (var info in exstringInfos)
+                        {
+                            for (var i = info.StartLine; i <= info.EndLine; i++)
+                            {
+                                lines.Add(i);
+                                _markedLines.Remove(i);
+                            }
+                        }
+                    }
+                    exstringInfos = _lastGrammarAnalysisResult.AnnotationInfos.Except(grammarAnalysisResult.Value.AnnotationInfos, new GrammarInfoComparer()).ToList();
+                    if (exstringInfos.Any())
+                    {
+
+                        foreach (var info in exstringInfos)
+                        {
+                            for (var i = info.StartLine; i <= info.EndLine; i++)
+                            {
+                                lines.Add(i);
+                                _markedLines.Remove(i);
+                            }
+                        }
+                    }
+                    ClearMarkedLine(lines.Distinct().ToArray());
+                }
+                _lastGrammarAnalysisResult = grammarAnalysisResult.Value;
 
                 var annotationInfos = new Lazy<List<GrammarInfo>>(() => grammarAnalysisResult.Value.AnnotationInfos.Where(p => p.EndLine >= line1 && p.StartLine <= line2).ToList());
                 var stringInfos= new Lazy<List<GrammarInfo>>(() => grammarAnalysisResult.Value.StringInfos.Where(p => p.EndLine >= line1 && p.StartLine <= line2).ToList());
