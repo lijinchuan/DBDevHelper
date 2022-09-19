@@ -1186,6 +1186,22 @@ namespace NETDBHelper.UC
             _lastInputChar = e.KeyValue;
         }
 
+        private void ClearMarkedLine(int[] lines)
+        {
+            this.RichText.LockPaint = true;
+            var oldstart = this.RichText.SelectionStart;
+            var oldlen = this.RichText.SelectionLength;
+            foreach (var line in lines)
+            {
+                this.RichText.SelectionStart = this.RichText.GetFirstCharIndexFromLine(line);
+                this.RichText.SelectionLength = this.RichText.Lines[line].Length;
+                this.RichText.SelectionColor = Color.Black;
+            }
+            this.RichText.SelectionStart = oldstart;
+            this.RichText.SelectionLength = oldlen;
+            this.RichText.LockPaint = false;
+        }
+
         void RichText_TextChanged(object sender, EventArgs e)
         {
             if (_lastInputChar == '\0')
@@ -1264,33 +1280,46 @@ namespace NETDBHelper.UC
             {
                 _markedLines.RemoveWhere(p => p == line);
             }
-            if (_lastGrammarAnalysisResult != null)
-            {
-                foreach (var g in _lastGrammarAnalysisResult?.AnnotationInfos.Where(p => p.StartLine <= line && p.EndLine >= line))
-                {
-                    _markedLines.RemoveWhere(p => p >= g.StartLine && p <= g.EndLine);
-                }
-                foreach (var g in _lastGrammarAnalysisResult?.StringInfos.Where(p => p.StartLine <= line && p.EndLine >= line))
-                {
-                    _markedLines.RemoveWhere(p => p >= g.StartLine && p <= g.EndLine);
-                }
-            }
+            //if (_lastGrammarAnalysisResult != null)
+            //{
+            //    foreach (var g in _lastGrammarAnalysisResult?.AnnotationInfos.Where(p => p.StartLine <= line && p.EndLine >= line))
+            //    {
+            //        _markedLines.RemoveWhere(p => p >= g.StartLine && p <= g.EndLine);
+            //    }
+            //    foreach (var g in _lastGrammarAnalysisResult?.StringInfos.Where(p => p.StartLine <= line && p.EndLine >= line))
+            //    {
+            //        _markedLines.RemoveWhere(p => p >= g.StartLine && p <= g.EndLine);
+            //    }
+            //}
             _lastMarketedLines = -1;
             _lastInputChar='\0';
 
-            this.RichText.LockPaint = true;
-            var oldstart = this.RichText.SelectionStart;
-            var oldlen = this.RichText.SelectionLength;
-            this.RichText.SelectionStart = this.RichText.GetFirstCharIndexOfCurrentLine();
-            this.RichText.SelectionLength = this.RichText.Lines[line].Length;
-            this.RichText.SelectionColor = Color.Black;
-            this.RichText.SelectionStart = oldstart;
-            this.RichText.SelectionLength = oldlen;
-            this.RichText.LockPaint = false;
+            ClearMarkedLine(new[] { line });
 
-            _lastGrammarAnalysisResult = GrammarAnalysis();
+            var grammarAnalysis = GrammarAnalysis();
+            if (_lastGrammarAnalysisResult != null)
+            {
+                //B有A没有，清除B
+                //A有B没有，清除A
+                var exstringInfos = _lastGrammarAnalysisResult.StringInfos.Except(grammarAnalysis.StringInfos,new GrammarInfoComparer()).ToList();
+                if (exstringInfos.Any())
+                {
+                    var lines = new List<int>();
+                    foreach (var info in exstringInfos)
+                    {
+                        for (var i = info.StartLine; i <= info.EndLine; i++)
+                        {
+                            lines.Add(i);
+                            _markedLines.Remove(i);
+                        }
+
+                    }
+                    ClearMarkedLine(lines.Distinct().ToArray());
+                }
+            }
 
             MarkKeyWords(false);
+            _lastGrammarAnalysisResult = grammarAnalysis;
         }
 
         void SetLineNo(bool addNewLine = false)
@@ -1594,6 +1623,7 @@ namespace NETDBHelper.UC
                 DataTable tb = Biz.Common.Data.DataHelper.CreateFatTable("pos", "len", "color");
 
                 var grammarAnalysisResult = new Lazy<GrammarAnalysisResult>(() => GrammarAnalysis());
+
                 var annotationInfos = new Lazy<List<GrammarInfo>>(() => grammarAnalysisResult.Value.AnnotationInfos.Where(p => p.EndLine >= line1 && p.StartLine <= line2).ToList());
                 var stringInfos= new Lazy<List<GrammarInfo>>(() => grammarAnalysisResult.Value.StringInfos.Where(p => p.EndLine >= line1 && p.StartLine <= line2).ToList());
 
@@ -1677,8 +1707,9 @@ namespace NETDBHelper.UC
                         foreach (var m in this.KeyWords.MatchKeyWord(express.ToLower()))
                         {
                             if (annotationInfos.Value.Any(p => (p.StartLine < l && p.EndLine > l)
-                            || (p.StartLine == l && p.Start <= m.PostionStart)
-                            || (p.EndLine == l && p.End >= m.PostionStart)))
+                            || (p.StartLine == l && p.EndLine == l && p.Start <= m.PostionStart && p.End >= m.PostionStart)
+                            || (p.StartLine == l && p.EndLine != l && p.Start <= m.PostionStart)
+                            || (p.StartLine != l && p.EndLine == l && p.End >= m.PostionStart)))
                             {
                                 continue;
                             }
