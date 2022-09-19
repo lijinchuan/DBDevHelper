@@ -85,6 +85,7 @@ namespace NETDBHelper.UC
             dic.Add("while", Color.Blue);
             dic.Add("join", Color.Blue);
             dic.Add("for", Color.Blue);
+            dic.Add("in", Color.Blue);
             dic.Add("inner", Color.Blue);
             dic.Add("outer", Color.Blue);
             dic.Add("hash", Color.Blue);
