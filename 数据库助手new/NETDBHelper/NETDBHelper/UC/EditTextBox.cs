@@ -607,7 +607,30 @@ namespace NETDBHelper.UC
             }
             else if (subtexts.Length > 1)
             {
-                keys.Add(new string[] { DBName.ToUpper(), subtexts[subtexts.Length - 2], subtexts.Last() });
+                var alltext = RichText.Text;
+                var diff = int.MaxValue;
+                Match match = null;
+                foreach (Match m in Regex.Matches(alltext, $@"[\r\n\t\s]+\[?([\w_]+)\]?(?:[\r\n\t\s]+as)?[\r\n\s\t]+{subtexts[subtexts.Length - 2]}[\r\n\s\t]+", RegexOptions.IgnoreCase))
+                {
+                    if (Math.Abs(m.Index - st) < diff)
+                    {
+                        match = m;
+                        diff = Math.Abs(m.Index - st);
+                    }
+                    else
+                    {
+                        match = m;
+                        break;
+                    }
+                }
+                if (match != null)
+                {
+                    keys.Add(new string[] { DBName.ToUpper(), match.Groups[1].Value.ToUpper(), subtexts.Last() });
+                }
+                else
+                {
+                    keys.Add(new string[] { DBName.ToUpper(), subtexts[subtexts.Length - 2], subtexts.Last() });
+                }
             }
             else
             {
