@@ -235,9 +235,46 @@ namespace NETDBHelper.UC
             ThinkInfoLib.ForEach(p => p.Score = 0);
             ProcessTraceUtil.Trace("start subsearch");
 
+            var tableKeyManager = new LJC.FrameWorkV3.CodeExpression.KeyWordMatch.KeyWordManager();
+            foreach(var item in TableSet)
+            {
+                tableKeyManager.AddKeyWord(item.ToUpper(), item);
+            }
+            TableSet.Clear();
+            foreach (var item in tableKeyManager.MatchKeyWord(RichText.Text.ToUpper()))
+            {
+                TableSet.Add(item.Tag.ToString());
+            }
+            ProcessTraceUtil.Trace("重新检查表:" + TableSet.Count + "个");
+
             if (!string.IsNullOrWhiteSpace(searchKeys))
             {
-                thinkresut = LJC.FrameWorkV3.Comm.StringHelper.SubSearch(sourceList, searchKeys.ToUpper(), 3, 1000)
+                thinkresut = LJC.FrameWorkV3.Comm.StringHelper.SubSearch(sourceList.Where(p =>
+                {
+                    var to = (ThinkInfo)p.Tag;
+                    if (!string.IsNullOrEmpty(searchtable) && (to.Type != 2 || !searchtable.Equals((to.Tag as MarkObjectInfo).TBName, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        return false;
+                    }
+                    if (to.Type == 2)
+                    {
+                        var markcolumn = (MarkObjectInfo)to.Tag;
+                        var tablename = string.Empty;
+                        if (!markcolumn.DBName.Equals(_dbname, StringComparison.OrdinalIgnoreCase))
+                        {
+                            tablename = $"{markcolumn.DBName.ToLower()}.dbo.{markcolumn.TBName}";
+                        }
+                        else
+                        {
+                            tablename = markcolumn.TBName;
+                        }
+                        if (!TableSet.Contains(tablename, StringComparer.OrdinalIgnoreCase))
+                        {
+                            return false;
+                        }
+                    }
+                    return true;
+                }), searchKeys.ToUpper(), 3, 1000)
                     .Select(p => (ThinkInfo)p).ToList();
             }
             else if (!string.IsNullOrWhiteSpace(searchtable))
@@ -318,39 +355,33 @@ namespace NETDBHelper.UC
             //    }
             //}
 
-            foreach (var item in TableSet.Select(p => p).ToList())
-            {
-                if (this.RichText.Text.IndexOf(item, StringComparison.OrdinalIgnoreCase) == -1)
-                {
-                    TableSet.Remove(item);
-                }
-            }
+            
 
-            thinkresut = thinkresut.Where(p =>
-            {
-                if (!string.IsNullOrEmpty(searchtable) && (p.Type != 2 || !searchtable.Equals((p.Tag as MarkObjectInfo).TBName, StringComparison.OrdinalIgnoreCase)))
-                {
-                    return false;
-                }
-                if (p.Type == 2)
-                {
-                    var markcolumn = (MarkObjectInfo)p.Tag;
-                    var tablename = string.Empty;
-                    if (!markcolumn.DBName.Equals(_dbname, StringComparison.OrdinalIgnoreCase))
-                    {
-                        tablename = $"{markcolumn.DBName.ToLower()}.dbo.{markcolumn.TBName}";
-                    }
-                    else
-                    {
-                        tablename = markcolumn.TBName;
-                    }
-                    if (!TableSet.Contains(tablename, StringComparer.OrdinalIgnoreCase))
-                    {
-                        return false;
-                    }
-                }
-                return true;
-            }).ToList();
+            //thinkresut = thinkresut.Where(p =>
+            //{
+            //    if (!string.IsNullOrEmpty(searchtable) && (p.Type != 2 || !searchtable.Equals((p.Tag as MarkObjectInfo).TBName, StringComparison.OrdinalIgnoreCase)))
+            //    {
+            //        return false;
+            //    }
+            //    if (p.Type == 2)
+            //    {
+            //        var markcolumn = (MarkObjectInfo)p.Tag;
+            //        var tablename = string.Empty;
+            //        if (!markcolumn.DBName.Equals(_dbname, StringComparison.OrdinalIgnoreCase))
+            //        {
+            //            tablename = $"{markcolumn.DBName.ToLower()}.dbo.{markcolumn.TBName}";
+            //        }
+            //        else
+            //        {
+            //            tablename = markcolumn.TBName;
+            //        }
+            //        if (!TableSet.Contains(tablename, StringComparer.OrdinalIgnoreCase))
+            //        {
+            //            return false;
+            //        }
+            //    }
+            //    return true;
+            //}).ToList();
 
             ProcessTraceUtil.Trace("处理结果");
 
