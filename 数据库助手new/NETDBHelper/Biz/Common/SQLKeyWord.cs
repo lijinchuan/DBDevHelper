@@ -243,6 +243,18 @@ namespace Biz.Common
             });
             KeyWordDic.Add(new SQLKeyWord
             {
+                KeyWord = "cross apply",
+                Desc = @" CROSS APPLY 的意思是“交叉应用”，在查询时首先查询左表，然后右表的每一条记录跟左表的当前记录进行匹配。
+                匹配成功则将左表与右表的记录合并为一条记录输出；匹配失败则抛弃左表与右表的记录。（与 INNER JOIN 类似）"
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
+                KeyWord = "outer apply",
+                Desc = @"  OUTER APPLY 的意思是“外部应用”，与 CROSS APPLY 的原理一致，只是在匹配失败时，
+                        左表与右表也将合并为一条记录输出，不过右表的输出字段为 null。（与 LEFT OUTER JOIN 类似）"
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
                 KeyWord = "cursor",
                 Desc = "游标"
             });

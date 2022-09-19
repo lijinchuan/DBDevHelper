@@ -30,6 +30,8 @@ namespace NETDBHelper.UC
             dic.Add("ansi_nulls", Color.DeepPink);
             dic.Add("quoted_identifier", Color.DeepPink);
             dic.Add("create", Color.Blue);
+            dic.Add("cross apply", Color.Blue);
+            dic.Add("outer apply", Color.Blue);
             dic.Add("@@error", Color.DeepPink);
             dic.Add("@@rowcount", Color.DeepPink);
             dic.Add("@@fetch_status", Color.DeepPink);
@@ -59,6 +61,7 @@ namespace NETDBHelper.UC
             dic.Add("null", Color.Gray);
             dic.Add("isnull", Color.Red);
             dic.Add("getdate", Color.Red);
+            dic.Add("goto", Color.Blue);
             dic.Add("year", Color.Red);
             dic.Add("month", Color.Red);
             dic.Add("day", Color.Red);
