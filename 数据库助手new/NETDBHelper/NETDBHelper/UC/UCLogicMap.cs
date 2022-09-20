@@ -92,6 +92,19 @@ namespace NETDBHelper.UC
             TSMI_Invalidate.Click += TSMI_Invalidate_Click;
         }
 
+        private int preWidth=0,preHeight=0;
+
+        protected override void OnResize(EventArgs eventargs)
+        {
+            base.OnResize(eventargs);
+            if (preWidth != 0 && preHeight != 0 && (preHeight != Height || preWidth != Width) && (Width != 0 && Height != 0))
+            {
+                relColumnIces = null;
+            }
+            preWidth = Width;
+            preHeight = Height;
+        }
+
         private void TSMIJoinType_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e)
         {
             if (TSMIJoinType.Tag is LogicMapRelColumnEx)
@@ -413,15 +426,18 @@ namespace NETDBHelper.UC
             }
         }
 
-        public void Load()
+        public void Load(bool isFristLoad=true)
         {
-            var dbs = SQLHelper.GetDBs(this.DBSource);
-            foreach (DataRow r in dbs.Select())
+            if (isFristLoad)
             {
-                添加表ToolStripMenuItem.DropDownItems.Add((string)r["name"]);
+                var dbs = SQLHelper.GetDBs(this.DBSource);
+                foreach (DataRow r in dbs.Select())
+                {
+                    添加表ToolStripMenuItem.DropDownItems.Add((string)r["name"]);
+                }
+                添加表ToolStripMenuItem.DropDownItemClicked += 添加表ToolStripMenuItem_DropDownItemClicked;
+                添加表ToolStripMenuItem.Click += 添加表ToolStripMenuItem_Click;
             }
-            添加表ToolStripMenuItem.DropDownItemClicked += 添加表ToolStripMenuItem_DropDownItemClicked;
-            添加表ToolStripMenuItem.Click += 添加表ToolStripMenuItem_Click;
 
             List<Tuple<string, string>> reltblist = new List<Tuple<string, string>>();
 
@@ -482,7 +498,11 @@ namespace NETDBHelper.UC
                 this.PanelMap.Controls.Add(tv);
             }
             this.DoubleBuffered = true;
-            this.PanelMap.Paint += PanelMap_Paint;
+
+            if (isFristLoad)
+            {
+                this.PanelMap.Paint += PanelMap_Paint;
+            }
 
         }
 
