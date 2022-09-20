@@ -23,6 +23,8 @@ namespace NETDBHelper.UC
         DBSource DBSource = null;
         string _DBName = null;
 
+        private LoadingBox loadingBox = new LoadingBox();
+
         static Color[] colors = new Color[] { Color.FromArgb(255,0x19,0x7f,0x96),
             Color.Red, Color.Green, Color.FromArgb(255,0x9d,0x1d,0x60),
             Color.FromArgb(255,0x07,0x52,0x96),
@@ -428,81 +430,90 @@ namespace NETDBHelper.UC
 
         public void Load(bool isFristLoad=true)
         {
-            if (isFristLoad)
-            {
-                var dbs = SQLHelper.GetDBs(this.DBSource);
-                foreach (DataRow r in dbs.Select())
-                {
-                    添加表ToolStripMenuItem.DropDownItems.Add((string)r["name"]);
-                }
-                添加表ToolStripMenuItem.DropDownItemClicked += 添加表ToolStripMenuItem_DropDownItemClicked;
-                添加表ToolStripMenuItem.Click += 添加表ToolStripMenuItem_Click;
-            }
-
-            List<Tuple<string, string>> reltblist = new List<Tuple<string, string>>();
-
-            var list = BigEntityTableRemotingEngine.Find<LogicMapTable>(nameof(LogicMapTable),
-                p =>
-                {
-                    return p.LogicID == _logicMapId;
-                }).ToList();
-            reltblist.AddRange(list.Select(p => new Tuple<string, string>(p.DBName, p.TBName)));
-
-            var allrelcolumnlist = BigEntityTableRemotingEngine.Find<LogicMapRelColumn>(nameof(LogicMapRelColumn), r =>
-            {
-                return r.LogicID == _logicMapId;
-            }).ToList();
-
-            reltblist.AddRange(allrelcolumnlist.Select(p => new Tuple<string, string>(p.DBName, p.TBName)));
-            reltblist.AddRange(allrelcolumnlist.Where(p => !string.IsNullOrEmpty(p.RelColName)).Select(p => new Tuple<string, string>(p.RelDBName, p.RelTBName)));
-
-            reltblist = reltblist.Distinct().ToList();
-
-            foreach (var item in reltblist)
-            {
-                var tbleinfo = list.Find(p => p.DBName.Equals(item.Item1, StringComparison.OrdinalIgnoreCase) && p.TBName.Equals(item.Item2, StringComparison.OrdinalIgnoreCase));
-                if (tbleinfo == null)
-                {
-                    continue;
-                }
-
-                UCLogicTableView tv = new UCLogicTableView(DBSource, _DBName.Equals(item.Item1, StringComparison.OrdinalIgnoreCase), item.Item1, item.Item2,this._logicMapId, () =>
-                {
-                    var tblist = new List<Tuple<string, string>>();
-                    foreach (var tb in ucTableViews)
-                    {
-                        if (!string.IsNullOrWhiteSpace(tb.TableName))
-                        {
-                            tblist.Add(Tuple.Create(tb.DataBaseName.ToLower(), tb.TableName.ToLower()));
-                        }
-                    }
-
-                    if (!tableColumnList.ContainsKey(item.Item1))
-                    {
-                        tableColumnList.Add(item.Item1, GetTBViewNames(DBSource,item.Item1));
-                    }
-
-                    return tableColumnList[item.Item1].Select(p => new Tuple<string, string>(item.Item1, p)).Where(p => !tblist.Contains(p)).OrderBy(p => p).ToList();
-                }, v =>
-                {
-                    AdjustLoaction(v);
-                },
-                  Check);
-                tv.OnAddNewRelColumn = c =>
-                {
-                    this.relColumnIces.Add(new LogicMapRelColumnEx() { RelColumn = c });
-                    this.PanelMap.Invalidate();
-                };
-                tv.Location = new Point(tbleinfo.Posx, tbleinfo.Posy);
-                tv.LogicMapTableId = tbleinfo.ID;
-                this.PanelMap.Controls.Add(tv);
-            }
             this.DoubleBuffered = true;
-
-            if (isFristLoad)
+            loadingBox.Waiting(this, () =>
             {
-                this.PanelMap.Paint += PanelMap_Paint;
-            }
+                if (isFristLoad)
+                {
+                    var dbs = SQLHelper.GetDBs(this.DBSource);
+                    this.BeginInvoke(new Action(() =>
+                    {
+                        foreach (DataRow r in dbs.Select())
+                        {
+                            添加表ToolStripMenuItem.DropDownItems.Add((string)r["name"]);
+                        }
+                        添加表ToolStripMenuItem.DropDownItemClicked += 添加表ToolStripMenuItem_DropDownItemClicked;
+                        添加表ToolStripMenuItem.Click += 添加表ToolStripMenuItem_Click;
+                    }));
+                }
+
+                List<Tuple<string, string>> reltblist = new List<Tuple<string, string>>();
+
+                var list = BigEntityTableRemotingEngine.Find<LogicMapTable>(nameof(LogicMapTable),
+                    p =>
+                    {
+                        return p.LogicID == _logicMapId;
+                    }).ToList();
+                reltblist.AddRange(list.Select(p => new Tuple<string, string>(p.DBName, p.TBName)));
+
+                var allrelcolumnlist = BigEntityTableRemotingEngine.Find<LogicMapRelColumn>(nameof(LogicMapRelColumn), r =>
+                {
+                    return r.LogicID == _logicMapId;
+                }).ToList();
+
+                reltblist.AddRange(allrelcolumnlist.Select(p => new Tuple<string, string>(p.DBName, p.TBName)));
+                reltblist.AddRange(allrelcolumnlist.Where(p => !string.IsNullOrEmpty(p.RelColName)).Select(p => new Tuple<string, string>(p.RelDBName, p.RelTBName)));
+
+                reltblist = reltblist.Distinct().ToList();
+
+                foreach (var item in reltblist)
+                {
+                    var tbleinfo = list.Find(p => p.DBName.Equals(item.Item1, StringComparison.OrdinalIgnoreCase) && p.TBName.Equals(item.Item2, StringComparison.OrdinalIgnoreCase));
+                    if (tbleinfo == null)
+                    {
+                        continue;
+                    }
+
+                    UCLogicTableView tv = new UCLogicTableView(DBSource, _DBName.Equals(item.Item1, StringComparison.OrdinalIgnoreCase), item.Item1, item.Item2, this._logicMapId, () =>
+                     {
+                         var tblist = new List<Tuple<string, string>>();
+                         foreach (var tb in ucTableViews)
+                         {
+                             if (!string.IsNullOrWhiteSpace(tb.TableName))
+                             {
+                                 tblist.Add(Tuple.Create(tb.DataBaseName.ToLower(), tb.TableName.ToLower()));
+                             }
+                         }
+
+                         if (!tableColumnList.ContainsKey(item.Item1))
+                         {
+                             tableColumnList.Add(item.Item1, GetTBViewNames(DBSource, item.Item1));
+                         }
+
+                         return tableColumnList[item.Item1].Select(p => new Tuple<string, string>(item.Item1, p)).Where(p => !tblist.Contains(p)).OrderBy(p => p).ToList();
+                     }, v =>
+                     {
+                         AdjustLoaction(v);
+                     },
+                      Check);
+                    tv.OnAddNewRelColumn = c =>
+                    {
+                        this.relColumnIces.Add(new LogicMapRelColumnEx() { RelColumn = c });
+                        this.PanelMap.Invalidate();
+                    };
+                    tv.Location = new Point(tbleinfo.Posx, tbleinfo.Posy);
+                    tv.LogicMapTableId = tbleinfo.ID;
+
+                    this.BeginInvoke(new Action(() =>
+                    {
+                        this.PanelMap.Controls.Add(tv);
+                        if (isFristLoad)
+                        {
+                            this.PanelMap.Paint += PanelMap_Paint;
+                        }
+                    }));
+                }
+            });
 
         }
 
