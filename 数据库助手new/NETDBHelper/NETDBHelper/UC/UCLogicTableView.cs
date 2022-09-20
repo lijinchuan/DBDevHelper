@@ -339,15 +339,16 @@ namespace NETDBHelper.UC
             {
                 var collist = BigEntityTableRemotingEngine.Scan<LogicMapRelColumn>(nameof(LogicMapRelColumn),
                    "LSDTC", new object[] { this._logicMapId, DBName.ToLower(), this.TBName.ToLower() },
-                   new object[] { this._logicMapId, DBName.ToLower(), this.TBName.ToLower() }, 1, int.MaxValue);
+                   new object[] { this._logicMapId, DBName.ToLower(), this.TBName.ToLower() }, 1, int.MaxValue).ToList();
 
                 var relcollist = BigEntityTableRemotingEngine.Scan<LogicMapRelColumn>(nameof(LogicMapRelColumn),
                     "LSDRTC", new object[] { this._logicMapId, this.DBName.ToLower(), this.TBName.ToLower() },
-                    new object[] { this._logicMapId, this.DBName.ToLower(), this.TBName.ToLower() }, 1, int.MaxValue);
+                    new object[] { this._logicMapId, this.DBName.ToLower(), this.TBName.ToLower() }, 1, int.MaxValue).ToList();
 
                 BindInputColumns(collist.Where(p => !p.IsOutPut), relcollist.Where(p => !p.ReIsOutPut));
 
                 BindOutputColumns(collist.Where(p => p.IsOutPut), relcollist.Where(p => p.ReIsOutPut));
+                LJC.FrameWorkV3.Comm.ProcessTraceUtil.Trace("BindOutputColumns");
             }
 
             if (OnComplete != null)

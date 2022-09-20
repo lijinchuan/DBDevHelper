@@ -89,6 +89,12 @@ namespace NETDBHelper.UC
             {
                 return;
             }
+            this.Location = new Point((parent.Width - this.Width) / 2, (parent.Height - this.Height) / 2);
+            parent.BeginInvoke(new Action(() =>
+            {
+                parent.Controls.Add(this);
+                this.BringToFront();
+            }));
             var thd = new Thread(new ThreadStart(() =>
             {
                 try
@@ -103,15 +109,12 @@ namespace NETDBHelper.UC
                 {
                     if (!parent.IsDisposed)
                     {
-                        parent.Invoke(new Action(() => parent.Controls.Remove(this)));
+                        parent.BeginInvoke(new Action(() => { parent.Controls.Remove(this);parent.Invalidate(); })) ;
                     }
                     TaskThread = null;
                 }
             }));
             this.TaskThread = thd;
-            this.Location = new Point((parent.Width - this.Width) / 2, (parent.Height - this.Height) / 2);
-            parent.Controls.Add(this);
-            this.BringToFront();
 
             thd.Start();
         }
@@ -122,6 +125,12 @@ namespace NETDBHelper.UC
             {
                 return;
             }
+            this.Location = new Point((parent.Width - this.Width) / 2, (parent.Height - this.Height) / 2);
+            parent.BeginInvoke(new Action(() =>
+            {
+                parent.Controls.Add(this);
+                this.BringToFront();
+            }));
             this.beforeCancel = cancel;
             var thd = new Thread(new ThreadStart(() =>
             {
@@ -137,16 +146,13 @@ namespace NETDBHelper.UC
                 {
                     if (!parent.IsDisposed)
                     {
-                        parent.Invoke(new Action(() => parent.Controls.Remove(this)));
+                        parent.BeginInvoke(new Action(() => { parent.Controls.Remove(this); parent.Invalidate(); }));
                     }
                     TaskThread = null;
                 }
             }));
             this.TaskThread = thd;
-            this.Location = new Point((parent.Width - this.Width) / 2, (parent.Height - this.Height) / 2);
-            parent.Controls.Add(this);
-            this.BringToFront();
-
+            
             thd.Start();
         }
     }

@@ -14,6 +14,7 @@ using System.Drawing.Drawing2D;
 using System.IO;
 using System.Drawing.Imaging;
 using LJC.FrameWorkV3.Data.EntityDataBase;
+using System.Threading;
 
 namespace NETDBHelper.UC
 {
@@ -431,8 +432,9 @@ namespace NETDBHelper.UC
         public void Load(bool isFristLoad=true)
         {
             this.DoubleBuffered = true;
-            loadingBox.Waiting(this, () =>
+            loadingBox.Waiting(this.PanelMap, () =>
             {
+                Thread.Sleep(30);
                 if (isFristLoad)
                 {
                     var dbs = SQLHelper.GetDBs(this.DBSource);
@@ -444,7 +446,7 @@ namespace NETDBHelper.UC
                         }
                         添加表ToolStripMenuItem.DropDownItemClicked += 添加表ToolStripMenuItem_DropDownItemClicked;
                         添加表ToolStripMenuItem.Click += 添加表ToolStripMenuItem_Click;
-                    }));
+                    })).AsyncWaitHandle.WaitOne();
                 }
 
                 List<Tuple<string, string>> reltblist = new List<Tuple<string, string>>();
@@ -505,13 +507,13 @@ namespace NETDBHelper.UC
                     tv.LogicMapTableId = tbleinfo.ID;
 
                     this.BeginInvoke(new Action(() =>
-                    {
-                        this.PanelMap.Controls.Add(tv);
-                        if (isFristLoad)
-                        {
-                            this.PanelMap.Paint += PanelMap_Paint;
-                        }
-                    }));
+                      {
+                          this.PanelMap.Controls.Add(tv);
+                          if (isFristLoad)
+                          {
+                              this.PanelMap.Paint += PanelMap_Paint;
+                          }
+                      })).AsyncWaitHandle.WaitOne();
                 }
             });
 
