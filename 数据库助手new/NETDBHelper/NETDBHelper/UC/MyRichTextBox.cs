@@ -106,5 +106,10 @@ namespace NETDBHelper.UC
         {
             base.WndProc(ref m);
         }
+
+        public int GetCurrentLine()
+        {
+            return GetLineFromCharIndex(GetFirstCharIndexOfCurrentLine());
+        }
     }
 }

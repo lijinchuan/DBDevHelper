@@ -40,6 +40,20 @@ namespace Entity
             get;
             set;
         }
+
+        /// <summary>
+        /// 是否在范围内
+        /// </summary>
+        /// <param name="line"></param>
+        /// <param name="pos"></param>
+        /// <returns></returns>
+        public bool Contains(int line, int pos)
+        {
+            return (StartLine < line && EndLine > line)
+                            || (StartLine == line && EndLine == line && Start <= pos && End >= pos)
+                            || (StartLine == line && EndLine != line && Start <= pos)
+                            || (StartLine != line && EndLine == line && End >= pos);
+        }
     }
 
     public class GrammarInfoComparer : IEqualityComparer<GrammarInfo>

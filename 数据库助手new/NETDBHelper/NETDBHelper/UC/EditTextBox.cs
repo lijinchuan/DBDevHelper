@@ -950,8 +950,8 @@ namespace NETDBHelper.UC
                 }
             }
             else if (e.KeyCode == Keys.Enter
-                ||e.KeyCode==Keys.Space
-                ||e.KeyCode==Keys.Right)
+                || e.KeyCode == Keys.Space
+                || e.KeyCode == Keys.Right)
             {
                 if (view.Visible)
                 {
@@ -973,8 +973,27 @@ namespace NETDBHelper.UC
                         view.Visible = false;
                     }
                     e.Handled = true;
-                    
+
                 }
+            }
+            else if (Keys.Oem7 == e.KeyCode)
+            {
+                var infos = GrammarAnalysis();
+                var currentIndex = RichText.SelectionStart;
+                var currentLine=RichText.GetLineFromCharIndex(currentIndex);
+                var currentPos = currentIndex - RichText.GetFirstCharIndexOfCurrentLine();
+                _lastGrammarAnalysisResult = infos;
+                if (!infos.AnnotationInfos.Any(p => p.Contains(currentLine, currentPos))
+                    && !infos.StringInfos.Any(p => p.Contains(currentLine, currentPos)))
+                {
+                    _lastInputChar = '\0';
+                    var old = Clipboard.GetText();
+                    Clipboard.SetText("'");
+                    RichText.Paste();
+                    Clipboard.SetText(old);
+                    _lastInputChar = '\'';
+                }
+                
             }
         }
 
@@ -1787,17 +1806,11 @@ namespace NETDBHelper.UC
 
                         foreach (var m in this.KeyWords.MatchKeyWord(express.ToLower()))
                         {
-                            if (annotationInfos.Value.Any(p => (p.StartLine < l && p.EndLine > l)
-                            || (p.StartLine == l && p.EndLine == l && p.Start <= m.PostionStart && p.End >= m.PostionStart)
-                            || (p.StartLine == l && p.EndLine != l && p.Start <= m.PostionStart)
-                            || (p.StartLine != l && p.EndLine == l && p.End >= m.PostionStart)))
+                            if (annotationInfos.Value.Any(p =>p.Contains(l,m.PostionStart)))
                             {
                                 continue;
                             }
-                            if (stringInfos.Value.Any(p => (p.StartLine < l && p.EndLine > l)
-                            || (p.StartLine == l && p.EndLine == l && p.Start <= m.PostionStart && p.End >= m.PostionStart)
-                            || (p.StartLine == l && p.EndLine != l && p.Start <= m.PostionStart)
-                            || (p.StartLine != l && p.EndLine == l && p.End >= m.PostionStart)))
+                            if (stringInfos.Value.Any(p =>p.Contains(l,m.PostionStart)))
                             {
                                 continue;
                             }
