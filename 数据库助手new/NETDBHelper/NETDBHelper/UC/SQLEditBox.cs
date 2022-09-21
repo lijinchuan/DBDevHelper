@@ -22,6 +22,8 @@ namespace NETDBHelper.UC
             dic.Add("use", Color.Blue);
             dic.Add("set", Color.Blue);
             dic.Add("table", Color.Blue);
+            dic.Add("tablock", Color.Blue);
+            dic.Add("tablockx", Color.Blue);
             dic.Add("transaction", Color.Blue);
             dic.Add("rollback", Color.Blue);
             dic.Add("return", Color.Blue);
@@ -31,16 +33,18 @@ namespace NETDBHelper.UC
             dic.Add("quoted_identifier", Color.DeepPink);
             dic.Add("create", Color.Blue);
             dic.Add("cross apply", Color.Blue);
+            dic.Add("out", Color.Blue);
             dic.Add("outer apply", Color.Blue);
             dic.Add("@@error", Color.DeepPink);
             dic.Add("@@rowcount", Color.DeepPink);
             dic.Add("@@fetch_status", Color.DeepPink);
-            
+            dic.Add("@@TRANCOUNT", Color.DeepPink);
             dic.Add("select", Color.Blue);
             dic.Add("*", Color.Gray);
             dic.Add("from", Color.Blue);
             dic.Add("delete", Color.Blue);
             dic.Add("update", Color.Blue);
+            dic.Add("updlock", Color.Blue);
             dic.Add("insert", Color.Blue);
             dic.Add("into", Color.Blue);
             dic.Add("values", Color.Blue);
@@ -59,9 +63,11 @@ namespace NETDBHelper.UC
             dic.Add("or", Color.Blue);
             dic.Add("not", Color.Blue);
             dic.Add("null", Color.Gray);
+            dic.Add("identity", Color.Blue);
             dic.Add("isnull", Color.Red);
             dic.Add("getdate", Color.Red);
             dic.Add("goto", Color.Blue);
+            dic.Add("holdlock", Color.Blue);
             dic.Add("year", Color.Red);
             dic.Add("month", Color.Red);
             dic.Add("day", Color.Red);
@@ -114,20 +120,25 @@ namespace NETDBHelper.UC
             dic.Add("stuff", Color.Red);
             dic.Add("len", Color.Red);
             dic.Add("round", Color.Red);
+            dic.Add("rowlock", Color.Blue);
             dic.Add("difference", Color.Red);
             dic.Add("soundex", Color.Red);
             dic.Add("lower", Color.Red);
             dic.Add("upper", Color.Red);
             dic.Add("ltrim", Color.Red);
             dic.Add("rtrim", Color.Red);
+            dic.Add("repeatableread", Color.Blue);
             dic.Add("replace", Color.Red);
+            dic.Add("replicate", Color.Red);
+            dic.Add("serializable", Color.Blue);
             dic.Add("space", Color.Red);
             dic.Add("reverse", Color.Red);
-            dic.Add("replicate", Color.Red);
             dic.Add("quotename", Color.Red);
+            dic.Add("paglock", Color.Blue);
             dic.Add("patindex", Color.Red);
             dic.Add("parsename", Color.Red);
             dic.Add("isdate", Color.Red);
+            dic.Add("dateadd", Color.Red);
             dic.Add("datename", Color.Red);
             dic.Add("datepart", Color.Red);
             dic.Add("coalesce", Color.Red);
@@ -143,6 +154,7 @@ namespace NETDBHelper.UC
             dic.Add("datetime", Color.Green);
             dic.Add("float", Color.Green);
             dic.Add("text", Color.Green);
+            dic.Add("truncate", Color.Blue);
             dic.Add("ntext", Color.Green);
             dic.Add("bit", Color.Green);
             dic.Add("binary", Color.Green);
@@ -155,6 +167,9 @@ namespace NETDBHelper.UC
             dic.Add("numeric", Color.Green);
             dic.Add("smallmoney", Color.Green);
             dic.Add("money", Color.Green);
+            dic.Add("readcommitted", Color.Blue);
+            dic.Add("readpast", Color.Blue);
+            dic.Add("readuncommitted", Color.Blue);
             dic.Add("real", Color.Green);
             dic.Add("datetime2", Color.Green);
             dic.Add("smalldatetime", Color.Green);
@@ -164,6 +179,7 @@ namespace NETDBHelper.UC
             dic.Add("timestamp", Color.Green);
             dic.Add("sql_variant", Color.Green);
             dic.Add("uniqueidentifier", Color.Green);
+            dic.Add("xlock", Color.Blue);
             dic.Add("xml", Color.Green);
             dic.Add("cursor", Color.Green);
 

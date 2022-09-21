@@ -265,6 +265,32 @@ namespace Biz.Common
             });
             KeyWordDic.Add(new SQLKeyWord
             {
+                KeyWord = "dateadd",
+                Desc = @"返回已添加指定时间间隔的日期。
+DateAdd(interval, number, date)
+参数
+interval
+必选项。字符串表达式，表示要添加的时间间隔。有关数值，请参阅“设置”部分。
+number
+必选项。数值表达式，表示要添加的时间间隔的个数。数值表达式可以是正数（得到未来的日期）或负数（得到过去的日期）。
+date
+必选项。Variant 或要添加 interval 的表示日期的文字。
+
+interval 参数可以有以下值：
+设置  描述
+yyyy  年
+q  季度
+m  月
+y  一年的日数
+d  日
+w  一周的日数
+ww  周
+h  小时
+n  分钟
+s  秒"
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
                 KeyWord = "datediff",
                 Desc = "计算时间差，DATEDIFF(year|quarter|month|week|day|hour|minute|second|millisecond,开始时间,结束时间)",
                 HighColor=Color.Red
@@ -421,8 +447,21 @@ namespace Biz.Common
             });
             KeyWordDic.Add(new SQLKeyWord
             {
+                KeyWord = "holdlock",
+                Desc = @"将共享锁保留到事务完成，而不是在相应的表、行或数据页不再需要时就立即释放锁。
+HOLDLOCK等同于SERIALIZABLE。"
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
                 KeyWord = "hour",
                 Desc = ""
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
+                KeyWord = "identity",
+                Desc = @"identity(m,n)
+m表示的是初始值，n表示的是每次自动增加的值
+如果m和n的值都没有指定，默认为（1,1）"
             });
             KeyWordDic.Add(new SQLKeyWord
             {
@@ -552,7 +591,9 @@ namespace Biz.Common
             KeyWordDic.Add(new SQLKeyWord
             {
                 KeyWord = "nolock",
-                Desc = ""
+                Desc = @"不要发出共享锁，并且不要提供排它锁。
+当此选项生效时，可能会读取未提交的事务或一组在读取中间回滚的页面。
+有可能发生脏读。仅应用于SELECT语句。"
             });
             KeyWordDic.Add(new SQLKeyWord
             {
@@ -616,6 +657,11 @@ namespace Biz.Common
             });
             KeyWordDic.Add(new SQLKeyWord
             {
+                KeyWord = "paglock",
+                Desc = "在通常使用单个表锁的地方采用页锁。"
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
                 KeyWord = "parsename",
                 Desc = ""
             });
@@ -661,6 +707,25 @@ namespace Biz.Common
             });
             KeyWordDic.Add(new SQLKeyWord
             {
+                KeyWord = "readcommitted",
+                Desc = @"用与运行在提交读隔离级别的事务相同的锁语义执行扫描。
+默认情况下，SQL Server2000在此隔离级别上操作。"
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
+                KeyWord = "readpast",
+                Desc = @"跳过锁定行。此选项导致事务跳过由其它事务锁定的行（这些行平常会显示在结果集内），而不是阻塞该事务，
+使其等待其它事务释放在这些行上的锁。READPAST 锁提示仅适用于运行在提交读隔离级别的事务，并且只在行级锁之后读取。
+仅适用于SELECT语句。"
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
+                KeyWord = "readuncommitted",
+                Desc = @"仅适用于SELECT语句。
+READUNCOMMITTED 等同于NOLOCK。"
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
                 KeyWord = "real",
                 Desc = ""
             });
@@ -678,6 +743,11 @@ namespace Biz.Common
             {
                 KeyWord = "replace",
                 Desc = "替换"
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
+                KeyWord = "repeatableread",
+                Desc = "用与运行在可重复读隔离级别的事务相同的锁语义执行扫描。"
             });
             KeyWordDic.Add(new SQLKeyWord
             {
@@ -706,6 +776,11 @@ namespace Biz.Common
             });
             KeyWordDic.Add(new SQLKeyWord
             {
+                KeyWord = "rowlock",
+                Desc = "使用行级锁，而不使用粒度更粗的页级锁和表级锁。"
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
                 KeyWord = "round",
                 Desc = ""
             });
@@ -723,6 +798,11 @@ namespace Biz.Common
             {
                 KeyWord = "select",
                 Desc = "查询"
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
+                KeyWord = "serializable",
+                Desc = "用与运行在可串行读隔离级别的事务相同的锁语义执行扫描。等同于HOLDLOCK。"
             });
             KeyWordDic.Add(new SQLKeyWord
             {
@@ -786,6 +866,17 @@ namespace Biz.Common
             });
             KeyWordDic.Add(new SQLKeyWord
             {
+                KeyWord = "tablock",
+                Desc = @"使用表锁代替粒度更细的行级锁或页级锁。在语句结束前，SQL Server一直持有该锁。
+但是，如果同时指定HOLDLOCK，那么在事务结束之前，锁将被一直持有。  "
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
+                KeyWord = "tablockx",
+                Desc = @"使用表的排它锁。该锁可以防止其它事务读取或更新表，并在语句或事务结束前一直持有。"
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
                 KeyWord = "text",
                 Desc = ""
             });
@@ -833,6 +924,12 @@ namespace Biz.Common
             {
                 KeyWord = "update",
                 Desc = "更新"
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
+                KeyWord = "updlock",
+                Desc = @"读取表时使用更新锁，而不使用共享锁，并将锁一直保留到语句或事务的结束。
+UPDLOCK的优点是允许您读取数据（不阻塞其它事务）并在以后更新数据，同时确保自从上次读取数据后数据没有被更改。"
             });
             KeyWordDic.Add(new SQLKeyWord
             {
@@ -903,6 +1000,12 @@ namespace Biz.Common
             {
                 KeyWord = "with",
                 Desc = ""
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
+                KeyWord = "xlock",
+                Desc = @"使用排它锁并一直保持到由语句处理的所有数据上的事务结束时。
+可以使用PAGLOCK或TABLOCK指定该锁，这种情况下排它锁适用于适当级别的粒度"
             });
             KeyWordDic.Add(new SQLKeyWord
             {
