@@ -90,7 +90,10 @@ namespace NETDBHelper.UC
             dic.Add("declare", Color.Blue);
             dic.Add("while", Color.Blue);
             dic.Add("join", Color.Blue);
+            dic.Add("key", Color.Blue);
             dic.Add("for", Color.Blue);
+            dic.Add("full", Color.Blue);
+            dic.Add("image", Color.Green);
             dic.Add("in", Color.Blue);
             dic.Add("inner", Color.Blue);
             dic.Add("outer", Color.Blue);
@@ -103,6 +106,7 @@ namespace NETDBHelper.UC
             dic.Add("nocount", Color.Blue);
 
             dic.Add("count", Color.Red);
+            dic.Add("substring", Color.Red);
             dic.Add("sum", Color.Red);
             dic.Add("max", Color.Red);
             dic.Add("min", Color.Red);
@@ -113,6 +117,7 @@ namespace NETDBHelper.UC
             dic.Add(",", Color.Gray);
             dic.Add("[", Color.Gray);
             dic.Add("]", Color.Gray);
+            dic.Add("primary", Color.Blue);
             dic.Add("print", Color.Red);
             dic.Add("charindex", Color.Red);
             dic.Add("left", Color.Red);
@@ -141,6 +146,7 @@ namespace NETDBHelper.UC
             dic.Add("dateadd", Color.Red);
             dic.Add("datename", Color.Red);
             dic.Add("datepart", Color.Red);
+            dic.Add("datalength",Color.Red);
             dic.Add("coalesce", Color.Red);
             dic.Add("open", Color.Red);
             dic.Add("fetch", Color.Red);
@@ -149,6 +155,7 @@ namespace NETDBHelper.UC
 
             dic.Add("char", Color.Green);
             dic.Add("nchar", Color.Green);
+            dic.Add("newid", Color.Red);
             dic.Add("varchar", Color.Green);
             dic.Add("nvarchar", Color.Green);
             dic.Add("datetime", Color.Green);

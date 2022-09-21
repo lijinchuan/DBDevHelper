@@ -260,6 +260,15 @@ namespace Biz.Common
             });
             KeyWordDic.Add(new SQLKeyWord
             {
+                KeyWord = "datalength",
+                Desc = @"datalength(expression)
+其中expression可以是任何类型的表达式，表示该表达式所占用的字节数，返回值类型为int
+例：
+在 sql server中 select datalength('中国'); 返回值是 4.
+select datalength('zhongguo') 返回值是 8."
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
                 KeyWord = "date",
                 Desc = ""
             });
@@ -585,6 +594,11 @@ m表示的是初始值，n表示的是每次自动增加的值
             });
             KeyWordDic.Add(new SQLKeyWord
             {
+                KeyWord = "newid",
+                Desc = "生成GUID"
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
                 KeyWord = "nocount",
                 Desc = ""
             });
@@ -853,6 +867,11 @@ READUNCOMMITTED 等同于NOLOCK。"
             {
                 KeyWord = "stuff",
                 Desc = ""
+            });
+            KeyWordDic.Add(new SQLKeyWord
+            {
+                KeyWord = "substring",
+                Desc = "substring(int beginIndex)"
             });
             KeyWordDic.Add(new SQLKeyWord
             {

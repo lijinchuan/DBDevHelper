@@ -990,7 +990,10 @@ namespace NETDBHelper.UC
                     var old = Clipboard.GetText();
                     Clipboard.SetText("'");
                     RichText.Paste();
-                    Clipboard.SetText(old);
+                    if (old != null)
+                    {
+                        Clipboard.SetText(old);
+                    }
                     _lastInputChar = '\'';
                 }
                 
