@@ -990,7 +990,7 @@ namespace NETDBHelper.UC
                     var old = Clipboard.GetText();
                     Clipboard.SetText("'");
                     RichText.Paste();
-                    if (old != null)
+                    if (!string.IsNullOrEmpty(old))
                     {
                         Clipboard.SetText(old);
                     }
@@ -1832,17 +1832,15 @@ namespace NETDBHelper.UC
                     }
                 }
 
+                this.RichText.LockPaint = true;
                 foreach (DataRow row in tb.Rows)
                 {
-                    this.RichText.LockPaint = true;
                     this.RichText.SelectionStart = (int)row[0];
                     this.RichText.SelectionLength = (int)row[1];
                     this.RichText.SelectionColor = (Color)row[2];
-                    this.RichText.LockPaint = false;
                 }
 
                 ProcessTraceUtil.Trace("setColor:" + tb.Rows.Count);
-                RichText.LockPaint = true;
                 if (this.RichText.SelectionStart != oldStart)
                 {
                     this.RichText.SelectionStart = oldStart;
