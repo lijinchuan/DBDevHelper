@@ -38,6 +38,8 @@ namespace NETDBHelper.UC
 
         List<LogicMapRelColumnEx> relColumnIces = null;
 
+        object relColumnIcesLocker = new object();
+
         bool hashotline = false;
 
         public UCLogicMap()
@@ -432,6 +434,7 @@ namespace NETDBHelper.UC
         public void Load(bool isFristLoad=true)
         {
             this.DoubleBuffered = true;
+            loadingBox.Msg = "加载中...";
             loadingBox.Waiting(this.PanelMap, () =>
             {
                 Thread.Sleep(30);
@@ -509,14 +512,14 @@ namespace NETDBHelper.UC
                     this.BeginInvoke(new Action(() =>
                       {
                           this.PanelMap.Controls.Add(tv);
-                          if (isFristLoad)
-                          {
-                              this.PanelMap.Paint += PanelMap_Paint;
-                          }
                       })).AsyncWaitHandle.WaitOne();
                 }
             });
 
+            if (isFristLoad)
+            {
+                this.PanelMap.Paint += PanelMap_Paint;
+            }
         }
 
         private void 添加表ToolStripMenuItem_Click(object sender, EventArgs e)
@@ -570,55 +573,64 @@ namespace NETDBHelper.UC
             return p1;
         }
 
+        private bool FillRelColumnIces(Control parent )
+        {
+            lock (relColumnIcesLocker)
+            {
+                if (relColumnIces == null)
+                {
+                    relColumnIces = new List<LogicMapRelColumnEx>();
+                    //var othertables = ucTableViews.Where(p => !string.IsNullOrEmpty(p.TableName)).Select(p => new Tuple<string, string>(p.DataBaseName, p.TableName)).Distinct().ToList();
+                    var allrelcolumnlist = BigEntityTableRemotingEngine.Scan<LogicMapRelColumn>(nameof(LogicMapRelColumn), "LogicID", new object[] { this._logicMapId },
+                        new object[] { this._logicMapId }, 1, int.MaxValue);
+
+                    foreach (var rc in allrelcolumnlist)
+                    {
+                        var startpt = FindColumnScreenStartPoint(rc.DBName, rc.TBName, rc.ColName, rc.IsOutPut);
+                        var destpt = FindColumnScreenEndPoint(rc.RelDBName, rc.RelTBName, rc.RelColName, rc.ReIsOutPut);
+                        if (!startpt.IsEmpty && !destpt.IsEmpty)
+                        {
+                            var p1 = parent.PointToClient(startpt);
+                            var p2 = parent.PointToClient(destpt);
+                            var ptlist = new StepSelector(GetDrawWidth(),
+                                GetDrawHeight(), p1, p2,
+                                Check, StepDirection.right, StepDirection.right).Select();
+                            relColumnIces.Add(new LogicMapRelColumnEx
+                            {
+                                RelColumn = rc,
+                                Dest = destpt,
+                                Start = startpt,
+                                LinkLines = ptlist.ToArray()
+                            });
+
+                            if(ptlist.Count == 0)
+                            {
+                                return false;
+                            }
+                        }
+                        else
+                        {
+                            relColumnIces.Add(new LogicMapRelColumnEx
+                            {
+                                RelColumn = rc,
+                                Dest = destpt,
+                                Start = startpt,
+                                LinkLines = new Point[0]
+                            });
+                        }
+                    }
+                }
+                return true;
+            }
+        }
+
         private void DrawLinkLine(Control parent, Graphics g)
         {
             //g.TranslateTransform(this.PanelMap.AutoScrollPosition.X, this.PanelMap.AutoScrollPosition.Y);
             bool haserror = false;
             if (relColumnIces == null)
             {
-                lock (this)
-                {
-                    if (relColumnIces == null)
-                    {
-                        relColumnIces = new List<LogicMapRelColumnEx>();
-                        //var othertables = ucTableViews.Where(p => !string.IsNullOrEmpty(p.TableName)).Select(p => new Tuple<string, string>(p.DataBaseName, p.TableName)).Distinct().ToList();
-                        var allrelcolumnlist = BigEntityTableRemotingEngine.Scan<LogicMapRelColumn>(nameof(LogicMapRelColumn), "LogicID", new object[] { this._logicMapId },
-                            new object[] { this._logicMapId }, 1, int.MaxValue);
-
-                        foreach (var rc in allrelcolumnlist)
-                        {
-                            var startpt = FindColumnScreenStartPoint(rc.DBName, rc.TBName, rc.ColName,rc.IsOutPut);
-                            var destpt = FindColumnScreenEndPoint(rc.RelDBName, rc.RelTBName, rc.RelColName,rc.ReIsOutPut);
-                            if (!startpt.IsEmpty && !destpt.IsEmpty)
-                            {
-                                var p1 = parent.PointToClient(startpt);
-                                var p2 = parent.PointToClient(destpt);
-                                var ptlist = new StepSelector(GetDrawWidth(),
-                                    GetDrawHeight(), p1, p2,
-                                    Check, StepDirection.right, StepDirection.right).Select();
-                                relColumnIces.Add(new LogicMapRelColumnEx
-                                {
-                                    RelColumn = rc,
-                                    Dest = destpt,
-                                    Start = startpt,
-                                    LinkLines = ptlist.ToArray()
-                                });
-
-                                haserror = ptlist.Count == 0;
-                            }
-                            else
-                            {
-                                relColumnIces.Add(new LogicMapRelColumnEx
-                                {
-                                    RelColumn = rc,
-                                    Dest = destpt,
-                                    Start = startpt,
-                                    LinkLines = new Point[0]
-                                });
-                            }
-                        }
-                    }
-                }
+                haserror = !FillRelColumnIces(parent);
             }
             else
             {
@@ -637,7 +649,7 @@ namespace NETDBHelper.UC
                     if (col == null || item.Start.IsEmpty || !col.Name.Equals(item.RelColumn.ColName, StringComparison.OrdinalIgnoreCase)
                         || !col.TBName.Equals(item.RelColumn.TBName, StringComparison.OrdinalIgnoreCase))
                     {
-                        startpt = FindColumnScreenStartPoint(item.RelColumn.DBName, item.RelColumn.TBName, item.RelColumn.ColName,item.RelColumn.IsOutPut);
+                        startpt = FindColumnScreenStartPoint(item.RelColumn.DBName, item.RelColumn.TBName, item.RelColumn.ColName, item.RelColumn.IsOutPut);
                         if (!startpt.IsEmpty)
                         {
                             item.Start = startpt;
@@ -649,7 +661,7 @@ namespace NETDBHelper.UC
                     if (col == null || item.Dest.IsEmpty || !col.Name.Equals(item.RelColumn.RelColName, StringComparison.OrdinalIgnoreCase)
                         || !col.TBName.Equals(item.RelColumn.RelTBName, StringComparison.OrdinalIgnoreCase))
                     {
-                        destpt = FindColumnScreenEndPoint(item.RelColumn.RelDBName, item.RelColumn.RelTBName, item.RelColumn.RelColName,item.RelColumn.ReIsOutPut);
+                        destpt = FindColumnScreenEndPoint(item.RelColumn.RelDBName, item.RelColumn.RelTBName, item.RelColumn.RelColName, item.RelColumn.ReIsOutPut);
                         if (!destpt.IsEmpty)
                         {
                             item.Dest = destpt;
@@ -1224,6 +1236,10 @@ namespace NETDBHelper.UC
               Check);
             tv.OnAddNewRelColumn = c =>
             {
+                if (relColumnIces == null)
+                {
+                    FillRelColumnIces(PanelMap);
+                }
                 this.relColumnIces.Add(new LogicMapRelColumnEx() { RelColumn = c });
                 this.PanelMap.Invalidate();
             };
