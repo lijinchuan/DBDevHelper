@@ -16,19 +16,7 @@ namespace Biz.Common.Tests
         [TestMethod()]
         public void AnalyseTest()
         {
-            if (!File.Exists("codes.txt"))
-            {
-                File.Create("codes.txt").Close();
-            }
-            var codes = File.ReadAllText("codes.txt");
-            var results = SQLCodeHelper.Analyse(codes.ToArray(), 0);
-            foreach (var r in results)
-            {
-                if (r.Type == AnalyseType.Token)
-                {
-                    System.Diagnostics.Trace.WriteLine(r.Type + ":" + codes.Substring(r.StartIndex, r.EndIndex - r.StartIndex + 1));
-                }
-            }
+           
         }
     }
 }
