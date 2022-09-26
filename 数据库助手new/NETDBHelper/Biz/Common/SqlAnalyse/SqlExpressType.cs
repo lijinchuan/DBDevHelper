@@ -17,6 +17,20 @@ namespace Biz.Common.SqlAnalyse
         /// 注释
         /// </summary>
         Annotation,
-        Token
+        /// <summary>
+        /// 数字
+        /// </summary>
+        Numric,
+        /// <summary>
+        /// *
+        /// </summary>
+        Star,
+        /// <summary>
+        /// 逗号
+        /// </summary>
+        Comma,
+        Token,
+        Function,
+        Var
     }
 }

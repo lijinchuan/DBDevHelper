@@ -1,10 +1,10 @@
 ﻿select top 100 
 [TotalResumeNum],
 [id]
- from [ResumeNumber] with(nolock)
+ from [ResumeNumber] as gs with(nolock)
 
 --CS
-select office,* from tb_tresume where 姓名='tom.op'
+select office as of,ggm,bbs as bd,* from tb_tresume gg where 姓名='tom.op'
 
 /*财年实现业绩*/
 exec SP_Commission_Fiscal

@@ -39,7 +39,7 @@ namespace Biz.Common.SqlAnalyse
         {
             List<ISqlAnalyser> ret = new List<ISqlAnalyser>();
             var next = _sqlReader.ReadNext();
-            
+
             var currentDeep = 0;
             ISqlAnalyser currentAnalyser = null;
             List<ISqlAnalyser> sqlAnalysers = new List<ISqlAnalyser>();
@@ -54,7 +54,7 @@ namespace Biz.Common.SqlAnalyse
                         analyser.Deep = next.Deep;
                         if (currentAnalyser != null)
                         {
-                            if (next.Deep> currentDeep)
+                            if (next.Deep > currentDeep)
                             {
                                 sqlAnalysersStacks.Push(currentAnalyser);
                                 currentDeep = next.Deep;
@@ -107,10 +107,7 @@ namespace Biz.Common.SqlAnalyse
                     else
                     {
                         //前一个结果返回
-                        if (currentAnalyser != null)
-                        {
-                            ret.Add(currentAnalyser);
-                        }
+                        PopAnalyser();
                         currentAnalyser = null;
                     }
                 }
@@ -119,12 +116,27 @@ namespace Biz.Common.SqlAnalyse
             }
 
             //这里也要考虑层级，先只解析简单的情况
-            if (currentAnalyser != null)
-            {
-                ret.Add(currentAnalyser);
-            }
+            PopAnalyser();
 
             return ret;
+
+            void PopAnalyser()
+            {
+                if (currentAnalyser != null && sqlAnalysers.Count > 0)
+                {
+                    sqlAnalysers.Add(currentAnalyser);
+                    while (sqlAnalysersStacks.Count > 0)
+                    {
+                        currentAnalyser = sqlAnalysersStacks.Pop();
+                        currentAnalyser.NestAnalyser = sqlAnalysers;
+                        sqlAnalysers = new List<ISqlAnalyser>();
+                    }
+                }
+                else if (currentAnalyser != null)
+                {
+                    ret.Add(currentAnalyser);
+                }
+            }
         }
     }
 }

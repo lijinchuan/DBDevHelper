@@ -19,9 +19,10 @@ namespace Biz.Common.SqlAnalyse
 
         private int CurrentDeep = 0;
 
-        private string Sql;
+        private readonly string Sql;
 
         private int lastch = -1;
+        private int leftch = -1;
 
         Stack<SqlExpress> stringStack = new Stack<SqlExpress>();
         Stack<SqlExpress> bracketStack = new Stack<SqlExpress>();
@@ -72,13 +73,18 @@ namespace Biz.Common.SqlAnalyse
                 reader = new StringReader(Sql);
             }
             SqlExpress tokenInfo = null;
+            //指示是否是数字
+            var isNumberic = true;
+            var isVar = false;
             while (true)
             {
-                var val = reader.Read();
+                var val = leftch == -1 ? reader.Read() : leftch;
                 if (val == -1)
                 {
                     break;
                 }
+                leftch = -1;
+
                 var ch = val;
                 var isletter = IsLetter(ch);
                 var isnumber = IsNumber(ch);
@@ -87,17 +93,32 @@ namespace Biz.Common.SqlAnalyse
                 {
                     if (tokenInfo == null)
                     {
-                        tokenInfo = CrateStart(SqlExpressType.Token);
+                        if (ch == '@')
+                        {
+                            isVar = true;
+                        }
+                        tokenInfo = CrateStart(isVar ? SqlExpressType.Var : SqlExpressType.Token);
                     }
                     tokenInfo.Val += (char)ch;
+                    if (isletter && ch != '.')
+                    {
+                        isNumberic = false;
+                    }
                 }
                 else
                 {
                     if (!isletter && !isnumber && tokenInfo != null)
                     {
                         FillEnd(tokenInfo, false);
-                        lastch = ch;
-                        CurrentIndex++;
+                        leftch = ch;
+                        if (isNumberic)
+                        {
+                            tokenInfo.ExpressType = SqlExpressType.Numric;
+                        }
+                        else if (reader.Peek() == '(')
+                        {
+                            tokenInfo.ExpressType = SqlExpressType.Function;
+                        } 
                         return tokenInfo;
                     }
 
@@ -116,9 +137,20 @@ namespace Biz.Common.SqlAnalyse
                             return ret;
                         }
                     }
-                    else if (ch == '*' && lastch == '/' && stringStack.Count == 0 && annotationStack.Count == 0)
+                    else if (ch == '*' && stringStack.Count == 0 && annotationStack.Count == 0)
                     {
-                        annotationStack.Push(CrateStart(SqlExpressType.Annotation));
+                        if (lastch == '/')
+                        {
+                            annotationStack.Push(CrateStart(SqlExpressType.Annotation));
+                        }
+                        else
+                        {
+                            var sqlExpress = CrateStart(SqlExpressType.Star);
+                            FillEnd(sqlExpress, true);
+                            CurrentIndex++;
+                            lastch = ch;
+                            return sqlExpress;
+                        }
                     }
                     else if (ch == '-' && lastch == '-' && stringStack.Count == 0 && annotationStack.Count == 0)
                     {
@@ -167,6 +199,14 @@ namespace Biz.Common.SqlAnalyse
                             bracketStack.Pop();
                             CurrentDeep--;
                         }
+                    }
+                    else if (ch == ',' && stringStack.Count == 0 && annotationStack.Count == 0)
+                    {
+                        var sqlExpress = CrateStart(SqlExpressType.Comma);
+                        FillEnd(sqlExpress, true);
+                        CurrentIndex++;
+                        lastch = ch;
+                        return sqlExpress;
                     }
                 }
 

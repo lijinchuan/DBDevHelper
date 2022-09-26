@@ -11,6 +11,7 @@ namespace Biz.Common.SqlAnalyse
     {
         private string keySelect = "select";
         private string keyFrom = "from";
+        private string keyAs = "as";
         private string keyWhere = "where";
         private string keyTop = "top";
         private string keyJoin = "join";
@@ -18,13 +19,17 @@ namespace Biz.Common.SqlAnalyse
 
         private bool isAcceptSelect = false;
         private bool isAcceptFrom = false;
+        private bool isAcceptJoin = false;
+        private bool isExpectOn = false;
         private bool isAcceptWhere = false;
         private bool isAcceptTop = false;
-        private string preExpress = string.Empty;
+        private bool isAcceptTopN = false;
+        private ISqlExpress preExpress = null;
 
         private string lastError = string.Empty;
-        private HashSet<string> acceptAndIgnore = new HashSet<string> { "distinct" };
+        private HashSet<string> acceptAndIgnore = new HashSet<string> { "distinct", "with", "nolock"};
         private HashSet<string> tables = new HashSet<string>();
+        private HashSet<string> colums = new HashSet<string>();
 
         private readonly List<ISqlExpress> AcceptedSqlExpresses = new List<ISqlExpress>();
 
@@ -41,10 +46,9 @@ namespace Biz.Common.SqlAnalyse
             var isAccept = false;
             if (keySelect.Equals(sqlExpress.Val))
             {
-                if (!isAcceptSelect && string.IsNullOrWhiteSpace(preExpress))
+                if (!isAcceptSelect && preExpress == null)
                 {
                     isAcceptSelect = true;
-                    preExpress = keySelect;
                     isAccept = true;
                 }
                 else
@@ -57,7 +61,6 @@ namespace Biz.Common.SqlAnalyse
                 if (!isAcceptTop)
                 {
                     isAcceptTop = true;
-                    preExpress = keyTop;
                     isAccept = true;
                 }
                 else
@@ -70,7 +73,6 @@ namespace Biz.Common.SqlAnalyse
                 if (!isAcceptFrom)
                 {
                     isAcceptFrom = true;
-                    preExpress = keyFrom;
                     isAccept = true;
                 }
                 else
@@ -80,12 +82,17 @@ namespace Biz.Common.SqlAnalyse
             }
             else if (keyJoin.Equals(sqlExpress.Val))
             {
-                preExpress = keyJoin;
+                isAcceptJoin = true;
+                isExpectOn = true;
                 isAccept = true;
             }
             else if (keyJoinOn.Equals(sqlExpress.Val))
             {
-                preExpress = keyJoinOn;
+                isExpectOn = false;
+                isAccept = true;
+            }
+            else if (keyAs.Equals(sqlExpress.Val))
+            {
                 isAccept = true;
             }
             else if (keyWhere.Equals(sqlExpress.Val))
@@ -93,7 +100,6 @@ namespace Biz.Common.SqlAnalyse
                 if (!isAcceptWhere)
                 {
                     isAcceptWhere = true;
-                    preExpress = keyWhere;
                     isAccept = true;
                 }
                 else
@@ -101,20 +107,78 @@ namespace Biz.Common.SqlAnalyse
                     lastError = $"more '{keyWhere}'";
                 }
             }
-            else
+            else if (sqlExpress.ExpressType != SqlExpressType.Annotation)
             {
                 if (acceptAndIgnore.Contains(sqlExpress.Val))
                 {
                     isAccept = true;
                 }
-                
+                else if (!isKey)
+                {
+                    if (isAcceptSelect && !isAcceptFrom)
+                    {
+                        if (isAcceptTop && !isAcceptTopN)
+                        {
+                            if (sqlExpress.ExpressType == SqlExpressType.Numric || sqlExpress.ExpressType == SqlExpressType.Var)
+                            {
+                                isAcceptTopN = true;
+                                isAccept = true;
+                            }
+
+                        }
+                        else if (!isAcceptTop || isAcceptTopN)
+                        {
+                            if (sqlExpress.ExpressType == SqlExpressType.Token)
+                            {
+                                if (preExpress.ExpressType == SqlExpressType.Comma || (preExpress.Val == keySelect || preExpress.ExpressType != SqlExpressType.Token))
+                                {
+                                    colums.Add(sqlExpress.Val);
+                                    isAccept = true;
+                                }
+                                else if (preExpress.Val == keyAs || preExpress.ExpressType == SqlExpressType.Token)
+                                {
+                                    //别名
+                                    isAccept = true;
+                                }
+                            }
+
+                        }
+                    }
+                    else if (isAcceptFrom && (!isAcceptJoin || !isAcceptWhere))
+                    {
+                        if (preExpress.Val == keyFrom)
+                        {
+                            tables.Add(sqlExpress.Val);
+                            isAccept = true;
+                        }
+                        else
+                        {
+                            //别名
+                            isAccept = true;
+                        }
+                    }
+                    else if (isAcceptJoin && isExpectOn)
+                    {
+                        if (preExpress.Val == keyJoin)
+                        {
+                            tables.Add(sqlExpress.Val);
+                            isAccept = true;
+                        }
+                        else
+                        {
+                            //别名
+                        }
+                    }
+                }
+
             }
 
             isAccept = isAccept || !isKey;
 
-            if (isAccept && sqlExpress.ExpressType != SqlExpressType.Annotation)
+            if (isAccept && sqlExpress.ExpressType != SqlExpressType.Annotation && !acceptAndIgnore.Contains(sqlExpress.Val))
             {
                 AcceptedSqlExpresses.Add(sqlExpress);
+                preExpress = sqlExpress;
             }
 
             return isAccept;
@@ -133,6 +197,7 @@ namespace Biz.Common.SqlAnalyse
                 var end = AcceptedSqlExpresses.Last().EndIndex;
 
                 Trace.WriteLine(perfx + sql.Substring(start, end - start + 1));
+                Trace.WriteLine("tables:" + string.Join("、", tables) + ",columns:" + string.Join("、", colums));
 
                 if (NestAnalyser != null)
                 {
