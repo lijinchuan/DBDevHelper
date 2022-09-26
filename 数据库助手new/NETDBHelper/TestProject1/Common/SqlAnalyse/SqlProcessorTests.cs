@@ -23,6 +23,12 @@ namespace Biz.Common.SqlAnalyse.Tests
             var reader = new SqlReader(codes);
 
             var results = new SqlProcessor(codes).Handle();
+
+            foreach(var r in results)
+            {
+                r.Print(codes);
+                
+            }
         }
     }
 }

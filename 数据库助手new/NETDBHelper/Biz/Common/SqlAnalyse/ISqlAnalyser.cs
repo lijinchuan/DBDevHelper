@@ -16,5 +16,7 @@ namespace Biz.Common.SqlAnalyse
         bool Accept(ISqlExpress sqlExpress,bool isKey);
 
         List<ISqlAnalyser> NestAnalyser { get; set; }
+
+        void Print(string sql);
     }
 }

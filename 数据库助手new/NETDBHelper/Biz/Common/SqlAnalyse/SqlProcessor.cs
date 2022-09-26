@@ -22,6 +22,7 @@ namespace Biz.Common.SqlAnalyse
             sqlAnalysersStacks = new Stack<ISqlAnalyser>();
 
             SqlAnalyserMapper.Add("select", () => new SelectAnalyser());
+            SqlAnalyserMapper.Add("exec", () => null);
         }
 
         public ISqlAnalyser GetSqlAnalyser(string token)
@@ -103,9 +104,24 @@ namespace Biz.Common.SqlAnalyse
                         analyser.Accept(next, iskey);
                         currentAnalyser = analyser;
                     }
+                    else
+                    {
+                        //前一个结果返回
+                        if (currentAnalyser != null)
+                        {
+                            ret.Add(currentAnalyser);
+                        }
+                        currentAnalyser = null;
+                    }
                 }
 
                 next = _sqlReader.ReadNext();
+            }
+
+            //这里也要考虑层级，先只解析简单的情况
+            if (currentAnalyser != null)
+            {
+                ret.Add(currentAnalyser);
             }
 
             return ret;

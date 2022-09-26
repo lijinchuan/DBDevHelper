@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -25,6 +26,8 @@ namespace Biz.Common.SqlAnalyse
         private HashSet<string> acceptAndIgnore = new HashSet<string> { "distinct" };
         private HashSet<string> tables = new HashSet<string>();
 
+        private readonly List<ISqlExpress> AcceptedSqlExpresses = new List<ISqlExpress>();
+
         public SelectAnalyser()
         {
         }
@@ -35,13 +38,14 @@ namespace Biz.Common.SqlAnalyse
             {
                 return false;
             }
+            var isAccept = false;
             if (keySelect.Equals(sqlExpress.Val))
             {
-                if (!isAcceptSelect&&string.IsNullOrWhiteSpace(preExpress))
+                if (!isAcceptSelect && string.IsNullOrWhiteSpace(preExpress))
                 {
                     isAcceptSelect = true;
                     preExpress = keySelect;
-                    return true;
+                    isAccept = true;
                 }
                 else
                 {
@@ -54,7 +58,7 @@ namespace Biz.Common.SqlAnalyse
                 {
                     isAcceptTop = true;
                     preExpress = keyTop;
-                    return true;
+                    isAccept = true;
                 }
                 else
                 {
@@ -67,7 +71,7 @@ namespace Biz.Common.SqlAnalyse
                 {
                     isAcceptFrom = true;
                     preExpress = keyFrom;
-                    return true;
+                    isAccept = true;
                 }
                 else
                 {
@@ -77,12 +81,12 @@ namespace Biz.Common.SqlAnalyse
             else if (keyJoin.Equals(sqlExpress.Val))
             {
                 preExpress = keyJoin;
-                return true;
+                isAccept = true;
             }
             else if (keyJoinOn.Equals(sqlExpress.Val))
             {
                 preExpress = keyJoinOn;
-                return true;
+                isAccept = true;
             }
             else if (keyWhere.Equals(sqlExpress.Val))
             {
@@ -90,7 +94,7 @@ namespace Biz.Common.SqlAnalyse
                 {
                     isAcceptWhere = true;
                     preExpress = keyWhere;
-                    return true;
+                    isAccept = true;
                 }
                 else
                 {
@@ -101,11 +105,43 @@ namespace Biz.Common.SqlAnalyse
             {
                 if (acceptAndIgnore.Contains(sqlExpress.Val))
                 {
-                    return true;
+                    isAccept = true;
                 }
+                
             }
 
-            return !isKey;
+            isAccept = isAccept || !isKey;
+
+            if (isAccept && sqlExpress.ExpressType != SqlExpressType.Annotation)
+            {
+                AcceptedSqlExpresses.Add(sqlExpress);
+            }
+
+            return isAccept;
+        }
+
+        public override void Print(string sql)
+        {
+            if (AcceptedSqlExpresses.Any())
+            {
+                var perfx = "|-";
+                for (var i = 0; i < this.Deep; i++)
+                {
+                    perfx += "-";
+                }
+                var start = AcceptedSqlExpresses.First().StartIndex;
+                var end = AcceptedSqlExpresses.Last().EndIndex;
+
+                Trace.WriteLine(perfx + sql.Substring(start, end - start + 1));
+
+                if (NestAnalyser != null)
+                {
+                    foreach (var nest in NestAnalyser)
+                    {
+                        nest.Print(sql);
+                    }
+                }
+            }
         }
     }
 }

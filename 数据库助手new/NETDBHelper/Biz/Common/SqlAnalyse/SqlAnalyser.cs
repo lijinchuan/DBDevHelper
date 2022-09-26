@@ -22,5 +22,6 @@ namespace Biz.Common.SqlAnalyse
         }
 
         public abstract bool Accept(ISqlExpress sqlExpress, bool isKey);
+        public abstract void Print(string sql);
     }
 }
