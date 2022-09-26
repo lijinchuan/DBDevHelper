@@ -15,11 +15,11 @@ namespace Biz.Common.SqlAnalyse.Tests
         [TestMethod()]
         public void HandleTest()
         {
-            if (!File.Exists("codes.txt"))
+            if (!File.Exists("codes.sql"))
             {
-                File.Create("codes.txt").Close();
+                File.Create("codes.sql").Close();
             }
-            var codes = File.ReadAllText("codes.txt");
+            var codes = File.ReadAllText("codes.sql");
             var reader = new SqlReader(codes);
 
             var results = new SqlProcessor(codes).Handle();

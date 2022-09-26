@@ -122,7 +122,7 @@ namespace Biz.Common.SqlAnalyse
 
             void PopAnalyser()
             {
-                if (currentAnalyser != null && sqlAnalysers.Count > 0)
+                if (currentAnalyser != null && sqlAnalysersStacks.Count > 0)
                 {
                     sqlAnalysers.Add(currentAnalyser);
                     while (sqlAnalysersStacks.Count > 0)
@@ -130,7 +130,12 @@ namespace Biz.Common.SqlAnalyse
                         currentAnalyser = sqlAnalysersStacks.Pop();
                         currentAnalyser.NestAnalyser = sqlAnalysers;
                         sqlAnalysers = new List<ISqlAnalyser>();
+                        if(sqlAnalysersStacks.Count > 0)
+                        {
+                            sqlAnalysers.Add(currentAnalyser);
+                        }
                     }
+                    ret.Add(currentAnalyser);
                 }
                 else if (currentAnalyser != null)
                 {

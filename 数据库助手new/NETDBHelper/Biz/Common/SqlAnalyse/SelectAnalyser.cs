@@ -144,6 +144,18 @@ namespace Biz.Common.SqlAnalyse
 
                         }
                     }
+                    else if (isAcceptJoin && isExpectOn)
+                    {
+                        if (preExpress.Val == keyJoin)
+                        {
+                            tables.Add(sqlExpress.Val);
+                            isAccept = true;
+                        }
+                        else
+                        {
+                            //别名
+                        }
+                    }
                     else if (isAcceptFrom && (!isAcceptJoin || !isAcceptWhere))
                     {
                         if (preExpress.Val == keyFrom)
@@ -155,18 +167,6 @@ namespace Biz.Common.SqlAnalyse
                         {
                             //别名
                             isAccept = true;
-                        }
-                    }
-                    else if (isAcceptJoin && isExpectOn)
-                    {
-                        if (preExpress.Val == keyJoin)
-                        {
-                            tables.Add(sqlExpress.Val);
-                            isAccept = true;
-                        }
-                        else
-                        {
-                            //别名
                         }
                     }
                 }
