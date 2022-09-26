@@ -13,7 +13,7 @@ namespace Biz.Common.SqlAnalyse
         /// </summary>
         int Deep { get; set; }
 
-        bool Accept(ISqlExpress sqlExpress);
+        bool Accept(ISqlExpress sqlExpress,bool isKey);
 
         List<ISqlAnalyser> NestAnalyser { get; set; }
     }

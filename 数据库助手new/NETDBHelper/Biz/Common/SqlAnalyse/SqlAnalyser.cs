@@ -6,11 +6,8 @@ using System.Threading.Tasks;
 
 namespace Biz.Common.SqlAnalyse
 {
-    public class SqlAnalyser : ISqlAnalyser
+    public abstract class SqlAnalyser : ISqlAnalyser
     {
-        public SqlAnalyser()
-        {
-        }
 
         public int Deep
         {
@@ -18,9 +15,12 @@ namespace Biz.Common.SqlAnalyse
             set;
         }
 
-        public bool Accept(ISqlExpress sqlExpress)
-        {
-            throw new NotImplementedException();
+        public List<ISqlAnalyser> NestAnalyser 
+        { 
+            get;
+            set; 
         }
+
+        public abstract bool Accept(ISqlExpress sqlExpress, bool isKey);
     }
 }

@@ -17,7 +17,8 @@ namespace Biz.Common.SqlAnalyse
         public SqlProcessor(string sql)
         {
             _sql = sql;
-            _sqlReader = new SqlReader(sql);
+            //分析时全部转为小写
+            _sqlReader = new SqlReader(sql.ToLower());
             sqlAnalysersStacks = new Stack<ISqlAnalyser>();
 
             SqlAnalyserMapper.Add("select", () => new SelectAnalyser());
@@ -25,7 +26,7 @@ namespace Biz.Common.SqlAnalyse
 
         public ISqlAnalyser GetSqlAnalyser(string token)
         {
-            if(SqlAnalyserMapper.TryGetValue(token.ToLower(),out Func<ISqlAnalyser> a))
+            if(SqlAnalyserMapper.TryGetValue(token,out Func<ISqlAnalyser> a))
             {
                 return a();
             }
@@ -33,8 +34,9 @@ namespace Biz.Common.SqlAnalyse
             return null;
         }
 
-        public void Handle()
+        public List<ISqlAnalyser> Handle()
         {
+            List<ISqlAnalyser> ret = new List<ISqlAnalyser>();
             var next = _sqlReader.ReadNext();
             
             var currentDeep = 0;
@@ -42,68 +44,71 @@ namespace Biz.Common.SqlAnalyse
             List<ISqlAnalyser> sqlAnalysers = new List<ISqlAnalyser>();
             while (next != null)
             {
-                var analyser = GetSqlAnalyser(next.Val);
-                if (analyser != null)
+                var iskey = SqlAnalyserMapper.ContainsKey(next.Val);
+                if (currentAnalyser == null || !currentAnalyser.Accept(next, iskey))
                 {
-                    analyser.Deep = next.Deep;
-                    if (currentAnalyser != null)
+                    var analyser = GetSqlAnalyser(next.Val);
+                    if (analyser != null)
                     {
-                        if (currentDeep > next.Deep)
+                        analyser.Deep = next.Deep;
+                        if (currentAnalyser != null)
                         {
-                            sqlAnalysersStacks.Push(currentAnalyser);
-                            currentAnalyser = analyser;
-                            currentDeep = next.Deep;
-                        }
-                        else if (currentDeep == next.Deep)
-                        {
-                            if (sqlAnalysersStacks.Count == 0)
+                            if (next.Deep> currentDeep)
                             {
-                                //把前一个语句的解析结果返回
-
-                                currentAnalyser = analyser;
+                                sqlAnalysersStacks.Push(currentAnalyser);
+                                currentDeep = next.Deep;
                             }
-                            else
+                            else if (currentDeep == next.Deep)
                             {
+                                if (sqlAnalysersStacks.Count == 0)
+                                {
+                                    //把前一个语句的解析结果返回
+                                    ret.Add(currentAnalyser);
+                                }
+                                else
+                                {
+                                    sqlAnalysers.Add(currentAnalyser);
+                                }
+                            }
+                            else if (currentDeep > next.Deep)
+                            {
+                                if (sqlAnalysersStacks.Count == 0)
+                                {
+                                    throw new Exception("解析出错，找不上父级");
+                                }
+
+                                var faterAnalyser = sqlAnalysersStacks.Pop();
+                                if (faterAnalyser.Deep != next.Deep)
+                                {
+                                    throw new Exception("解析出错，深度不正确");
+                                }
+
                                 sqlAnalysers.Add(currentAnalyser);
-                                currentAnalyser = analyser;
+                                faterAnalyser.NestAnalyser = sqlAnalysers;
+                                sqlAnalysers = new List<ISqlAnalyser>();
+
+                                if (sqlAnalysersStacks.Count > 0)
+                                {
+                                    sqlAnalysers.Add(faterAnalyser);
+                                }
+                                else
+                                {
+                                    //把前一个语句的解析结果返回
+                                    ret.Add(faterAnalyser);
+                                }
+
+                                currentDeep = next.Deep;
                             }
                         }
-                        else if (currentDeep < next.Deep)
-                        {
-                            if (sqlAnalysersStacks.Count == 0)
-                            {
-                                throw new Exception("解析出错，找不上父级");
-                            }
-
-                            var faterAnalyser = sqlAnalysersStacks.Pop();
-                            if (faterAnalyser.Deep != next.Deep)
-                            {
-                                throw new Exception("解析出错，深度不正确");
-                            }
-
-                            sqlAnalysers.Add(currentAnalyser);
-                            faterAnalyser.NestAnalyser = sqlAnalysers;
-                            sqlAnalysers = new List<ISqlAnalyser>();
-
-                            if (sqlAnalysersStacks.Count > 0)
-                            {
-                                sqlAnalysers.Add(faterAnalyser);
-                            }
-                            else
-                            {
-                                //把前一个语句的解析结果返回
-
-                            }
-
-                            currentAnalyser = analyser;
-                            currentDeep = next.Deep;
-                        }
+                        analyser.Accept(next, iskey);
+                        currentAnalyser = analyser;
                     }
-                    analyser.Accept(next);
                 }
 
                 next = _sqlReader.ReadNext();
             }
+
+            return ret;
         }
     }
 }

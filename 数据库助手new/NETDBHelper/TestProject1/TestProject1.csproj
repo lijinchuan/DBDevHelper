@@ -53,6 +53,7 @@
     </CodeAnalysisDependentAssemblyPaths>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Common\SqlAnalyse\SqlProcessorTests.cs" />
     <Compile Include="Common\SqlAnalyse\SqlReaderTests.cs" />
     <Compile Include="Common\SQLCodeHelperTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

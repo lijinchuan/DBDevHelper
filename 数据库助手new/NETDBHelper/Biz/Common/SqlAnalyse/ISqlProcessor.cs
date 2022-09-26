@@ -8,7 +8,7 @@ namespace Biz.Common.SqlAnalyse
 {
     public interface ISqlProcessor
     {
-        void Handle();
+        List<ISqlAnalyser> Handle();
 
         ISqlAnalyser GetSqlAnalyser(string token);
 

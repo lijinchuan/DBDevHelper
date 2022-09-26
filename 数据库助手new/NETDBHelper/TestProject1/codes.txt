@@ -1,0 +1,2045 @@
+
+
+---- =============================================                                                                                              
+---- Author:  <Author,,Name>                                                                                              
+---- Create date: <Create Date, ,>                                                                                              
+---- Description: <Description, ,>                                                                                              
+---- 2014-02-28  Bond  Create  根据候选人hxid取该case参与者的分点                                               
+---- 2014-07-17  Bond  update  加入NCA的分成情况                                        
+---- 2014-07-18  Bond  update  绿色通道职位Window不分成                                     
+---- 2014-09-03  Bond  update  2014下财年业务制度            
+---- 2015-01-16 Bond update 超过6个月的NCA分成制度                    
+---- 20150131  Bond update 去互联网行业的分成BD:Consulant =2:8
+---- 20150303 Leole update 2015上财年制度                        
+---- 20150306    Bond    update    去互联网分成制度   
+---- 20150422    Bond    update    data，list分成以推荐时间作为时间节点
+---- 20150507    Bond    update    TC及以上顾问离职前已Offer未Onboard的Case，顾问：Window=7:3     
+---- 20150605   Nick    update  去互联网高端职位的业绩分成， BD：顾问的分成是1：9.    
+----20150828  Nick  Update  修改分成算法   
+----20151008 Stone 新增2015下财年分成算法      
+----20150301 Sven 新增2016上财年分成算法       
+----20150730 Sven 调整职级算法，已修改记录填写的时间为准
+----20160822 Sven 调整list分成存在后dataMobile的分成             
+----20160829 Sven 完成2016下财年分成             
+----20160830 Sven 添加Cs职级是Nca时转正记录的判断
+----20170228 Sven 添加2017上财年分成
+----20170315 Sven 修复2016下List分成问题，DataWork和DataTel不应该为空
+----20170613 Edwin修复分成问题：在VS及以上级别的通道非Window合作制下没有计算QC的分成比例
+----20170616 Edwin修复问题：获取职级是只按照生效时间排序会导致同一天有多个操作就获取不到最新值
+----20170829 Sven 添加正确职级的输出
+----20190305 Edwin 添加2019上财年的判断
+----20190827 Walker 添加2019下财年的判断
+----20190922 Aiden 校正2017上、2019上财年分成界定时间：OfferDate->OnboardTime
+----20210315 Cohen 2021上财年增加 录入与所在地不同的期望工作地，且offer职位地点为期望工作地的情况，向最早录入者分享
+---- =============================================                                                                                                
+CREATE PROCEDURE [dbo].[SP_GetOfferCommissionPercent] ( @Hxid INT,
+                                                        @Version INT )
+AS 
+    IF(1>0)
+    BEGIN                                                                                   
+    DECLARE @OfferTime DATETIME                                                                                    
+  --offer时间                                                                                      
+    DECLARE @PositionType INT                                                                                    
+  --职位类型A/B                                                                                       
+    DECLARE @ConsultantPosition NVARCHAR(100)                                                                                    
+ --顾问级别                                                                                      
+    DECLARE @ConsultantDepart INT                                                                                    
+ --顾问部门                                                                                      
+    DECLARE @OnboardTime DATETIME                                                                                    
+  --员工入职时间                                                                                      
+    DECLARE @Man NVARCHAR(200)                                        
+    DECLARE @Window NVARCHAR(100)                                                                                      
+    DECLARE @Consultant NVARCHAR(100)                                                                                     
+    DECLARE @Researcher NVARCHAR(100)                                                                                    
+    DECLARE @CurrentJobInputMan NVARCHAR(100)                                                         
+    DECLARE @EffectiveTelephoneInputMan NVARCHAR(100)                                                                                    
+    DECLARE @OriginalConsultant NVARCHAR(100)                                                                                    
+    DECLARE @TrueRecommender NVARCHAR(100)                                                                                     
+    DECLARE @Data NVARCHAR(100)                                                                                      
+    DECLARE @List NVARCHAR(100)                                                                                      
+    DECLARE @IsGreen BIT                  
+    DECLARE @Is29 BIT           
+    DECLARE @DataVersion INT --Data,list的分享标准版本             
+    DECLARE @resumeid INT                                                                                    
+ --员工在TB_Tresume中ID                                                                                    
+    DECLARE @PromotionTime DATETIME                                                      
+ --员工晋升时间                    
+    DECLARE @PromotionJob VARCHAR(100)   = ''             
+    DECLARE @PromotionTimeBefore DATETIME                                                                       
+ --职位开始前员工晋升时间                                                                                      
+    DECLARE @PromotionJobBefore VARCHAR(100)   = ''                                                                            
+ --职位开始前晋升的职位                 
+    DECLARE @PSTime DATETIME                                  
+    DECLARE @BecomeFullMemberDate DATETIME                
+--员工转正日期                       
+    DECLARE @IsReSetData BIT = 0                                                                                    
+    DECLARE @Office NVARCHAR(100)                
+   --参与者所在Office                                                        
+    DECLARE @Performance DECIMAL(18, 2) = 0                                                                                                      
+    DECLARE @WindowPercent DECIMAL(18, 2)= 0--附上之，不至于导致全程上程序报错                                                                   
+    DECLARE @ConsultantPercent DECIMAL(18, 2)= 0--附上之，不至于导致全程上程序报错                                                                                  
+    DECLARE @DataPercent DECIMAL(18, 2)=0                        
+    DECLARE @ListPercent DECIMAL(18, 2)  =0                               
+    DECLARE @DataWorkPercent DECIMAL(18, 2) =0                                     
+    DECLARE @DataTelPercent DECIMAL(18, 2)   =0           
+    DECLARE @CompanyPercent DECIMAL(18, 2)= 0        
+    DECLARE @BDPercent DECIMAL(18, 2) = 0
+    DECLARE @HxrOnboardTime DATETIME                                      
+    DECLARE @ConsultantPercentToNCA1 DECIMAL(18, 2) = 0                                        
+    DECLARE @ConsultantPercentToNCA2 DECIMAL(18, 2) = 0                                        
+    DECLARE @ConsultantPercentToNCA3 DECIMAL(18, 2) = 0                                        
+    DECLARE @ConsultantPercentToNCA5 DECIMAL(18, 2) = 0         
+    DECLARE @ConsultantPercentToNCA6 DECIMAL(18, 2) = 0                                       
+    ---new                                  
+    DECLARE @ConsultantPercentToCA DECIMAL(18, 2) = 0                                                                                            
+    DECLARE @ConsultantPercentToFC DECIMAL(18, 2) = 0                                                                                            
+    DECLARE @ConsultantPercenttoAC DECIMAL(18, 2) = 0                                                                                            
+    DECLARE @ConsultantPercenttoTC DECIMAL(18, 2) = 0                                   
+                                      
+    DECLARE @ConsultantPercentToNewCA DECIMAL(18, 2) = 0                                                                                          
+    DECLARE @ConsultantPercentToOldCA DECIMAL(18, 2) = 0                                                                                          
+    DECLARE @ConsultantPercenttoNewAC DECIMAL(18, 2) = 0                                                                                          
+    DECLARE @ConsultantPercenttoOldAC DECIMAL(18, 2) = 0                                                                                          
+    DECLARE @ConsultantPercenttoPC DECIMAL(18, 2) = 0                                                                                          
+    DECLARE @ConsultantPercenttoSC DECIMAL(18, 2) = 0                                                                                          
+    DECLARE @ConsultantPercenttoVC DECIMAL(18, 2) = 0                                                                                          
+    DECLARE @SharePercentDataTel DECIMAL(18, 2) = 0                                                                                          
+    DECLARE @SharePercentDataWork DECIMAL(18, 2) = 0                                                                      
+    DECLARE @SharePercentData DECIMAL(18, 2) = 0                                                                                          
+    DECLARE @SharePercentList DECIMAL(18, 2) = 0                                                         
+    DECLARE @WindowPercentToNCA1 DECIMAL(18, 2) = 0                                      
+    DECLARE @WindowPercentToNCA2 DECIMAL(18, 2) = 0                                        
+    DECLARE @WindowPercentToNCA3 DECIMAL(18, 2) = 0                                        
+    DECLARE @WindowPercentToNCA5 DECIMAL(18, 2) = 0                    
+    DECLARE @WindowPercentToNCA6 DECIMAL(18, 2) = 0                        
+    DECLARE @CompanyPercentToNCA6 DECIMAL(18, 2)= 0.0 --超过6个月NCA公司分成比例                    
+    --new           
+    DECLARE @WindowPercentToCA DECIMAL(18, 2) = 0                                                                            
+    DECLARE @WindowPercentToFC DECIMAL(18, 2) = 0                                                             
+    DECLARE @WindowPercentToAC DECIMAL(18, 2) = 0                                                                                            
+    DECLARE @WindowPercentToTC DECIMAL(18, 2) = 0                                   
+                        
+    DECLARE @WindowPercentToNewCA DECIMAL(18, 2) = 0                                                                          
+    DECLARE @WindowPercentToOldCA DECIMAL(18, 2) = 0                                                    
+    DECLARE @WindowPercentToNewAC DECIMAL(18, 2) = 0                                                                                          
+    DECLARE @WindowPercentToOldAC DECIMAL(18, 2) = 0                                                    
+    DECLARE @WindowPercenttoPC DECIMAL(18, 2) = 0                                                                                            
+    DECLARE @WindowPercenttoSC DECIMAL(18, 2) = 0                                                                                           
+    DECLARE @WindowPercenttoVC DECIMAL(18, 2) = 0
+
+    --去互联网的分成比例    
+    DECLARE @BDPercentNCA29 DECIMAL(18, 2) = 0    --去互联网的BD分成NCA比例 
+    DECLARE @WindowPercentNCA29 DECIMAL(18, 2) = 0    --去互联网的Window分成NCA比例
+    DECLARE @ConsultantPercentNCA29 DECIMAL(18, 2) = 0    --去互联网的顾问分成NCA比例 
+    DECLARE @BDPercentCA29 DECIMAL(18, 2) = 0    --去互联网的BD分成CA比例 
+    DECLARE @WindowPercentCA29 DECIMAL(18, 2) = 0    --去互联网的Window分成CA比例
+    DECLARE @ConsultantPercentCA29 DECIMAL(18, 2) = 0    --去互联网的顾问分成CA比例
+    DECLARE @BDPercentFC29 DECIMAL(18, 2) = 0    --去互联网的BD分成FC比例 
+    DECLARE @WindowPercentFC29 DECIMAL(18, 2) = 0    --去互联网的Window分成FC比例
+    DECLARE @ConsultantPercentFC29 DECIMAL(18, 2) = 0    --去互联网的顾问分成FC比例 
+    DECLARE @ListDimissionDate DATETIME                                                                                     
+    DECLARE @DataDimissionDate DATETIME                                                                                    
+    DECLARE @TelDimissionDate DATETIME                                                                                     
+    DECLARE @WorkDimissionDate DATETIME                                                                                    
+    DECLARE @TrueRecommenderDimissionDate DATETIME                                     
+    DECLARE @ResearcherDimissionDate DATETIME                                                                                    
+    DECLARE @WindowDimissionDate DATETIME                                                                                 
+    DECLARE @RecommendDate DATETIME          
+    
+    --add by Nick
+    DECLARE @PosType NVARCHAR(50) --职能、职位类别   
+    DECLARE @ConsultantPercentTop29 DECIMAL(18, 2) = 0
+    DECLARE @WindowPercentTop29 DECIMAL(18, 2) = 0
+    DECLARE @BDPercentTop29 DECIMAL(18, 2) = 0
+    
+    DECLARE @IsNCA BIT = 0
+    
+    DECLARE @pid INT =0
+    
+    --2015下财年，2016上财年
+    Declare @CTPercent DECIMAL(18, 2) = 0    
+    Declare @CTWithACPercent DECIMAL(18, 2) = 0
+
+    Declare @CSPercent DECIMAL(18, 2) = 0  --CS最终分成比例
+    Declare @QCPercent DECIMAL(18, 2) = 0  --QC最终分成比例
+    Declare @MentorPercent DECIMAL(18, 2)=0  --Mentor最终分成比例
+    Declare @NCAPercent DECIMAL(18, 2) = 0
+    Declare @CAPercent DECIMAL(18, 2) = 0
+    Declare @FCPercent DECIMAL(18, 2) = 0
+    Declare @ACPercent DECIMAL(18, 2) = 0
+    Declare @WithNCAPercent DECIMAL(18, 2) = 0
+    Declare @WithCAPercent DECIMAL(18, 2) = 0
+    Declare @WithFCPercent DECIMAL(18, 2) = 0
+    Declare @WithACPercent DECIMAL(18, 2) = 0
+    
+    Declare @OPPercent DECIMAL(18, 2) = 0
+    Declare @OPWithVCPercent  DECIMAL(18, 2) = 0
+
+    Declare @ListPercent2015 DECIMAL(18, 2) = 0
+    Declare @DataTelPercent2015 DECIMAL(18, 2) = 0
+    Declare @DataWorkPercent2015 DECIMAL(18, 2) = 0
+    Declare @DataNamePercent2015 DECIMAL(18, 2) = 0
+    Declare @DataFunctionPercent2015 DECIMAL(18, 2) = 0
+    --2017上财年新增关于nca的分成
+    Declare @MtvNcaPercent DECIMAL(18, 2) = 0
+    Declare @SalaryNcaPercent DECIMAL(18, 2) = 0
+
+    Declare @TCPercentNewIndustry DECIMAL(18, 2) = 0
+    Declare @VCPercentNewIndustry DECIMAL(18, 2) = 0
+    Declare @TCPercentTongDao DECIMAL(18, 2) = 0
+    Declare @VCPercentTongDao DECIMAL(18, 2) = 0
+    Declare @QCPercentNewIndustry DECIMAL(18, 2) = 0
+    Declare @IsTongdao bit 
+    Declare @CT varchar(50)
+    Declare @OP varchar(50)
+    Declare @CS varchar(50)
+    Declare @CSLevel varchar(50)
+    Declare @QC varchar(50)
+    Declare @List2015 varchar(50)
+    Declare @DataTel2015 varchar(50)
+    Declare @DataWork2015 varchar(50)
+    Declare @DataName2015 varchar(50)
+    Declare @DataFunction2015 varchar(50)
+    --2017上财年新增关于nca的分成
+    Declare @MtvNca varchar(50)
+    Declare @SalaryNca varchar(50)
+    Declare @ValidWork2019 varchar(50)
+    Declare @EduExp varchar(50)
+    Declare @DataBirth varchar(50)
+    Declare @ConfigStrategy int
+    --Declare @RecommendDate varchar(50)
+    DECLARE @CSDimissionDate2015 DATETIME  
+    DECLARE @ListDimissionDate2015 DATETIME                                                                                     
+    DECLARE @DataTelDimissionDate2015 DATETIME                                                                                                                                                                    
+    DECLARE @DataWorkDimissionDate2015 DATETIME                                                                                    
+    DECLARE @DataNameDimissionDate2015 DATETIME                                     
+    DECLARE @DataFunctionDimissionDate2015 DATETIME                                                                                    
+    DECLARE @CTDimissionDate2015 DATETIME  
+    DECLARE @QCDimissionDate2015 DATETIME  
+    DECLARE @MtvNcaDimissionDate2015 DATETIME  
+    DECLARE @SalaryNcaimissionDate2015 DATETIME  
+    
+    --2015下财年新增OfferDate的判断，医疗通道9月1日前offer的，QC业绩归属OP
+     DECLARE @OfferDate DATETIME  
+
+    --2016下财年新增Mentor
+    DECLARE @MentorWithNCAPercent DECIMAL(18, 2) = 0
+    DECLARE @MentorWithCAPercent DECIMAL(18, 2) = 0
+    DECLARE @Mentor varchar(50)
+                                                                                     
+    DECLARE @MentorDimissionDate DATETIME   
+    DECLARE @IsWindow bit =0
+     
+    -- 20210315 Cohen 2021上财年增加 录入与所在地不同的期望工作地，且offer职位地点为期望工作地的情况，向最早录入者分享
+    DECLARE @DataExpectCityOwner VARCHAR(50)
+ END
+    
+    SET NOCOUNT ON;
+    SELECT  
+            @HxrOnboardTime = OnboardDate ,@OfferDate = OfferDate
+    FROM    dbo.TB_Houxuan
+    WHERE   id = @Hxid     
+    
+    IF(@HxrOnboardTime>='20150901')  --2015下财年分成计算
+    BEGIN
+        SET @Version=5
+           IF(@HxrOnboardTime>='20160301') --2016上财年分成计算
+           BEGIN
+           SET @Version=6
+           END 
+           IF(@HxrOnboardTime>='20160901') --2016上财年分成计算
+           BEGIN
+           SET @Version=7
+           END 
+           IF(@HxrOnboardTime>='20170301') --2017上财年分成计算
+           BEGIN
+           SET @Version=8
+           END 
+           IF(@HxrOnboardTime>='20190301') --2019上财年分成计算
+           BEGIN
+           SET @Version=9
+           END 
+        print('@Version：'+cast(@Version as Varchar))
+        --获取关键计算数据
+        select Top 1 @IsTongdao= IsTongdao,@CT=CT,@OP=OP,@CS = CS,@CSLevel = CSLevel,@QC = QC,@Mentor=Mentor,@MtvNca=MtvNca,@SalaryNca=SalaryNca,
+        @List2015 = List,@DataTel2015 = DataTel,@DataWork2015=DataWork,@DataName2015=DataName,@DataFunction2015=DataFunction,
+        @RecommendDate = RecommendDate,@ValidWork2019 = ValidWork,@EduExp = EduExp,@DataBirth = DataBirth,@DataExpectCityOwner = DataExpectCity
+        from TB_Recommend_Data
+        where Hxid = @Hxid
+        --获取CS的信息
+        SELECT  @ConsultantPosition = 职位 ,
+        @ConsultantDepart = 部门 ,
+        @OnboardTime = EntryDate ,
+        @Resumeid = ID ,
+        @Man = Man ,
+        @BecomeFullMemberDate = BecomeAFullMemberDate
+        FROM    dbo.TB_Tresume
+        WHERE   姓名 = @CS   
+        print('@RecommandDataCsLevel：'+cast(@CSLevel as Varchar))
+        Declare @TempCsLevel nvarchar(50)
+        print('@RecommendDate：'+cast(@RecommendDate as Varchar))
+        print('@Resumeid：'+cast(@Resumeid as Varchar))
+        --CS准确职级的判断，以职级变更记录设定的时间为准
+        SELECT TOP 1   @TempCsLevel = JobName FROM    dbo.TB_Promotion
+        WHERE   ResumeID = @Resumeid   AND  (@version>=5 AND [Time] <= @RecommendDate) --只对2015下修改                              
+        ORDER BY [Time] DESC,ID DESC
+        
+        print('@TempCsLevel：'+cast(@TempCsLevel as Varchar))
+        --NCA到CA是没有晋级记录的
+        IF(isnull(@TempCsLevel,'')<>'')
+        BEGIN
+        SET @CSLevel=@TempCsLevel
+        END
+
+        --NCA转CA要看转正记录,转正日期在推荐日期之前的，说明当时已经是CA
+        IF(@CSLevel='NCA'and @BecomeFullMemberDate<@RecommendDate)
+        BEGIN
+        Set @CSLevel='CA'
+        END
+
+        if @Version = 9 
+        begin
+        exec [SP_GetOfferCommissionPercentV9] @Hxid,@Version,@CSLevel,@CT,@QC,@List2015,@DataTel2015 ,@DataWork2015 ,@DataName2015 ,@DataFunction2015 , @MtvNca , @SalaryNca,@ValidWork2019,@EduExp,@DataBirth,@Mentor,@HxrOnboardTime ,@OfferDate, @DataExpectCityOwner  
+        end
+        else
+        begin        
+        Exec [SP_GetOfferCommissionPercent_NoData] @Hxid,@Version,@CSLevel,@CT,@QC,@List2015,@DataTel2015 ,@DataWork2015 ,@DataName2015 ,@DataFunction2015 , @MtvNca , @SalaryNca,@Mentor,@HxrOnboardTime ,@OfferDate  
+        end
+    END
+    ELSE               
+--DECLARE                                                                                     
+    BEGIN                                                                                            
+        SET NOCOUNT ON ;                                                                                         
+        SELECT  @OfferTime = KHOfferDate ,
+                @HxrOnboardTime = OnboardDate ,
+                @Window = th.Window ,
+                @Consultant = Recommender ,
+                @PSTime =tp.P_STime,--CASE WHEN ISNULL(tp.P_OpenTime,'')='' THEN tp.P_STime ELSE tp.P_OpenTime  END ,
+                @Researcher = tho.Researcher ,
+                @TrueRecommender = tho.TrueRecommender ,
+                @Data = tho.data ,
+                @List =tho. List ,
+                @CurrentJobInputMan = tho.CurrentJobInputMan ,
+                @EffectiveTelephoneInputMan = tho.EffectiveTelephoneInputMan ,
+                @RecommendDate = th.RecommendDate ,
+                @ListDimissionDate = dbo.fn_GetDimissionDate(tho.List) ,
+                @DataDimissionDate = dbo.fn_GetDimissionDate(tho.[Data]) ,
+                @TelDimissionDate = dbo.fn_GetDimissionDate(tho.EffectiveTelephoneInputMan) ,
+                @WorkDimissionDate = dbo.fn_GetDimissionDate(tho.CurrentJobInputMan) ,
+                @TrueRecommenderDimissionDate = dbo.fn_GetDimissionDate(tho.TrueRecommender) ,
+                @ResearcherDimissionDate = dbo.fn_GetDimissionDate(tho.Researcher) ,
+                @WindowDimissionDate = dbo.fn_GetDimissionDate(th.Window) ,
+                @IsGreen = tp.IsGreen ,
+                @is29 = Is29 ,
+                @PosType = tp.PosTypes,
+                @pid = tp.P_id
+        FROM    dbo.TB_Houxuan th
+                JOIN dbo.TB_HxrOffer tho ON th.id = tho.hxid
+                JOIN dbo.TB_PPosition tp ON th.JobID = tp.P_id
+        WHERE   th.id = @Hxid   
+        
+        --对于2015上以后，由于系统原因，部分职位的p_stime会大于推荐时间，故此情况下，以推荐时间为准
+        IF(@RecommendDate < @PSTime)
+        BEGIN
+            SET @PSTime = @RecommendDate
+        END
+                                                                                                
+        DECLARE @WindowPercentKey NVARCHAR(50) = 'WindowPercent'               
+        DECLARE @CompanyPercentKey NVARCHAR(50)= 'CompanyPercent'                                                                        
+        DECLARE @ConsultantPercentKey NVARCHAR(50) = 'ConsultantPercent'   
+        DECLARE @BDPercentKey NVARCHAR(50) = 'BDPercent'                                                                                    
+        DECLARE @SharePercentKey NVARCHAR(50) = 'SharePercent'  
+        IF @HxrOnboardTime >= '20150901'
+            SELECT @version = 5
+        ELSE
+            IF @HxrOnboardTime >= '20150301' AND @HxrOnboardTime < '20150901'
+                SELECT  @version = 4                               
+        ELSE 
+            IF @HxrOnboardTime >= '20140901'
+                AND @HxrOnboardTime < '20150301' 
+                SELECT  @version = 3
+            ELSE 
+                SELECT  @version = 2    
+                
+        IF @RecommendDate >= '20150301' 
+            SELECT  @dataversion = 4
+        ELSE 
+            IF @RecommendDate >= '20140901'
+                AND @RecommendDate < '20150301' 
+                BEGIN
+                SELECT  @dataversion = 3
+                PRINT '@dataversion='+CAST(@dataversion AS VARCHAR)
+                END
+                
+            ELSE 
+                SELECT  @dataversion = 2
+             print('@Version'++CAST(@Version AS VARCHAR))      
+      PRINT '@HxrOnboardTime='+CAST(@HxrOnboardTime AS VARCHAR) +'-----@dataversion='+CAST(@dataversion AS VARCHAR)
+                
+     --2015上财年后就没有绿色通道职位了
+  --   IF(@Version >= 4 AND @isGreen = 1)
+  --   BEGIN
+        --SET @isgreen = 0
+        ----SET @is29 = 1
+  --   end
+ --------------------------- 
+        IF ( 1 > 0 ) 
+            BEGIN 
+                SELECT TOP 1
+                        @ConsultantPercentToNCA1 = tscfv.ConfigDecimal
+                FROM    TB_Sys_ConfigForVersion tscfv
+                WHERE   tscfv.ConfigVersion = @version
+                        AND tscfv.ConfigStrategyKey = @ConsultantPercentKey
+                        AND tscfv.ConfigKey = 'ToNCA1'                                        
+                SELECT TOP 1
+                        @ConsultantPercentToNCA2 = tscfv.ConfigDecimal
+                FROM    TB_Sys_ConfigForVersion tscfv
+                WHERE   tscfv.ConfigVersion = @version
+                        AND tscfv.ConfigStrategyKey = @ConsultantPercentKey
+                        AND tscfv.ConfigKey = 'ToNCA2'                                                   
+                SELECT TOP 1
+                        @ConsultantPercentToNCA3 = tscfv.ConfigDecimal
+                FROM    TB_Sys_ConfigForVersion tscfv
+                WHERE   tscfv.ConfigVersion = @version
+                        AND tscfv.ConfigStrategyKey = @ConsultantPercentKey
+                        AND tscfv.ConfigKey = 'ToNCA3'                                            
+                SELECT TOP 1
+                        @ConsultantPercentToNCA5 = tscfv.ConfigDecimal
+                FROM    TB_Sys_ConfigForVersion tscfv
+                WHERE   tscfv.ConfigVersion = @version
+                        AND tscfv.ConfigStrategyKey = @ConsultantPercentKey
+                        AND tscfv.ConfigKey = 'ToNCA5'                                          
+                SELECT TOP 1
+                        @ConsultantPercentToNCA6 = tscfv.ConfigDecimal
+                FROM    TB_Sys_ConfigForVersion tscfv
+                WHERE   tscfv.ConfigVersion = @version
+                        AND tscfv.ConfigStrategyKey = @ConsultantPercentKey
+                        AND tscfv.ConfigKey = 'ToNCA6'                         
+                --new                                  
+                SELECT TOP 1
+                        @ConsultantPercentToCA = tscfv.ConfigDecimal
+                FROM    TB_Sys_ConfigForVersion tscfv
+                WHERE   tscfv.ConfigVersion = @version
+                        AND tscfv.ConfigStrategyKey = @ConsultantPercentKey
+                        AND tscfv.ConfigKey = 'ToCA'    
+                        PRINT 'Tocalsjlsl'+CAST(   @ConsultantPercentToCA AS VARCHAR)                                                                            
+                SELECT TOP 1
+                        @ConsultantPercentToFC = tscfv.ConfigDecimal
+                FROM    TB_Sys_ConfigForVersion tscfv
+                WHERE   tscfv.ConfigVersion = @version
+                        AND tscfv.ConfigStrategyKey = @ConsultantPercentKey
+                        AND tscfv.ConfigKey = 'ToFC'                                                                                      
+                SELECT TOP 1
+                        @ConsultantPercenttoAC = tscfv.ConfigDecimal
+                FROM    TB_Sys_ConfigForVersion tscfv
+                WHERE   tscfv.ConfigVersion = @version
+                        AND tscfv.ConfigStrategyKey = @ConsultantPercentKey
+                        AND tscfv.ConfigKey = 'ToAC'                                                                                      
+                SELECT TOP 1
+                        @ConsultantPercenttoTC = tscfv.ConfigDecimal
+                FROM    TB_Sys_ConfigForVersion tscfv
+                WHERE   tscfv.ConfigVersion = @version
+                        AND tscfv.ConfigStrategyKey = @ConsultantPercentKey
+                        AND tscfv.ConfigKey = 'ToTC'                                    
+                                                                                     
+                SELECT TOP 1
+                        @ConsultantPercentToNewCA = tscfv.ConfigDecimal
+                FROM    TB_Sys_ConfigForVersion tscfv
+                WHERE   tscfv.ConfigVersion = @version
+                        AND tscfv.ConfigStrategyKey = @ConsultantPercentKey
+                        AND tscfv.ConfigKey = 'ToNewCA'                                                                                 
+                SELECT TOP 1
+                        @ConsultantPercentToOldCA = tscfv.ConfigDecimal
+                FROM    TB_Sys_ConfigForVersion tscfv
+                WHERE   tscfv.ConfigVersion = @version
+                        AND tscfv.ConfigStrategyKey = @ConsultantPercentKey
+                        AND tscfv.ConfigKey = 'ToOldCA'                                                                                    
+                SELECT TOP 1
+                        @ConsultantPercenttoNewAC = tscfv.ConfigDecimal
+                FROM    TB_Sys_ConfigForVersion tscfv
+                WHERE   tscfv.ConfigVersion = @version
+                        AND tscfv.ConfigStrategyKey = @ConsultantPercentKey
+                        AND tscfv.ConfigKey = 'ToNewAC'                                                                                    
+                SELECT TOP 1
+                        @ConsultantPercenttoOldAC = tscfv.ConfigDecimal
+                FROM    TB_Sys_ConfigForVersion tscfv
+                WHERE   tscfv.ConfigVersion = @version
+                        AND tscfv.ConfigStrategyKey = @ConsultantPercentKey
+                        AND tscfv.ConfigKey = 'ToOldAC'                                                                                    
+                SELECT TOP 1
+                        @ConsultantPercenttoPC = tscfv.ConfigDecimal
+                FROM    TB_Sys_ConfigForVersion tscfv
+                WHERE   tscfv.ConfigVersion = @version
+                        AND tscfv.ConfigStrategyKey = @ConsultantPercentKey
+                        AND tscfv.ConfigKey = 'ToPC'                                                                                    
+                SELECT TOP 1
+                        @ConsultantPercenttoSC = tscfv.ConfigDecimal
+                FROM    TB_Sys_ConfigForVersion tscfv
+                WHERE   tscfv.ConfigVersion = @version
+                        AND tscfv.ConfigStrategyKey = @ConsultantPercentKey
+                        AND tscfv.ConfigKey = 'ToSC'                                          
+                SELECT TOP 1
+                        @ConsultantPercenttoVC = tscfv.ConfigDecimal
+                FROM    TB_Sys_ConfigForVersion tscfv
+                WHERE   tscfv.ConfigVersion = @version
+                        AND tscfv.ConfigStrategyKey = @ConsultantPercentKey
+                        AND tscfv.ConfigKey = 'ToVC'                                                                                    
+                SELECT TOP 1
+                        @SharePercentData = tscfv.ConfigDecimal
+                FROM    TB_Sys_ConfigForVersion tscfv
+                WHERE   tscfv.ConfigVersion = @dataversion
+                        AND tscfv.ConfigStrategyKey = @SharePercentKey
+                        AND tscfv.ConfigKey = 'Data'                                                                                    
+                SELECT TOP 1
+                        @SharePercentDataTel = tscfv.ConfigDecimal
+                FROM    TB_Sys_ConfigForVersion tscfv
+                WHERE   tscfv.ConfigVersion = @dataversion
+                        AND tscfv.ConfigStrategyKey = @SharePercentKey
+                        AND tscfv.ConfigKey = 'DataTel'                                                                                    
+                SELECT TOP 1
+                        @SharePercentDataWork = tscfv.ConfigDecimal
+                FROM    TB_Sys_ConfigForVersion tscfv
+                WHERE   tscfv.ConfigVersion = @dataversion
+                        AND tscfv.ConfigStrategyKey = @SharePercentKey
+                        AND tscfv.ConfigKey = 'DataWork'                                                                                    
+                SELECT TOP 1
+                        @SharePercentList = tscfv.ConfigDecimal
+                FROM    TB_Sys_ConfigForVersion tscfv
+                WHERE   tscfv.ConfigVersion = @dataversion
+                        AND tscfv.ConfigStrategyKey = @SharePercentKey
+                        AND tscfv.ConfigKey = 'List'                                                      
+                SELECT TOP 1
+  @WindowPercentToNCA1 = tscfv.ConfigDecimal
+                FROM    TB_Sys_ConfigForVersion tscfv
+                WHERE   tscfv.ConfigVersion = @version
+                        AND tscfv.ConfigStrategyKey = @WindowPercentKey
+                        AND tscfv.ConfigKey = 'ToNCA1'                                                                        
+                SELECT TOP 1
+                        @WindowPercentToNCA2 = tscfv.ConfigDecimal
+                FROM    TB_Sys_ConfigForVersion tscfv
+                WHERE   tscfv.ConfigVersion = @version
+                        AND tscfv.ConfigStrategyKey = @WindowPercentKey
+                        AND tscfv.ConfigKey = 'ToNCA2'                                            
+                SELECT TOP 1
+                        @WindowPercentToNCA3 = tscfv.ConfigDecimal
+                FROM    TB_Sys_ConfigForVersion tscfv
+                WHERE   tscfv.ConfigVersion = @version
+                        AND tscfv.ConfigStrategyKey = @WindowPercentKey
+                        AND tscfv.ConfigKey = 'ToNCA3'                                             
+                SELECT TOP 1
+                        @WindowPercentToNCA5 = tscfv.ConfigDecimal
+                FROM    TB_Sys_ConfigForVersion tscfv
+                WHERE   tscfv.ConfigVersion = @version
+                        AND tscfv.ConfigStrategyKey = @WindowPercentKey
+                        AND tscfv.ConfigKey = 'ToNCA5'                                            
+                SELECT TOP 1
+                        @WindowPercentToNCA6 = tscfv.ConfigDecimal
+                FROM    TB_Sys_ConfigForVersion tscfv
+                WHERE   tscfv.ConfigVersion = @version
+                        AND tscfv.ConfigStrategyKey = @WindowPercentKey
+                        AND tscfv.ConfigKey = 'ToNCA6'                   
+                SELECT TOP 1
+                        @CompanyPercentToNCA6 = tscfv.configdecimal
+                FROM    dbo.TB_Sys_ConfigForVersion tscfv
+                WHERE   tscfv.configversion = @Version
+                        AND tscfv.ConfigStrategyKey = @CompanyPercentKey
+                        AND tscfv.configkey = 'ToNCA6'            
+                                                                      
+                SELECT TOP 1
+                        @WindowPercentToCA = tscfv.ConfigDecimal
+                FROM    TB_Sys_ConfigForVersion tscfv
+                WHERE   tscfv.ConfigVersion = @version
+                        AND tscfv.ConfigStrategyKey = @WindowPercentKey
+                        AND tscfv.ConfigKey = 'ToCA'                                                                
+                SELECT TOP 1
+                        @WindowPercentToFC = tscfv.ConfigDecimal
+                FROM    TB_Sys_ConfigForVersion tscfv
+                WHERE   tscfv.ConfigVersion = @version
+                        AND tscfv.ConfigStrategyKey = @WindowPercentKey
+                        AND tscfv.ConfigKey = 'ToFC'                                                                                      
+                SELECT TOP 1
+                        @WindowPercentToAC = tscfv.ConfigDecimal
+                FROM    TB_Sys_ConfigForVersion tscfv
+                WHERE   tscfv.ConfigVersion = @version
+                        AND tscfv.ConfigStrategyKey = @WindowPercentKey
+                        AND tscfv.ConfigKey = 'toAC'                                                                
+                SELECT TOP 1
+                        @WindowPercentToTC = tscfv.ConfigDecimal
+                FROM    TB_Sys_ConfigForVersion tscfv
+                WHERE   tscfv.ConfigVersion = @version
+                        AND tscfv.ConfigStrategyKey = @WindowPercentKey
+                        AND tscfv.ConfigKey = 'toTC'                                      
+                                                          
+                SELECT TOP 1
+                        @WindowPercentToNewCA = tscfv.ConfigDecimal
+                FROM    TB_Sys_ConfigForVersion tscfv
+                WHERE   tscfv.ConfigVersion = @version
+                        AND tscfv.ConfigStrategyKey = @WindowPercentKey
+                        AND tscfv.ConfigKey = 'ToNewCA'                                                              
+                SELECT TOP 1
+                        @WindowPercentToOldCA = tscfv.ConfigDecimal
+                FROM    TB_Sys_ConfigForVersion tscfv
+                WHERE   tscfv.ConfigVersion = @version
+                        AND tscfv.ConfigStrategyKey = @WindowPercentKey
+                        AND tscfv.ConfigKey = 'ToOldCA'                                                                                    
+                SELECT TOP 1
+                        @WindowPercentToNewAC = tscfv.ConfigDecimal
+                FROM    TB_Sys_ConfigForVersion tscfv
+                WHERE   tscfv.ConfigVersion = @version
+                        AND tscfv.ConfigStrategyKey = @WindowPercentKey
+                        AND tscfv.ConfigKey = 'toNewAC'                                                                                    
+                SELECT TOP 1
+                        @WindowPercentToOldAC = tscfv.ConfigDecimal
+                FROM    TB_Sys_ConfigForVersion tscfv
+                WHERE   tscfv.ConfigVersion = @version
+                        AND tscfv.ConfigStrategyKey = @WindowPercentKey
+                        AND tscfv.ConfigKey = 'toOldAC'                                                                                    
+                SELECT TOP 1
+                        @WindowPercenttoPC = tscfv.ConfigDecimal
+                FROM    TB_Sys_ConfigForVersion tscfv
+                WHERE   tscfv.ConfigVersion = @version
+                        AND tscfv.ConfigStrategyKey = @WindowPercentKey
+                        AND tscfv.ConfigKey = 'ToPC'                                                                    
+                SELECT TOP 1
+                        @WindowPercenttoSC = tscfv.ConfigDecimal
+                FROM    TB_Sys_ConfigForVersion tscfv
+                WHERE   tscfv.ConfigVersion = @version
+                        AND tscfv.ConfigStrategyKey = @WindowPercentKey
+                        AND tscfv.ConfigKey = 'ToSC'                                                                                    
+                SELECT TOP 1
+                        @WindowPercenttoVC = tscfv.ConfigDecimal
+                FROM    TB_Sys_ConfigForVersion tscfv
+                WHERE   tscfv.ConfigVersion = @version
+                        AND tscfv.ConfigStrategyKey = @WindowPercentKey
+                        AND tscfv.ConfigKey = 'ToVC'  
+                          
+                --去互联网
+                --BD:Window:NCA
+                SELECT TOP 1
+                        @BDPercentNCA29 = ConfigDecimal
+                FROM    dbo.TB_Sys_ConfigForVersion
+                WHERE   ConfigVersion = @version
+                        AND ConfigStrategyKey = @BDPercentKey
+                        AND ConfigKey = '29ToNCA'                                         
+                SELECT TOP 1
+                        @WindowPercentNCA29 = ConfigDecimal
+                FROM    dbo.TB_Sys_ConfigForVersion
+                WHERE   ConfigVersion = @version
+                        AND ConfigStrategyKey = @WindowPercentKey
+                        AND ConfigKey = '29ToNCA'
+                SELECT TOP 1
+                        @ConsultantPercentNCA29 = ConfigDecimal
+                FROM    dbo.TB_Sys_ConfigForVersion
+                WHERE   ConfigVersion = @version
+                        AND ConfigStrategyKey = @ConsultantPercentKey
+                        AND ConfigKey = '29ToNCA'    
+                --BD:Window:CA
+                SELECT TOP 1
+                        @BDPercentCA29 = ConfigDecimal
+                FROM    dbo.TB_Sys_ConfigForVersion
+                WHERE   ConfigVersion = @version
+             AND ConfigStrategyKey = @BDPercentKey
+                        AND ConfigKey = '29ToCA'                                         
+                SELECT TOP 1
+                        @WindowPercentCA29 = ConfigDecimal
+                FROM    dbo.TB_Sys_ConfigForVersion
+                WHERE   ConfigVersion = @version
+                        AND ConfigStrategyKey = @WindowPercentKey
+                        AND ConfigKey = '29ToCA'
+                SELECT TOP 1
+                        @ConsultantPercentCA29 = ConfigDecimal
+                FROM    dbo.TB_Sys_ConfigForVersion
+                WHERE   ConfigVersion = @version
+                        AND ConfigStrategyKey = @ConsultantPercentKey
+                        AND ConfigKey = '29ToCA'    
+                --BD:Window:FC以上
+                SELECT TOP 1
+                        @BDPercentFC29 = ConfigDecimal
+                FROM    dbo.TB_Sys_ConfigForVersion
+                WHERE   ConfigVersion = @version
+                        AND ConfigStrategyKey = @BDPercentKey
+                        AND ConfigKey = '29ToFC'                                         
+                SELECT TOP 1
+                        @WindowPercentFC29 = ConfigDecimal
+                FROM    dbo.TB_Sys_ConfigForVersion
+                WHERE   ConfigVersion = @version
+                        AND ConfigStrategyKey = @WindowPercentKey
+                        AND ConfigKey = '29ToFC'
+                SELECT TOP 1
+                        @ConsultantPercentFC29 = ConfigDecimal
+                FROM    dbo.TB_Sys_ConfigForVersion
+                WHERE   ConfigVersion = @version
+                        AND ConfigStrategyKey = @ConsultantPercentKey
+                        AND ConfigKey = '29ToFC'    
+         
+                --去互联网高端职位的业绩分成， BD：顾问的分成是1：9.
+                SELECT TOP 1
+                        @ConsultantPercentTop29 = ConfigDecimal
+                FROM    TB_Sys_ConfigForVersion
+                WHERE   ConfigVersion = @version
+                        AND ConfigStrategyKey = @ConsultantPercentKey
+                        AND ConfigKey = '29ToTopConsultant'
+                                    
+                SELECT TOP 1
+                        @WindowPercentTop29 = ConfigDecimal
+                FROM    dbo.TB_Sys_ConfigForVersion
+                WHERE   ConfigVersion = @version
+                        AND ConfigStrategyKey = @WindowPercentKey
+                        AND ConfigKey = '29ToTopConsultant'
+                
+                SELECT TOP 1
+                        @BDPercentTop29 = ConfigDecimal
+                FROM    dbo.TB_Sys_ConfigForVersion
+                WHERE   ConfigVersion = @version
+                        AND ConfigStrategyKey = @BDPercentKey
+                        AND ConfigKey = '29ToTopConsultant'
+            END        
+            
+        
+        PRINT '@ListPercent='+CAST(@ListPercent AS VARCHAR)
+        PRINT '@DataTelPercent='+CAST(@DataTelPercent AS VARCHAR)
+                                               
+        SELECT  @PositionType = P_PositionLevelId
+        FROM    dbo.TB_HxrOffer
+        WHERE   hxid = @hxid                                                                                       
+
+                                                                                           
+             
+        --2015上以后，从TB_Position_ConsultantLevel中获取职级
+        IF(@version >=4)
+        BEGIN
+            SET @ConsultantPosition = dbo.fn_GetConsultantPositionLevel(@pid,@Resumeid)
+            SET @promotionJob = @ConsultantPosition
+            
+        END
+        ELSE
+        BEGIN
+            SELECT TOP 1
+                @PromotionTime = [Time] ,
+                @promotionJob = JobName
+            FROM    dbo.TB_Promotion
+            WHERE   ResumeID = @Resumeid        
+                AND ([Time] < '20150301' OR InputMan <>'system')--20150301之前自动晋级有效                                                        
+               -- AND JobName = @ConsultantPosition                                                                
+        --AND [Time] <= @PSTime   --Bond 于2014-9-25将此条件注释，Nick于2015-7-30将此条件恢复  
+                AND  (@version<4 OR [Time] <= @PSTime) --只对2015上修改                                
+            ORDER BY [Time] DESC
+        END
+        
+        PRINT 'version:'+CAST(@version AS VARCHAR)
+        PRINT 'promotionJob：'+@promotionJob
+        PRINT 'ConsultantPosition：'+@ConsultantPosition
+
+        
+        DECLARE @TunnelPosition BIT = 0--是否是通道职位
+        IF (@version >=4 AND @is29 = 1 and @window IN( 'willson' ,'klite')
+                AND EXISTS(SELECT 1 FROM dbo.TB_Tresume WHERE 姓名 = @Consultant AND (PosTypes<> '' AND PosTypes IS NOT NULL) )
+                )
+            AND (@Consultant <> 'william' OR @version>4)--william 2015下被贴牌了，2015上没有贴牌
+        BEGIN
+        SELECT @TunnelPosition = 1
+        PRINT '通道职位'
+        END     
+               
+        IF @version = 2 
+            BEGIN                                    
+                IF ISNULL(@ConsultantDepart, 0) IN ( 26, 30, 32 ) --顾问部门                                                  
+                    BEGIN                                                                         
+                        PRINT 262                                    
+                        PRINT @ConsultantPosition                                                
+                        PRINT @promotionJob                                                            
+                        PRINT @PromotionTime                                              
+                        PRINT @OfferTime                                                                       
+                        PRINT @becomefullmemberdate                
+                        PRINT @PSTime                
+                        IF ( ISNULL(@MAN, '') = '37'
+                             AND @OnboardTime >= '20140616'
+                           ) --NCA                
+                            OR ( @ConsultantPosition = 'CA'
+                                 AND @becomefullmemberdate > @PSTime
+                                 AND @OnboardTime >= '20140616'
+                               ) 
+                            BEGIN                                        
+                                IF DATEDIFF(DAY, @OnboardTime, @pstime) <= 30 
+                                    BEGIN                                                
+                                        SELECT  @ConsultantPercent = @ConsultantPercentToNCA1                                                                             
+                                        SELECT  @WindowPercent = @WindowPercentToNCA1                                        
+                                        SELECT  @DataPercent = @SharePercentData                                                                                    
+                                        SELECT  @ListPercent = @SharePercentList                                                                                    
+                                        SELECT  @DataTelPercent = @SharePercentDataTel                                                                                    
+                                        SELECT  @DataWorkPercent = @SharePercentDataWork 
+                                        PRINT @ConsultantPercent                                                                                
+                                    END                                             
+                                                                    
+                                ELSE 
+                                    IF DATEDIFF(DAY, @OnboardTime, @pstime) > 30
+                                        AND DATEDIFF(DAY, @OnboardTime,
+                                                     @pstime) <= 60 
+                                        BEGIN            
+                                        
+                                            PRINT 'ConsultantPercentToNCA2 '+CAST(@ConsultantPercentToNCA2  AS VARCHAR)                             
+                                            SELECT  @ConsultantPercent = @ConsultantPercentToNCA2                                                           
+                                            SELECT  @WindowPercent = @WindowPercentToNCA2                                        
+                                            SELECT  @DataPercent = @SharePercentData                                                                                    
+                                            SELECT  @ListPercent = @SharePercentList                                                                                    
+                                            SELECT  @DataTelPercent = @SharePercentDataTel                                                                                    
+                                            SELECT  @DataWorkPercent = @SharePercentDataWork                                    
+                                            PRINT 351                              
+                                            PRINT @ConsultantPercentToNCA2                            
+                                            PRINT @WindowPercentToNCA2                                    
+                                        END                                        
+                                        
+                                    ELSE 
+                                        IF DATEDIFF(DAY, @OnboardTime, @pstime) > 60
+                                            AND DATEDIFF(DAY, @OnboardTime,
+                                                         @pstime) <= 120 
+                                            BEGIN                                        
+                                                SELECT  @ConsultantPercent = @ConsultantPercentToNCA3                      
+                                                SELECT  @WindowPercent = @WindowPercentToNCA3                                      
+                                                SELECT  @DataPercent = @SharePercentData                                                                                    
+                                                SELECT  @ListPercent = @SharePercentList                           
+                                                SELECT  @DataTelPercent = @SharePercentDataTel                                                                                    
+                                                SELECT  @DataWorkPercent = @SharePercentDataWork                                               
+                                            END                                        
+                                        
+                                        ELSE   --6个月内NCA        
+                                            IF DATEDIFF(DAY, @OnboardTime,
+                                                        @pstime) > 120
+                                                AND DATEDIFF(DAY, @OnboardTime,
+                                                             @pstime) <= 180 
+                                                BEGIN                                        
+                                                    SELECT  @ConsultantPercent = @ConsultantPercentToNCA5                                               
+                                                    SELECT  @WindowPercent = @WindowPercentToNCA5                                        
+                                                    SELECT  @DataPercent = @SharePercentData                                                                     
+                                                    SELECT  @ListPercent = @SharePercentList                                                                                    
+                                                    SELECT  @DataTelPercent = @SharePercentDataTel                                                     
+                                                    SELECT  @DataWorkPercent = @SharePercentDataWork                                               
+                                                END            
+                                            ELSE 
+                                                BEGIN        
+                                                    SELECT  @ConsultantPercent = @ConsultantPercentToNCA6                                               
+                                                    SELECT  @WindowPercent = @WindowPercentToNCA6                                        
+                                                    SELECT  @DataPercent = @SharePercentData                                                                     
+                                                    SELECT  @ListPercent = @SharePercentList                                                                                    
+                                                    SELECT  @DataTelPercent = @SharePercentDataTel                                                                                    
+                                                    SELECT  @DataWorkPercent = @SharePercentDataWork            
+                                                    SELECT  @CompanyPercent = @CompanyPercentToNCA6         
+                                                END                                      
+                                        
+                            END                                     
+                        ELSE 
+                            BEGIN                                    
+                                IF ( @promotionJob = 'AC'
+                                     AND @PromotionTime > @OfferTime
+                                   )
+                                    OR ( ISNULL(@promotionJob, '') = ''
+                                         AND @ConsultantPosition = 'CA'
+                                       )
+                                    OR @Consultant = @window
+                                    OR @ConsultantPosition = 'Specialist'
+                                    OR ( @promotionJob = 'FC'
+                                         AND @ConsultantPosition = 'FC'
+                                       ) 
+                                    BEGIN                             
+                                        IF ( DATEDIFF(DAY, @OnboardTime,
+                                                      @OfferTime) >= 150
+                                             AND @PositionType = 2
+                                           )
+                                            OR ( @HxrOnboardTime >= '2014-03-01'
+                                                 AND @Offertime < '2014-03-01'
+                                               ) 
+                                            BEGIN                                                                                    
+                                                SELECT  @ConsultantPercent = @ConsultantPercentToOldCA                                                                                      
+                                                SELECT  @WindowPercent = @WindowPercentToOldCA                                                                                    
+                                                SELECT  @DataPercent = @SharePercentData                                                                                    
+                                                SELECT  @ListPercent = @SharePercentList                                                                                    
+                                                SELECT  @DataTelPercent = @SharePercentDataTel                                                                                    
+                            SELECT  @DataWorkPercent = @SharePercentDataWork                                                                    
+                                                PRINT @ConsultantPercent             
+                                                PRINT 468       
+                                                PRINT @PositionType       
+                                                PRINT 462                                                                            
+                                            END                                                                                    
+                                        ELSE 
+                                            BEGIN             
+                                                PRINT @OnboardTime                  
+                                                PRINT @OfferTime                  
+                                                PRINT @PositionType                            
+                                                SELECT  @ConsultantPercent = @ConsultantPercentToNewCA                                                                                      
+                                                SELECT  @WindowPercent = @WindowPercentToNewCA                                                          
+                                                SELECT  @DataPercent = @SharePercentData                                                                                    
+                                                SELECT  @ListPercent = @SharePercentList                                                                                    
+                                                SELECT  @DataTelPercent = @SharePercentDataTel                                                                                    
+                                                SELECT  @DataWorkPercent = @SharePercentDataWork                                                                                    
+                                                PRINT @ConsultantPercent                                    
+                                                PRINT @WindowPercent                                    
+                                            END                                                                                
+                                    END                                                                                      
+                                ELSE 
+                                    IF ( @promotionJob = 'VC'
+                                         AND @PromotionTime > @OfferTime
+                                       )
+                                        OR ( ISNULL(@promotionJob, '') = ''
+                                             AND @ConsultantPosition = 'AC'
+                                           )
+                                        OR ( @ConsultantPosition = 'AC'
+                                             AND @PromotionTime <= @OfferTime
+                                           )
+                                        OR ( @ConsultantPosition = 'VC'
+                                             AND @promotionJob = 'VC'
+                                             AND @PromotionTime > @OfferTime
+                                           )
+                                        OR ( @promotionJob = 'TC'
+                                             AND @ConsultantPosition = 'TC'
+                                           ) 
+                                        BEGIN                                                  
+                                            SELECT TOP 1
+                                                    @PromotionTimeBefore = [Time] ,
+                                                    @promotionJobBefore = JobName
+                                            FROM    dbo.TB_Promotion
+                                            WHERE   ResumeID = @Resumeid                                                                
+               -- AND JobName = @ConsultantPosition                                                                
+                                                    AND [Time] <= @PSTime
+                                            ORDER BY id DESC                                                            
+                                            IF ( DATEDIFF(DAY,
+                                                          ISNULL(@PromotionTimeBefore,
+                                                              @onboardTime),
+                                                          @offerTime) < 365
+                                                 AND @promotionJobBefore = 'AC'
+                                               )
+                                                OR ( DATEDIFF(DAY,
+                                                              ISNULL(@PromotionTimeBefore,
+                                                              @onboardTime),
+                                                              @offerTime) < 365
+                                                     AND @ConsultantPosition = 'TC'
+                                                   ) 
+                                                BEGIN                                                                                    
+                                                    SELECT  @ConsultantPercent = @ConsultantPercenttoNewAC                                                                                    
+                                                    SELECT  @WindowPercent = @WindowPercenttoNewAC                                                  
+                                                    SELECT  @DataPercent = @SharePercentData                                       
+                                                    SELECT  @ListPercent = @SharePercentList                                                                                    
+                                                    SELECT  @DataTelPercent = @SharePercentDataTel                                                                        
+                                                    SELECT  @DataWorkPercent = @SharePercentDataWork                          
+                                                    PRINT 531                       
+                                                END                                                                                    
+                                            ELSE 
+                                                BEGIN                                                                  
+                                                    SELECT  @ConsultantPercent = @ConsultantPercenttoOldAC                                                                                    
+                                                    SELECT  @WindowPercent = @WindowPercenttoOldAC                                                                                    
+                                                    SELECT  @DataPercent = @SharePercentData                                                                                    
+                                                    SELECT  @ListPercent = @SharePercentList                                                                                   
+                                                    SELECT  @DataTelPercent = @SharePercentDataTel                                                                      
+                                                    SELECT  @DataWorkPercent = @SharePercentDataWork                                        
+                                                    PRINT @ConsultantPercent   
+                                                    PRINT @WindowPercent                        
+                                                    PRINT 543                                                  
+                                                END          
+                                        END                                                                   
+                                    ELSE 
+                                        IF ( @promotionJob IN ( 'PC', 'SC' )
+                                             AND @PromotionTime > @OfferTime
+                                           )--offer后晋升的                                              
+                                            OR ( ISNULL(@promotionJob, '') = ''
+                                                 AND @ConsultantPosition IN (
+                                                 'VC', 'PC', 'SC' )
+                                               )  --无晋升记录，直接就是该级别的                                              
+                                            OR ( @ConsultantPosition IN ( 'VC',
+                                                              'PC', 'SC' )
+                                                 AND @PromotionTime <= @OfferTime
+                                               ) --offer前晋升的                                              
+                                            BEGIN                                                                         
+                                                SELECT  @ConsultantPercent = @ConsultantPercenttoPC                                                                                      
+                                                SELECT  @WindowPercent = @WindowPercenttoPC                                                                                   
+                                                SELECT  @DataPercent = @SharePercentData                                                                                    
+                                                SELECT  @ListPercent = @SharePercentList                                                                                    
+                                                SELECT  @DataTelPercent = @SharePercentDataTel                                                                                    
+                                                SELECT  @DataWorkPercent = @SharePercentDataWork                                                                    
+                                            END                                                                  
+                            END                                                     
+                    END                                                             
+                ELSE --非顾问部门                                                                                    
+                    BEGIN                                                                                    
+                        IF ISNULL(@promotionTime, '') <> '' 
+                            BEGIN                                                                                    
+                                IF ( @promotionJob = 'AC'
+                                     AND @PromotionTime > @OfferTime
+                                   )
+                                    OR ( ISNULL(@promotionJob, '') = ''
+                                         AND @ConsultantPosition = 'CA'
+                                       )
+                                    OR @Consultant = @window
+                                    OR ( @ConsultantPosition = 'Specialist'
+                                         AND @promotionJob <> 'Specialist'
+                                       ) 
+                                    BEGIN                                                                                       
+                                        IF ( DATEDIFF(DAY, @OnboardTime,
+                                                      @OfferTime) >= 150
+                                             AND @PositionType = 2
+                                           )
+                                            OR ( @HxrOnboardTime >= '2014-03-01'
+                                                 AND @Offertime < '2014-03-01'
+                                               ) 
+                                            BEGIN                                                
+                                                                                                   
+                                                SELECT  @ConsultantPercent = @ConsultantPercentToOldCA                                                                                      
+                                                SELECT  @WindowPercent = @WindowPercentToOldCA                                                                                    
+                                                SELECT  @DataPercent = @SharePercentData                                                                                    
+                                                SELECT  @ListPercent = @SharePercentList                                
+                                                SELECT  @DataTelPercent = @SharePercentDataTel                                                                                    
+                                                SELECT  @DataWorkPercent = @SharePercentDataWork                    
+                                            END                                                                                    
+                                        ELSE 
+                                            BEGIN                                                                                        
+                                                SELECT  @ConsultantPercent = @ConsultantPercentToNewCA                                                                                      
+                                                SELECT  @WindowPercent = @WindowPercentToNewCA                                                                                    
+                                                SELECT  @DataPercent = @SharePercentData                                                                                    
+                                                SELECT  @ListPercent = @SharePercentList                                                                                    
+                                                SELECT  @DataTelPercent = @SharePercentDataTel                                          
+                                                SELECT  @DataWorkPercent = @SharePercentDataWork                                                           
+                                                             
+                                            END                                                  
+                                    END                                                                                     
+                                ELSE 
+                                    IF ( @promotionJob = 'VC'
+                                         AND @PromotionTime > @OfferTime
+                                       )
+                                        OR ( ISNULL(@promotionJob, '') = ''
+                                             AND @ConsultantPosition = 'AC'
+                                           )
+                                        OR ( @ConsultantPosition = 'AC'
+                                             AND @PromotionTime <= @OfferTime
+                                           )
+                                        OR ( @promotionJob = 'AC'
+                                             AND @PromotionTime < @Pstime
+                                           )--转岗前是AC
+                                        BEGIN                                                                                    
+                                                                                    
+                                            IF DATEDIFF(DAY,
+                                                        ISNULL(@PromotionTime,
+                                                              @onboardTime),
+                                                        @offerTime) < 365 
+                                                BEGIN                      
+                                                    SELECT  @ConsultantPercent = @ConsultantPercenttoNewAC                                                                                    
+                                                    SELECT  @WindowPercent = @WindowPercenttoNewAC                                                                                    
+                                                    SELECT  @DataPercent = @SharePercentData                                               
+                                                    SELECT  @ListPercent = @SharePercentList                                                                                    
+                                                    SELECT  @DataTelPercent = @SharePercentDataTel                                                                                    
+                                                    SELECT  @DataWorkPercent = @SharePercentDataWork                                                                                    
+                                                END          
+                                            ELSE 
+                                                BEGIN                                                                        
+                                                    SELECT  @ConsultantPercent = @ConsultantPercenttoOldAC                                              
+                                                    SELECT  @WindowPercent = @WindowPercenttoOldAC                                                                                    
+                                                    SELECT  @DataPercent = @SharePercentData                                                                                    
+                                                    SELECT  @ListPercent = @SharePercentList                                                                                    
+                                                    SELECT  @DataTelPercent = @SharePercentDataTel                                                                                  
+                                                    SELECT  @DataWorkPercent = @SharePercentDataWork                                                                                    
+                                                END                                   
+                                        END                                                                                    
+                                    ELSE 
+                                        IF ( @promotionJob IN ( 'PC', 'SC' )
+                                             AND @PromotionTime > @OfferTime
+                                           )
+                                            OR ( ISNULL(@promotionJob, '') = ''
+                                                 AND @ConsultantPosition IN (
+                                                 'VC', 'PC', 'SC' )
+                                               )
+                                            OR ( @ConsultantPosition IN ( 'VC',
+                                                              'PC', 'SC' )
+                                                 AND @PromotionTime <= @OfferTime
+                                               ) --offer前晋升的                                              
+                                            BEGIN                                                                                    
+                                                SELECT  @ConsultantPercent = @ConsultantPercenttoPC                                                                                  
+                                                SELECT  @WindowPercent = @WindowPercenttoPC              
+                                                SELECT  @DataPercent = @SharePercentData                                                                                    
+                                                SELECT  @ListPercent = @SharePercentList                                                        
+                                                SELECT  @DataTelPercent = @SharePercentDataTel                                                                                    
+                                                SELECT  @DataWorkPercent = @SharePercentDataWork                                                                                    
+                                            END                
+                            END                                                                                    
+                    END                                                 
+            END                                         
+
+        
+        IF @version = 3 
+            BEGIN                                
+                IF ISNULL(@ConsultantDepart, 0) IN ( 26, 30, 32 ) --顾问部门                                                                                      
+                    BEGIN                                        
+                        PRINT 616                  
+                        PRINT @ConsultantPosition                                                                  
+                        PRINT @promotionJob                                                              
+                        PRINT @PromotionTime                                                
+                        PRINT @PSTime                                                                         
+                        IF ( ISNULL(@MAN, '') = '37'
+                             AND @OnboardTime >= '20140616'
+                           ) --NCA                
+                            OR ( @ConsultantPosition = 'CA'
+                                 AND @becomefullmemberdate > @PSTime
+                                 AND @OnboardTime >= '20140616'
+                               ) 
+                            BEGIN                                          
+                                IF DATEDIFF(DAY, @OnboardTime, @pstime) <= 30 
+                                    BEGIN    
+                                        PRINT 887                                            
+                                        SELECT  @ConsultantPercent = @ConsultantPercentToNCA1                                                                                        
+                                        SELECT  @WindowPercent = @WindowPercentToNCA1            
+                                        SELECT  @DataPercent = @SharePercentData                                                                                      
+                                        SELECT  @ListPercent = @SharePercentList                                                                                      
+                                        SELECT  @DataTelPercent = @SharePercentDataTel                                                                                      
+                                        SELECT  @DataWorkPercent = @SharePercentDataWork                                              
+                                        PRINT @ConsultantPercent                                                                                
+                                    END                       
+                                                                      
+                                ELSE 
+                                    IF DATEDIFF(DAY, @OnboardTime, @pstime) > 30
+                                        AND DATEDIFF(DAY, @OnboardTime,
+                                                     @pstime) <= 60 
+                                        BEGIN                               
+                                            SELECT  @ConsultantPercent = @ConsultantPercentToNCA2                                  
+                                            SELECT  @WindowPercent = @WindowPercentToNCA2                                          
+                                            SELECT  @DataPercent = @SharePercentData                                                                                      
+                                            SELECT  @ListPercent = @SharePercentList                                                                                      
+                                            SELECT  @DataTelPercent = @SharePercentDataTel                                                                                      
+                                            SELECT  @DataWorkPercent = @SharePercentDataWork                                              
+                                            PRINT 644                                      
+                                            PRINT @ConsultantPercentToNCA2                                      
+                                            PRINT @WindowPercentToNCA2                                      
+                                        END                                     
+                                          
+                                    ELSE 
+                                        IF DATEDIFF(DAY, @OnboardTime, @pstime) > 60
+                                            AND DATEDIFF(DAY, @OnboardTime,
+                                                         @pstime) <= 120 
+                                            BEGIN   
+                                            PRINT 'NCA3'                                       
+                                                SELECT  @ConsultantPercent = @ConsultantPercentToNCA3                                                                                        
+                                                SELECT  @WindowPercent = @WindowPercentToNCA3                                          
+                                                SELECT  @DataPercent = @SharePercentData                                                                                      
+                                                SELECT  @ListPercent = @SharePercentList                                                                                      
+                                                SELECT  @DataTelPercent = @SharePercentDataTel                                                                                      
+                                                SELECT  @DataWorkPercent = @SharePercentDataWork                                                 
+                                            END                 
+                                          
+                                        ELSE 
+                                            IF DATEDIFF(DAY, @OnboardTime,
+                                                        @pstime) > 120
+                                                AND DATEDIFF(DAY, @OnboardTime,
+                                                             @pstime) <= 180 
+                                                BEGIN       
+                                                PRINT 'NCA5'  
+                                           
+                                                    SELECT  @ConsultantPercent = @ConsultantPercentToNCA5                                                                                        
+                                                    SELECT  @WindowPercent = @WindowPercentToNCA5                                          
+                                                    SELECT  @DataPercent = @SharePercentData                                                                       
+                                                    SELECT  @ListPercent = @SharePercentList                                                                                      
+                                                    SELECT  @DataTelPercent = @SharePercentDataTel                                        
+                                                    SELECT  @DataWorkPercent = @SharePercentDataWork                                                 
+                                                END                                          
+                                            ELSE --超过6个月的NCA        
+                                                BEGIN        
+                                                    PRINT '超过6个月的NCA'
+                                                    SELECT  @ConsultantPercent = @ConsultantPercentToNCA6                                                                                        
+                                                    SELECT  @WindowPercent = @WindowPercentToNCA6                                          
+                                                    SELECT  @DataPercent = @SharePercentData                                                                       
+                                                    SELECT  @ListPercent = @SharePercentList                                                                                      
+                                                    SELECT  @DataTelPercent = @SharePercentDataTel                                        
+                                                    SELECT  @DataWorkPercent = @SharePercentDataWork           
+                                                    SELECT  @CompanyPercent = @CompanyPercentToNCA6        
+                                                END          
+                            END                                       
+                        ELSE 
+                            BEGIN   --CA以上职级      
+                            --晋级的职位为空，就采用@ConsultantPosition
+                            IF ( @promotionJob IS NULL OR @promotionJob = '') 
+                            BEGIN
+                                SELECT  @promotionJob = @ConsultantPosition
+                            END      
+                                 
+                            IF ( @promotionJob = 'CA') 
+                                    BEGIN        
+                                        PRINT 964                                                                                                 
+                                        SELECT  @ConsultantPercent = @ConsultantPercentToCA                                                                                        
+                                        SELECT  @WindowPercent = @WindowPercentToCA                                                                                      
+                                        SELECT  @DataPercent = @SharePercentData                                              
+                                        SELECT  @ListPercent = @SharePercentList                                                                             
+                                        SELECT  @DataTelPercent = @SharePercentDataTel                                                                                      
+                                        SELECT  @DataWorkPercent = @SharePercentDataWork                                                                
+                                        PRINT @ConsultantPercent                                                                                  
+                                    END                                          
+                                                                                                                    
+                                ELSE 
+                                    IF ( @promotionJob = 'FC') 
+                                        BEGIN                                                                                 
+                                            SELECT  @ConsultantPercent = @ConsultantPercentToFC                                                                                   
+                                            SELECT  @WindowPercent = @WindowPercentToFC                                                                                   
+                                            SELECT  @DataPercent = @SharePercentData                                                                                      
+                                            SELECT  @ListPercent = @SharePercentList                                                                                      
+                                            SELECT  @DataTelPercent = @SharePercentDataTel                                                                                      
+                                            SELECT  @DataWorkPercent = @SharePercentDataWork                                                                                      
+                                            PRINT @ConsultantPercent                                      
+                                            PRINT @WindowPercent                                      
+                                        END                                               
+                                                                                                           
+                                    ELSE IF ( @promotionJob = 'AC') 
+                                        BEGIN                                                                                      
+                                            SELECT  @ConsultantPercent = @ConsultantPercenttoAC                                                                                      
+                                            SELECT  @WindowPercent = @WindowPercenttoAC                              
+                                            SELECT  @DataPercent = @SharePercentData                                                                        
+                                            SELECT  @ListPercent = @SharePercentList                                                                                      
+                                            SELECT  @DataTelPercent = @SharePercentDataTel                                                                          
+                                            SELECT  @DataWorkPercent = @SharePercentDataWork                                         
+                                            PRINT @ConsultantPercent                                      
+                                            PRINT @WindowPercent                                          
+                                        END  
+                                     ELSE IF (@promotionJob = 'TC')
+                                     BEGIN
+                                        SELECT  @ConsultantPercent = @ConsultantPercenttoTC                                                                                      
+                                        SELECT  @WindowPercent = @WindowPercenttoTC                              
+                                        SELECT  @DataPercent = @SharePercentData                                          
+                                        SELECT  @ListPercent = @SharePercentList                                                                                      
+                                        SELECT  @DataTelPercent = @SharePercentDataTel                                                                          
+                                        SELECT  @DataWorkPercent = @SharePercentDataWork                                         
+                                        PRINT @ConsultantPercent                                      
+                                        PRINT @WindowPercent    
+                                     END                                          
+                                                                                                  
+                                    ELSE IF ( @promotionJob IN ('VC','PC','SC'))
+                                    BEGIN                     
+                                        SELECT  @ConsultantPercent = @ConsultantPercenttoVC                                                                                      
+                                        SELECT  @WindowPercent = @WindowPercenttoVC                              
+                                        SELECT  @DataPercent = @SharePercentData                                                                        
+                                        SELECT  @ListPercent = @SharePercentList                                                                                      
+                                        SELECT  @DataTelPercent = @SharePercentDataTel                                                                          
+                                        SELECT  @DataWorkPercent = @SharePercentDataWork                                         
+                                        PRINT @ConsultantPercent                                      
+                                        PRINT @WindowPercent                                                                                       
+                                    END                                                      
+                            END                                                       
+                    END            
+                                                                                            
+                ELSE --非顾问部门                                                                                      
+                    BEGIN                      
+                        IF ( @promotionJob = 'FC'
+                             AND @PromotionTime > @pstime
+                           )
+                            OR ( ISNULL(@promotionJob, '') = ''
+                                 AND @ConsultantPosition = 'CA'
+                               )
+                            OR @Consultant = @window
+                            OR @ConsultantPosition = 'Specialist' 
+                            BEGIN                                                                                                         
+                                SELECT  @ConsultantPercent = @ConsultantPercentToCA                                                                                        
+                                SELECT  @WindowPercent = @WindowPercentToCA                                                                                      
+                                SELECT  @DataPercent = @SharePercentData                                                                
+                                SELECT  @ListPercent = @SharePercentList                                                                                      
+                                SELECT  @DataTelPercent = @SharePercentDataTel          
+                                SELECT  @DataWorkPercent = @SharePercentDataWork                                                                      
+                                PRINT @ConsultantPercent                                                                                  
+                            END                                          
+                                                                                                                    
+                        ELSE 
+                            IF ( @promotionJob = 'AC'
+                                 AND @PromotionTime > @pstime
+                               )
+                                OR ( ISNULL(@promotionJob, '') = ''
+                                     AND @ConsultantPosition = 'FC'
+                                   )
+                                OR ( @ConsultantPosition = 'FC'
+                                     AND @PromotionTime <= @pstime
+                                   ) 
+                                BEGIN                                                                                 
+                                    SELECT  @ConsultantPercent = @ConsultantPercentToFC                                  
+                                    SELECT  @WindowPercent = @WindowPercentToFC                                                                                   
+                                    SELECT  @DataPercent = @SharePercentData                                                                                      
+                                    SELECT  @ListPercent = @SharePercentList                                                                                      
+                                    SELECT  @DataTelPercent = @SharePercentDataTel                                                                                      
+                                    SELECT  @DataWorkPercent = @SharePercentDataWork                                                                                      
+                                    PRINT @ConsultantPercent                                      
+                                    PRINT @WindowPercent                                      
+                                END                                               
+                                                                   
+                            ELSE 
+                                IF ( @promotionJob = 'TC'
+                                     AND @PromotionTime > @pstime
+                                   )
+                                    OR ( ISNULL(@promotionJob, '') = ''
+                                         AND @ConsultantPosition = 'AC'
+                                       )
+                                    OR ( @ConsultantPosition = 'AC'
+                                         AND @PromotionTime <= @pstime
+                                       ) 
+                                    BEGIN                                   
+                                        SELECT  @ConsultantPercent = @ConsultantPercenttoAC                                                                                      
+                                        SELECT  @WindowPercent = @WindowPercenttoAC                                                                                      
+                                        SELECT  @DataPercent = @SharePercentData                                                                                      
+                                        SELECT  @ListPercent = @SharePercentList                                                                                      
+                                        SELECT  @DataTelPercent = @SharePercentDataTel                                                              
+                                        SELECT  @DataWorkPercent = @SharePercentDataWork                                                      
+                                    END                                            
+                                                                                                                  
+                                ELSE 
+                                    IF ( @promotionJob = 'VC'
+                                         AND @PromotionTime > @pstime
+                                       )
+                                        OR ( ISNULL(@promotionJob, '') = ''
+                                             AND @ConsultantPosition = 'TC'
+                                           )
+                                        OR ( @ConsultantPosition = 'TC'
+                                             AND @PromotionTime <= @pstime
+                                           ) 
+                                        BEGIN                                                                    
+                                            SELECT  @ConsultantPercent = @ConsultantPercenttoTC                                                                                      
+                                            SELECT  @WindowPercent = @WindowPercenttoTC                                                                                      
+                                            SELECT  @DataPercent = @SharePercentData                                                                                      
+                                            SELECT  @ListPercent = @SharePercentList                                                                                     
+                                            SELECT  @DataTelPercent = @SharePercentDataTel                                  
+                                            SELECT  @DataWorkPercent = @SharePercentDataWork                                                               
+                                        END                                                 
+                                                                                                             
+                                    ELSE 
+                                        IF ( @promotionJob IN ( 'PC', 'SC' )
+                                             AND @PromotionTime > @pstime
+                                           )--offer后晋升的                                                
+                                            OR ( ISNULL(@promotionJob, '') = ''
+                                                 AND @ConsultantPosition IN (
+                                                 'VC', 'PC', 'SC' )
+                                               )  --无晋升记录，直接就是该级别的                                                
+                                            OR ( @ConsultantPosition IN ( 'VC',
+                                                              'PC', 'SC' )
+                                                 AND @PromotionTime <= @pstime
+                                               ) --offer前晋升的                                                
+                                            BEGIN                                                                           
+                                                SELECT  @ConsultantPercent = @ConsultantPercenttoPC                                                                                        
+                                                SELECT  @WindowPercent = @WindowPercenttoPC                                                                                     
+                                                SELECT  @DataPercent = @SharePercentData                                                                                      
+                                                SELECT  @ListPercent = @SharePercentList                                   
+                                                SELECT  @DataTelPercent = @SharePercentDataTel                         
+                                                SELECT  @DataWorkPercent = @SharePercentDataWork                                                                      
+                                            END                                                 
+                    END                                    
+            END 
+            
+        
+        
+        IF @version = 4 
+            BEGIN  
+                IF @is29 = 1 --去互联网的职位
+                    BEGIN
+                    
+                    --去互联网高端职位
+                    --非去互联网通道职位 并且 顾问VC以上
+                        IF ((@TunnelPosition = 0 AND @ConsultantPosition IN ('VC','PC','SC')) 
+                        OR @PosType IN ( SELECT ID
+                                         FROM   dbo.PositionType
+                                         WHERE  ParentID > 0
+                                                AND [Type] = 1 ))--运营高层、产品高层、开发高层
+                            BEGIN
+                                PRINT '非去互联网通道职位 并且 顾问VC以上'
+                                PRINT 'PosType:'+CAST(@PosType AS VARCHAR)
+                                SELECT  @ConsultantPercent = @ConsultantPercentTop29                                                                            
+                                SELECT  @WindowPercent = @WindowPercentTop29  
+                               
+                                SELECT  @BDPercent = @BDPercentTop29
+                                SELECT  @DataPercent = @SharePercentData                                                                                      
+                                SELECT  @ListPercent = @SharePercentList                                                                                      
+                                SELECT  @DataTelPercent =@SharePercentDataTel                                                                                      
+                                SELECT  @DataWorkPercent =@SharePercentDataWork
+                            
+                            END
+                        ELSE IF (CHARINDEX('NCA',@ConsultantPosition)>0)
+                            BEGIN
+                                
+                                IF(@ConsultantPosition = 'NCA6')
+                                BEGIN
+                                    PRINT 'NCA29'
+                                    SELECT  @ConsultantPercent = 0.5                                                                           
+                                    SELECT  @WindowPercent = 0.12  
+                                    SELECT  @DataPercent = @SharePercentData                                                                                      
+                                    SELECT  @ListPercent = @SharePercentList                                                                                      
+                                    SELECT  @DataTelPercent = @SharePercentDataTel                                                                                      
+                                    SELECT  @DataWorkPercent = @SharePercentDataWork
+                                    SELECT  @BDPercent = 0.2
+                                    SELECT @CompanyPercent = 0.1
+                                END
+                                ELSE
+                                    BEGIN
+                                    
+                                        PRINT 'NCA29'
+                                        SELECT  @ConsultantPercent = @ConsultantPercentNCA29                                                                            
+                                        SELECT  @WindowPercent = @WindowPercentNCA29  
+                                        SELECT  @DataPercent = @SharePercentData                                                                                      
+                                        SELECT  @ListPercent = @SharePercentList                                                                                      
+                                        SELECT  @DataTelPercent = @SharePercentDataTel                                                                                      
+                                        SELECT  @DataWorkPercent = @SharePercentDataWork
+                                        SELECT  @BDPercent = @BDPercentNCA29
+                                    
+                                    END
+                            END
+                        ELSE IF ( @ConsultantPosition = 'CA' ) 
+                            BEGIN
+                                PRINT 'CA29' 
+                                SELECT  @ConsultantPercent = @ConsultantPercentCA29                                                                            
+                                SELECT  @WindowPercent = @WindowPercentCA29                                          
+                                SELECT  @DataPercent = @SharePercentData                                                                                      
+                                SELECT  @ListPercent = @SharePercentList                                                                                      
+                                SELECT  @DataTelPercent = @SharePercentDataTel                                                                                      
+                                SELECT  @DataWorkPercent = @SharePercentDataWork
+                                SELECT  @BDPercent = @BDPercentCA29
+                            END
+                        ELSE IF(ISNULL(@ConsultantPosition,'')<> '' AND @ConsultantPosition <> '')
+                            BEGIN--FC以上
+                                SELECT  @ConsultantPercent = @ConsultantPercentFC29                                                                            
+                                SELECT  @WindowPercent = @WindowPercentFC29                                          
+                                SELECT  @DataPercent = @SharePercentData                                                                                      
+                                SELECT  @ListPercent = @SharePercentList                                                                                      
+                                SELECT  @DataTelPercent = @SharePercentDataTel                                                                                      
+                                SELECT  @DataWorkPercent = @SharePercentDataWork
+                                SELECT  @BDPercent = @BDPercentFC29
+                            END
+                        ELSE 
+                        BEGIN
+                            PRINT '顾问职级有错误'
+                            SELECT  @ConsultantPercent = 0                                                                         
+                            SELECT  @WindowPercent = 0                                          
+                            SELECT  @DataPercent = 0                                                                                      
+                            SELECT  @ListPercent = 0                                                                                      
+                            SELECT  @DataTelPercent = 0                                                                                      
+                            SELECT  @DataWorkPercent = 0
+                            SELECT  @BDPercent = 0
+                        END
+                    END
+                    
+                ELSE --非去互联网
+                    BEGIN
+                       
+                        IF ISNULL(@ConsultantDepart, 0) IN ( 26, 30, 32 ) --顾问部门                                                                                      
+                            BEGIN          
+                                PRINT '顾问部门'
+                                IF(CHARINDEX('NCA',@ConsultantPosition)>0)
+                                BEGIN
+                                    PRINT 'NCA'
+                                    SELECT @ISNCA = 1 
+                                END
+                                                                     
+                                IF (@ConsultantPosition = 'NCA1')
+                                BEGIN     
+                                    PRINT '1234'                                             
+                                    SELECT  @ConsultantPercent = @ConsultantPercentToNCA1                                                                                        
+                                    SELECT  @WindowPercent = @WindowPercentToNCA1                                          
+                                    SELECT  @DataPercent = @SharePercentData                                                                                      
+                                    SELECT  @ListPercent = @SharePercentList                                                                                      
+                                    SELECT  @DataTelPercent = @SharePercentDataTel                                                                                      
+                                    SELECT  @DataWorkPercent = @SharePercentDataWork                                              
+                                    PRINT @ConsultantPercent                                                                                  
+                                END                       
+                                ELSE IF(@ConsultantPosition = 'NCA2')
+                                BEGIN                               
+                                    SELECT  @ConsultantPercent = @ConsultantPercentToNCA2                                  
+                                    SELECT  @WindowPercent = @WindowPercentToNCA2                                          
+                                    SELECT  @DataPercent = @SharePercentData                                                                                      
+                                    SELECT  @ListPercent = @SharePercentList                                                                                      
+                                    SELECT  @DataTelPercent = @SharePercentDataTel                                                                                      
+                                    SELECT  @DataWorkPercent = @SharePercentDataWork                                              
+                                    PRINT 644                                      
+                                    PRINT @ConsultantPercentToNCA2                                      
+                                    PRINT @WindowPercentToNCA2                                      
+                                END                                     
+                                          
+                                ELSE IF(@ConsultantPosition = 'NCA3') 
+                                BEGIN        
+                                    PRINT 1267                                  
+                                    SELECT @ConsultantPercent = @ConsultantPercentToNCA3                                                                                        
+                                    SELECT @WindowPercent = @WindowPercentToNCA3                                          
+                                    SELECT @DataPercent = @SharePercentData                                                                                      
+                                    SELECT @ListPercent = @SharePercentList                                                                                      
+                                    SELECT @DataTelPercent = @SharePercentDataTel                                                                                      
+                                    SELECT @DataWorkPercent = @SharePercentDataWork                                                 
+                                END
+                                ELSE IF(@ConsultantPosition = 'NCA4') 
+                                BEGIN         
+                                    PRINT 1290                                 
+                                    SELECT @ConsultantPercent = @ConsultantPercentToNCA5                                                                                        
+                                    SELECT @WindowPercent = @WindowPercentToNCA5                                          
+                                    SELECT @DataPercent = @SharePercentData                                                                       
+                                    SELECT @ListPercent = @SharePercentList                                                                                      
+                                    SELECT @DataTelPercent = @SharePercentDataTel                                        
+                                    SELECT @DataWorkPercent = @SharePercentDataWork                                                 
+                                END    
+                                ELSE IF(@ConsultantPosition = 'NCA6')    
+                                    BEGIN       
+                                        PRINT '超过6个月的NCA' 
+                                        SELECT @ConsultantPercent = 0.25                                                                                        
+                   SELECT @WindowPercent = 0.5                                          
+                                        SELECT @DataPercent = @SharePercentData                                                                       
+                                        SELECT @ListPercent = @SharePercentList                                                                                      
+                                        SELECT @DataTelPercent = @SharePercentDataTel                                        
+                                        SELECT @DataWorkPercent = @SharePercentDataWork           
+                                        SELECT @CompanyPercent = 0.25        
+                                    END          
+                                 ELSE IF ( @ConsultantPosition = 'CA' ) 
+                                    BEGIN                                                                                                      
+                                        SELECT  @ConsultantPercent = @ConsultantPercentToCA                                                                                        
+                                        SELECT  @WindowPercent = @WindowPercentToCA                                                                                      
+                                        SELECT  @DataPercent = @SharePercentData                                              
+                                        SELECT  @ListPercent = @SharePercentList                                                                             
+                                        SELECT  @DataTelPercent = @SharePercentDataTel                                                                                      
+                                        SELECT  @DataWorkPercent = @SharePercentDataWork                                                                      
+                                        PRINT @ConsultantPercent                                                                                  
+                                    END                                                                           
+                                ELSE IF ( @ConsultantPosition = 'FC' ) 
+                                    BEGIN                                                                                 
+                                        SELECT  @ConsultantPercent = @ConsultantPercentToFC                                                                                   
+                                        SELECT  @WindowPercent = @WindowPercentToFC                                                                                   
+                                        SELECT  @DataPercent = @SharePercentData                                                                                      
+                                        SELECT  @ListPercent = @SharePercentList                                                                                      
+                                        SELECT  @DataTelPercent = @SharePercentDataTel                                                                                      
+                                        SELECT  @DataWorkPercent = @SharePercentDataWork                                                                                      
+                                        PRINT @ConsultantPercent                                      
+                                        PRINT @WindowPercent                                      
+                                    END                                                                      
+                                ELSE IF ( @ConsultantPosition = 'AC' ) 
+                                    BEGIN                                                                               
+                                        SELECT @ConsultantPercent = @ConsultantPercenttoAC                                                                                      
+                                        SELECT @WindowPercent = @WindowPercenttoAC                              
+                                        SELECT @DataPercent = @SharePercentData                                                                        
+                                        SELECT @ListPercent = @SharePercentList                                                                                      
+                                        SELECT @DataTelPercent = @SharePercentDataTel                                                                          
+                                        SELECT @DataWorkPercent = @SharePercentDataWork                                         
+                                        PRINT @ConsultantPercent                                      
+                                        PRINT @WindowPercent                                          
+                                    END      
+                                ELSE IF ( @ConsultantPosition = 'TC' ) 
+                                    BEGIN
+                                        SELECT @ConsultantPercent = @ConsultantPercentToTC                                                                                   
+                                        SELECT @WindowPercent = @WindowPercentToTC                                                                                   
+                                        SELECT @DataPercent = @SharePercentData                                                                                      
+                                        SELECT @ListPercent = @SharePercentList                                                                                      
+                                        SELECT @DataTelPercent = @SharePercentDataTel                                                                                      
+                                        SELECT @DataWorkPercent = @SharePercentDataWork                                                                                      
+                                        PRINT @ConsultantPercent                                      
+                                        PRINT @WindowPercent        
+                                    END                                                 
+                                ELSE IF ( @ConsultantPosition IN ('VC', 'PC', 'SC' ) ) 
+                                    BEGIN                                                          
+                                      SELECT
+                                      @ConsultantPercent = 0.9                                                                                        
+                                      SELECT
+                                      @WindowPercent = 0.1                                                                  
+                                      SELECT
+                                      @DataPercent = @SharePercentData                                                                                      
+                                      SELECT
+                                      @ListPercent = @SharePercentList                                            
+                                      SELECT
+                                      @DataTelPercent = @SharePercentDataTel                                                                                      
+                                      SELECT
+                                      @DataWorkPercent = @SharePercentDataWork                                                                      
+                                    END              
+                            END            
+                                                                                            
+                        ELSE --非顾问部门                                                                                      
+                        BEGIN 
+                        
+                        IF (@ConsultantPosition='CA'
+                            OR @Consultant = @window
+                            OR @ConsultantPosition = 'Specialist') 
+                        BEGIN                                                                                                         
+                            SELECT  @ConsultantPercent = @ConsultantPercentToCA                                                                                        
+                            SELECT  @WindowPercent = @WindowPercentToCA                                                                                      
+                            SELECT  @DataPercent = @SharePercentData                                                                
+                            SELECT  @ListPercent = @SharePercentList                                                                                      
+                            SELECT  @DataTelPercent = @SharePercentDataTel                                                                                      
+                            SELECT  @DataWorkPercent = @SharePercentDataWork                                                                      
+                            PRINT @ConsultantPercent                                                                                  
+                        END                                          
+                                                                                                                    
+                        ELSE IF ( @ConsultantPosition = 'FC') 
+                            BEGIN                                                                                 
+                                SELECT  @ConsultantPercent = @ConsultantPercentToFC                                  
+                                SELECT  @WindowPercent = @WindowPercentToFC                                                                                   
+                                SELECT  @DataPercent = @SharePercentData                                                                                      
+                                SELECT  @ListPercent = @SharePercentList                                                                                      
+                                SELECT  @DataTelPercent = @SharePercentDataTel                                                                                      
+                                SELECT  @DataWorkPercent = @SharePercentDataWork                                                                                      
+                                PRINT @ConsultantPercent                                      
+                                PRINT @WindowPercent                                      
+                            END                                               
+                                                                   
+                        ELSE IF ( @ConsultantPosition = 'AC') 
+                            BEGIN                                   
+                                SELECT  @ConsultantPercent = @ConsultantPercenttoAC                                                                                      
+                                SELECT  @WindowPercent = @WindowPercenttoAC                                                                                      
+                                SELECT  @DataPercent = @SharePercentData                                                                                      
+                                SELECT  @ListPercent = @SharePercentList                                                                                      
+                                SELECT  @DataTelPercent = @SharePercentDataTel                                                              
+                                SELECT  @DataWorkPercent = @SharePercentDataWork                                                      
+                            END                                            
+                                                                                                                  
+                        ELSE IF ( @ConsultantPosition = 'TC') 
+                            BEGIN                                                                    
+                                SELECT  @ConsultantPercent = @ConsultantPercenttoTC                                                                                      
+                                SELECT  @WindowPercent = @WindowPercenttoTC                                                                                      
+                                SELECT  @DataPercent = @SharePercentData                                                                                      
+                                SELECT  @ListPercent = @SharePercentList                                                                                     
+                                SELECT  @DataTelPercent = @SharePercentDataTel                                  
+                                SELECT  @DataWorkPercent = @SharePercentDataWork                                                               
+                            END                                                 
+                                                                                                             
+                        ELSE IF (@ConsultantPosition IN ('VC', 'PC', 'SC' ))                                            
+                            BEGIN                                                                           
+                                SELECT
+                                      @ConsultantPercent = @ConsultantPercenttoPC                                                                                        
+                                SELECT
+                                      @WindowPercent = @WindowPercenttoPC                                                                                     
+                                SELECT
+                                      @DataPercent = @SharePercentData                                                                                      
+                                SELECT
+                                      @ListPercent = @SharePercentList                                                                                      
+                                SELECT
+                                      @DataTelPercent = @SharePercentDataTel                         
+                                SELECT
+                                      @DataWorkPercent = @SharePercentDataWork                                                                      
+                            END   
+                                                   
+                        END
+                    END                                     
+            END 
+            
+            
+        PRINT '@ConsultantPercent='+CAST(@ConsultantPercent AS VARCHAR)
+        PRINT '@WindowPercent='+CAST(@WindowPercent AS VARCHAR)
+        PRINT '@DataPercent='+CAST(@DataPercent AS VARCHAR)
+        PRINT '@ListPercent='+CAST(@ListPercent AS VARCHAR)
+        PRINT '@DataTelPercent='+CAST(@DataTelPercent AS VARCHAR)
+        PRINT '@DataWorkPercent='+CAST(@DataWorkPercent AS VARCHAR)
+        PRINT '@BDPercent='+CAST(@BDPercent AS VARCHAR)    
+                                                                 
+                                                                                  
+        IF ISNULL(@researcher, '') <> '' 
+            SELECT  @OriginalConsultant = @researcher                                              
+        ELSE 
+            SELECT  @OriginalConsultant = @truerecommender 
+                                                                   
+        PRINT '@CurrentJobInputMan:'+ @CurrentJobInputMan             
+        PRINT '@OriginalConsultant:'+@OriginalConsultant                                                             
+        PRINT '@data:'+@data              
+        PRINT '@EffectiveTelephoneInputMan:'+@EffectiveTelephoneInputMan    
+        PRINT '@list:'+@list    
+        PRINT '@OriginalConsultant:'+@OriginalConsultant                                            
+        PRINT 875                                                                                             
+                             
+        PRINT '开始计算分享' 
+        
+        PRINT '@OriginalConsultant='+@OriginalConsultant
+        PRINT '@CurrentJobInputMan='+@CurrentJobInputMan
+        PRINT '@EffectiveTelephoneInputMan='+@EffectiveTelephoneInputMan
+        PRINT '@List='+@List
+        PRINT '@data='+@data
+        
+        SELECT  @DataPercent =0 -- @DataTelPercent + @DataWorkPercent  设置Data分享为0，stone 20150921                                                       
+        PRINT @DataPercent
+                              
+    --最新手机录入人或最新工作单位或者简历录入人不是顾问自己  
+        
+        PRINT '@ConsultantPosition='+@ConsultantPosition
+        PRINT '@is29='+CAST(ISNULL(@is29,0) AS VARCHAR)                                                 
+        IF ( ISNULL(@OriginalConsultant, '') <> '' AND @CurrentJobInputMan = @OriginalConsultant 
+        and @EffectiveTelephoneInputMan= @OriginalConsultant AND @OriginalConsultant <> ISNULL(@List,'')
+        ) 
+            BEGIN
+                IF(ISNULL(@is29,0) = 0 AND CHARINDEX('NCA',@ConsultantPosition)> 0)
+                begin
+                    SELECT  @ListPercent = 0
+                end 
+                ELSE
+                BEGIn                             
+                    PRINT '需要分享List' 
+                END                                                                     
+            END
+        ELSE
+            BEGIN
+                 SELECT  @ListPercent = 0
+            END   
+           
+            
+          
+                                                                                      
+     --对于离职的List，Data进行重置                                                                                                                                                              
+        IF ( ISNULL(@ListDimissionDate, '') <> ''
+             AND @ListDimissionDate < @RecommendDate
+           )
+            OR @list = '----' 
+            BEGIN                                                                 
+                PRINT 908    
+                PRINT 'list已离职'                                                                   
+                SELECT  @list = ''  
+                                                          
+            END    
+            
+         
+        IF ISNULL(@list, '') = '' 
+            BEGIN
+                SELECT @ListPercent=0   
+            END  
+             
+        PRINT 'List分享确认，ListPercent:'+CAST(@ListPercent AS VARCHAR)     
+                                                                                        
+        IF ( ISNULL(@TelDimissionDate, '') <> ''
+             AND @TelDimissionDate < @RecommendDate
+           )
+            OR @EffectiveTelephoneInputMan = '----' 
+            BEGIN                                                                                  
+                PRINT 914 
+                PRINT 'DataTel已离职'                                                         
+                SELECT  @EffectiveTelephoneInputMan = ''   
+                SELECT @DataTelPercent=0                
+                SELECT  @IsReSetData = 1                                                                                  
+            END                                                              
+        IF ( ISNULL(@WorkDimissionDate, '') <> ''
+             AND @WorkDimissionDate < @RecommendDate
+  )
+            OR @CurrentJobInputMan = '----' 
+            BEGIN                             
+                PRINT 921  
+                PRINT 'DataWork已离职'                                                    
+                SELECT  @CurrentJobInputMan = ''  
+                SELECT @DataWorkPercent=0                                                                                
+                SELECT  @IsReSetData = 1                                                                                  
+            END                              
+         
+        print '离职处理完成'
+        PRINT '@CurrentJobInputMan:'+@CurrentJobInputMan
+        PRINT '@EffectiveTelephoneInputMan:'+@EffectiveTelephoneInputMan
+        PRINT '@OriginalConsultant:'+@OriginalConsultant
+        PRINT '@data:'+@data
+        PRINT '@List:'+@List 
+        
+                                                                               
+                                                                                             
+                                                      
+        PRINT 961       
+        PRINT '@DataWorkPercent:'+ CAST(@DataWorkPercent AS VARCHAR)
+        PRINT '@DataTelPercent' +  CAST(@DataTelPercent AS VARCHAR)
+        PRINT '@ListPercent'+CAST(@ListPercent AS VARCHAR)
+        PRINT '@ConsultantPosition:'+@ConsultantPosition
+        --如果是NCA的话，且手机、工作都是NCA本人，分享依然归NCA，并且分享由Window出
+        IF ((@ISNCA=1 or (CHARINDEX('NCA',@ConsultantPosition)>0)) 
+            AND isnull(@IS29,0) = 0  --为何此处要限制为去互联网职位？
+            AND(@OriginalConsultant = @EffectiveTelephoneInputMan AND @OriginalConsultant=@CurrentJobInputMan)) 
+            BEGIN
+                PRINT '如果是NCA的话，且手机、工作、顾问同一个人，分享依然归NCA，并且分享由Window出'
+                SELECT @ConsultantPercent = @ConsultantPercent+@DataWorkPercent+@DataTelPercent
+                SELECT @WindowPercent = @WindowPercent - @DataWorkPercent-@DataTelPercent
+                
+                SELECT    @DataWorkPercent = 0
+                SELECT    @DataTelPercent = 0                                                             
+                SELECT  @DataPercent = 0 
+                
+            END
+       
+        PRINT '@DataWorkPercent:'+ CAST(@DataWorkPercent AS VARCHAR)
+        PRINT '@DataTelPercent' +  CAST(@DataTelPercent AS VARCHAR)
+        PRINT '@ListPercent'+CAST(@ListPercent AS VARCHAR)
+        PRINT '@WindowPercent'+CAST(@WindowPercent AS VARCHAR)
+        PRINT '@ConsultantPosition:'+@ConsultantPosition                                                                               
+
+                                                                                            
+        --和COCO电话确认 如果顾问是NCA,并且职位是非去互联网的话，工作或者手机是顾问自己，仍需分享     
+        IF(CHARINDEX('NCA',@ConsultantPosition)<=0) 
+        BEGIN                                                         
+            IF (ISNULL(@CurrentJobInputMan, '') = '' 
+                OR (@CurrentJobInputMan = @OriginalConsultant
+                    )--2015年9月2日添加by Nick DataWork是顾问本人，就不分享
+                )
+                BEGIN                                                                
+                    SELECT  @DataWorkPercent = 0                                              
+                END                                                                
+              --有简历就有手机录入人                                                                                    
+            IF (ISNULL(@EffectiveTelephoneInputMan, '') = '' 
+                OR (@EffectiveTelephoneInputMan = @OriginalConsultant
+                )--2015年9月2日添加by Nick DataTel是顾问本人，就不分享
+                )
+                BEGIN                                                            
+                    SELECT  @DataTelPercent =0-- @DataTelPercent   --路亚case 取消重置为0的操作 stone 20150918                                                                                  
+                END                                                               
+                                                                                                  
+            SELECT  @DataPercent = @DataPercent - @DataWorkPercent
+                    - @DataTelPercent                                        
+            print '@ConsultantPercent:'+CAST(@ConsultantPercent AS VARCHAR)
+            print '@windowPercent:'+CAST(@windowPercent AS VARCHAR)                                                       
+            IF @DataPercent < 0
+                OR ( @Data <> @currentjobinputman
+                     AND @DataWorkPercent = 0
+                   )
+                OR ( @Data <> @EffectiveTelephoneInputMan
+                     AND @DataTelPercent = 0
+                   )--如果最新工作单位没有改变，则@Data不能分享DataworkPercent；如果最新手机号码没有改变，则@Data不能分享DataTelPercent      
+                   BEGIN                      
+                        SELECT  @DataPercent = 0   
+                   END 
+        END                    
+            
+
+                                                                              
+        IF NOT EXISTS ( SELECT  *
+                        FROM    TB_HxrOffer tho
+                                INNER JOIN TB_Houxuan th ON tho.hxid = th.id
+                                INNER JOIN TB_PPosition tp ON tp.P_id = th.JobID
+                        WHERE   tp.P_cid = 256
+                                AND th.id = @hxid ) --非A公司职位
+            BEGIN           
+                PRINT '非A公司职位'                                   
+                IF (@IsGreen = 1 OR @is29 = 1) 
+                    BEGIN                                     
+                        IF @IsGreen = 1 
+                            BEGIN         
+                                PRINT 1036   
+                                PRINT '绿色通道'                           
+                                SELECT  @ConsultantPercent = @ConsultantPercent
+                                        + @WindowPercent                                                              
+                                SELECT  @WindowPercent = 0                                                              
+                                SELECT  ( @ConsultantPercent - @ListPercent
+                                          - @DataPercent - @DataTelPercent
+                                          - @DataWorkPercent ) AS ConsultantPercent ,
+                                        @WindowPercent AS WindowPercent ,
+                                        @DataPercent AS DataPercent ,
+                                        @ListPercent AS ListPercent ,
+                                        @DataTelPercent AS DataTelPercent ,
+                                        @DataWorkPercent AS DataWorkPercent ,
+                                        @CompanyPercent AS CompanyPercent ,
+                                        @BDPercent AS BDPercent   ,
+                                        0.00 as QCPercent,
+                                        0.00 as DataNamePercent,
+                                        0.00 as DataFunctionPercent             
+                            END
+                        ELSE 
+                            BEGIN
+                                PRINT '去互联网'
+                                IF(@version = 3 AND @ConsultantPosition = 'NCA')
+                                BEGIN
+                                    SELECT @consultantpercent AS ConsultantPercent ,
+                                          ( @windowpercent - @ListPercent
+                                          - @DataPercent - @DataTelPercent
+                                          - @DataWorkPercent ) AS WindowPercent ,
+                                        @DataPercent AS DataPercent ,
+                                        @ListPercent AS ListPercent ,
+                                        @DataTelPercent AS DataTelPercent ,
+                                        @DataWorkPercent AS DataWorkPercent ,
+                                        @CompanyPercent AS CompanyPercent ,
+                                        @BDPercent AS BDPercent  ,
+                                        0.00 as QCPercent,
+                                        0.00 as DataNamePercent,
+                                        0.00 as DataFunctionPercent  
+                                END 
+                                ELSE
+                                    begin
+                                        SELECT  ( @consultantpercent - @ListPercent
+                                      - @DataPercent - @DataTelPercent
+                                      - @DataWorkPercent ) AS ConsultantPercent ,
+                                    @windowpercent AS WindowPercent ,
+                                    @DataPercent AS DataPercent ,
+                                    @ListPercent AS ListPercent ,
+                                    @DataTelPercent AS DataTelPercent ,
+                                    @DataWorkPercent AS DataWorkPercent ,
+                                    @CompanyPercent AS CompanyPercent ,
+                                    @BDPercent AS BDPercent  ,
+                                    0.00 as QCPercent,
+                                    0.00 as DataNamePercent,
+                                    0.00 as DataFunctionPercent  
+                                END
+                            END
+                    END                       
+                ELSE 
+                    BEGIN  
+                        PRINT '既不是绿色通道职位 也不是去互联网职位' 
+                        IF ( ISNULL(@MAN, '') = '37'
+                             AND @OnboardTime >= '20140616'
+                           ) --NCA         
+                            OR ( @ConsultantPosition = 'CA'
+                                 AND @becomefullmemberdate > @PSTime
+                                 AND @OnboardTime >= '20140616'
+                               ) 
+                               OR CHARINDEX('NCA',@ConsultantPosition)>0
+                            BEGIN                 
+                                IF DATEDIFF(DAY, @OnboardTime, @pstime) > 180 --超过6个月的NCA      
+                                    BEGIN      
+                                        PRINT 1159   
+                                        PRINT @ConsultantPosition
+                                        SELECT  @ConsultantPercent AS ConsultantPercent ,
+                                                ( @WindowPercent
+                                                  - @ListPercent --window已经分享data了，就不需要再分享list了
+                                                  - @DataPercent
+                                                  - @DataTelPercent
+                                                  - @DataWorkPercent ) AS WindowPercent ,
+                                                @DataPercent AS DataPercent ,
+                                                @ListPercent AS ListPercent ,
+                                                @DataTelPercent AS DataTelPercent ,
+                                                @DataWorkPercent AS DataWorkPercent ,
+                                                @CompanyPercent AS CompanyPercent ,
+                                                @BDPercent AS BDPercent ,
+                                                0.00 as QCPercent,
+                                                0.00 as DataNamePercent,
+                                                0.00 as DataFunctionPercent    
+                                    END      
+                                ELSE 
+                                    BEGIN                
+                                        PRINT 1085   
+      
+                                        print '@@WindowPercent:'+CAST(@WindowPercent AS VARCHAR)
+                                        print '@@ListPercent:'+CAST(@ListPercent AS VARCHAR)
+                                        print '@@DataPercent:'+CAST(@DataPercent AS VARCHAR)
+                                        print '@@DataTelPercent:'+CAST(@DataTelPercent AS VARCHAR)
+                                        print '@@DataWorkPercent:'+CAST(@DataWorkPercent AS VARCHAR)
+                                        SELECT  @ConsultantPercent AS ConsultantPercent ,
+                                                ( @WindowPercent
+                                                  - @ListPercent
+                                                  - @DataPercent
+                                                  - @DataTelPercent
+                                                  - @DataWorkPercent ) AS WindowPercent ,
+                                                @DataPercent AS DataPercent ,
+                                                @ListPercent AS ListPercent ,
+                                                @DataTelPercent AS DataTelPercent ,
+                                                @DataWorkPercent AS DataWorkPercent ,
+                                                @CompanyPercent AS CompanyPercent ,
+                                                @BDPercent AS BDPercent    ,
+                                                0.00 as QCPercent,
+                                                0.00 as DataNamePercent,
+                                                0.00 as DataFunctionPercent           
+                                    END                                     
+                            END            
+                        ELSE 
+                            BEGIN                                   
+                                PRINT 1171      
+                                SELECT  ( @ConsultantPercent - @ListPercent
+                                          - @DataPercent - @DataTelPercent
+                                          - @DataWorkPercent ) AS ConsultantPercent ,
+                                        @WindowPercent AS WindowPercent ,
+                                        @DataPercent AS DataPercent ,
+                                        @ListPercent AS ListPercent ,
+                                        @DataTelPercent AS DataTelPercent ,
+                                        @DataWorkPercent AS DataWorkPercent ,
+                                        @CompanyPercent AS CompanyPercent ,
+                                        @BDPercent AS BDPercent   ,
+                                        0.00 as QCPercent,
+                                        0.00 as DataNamePercent,
+                                        0.00 as DataFunctionPercent                                                                          
+                            END                                                 
+                    END                    
+            END                                                              
+        ELSE 
+            BEGIN         
+                PRINT 'A公司职位'                           
+                IF @IsGreen = 1
+                    OR EXISTS ( SELECT  *
+                                FROM    TB_HxrOffer tho
+                                        INNER JOIN TB_Houxuan th ON tho.hxid = th.id
+                                        INNER JOIN TB_PPosition tp ON tp.P_id = th.JobID
+                                WHERE   tp.P_cid = 256
+                                        AND th.id = @hxid )
+                    OR @Is29 = 1 
+                    BEGIN                                     
+                        IF @Is29 = 1 
+                            BEGIN
+                                SELECT  ( @consultantpercent - @ListPercent
+                                          - @DataPercent - @DataTelPercent
+                                          - @DataWorkPercent ) AS ConsultantPercent ,
+                                        @windowpercent AS WindowPercent ,
+                                        @DataPercent AS DataPercent ,
+                                        @ListPercent AS ListPercent ,
+                                        @DataTelPercent AS DataTelPercent ,
+                                        @DataWorkPercent AS DataWorkPercent ,
+                                        @CompanyPercent AS CompanyPercent ,
+                                        @BDPercent AS BDPercent ,
+                                        0.00 as QCPercent,
+                                        0.00 as DataNamePercent,
+                                        0.00 as DataFunctionPercent  
+                            END
+                        ELSE 
+                            SELECT  @ConsultantPercent = @ConsultantPercent
+                                    + @WindowPercent                                                              
+                        SELECT  @WindowPercent = 0                                             
+                        SELECT  ( @ConsultantPercent - @ListPercent
+                                  - @DataPercent - @DataTelPercent
+                                  - @DataWorkPercent ) AS ConsultantPercent ,
+                                @WindowPercent AS WindowPercent ,
+                                @DataPercent AS DataPercent ,
+                                @ListPercent AS ListPercent ,
+                                @DataTelPercent AS DataTelPercent ,
+                                @DataWorkPercent AS DataWorkPercent ,
+                                @CompanyPercent AS CompanyPercent ,
+                                @BDPercent AS BDPercent     ,
+                                0.00 as QCPercent,
+                                0.00 as DataNamePercent,
+                                0.00 as DataFunctionPercent                                                                                                            
+                    END                          
+                ELSE 
+                    BEGIN                         
+                        IF ( ISNULL(@MAN, '') = '37'
+                             AND @OnboardTime >= '20140616'
+                           ) --NCA              
+                            OR ( @ConsultantPosition = 'CA'
+                                 AND @becomefullmemberdate > @PSTime
+                                 AND @OnboardTime >= '20140616'
+                               ) 
+                            BEGIN                             
+                                IF DATEDIFF(DAY, @OnboardTime, @pstime) > 180 --超过6个月的NCA      
+                                    BEGIN      
+                                        SELECT  ( @ConsultantPercent
+                                                  - @ListPercent
+                                                  - @DataPercent
+                                                  - @DataTelPercent
+                                                  - @DataWorkPercent ) AS ConsultantPercent ,
+                                                @WindowPercent AS WindowPercent ,
+                                                @DataPercent AS DataPercent ,
+                                                @ListPercent AS ListPercent ,
+                                                @DataTelPercent AS DataTelPercent ,
+                                                @DataWorkPercent AS DataWorkPercent ,
+                                                @CompanyPercent AS CompanyPercent ,
+                                                @BDPercent AS BDPercent   ,
+                                                0.00 as QCPercent,
+                                                0.00 as DataNamePercent,
+                                                0.00 as DataFunctionPercent    
+                                    END      
+                                ELSE 
+                                    BEGIN                
+                                        PRINT 1085                    
+                                        SELECT  @ConsultantPercent AS ConsultantPercent ,
+                                                ( @WindowPercent
+                                                  - @ListPercent
+                                                  - @DataPercent
+                                                  - @DataTelPercent
+                                                  - @DataWorkPercent ) AS WindowPercent ,
+                                                @DataPercent AS DataPercent ,
+                                                @ListPercent AS ListPercent ,
+                                                @DataTelPercent AS DataTelPercent ,
+                                                @DataWorkPercent AS DataWorkPercent ,
+                                                @CompanyPercent AS CompanyPercent ,
+                                                @BDPercent AS BDPercent  ,
+                                                0.00 as QCPercent,
+                                                0.00 as DataNamePercent,
+                                                0.00 as DataFunctionPercent            
+                                    END                                                                               
+                            END                                
+                        ELSE 
+                            BEGIN                                       
+                                PRINT 1097                    
+     SELECT  @ConsultantPercent = @ConsultantPercent
+                                        + @WindowPercent                                                              
+                                SELECT  @WindowPercent = 0                                                              
+                                SELECT  ( @ConsultantPercent - @ListPercent
+                                          - @DataPercent - @DataTelPercent
+                                          - @DataWorkPercent ) AS ConsultantPercent ,
+                                        @WindowPercent AS WindowPercent ,
+                                        @DataPercent AS DataPercent ,
+                                        @ListPercent AS ListPercent ,
+                                        @DataTelPercent AS DataTelPercent ,
+                                        @DataWorkPercent AS DataWorkPercent ,
+                                        @CompanyPercent AS CompanyPercent ,
+                                        @BDPercent AS BDPercent,
+                                        0.00 as QCPercent,
+                                        0.00 as DataNamePercent,
+                                        0.00 as DataFunctionPercent                                                                                                          
+                            END                                        
+                    END                     
+            END                                                                    
+    END
+
