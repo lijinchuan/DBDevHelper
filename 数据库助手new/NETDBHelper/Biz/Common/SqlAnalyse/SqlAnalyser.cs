@@ -15,11 +15,11 @@ namespace Biz.Common.SqlAnalyse
             set;
         }
 
-        public List<ISqlAnalyser> NestAnalyser 
-        { 
+        public List<ISqlAnalyser> NestAnalyser
+        {
             get;
-            set; 
-        }
+            set;
+        } = new List<ISqlAnalyser>();
 
         public abstract bool Accept(ISqlExpress sqlExpress, bool isKey);
         public abstract void Print(string sql);

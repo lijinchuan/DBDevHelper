@@ -42,6 +42,7 @@ namespace Biz.Common.SqlAnalyse
 
             var currentDeep = 0;
             ISqlAnalyser currentAnalyser = null;
+            //在有上级分析器的情况下，保存多个同级的分析器
             List<ISqlAnalyser> sqlAnalysers = new List<ISqlAnalyser>();
             while (next != null)
             {
@@ -84,7 +85,7 @@ namespace Biz.Common.SqlAnalyse
                                     else
                                     {
                                         sqlAnalysers.Add(currentAnalyser);
-                                        faterAnalyser.NestAnalyser = sqlAnalysers;
+                                        faterAnalyser.NestAnalyser.AddRange(sqlAnalysers);
                                         sqlAnalysers = new List<ISqlAnalyser>();
 
                                         if (sqlAnalysersStacks.Count > 0)
@@ -149,7 +150,7 @@ namespace Biz.Common.SqlAnalyse
                                     {
                                         sqlAnalysers.Add(currentAnalyser);
                                     }
-                                    faterAnalyser.NestAnalyser = sqlAnalysers;
+                                    faterAnalyser.NestAnalyser.AddRange(sqlAnalysers);
                                     sqlAnalysers = new List<ISqlAnalyser>();
 
                                     currentAnalyser = faterAnalyser;
