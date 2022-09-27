@@ -128,7 +128,8 @@ namespace Biz.Common.SqlAnalyse
                         {
                             stringStack.Push(CrateStart(SqlExpressType.String));
                         }
-                        else if (lastch != '\'' && stringStack.Count > 0)
+                        else if (stringStack.Count > 0 && ((lastch != '\'' && stringStack.Peek().StartIndex != CurrentIndex - 1) ||
+                            (lastch == '\'' && stringStack.Peek().StartIndex == CurrentIndex - 1)))
                         {
                             var analyseInfo = stringStack.Pop();
                             var ret = FillEnd(analyseInfo, true);
