@@ -115,7 +115,7 @@ namespace Biz.Common.SqlAnalyse
                         {
                             tokenInfo.ExpressType = SqlExpressType.Numric;
                         }
-                        else if (reader.Peek() == '(')
+                        else if (leftch == '(')
                         {
                             tokenInfo.ExpressType = SqlExpressType.Function;
                         } 
@@ -225,15 +225,15 @@ namespace Biz.Common.SqlAnalyse
 
             if (tokenInfo != null)
             {
-                return FillEnd(tokenInfo, true);
+                return FillEnd(tokenInfo, false);
             }
             else if (stringStack.Count > 0)
             {
-                return FillEnd(stringStack.Pop(), true);
+                return FillEnd(stringStack.Pop(), false);
             }
             else if (annotationStack.Count > 0)
             {
-                return FillEnd(annotationStack.Pop(), true) ;
+                return FillEnd(annotationStack.Pop(), false) ;
             }
             else if (bracketStack.Count > 0)
             {

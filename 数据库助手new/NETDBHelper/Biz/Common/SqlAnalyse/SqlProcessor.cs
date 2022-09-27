@@ -73,32 +73,33 @@ namespace Biz.Common.SqlAnalyse
                             }
                             else if (currentDeep > next.Deep)
                             {
-                                if (sqlAnalysersStacks.Count == 0)
-                                {
-                                    throw new Exception("解析出错，找不上父级");
-                                }
-
-                                var faterAnalyser = sqlAnalysersStacks.Pop();
-                                if (faterAnalyser.Deep != next.Deep)
-                                {
-                                    throw new Exception("解析出错，深度不正确");
-                                }
-
-                                sqlAnalysers.Add(currentAnalyser);
-                                faterAnalyser.NestAnalyser = sqlAnalysers;
-                                sqlAnalysers = new List<ISqlAnalyser>();
-
+                                //变浅了
                                 if (sqlAnalysersStacks.Count > 0)
                                 {
-                                    sqlAnalysers.Add(faterAnalyser);
-                                }
-                                else
-                                {
-                                    //把前一个语句的解析结果返回
-                                    ret.Add(faterAnalyser);
-                                }
+                                    var faterAnalyser = sqlAnalysersStacks.Pop();
+                                    if (faterAnalyser.Deep != next.Deep)
+                                    {
+                                        sqlAnalysersStacks.Push(faterAnalyser);
+                                    }
+                                    else
+                                    {
+                                        sqlAnalysers.Add(currentAnalyser);
+                                        faterAnalyser.NestAnalyser = sqlAnalysers;
+                                        sqlAnalysers = new List<ISqlAnalyser>();
 
+                                        if (sqlAnalysersStacks.Count > 0)
+                                        {
+                                            sqlAnalysers.Add(faterAnalyser);
+                                        }
+                                        else
+                                        {
+                                            //把前一个语句的解析结果返回
+                                            ret.Add(faterAnalyser);
+                                        }
+                                    }
+                                }
                                 currentDeep = next.Deep;
+
                             }
                         }
                         analyser.Accept(next, iskey);
@@ -107,8 +108,57 @@ namespace Biz.Common.SqlAnalyse
                     else
                     {
                         //前一个结果返回
-                        PopAnalyser();
-                        currentAnalyser = null;
+                        if (next.Deep > currentDeep)
+                        {
+                            currentDeep = next.Deep;
+                            if (currentAnalyser != null)
+                            {
+                                sqlAnalysersStacks.Push(currentAnalyser);
+                            }
+                            currentAnalyser = null;
+                        }
+                        else if (currentDeep == next.Deep)
+                        {
+                            if (currentAnalyser != null)
+                            {
+                                if (sqlAnalysersStacks.Count == 0)
+                                {
+                                    //把前一个语句的解析结果返回
+                                    ret.Add(currentAnalyser);
+                                }
+                                else
+                                {
+                                    sqlAnalysers.Add(currentAnalyser);
+                                }
+                            }
+                            currentAnalyser = null;
+                        }
+                        else if (next.Deep < currentDeep)
+                        {
+                            //变浅了
+                            if (sqlAnalysersStacks.Count > 0)
+                            {
+                                var faterAnalyser = sqlAnalysersStacks.Pop();
+                                if (faterAnalyser.Deep != next.Deep)
+                                {
+                                    sqlAnalysersStacks.Push(faterAnalyser);
+                                }
+                                else
+                                {
+                                    if (currentAnalyser != null)
+                                    {
+                                        sqlAnalysers.Add(currentAnalyser);
+                                    }
+                                    faterAnalyser.NestAnalyser = sqlAnalysers;
+                                    sqlAnalysers = new List<ISqlAnalyser>();
+
+                                    currentAnalyser = faterAnalyser;
+                                    currentAnalyser.Accept(next, false);
+                                }
+                            }
+                            currentDeep = next.Deep;
+                        }
+                        
                     }
                 }
 
@@ -122,15 +172,18 @@ namespace Biz.Common.SqlAnalyse
 
             void PopAnalyser()
             {
-                if (currentAnalyser != null && sqlAnalysersStacks.Count > 0)
+                if (sqlAnalysersStacks.Count > 0)
                 {
-                    sqlAnalysers.Add(currentAnalyser);
+                    if (currentAnalyser != null)
+                    {
+                        sqlAnalysers.Add(currentAnalyser);
+                    }
                     while (sqlAnalysersStacks.Count > 0)
                     {
                         currentAnalyser = sqlAnalysersStacks.Pop();
                         currentAnalyser.NestAnalyser = sqlAnalysers;
                         sqlAnalysers = new List<ISqlAnalyser>();
-                        if(sqlAnalysersStacks.Count > 0)
+                        if (sqlAnalysersStacks.Count > 0)
                         {
                             sqlAnalysers.Add(currentAnalyser);
                         }

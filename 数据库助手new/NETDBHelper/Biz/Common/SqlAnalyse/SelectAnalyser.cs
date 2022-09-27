@@ -11,6 +11,7 @@ namespace Biz.Common.SqlAnalyse
     {
         private string keySelect = "select";
         private string keyFrom = "from";
+        private string keyInto = "into";
         private string keyAs = "as";
         private string keyWhere = "where";
         private string keyTop = "top";
@@ -19,6 +20,7 @@ namespace Biz.Common.SqlAnalyse
 
         private bool isAcceptSelect = false;
         private bool isAcceptFrom = false;
+        private bool isAcceptInto = false;
         private bool isAcceptJoin = false;
         private bool isExpectOn = false;
         private bool isAcceptWhere = false;
@@ -68,6 +70,18 @@ namespace Biz.Common.SqlAnalyse
                     lastError = $"more '{keyTop}'";
                 }
             }
+            else if (keyInto.Equals(sqlExpress.Val))
+            {
+                if (!isAcceptInto)
+                {
+                    isAcceptInto = true;
+                    isAccept = true;
+                }
+                else
+                {
+                    lastError = $"more '{keyInto}'";
+                }
+            }
             else if (keyFrom.Equals(sqlExpress.Val))
             {
                 if (!isAcceptFrom)
@@ -115,7 +129,7 @@ namespace Biz.Common.SqlAnalyse
                 }
                 else if (!isKey)
                 {
-                    if (isAcceptSelect && !isAcceptFrom)
+                    if (isAcceptSelect && !isAcceptInto && !isAcceptFrom)
                     {
                         if (isAcceptTop && !isAcceptTopN)
                         {
