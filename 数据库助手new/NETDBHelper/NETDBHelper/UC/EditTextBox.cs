@@ -1285,13 +1285,16 @@ namespace NETDBHelper.UC
                 }
             }
 
-            this.RichText.SelectionStart = selectionStart;
-            this.RichText.SelectionLength = RichText.GetFirstCharIndexFromLine(lines[lines.Length - 1]) - selectionStart + RichText.Lines[lines[lines.Length - 1]].Length;
-            this.RichText.SelectionColor = Color.Black;
+            if (selectionStart != -1)
+            {
+                this.RichText.SelectionStart = selectionStart;
+                this.RichText.SelectionLength = RichText.GetFirstCharIndexFromLine(lines[lines.Length - 1]) - selectionStart + RichText.Lines[lines[lines.Length - 1]].Length;
+                this.RichText.SelectionColor = Color.Black;
 
-            this.RichText.SelectionStart = oldstart;
-            this.RichText.SelectionLength = oldlen;
-            this.RichText.LockPaint = false;
+                this.RichText.SelectionStart = oldstart;
+                this.RichText.SelectionLength = oldlen;
+                this.RichText.LockPaint = false;
+            }
         }
 
         void RichText_TextChanged(object sender, EventArgs e)
