@@ -172,7 +172,7 @@ namespace Biz.Common.SqlAnalyse
                     }
                     else if (isAcceptFrom && (!isAcceptJoin || !isAcceptWhere))
                     {
-                        if (preExpress.Val == keyFrom)
+                        if (preExpress.Val == keyFrom || preExpress.ExpressType == SqlExpressType.Comma)
                         {
                             tables.Add(sqlExpress.Val);
                             isAccept = true;
