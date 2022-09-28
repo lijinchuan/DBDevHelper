@@ -58,7 +58,6 @@ namespace Biz.Common.SqlAnalyse
                             if (next.Deep > currentDeep)
                             {
                                 sqlAnalysersStacks.Push(currentAnalyser);
-                                currentDeep = next.Deep;
                             }
                             else if (currentDeep == next.Deep)
                             {
@@ -99,19 +98,17 @@ namespace Biz.Common.SqlAnalyse
                                         }
                                     }
                                 }
-                                currentDeep = next.Deep;
-
                             }
                         }
                         analyser.Accept(next, iskey);
                         currentAnalyser = analyser;
+                        currentDeep = next.Deep;
                     }
                     else
                     {
                         //前一个结果返回
                         if (next.Deep > currentDeep)
                         {
-                            currentDeep = next.Deep;
                             if (currentAnalyser != null)
                             {
                                 sqlAnalysersStacks.Push(currentAnalyser);
@@ -157,12 +154,11 @@ namespace Biz.Common.SqlAnalyse
                                     currentAnalyser.Accept(next, false);
                                 }
                             }
-                            currentDeep = next.Deep;
                         }
                         
                     }
                 }
-
+                currentDeep = next.Deep;
                 next = _sqlReader.ReadNext();
             }
 

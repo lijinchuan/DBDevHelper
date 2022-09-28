@@ -41,6 +41,10 @@ namespace Biz.Common.SqlAnalyse
 
         public override bool Accept(ISqlExpress sqlExpress, bool isKey)
         {
+            if (sqlExpress.Val.Equals("p.window"))
+            {
+
+            }
             if (sqlExpress.Deep != this.Deep)
             {
                 return false;
