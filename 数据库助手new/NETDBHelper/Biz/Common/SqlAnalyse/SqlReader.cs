@@ -35,7 +35,7 @@ namespace Biz.Common.SqlAnalyse
 
         private static bool IsLetter(int ch)
         {
-            return (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z') || ch == '_' || ch == '@' || ch == '[' || ch == ']' || ch == '.';
+            return (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z') || ch == '_' || ch == '@' || ch == '[' || ch == ']' || ch == '.' || ch == '#';
         }
 
         SqlExpress CrateStart(SqlExpressType analyseType)
