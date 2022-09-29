@@ -61,6 +61,12 @@ namespace Biz.Common.SqlAnalyse
             get;
             set;
         }
-        
+
+        public AnalyseType AnalyseType
+        {
+            get;
+            set;
+        }
+
     }
 }

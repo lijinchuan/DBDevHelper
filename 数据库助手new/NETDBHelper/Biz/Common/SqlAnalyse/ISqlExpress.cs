@@ -59,6 +59,12 @@ namespace Biz.Common.SqlAnalyse
             set;
         }
 
+        AnalyseType AnalyseType
+        {
+            get;
+            set;
+        }
+
         string Val
         {
             get;

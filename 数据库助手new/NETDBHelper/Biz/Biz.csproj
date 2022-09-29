@@ -60,6 +60,7 @@
     <Compile Include="Common\NumberHelper.cs" />
     <Compile Include="Common\ReflectionHelper.cs" />
     <Compile Include="Common\SqlAnalyse\AnalyseResult.cs" />
+    <Compile Include="Common\SqlAnalyse\AnalyseType.cs" />
     <Compile Include="Common\SqlAnalyse\IAnalyseResult.cs" />
     <Compile Include="Common\SqlAnalyse\ISqlAnalyser.cs" />
     <Compile Include="Common\SqlAnalyse\ISqlExpress.cs" />

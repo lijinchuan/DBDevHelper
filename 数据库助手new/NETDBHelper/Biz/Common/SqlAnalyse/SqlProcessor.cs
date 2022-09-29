@@ -47,6 +47,10 @@ namespace Biz.Common.SqlAnalyse
             while (next != null)
             {
                 var iskey = SqlAnalyserMapper.ContainsKey(next.Val);
+                if (iskey)
+                {
+                    next.AnalyseType = AnalyseType.Key;
+                }
                 if (currentAnalyser == null || !currentAnalyser.Accept(next, iskey))
                 {
                     var analyser = GetSqlAnalyser(next.Val);
