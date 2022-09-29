@@ -185,13 +185,16 @@ namespace Biz.Common.SqlAnalyse
                     else if (ch == '(' && stringStack.Count == 0 && annotationStack.Count == 0)
                     {
                         bracketStack.Push(CrateStart(SqlExpressType.Bracket));
+
+                        var sqlExpress = CrateStart(SqlExpressType.Bracket);
+                        FillEnd(sqlExpress, true);
+
                         //进入子分析
                         lastch = ch;
                         CurrentIndex++;
                         CurrentDeep++;
-                        var ret = ReadNext();
 
-                        return ret;
+                        return sqlExpress;
                     }
                     else if (ch == ')' && stringStack.Count == 0 && annotationStack.Count == 0)
                     {
@@ -199,6 +202,13 @@ namespace Biz.Common.SqlAnalyse
                         {
                             bracketStack.Pop();
                             CurrentDeep--;
+
+                            var sqlExpress = CrateStart(SqlExpressType.BracketEnd);
+                            FillEnd(sqlExpress, true);
+
+                            lastch = ch;
+                            CurrentIndex++;
+                            return sqlExpress;
                         }
                     }
                     else if (ch == ',' && stringStack.Count == 0 && annotationStack.Count == 0)

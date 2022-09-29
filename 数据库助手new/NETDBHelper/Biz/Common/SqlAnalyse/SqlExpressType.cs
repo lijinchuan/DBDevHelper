@@ -13,6 +13,7 @@ namespace Biz.Common.SqlAnalyse
         /// </summary>
         String,
         Bracket,
+        BracketEnd,
         /// <summary>
         /// 注释
         /// </summary>

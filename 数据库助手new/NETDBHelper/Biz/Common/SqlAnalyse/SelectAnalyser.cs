@@ -72,6 +72,7 @@ namespace Biz.Common.SqlAnalyse
 
         public override bool Accept(ISqlExpress sqlExpress, bool isKey)
         {
+
             if (sqlExpress.Deep != this.Deep)
             {
                 return false;
@@ -118,7 +119,7 @@ namespace Biz.Common.SqlAnalyse
                                     colums.Add(sqlExpress.Val);
                                 }
                             }
-                            else if (lastKey == keyAs && preExpress.ExpressType == SqlExpressType.Comma && PreAcceptKeysNot(1, new HashSet<string> { keyAs }) == keySelect)
+                            else if (lastKey == keyAs && preExpress.ExpressType == SqlExpressType.Comma && PreAcceptKeysNot(1, new HashSet<string> { keyAs, keyDistinct }) == keySelect)
                             {
                                 sqlExpress.AnalyseType = AnalyseType.Column;
                                 colums.Add(sqlExpress.Val);
