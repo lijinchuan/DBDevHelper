@@ -25,7 +25,7 @@ namespace Biz.Common.SqlAnalyse
         private HashSet<string> tables = new HashSet<string>();
         private HashSet<string> colums = new HashSet<string>();
 
-        private HashSet<string> keys = new HashSet<string> { "select", "distinct", "top", "into", "from", "as", "where","and", "in", "left", "right", "inner", "full", "join", "on", "group", "order", "by", "with", "nolock" };
+        private HashSet<string> keys = new HashSet<string> { "select", "distinct", "top", "into", "from", "as", "where", "between", "like","and", "in", "left", "right", "inner", "full", "join", "on", "group", "order", "by", "with", "nolock" };
         private List<string> acceptKeys = new List<string>();
 
         private readonly List<ISqlExpress> AcceptedSqlExpresses = new List<ISqlExpress>();
