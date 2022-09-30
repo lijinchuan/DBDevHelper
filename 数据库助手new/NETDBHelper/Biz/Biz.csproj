@@ -62,6 +62,7 @@
     <Compile Include="Common\SqlAnalyse\AnalyseResult.cs" />
     <Compile Include="Common\SqlAnalyse\AnalyseType.cs" />
     <Compile Include="Common\SqlAnalyse\IAnalyseResult.cs" />
+    <Compile Include="Common\SqlAnalyse\InsertAnalyser.cs" />
     <Compile Include="Common\SqlAnalyse\ISqlAnalyser.cs" />
     <Compile Include="Common\SqlAnalyse\ISqlExpress.cs" />
     <Compile Include="Common\SqlAnalyse\ISqlProcessor.cs" />
@@ -72,6 +73,7 @@
     <Compile Include="Common\SqlAnalyse\SqlExpressType.cs" />
     <Compile Include="Common\SqlAnalyse\SqlProcessor.cs" />
     <Compile Include="Common\SqlAnalyse\SqlReader.cs" />
+    <Compile Include="Common\SqlAnalyse\TruncateAnalyser.cs" />
     <Compile Include="Common\SQLCodeHelper.cs" />
     <Compile Include="Common\SQLKeyWord.cs" />
     <Compile Include="Common\StringHelper.cs" />

@@ -12,6 +12,13 @@ namespace Biz.Common.SqlAnalyse
         /// 解析深度
         /// </summary>
         int Deep { get; set; }
+        /// <summary>
+        /// 主键
+        /// </summary>
+        /// <returns></returns>
+        string GetPrimaryKey();
+
+        HashSet<string> GetKeys();
 
         bool Accept(ISqlExpress sqlExpress,bool isKey);
 

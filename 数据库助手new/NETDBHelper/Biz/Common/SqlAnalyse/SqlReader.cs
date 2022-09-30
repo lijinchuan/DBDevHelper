@@ -24,9 +24,9 @@ namespace Biz.Common.SqlAnalyse
         private int lastch = -1;
         private int leftch = -1;
 
-        Stack<SqlExpress> stringStack = new Stack<SqlExpress>();
-        Stack<SqlExpress> bracketStack = new Stack<SqlExpress>();
-        Stack<SqlExpress> annotationStack = new Stack<SqlExpress>();
+        readonly Stack<SqlExpress> stringStack = new Stack<SqlExpress>();
+        readonly Stack<SqlExpress> bracketStack = new Stack<SqlExpress>();
+        readonly Stack<SqlExpress> annotationStack = new Stack<SqlExpress>();
 
         private static bool IsNumber(int ch)
         {

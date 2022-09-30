@@ -8,11 +8,11 @@ namespace Biz.Common.SqlAnalyse
 {
     public class SqlProcessor : ISqlProcessor
     {
-        private Dictionary<string, Func<ISqlAnalyser>> SqlAnalyserMapper = new Dictionary<string, Func<ISqlAnalyser>>();
+        private readonly Dictionary<string, Func<ISqlAnalyser>> SqlAnalyserMapper = new Dictionary<string, Func<ISqlAnalyser>>();
 
-        private string _sql = string.Empty;
-        private SqlReader _sqlReader = null;
-        private Stack<ISqlAnalyser> sqlAnalysersStacks = null;
+        private readonly string _sql;
+        private readonly SqlReader _sqlReader = null;
+        private readonly Stack<ISqlAnalyser> sqlAnalysersStacks = null;
 
         public SqlProcessor(string sql)
         {
@@ -22,6 +22,8 @@ namespace Biz.Common.SqlAnalyse
             sqlAnalysersStacks = new Stack<ISqlAnalyser>();
 
             SqlAnalyserMapper.Add("select", () => new SelectAnalyser());
+            SqlAnalyserMapper.Add("truncate", () => new TruncateAnalyser());
+            SqlAnalyserMapper.Add("insert", () => new InsertAnalyser());
             SqlAnalyserMapper.Add("exec", () => null);
         }
 
