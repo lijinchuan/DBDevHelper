@@ -74,6 +74,7 @@
     <Compile Include="Common\SqlAnalyse\SqlProcessor.cs" />
     <Compile Include="Common\SqlAnalyse\SqlReader.cs" />
     <Compile Include="Common\SqlAnalyse\TruncateAnalyser.cs" />
+    <Compile Include="Common\SqlAnalyse\UpdateAnalyser.cs" />
     <Compile Include="Common\SQLCodeHelper.cs" />
     <Compile Include="Common\SQLKeyWord.cs" />
     <Compile Include="Common\StringHelper.cs" />

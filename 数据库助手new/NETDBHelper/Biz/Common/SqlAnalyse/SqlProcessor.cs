@@ -21,9 +21,10 @@ namespace Biz.Common.SqlAnalyse
             _sqlReader = new SqlReader(sql.ToLower());
             sqlAnalysersStacks = new Stack<ISqlAnalyser>();
 
-            SqlAnalyserMapper.Add("select", () => new SelectAnalyser());
-            SqlAnalyserMapper.Add("truncate", () => new TruncateAnalyser());
-            SqlAnalyserMapper.Add("insert", () => new InsertAnalyser());
+            SqlAnalyserMapper.Add(SqlAnalyser.keySelect, () => new SelectAnalyser());
+            SqlAnalyserMapper.Add(SqlAnalyser.keyUpdate, () => new UpdateAnalyser());
+            SqlAnalyserMapper.Add(SqlAnalyser.keyTruncate, () => new TruncateAnalyser());
+            SqlAnalyserMapper.Add(SqlAnalyser.keyInsert, () => new InsertAnalyser());
             SqlAnalyserMapper.Add("exec", () => null);
         }
 

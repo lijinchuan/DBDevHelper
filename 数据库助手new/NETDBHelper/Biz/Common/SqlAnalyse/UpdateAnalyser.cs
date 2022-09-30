@@ -1,16 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Biz.Common.SqlAnalyse
 {
-    public class InsertAnalyser : SqlAnalyser
+    public class UpdateAnalyser : SqlAnalyser
     {
-        private bool isAcceptSelect = false;
-        private readonly HashSet<string> keys = new HashSet<string> { keyInsert, keyTable, keyInto, keySelect, keyDistinct, keyTop, keyFrom, keyAs, keyWhere, keyBetween, keyLike, keyAnd, keyIn, keyLeft, keyRight, keyInner, keyFull, keyJoin, keyOn, keyGroup, keyOrder, keyBy, keyWith, keyNolock };
+        private static readonly HashSet<string> keys = new HashSet<string> { keyUpdate, keySet, keyFrom, keyWhere, keyJoin, keyOn };
 
         public override HashSet<string> GetKeys()
         {
@@ -19,7 +17,7 @@ namespace Biz.Common.SqlAnalyse
 
         public override string GetPrimaryKey()
         {
-            return keyInsert;
+            return keyUpdate;
         }
 
         protected override bool Accept(ISqlExpress sqlExpress)
@@ -28,12 +26,7 @@ namespace Biz.Common.SqlAnalyse
             var preExpress = PreAcceptExpress(AcceptedSqlExpresses, 0);
             if (sqlExpress.ExpressType == SqlExpressType.Token)
             {
-                if (lastKey == keyInto)
-                {
-                    sqlExpress.AnalyseType = AnalyseType.Table;
-                    tables.Add(sqlExpress.Val);
-                }
-                if (lastKey == keySelect || lastKey == keyDistinct || lastKey == keyTop)
+                if (lastKey == keySet)
                 {
                     if (preExpress.AnalyseType == AnalyseType.Column || preExpress.Val == keyAs)
                     {
@@ -46,16 +39,19 @@ namespace Biz.Common.SqlAnalyse
                         colums.Add(sqlExpress.Val);
                     }
                 }
-                else if (lastKey == keyAs && preExpress.ExpressType == SqlExpressType.Comma && PreAcceptKeysNot(acceptKeys, 1, new HashSet<string> { keyAs, keyDistinct }) == keySelect)
-                {
-                    sqlExpress.AnalyseType = AnalyseType.Column;
-                    colums.Add(sqlExpress.Val);
-                }
-                else if (lastKey == keyFrom || lastKey == keyJoin)
+                else if (lastKey == keyFrom || lastKey == keyJoin || lastKey == keyUpdate)
                 {
                     if (preExpress.AnalyseType == AnalyseType.Table || preExpress.Val == keyAs)
                     {
                         sqlExpress.AnalyseType = AnalyseType.TableAlias;
+                        if (tables.Contains(sqlExpress.Val))
+                        {
+                            tables.Remove(sqlExpress.Val);
+                            foreach(var item in AcceptedSqlExpresses.Where(p => p.Val == sqlExpress.Val && p.AnalyseType == AnalyseType.Table))
+                            {
+                                item.AnalyseType = AnalyseType.TableAlias;
+                            }
+                        }
                     }
                     else
                     {
@@ -70,15 +66,6 @@ namespace Biz.Common.SqlAnalyse
 
         protected override bool AcceptKey(ISqlExpress sqlExpress)
         {
-            if (sqlExpress.Val == keySelect)
-            {
-                if (isAcceptSelect)
-                {
-                    return false;
-                }
-                isAcceptSelect = true;
-            }
-
             return true;
         }
     }

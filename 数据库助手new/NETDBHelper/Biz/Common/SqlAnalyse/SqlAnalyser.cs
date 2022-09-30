@@ -41,6 +41,12 @@ namespace Biz.Common.SqlAnalyse
         public static readonly string keyWith = "with";
         public static readonly string keyNolock = "nolock";
 
+        public static readonly string keyUpdate = "update";
+        public static readonly string keySet = "set";
+
+        public static readonly string keyExec = "exec";
+
+
         protected string lastError = string.Empty;
         protected readonly HashSet<string> tables = new HashSet<string>();
         protected readonly HashSet<string> colums = new HashSet<string>();
@@ -70,6 +76,8 @@ namespace Biz.Common.SqlAnalyse
 
         protected abstract bool Accept(ISqlExpress sqlExpress);
 
+        protected abstract bool AcceptKey(ISqlExpress sqlExpress);
+
         public virtual bool Accept(ISqlExpress sqlExpress, bool isKey)
         {
             var primaryKey = GetPrimaryKey();
@@ -93,17 +101,26 @@ namespace Biz.Common.SqlAnalyse
                 {
                     if (keys.Contains(sqlExpress.Val))
                     {
-                        acceptKeys.Add(sqlExpress.Val);
                         sqlExpress.AnalyseType = AnalyseType.Key;
-
-                        if (sqlExpress.Val == primaryKey)
+                        if (AcceptKey(sqlExpress))
                         {
-                            isAcceptPrimaryKey = true;
+                            acceptKeys.Add(sqlExpress.Val);
+                            if (sqlExpress.Val == primaryKey)
+                            {
+                                isAcceptPrimaryKey = true;
+                            }
+                        }
+                        else
+                        {
+                            return false;
                         }
                     }
                     else
                     {
-                        Accept(sqlExpress);
+                        if (!Accept(sqlExpress))
+                        {
+                            return false;
+                        }
 
                     }
                     AcceptedSqlExpresses.Add(sqlExpress);
