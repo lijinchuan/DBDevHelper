@@ -10,7 +10,7 @@ namespace Biz.Common.SqlAnalyse
     public class InsertAnalyser : SqlAnalyser
     {
         private bool isAcceptSelect = false;
-        private readonly HashSet<string> keys = new HashSet<string> { keyInsert, keyTable, keyInto, keySelect, keyDistinct, keyTop, keyFrom, keyAs, keyWhere, keyBetween, keyLike, keyAnd, keyIn, keyLeft, keyRight, keyInner, keyFull, keyJoin, keyOn, keyGroup, keyOrder, keyBy, keyWith, keyNolock };
+        private readonly HashSet<string> keys = new HashSet<string> { keyInsert, keyValues, keyTable, keyInto, keySelect, keyDistinct,keyAll, keyTop, keyFrom, keyAs, keyWhere, keyBetween, keyLike, keyAnd, keyIn, keyLeft, keyRight, keyInner, keyFull, keyJoin, keyOn, keyGroup, keyOrder, keyBy,keyAsc,keyDesc, keyWith, keyNolock };
 
         public override HashSet<string> GetKeys()
         {
@@ -33,7 +33,7 @@ namespace Biz.Common.SqlAnalyse
                     sqlExpress.AnalyseType = AnalyseType.Table;
                     tables.Add(sqlExpress.Val);
                 }
-                if (lastKey == keySelect || lastKey == keyDistinct || lastKey == keyTop)
+                if (lastKey == keySelect || (lastKey == keyDistinct||lastKey==keyAll) || lastKey == keyTop)
                 {
                     if (preExpress.AnalyseType == AnalyseType.Column || preExpress.Val == keyAs)
                     {
@@ -46,7 +46,7 @@ namespace Biz.Common.SqlAnalyse
                         colums.Add(sqlExpress.Val);
                     }
                 }
-                else if (lastKey == keyAs && preExpress.ExpressType == SqlExpressType.Comma && PreAcceptKeysNot(acceptKeys, 1, new HashSet<string> { keyAs, keyDistinct }) == keySelect)
+                else if (lastKey == keyAs && preExpress.ExpressType == SqlExpressType.Comma && PreAcceptKeysNot(acceptKeys, 1, new HashSet<string> { keyAs, keyDistinct,keyAll }) == keySelect)
                 {
                     sqlExpress.AnalyseType = AnalyseType.Column;
                     colums.Add(sqlExpress.Val);
@@ -70,9 +70,10 @@ namespace Biz.Common.SqlAnalyse
 
         protected override bool AcceptKey(ISqlExpress sqlExpress)
         {
+            var lastKey = PreAcceptKeys(acceptKeys, 0);
             if (sqlExpress.Val == keySelect)
             {
-                if (isAcceptSelect)
+                if (isAcceptSelect|| lastKey == keyValues)
                 {
                     return false;
                 }
@@ -80,6 +81,19 @@ namespace Biz.Common.SqlAnalyse
             }
 
             return true;
+        }
+
+        protected override bool AcceptDeeper(ISqlExpress sqlExpress)
+        {
+            var lastLastKey = PreAcceptKeys(acceptKeys, 1);
+            var lastKey = PreAcceptKeys(acceptKeys, 0);
+            if (lastKey == keyInsert || (lastLastKey == keyInsert && lastKey == keyInto))
+            {
+                sqlExpress.AnalyseType = AnalyseType.Column;
+                colums.Add(sqlExpress.Val);
+                return true;
+            }
+            return base.AcceptDeeper(sqlExpress);
         }
     }
 }

@@ -1,11 +1,11 @@
-﻿----------存储过程:usp_DeleteNcaFollowSetting------------
-create proc usp_DeleteNcaFollowSetting
-@id int
-as
-update TB_SystemRecommendPool
-set Owner = ''
-where Owner = ( SELECT Nca 
-FROM TB_NCAFollowSetting WHERE ID = @id
-)
+﻿INSERT INTO table_name ( column_list )
+    VALUES (value_list);
 
-Delete FROM TB_NCAFollowSetting WHERE Id=@Id
+    select top 100 
+[Id],
+[UserName],
+[Password],
+[IsValid],
+[RoleIds],
+[IdCard]
+ from [T_UserInfo] with(nolock)

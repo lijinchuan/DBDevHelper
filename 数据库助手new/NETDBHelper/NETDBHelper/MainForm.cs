@@ -1016,8 +1016,15 @@ namespace NETDBHelper
 
         private void 符号大全ToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            SubForm.SymbolsDlg dlg = new SymbolsDlg();
+            SymbolsDlg dlg = new SymbolsDlg();
             dlg.Show();
+        }
+
+        private void 关键字管理ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SQLKeyWordsManager keyWordsManager = new SQLKeyWordsManager();
+
+            keyWordsManager.ShowDialog();
         }
     }
 }

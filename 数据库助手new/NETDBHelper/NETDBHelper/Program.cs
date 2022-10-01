@@ -1,4 +1,5 @@
-﻿using Entity;
+﻿using Biz.Common;
+using Entity;
 using LJC.FrameWorkV3.Data.EntityDataBase;
 using LJC.FrameWorkV3.EntityBuf;
 using NPOI.SS.Formula.Functions;
@@ -267,6 +268,9 @@ namespace NETDBHelper
 
             BigEntityTableEngine.LocalEngine.CreateTable<TempTB>(p => p.Id, b => b.AddIndex(TempTB.INDEX_DB_TB, c => c.Asc(m => m.TBName)));
             BigEntityTableEngine.LocalEngine.CreateTable<TempTBColumn>(p => p.Id, b => b.AddIndex(nameof(TempTBColumn.TBId), c => c.Asc(d => d.TBId)));
+
+            BigEntityTableEngine.LocalEngine.CreateTable<SqlKeyword>(p => p.ID, b=>b.AddIndex(nameof(SqlKeyword.KeyWord),c=>c.Asc(m=>m.KeyWord)));
+            SQLKeyWordHelper.WriteDB();
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);

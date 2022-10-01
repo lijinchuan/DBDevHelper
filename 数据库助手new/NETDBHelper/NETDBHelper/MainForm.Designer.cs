@@ -47,6 +47,7 @@
             this.复制数据库ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.还原数据库ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.搜索数据库ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.符号大全ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.SubItemHelp = new System.Windows.Forms.ToolStripMenuItem();
             this.登录ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.登出ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -61,7 +62,7 @@
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.MspPanel = new System.Windows.Forms.ToolStripStatusLabel();
             this.TSL_ClearMsg = new System.Windows.Forms.ToolStripStatusLabel();
-            this.符号大全ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.关键字管理ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mainMenuBar.SuspendLayout();
             this.panel1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
@@ -111,7 +112,8 @@
             // SubItemEdit
             // 
             this.SubItemEdit.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.服务器设置ToolStripMenuItem});
+            this.服务器设置ToolStripMenuItem,
+            this.关键字管理ToolStripMenuItem});
             this.SubItemEdit.Name = "SubItemEdit";
             this.SubItemEdit.Size = new System.Drawing.Size(59, 21);
             this.SubItemEdit.Text = "编辑(E)";
@@ -119,7 +121,7 @@
             // 服务器设置ToolStripMenuItem
             // 
             this.服务器设置ToolStripMenuItem.Name = "服务器设置ToolStripMenuItem";
-            this.服务器设置ToolStripMenuItem.Size = new System.Drawing.Size(136, 22);
+            this.服务器设置ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.服务器设置ToolStripMenuItem.Text = "服务器设置";
             this.服务器设置ToolStripMenuItem.Click += new System.EventHandler(this.服务器设置ToolStripMenuItem_Click);
             // 
@@ -217,6 +219,13 @@
             this.搜索数据库ToolStripMenuItem.Text = "搜索数据库";
             this.搜索数据库ToolStripMenuItem.Click += new System.EventHandler(this.搜索数据库ToolStripMenuItem_Click);
             // 
+            // 符号大全ToolStripMenuItem
+            // 
+            this.符号大全ToolStripMenuItem.Name = "符号大全ToolStripMenuItem";
+            this.符号大全ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.符号大全ToolStripMenuItem.Text = "符号大全";
+            this.符号大全ToolStripMenuItem.Click += new System.EventHandler(this.符号大全ToolStripMenuItem_Click);
+            // 
             // SubItemHelp
             // 
             this.SubItemHelp.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -254,6 +263,7 @@
             // 
             // TabControl
             // 
+            this.TabControl.CanDragOut = true;
             this.TabControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.TabControl.DrawMode = System.Windows.Forms.TabDrawMode.OwnerDrawFixed;
             this.TabControl.ItemSize = new System.Drawing.Size(0, 18);
@@ -343,12 +353,12 @@
             this.TSL_ClearMsg.Visible = false;
             this.TSL_ClearMsg.Click += new System.EventHandler(this.TSL_ClearMsg_Click);
             // 
-            // 符号大全ToolStripMenuItem
+            // 关键字管理ToolStripMenuItem
             // 
-            this.符号大全ToolStripMenuItem.Name = "符号大全ToolStripMenuItem";
-            this.符号大全ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.符号大全ToolStripMenuItem.Text = "符号大全";
-            this.符号大全ToolStripMenuItem.Click += new System.EventHandler(this.符号大全ToolStripMenuItem_Click);
+            this.关键字管理ToolStripMenuItem.Name = "关键字管理ToolStripMenuItem";
+            this.关键字管理ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.关键字管理ToolStripMenuItem.Text = "关键字管理";
+            this.关键字管理ToolStripMenuItem.Click += new System.EventHandler(this.关键字管理ToolStripMenuItem_Click);
             // 
             // MainFrm
             // 
@@ -413,6 +423,7 @@
         private System.Windows.Forms.ToolStripMenuItem 服务器设置ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 搜索数据库ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 符号大全ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 关键字管理ToolStripMenuItem;
     }
 }
 

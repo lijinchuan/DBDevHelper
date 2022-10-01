@@ -225,6 +225,12 @@
     <Compile Include="SubForm\ServerSettingDlg.Designer.cs">
       <DependentUpon>ServerSettingDlg.cs</DependentUpon>
     </Compile>
+    <Compile Include="SubForm\SQLKeyWordsManager.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SubForm\SQLKeyWordsManager.Designer.cs">
+      <DependentUpon>SQLKeyWordsManager.cs</DependentUpon>
+    </Compile>
     <Compile Include="SubForm\SubBaseDlg.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -484,6 +490,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="SubForm\ServerSettingDlg.resx">
       <DependentUpon>ServerSettingDlg.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SubForm\SQLKeyWordsManager.resx">
+      <DependentUpon>SQLKeyWordsManager.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="SubForm\SubBaseDlg.resx">
       <DependentUpon>SubBaseDlg.cs</DependentUpon>

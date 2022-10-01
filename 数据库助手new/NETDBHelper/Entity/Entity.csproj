@@ -85,6 +85,8 @@
     <Compile Include="ServerInfo.cs" />
     <Compile Include="SPContent.cs" />
     <Compile Include="SPInfo.cs" />
+    <Compile Include="SqlKeyword.cs" />
+    <Compile Include="SqlKeyWordType.cs" />
     <Compile Include="SqlSaveEntity.cs" />
     <Compile Include="StringAndBool.cs" />
     <Compile Include="TableInfo.cs" />

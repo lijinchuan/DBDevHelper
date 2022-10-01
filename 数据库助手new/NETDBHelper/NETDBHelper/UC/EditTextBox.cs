@@ -116,7 +116,7 @@ namespace NETDBHelper.UC
                 ProcessTraceUtil.Trace("BigEntityTableRemotingEngine.List<MarkObjectInfo>");
                 ThinkInfoLib = new List<ThinkInfo>();
 
-                foreach (var o in SQLKeyWordHelper.GetKeyWordList())
+                foreach (var o in SQLKeyWordHelper.GetSqlKeywordList())
                 {
                     ThinkInfoLib.Add(new ThinkInfo
                     {
@@ -862,7 +862,7 @@ namespace NETDBHelper.UC
                 {
                     using (var g = view.CreateGraphics())
                     {
-                        var mwidth = col.DefaultCellStyle.Padding.Left + (int)g.MeasureString(row.Cells[col.Name].Value.ToString() + col.Name, view.Font).Width + 20;
+                        var mwidth = col.DefaultCellStyle.Padding.Left + (int)g.MeasureString((row.Cells[col.Name].Value??string.Empty).ToString() + col.Name, view.Font).Width + 20;
                         if (mwidth > maxwidth)
                         {
                             maxwidth = mwidth;

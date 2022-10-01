@@ -14,6 +14,7 @@ namespace Biz.Common.SqlAnalyse
 
         public static readonly string keySelect = "select";
         public static readonly string keyDistinct = "distinct";
+        public static readonly string keyAll = "all";
         public static readonly string keyFrom = "from";
         public static readonly string keyAs = "as";
         public static readonly string keyWhere = "where";
@@ -24,6 +25,7 @@ namespace Biz.Common.SqlAnalyse
         public static readonly string keyTruncate = "truncate";
 
         public static readonly string keyInsert = "insert";
+        public static readonly string keyValues = "values";
 
         public static readonly string keyBetween = "between";
         public static readonly string keyLike = "like";
@@ -38,6 +40,9 @@ namespace Biz.Common.SqlAnalyse
         public static readonly string keyGroup = "group";
         public static readonly string keyOrder = "order";
         public static readonly string keyBy = "by";
+        public static readonly string keyHaving = "having";
+        public static readonly string keyAsc = "asc";
+        public static readonly string keyDesc = "desc";
         public static readonly string keyWith = "with";
         public static readonly string keyNolock = "nolock";
 
@@ -76,6 +81,11 @@ namespace Biz.Common.SqlAnalyse
             set;
         } = new List<ISqlAnalyser>();
 
+        protected virtual bool AcceptDeeper(ISqlExpress sqlExpress)
+        {
+            return false;
+        }
+
         protected abstract bool Accept(ISqlExpress sqlExpress);
 
         protected abstract bool AcceptKey(ISqlExpress sqlExpress);
@@ -83,9 +93,16 @@ namespace Biz.Common.SqlAnalyse
         public virtual bool Accept(ISqlExpress sqlExpress, bool isKey)
         {
             var primaryKey = GetPrimaryKey();
-            if (sqlExpress.Deep != this.Deep)
+            if (sqlExpress.Deep != Deep)
             {
-                return false;
+                if (AcceptDeeper(sqlExpress))
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
             }
 
             //分隔多个SELECT

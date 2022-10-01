@@ -10,7 +10,7 @@ namespace Biz.Common.SqlAnalyse
     public class SelectAnalyser : SqlAnalyser
     {
 
-        private readonly HashSet<string> keys = new HashSet<string> { keySelect, keyDistinct, keyTop, keyInto, keyFrom, keyAs, keyWhere, keyBetween, keyLike, keyAnd, keyIn, keyLeft, keyRight, keyInner, keyFull, keyJoin, keyOn, keyGroup, keyOrder, keyBy, keyWith, keyNolock };
+        private readonly HashSet<string> keys = new HashSet<string> { keySelect, keyDistinct,keyAll, keyTop, keyInto, keyFrom, keyAs, keyWhere, keyBetween, keyLike, keyAnd, keyIn, keyLeft, keyRight, keyInner, keyFull, keyJoin, keyOn, keyGroup, keyOrder, keyBy,keyHaving,keyAsc,keyDesc, keyWith, keyNolock };
 
         public SelectAnalyser()
         {
@@ -32,7 +32,7 @@ namespace Biz.Common.SqlAnalyse
             var preExpress = PreAcceptExpress(AcceptedSqlExpresses, 0);
             if (sqlExpress.ExpressType == SqlExpressType.Token)
             {
-                if (lastKey == keySelect || lastKey == keyDistinct || lastKey == keyTop)
+                if (lastKey == keySelect || (lastKey == keyDistinct||lastKey==keyAll) || lastKey == keyTop)
                 {
                     if (preExpress.AnalyseType == AnalyseType.Column || preExpress.Val == keyAs)
                     {
@@ -45,7 +45,7 @@ namespace Biz.Common.SqlAnalyse
                         colums.Add(sqlExpress.Val);
                     }
                 }
-                else if (lastKey == keyAs && preExpress.ExpressType == SqlExpressType.Comma && PreAcceptKeysNot(acceptKeys, 1, new HashSet<string> { keyAs, keyDistinct }) == keySelect)
+                else if (lastKey == keyAs && preExpress.ExpressType == SqlExpressType.Comma && PreAcceptKeysNot(acceptKeys, 1, new HashSet<string> { keyAs, keyDistinct,keyAll }) == keySelect)
                 {
                     sqlExpress.AnalyseType = AnalyseType.Column;
                     colums.Add(sqlExpress.Val);
