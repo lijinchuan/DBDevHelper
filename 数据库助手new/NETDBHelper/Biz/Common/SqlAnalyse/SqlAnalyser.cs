@@ -46,6 +46,8 @@ namespace Biz.Common.SqlAnalyse
 
         public static readonly string keyExec = "exec";
 
+        public static readonly string keyDelete = "delete";
+
 
         protected string lastError = string.Empty;
         protected readonly HashSet<string> tables = new HashSet<string>();
