@@ -560,6 +560,10 @@ namespace NETDBHelper.UC
             view.CellClick += View_CellClick;
             view.RowPostPaint += View_RowPostPaint;
             view.DataBindingComplete += View_DataBindingComplete;
+            view.RowEnter += View_RowEnter;
+            view.RowLeave += View_RowLeave;
+            view.DefaultCellStyle.SelectionBackColor = Color.LightYellow;
+            view.DefaultCellStyle.SelectionForeColor = Color.Blue;
 
             剪切ToolStripMenuItem.Enabled = false;
             
@@ -597,6 +601,30 @@ namespace NETDBHelper.UC
                       }));
                   }
               }), null, 0, 100);
+        }
+
+        private void View_RowLeave(object sender, DataGridViewCellEventArgs e)
+        {
+            var dgv = (sender as DataGridView);
+            var row = dgv.Rows[e.RowIndex];
+            if (row.DefaultCellStyle.WrapMode == DataGridViewTriState.True)
+            {
+                var oldHeight = row.Height;
+                row.DefaultCellStyle.WrapMode = DataGridViewTriState.False;
+                dgv.Height += row.Height - oldHeight;
+            }
+        }
+
+        private void View_RowEnter(object sender, DataGridViewCellEventArgs e)
+        {
+            var dgv = (sender as DataGridView);
+            var row = dgv.Rows[e.RowIndex];
+            if (row.DefaultCellStyle.WrapMode == DataGridViewTriState.False)
+            {
+                var oldHeight = row.Height;
+                row.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
+                dgv.Height += row.Height - oldHeight;
+            }
         }
 
         private void ContextMenuStrip1_VisibleChanged(object sender, EventArgs e)
@@ -850,56 +878,61 @@ namespace NETDBHelper.UC
             var ajustviewwith = 0;
             int icount = 0;
             List<int> maxwidthlist = new List<int>();
-            foreach (DataGridViewColumn col in view.Columns)
+            using (var g = view.CreateGraphics())
             {
-                if (!col.Visible)
+                foreach (DataGridViewColumn col in view.Columns)
                 {
-                    continue;
-                }
-
-                int maxwidth = 0;
-                foreach (DataGridViewRow row in view.Rows)
-                {
-                    using (var g = view.CreateGraphics())
+                    if (!col.Visible)
                     {
-                        var mwidth = col.DefaultCellStyle.Padding.Left + (int)g.MeasureString((row.Cells[col.Name].Value??string.Empty).ToString() + col.Name, view.Font).Width + 20;
+                        continue;
+                    }
+
+                    int maxwidth = 0;
+                    foreach (DataGridViewRow row in view.Rows)
+                    {
+                        var mwidth = col.DefaultCellStyle.Padding.Left + (int)g.MeasureString((row.Cells[col.Name].Value ?? string.Empty).ToString() + col.Name, view.Font).Width + 20;
                         if (mwidth > maxwidth)
                         {
                             maxwidth = mwidth;
                         }
                     }
+                    ajustviewwith += maxwidth;
+                    if (icount < view.DisplayedColumnCount(false))
+                    {
+                        maxwidthlist.Add(maxwidth);
+                    }
+                    icount++;
                 }
-                ajustviewwith += maxwidth;
-                if (icount < view.DisplayedColumnCount(false))
+
+                var limitwidth = (int)(this.Width * 0.8);
+                var width = Math.Min(ajustviewwith, limitwidth);
+
+                view.Width = width;
+
+                var rate = width < ajustviewwith ? (width * 1.0 / ajustviewwith) : 1.0;
+                icount = 0;
+                foreach (DataGridViewColumn col in view.Columns)
                 {
-                    maxwidthlist.Add(maxwidth);
+                    if (!col.Visible)
+                    {
+                        continue;
+                    }
+                    col.Width = (int)(maxwidthlist[icount] * rate);
+                    icount++;
                 }
-                icount++;
-            }
 
-            var limitwidth = (int)(this.Width * 0.8);
-            var width = Math.Min(ajustviewwith, limitwidth);
-
-            view.Width = width;
-
-            var rate = width < ajustviewwith ? (width*1.0/ajustviewwith): 1.0;
-            icount = 0;
-            foreach (DataGridViewColumn col in view.Columns)
-            {
-                if (!col.Visible)
+                var height = view.ColumnHeadersHeight;
+                for (var i = 0; i < Math.Min(view.Rows.Count, 10); i++)
                 {
-                    continue;
-                }
-                col.Width = (int)(maxwidthlist[icount]*rate);
-                icount++;
-            }
+                    if (view.Rows[i].Height > view.ColumnHeadersHeight)
+                    {
+                        view.Rows[i].DefaultCellStyle.WrapMode = DataGridViewTriState.False;
+                    }
 
-            var height = view.ColumnHeadersHeight;
-            for (var i = 0; i < Math.Min(view.Rows.Count, 10); i++)
-            {
-                height += view.Rows[i].Height;
+                    height += view.Rows[i].Height;
+                }
+                view.Height = height;
             }
-            view.Height = height;
         }
 
         private void View_RowPostPaint(object sender, DataGridViewRowPostPaintEventArgs e)
@@ -1176,6 +1209,8 @@ namespace NETDBHelper.UC
         private void View_KeyUp(object sender, KeyEventArgs e)
         {
             int i = 0;
+            int rowIndex = -1;
+            var hasSelected = view.SelectedRows.Count > 0;
             for(; i < view.Rows.Count; i++)
             {
                 if (view.Rows[i].Selected)
@@ -1192,8 +1227,7 @@ namespace NETDBHelper.UC
             {
                 if (i < 0)
                 {
-                    view.Rows[view.Rows.Count - 1].Selected = true;
-                    view.CurrentCell = view.Rows[view.Rows.Count - 1].Cells[0];
+                    rowIndex = view.Rows.Count - 1;
                 }
                 else if (i == 0)
                 {
@@ -1201,21 +1235,28 @@ namespace NETDBHelper.UC
                 }
                 else
                 {
-                    view.Rows[i - 1].Selected = true;
-                    view.CurrentCell = view.Rows[i - 1].Cells[0];
+                    rowIndex = i - 1;
                 }
             }
             else if (e.KeyCode == Keys.Down)
             {
                 if (i == view.Rows.Count - 1)
                 {
-                    view.Rows[0].Selected = true;
-                    view.CurrentCell = view.Rows[0].Cells[0];
+                    rowIndex = 0;
                 }
                 else
                 {
-                    view.Rows[i + 1].Selected = true;
-                    view.CurrentCell = view.Rows[i + 1].Cells[0];
+                    rowIndex = i + 1;
+                }
+            }
+
+            if (rowIndex != -1)
+            {
+                view.Rows[rowIndex].Selected = true;
+                view.CurrentCell = view.Rows[rowIndex].Cells[0];
+                if (!hasSelected)
+                {
+                    View_RowEnter(view, new DataGridViewCellEventArgs(0, rowIndex));
                 }
             }
         }
