@@ -348,6 +348,8 @@ namespace NETDBHelper.UC
                                 e.Row.HeaderCell.Value = string.Format("{0}", e.Row.Index + 1);
 
                             };
+                            dgv.DefaultCellStyle.SelectionBackColor = Color.LightGray;
+                            dgv.DefaultCellStyle.SelectionForeColor = Color.Black;
 
                             this.Invoke(new Action(() =>
                             {
