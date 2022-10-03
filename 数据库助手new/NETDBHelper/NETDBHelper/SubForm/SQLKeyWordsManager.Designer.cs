@@ -30,41 +30,65 @@ namespace NETDBHelper.SubForm
         private void InitializeComponent()
         {
             this.panel1 = new System.Windows.Forms.Panel();
+            this.LBNavList = new System.Windows.Forms.ListBox();
+            this.GVKeyWordList = new System.Windows.Forms.DataGridView();
             this.panel2 = new System.Windows.Forms.Panel();
+            this.LBHidId = new System.Windows.Forms.Label();
+            this.BtnReset = new System.Windows.Forms.Button();
+            this.BtnSearch = new System.Windows.Forms.Button();
+            this.CBKeyType = new System.Windows.Forms.ComboBox();
+            this.label4 = new System.Windows.Forms.Label();
+            this.TBDesc = new System.Windows.Forms.TextBox();
+            this.label3 = new System.Windows.Forms.Label();
             this.CBColor = new System.Windows.Forms.ComboBox();
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.BtnAdd = new System.Windows.Forms.Button();
             this.TbKeyWord = new System.Windows.Forms.TextBox();
-            this.label3 = new System.Windows.Forms.Label();
-            this.TBDesc = new System.Windows.Forms.TextBox();
-            this.label4 = new System.Windows.Forms.Label();
-            this.CBKeyType = new System.Windows.Forms.ComboBox();
-            this.GVKeyWordList = new System.Windows.Forms.DataGridView();
-            this.LBNavList = new System.Windows.Forms.ListBox();
-            this.BtnSearch = new System.Windows.Forms.Button();
-            this.BtnReset = new System.Windows.Forms.Button();
-            this.LBHidId = new System.Windows.Forms.Label();
             this.panel1.SuspendLayout();
-            this.panel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.GVKeyWordList)).BeginInit();
+            this.panel2.SuspendLayout();
             this.SuspendLayout();
             // 
             // panel1
             // 
-            this.panel1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            this.panel1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.panel1.Controls.Add(this.LBNavList);
             this.panel1.Controls.Add(this.GVKeyWordList);
-            this.panel1.Location = new System.Drawing.Point(2, 128);
+            this.panel1.Location = new System.Drawing.Point(2, 206);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(786, 310);
+            this.panel1.Size = new System.Drawing.Size(786, 232);
             this.panel1.TabIndex = 0;
+            // 
+            // LBNavList
+            // 
+            this.LBNavList.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
+            this.LBNavList.FormattingEnabled = true;
+            this.LBNavList.ItemHeight = 12;
+            this.LBNavList.Location = new System.Drawing.Point(2, 7);
+            this.LBNavList.Name = "LBNavList";
+            this.LBNavList.Size = new System.Drawing.Size(72, 220);
+            this.LBNavList.TabIndex = 1;
+            // 
+            // GVKeyWordList
+            // 
+            this.GVKeyWordList.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.GVKeyWordList.BackgroundColor = System.Drawing.SystemColors.ButtonHighlight;
+            this.GVKeyWordList.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.GVKeyWordList.Location = new System.Drawing.Point(81, 7);
+            this.GVKeyWordList.Name = "GVKeyWordList";
+            this.GVKeyWordList.RowTemplate.Height = 23;
+            this.GVKeyWordList.Size = new System.Drawing.Size(702, 222);
+            this.GVKeyWordList.TabIndex = 0;
             // 
             // panel2
             // 
-            this.panel2.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            this.panel2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.panel2.Controls.Add(this.LBHidId);
             this.panel2.Controls.Add(this.BtnReset);
@@ -80,8 +104,76 @@ namespace NETDBHelper.SubForm
             this.panel2.Controls.Add(this.TbKeyWord);
             this.panel2.Location = new System.Drawing.Point(2, 7);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(786, 115);
+            this.panel2.Size = new System.Drawing.Size(786, 193);
             this.panel2.TabIndex = 1;
+            // 
+            // LBHidId
+            // 
+            this.LBHidId.AutoSize = true;
+            this.LBHidId.Location = new System.Drawing.Point(10, 87);
+            this.LBHidId.Name = "LBHidId";
+            this.LBHidId.Size = new System.Drawing.Size(17, 12);
+            this.LBHidId.TabIndex = 11;
+            this.LBHidId.Text = "id";
+            this.LBHidId.Visible = false;
+            // 
+            // BtnReset
+            // 
+            this.BtnReset.Location = new System.Drawing.Point(652, 7);
+            this.BtnReset.Name = "BtnReset";
+            this.BtnReset.Size = new System.Drawing.Size(48, 23);
+            this.BtnReset.TabIndex = 10;
+            this.BtnReset.Text = "重置";
+            this.BtnReset.UseVisualStyleBackColor = true;
+            this.BtnReset.Click += new System.EventHandler(this.BtnReset_Click);
+            // 
+            // BtnSearch
+            // 
+            this.BtnSearch.Location = new System.Drawing.Point(593, 6);
+            this.BtnSearch.Name = "BtnSearch";
+            this.BtnSearch.Size = new System.Drawing.Size(53, 23);
+            this.BtnSearch.TabIndex = 9;
+            this.BtnSearch.Text = "查找";
+            this.BtnSearch.UseVisualStyleBackColor = true;
+            this.BtnSearch.Click += new System.EventHandler(this.BtnSearch_Click);
+            // 
+            // CBKeyType
+            // 
+            this.CBKeyType.FormattingEnabled = true;
+            this.CBKeyType.Location = new System.Drawing.Point(266, 8);
+            this.CBKeyType.Name = "CBKeyType";
+            this.CBKeyType.Size = new System.Drawing.Size(100, 20);
+            this.CBKeyType.TabIndex = 8;
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(226, 12);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(41, 12);
+            this.label4.TabIndex = 7;
+            this.label4.Text = "类型：";
+            // 
+            // TBDesc
+            // 
+            this.TBDesc.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.TBDesc.Location = new System.Drawing.Point(69, 36);
+            this.TBDesc.Multiline = true;
+            this.TBDesc.Name = "TBDesc";
+            this.TBDesc.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+            this.TBDesc.Size = new System.Drawing.Size(699, 154);
+            this.TBDesc.TabIndex = 6;
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(22, 56);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(41, 12);
+            this.label3.TabIndex = 5;
+            this.label3.Text = "说明：";
             // 
             // CBColor
             // 
@@ -126,91 +218,6 @@ namespace NETDBHelper.SubForm
             this.TbKeyWord.Size = new System.Drawing.Size(147, 21);
             this.TbKeyWord.TabIndex = 0;
             // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(22, 56);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(41, 12);
-            this.label3.TabIndex = 5;
-            this.label3.Text = "说明：";
-            // 
-            // TBDesc
-            // 
-            this.TBDesc.Location = new System.Drawing.Point(69, 36);
-            this.TBDesc.Multiline = true;
-            this.TBDesc.Name = "TBDesc";
-            this.TBDesc.Size = new System.Drawing.Size(699, 76);
-            this.TBDesc.TabIndex = 6;
-            // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(226, 12);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(41, 12);
-            this.label4.TabIndex = 7;
-            this.label4.Text = "类型：";
-            // 
-            // CBKeyType
-            // 
-            this.CBKeyType.FormattingEnabled = true;
-            this.CBKeyType.Location = new System.Drawing.Point(266, 8);
-            this.CBKeyType.Name = "CBKeyType";
-            this.CBKeyType.Size = new System.Drawing.Size(100, 20);
-            this.CBKeyType.TabIndex = 8;
-            // 
-            // GVKeyWordList
-            // 
-            this.GVKeyWordList.BackgroundColor = System.Drawing.SystemColors.ButtonHighlight;
-            this.GVKeyWordList.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.GVKeyWordList.Dock = System.Windows.Forms.DockStyle.Right;
-            this.GVKeyWordList.Location = new System.Drawing.Point(81, 0);
-            this.GVKeyWordList.Name = "GVKeyWordList";
-            this.GVKeyWordList.RowTemplate.Height = 23;
-            this.GVKeyWordList.Size = new System.Drawing.Size(705, 310);
-            this.GVKeyWordList.TabIndex = 0;
-            // 
-            // LBNavList
-            // 
-            this.LBNavList.Dock = System.Windows.Forms.DockStyle.Left;
-            this.LBNavList.FormattingEnabled = true;
-            this.LBNavList.ItemHeight = 12;
-            this.LBNavList.Location = new System.Drawing.Point(0, 0);
-            this.LBNavList.Name = "LBNavList";
-            this.LBNavList.Size = new System.Drawing.Size(72, 310);
-            this.LBNavList.TabIndex = 1;
-            // 
-            // BtnSearch
-            // 
-            this.BtnSearch.Location = new System.Drawing.Point(593, 6);
-            this.BtnSearch.Name = "BtnSearch";
-            this.BtnSearch.Size = new System.Drawing.Size(53, 23);
-            this.BtnSearch.TabIndex = 9;
-            this.BtnSearch.Text = "查找";
-            this.BtnSearch.UseVisualStyleBackColor = true;
-            this.BtnSearch.Click += new System.EventHandler(this.BtnSearch_Click);
-            // 
-            // BtnReset
-            // 
-            this.BtnReset.Location = new System.Drawing.Point(652, 7);
-            this.BtnReset.Name = "BtnReset";
-            this.BtnReset.Size = new System.Drawing.Size(48, 23);
-            this.BtnReset.TabIndex = 10;
-            this.BtnReset.Text = "重置";
-            this.BtnReset.UseVisualStyleBackColor = true;
-            this.BtnReset.Click += new System.EventHandler(this.BtnReset_Click);
-            // 
-            // LBHidId
-            // 
-            this.LBHidId.AutoSize = true;
-            this.LBHidId.Location = new System.Drawing.Point(10, 87);
-            this.LBHidId.Name = "LBHidId";
-            this.LBHidId.Size = new System.Drawing.Size(17, 12);
-            this.LBHidId.TabIndex = 11;
-            this.LBHidId.Text = "id";
-            this.LBHidId.Visible = false;
-            // 
             // SQLKeyWordsManager
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -220,10 +227,11 @@ namespace NETDBHelper.SubForm
             this.Controls.Add(this.panel1);
             this.Name = "SQLKeyWordsManager";
             this.Text = "关键字管理";
+            this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.panel1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.GVKeyWordList)).EndInit();
             this.panel2.ResumeLayout(false);
             this.panel2.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.GVKeyWordList)).EndInit();
             this.ResumeLayout(false);
 
         }

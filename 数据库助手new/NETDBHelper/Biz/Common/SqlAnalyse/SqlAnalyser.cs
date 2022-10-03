@@ -21,6 +21,7 @@ namespace Biz.Common.SqlAnalyse
         public static readonly string keyTop = "top";
         public static readonly string keyJoin = "join";
         public static readonly string keyJoinOn = "on";
+        public static readonly string keyCount = "count";
 
         public static readonly string keyTruncate = "truncate";
 
@@ -30,6 +31,7 @@ namespace Biz.Common.SqlAnalyse
         public static readonly string keyBetween = "between";
         public static readonly string keyLike = "like";
         public static readonly string keyAnd = "and";
+        public static readonly string keyOr = "or";
 
         public static readonly string keyIn = "in";
         public static readonly string keyLeft = "left";
@@ -53,6 +55,10 @@ namespace Biz.Common.SqlAnalyse
 
         public static readonly string keyDelete = "delete";
 
+        public static readonly string keyNull = "null";
+
+        protected static readonly HashSet<string> commonKeys = new HashSet<string> { keyNull };
+
 
         protected string lastError = string.Empty;
         protected readonly HashSet<string> tables = new HashSet<string>();
@@ -74,6 +80,10 @@ namespace Biz.Common.SqlAnalyse
 
         private bool isAcceptPrimaryKey = false;
 
+        protected bool IsKey(string token)
+        {
+            return commonKeys.Contains(token) || GetKeys().Contains(token);
+        }
 
         public List<ISqlAnalyser> NestAnalyser
         {
@@ -81,7 +91,7 @@ namespace Biz.Common.SqlAnalyse
             set;
         } = new List<ISqlAnalyser>();
 
-        protected virtual bool AcceptDeeper(ISqlExpress sqlExpress)
+        protected virtual bool AcceptDeeper(ISqlExpress sqlExpress,bool isKey)
         {
             return false;
         }
@@ -93,10 +103,15 @@ namespace Biz.Common.SqlAnalyse
         public virtual bool Accept(ISqlExpress sqlExpress, bool isKey)
         {
             var primaryKey = GetPrimaryKey();
+            var isInKeys = IsKey(sqlExpress.Val);
             if (sqlExpress.Deep != Deep)
             {
-                if (AcceptDeeper(sqlExpress))
+                if (AcceptDeeper(sqlExpress,isInKeys))
                 {
+                    if (isInKeys)
+                    {
+                        sqlExpress.AnalyseType = AnalyseType.Key;
+                    }
                     return true;
                 }
                 else
@@ -111,14 +126,13 @@ namespace Biz.Common.SqlAnalyse
                 return false;
             }
 
-            var keys = GetKeys();
             var isAccept = false;
 
-            if (sqlExpress.AnalyseType != AnalyseType.Key || keys.Contains(sqlExpress.Val))
+            if (sqlExpress.AnalyseType != AnalyseType.Key || isInKeys)
             {
                 if (sqlExpress.ExpressType != SqlExpressType.Annotation)
                 {
-                    if (keys.Contains(sqlExpress.Val))
+                    if (isInKeys)
                     {
                         sqlExpress.AnalyseType = AnalyseType.Key;
                         if (AcceptKey(sqlExpress))

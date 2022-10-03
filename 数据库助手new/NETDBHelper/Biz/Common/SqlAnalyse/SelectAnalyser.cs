@@ -10,7 +10,7 @@ namespace Biz.Common.SqlAnalyse
     public class SelectAnalyser : SqlAnalyser
     {
 
-        private readonly HashSet<string> keys = new HashSet<string> { keySelect, keyDistinct,keyAll, keyTop, keyInto, keyFrom, keyAs, keyWhere, keyBetween, keyLike, keyAnd, keyIn, keyLeft, keyRight, keyInner, keyFull, keyJoin, keyOn, keyGroup, keyOrder, keyBy,keyHaving,keyAsc,keyDesc, keyWith, keyNolock };
+        private readonly HashSet<string> keys = new HashSet<string> { keySelect, keyDistinct, keyAll, keyCount, keyTop, keyInto, keyFrom, keyAs, keyWhere, keyBetween, keyLike, keyAnd,keyOr, keyIn, keyLeft, keyRight, keyInner, keyFull, keyJoin, keyOn, keyGroup, keyOrder, keyBy, keyHaving, keyAsc, keyDesc, keyWith, keyNolock };
 
         public SelectAnalyser()
         {
@@ -26,13 +26,38 @@ namespace Biz.Common.SqlAnalyse
             return keys;
         }
 
+        protected override bool AcceptDeeper(ISqlExpress sqlExpress,bool iskey)
+        {
+            var lastLastKey = PreAcceptKeys(acceptKeys, 1);
+            var lastKey = PreAcceptKeys(acceptKeys, 0);
+
+            if ((lastLastKey == keyCount && lastKey == keyDistinct) || lastKey == keyCount)
+            {
+                var isKey = keys.Contains(sqlExpress.Val);
+                if (sqlExpress.Val == keyDistinct)
+                {
+                    sqlExpress.AnalyseType = AnalyseType.Key;
+                }
+                else if (!isKey && sqlExpress.ExpressType == SqlExpressType.Token)
+                {
+                    sqlExpress.AnalyseType = AnalyseType.Column;
+                    colums.Add(sqlExpress.Val);
+                }
+
+                return true;
+            }
+            
+            return base.AcceptDeeper(sqlExpress,iskey);
+        }
+
         protected override bool Accept(ISqlExpress sqlExpress)
         {
+            var lastLastKey = PreAcceptKeys(acceptKeys, 1);
             var lastKey = PreAcceptKeys(acceptKeys, 0);
             var preExpress = PreAcceptExpress(AcceptedSqlExpresses, 0);
             if (sqlExpress.ExpressType == SqlExpressType.Token)
             {
-                if (lastKey == keySelect || (lastKey == keyDistinct||lastKey==keyAll) || lastKey == keyTop)
+                if (lastKey == keySelect || (lastKey == keyDistinct || lastKey == keyAll) || lastKey == keyTop)
                 {
                     if (preExpress.AnalyseType == AnalyseType.Column || preExpress.Val == keyAs)
                     {
@@ -45,7 +70,27 @@ namespace Biz.Common.SqlAnalyse
                         colums.Add(sqlExpress.Val);
                     }
                 }
-                else if (lastKey == keyAs && preExpress.ExpressType == SqlExpressType.Comma && PreAcceptKeysNot(acceptKeys, 1, new HashSet<string> { keyAs, keyDistinct,keyAll }) == keySelect)
+                else if (lastKey == keyAs && preExpress.ExpressType == SqlExpressType.Comma && PreAcceptKeysNot(acceptKeys, 1, new HashSet<string> { keyAs, keyDistinct, keyAll }) == keySelect)
+                {
+                    sqlExpress.AnalyseType = AnalyseType.Column;
+                    colums.Add(sqlExpress.Val);
+                }
+                else if ((PreAcceptKeysNot(acceptKeys, 1, new HashSet<string> { keyAnd, keyOr }) == keyWhere && (lastKey == keyAnd || lastKey == keyOr)) || lastKey == keyWhere)
+                {
+                    sqlExpress.AnalyseType = AnalyseType.Column;
+                    colums.Add(sqlExpress.Val);
+                }
+                else if (lastLastKey == keyGroup && lastKey == keyBy)
+                {
+                    sqlExpress.AnalyseType = AnalyseType.Column;
+                    colums.Add(sqlExpress.Val);
+                }
+                else if ((lastLastKey == keyOrder && lastKey == keyBy) || lastKey == keyDesc || lastKey == keyAsc)
+                {
+                    sqlExpress.AnalyseType = AnalyseType.Column;
+                    colums.Add(sqlExpress.Val);
+                }
+                else if (PreAcceptKeysNot(acceptKeys, 1, new HashSet<string> { keyOn, keyAnd, keyOr }) == keyJoin && (lastKey == keyOn || lastKey == keyAnd || lastKey == keyOr))
                 {
                     sqlExpress.AnalyseType = AnalyseType.Column;
                     colums.Add(sqlExpress.Val);

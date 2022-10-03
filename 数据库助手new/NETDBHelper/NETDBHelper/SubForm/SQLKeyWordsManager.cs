@@ -36,6 +36,8 @@ namespace NETDBHelper.SubForm
             this.GVKeyWordList.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
             this.GVKeyWordList.AllowUserToResizeRows = true;
 
+            GVKeyWordList.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
+
             CBKeyType.SelectedIndexChanged += CBKeyType_SelectedIndexChanged;
 
             LBHidId.Text = "0";
