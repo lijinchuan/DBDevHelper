@@ -549,7 +549,7 @@ namespace NETDBHelper.UC
             view.BorderStyle = BorderStyle.None;
             view.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             view.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.DisplayedCellsExceptHeaders;
-            view.RowsDefaultCellStyle.WrapMode = DataGridViewTriState.True;
+            view.RowsDefaultCellStyle.WrapMode = DataGridViewTriState.False;
             view.AllowUserToAddRows = false;
             view.RowHeadersVisible = false;
             view.KeyUp += View_KeyUp;
@@ -612,6 +612,8 @@ namespace NETDBHelper.UC
                 var oldHeight = row.Height;
                 row.DefaultCellStyle.WrapMode = DataGridViewTriState.False;
                 dgv.Height += row.Height - oldHeight;
+
+                AdjustViewLoaction();
             }
         }
 
@@ -624,6 +626,8 @@ namespace NETDBHelper.UC
                 var oldHeight = row.Height;
                 row.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
                 dgv.Height += row.Height - oldHeight;
+
+                AdjustViewLoaction();
             }
         }
 
@@ -924,10 +928,8 @@ namespace NETDBHelper.UC
                 var height = view.ColumnHeadersHeight;
                 for (var i = 0; i < Math.Min(view.Rows.Count, 10); i++)
                 {
-                    if (view.Rows[i].Height > view.ColumnHeadersHeight)
-                    {
-                        view.Rows[i].DefaultCellStyle.WrapMode = DataGridViewTriState.False;
-                    }
+
+                    view.Rows[i].DefaultCellStyle.WrapMode = DataGridViewTriState.False;
 
                     height += view.Rows[i].Height;
                 }
@@ -1338,6 +1340,24 @@ namespace NETDBHelper.UC
             }
         }
 
+        void AdjustViewLoaction()
+        {
+            var curindex = this.RichText.SelectionStart;
+            var tippt = this.RichText.GetPositionFromCharIndex(curindex);
+            tippt.Offset(RichText.Location.X, 20);
+            var morewidth = tippt.X + view.Width - view.Parent.Location.X - view.Parent.Width;
+            if (morewidth > 0)
+            {
+                tippt.Offset(-morewidth, 0);
+            }
+            if (view.Height + tippt.Y + 30 > this.Parent.Location.Y + this.Parent.Height)
+            {
+                tippt.Offset(0, -view.Height - 20);
+            }
+            view.ScrollBars = ScrollBars.Vertical;
+            view.Location = tippt;
+        }
+
         void RichText_TextChanged(object sender, EventArgs e)
         {
             if (_lastInputChar == '\0')
@@ -1368,20 +1388,7 @@ namespace NETDBHelper.UC
                     view.ClearSelection();
                     view.BringToFront();
 
-                    var curindex = this.RichText.SelectionStart;
-                    var tippt = this.RichText.GetPositionFromCharIndex(curindex);
-                    tippt.Offset(RichText.Location.X, 20);
-                    var morewidth = tippt.X + view.Width - view.Parent.Location.X - view.Parent.Width;
-                    if (morewidth > 0)
-                    {
-                        tippt.Offset(-morewidth, 0);
-                    }
-                    if (view.Height + tippt.Y + 30 > this.Parent.Location.Y + this.Parent.Height)
-                    {
-                        tippt.Offset(0, -view.Height - 20);
-                    }
-                    view.ScrollBars = ScrollBars.Vertical;
-                    view.Location = tippt;
+                    AdjustViewLoaction();
 
                 }
                 else
