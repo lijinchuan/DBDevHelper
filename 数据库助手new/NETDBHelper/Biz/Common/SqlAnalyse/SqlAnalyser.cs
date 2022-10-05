@@ -9,8 +9,16 @@ namespace Biz.Common.SqlAnalyse
 {
     public abstract class SqlAnalyser : ISqlAnalyser
     {
+        public static readonly string keyDatabase = "database";
         public static readonly string keyTable = "table";
+        public static readonly string keyIndex = "index";
+        public static readonly string keyView = "view";
+        public static readonly string keyUnique = "unique";
+        public static readonly string keyClustered = "clustered";
+        public static readonly string keyNonclustered = "nonclustered";
         public static readonly string keyInto = "into";
+
+        
 
         public static readonly string keySelect = "select";
         public static readonly string keyDistinct = "distinct";
@@ -57,7 +65,58 @@ namespace Biz.Common.SqlAnalyse
 
         public static readonly string keyNull = "null";
 
-        protected static readonly HashSet<string> commonKeys = new HashSet<string> { keyNull };
+        public static readonly string keyCreate = "create";
+
+        public static readonly string keyChar = "char";
+        public static readonly string keyNChar= "nchar";
+        public static readonly string keyVarChar = "varchar";
+        public static readonly string keyNVarChar = "nvarchar";
+        public static readonly string keyInt = "int";
+        public static readonly string keyNumeric = "numeric";
+        public static readonly string keyBigint = "bigint";
+        public static readonly string keyBinary = "binary";
+        public static readonly string keyBit = "bit";
+        public static readonly string keyDate = "date";
+        public static readonly string keyDatetime = "datetime";
+        public static readonly string keyDatetime2 = "datetime2";
+        public static readonly string keyDatetimeoffset = "datetimeoffset";
+        public static readonly string keyDecimal="decimal";
+        public static readonly string keyFloat = "float";
+        public static readonly string keyGeography = "geography";
+        public static readonly string keyGeometry = "geometry";
+        public static readonly string keyHierarchyid = "hierarchyid";
+        public static readonly string keyImage = "image";
+        public static readonly string keyMoney = "money";
+        public static readonly string keyNtext = "ntext";
+        public static readonly string keyReal = "real";
+        public static readonly string keySmalldatetime = "smalldatetime";
+        public static readonly string keySmallint = "smallint";
+        public static readonly string keySmallmoney = "smallmoney";
+        public static readonly string keySql_variant = "sql_variant";
+        public static readonly string keyText = "text";
+        public static readonly string keyTime = "time";
+        public static readonly string keyTimestamp = "timestamp";
+        public static readonly string keyTinyint = "tinyint";
+        public static readonly string keyUniqueidentifier = "uniqueidentifier";
+        public static readonly string keyVarbinary = "varbinary";
+        public static readonly string keyXml = "xml";
+
+        public static readonly string keyDefault = "default";
+
+        public static readonly string keyAlter = "alter";
+        public static readonly string keyDrop = "drop";
+        public static readonly string keyColumn = "column";
+        /// <summary>
+        /// 约束
+        /// </summary>
+        public static readonly string keyConstraint = "constraint";
+        public static readonly string keyModify = "modify";
+
+        public static readonly string keyFileName = "filename";
+
+        public static readonly string keyLog = "log";
+
+        protected static readonly HashSet<string> commonKeys = new HashSet<string> { keyNull, keyChar, keyNChar, keyVarChar, keyNVarChar, keyInt, keyNumeric, keyBigint, keyBinary, keyBit, keyDate, keyDatetime, keyDatetime2, keyDatetimeoffset, keyDecimal, keyFloat, keyGeography, keyGeometry, keyHierarchyid, keyImage, keyMoney, keyNtext, keyReal, keySmalldatetime, keySmallint, keySmallmoney, keySql_variant, keyText, keyTime, keyTimestamp, keyTinyint, keyUniqueidentifier, keyVarbinary, keyXml };
 
 
         protected string lastError = string.Empty;
@@ -98,7 +157,25 @@ namespace Biz.Common.SqlAnalyse
 
         protected abstract bool Accept(ISqlExpress sqlExpress);
 
-        protected abstract bool AcceptKey(ISqlExpress sqlExpress);
+        /// <summary>
+        /// 是否解受内部key，一般true，比如insert不能同时有values和select关键字
+        /// </summary>
+        /// <param name="sqlExpress"></param>
+        /// <returns></returns>
+        protected virtual bool AcceptInnerKey(ISqlExpress sqlExpress)
+        {
+            return true;
+        }
+
+        /// <summary>
+        /// 是否接受外部key，一般false
+        /// </summary>
+        /// <param name="sqlExpress"></param>
+        /// <returns></returns>
+        protected virtual bool AcceptOuterKey(ISqlExpress sqlExpress)
+        {
+            return false;
+        }
 
         public virtual bool Accept(ISqlExpress sqlExpress, bool isKey)
         {
@@ -121,21 +198,21 @@ namespace Biz.Common.SqlAnalyse
             }
 
             //分隔多个SELECT
-            if (sqlExpress.Val == primaryKey && isAcceptPrimaryKey)
+            if (sqlExpress.Val == primaryKey && isAcceptPrimaryKey && !AcceptOuterKey(sqlExpress))
             {
                 return false;
             }
 
             var isAccept = false;
 
-            if (sqlExpress.AnalyseType != AnalyseType.Key || isInKeys)
+            if (!isKey || isInKeys)
             {
                 if (sqlExpress.ExpressType != SqlExpressType.Annotation)
                 {
                     if (isInKeys)
                     {
                         sqlExpress.AnalyseType = AnalyseType.Key;
-                        if (AcceptKey(sqlExpress))
+                        if (AcceptInnerKey(sqlExpress))
                         {
                             acceptKeys.Add(sqlExpress.Val);
                             if (sqlExpress.Val == primaryKey)
@@ -159,6 +236,12 @@ namespace Biz.Common.SqlAnalyse
                     AcceptedSqlExpresses.Add(sqlExpress);
                 }
 
+                isAccept = true;
+            }
+            else if (isKey && AcceptOuterKey(sqlExpress))
+            {
+                acceptKeys.Add(sqlExpress.Val);
+                AcceptedSqlExpresses.Add(sqlExpress);
                 isAccept = true;
             }
 
@@ -225,6 +308,16 @@ namespace Biz.Common.SqlAnalyse
                     }
                 }
             }
+        }
+
+        public HashSet<string> GetTables()
+        {
+            return tables;
+        }
+
+        public HashSet<string> GetColumns()
+        {
+            return colums;
         }
     }
 }

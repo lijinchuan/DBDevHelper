@@ -59,9 +59,12 @@
     <Compile Include="Common\Ext.cs" />
     <Compile Include="Common\NumberHelper.cs" />
     <Compile Include="Common\ReflectionHelper.cs" />
+    <Compile Include="Common\SqlAnalyse\AlterAnalyser.cs" />
     <Compile Include="Common\SqlAnalyse\AnalyseResult.cs" />
     <Compile Include="Common\SqlAnalyse\AnalyseType.cs" />
+    <Compile Include="Common\SqlAnalyse\CreateAnalyser.cs" />
     <Compile Include="Common\SqlAnalyse\DeleteAnalyser.cs" />
+    <Compile Include="Common\SqlAnalyse\DropAnalyser.cs" />
     <Compile Include="Common\SqlAnalyse\IAnalyseResult.cs" />
     <Compile Include="Common\SqlAnalyse\InsertAnalyser.cs" />
     <Compile Include="Common\SqlAnalyse\ISqlAnalyser.cs" />

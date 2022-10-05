@@ -26,6 +26,9 @@ namespace Biz.Common.SqlAnalyse
             SqlAnalyserMapper.Add(SqlAnalyser.keyTruncate, () => new TruncateAnalyser());
             SqlAnalyserMapper.Add(SqlAnalyser.keyInsert, () => new InsertAnalyser());
             SqlAnalyserMapper.Add(SqlAnalyser.keyDelete, () => new DeleteAnalyser());
+            SqlAnalyserMapper.Add(SqlAnalyser.keyCreate, () => new CreateAnalyser());
+            SqlAnalyserMapper.Add(SqlAnalyser.keyAlter, () => new AlterAnalyser());
+            SqlAnalyserMapper.Add(SqlAnalyser.keyDrop, () => new DropAnalyser());
             SqlAnalyserMapper.Add("exec", () => null);
         }
 

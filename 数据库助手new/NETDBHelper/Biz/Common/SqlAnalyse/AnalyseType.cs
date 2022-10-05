@@ -16,6 +16,8 @@ namespace Biz.Common.SqlAnalyse
         Table,
         TableAlias,
         Column,
-        ColumnAlas
+        ColumnAlas,
+        Constraint,
+        View
     }
 }

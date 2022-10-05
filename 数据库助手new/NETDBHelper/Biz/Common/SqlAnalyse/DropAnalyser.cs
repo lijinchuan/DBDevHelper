@@ -6,10 +6,9 @@ using System.Threading.Tasks;
 
 namespace Biz.Common.SqlAnalyse
 {
-    public class DeleteAnalyser : SqlAnalyser
+    public class DropAnalyser : SqlAnalyser
     {
-
-        private HashSet<string> keys = new HashSet<string> { keyDelete, keyFrom, keyWhere };
+        private static HashSet<string> keys = new HashSet<string> { keyDrop, keyDatabase, keyTable,keyIndex };
         public override HashSet<string> GetKeys()
         {
             return keys;
@@ -17,22 +16,17 @@ namespace Biz.Common.SqlAnalyse
 
         public override string GetPrimaryKey()
         {
-            return keyDelete;
+            return keyDrop;
         }
 
         protected override bool Accept(ISqlExpress sqlExpress)
         {
             var lastKey = PreAcceptKeys(acceptKeys, 0);
-            var preExpress = PreAcceptExpress(AcceptedSqlExpresses, 0);
-            if (sqlExpress.ExpressType == SqlExpressType.Token)
+            if (lastKey == keyTable)
             {
-                if (lastKey == keyDelete || lastKey == keyFrom)
-                {
-                    tables.Add(sqlExpress.Val);
-                    sqlExpress.AnalyseType = AnalyseType.Table;
-                }
+                sqlExpress.AnalyseType = AnalyseType.Table;
+                tables.Add(sqlExpress.Val);
             }
-
             return true;
         }
     }

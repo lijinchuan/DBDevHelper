@@ -68,7 +68,7 @@ namespace Biz.Common.SqlAnalyse
             return true;
         }
 
-        protected override bool AcceptKey(ISqlExpress sqlExpress)
+        protected override bool AcceptInnerKey(ISqlExpress sqlExpress)
         {
             var lastKey = PreAcceptKeys(acceptKeys, 0);
             if (sqlExpress.Val == keySelect)

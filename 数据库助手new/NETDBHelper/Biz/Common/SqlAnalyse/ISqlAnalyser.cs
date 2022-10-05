@@ -25,5 +25,9 @@ namespace Biz.Common.SqlAnalyse
         List<ISqlAnalyser> NestAnalyser { get; set; }
 
         void Print(string sql);
+
+        HashSet<string> GetTables();
+
+        HashSet<string> GetColumns();
     }
 }

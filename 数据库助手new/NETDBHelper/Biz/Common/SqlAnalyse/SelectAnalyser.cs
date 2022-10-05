@@ -111,10 +111,5 @@ namespace Biz.Common.SqlAnalyse
 
             return true;
         }
-
-        protected override bool AcceptKey(ISqlExpress sqlExpress)
-        {
-            return true;
-        }
     }
 }
