@@ -10,7 +10,7 @@ namespace Biz.Common.SqlAnalyse
     public class SelectAnalyser : SqlAnalyser
     {
 
-        private readonly HashSet<string> keys = new HashSet<string> { keySelect, keyDistinct, keyAll, keyCount, keyTop, keyInto, keyFrom, keyAs, keyWhere, keyBetween, keyLike, keyAnd,keyOr, keyIn, keyLeft, keyRight, keyInner, keyFull, keyJoin, keyOn, keyGroup, keyOrder, keyBy, keyHaving, keyAsc, keyDesc, keyWith, keyNolock };
+        private readonly HashSet<string> keys = new HashSet<string> { keySelect, keyDistinct, keyAll, keyCount, keyTop, keyInto, keyFrom, keyAs, keyWhere, keyBetween, keyLike, keyAnd, keyOr, keyIn, keyLeft, keyRight, keyInner, keyFull, keyJoin, keyOn, keyGroup, keyOrder, keyBy, keyHaving, keyAsc, keyDesc, keyWith, keyNolock, keyCase, keyWhen, keyThen, keyElse, keyEnd };
 
         public SelectAnalyser()
         {
@@ -91,6 +91,11 @@ namespace Biz.Common.SqlAnalyse
                     colums.Add(sqlExpress.Val);
                 }
                 else if (PreAcceptKeysNot(acceptKeys, 1, new HashSet<string> { keyOn, keyAnd, keyOr }) == keyJoin && (lastKey == keyOn || lastKey == keyAnd || lastKey == keyOr))
+                {
+                    sqlExpress.AnalyseType = AnalyseType.Column;
+                    colums.Add(sqlExpress.Val);
+                }
+                else if (lastKey == keyCase || lastKey == keyWhen || lastKey == keyThen || lastKey == keyElse)
                 {
                     sqlExpress.AnalyseType = AnalyseType.Column;
                     colums.Add(sqlExpress.Val);

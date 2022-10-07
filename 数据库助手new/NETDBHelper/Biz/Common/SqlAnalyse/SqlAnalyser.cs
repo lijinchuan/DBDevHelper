@@ -116,6 +116,12 @@ namespace Biz.Common.SqlAnalyse
 
         public static readonly string keyLog = "log";
 
+        public static readonly string keyCase = "case";
+        public static readonly string keyWhen = "when";
+        public static readonly string keyThen = "then";
+        public static readonly string keyElse = "else";
+        public static readonly string keyEnd = "end";
+
         protected static readonly HashSet<string> commonKeys = new HashSet<string> { keyNull, keyChar, keyNChar, keyVarChar, keyNVarChar, keyInt, keyNumeric, keyBigint, keyBinary, keyBit, keyDate, keyDatetime, keyDatetime2, keyDatetimeoffset, keyDecimal, keyFloat, keyGeography, keyGeometry, keyHierarchyid, keyImage, keyMoney, keyNtext, keyReal, keySmalldatetime, keySmallint, keySmallmoney, keySql_variant, keyText, keyTime, keyTimestamp, keyTinyint, keyUniqueidentifier, keyVarbinary, keyXml };
 
 
