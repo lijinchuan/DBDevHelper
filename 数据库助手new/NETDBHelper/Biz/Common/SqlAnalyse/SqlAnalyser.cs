@@ -124,6 +124,19 @@ namespace Biz.Common.SqlAnalyse
 
         protected static readonly HashSet<string> commonKeys = new HashSet<string> { keyNull, keyChar, keyNChar, keyVarChar, keyNVarChar, keyInt, keyNumeric, keyBigint, keyBinary, keyBit, keyDate, keyDatetime, keyDatetime2, keyDatetimeoffset, keyDecimal, keyFloat, keyGeography, keyGeometry, keyHierarchyid, keyImage, keyMoney, keyNtext, keyReal, keySmalldatetime, keySmallint, keySmallmoney, keySql_variant, keyText, keyTime, keyTimestamp, keyTinyint, keyUniqueidentifier, keyVarbinary, keyXml };
 
+        //https://web.baimiaoapp.com/
+        protected static readonly HashSet<string> functions = new HashSet<string>
+        {
+            "avg","binary_checksum","checksum","checksum_agg","count","count_big","grouping","grouping_id","max","min","stdev","stdevp","sum","var","varp",
+            "connectionproperty","@@datefirst","@@dbts","@@langid","@@language","@@lock_timeout","@@max_connections","@@max_precision","@@nestlevel","@@options","@@remserver","@@servername","@@servicename","@@spid","@@textsize","@@version",
+            "current_timestamp","oppeated","datediff","datename","datepart","day","getdate","getutcdate","isdate","month","sysdatetime","sysdatetimeoffset","sysutcdatetime","switchoffset","todatetimeoffset","year",
+            "abs","acos","asin","atan","atn2","ceiling","cos","cot","degrees","exp","floor","log","log10","pi","power","radians","rand","round","sign","sin","sqrt","square","tan",
+            "col_length","col_name","columnproperty","databaseproperty","databasepropertyex","opiqa","db_name","file_id","file_name","filegroup_id","filegroup_name","filegroupproperty","fileproperty","::fn_listextendedproperty","fulltextcatalogproperty","fulltextserviceproperty","index_col","indexkey_property","indexproperty","object_ld","object_name","objectproperty","objectpropertyex","@@procid","sql_variant_property","typeproperty","change_tracking_current_version","change_tracking_ls_column_in_mask","change_tracking_cleanup_version",
+            "app_name","cast","coalesce","collationproperty","columns_updated","convert","current_user", "datalength","@@error","fn_helpcollations","fn_indexinfo","::fn_servershareddrives","::fn_virtualservernodes","formatmessage","getansinullo", "host_id","host_name","ident_current","ident_incr","ident_seed","@@ldentity","identity","isnullo","isnumeric","newid","nullifo","parsename","permissions","@@rowcount","rowcount_big","scope_identity","serverproperty","sessionproperty","session_user","stats_date","system_user","@@trancount","update","user_name",
+            "ascii","char","charindex","difference","left","len","lower","ltrim","nchar","patindex","quotename","replace","replicate","reverse","right","rtrim","soundex","space","str","stuff","substring","unicode","upper",
+            "patindex","textptr","textvalid",
+            "raiserror"
+        };
 
         protected string lastError = string.Empty;
         protected readonly HashSet<string> tables = new HashSet<string>();
