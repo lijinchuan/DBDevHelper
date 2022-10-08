@@ -29,7 +29,8 @@ namespace Biz.Common.SqlAnalyse
             SqlAnalyserMapper.Add(SqlAnalyser.keyCreate, () => new CreateAnalyser());
             SqlAnalyserMapper.Add(SqlAnalyser.keyAlter, () => new AlterAnalyser());
             SqlAnalyserMapper.Add(SqlAnalyser.keyDrop, () => new DropAnalyser());
-            SqlAnalyserMapper.Add("exec", () => null);
+            SqlAnalyserMapper.Add(SqlAnalyser.keyExec, () => new ExecAnalyser());
+            SqlAnalyserMapper.Add(SqlAnalyser.keyExecute, () => new ExecuteAnalyser());
         }
 
         public ISqlAnalyser GetSqlAnalyser(string token)
@@ -202,6 +203,14 @@ namespace Biz.Common.SqlAnalyse
                 {
                     ret.Add(currentAnalyser);
                 }
+            }
+        }
+
+        public void Test(List<ISqlAnalyser> sqlAnalysers,int pos)
+        {
+            foreach(var analyser in sqlAnalysers)
+            {
+                
             }
         }
     }

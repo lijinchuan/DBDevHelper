@@ -29,5 +29,11 @@ namespace Biz.Common.SqlAnalyse
         HashSet<string> GetTables();
 
         HashSet<string> GetColumns();
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="pos"></param>
+        /// <returns></returns>
+        ISqlExpress FindByPos(int pos);
     }
 }

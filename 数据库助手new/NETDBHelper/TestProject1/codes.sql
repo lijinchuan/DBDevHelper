@@ -145,3 +145,6 @@ END
 FROM　　COURSE
 
 ORDER BY　　CREDIT
+
+--
+EXEC printavg_course '操作系统', @pavg output
