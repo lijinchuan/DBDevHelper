@@ -26,9 +26,15 @@ namespace Biz.Common.SqlAnalyse
 
         void Print(string sql);
 
-        HashSet<string> GetTables();
+        HashSet<ISqlExpress> GetTables();
+        /// <summary>
+        /// 别名表
+        /// </summary>
+        /// <returns></returns>
+        HashSet<ISqlExpress> GetAliasTables();
 
-        HashSet<string> GetColumns();
+        HashSet<ISqlExpress> GetColumns();
+
         /// <summary>
         /// 
         /// </summary>

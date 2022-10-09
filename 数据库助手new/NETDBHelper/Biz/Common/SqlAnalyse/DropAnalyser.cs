@@ -25,7 +25,7 @@ namespace Biz.Common.SqlAnalyse
             if (lastKey == keyTable)
             {
                 sqlExpress.AnalyseType = AnalyseType.Table;
-                tables.Add(sqlExpress.Val);
+                tables.Add(sqlExpress);
             }
             return true;
         }

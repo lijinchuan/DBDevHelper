@@ -29,12 +29,12 @@ namespace Biz.Common.SqlAnalyse
                 if (lastKey == keyTable)
                 {
                     sqlExpress.AnalyseType = AnalyseType.Table;
-                    tables.Add(sqlExpress.Val);
+                    tables.Add(sqlExpress);
                 }
                 else if (lastKey == keyColumn || lastKey == keyModify)
                 {
                     sqlExpress.AnalyseType = AnalyseType.Column;
-                    colums.Add(sqlExpress.Val);
+                    colums.Add(sqlExpress);
                 }
             }
 

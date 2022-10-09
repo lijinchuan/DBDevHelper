@@ -31,7 +31,7 @@ namespace Biz.Common.SqlAnalyse
                 if (lastKey == keyInto)
                 {
                     sqlExpress.AnalyseType = AnalyseType.Table;
-                    tables.Add(sqlExpress.Val);
+                    tables.Add(sqlExpress);
                 }
                 if (lastKey == keySelect || (lastKey == keyDistinct||lastKey==keyAll) || lastKey == keyTop)
                 {
@@ -43,24 +43,25 @@ namespace Biz.Common.SqlAnalyse
                     else
                     {
                         sqlExpress.AnalyseType = AnalyseType.Column;
-                        colums.Add(sqlExpress.Val);
+                        colums.Add(sqlExpress);
                     }
                 }
                 else if (lastKey == keyAs && preExpress.ExpressType == SqlExpressType.Comma && PreAcceptKeysNot(acceptKeys, 1, new HashSet<string> { keyAs, keyDistinct,keyAll }) == keySelect)
                 {
                     sqlExpress.AnalyseType = AnalyseType.Column;
-                    colums.Add(sqlExpress.Val);
+                    colums.Add(sqlExpress);
                 }
                 else if (lastKey == keyFrom || lastKey == keyJoin)
                 {
                     if (preExpress.AnalyseType == AnalyseType.Table || preExpress.Val == keyAs)
                     {
                         sqlExpress.AnalyseType = AnalyseType.TableAlias;
+                        aliasTables.Add(sqlExpress);
                     }
                     else
                     {
                         sqlExpress.AnalyseType = AnalyseType.Table;
-                        tables.Add(sqlExpress.Val);
+                        tables.Add(sqlExpress);
                     }
                 }
             }
@@ -90,7 +91,7 @@ namespace Biz.Common.SqlAnalyse
             if (lastKey == keyInsert || (lastLastKey == keyInsert && lastKey == keyInto))
             {
                 sqlExpress.AnalyseType = AnalyseType.Column;
-                colums.Add(sqlExpress.Val);
+                colums.Add(sqlExpress);
                 return true;
             }
             return base.AcceptDeeper(sqlExpress,isKey);

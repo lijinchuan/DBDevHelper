@@ -36,7 +36,7 @@ namespace Biz.Common.SqlAnalyse
                     else
                     {
                         sqlExpress.AnalyseType = AnalyseType.Column;
-                        colums.Add(sqlExpress.Val);
+                        colums.Add(sqlExpress);
                     }
                 }
                 else if (lastKey == keyFrom || lastKey == keyJoin || lastKey == keyUpdate)
@@ -44,19 +44,12 @@ namespace Biz.Common.SqlAnalyse
                     if (preExpress.AnalyseType == AnalyseType.Table || preExpress.Val == keyAs)
                     {
                         sqlExpress.AnalyseType = AnalyseType.TableAlias;
-                        if (tables.Contains(sqlExpress.Val))
-                        {
-                            tables.Remove(sqlExpress.Val);
-                            foreach(var item in AcceptedSqlExpresses.Where(p => p.Val == sqlExpress.Val && p.AnalyseType == AnalyseType.Table))
-                            {
-                                item.AnalyseType = AnalyseType.TableAlias;
-                            }
-                        }
+                        aliasTables.Add(sqlExpress);
                     }
                     else
                     {
                         sqlExpress.AnalyseType = AnalyseType.Table;
-                        tables.Add(sqlExpress.Val);
+                        tables.Add(sqlExpress);
                     }
                 }
             }

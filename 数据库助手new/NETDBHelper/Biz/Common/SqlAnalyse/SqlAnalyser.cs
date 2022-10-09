@@ -140,8 +140,9 @@ namespace Biz.Common.SqlAnalyse
         };
 
         protected string lastError = string.Empty;
-        protected readonly HashSet<string> tables = new HashSet<string>();
-        protected readonly HashSet<string> colums = new HashSet<string>();
+        protected readonly HashSet<ISqlExpress> tables = new HashSet<ISqlExpress>();
+        protected readonly HashSet<ISqlExpress> aliasTables = new HashSet<ISqlExpress>();
+        protected readonly HashSet<ISqlExpress> colums = new HashSet<ISqlExpress>();
 
         protected readonly List<string> acceptKeys = new List<string>();
 
@@ -318,7 +319,7 @@ namespace Biz.Common.SqlAnalyse
                 var end = AcceptedSqlExpresses.Last().EndIndex;
 
                 Trace.WriteLine(perfx + sql.Substring(start, end - start + 1));
-                Trace.WriteLine("tables:" + string.Join("、", tables) + ",columns:" + string.Join("、", colums));
+                Trace.WriteLine("tables:" + string.Join("、", tables.Select(p => p.Val)) + ",columns:" + string.Join("、", colums.Select(p => p.Val)) + ",aliastable:" + string.Join("、", aliasTables.Select(p => p.Val)));
 
                 if (NestAnalyser != null)
                 {
@@ -330,14 +331,22 @@ namespace Biz.Common.SqlAnalyse
             }
         }
 
-        public HashSet<string> GetTables()
+        public HashSet<ISqlExpress> GetTables()
         {
             return tables;
         }
 
-        public HashSet<string> GetColumns()
+        public HashSet<ISqlExpress> GetColumns()
         {
             return colums;
+        }
+
+        public List<string> FindTables(ISqlExpress sqlExpress)
+        {
+            List<string> ret = new List<string>();
+
+
+            return ret;
         }
 
         public ISqlExpress FindByPos(int pos)
@@ -357,6 +366,11 @@ namespace Biz.Common.SqlAnalyse
             }
 
             return AcceptedSqlExpresses.FirstOrDefault(p => p.StartIndex <= pos && p.EndIndex >= pos);
+        }
+
+        public HashSet<ISqlExpress> GetAliasTables()
+        {
+            return aliasTables;
         }
     }
 }

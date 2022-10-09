@@ -41,7 +41,7 @@ namespace Biz.Common.SqlAnalyse
                 else if (!isKey && sqlExpress.ExpressType == SqlExpressType.Token)
                 {
                     sqlExpress.AnalyseType = AnalyseType.Column;
-                    colums.Add(sqlExpress.Val);
+                    colums.Add(sqlExpress);
                 }
 
                 return true;
@@ -67,49 +67,50 @@ namespace Biz.Common.SqlAnalyse
                     else
                     {
                         sqlExpress.AnalyseType = AnalyseType.Column;
-                        colums.Add(sqlExpress.Val);
+                        colums.Add(sqlExpress);
                     }
                 }
                 else if (lastKey == keyAs && preExpress.ExpressType == SqlExpressType.Comma && PreAcceptKeysNot(acceptKeys, 1, new HashSet<string> { keyAs, keyDistinct, keyAll }) == keySelect)
                 {
                     sqlExpress.AnalyseType = AnalyseType.Column;
-                    colums.Add(sqlExpress.Val);
+                    colums.Add(sqlExpress);
                 }
                 else if ((PreAcceptKeysNot(acceptKeys, 1, new HashSet<string> { keyAnd, keyOr }) == keyWhere && (lastKey == keyAnd || lastKey == keyOr)) || lastKey == keyWhere)
                 {
                     sqlExpress.AnalyseType = AnalyseType.Column;
-                    colums.Add(sqlExpress.Val);
+                    colums.Add(sqlExpress);
                 }
                 else if (lastLastKey == keyGroup && lastKey == keyBy)
                 {
                     sqlExpress.AnalyseType = AnalyseType.Column;
-                    colums.Add(sqlExpress.Val);
+                    colums.Add(sqlExpress);
                 }
                 else if ((lastLastKey == keyOrder && lastKey == keyBy) || lastKey == keyDesc || lastKey == keyAsc)
                 {
                     sqlExpress.AnalyseType = AnalyseType.Column;
-                    colums.Add(sqlExpress.Val);
+                    colums.Add(sqlExpress);
                 }
                 else if (PreAcceptKeysNot(acceptKeys, 1, new HashSet<string> { keyOn, keyAnd, keyOr }) == keyJoin && (lastKey == keyOn || lastKey == keyAnd || lastKey == keyOr))
                 {
                     sqlExpress.AnalyseType = AnalyseType.Column;
-                    colums.Add(sqlExpress.Val);
+                    colums.Add(sqlExpress);
                 }
                 else if (lastKey == keyCase || lastKey == keyWhen || lastKey == keyThen || lastKey == keyElse)
                 {
                     sqlExpress.AnalyseType = AnalyseType.Column;
-                    colums.Add(sqlExpress.Val);
+                    colums.Add(sqlExpress);
                 }
                 else if (lastKey == keyFrom || lastKey == keyJoin)
                 {
                     if (preExpress.AnalyseType == AnalyseType.Table || preExpress.Val == keyAs)
                     {
                         sqlExpress.AnalyseType = AnalyseType.TableAlias;
+                        aliasTables.Add(sqlExpress);
                     }
                     else
                     {
                         sqlExpress.AnalyseType = AnalyseType.Table;
-                        tables.Add(sqlExpress.Val);
+                        tables.Add(sqlExpress);
                     }
                 }
             }

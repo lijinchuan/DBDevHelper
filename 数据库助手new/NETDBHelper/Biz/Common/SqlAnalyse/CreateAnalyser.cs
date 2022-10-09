@@ -26,7 +26,8 @@ namespace Biz.Common.SqlAnalyse
         {
             if (selectAnalyser != null)
             {
-                return selectAnalyser.Accept(sqlExpress, sqlExpress.AnalyseType == AnalyseType.Key);
+                var boo= selectAnalyser.Accept(sqlExpress, sqlExpress.AnalyseType == AnalyseType.Key);
+                return boo;
             }
             var lastLastKey = PreAcceptKeys(acceptKeys, 1);
             var lastKey=PreAcceptKeys(acceptKeys, 0);
@@ -36,7 +37,7 @@ namespace Biz.Common.SqlAnalyse
                 if (lastKey == keyTable)
                 {
                     sqlExpress.AnalyseType = AnalyseType.Table;
-                    tables.Add(sqlExpress.Val);
+                    tables.Add(sqlExpress);
                 }
                 else if (lastKey == keyView)
                 {
@@ -83,6 +84,11 @@ namespace Biz.Common.SqlAnalyse
                 foreach (var col in selectAnalyser.GetColumns())
                 {
                     colums.Add(col);
+                }
+
+                foreach(var alias in selectAnalyser.GetAliasTables())
+                {
+                    aliasTables.Add(alias);
                 }
             }
             base.Print(sql);

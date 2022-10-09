@@ -28,7 +28,7 @@ namespace Biz.Common.SqlAnalyse
             {
                 if (lastKey == keyDelete || lastKey == keyFrom)
                 {
-                    tables.Add(sqlExpress.Val);
+                    tables.Add(sqlExpress);
                     sqlExpress.AnalyseType = AnalyseType.Table;
                 }
             }
