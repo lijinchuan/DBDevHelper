@@ -23,12 +23,12 @@ namespace Biz.Common.SqlAnalyse
         protected override bool Accept(ISqlExpress sqlExpress)
         {
             var lastKey = PreAcceptKeys(acceptKeys, 0);
-            var preExpress = PreAcceptExpress(AcceptedSqlExpresses, 0);
+            var preExpress = PreAcceptExpress(acceptedSqlExpresses, 0);
             if (sqlExpress.ExpressType == SqlExpressType.Token)
             {
                 if (lastKey == keySet)
                 {
-                    if (preExpress.AnalyseType == AnalyseType.Column || preExpress.Val == keyAs)
+                    if (preExpress?.AnalyseType == AnalyseType.Column || preExpress?.Val == keyAs)
                     {
                         //别名
                         sqlExpress.AnalyseType = AnalyseType.ColumnAlas;
@@ -41,7 +41,7 @@ namespace Biz.Common.SqlAnalyse
                 }
                 else if (lastKey == keyFrom || lastKey == keyJoin || lastKey == keyUpdate)
                 {
-                    if (preExpress.AnalyseType == AnalyseType.Table || preExpress.Val == keyAs)
+                    if (preExpress?.AnalyseType == AnalyseType.Table || preExpress?.Val == keyAs)
                     {
                         sqlExpress.AnalyseType = AnalyseType.TableAlias;
                         aliasTables.Add(sqlExpress);

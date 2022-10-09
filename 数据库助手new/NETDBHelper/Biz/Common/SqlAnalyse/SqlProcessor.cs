@@ -206,12 +206,18 @@ namespace Biz.Common.SqlAnalyse
             }
         }
 
-        public void Test(List<ISqlAnalyser> sqlAnalysers,int pos)
+        public List<string> FindTables(List<ISqlAnalyser> sqlAnalysers,int pos)
         {
             foreach(var analyser in sqlAnalysers)
             {
-                
+                var express = analyser.FindByPos(pos);
+                if (express != null)
+                {
+                    return analyser.FindTables(express);
+                }
             }
+
+            return new List<string>();
         }
     }
 }

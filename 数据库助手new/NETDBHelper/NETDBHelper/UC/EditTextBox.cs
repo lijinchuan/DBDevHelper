@@ -16,6 +16,7 @@ using System.IO;
 using LJC.FrameWorkV3.Data.EntityDataBase;
 using LJC.FrameWorkV3.Comm;
 using LJC.FrameWorkV3.LogManager;
+using Biz.Common.SqlAnalyse;
 
 namespace NETDBHelper.UC
 {
@@ -661,129 +662,18 @@ namespace NETDBHelper.UC
                 return;
             }
 
+            var sqlProcessor = new SqlProcessor(RichText.Text);
+            var tbs = sqlProcessor.FindTables(sqlProcessor.Handle(), st - 1);
+
             seltext = seltext.Trim().ToUpper();
             var subtexts = seltext.Split('.').Select(p => p.Trim('[', ']').Trim()).ToArray();
             List<string[]> keys = new List<string[]>();
-            if (subtexts.Length > 2)
+
+            foreach(var tb in tbs)
             {
-                keys.Add(new string[] { subtexts[subtexts.Length - 3], subtexts[subtexts.Length - 2], subtexts.Last() });
-            }
-            else if (subtexts.Length > 1)
-            {
-                var alltext = RichText.Text;
-                var diff = int.MaxValue;
-                Match match = null;
-                foreach (Match m in Regex.Matches(alltext, $@"[\r\n\t\s]+\[?([\w_]+)\]?(?:[\r\n\t\s]+as)?[\r\n\s\t]+{subtexts[subtexts.Length - 2]}[\r\n\s\t]+", RegexOptions.IgnoreCase))
-                {
-                    if (Math.Abs(m.Index - st) < diff)
-                    {
-                        match = m;
-                        diff = Math.Abs(m.Index - st);
-                    }
-                    else
-                    {
-                        match = m;
-                        break;
-                    }
-                }
-                if (match != null)
-                {
-                    keys.Add(new string[] { DBName.ToUpper(), match.Groups[1].Value.ToUpper(), subtexts.Last() });
-                }
-                else
-                {
-                    keys.Add(new string[] { DBName.ToUpper(), subtexts[subtexts.Length - 2], subtexts.Last() });
-                }
-            }
-            else
-            {
-                //[\s\n]+from[\s\r\n]+(?:(?:[\w\.\[\]]{1,})[\s\r\n]+(?:as)?(?:\w+)?(?:\,(?:[\w\.\[\]]{1,})[\s\r\n]+(?:as)?(?:\s+\w+)?)*)
-                //[\s\n]+from[\s\r\n]+((?:[\w\.\[\]]{1,}(?:\s?=\w+)?(?:\,?=[\w\.\[\]]{1,}(?:\s?=\w+)?))*)|[\s\n]+join[\s\n]+([\w\.\[\]]{1,})|(?:^?|\s+)update|insert\s+([\w\.\[\]]+)
-                HashSet<Tuple<string, string>> tablenamehash = new HashSet<Tuple<string, string>>();
-                foreach (Match m in Regex.Matches(this.RichText.Text, @"[\s\r\n]+from[\s\r\n]+(?:([\w\.\[\]]{1,})[\s\r\n]+)|(?:[\s\n\r]+|^)join[\s\n\r]+([\w\.\[\]]{1,})|(?:^?|\s+)update[\s\r\n]+([\w\.\[\]]{1,})|insert[\s\r\n]+into[\s\r\n]+([\w\.\[\]]+)|delete[\s\r\n]+from[\s\r\n]+([\w\.\[\]]+)",
-                    RegexOptions.IgnoreCase | RegexOptions.Multiline))
-                {
-                    if (!string.IsNullOrWhiteSpace(m.Groups[0].Value))
-                    {
-                        foreach (Match n in Regex.Matches(m.Groups[0].Value, @",[\s\r\n]*([\w\.\[\]]{1,})[\s\r\n]+", RegexOptions.IgnoreCase | RegexOptions.Multiline))
-                        {
-                            var t = GetTableName(n.Groups[1].Value, DBName);
+                var t = GetTableName(tb.Trim(new[] { '[', ']' }), DBName);
 
-                            if (!tablenamehash.Contains(t))
-                            {
-                                tablenamehash.Add(t);
-                            }
-                        }
-                    }
-
-                    //select
-                    if (!string.IsNullOrEmpty(m.Groups[1].Value))
-                    {
-                        var t1 = GetTableName(m.Groups[1].Value, DBName);
-
-                        if (!tablenamehash.Contains(t1))
-                        {
-                            tablenamehash.Add(t1);
-                        }
-
-                    }
-
-                    //join
-                    if (!string.IsNullOrEmpty(m.Groups[2].Value))
-                    {
-                        var t2 = GetTableName(m.Groups[2].Value, DBName);
-
-                        if (!tablenamehash.Contains(t2))
-                        {
-                            tablenamehash.Add(t2);
-                        }
-
-                    }
-
-                    //update
-                    if (!string.IsNullOrEmpty(m.Groups[3].Value))
-                    {
-                        var t = GetTableName(m.Groups[3].Value, DBName);
-
-                        if (!tablenamehash.Contains(t))
-                        {
-                            tablenamehash.Add(t);
-                        }
-
-                    }
-
-                    //insert
-                    if (!string.IsNullOrEmpty(m.Groups[4].Value))
-                    {
-                        var t = GetTableName(m.Groups[4].Value, DBName);
-
-                        if (!tablenamehash.Contains(t))
-                        {
-                            tablenamehash.Add(t);
-                        }
-
-                    }
-                    //delete
-                    if (!string.IsNullOrEmpty(m.Groups[5].Value))
-                    {
-                        var t = GetTableName(m.Groups[5].Value, DBName);
-
-                        if (!tablenamehash.Contains(t))
-                        {
-                            tablenamehash.Add(t);
-                        }
-
-                    }
-                }
-
-                if (tablenamehash.Count > 0)
-                {
-                    foreach (var it in tablenamehash)
-                    {
-                        keys.Add(new string[] { it.Item1, it.Item2, subtexts.Last() });
-                    }
-                }
-
+                keys.Add(new string[] { t.Item1, t.Item2, subtexts.Last() });
             }
 
             if (keys.Count > 0)

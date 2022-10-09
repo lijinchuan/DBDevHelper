@@ -12,5 +12,7 @@ namespace Biz.Common.SqlAnalyse
 
         ISqlAnalyser GetSqlAnalyser(string token);
 
+        List<string> FindTables(List<ISqlAnalyser> sqlAnalysers, int pos);
+
     }
 }

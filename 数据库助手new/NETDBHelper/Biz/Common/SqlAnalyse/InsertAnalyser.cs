@@ -25,7 +25,7 @@ namespace Biz.Common.SqlAnalyse
         protected override bool Accept(ISqlExpress sqlExpress)
         {
             var lastKey = PreAcceptKeys(acceptKeys, 0);
-            var preExpress = PreAcceptExpress(AcceptedSqlExpresses, 0);
+            var preExpress = PreAcceptExpress(acceptedSqlExpresses, 0);
             if (sqlExpress.ExpressType == SqlExpressType.Token)
             {
                 if (lastKey == keyInto)
@@ -33,9 +33,9 @@ namespace Biz.Common.SqlAnalyse
                     sqlExpress.AnalyseType = AnalyseType.Table;
                     tables.Add(sqlExpress);
                 }
-                if (lastKey == keySelect || (lastKey == keyDistinct||lastKey==keyAll) || lastKey == keyTop)
+                if (lastKey == keySelect || (lastKey == keyDistinct || lastKey == keyAll) || lastKey == keyTop)
                 {
-                    if (preExpress.AnalyseType == AnalyseType.Column || preExpress.Val == keyAs)
+                    if (preExpress.AnalyseType == AnalyseType.Column)
                     {
                         //别名
                         sqlExpress.AnalyseType = AnalyseType.ColumnAlas;
@@ -46,14 +46,24 @@ namespace Biz.Common.SqlAnalyse
                         colums.Add(sqlExpress);
                     }
                 }
-                else if (lastKey == keyAs && preExpress.ExpressType == SqlExpressType.Comma && PreAcceptKeysNot(acceptKeys, 1, new HashSet<string> { keyAs, keyDistinct,keyAll }) == keySelect)
+                else if (preExpress.AnalyseType == AnalyseType.Column && lastKey == keyAs)
+                {
+                    //别名
+                    sqlExpress.AnalyseType = AnalyseType.ColumnAlas;
+                }
+                else if (lastKey == keyAs && preExpress.ExpressType == SqlExpressType.Comma && PreAcceptKeysNot(acceptKeys, 1, new HashSet<string> { keyAs, keyDistinct, keyAll }) == keySelect)
                 {
                     sqlExpress.AnalyseType = AnalyseType.Column;
                     colums.Add(sqlExpress);
                 }
+                else if (lastKey == keyAs && preExpress.AnalyseType == AnalyseType.Table)
+                {
+                    sqlExpress.AnalyseType = AnalyseType.TableAlias;
+                    aliasTables.Add(sqlExpress);
+                }
                 else if (lastKey == keyFrom || lastKey == keyJoin)
                 {
-                    if (preExpress.AnalyseType == AnalyseType.Table || preExpress.Val == keyAs)
+                    if (preExpress.AnalyseType == AnalyseType.Table)
                     {
                         sqlExpress.AnalyseType = AnalyseType.TableAlias;
                         aliasTables.Add(sqlExpress);

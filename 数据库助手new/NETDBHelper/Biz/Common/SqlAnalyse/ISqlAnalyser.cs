@@ -34,6 +34,12 @@ namespace Biz.Common.SqlAnalyse
         HashSet<ISqlExpress> GetAliasTables();
 
         HashSet<ISqlExpress> GetColumns();
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sqlExpress"></param>
+        /// <returns></returns>
+        List<string> FindTables(ISqlExpress sqlExpress);
 
         /// <summary>
         /// 
@@ -41,5 +47,16 @@ namespace Biz.Common.SqlAnalyse
         /// <param name="pos"></param>
         /// <returns></returns>
         ISqlExpress FindByPos(int pos);
+        /// <summary>
+        /// 添加Key
+        /// </summary>
+        /// <param name="key"></param>
+        void AddAcceptKey(string key);
+        /// <summary>
+        /// 添加表达式
+        /// </summary>
+        /// <param name="sqlExpress"></param>
+
+        void AddAcceptSqlExpress(ISqlExpress sqlExpress);
     }
 }

@@ -28,7 +28,6 @@ namespace Biz.Common.SqlAnalyse
         public static readonly string keyWhere = "where";
         public static readonly string keyTop = "top";
         public static readonly string keyJoin = "join";
-        public static readonly string keyJoinOn = "on";
         public static readonly string keyCount = "count";
 
         public static readonly string keyTruncate = "truncate";
@@ -146,7 +145,7 @@ namespace Biz.Common.SqlAnalyse
 
         protected readonly List<string> acceptKeys = new List<string>();
 
-        protected readonly List<ISqlExpress> AcceptedSqlExpresses = new List<ISqlExpress>();
+        protected readonly List<ISqlExpress> acceptedSqlExpresses = new List<ISqlExpress>();
 
         public int Deep
         {
@@ -235,7 +234,7 @@ namespace Biz.Common.SqlAnalyse
                         sqlExpress.AnalyseType = AnalyseType.Key;
                         if (AcceptInnerKey(sqlExpress))
                         {
-                            acceptKeys.Add(sqlExpress.Val);
+                            AddAcceptKey(sqlExpress.Val);
                             if (sqlExpress.Val == primaryKey)
                             {
                                 isAcceptPrimaryKey = true;
@@ -248,21 +247,27 @@ namespace Biz.Common.SqlAnalyse
                     }
                     else
                     {
+                        if (functions.Contains(sqlExpress.Val))
+                        {
+                            sqlExpress.AnalyseType = AnalyseType.Function;
+                            sqlExpress.ExpressType = SqlExpressType.Function;
+                        }
+
                         if (!Accept(sqlExpress))
                         {
                             return false;
                         }
 
                     }
-                    AcceptedSqlExpresses.Add(sqlExpress);
+                    AddAcceptSqlExpress(sqlExpress);
                 }
 
                 isAccept = true;
             }
             else if (isKey && AcceptOuterKey(sqlExpress))
             {
-                acceptKeys.Add(sqlExpress.Val);
-                AcceptedSqlExpresses.Add(sqlExpress);
+                AddAcceptKey(sqlExpress.Val);
+                AddAcceptSqlExpress(sqlExpress);
                 isAccept = true;
             }
 
@@ -298,25 +303,34 @@ namespace Biz.Common.SqlAnalyse
 
         protected ISqlExpress PreAcceptExpress(List<ISqlExpress> acceptedSqlExpresses, int preIndex)
         {
-            var idx = acceptedSqlExpresses.Count - 1 - preIndex;
-            if (idx < 0)
+            for(var i = acceptedSqlExpresses.Count - 1; i >= 0; i--)
             {
-                return null;
+                var current = acceptedSqlExpresses[i];
+                if (current.AnalyseType == AnalyseType.Key)
+                {
+                    continue;
+                }
+                if (preIndex == 0)
+                {
+                    return current;
+                }
+                preIndex--;
             }
-            return acceptedSqlExpresses[idx];
+
+            return null;
         }
 
         public virtual void Print(string sql)
         {
-            if (AcceptedSqlExpresses.Any())
+            if (acceptedSqlExpresses.Any())
             {
                 var perfx = "|-";
                 for (var i = 0; i < this.Deep; i++)
                 {
                     perfx += "-";
                 }
-                var start = AcceptedSqlExpresses.First().StartIndex;
-                var end = AcceptedSqlExpresses.Last().EndIndex;
+                var start = acceptedSqlExpresses.First().StartIndex;
+                var end = acceptedSqlExpresses.Last().EndIndex;
 
                 Trace.WriteLine(perfx + sql.Substring(start, end - start + 1));
                 Trace.WriteLine("tables:" + string.Join("、", tables.Select(p => p.Val)) + ",columns:" + string.Join("、", colums.Select(p => p.Val)) + ",aliastable:" + string.Join("、", aliasTables.Select(p => p.Val)));
@@ -345,13 +359,55 @@ namespace Biz.Common.SqlAnalyse
         {
             List<string> ret = new List<string>();
 
+            if (sqlExpress.AnalyseType == AnalyseType.Column || sqlExpress.AnalyseType == AnalyseType.ColumnAlas)
+            {
+                var val = sqlExpress.Val;
+                var colname = val;
+                var tbname = string.Empty;
+                var colnames=val.Split('.');
+                if (colnames.Length > 1)
+                {
+                    tbname = colnames[colnames.Length - 2];
+                }
+                colname = colnames.Last();
+
+                if (!string.IsNullOrWhiteSpace(tbname))
+                {
+                    var aliasTable = aliasTables.FirstOrDefault(p => p.Val == tbname);
+                    if (aliasTable != null)
+                    {
+                        if (aliasTable.Tag is ISqlExpress && (aliasTable.Tag as ISqlExpress).AnalyseType == AnalyseType.Table)
+                        {
+                            tbname = (aliasTable.Tag as ISqlExpress).Val;
+                        }
+                        else
+                        {
+                            //
+                        }
+                    }
+                    else
+                    {
+                        ret.Add(tbname);
+                    }
+                }
+                else
+                {
+                    ret.AddRange(tables.Select(p => p.Val));
+                    if (aliasTables.Any()) {
+                        foreach (var nest in NestAnalyser)
+                        {
+                            ret.AddRange(nest.GetTables().Select(p => p.Val));
+                        }
+                    }
+                }
+            }
 
             return ret;
         }
 
         public ISqlExpress FindByPos(int pos)
         {
-            if (!AcceptedSqlExpresses.Any() || AcceptedSqlExpresses.First().StartIndex > pos || AcceptedSqlExpresses.Last().EndIndex < pos)
+            if (!acceptedSqlExpresses.Any() || acceptedSqlExpresses.First().StartIndex > pos || acceptedSqlExpresses.Last().EndIndex < pos)
             {
                 return null;
             }
@@ -365,12 +421,22 @@ namespace Biz.Common.SqlAnalyse
                 }
             }
 
-            return AcceptedSqlExpresses.FirstOrDefault(p => p.StartIndex <= pos && p.EndIndex >= pos);
+            return acceptedSqlExpresses.FirstOrDefault(p => p.StartIndex <= pos && p.EndIndex >= pos);
         }
 
         public HashSet<ISqlExpress> GetAliasTables()
         {
             return aliasTables;
+        }
+
+        public virtual void AddAcceptKey(string key)
+        {
+            acceptKeys.Add(key);
+        }
+
+        public virtual void AddAcceptSqlExpress(ISqlExpress sqlExpress)
+        {
+            acceptedSqlExpresses.Add(sqlExpress);
         }
     }
 }

@@ -115,10 +115,7 @@ namespace Biz.Common.SqlAnalyse
                         {
                             tokenInfo.ExpressType = SqlExpressType.Numric;
                         }
-                        else if (leftch == '(')
-                        {
-                            tokenInfo.ExpressType = SqlExpressType.Function;
-                        } 
+                        tokenInfo.NextChar = ch;
                         return tokenInfo;
                     }
 

@@ -8,12 +8,16 @@ namespace Biz.Common.SqlAnalyse
 {
     public class CreateAnalyser : SqlAnalyser
     {
-        private HashSet<string> keys = new HashSet<string> { keyCreate, keyDatabase, keyTable, keyUnique, keyClustered, keyNonclustered, keyIndex, keyView, keyAs, keySelect, keyWith, keyOn, keyFileName, keyLog, keyAsc, keyDesc };
+        private readonly HashSet<string> keys = new HashSet<string> { keyCreate, keyDatabase, keyTable, keyUnique, keyClustered, keyNonclustered, keyIndex, keyView, keyAs, keySelect, keyWith,keyJoin, keyOn, keyFileName, keyLog, keyAsc, keyDesc };
 
         private ISqlAnalyser selectAnalyser = null;
 
         public override HashSet<string> GetKeys()
         {
+            if (selectAnalyser != null)
+            {
+                return selectAnalyser.GetKeys();
+            }
             return keys;
         }
 
@@ -46,6 +50,18 @@ namespace Biz.Common.SqlAnalyse
             }
 
             return true;
+        }
+
+        public override void AddAcceptKey(string key)
+        {
+            selectAnalyser?.AddAcceptKey(key);
+            base.AddAcceptKey(key);
+        }
+
+        public override void AddAcceptSqlExpress(ISqlExpress sqlExpress)
+        {
+            selectAnalyser?.AddAcceptSqlExpress(sqlExpress);
+            base.AddAcceptSqlExpress(sqlExpress);
         }
 
         protected override bool AcceptInnerKey(ISqlExpress sqlExpress)

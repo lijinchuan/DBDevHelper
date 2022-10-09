@@ -23,7 +23,7 @@ namespace Biz.Common.SqlAnalyse
         protected override bool Accept(ISqlExpress sqlExpress)
         {
             var lastKey = PreAcceptKeys(acceptKeys, 0);
-            var preExpress = PreAcceptExpress(AcceptedSqlExpresses, 0);
+            var preExpress = PreAcceptExpress(acceptedSqlExpresses, 0);
             if (sqlExpress.ExpressType == SqlExpressType.Token)
             {
                 if (lastKey == keyDelete || lastKey == keyFrom)

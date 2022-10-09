@@ -70,5 +70,11 @@ namespace Biz.Common.SqlAnalyse
             get;
             set;
         }
+
+        object Tag
+        {
+            get;
+            set;
+        }
     }
 }

@@ -18,6 +18,7 @@ namespace Biz.Common.SqlAnalyse
         Column,
         ColumnAlas,
         Constraint,
+        Function,
         View
     }
 }

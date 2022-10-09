@@ -62,11 +62,21 @@ namespace Biz.Common.SqlAnalyse
             set;
         }
 
-        public AnalyseType AnalyseType
+        public int NextChar
         {
             get;
             set;
         }
 
+        public AnalyseType AnalyseType
+        {
+            get;
+            set;
+        }
+        public object Tag
+        {
+            get;
+            set;
+        }
     }
 }
