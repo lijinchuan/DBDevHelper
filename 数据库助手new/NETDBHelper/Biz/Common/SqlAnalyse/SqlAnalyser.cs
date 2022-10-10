@@ -38,6 +38,7 @@ namespace Biz.Common.SqlAnalyse
         public static readonly string keyBetween = "between";
         public static readonly string keyLike = "like";
         public static readonly string keyAnd = "and";
+        public static readonly string keyNot = "not";
         public static readonly string keyOr = "or";
 
         public static readonly string keyIn = "in";
@@ -215,7 +216,9 @@ namespace Biz.Common.SqlAnalyse
                     if (isInKeys)
                     {
                         sqlExpress.AnalyseType = AnalyseType.Key;
+                        AddAcceptKey(sqlExpress.Val);
                     }
+                    AddAcceptSqlExpress(sqlExpress);
                     return true;
                 }
                 else

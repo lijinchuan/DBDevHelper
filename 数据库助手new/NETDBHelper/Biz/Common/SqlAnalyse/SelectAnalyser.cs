@@ -33,17 +33,27 @@ namespace Biz.Common.SqlAnalyse
 
             if ((lastLastKey == keyCount && lastKey == keyDistinct) || lastKey == keyCount)
             {
-                var isKey = keys.Contains(sqlExpress.Val);
+                iskey = iskey || keys.Contains(sqlExpress.Val);
                 if (sqlExpress.Val == keyDistinct)
                 {
                     sqlExpress.AnalyseType = AnalyseType.Key;
                 }
-                else if (!isKey && sqlExpress.ExpressType == SqlExpressType.Token)
+                else if (!iskey && sqlExpress.ExpressType == SqlExpressType.Token)
                 {
                     sqlExpress.AnalyseType = AnalyseType.Column;
                     colums.Add(sqlExpress);
                 }
 
+                return true;
+            }
+            else if (PreAcceptKeysNot(acceptKeys, 0, new HashSet<string> { keyAnd, keyOr, keyNot }) == keyWhere && sqlExpress.Deep > Deep)
+            {
+                iskey = iskey || keys.Contains(sqlExpress.Val);
+                if (!iskey && sqlExpress.ExpressType == SqlExpressType.Token)
+                {
+                    sqlExpress.AnalyseType = AnalyseType.Column;
+                    colums.Add(sqlExpress);
+                }
                 return true;
             }
             
@@ -52,11 +62,6 @@ namespace Biz.Common.SqlAnalyse
 
         protected override bool Accept(ISqlExpress sqlExpress)
         {
-            if(sqlExpress.Val== "xxb")
-            {
-
-            }
-
             var lastLastKey = PreAcceptKeys(acceptKeys, 1);
             var lastKey = PreAcceptKeys(acceptKeys, 0);
             var preExpress = PreAcceptExpress(acceptedSqlExpresses, 0);
