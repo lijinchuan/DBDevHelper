@@ -178,7 +178,7 @@ namespace Biz.Common.SqlAnalyse
             set;
         }
 
-        protected virtual bool AcceptDeeper(ISqlExpress sqlExpress,bool isKey)
+        protected virtual bool AcceptDeeper(ISqlExpress sqlExpress,bool isOuterkey)
         {
             return false;
         }
@@ -211,9 +211,9 @@ namespace Biz.Common.SqlAnalyse
             var isInKeys = IsKey(sqlExpress.Val);
             if (sqlExpress.Deep != Deep)
             {
-                if (AcceptDeeper(sqlExpress,isInKeys))
+                if (AcceptDeeper(sqlExpress,isKey))
                 {
-                    if (isInKeys)
+                    if (isKey || isInKeys)
                     {
                         sqlExpress.AnalyseType = AnalyseType.Key;
                         AddAcceptKey(sqlExpress.Val);
@@ -415,6 +415,7 @@ namespace Biz.Common.SqlAnalyse
                         if (aliasTable.Tag is ISqlExpress && (aliasTable.Tag as ISqlExpress).AnalyseType == AnalyseType.Table)
                         {
                             tbname = (aliasTable.Tag as ISqlExpress).Val;
+                            ret.Add(tbname);
                         }
                         else
                         {

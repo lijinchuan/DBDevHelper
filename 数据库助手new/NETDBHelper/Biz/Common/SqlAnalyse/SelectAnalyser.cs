@@ -26,38 +26,39 @@ namespace Biz.Common.SqlAnalyse
             return keys;
         }
 
-        protected override bool AcceptDeeper(ISqlExpress sqlExpress,bool iskey)
+        protected override bool AcceptDeeper(ISqlExpress sqlExpress,bool isOuterkey)
         {
-            var lastLastKey = PreAcceptKeys(acceptKeys, 1);
-            var lastKey = PreAcceptKeys(acceptKeys, 0);
-
-            if ((lastLastKey == keyCount && lastKey == keyDistinct) || lastKey == keyCount)
+            if (!isOuterkey)
             {
-                iskey = iskey || keys.Contains(sqlExpress.Val);
-                if (sqlExpress.Val == keyDistinct)
+                var lastLastKey = PreAcceptKeys(acceptKeys, 1);
+                var lastKey = PreAcceptKeys(acceptKeys, 0);
+                var isInnerKey= keys.Contains(sqlExpress.Val);
+                if ((lastLastKey == keyCount && lastKey == keyDistinct) || lastKey == keyCount)
                 {
-                    sqlExpress.AnalyseType = AnalyseType.Key;
-                }
-                else if (!iskey && sqlExpress.ExpressType == SqlExpressType.Token)
-                {
-                    sqlExpress.AnalyseType = AnalyseType.Column;
-                    colums.Add(sqlExpress);
-                }
+                    if (sqlExpress.Val == keyDistinct)
+                    {
+                        sqlExpress.AnalyseType = AnalyseType.Key;
+                    }
+                    else if (!isInnerKey && sqlExpress.ExpressType == SqlExpressType.Token)
+                    {
+                        sqlExpress.AnalyseType = AnalyseType.Column;
+                        colums.Add(sqlExpress);
+                    }
 
-                return true;
-            }
-            else if (PreAcceptKeysNot(acceptKeys, 0, new HashSet<string> { keyAnd, keyOr, keyNot }) == keyWhere && sqlExpress.Deep > Deep)
-            {
-                iskey = iskey || keys.Contains(sqlExpress.Val);
-                if (!iskey && sqlExpress.ExpressType == SqlExpressType.Token)
-                {
-                    sqlExpress.AnalyseType = AnalyseType.Column;
-                    colums.Add(sqlExpress);
+                    return true;
                 }
-                return true;
+                else if (PreAcceptKeysNot(acceptKeys, 0, new HashSet<string> { keyAnd, keyOr, keyNot }) == keyWhere && sqlExpress.Deep > Deep)
+                {
+                    if (!isInnerKey && sqlExpress.ExpressType == SqlExpressType.Token)
+                    {
+                        sqlExpress.AnalyseType = AnalyseType.Column;
+                        colums.Add(sqlExpress);
+                    }
+                    return true;
+                }
             }
             
-            return base.AcceptDeeper(sqlExpress,iskey);
+            return base.AcceptDeeper(sqlExpress,isOuterkey);
         }
 
         protected override bool Accept(ISqlExpress sqlExpress)

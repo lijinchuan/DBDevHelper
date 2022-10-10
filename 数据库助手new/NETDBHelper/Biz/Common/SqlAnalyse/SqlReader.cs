@@ -135,8 +135,8 @@ namespace Biz.Common.SqlAnalyse
                                 beginEndStack.Pop();
                                 CurrentDeep--;
                                 tokenInfo.Deep = CurrentDeep;
-                                return tokenInfo;
                             }
+                            return tokenInfo;
                         }
                         else
                         {
@@ -224,14 +224,13 @@ namespace Biz.Common.SqlAnalyse
                         {
                             bracketStack.Pop();
                             CurrentDeep--;
-
-                            var sqlExpress = CrateStart(SqlExpressType.BracketEnd);
-                            FillEnd(sqlExpress, true);
-
-                            lastch = ch;
-                            CurrentIndex++;
-                            return sqlExpress;
                         }
+                        var sqlExpress = CrateStart(SqlExpressType.BracketEnd);
+                        FillEnd(sqlExpress, true);
+
+                        lastch = ch;
+                        CurrentIndex++;
+                        return sqlExpress;
                     }
                     else if (ch == ',' && stringStack.Count == 0 && annotationStack.Count == 0)
                     {

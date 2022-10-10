@@ -94,7 +94,7 @@ namespace Biz.Common.SqlAnalyse
             return true;
         }
 
-        protected override bool AcceptDeeper(ISqlExpress sqlExpress,bool isKey)
+        protected override bool AcceptDeeper(ISqlExpress sqlExpress,bool isOuterkey)
         {
             var lastLastKey = PreAcceptKeys(acceptKeys, 1);
             var lastKey = PreAcceptKeys(acceptKeys, 0);
@@ -104,7 +104,7 @@ namespace Biz.Common.SqlAnalyse
                 colums.Add(sqlExpress);
                 return true;
             }
-            return base.AcceptDeeper(sqlExpress,isKey);
+            return base.AcceptDeeper(sqlExpress, isOuterkey);
         }
     }
 }
