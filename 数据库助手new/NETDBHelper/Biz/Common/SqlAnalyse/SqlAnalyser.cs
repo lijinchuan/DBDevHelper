@@ -122,6 +122,8 @@ namespace Biz.Common.SqlAnalyse
         public static readonly string keyElse = "else";
         public static readonly string keyEnd = "end";
 
+        public static readonly string keyIf = "if";
+
         protected static readonly HashSet<string> commonKeys = new HashSet<string> { keyNull, keyChar, keyNChar, keyVarChar, keyNVarChar, keyInt, keyNumeric, keyBigint, keyBinary, keyBit, keyDate, keyDatetime, keyDatetime2, keyDatetimeoffset, keyDecimal, keyFloat, keyGeography, keyGeometry, keyHierarchyid, keyImage, keyMoney, keyNtext, keyReal, keySmalldatetime, keySmallint, keySmallmoney, keySql_variant, keyText, keyTime, keyTimestamp, keyTinyint, keyUniqueidentifier, keyVarbinary, keyXml };
 
         //https://web.baimiaoapp.com/
@@ -169,6 +171,11 @@ namespace Biz.Common.SqlAnalyse
             get;
             set;
         } = new List<ISqlAnalyser>();
+        public ISqlAnalyser ParentAnalyser
+        {
+            get;
+            set;
+        }
 
         protected virtual bool AcceptDeeper(ISqlExpress sqlExpress,bool isKey)
         {
@@ -333,7 +340,7 @@ namespace Biz.Common.SqlAnalyse
                 var end = acceptedSqlExpresses.Last().EndIndex;
 
                 Trace.WriteLine(perfx + sql.Substring(start, end - start + 1));
-                Trace.WriteLine("tables:" + string.Join("、", tables.Select(p => p.Val)) + ",columns:" + string.Join("、", colums.Select(p => p.Val)) + ",aliastable:" + string.Join("、", aliasTables.Select(p => p.Val)));
+                Trace.WriteLine(GetStartPos() + "->" + GetEndPos() + "," + "tables:" + string.Join("、", tables.Select(p => p.Val)) + ",columns:" + string.Join("、", colums.Select(p => p.Val)) + ",aliastable:" + string.Join("、", aliasTables.Select(p => p.Val)));
 
                 if (NestAnalyser != null)
                 {
@@ -355,6 +362,25 @@ namespace Biz.Common.SqlAnalyse
             return colums;
         }
 
+        private ISqlAnalyser FindAnalyser(ISqlExpress sqlExpress)
+        {
+            foreach(var nest in NestAnalyser)
+            {
+                var analyser = (nest as SqlAnalyser).FindAnalyser(sqlExpress);
+                if (analyser != null)
+                {
+                    return analyser;
+                }
+            }
+
+            if( GetStartPos() <= sqlExpress.StartIndex && GetEndPos() >= sqlExpress.EndIndex)
+            {
+                return this;
+            }
+
+            return null;
+        }
+
         public List<string> FindTables(ISqlExpress sqlExpress)
         {
             List<string> ret = new List<string>();
@@ -371,9 +397,16 @@ namespace Biz.Common.SqlAnalyse
                 }
                 colname = colnames.Last();
 
+                var analyser = FindAnalyser(sqlExpress);
+                if (analyser == null)
+                {
+                    
+                    return ret;
+                }
+
                 if (!string.IsNullOrWhiteSpace(tbname))
                 {
-                    var aliasTable = aliasTables.FirstOrDefault(p => p.Val == tbname);
+                    var aliasTable = analyser.GetAliasTables().FirstOrDefault(p => p.Val == tbname);
                     if (aliasTable != null)
                     {
                         if (aliasTable.Tag is ISqlExpress && (aliasTable.Tag as ISqlExpress).AnalyseType == AnalyseType.Table)
@@ -392,13 +425,7 @@ namespace Biz.Common.SqlAnalyse
                 }
                 else
                 {
-                    ret.AddRange(tables.Select(p => p.Val));
-                    if (aliasTables.Any()) {
-                        foreach (var nest in NestAnalyser)
-                        {
-                            ret.AddRange(nest.GetTables().Select(p => p.Val));
-                        }
-                    }
+                    ret.AddRange(analyser.GetTables().Select(p => p.Val));
                 }
             }
 
@@ -437,6 +464,16 @@ namespace Biz.Common.SqlAnalyse
         public virtual void AddAcceptSqlExpress(ISqlExpress sqlExpress)
         {
             acceptedSqlExpresses.Add(sqlExpress);
+        }
+
+        public int GetStartPos()
+        {
+            return acceptedSqlExpresses.FirstOrDefault()?.StartIndex??0;
+        }
+
+        public int GetEndPos()
+        {
+            return acceptedSqlExpresses.LastOrDefault()?.EndIndex ?? 0;
         }
     }
 }

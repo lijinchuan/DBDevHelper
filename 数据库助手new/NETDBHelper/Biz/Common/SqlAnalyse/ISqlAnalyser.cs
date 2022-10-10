@@ -58,5 +58,19 @@ namespace Biz.Common.SqlAnalyse
         /// <param name="sqlExpress"></param>
 
         void AddAcceptSqlExpress(ISqlExpress sqlExpress);
+        /// <summary>
+        /// 解析开始位置
+        /// </summary>
+        /// <returns></returns>
+        int GetStartPos();
+        /// <summary>
+        /// 解析结束位置
+        /// </summary>
+        /// <returns></returns>
+        int GetEndPos();
+        /// <summary>
+        /// 父解析器
+        /// </summary>
+        ISqlAnalyser ParentAnalyser { get; set; }
     }
 }

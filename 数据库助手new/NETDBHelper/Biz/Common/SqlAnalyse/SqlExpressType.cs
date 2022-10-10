@@ -14,6 +14,8 @@ namespace Biz.Common.SqlAnalyse
         String,
         Bracket,
         BracketEnd,
+        Begin,
+        End,
         /// <summary>
         /// 注释
         /// </summary>

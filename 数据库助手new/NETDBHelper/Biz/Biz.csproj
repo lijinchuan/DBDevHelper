@@ -68,6 +68,7 @@
     <Compile Include="Common\SqlAnalyse\ExecAnalyser.cs" />
     <Compile Include="Common\SqlAnalyse\ExecuteAnalyser.cs" />
     <Compile Include="Common\SqlAnalyse\IAnalyseResult.cs" />
+    <Compile Include="Common\SqlAnalyse\IfAnalyser.cs" />
     <Compile Include="Common\SqlAnalyse\InsertAnalyser.cs" />
     <Compile Include="Common\SqlAnalyse\ISqlAnalyser.cs" />
     <Compile Include="Common\SqlAnalyse\ISqlExpress.cs" />

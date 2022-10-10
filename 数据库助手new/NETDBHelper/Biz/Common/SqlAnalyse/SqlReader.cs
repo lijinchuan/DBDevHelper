@@ -26,6 +26,7 @@ namespace Biz.Common.SqlAnalyse
 
         readonly Stack<SqlExpress> stringStack = new Stack<SqlExpress>();
         readonly Stack<SqlExpress> bracketStack = new Stack<SqlExpress>();
+        readonly Stack<SqlExpress> beginEndStack = new Stack<SqlExpress>();
         readonly Stack<SqlExpress> annotationStack = new Stack<SqlExpress>();
 
         private static bool IsNumber(int ch)
@@ -116,7 +117,31 @@ namespace Biz.Common.SqlAnalyse
                             tokenInfo.ExpressType = SqlExpressType.Numric;
                         }
                         tokenInfo.NextChar = ch;
-                        return tokenInfo;
+
+                        if (tokenInfo.Val == "begin")
+                        {
+                            tokenInfo.ExpressType = SqlExpressType.Begin;
+                            beginEndStack.Push(tokenInfo);
+
+                            CurrentDeep++;
+
+                            return tokenInfo;
+                        }
+                        else if (tokenInfo.Val == "end")
+                        {
+                            tokenInfo.ExpressType = SqlExpressType.End;
+                            if (beginEndStack.Count > 0)
+                            {
+                                beginEndStack.Pop();
+                                CurrentDeep--;
+                                tokenInfo.Deep = CurrentDeep;
+                                return tokenInfo;
+                            }
+                        }
+                        else
+                        {
+                            return tokenInfo;
+                        }
                     }
 
                     if (ch == '\'' && annotationStack.Count == 0)

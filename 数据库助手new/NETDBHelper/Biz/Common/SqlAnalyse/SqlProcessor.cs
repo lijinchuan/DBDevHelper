@@ -31,6 +31,7 @@ namespace Biz.Common.SqlAnalyse
             SqlAnalyserMapper.Add(SqlAnalyser.keyDrop, () => new DropAnalyser());
             SqlAnalyserMapper.Add(SqlAnalyser.keyExec, () => new ExecAnalyser());
             SqlAnalyserMapper.Add(SqlAnalyser.keyExecute, () => new ExecuteAnalyser());
+            SqlAnalyserMapper.Add(SqlAnalyser.keyIf, () => new IfAnalyser());
         }
 
         public ISqlAnalyser GetSqlAnalyser(string token)
@@ -51,7 +52,6 @@ namespace Biz.Common.SqlAnalyse
             var currentDeep = 0;
             ISqlAnalyser currentAnalyser = null;
             //在有上级分析器的情况下，保存多个同级的分析器
-            List<ISqlAnalyser> sqlAnalysers = new List<ISqlAnalyser>();
             while (next != null)
             {
                 var iskey = SqlAnalyserMapper.ContainsKey(next.Val);
@@ -65,109 +65,43 @@ namespace Biz.Common.SqlAnalyse
                     if (analyser != null)
                     {
                         analyser.Deep = next.Deep;
-                        if (currentAnalyser != null)
-                        {
-                            if (next.Deep > currentDeep)
-                            {
-                                sqlAnalysersStacks.Push(currentAnalyser);
-                            }
-                            else if (currentDeep == next.Deep)
-                            {
-                                if (sqlAnalysersStacks.Count == 0)
-                                {
-                                    //把前一个语句的解析结果返回
-                                    ret.Add(currentAnalyser);
-                                }
-                                else
-                                {
-                                    sqlAnalysers.Add(currentAnalyser);
-                                }
-                            }
-                            else if (currentDeep > next.Deep)
-                            {
-                                //变浅了
-                                if (sqlAnalysersStacks.Count > 0)
-                                {
-                                    var faterAnalyser = sqlAnalysersStacks.Pop();
-                                    if (faterAnalyser.Deep != next.Deep)
-                                    {
-                                        sqlAnalysersStacks.Push(faterAnalyser);
-                                    }
-                                    else
-                                    {
-                                        sqlAnalysers.Add(currentAnalyser);
-                                        faterAnalyser.NestAnalyser.AddRange(sqlAnalysers);
-                                        sqlAnalysers = new List<ISqlAnalyser>();
+                        sqlAnalysersStacks.Push(analyser);
 
-                                        if (sqlAnalysersStacks.Count > 0)
-                                        {
-                                            sqlAnalysers.Add(faterAnalyser);
-                                        }
-                                        else
-                                        {
-                                            //把前一个语句的解析结果返回
-                                            ret.Add(faterAnalyser);
-                                        }
-                                    }
-                                }
-                            }
-                        }
                         analyser.Accept(next, iskey);
                         currentAnalyser = analyser;
                         currentDeep = next.Deep;
                     }
                     else
                     {
-                        //前一个结果返回
-                        if (next.Deep > currentDeep)
-                        {
-                            if (currentAnalyser != null)
-                            {
-                                sqlAnalysersStacks.Push(currentAnalyser);
-                            }
-                            currentAnalyser = null;
-                        }
-                        else if (currentDeep == next.Deep)
-                        {
-                            if (currentAnalyser != null)
-                            {
-                                if (sqlAnalysersStacks.Count == 0)
-                                {
-                                    //把前一个语句的解析结果返回
-                                    ret.Add(currentAnalyser);
-                                }
-                                else
-                                {
-                                    sqlAnalysers.Add(currentAnalyser);
-                                }
-                            }
-                            currentAnalyser = null;
-                        }
-                        else if (next.Deep < currentDeep)
+                        currentAnalyser = null;
+                        if (next.Deep < currentDeep)
                         {
                             //变浅了
                             if (sqlAnalysersStacks.Count > 0)
                             {
-                                var faterAnalyser = sqlAnalysersStacks.Pop();
-                                if (faterAnalyser.Deep != next.Deep)
+                                var temp = new Queue<ISqlAnalyser>();
+                                ISqlAnalyser faterAnalyser = null;
+                                while (sqlAnalysersStacks.Any())
                                 {
-                                    sqlAnalysersStacks.Push(faterAnalyser);
-                                }
-                                else
-                                {
-                                    if (currentAnalyser != null)
+                                    faterAnalyser = sqlAnalysersStacks.Pop();
+                                    temp.Enqueue(faterAnalyser);
+                                    if (faterAnalyser.Deep <= next.Deep)
                                     {
-                                        sqlAnalysers.Add(currentAnalyser);
+                                        currentAnalyser = faterAnalyser;
+                                        currentAnalyser.Accept(next, false);
+                                        break;
                                     }
-                                    faterAnalyser.NestAnalyser.AddRange(sqlAnalysers);
-                                    sqlAnalysers = new List<ISqlAnalyser>();
-
-                                    currentAnalyser = faterAnalyser;
-                                    currentAnalyser.Accept(next, false);
                                 }
+
+                                while (temp.Any())
+                                {
+                                    sqlAnalysersStacks.Push(temp.Dequeue());
+                                }
+
                             }
+
                         }
-                        
+
                     }
                 }
                 currentDeep = next.Deep;
@@ -175,36 +109,58 @@ namespace Biz.Common.SqlAnalyse
             }
 
             //这里也要考虑层级，先只解析简单的情况
-            PopAnalyser();
+            ret = PopAnalyser();
 
             return ret;
 
-            void PopAnalyser()
+            List<ISqlAnalyser> PopAnalyser()
             {
-                if (sqlAnalysersStacks.Count > 0)
+                var list = sqlAnalysersStacks.OrderBy(p => p.GetStartPos()).ThenByDescending(p => p.GetEndPos()).ToList();
+                ISqlAnalyser parent = null;
+                Stack<ISqlAnalyser> parentsAnalyser = new Stack<ISqlAnalyser>();
+                foreach (var item in list)
                 {
-                    if (currentAnalyser != null)
+                    if (parent == null)
                     {
-                        sqlAnalysers.Add(currentAnalyser);
+                        parent = item;
                     }
-                    while (sqlAnalysersStacks.Count > 0)
+                    else
                     {
-                        currentAnalyser = sqlAnalysersStacks.Pop();
-                        currentAnalyser.NestAnalyser = sqlAnalysers;
-                        sqlAnalysers = new List<ISqlAnalyser>();
-                        if (sqlAnalysersStacks.Count > 0)
+                        if (parent.GetStartPos() <= item.GetStartPos() && parent.GetEndPos() >= item.GetEndPos())
                         {
-                            sqlAnalysers.Add(currentAnalyser);
+                            parent.NestAnalyser.Add(item);
+                            parentsAnalyser.Push(parent);
+                            item.ParentAnalyser = parent;
+                            parent = item;
+                        }
+                        else
+                        {
+                            var find = false;
+                            while (parentsAnalyser.Any())
+                            {
+                                var pt = parentsAnalyser.Pop();
+                                if (pt.GetStartPos() <= item.GetStartPos() && pt.GetEndPos() >= item.GetEndPos())
+                                {
+                                    find = true;
+                                    pt.NestAnalyser.Add(item);
+                                    item.ParentAnalyser = pt;
+                                    parent = pt;
+                                    break;
+                                }
+                            }
+
+                            if (!find)
+                            {
+                                parent = null;
+                            }
                         }
                     }
-                    ret.Add(currentAnalyser);
                 }
-                else if (currentAnalyser != null)
-                {
-                    ret.Add(currentAnalyser);
-                }
+
+                return list.Where(p => p.ParentAnalyser == null).ToList();
             }
         }
+
 
         public List<string> FindTables(List<ISqlAnalyser> sqlAnalysers,int pos)
         {

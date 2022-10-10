@@ -1,93 +1,51 @@
-﻿Create Proc [dbo].[usp_GetResumesRecommendList_vtable]
-(
-@positionId int
-)
-
-AS    
-declare  @tmp as table(
-id int,
-IdNo nvarchar(100),
-Degree nvarchar(100),
-TrueName nvarchar(100),
-Industry nvarchar(200),
-CurrentJob int,
-NowCity varchar(200),
-ObjectCity nvarchar(200),
-Companys nvarchar(500),
-JobType nvarchar(200)
-)
-insert into @tmp
-SELECT  distinct
-            resm.id,resm.JobID as IdNo,resm.Degree,resm.TrueName,ind.Name  as Industry,
-            resm.CurrentJob,resm.NowCity,resm.ObjectCity,
-            res.Company as Companys,c
-            case resm.Industry when '49' then b.Name else a.TypeName end as JobType
-        FROM 
-        TB_Houxuan hx with(nolock)
-        JOIN
-        TB_Resume resm with(nolock)
-        ON 
-        hx.PersonID = resm.id
-        LEFT JOIN 
-        TB_Industry ind
-        on resm.Industry = cast(ind.Id as varchar)
-        LEFT JOIN
-        TB_Work res
-        on resm.id = res.SourceId and res.SourceType = 1 /*1 是简历 */
-        LEFT JOIN
-        (
-            select ID ,  Case when CHARINDEX('---',child.JobName)>0 then isnull(child.Ext+' > ','') + replace(child.JobName,'---','') else child.JobName end  as TypeName 
-            from TB_InduJob child
-            
-        ) a
-        on resm.CurrentJob = a.Id and resm.Industry <> '49'
-        LEFT JOIN
-        (
-            select kid.ID ,isnull(parent.Name + '>','') + kid.Name as Name from PositionType kid
-            left join
-            PositionType parent
-            on kid.ParentID = parent.ID
-        )b on resm.CurrentJob = b.Id and resm.Industry = '49'
-        WHERE   hx.JobID = @positionId  and 
-                hx.RecommendBy = 99 and 
-                hx.PersonID is not null                           
-                
-declare @t1 as table(
-id int,
-IdNo nvarchar(200),
-Degree nvarchar(200),
-TrueName nvarchar(200),
-Industry nvarchar(500),
-CurrentJob int,
-NowCity varchar(200),
-ObjectCity nvarchar(200),
-Companys nvarchar(2000),
-JobType nvarchar(200)
-)
-insert into @t1(ID,IdNo,DEGREE,TrueName,Industry,CurrentJob,NowCity,JobType,ObjectCity,Companys)
-SELECT ID,IdNo,DEGREE,TrueName,Industry,CurrentJob,NowCity,JobType,ObjectCity,
-    STUFF((
-    SELECT ', ' + Companys
-    FROM @tmp WHERE (ID = Results.ID) rr
-    FOR XML PATH(''),TYPE 
-    ).value('.','VARCHAR(MAX)') 
-    ,1,2,'') as Companys
-    from @tmp Results
-    group by ID,IdNo,DEGREE,TrueName,Industry,CurrentJob,NowCity,JobType,ObjectCity
-
-
-SELECT DISTINCT a.*,
-case  max(CASE WHEN intv.id is not null then 1 else 0 end) when 1 then '曾经面试过' else '未参加面试' end as InterviewStatus
-FROM 
-@t1 a
-LEFT JOIN 
-TB_HOUXUAN intvhx
-on a.id = intvhx.PersonId
-left join  
-TB_INTERVIEW intv
-on intvhx.id = intv.HouxuanID and  
-   intv.InterviewTurns = '初面' and
-   intv.InterviewResult = '初面完成'  
-group by a.ID,IdNo,DEGREE,TrueName,Industry,CurrentJob,NowCity,JobType,Companys,ObjectCity
-
-
+﻿-- =============================================
+-- Author:        <Sven,>
+-- Create date: <2017/5/2>
+-- Description:    <获取DataName的存储过程,>
+-- =============================================
+Create Function  GetDataName(
+   @hxid int
+   )
+   RETURNS nvarchar(500)
+AS
+BEGIN
+  
+  --TB_Houxuan 用到的字段
+  Declare @candidateId int
+  Declare @ConfirmDate Datetime 
+  --推荐报告中的真实姓名
+  Declare @trueName nvarchar(500)
+  --dataName
+  Declare @dataName nvarchar(500)
+  
+  --历史数据用的
+  Declare @mobile1 nvarchar(500)
+  Declare @mobile2 nvarchar(500)
+  Declare @mobileModifyDate nvarchar(500)
+  
+  --获取候选人的信息
+  select @candidateId=CandidateId,@ConfirmDate=ConfirmDate from TB_Houxuan where id=@hxid
+  
+  --获取基本数据
+  select @trueName=TrueName from TB_RecommReport where Hxid=@hxid
+  
+  --判断有无历史数据，没有直接拿结果
+  if not exists( select top 1 id from TB_Candidate_History where candidateId=@candidateId and ModifyDate<=@ConfirmDate  order by ModifyDate desc)
+  begin  
+   select @dataName=DataName from TB_Candidate where id=@candidateId
+	
+	return @dataName
+  end
+  
+  --拿历史数据
+  select top 1 @mobile1=Mobile_New,@mobile2=Mobile2_New,@mobileModifyDate=ModifyDate from TB_Candidate_History where candidateId=@candidateId and ModifyDate<=@ConfirmDate
+  order by ModifyDate desc
+  
+  --根据拿到的历史数据判断
+  --这里要加个判断,历史中的记录由于可能存在多条同一时间的，要判断同一时间段内的表
+  
+  select @dataName=ModifyMan from TB_Candidate_History where candidateId=@candidateId and TrueName_New=@trueName
+  and (Mobile_New=@mobile1 or    Mobile2_New=@mobile2 or ModifyDate=@mobileModifyDate)
+   
+  return @dataName 
+END
