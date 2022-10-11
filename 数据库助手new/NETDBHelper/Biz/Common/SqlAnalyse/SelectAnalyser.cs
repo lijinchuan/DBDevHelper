@@ -47,15 +47,15 @@ namespace Biz.Common.SqlAnalyse
 
                     return true;
                 }
-                else if (PreAcceptKeysNot(acceptKeys, 0, new HashSet<string> { keyAnd, keyOr, keyNot }) == keyWhere && sqlExpress.Deep > Deep)
-                {
-                    if (!isInnerKey && sqlExpress.ExpressType == SqlExpressType.Token)
-                    {
-                        sqlExpress.AnalyseType = AnalyseType.Column;
-                        colums.Add(sqlExpress);
-                    }
-                    return true;
-                }
+                //else if (PreAcceptKeysNot(acceptKeys, 0, new HashSet<string> { keyAnd, keyOr, keyNot }) == keyWhere && sqlExpress.Deep > Deep)
+                //{
+                //    if (!isInnerKey && sqlExpress.ExpressType == SqlExpressType.Token)
+                //    {
+                //        sqlExpress.AnalyseType = AnalyseType.Column;
+                //        colums.Add(sqlExpress);
+                //    }
+                //    return true;
+                //}
             }
             
             return base.AcceptDeeper(sqlExpress,isOuterkey);

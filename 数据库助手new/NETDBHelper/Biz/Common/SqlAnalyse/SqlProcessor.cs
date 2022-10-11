@@ -104,7 +104,18 @@ namespace Biz.Common.SqlAnalyse
 
                     }
                 }
-                currentDeep = next.Deep;
+                if (currentDeep != next.Deep)
+                {
+                    currentDeep = next.Deep;
+                    if (currentAnalyser == null)
+                    {
+                        currentAnalyser = new DefaultAnalyser();
+                        currentAnalyser.Deep = next.Deep;
+                        sqlAnalysersStacks.Push(currentAnalyser);
+
+                        currentAnalyser.Accept(next, iskey);
+                    }
+                }
                 next = _sqlReader.ReadNext();
             }
 
