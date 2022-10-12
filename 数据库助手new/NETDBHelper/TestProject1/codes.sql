@@ -1,7 +1,7 @@
 ﻿CREATE PROCEDURE [dbo].[usp_UpgradePositionLevel]
 AS
 BEGIN
-    --BEGIN TRANSACTION
+    BEGIN TRANSACTION
     -- generate promotion
     INSERT INTO [dbo].[TB_Promotion]
                ([Time]
@@ -41,4 +41,3 @@ BEGIN
         COMMIT TRANSACTION
     END
 END
-BB

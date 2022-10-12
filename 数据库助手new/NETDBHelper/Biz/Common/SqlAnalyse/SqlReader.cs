@@ -257,7 +257,18 @@ namespace Biz.Common.SqlAnalyse
 
             if (tokenInfo != null)
             {
-                return FillEnd(tokenInfo, false);
+                tokenInfo= FillEnd(tokenInfo, false);
+                if (tokenInfo.Val == SqlAnalyser.keyEnd)
+                {
+                    tokenInfo.ExpressType = SqlExpressType.End;
+                    if (beginEndStack.Count > 0)
+                    {
+                        beginEndStack.Pop();
+                        CurrentDeep--;
+                        tokenInfo.Deep = CurrentDeep;
+                    }
+                }
+                return tokenInfo;
             }
             else if (stringStack.Count > 0)
             {
