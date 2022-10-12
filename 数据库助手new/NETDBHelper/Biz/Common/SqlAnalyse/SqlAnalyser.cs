@@ -121,6 +121,7 @@ namespace Biz.Common.SqlAnalyse
         public static readonly string keyWhen = "when";
         public static readonly string keyThen = "then";
         public static readonly string keyElse = "else";
+        public static readonly string keyBegin = "begin";
         public static readonly string keyEnd = "end";
 
         public static readonly string keyIf = "if";
@@ -128,7 +129,7 @@ namespace Biz.Common.SqlAnalyse
         public static readonly string keyIs = "is";
 
         protected static readonly HashSet<string> typeKeys = new HashSet<string> { keyChar, keyNChar, keyVarChar, keyNVarChar, keyInt, keyNumeric, keyBigint, keyBinary, keyBit, keyDate, keyDatetime, keyDatetime2, keyDatetimeoffset, keyDecimal, keyFloat, keyGeography, keyGeometry, keyHierarchyid, keyImage, keyMoney, keyNtext, keyReal, keySmalldatetime, keySmallint, keySmallmoney, keySql_variant, keyText, keyTime, keyTimestamp, keyTinyint, keyUniqueidentifier, keyVarbinary, keyXml };
-        protected static readonly HashSet<string> commonKeys = new HashSet<string> { keyAnd, keyOr, keyIs, keyNot, keyNull, keyLike, keyIn };
+        protected static readonly HashSet<string> commonKeys = new HashSet<string> { keyAnd, keyOr, keyIs, keyNot, keyNull, keyLike, keyIn, keyWith, keyNolock };
         //https://web.baimiaoapp.com/
         protected static readonly HashSet<string> functions = new HashSet<string>
         {
@@ -362,7 +363,7 @@ namespace Biz.Common.SqlAnalyse
                 var end = acceptedSqlExpresses.Last().EndIndex;
 
                 Trace.WriteLine(perfx + sql.Substring(start, end - start + 1));
-                Trace.WriteLine(GetStartPos() + "->" + GetEndPos() + "," + "tables:" + string.Join("、", tables.Select(p => p.Val)) + ",columns:" + string.Join("、", colums.Select(p => p.Val)) + ",aliastable:" + string.Join("、", aliasTables.Select(p => p.Val)));
+                Trace.WriteLine(GetPrimaryKey() + " " + GetStartPos() + "->" + GetEndPos() + "," + "tables:" + string.Join("、", tables.Select(p => p.Val)) + ",columns:" + string.Join("、", colums.Select(p => p.Val)) + ",aliastable:" + string.Join("、", aliasTables.Select(p => p.Val)));
 
                 if (NestAnalyser != null)
                 {
@@ -374,12 +375,18 @@ namespace Biz.Common.SqlAnalyse
             }
         }
 
-        public HashSet<ISqlExpress> GetTables()
+        public virtual HashSet<ISqlExpress> GetAliasTables()
+        {
+            return aliasTables;
+        }
+
+
+        public virtual HashSet<ISqlExpress> GetTables()
         {
             return tables;
         }
 
-        public HashSet<ISqlExpress> GetColumns()
+        public virtual HashSet<ISqlExpress> GetColumns()
         {
             return colums;
         }
@@ -401,6 +408,53 @@ namespace Biz.Common.SqlAnalyse
             }
 
             return null;
+        }
+
+        public static List<string> FindTables(ISqlAnalyser analyser, string tbname)
+        {
+            List<string> ret = new List<string>();
+
+            if (!string.IsNullOrWhiteSpace(tbname))
+            {
+                var aliasTable = analyser.GetAliasTables().FirstOrDefault(p => p.Val == tbname);
+                if (aliasTable != null)
+                {
+                    if (aliasTable.Tag is ISqlExpress && (aliasTable.Tag as ISqlExpress).AnalyseType == AnalyseType.Table)
+                    {
+                        tbname = (aliasTable.Tag as ISqlExpress).Val.Split('.').Last();
+                        ret.Add(tbname);
+                    }
+                    else
+                    {
+                        //
+                    }
+                }
+                else
+                {
+                    if (analyser.ParentAnalyser != null)
+                    {
+                        var lst = FindTables(analyser.ParentAnalyser,tbname);
+                        if (lst.Any())
+                        {
+                            ret.AddRange(lst);
+                        }
+                    }
+                    if (ret.Count == 0)
+                    {
+                        ret.Add(tbname);
+                    }
+                }
+            }
+            else
+            {
+                ret.AddRange(analyser.GetTables().Select(p => p.Val));
+                if (analyser.ParentAnalyser != null)
+                {
+                    ret.AddRange(analyser.ParentAnalyser.GetTables().Select(p => p.Val));
+                }
+            }
+
+            return ret;
         }
 
         public List<string> FindTables(ISqlExpress sqlExpress)
@@ -426,34 +480,8 @@ namespace Biz.Common.SqlAnalyse
                     return ret;
                 }
 
-                if (!string.IsNullOrWhiteSpace(tbname))
-                {
-                    var aliasTable = analyser.GetAliasTables().FirstOrDefault(p => p.Val == tbname);
-                    if (aliasTable != null)
-                    {
-                        if (aliasTable.Tag is ISqlExpress && (aliasTable.Tag as ISqlExpress).AnalyseType == AnalyseType.Table)
-                        {
-                            tbname = (aliasTable.Tag as ISqlExpress).Val;
-                            ret.Add(tbname);
-                        }
-                        else
-                        {
-                            //
-                        }
-                    }
-                    else
-                    {
-                        ret.Add(tbname);
-                    }
-                }
-                else
-                {
-                    ret.AddRange(analyser.GetTables().Select(p => p.Val));
-                    if (analyser.ParentAnalyser != null)
-                    {
-                        ret.AddRange(analyser.ParentAnalyser.GetTables().Select(p => p.Val));
-                    }
-                }
+                ret = FindTables(analyser, tbname);
+                
             }
 
             return ret;
@@ -476,11 +504,6 @@ namespace Biz.Common.SqlAnalyse
             }
 
             return acceptedSqlExpresses.FirstOrDefault(p => p.StartIndex <= pos && p.EndIndex >= pos);
-        }
-
-        public HashSet<ISqlExpress> GetAliasTables()
-        {
-            return aliasTables;
         }
 
         public virtual void AddAcceptKey(string key)
