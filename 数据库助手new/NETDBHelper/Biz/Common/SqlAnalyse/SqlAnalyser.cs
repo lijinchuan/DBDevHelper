@@ -125,8 +125,10 @@ namespace Biz.Common.SqlAnalyse
 
         public static readonly string keyIf = "if";
 
-        protected static readonly HashSet<string> commonKeys = new HashSet<string> { keyNull, keyChar, keyNChar, keyVarChar, keyNVarChar, keyInt, keyNumeric, keyBigint, keyBinary, keyBit, keyDate, keyDatetime, keyDatetime2, keyDatetimeoffset, keyDecimal, keyFloat, keyGeography, keyGeometry, keyHierarchyid, keyImage, keyMoney, keyNtext, keyReal, keySmalldatetime, keySmallint, keySmallmoney, keySql_variant, keyText, keyTime, keyTimestamp, keyTinyint, keyUniqueidentifier, keyVarbinary, keyXml };
+        public static readonly string keyIs = "is";
 
+        protected static readonly HashSet<string> typeKeys = new HashSet<string> { keyChar, keyNChar, keyVarChar, keyNVarChar, keyInt, keyNumeric, keyBigint, keyBinary, keyBit, keyDate, keyDatetime, keyDatetime2, keyDatetimeoffset, keyDecimal, keyFloat, keyGeography, keyGeometry, keyHierarchyid, keyImage, keyMoney, keyNtext, keyReal, keySmalldatetime, keySmallint, keySmallmoney, keySql_variant, keyText, keyTime, keyTimestamp, keyTinyint, keyUniqueidentifier, keyVarbinary, keyXml };
+        protected static readonly HashSet<string> commonKeys = new HashSet<string> { keyAnd, keyOr, keyIs, keyNot, keyNull, keyLike, keyIn };
         //https://web.baimiaoapp.com/
         protected static readonly HashSet<string> functions = new HashSet<string>
         {
@@ -162,9 +164,9 @@ namespace Biz.Common.SqlAnalyse
 
         private bool isAcceptPrimaryKey = false;
 
-        protected bool IsKey(string token)
+        protected bool IsPrivateKey(string token)
         {
-            return commonKeys.Contains(token) || GetKeys().Contains(token);
+            return GetKeys().Contains(token);
         }
 
         public List<ISqlAnalyser> NestAnalyser
@@ -208,15 +210,24 @@ namespace Biz.Common.SqlAnalyse
         public virtual bool Accept(ISqlExpress sqlExpress, bool isKey)
         {
             var primaryKey = GetPrimaryKey();
-            var isInKeys = IsKey(sqlExpress.Val);
+            var isInKeys = IsPrivateKey(sqlExpress.Val);
             if (sqlExpress.Deep != Deep)
             {
                 if (AcceptDeeper(sqlExpress,isKey))
                 {
-                    if (isKey || isInKeys)
+
+                    if (isInKeys)
                     {
                         sqlExpress.AnalyseType = AnalyseType.Key;
                         AddAcceptKey(sqlExpress.Val);
+                    }
+                    else if (typeKeys.Contains(sqlExpress.Val))
+                    {
+                        sqlExpress.AnalyseType = AnalyseType.TypeKey;
+                    }
+                    else if (isKey || commonKeys.Contains(sqlExpress.Val))
+                    {
+                        sqlExpress.AnalyseType = AnalyseType.Key;
                     }
                     AddAcceptSqlExpress(sqlExpress);
                     return true;
@@ -257,7 +268,15 @@ namespace Biz.Common.SqlAnalyse
                     }
                     else
                     {
-                        if (functions.Contains(sqlExpress.Val))
+                        if (typeKeys.Contains(sqlExpress.Val))
+                        {
+                            sqlExpress.AnalyseType = AnalyseType.TypeKey;
+                        }
+                        else if (commonKeys.Contains(sqlExpress.Val))
+                        {
+                            sqlExpress.AnalyseType = AnalyseType.Key;
+                        }
+                        else if (functions.Contains(sqlExpress.Val))
                         {
                             sqlExpress.AnalyseType = AnalyseType.Function;
                             sqlExpress.ExpressType = SqlExpressType.Function;
@@ -274,9 +293,9 @@ namespace Biz.Common.SqlAnalyse
 
                 isAccept = true;
             }
-            else if (isKey && AcceptOuterKey(sqlExpress))
+            else if (AcceptOuterKey(sqlExpress))
             {
-                AddAcceptKey(sqlExpress.Val);
+                //AddAcceptKey(sqlExpress.Val);
                 AddAcceptSqlExpress(sqlExpress);
                 isAccept = true;
             }
@@ -430,6 +449,10 @@ namespace Biz.Common.SqlAnalyse
                 else
                 {
                     ret.AddRange(analyser.GetTables().Select(p => p.Val));
+                    if (analyser.ParentAnalyser != null)
+                    {
+                        ret.AddRange(analyser.ParentAnalyser.GetTables().Select(p => p.Val));
+                    }
                 }
             }
 

@@ -21,6 +21,11 @@ namespace Biz.Common.SqlAnalyse
 
         protected override bool Accept(ISqlExpress sqlExpress)
         {
+            if (sqlExpress.AnalyseType == AnalyseType.UnKnown && sqlExpress.ExpressType == SqlExpressType.Token)
+            {
+                sqlExpress.AnalyseType = AnalyseType.Column;
+                colums.Add(sqlExpress);
+            }
             return true;
         }
     }
