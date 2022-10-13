@@ -19,7 +19,7 @@ namespace Biz.Common.SqlAnalyse
             return keyDrop;
         }
 
-        protected override bool Accept(ISqlExpress sqlExpress)
+        protected override bool Accept(ISqlProcessor sqlProcessor, ISqlExpress sqlExpress)
         {
             var lastKey = PreAcceptKeys(acceptKeys, 0);
             if (lastKey == keyTable)

@@ -124,6 +124,8 @@ namespace Biz.Common.SqlAnalyse
         public static readonly string keyBegin = "begin";
         public static readonly string keyEnd = "end";
 
+        public static readonly string keyTransaction = "transaction"; 
+
         public static readonly string keyIf = "if";
 
         public static readonly string keyIs = "is";
@@ -181,19 +183,19 @@ namespace Biz.Common.SqlAnalyse
             set;
         }
 
-        protected virtual bool AcceptDeeper(ISqlExpress sqlExpress,bool isOuterkey)
+        protected virtual bool AcceptDeeper(ISqlProcessor sqlProcessor, ISqlExpress sqlExpress,bool isOuterkey)
         {
             return false;
         }
 
-        protected abstract bool Accept(ISqlExpress sqlExpress);
+        protected abstract bool Accept(ISqlProcessor sqlProcessor, ISqlExpress sqlExpress);
 
         /// <summary>
         /// 是否解受内部key，一般true，比如insert不能同时有values和select关键字
         /// </summary>
         /// <param name="sqlExpress"></param>
         /// <returns></returns>
-        protected virtual bool AcceptInnerKey(ISqlExpress sqlExpress)
+        protected virtual bool AcceptInnerKey(ISqlProcessor sqlProcessor,ISqlExpress sqlExpress)
         {
             return true;
         }
@@ -203,18 +205,18 @@ namespace Biz.Common.SqlAnalyse
         /// </summary>
         /// <param name="sqlExpress"></param>
         /// <returns></returns>
-        protected virtual bool AcceptOuterKey(ISqlExpress sqlExpress)
+        protected virtual bool AcceptOuterKey(ISqlProcessor sqlProcessor, ISqlExpress sqlExpress)
         {
             return false;
         }
 
-        public virtual bool Accept(ISqlExpress sqlExpress, bool isKey)
+        public virtual bool Accept(ISqlProcessor sqlProcessor,ISqlExpress sqlExpress, bool isKey)
         {
             var primaryKey = GetPrimaryKey();
             var isInKeys = IsPrivateKey(sqlExpress.Val);
             if (sqlExpress.Deep != Deep)
             {
-                if (AcceptDeeper(sqlExpress,isKey))
+                if (AcceptDeeper(sqlProcessor,sqlExpress,isKey))
                 {
 
                     if (isInKeys)
@@ -240,7 +242,7 @@ namespace Biz.Common.SqlAnalyse
             }
 
             //分隔多个SELECT
-            if (sqlExpress.Val == primaryKey && isAcceptPrimaryKey && !AcceptOuterKey(sqlExpress))
+            if (sqlExpress.Val == primaryKey && isAcceptPrimaryKey && !AcceptOuterKey(sqlProcessor,sqlExpress))
             {
                 return false;
             }
@@ -254,7 +256,7 @@ namespace Biz.Common.SqlAnalyse
                     if (isInKeys)
                     {
                         sqlExpress.AnalyseType = AnalyseType.Key;
-                        if (AcceptInnerKey(sqlExpress))
+                        if (AcceptInnerKey(sqlProcessor, sqlExpress))
                         {
                             AddAcceptKey(sqlExpress.Val);
                             if (sqlExpress.Val == primaryKey)
@@ -283,7 +285,7 @@ namespace Biz.Common.SqlAnalyse
                             sqlExpress.ExpressType = SqlExpressType.Function;
                         }
 
-                        if (!Accept(sqlExpress))
+                        if (!Accept(sqlProcessor, sqlExpress))
                         {
                             return false;
                         }
@@ -294,7 +296,7 @@ namespace Biz.Common.SqlAnalyse
 
                 isAccept = true;
             }
-            else if (AcceptOuterKey(sqlExpress))
+            else if (AcceptOuterKey(sqlProcessor,sqlExpress))
             {
                 //AddAcceptKey(sqlExpress.Val);
                 AddAcceptSqlExpress(sqlExpress);
@@ -422,7 +424,7 @@ namespace Biz.Common.SqlAnalyse
                     if (aliasTable.Tag is ISqlExpress && (aliasTable.Tag as ISqlExpress).AnalyseType == AnalyseType.Table)
                     {
                         tbname = (aliasTable.Tag as ISqlExpress).Val.Split('.').Last();
-                        ret.Add(tbname);
+                        ret.Add(tbname.Trim(new[] { '[', ']' }));
                     }
                     else
                     {
@@ -433,7 +435,7 @@ namespace Biz.Common.SqlAnalyse
                 {
                     if (analyser.ParentAnalyser != null)
                     {
-                        var lst = FindTables(analyser.ParentAnalyser,tbname);
+                        var lst = FindTables(analyser.ParentAnalyser, tbname);
                         if (lst.Any())
                         {
                             ret.AddRange(lst);
@@ -441,16 +443,16 @@ namespace Biz.Common.SqlAnalyse
                     }
                     if (ret.Count == 0)
                     {
-                        ret.Add(tbname);
+                        ret.Add(tbname.Trim(new[] { '[', ']' }));
                     }
                 }
             }
             else
             {
-                ret.AddRange(analyser.GetTables().Select(p => p.Val));
+                ret.AddRange(analyser.GetTables().Select(p => p.Val.Trim(new[] { '[', ']' })));
                 if (analyser.ParentAnalyser != null)
                 {
-                    ret.AddRange(analyser.ParentAnalyser.GetTables().Select(p => p.Val));
+                    ret.AddRange(analyser.ParentAnalyser.GetTables().Select(p => p.Val.Trim(new[] { '[', ']' })));
                 }
             }
 

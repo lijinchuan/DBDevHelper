@@ -21,22 +21,22 @@ namespace Biz.Common.SqlAnalyse
             return keyIf;
         }
 
-        protected override bool AcceptOuterKey(ISqlExpress sqlExpress)
+        protected override bool AcceptOuterKey(ISqlProcessor sqlProcessor, ISqlExpress sqlExpress)
         {
             var lastKey = PreAcceptKeys(acceptKeys, 0);
             if (lastKey == keyElse)
             {
                 return true;
             }
-            return base.AcceptOuterKey(sqlExpress);
+            return base.AcceptOuterKey(sqlProcessor,sqlExpress);
         }
 
-        protected override bool Accept(ISqlExpress sqlExpress)
+        protected override bool Accept(ISqlProcessor sqlProcessor, ISqlExpress sqlExpress)
         {
             return true;
         }
 
-        protected override bool AcceptInnerKey(ISqlExpress sqlExpress)
+        protected override bool AcceptInnerKey(ISqlProcessor sqlProcessor, ISqlExpress sqlExpress)
         {
             if (sqlExpress.Val == keyEnd)
             {
@@ -53,7 +53,7 @@ namespace Biz.Common.SqlAnalyse
             {
                 keyBegins.Push(keyBegin);
             }
-            return base.AcceptInnerKey(sqlExpress);
+            return base.AcceptInnerKey(sqlProcessor,sqlExpress);
         }
     }
 }

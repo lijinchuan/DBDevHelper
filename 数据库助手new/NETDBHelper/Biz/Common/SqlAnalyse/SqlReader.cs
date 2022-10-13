@@ -17,16 +17,13 @@ namespace Biz.Common.SqlAnalyse
 
         private int CurrentLineIndex = 0;
 
-        private int CurrentDeep = 0;
-
         private readonly string Sql;
 
         private int lastch = -1;
         private int leftch = -1;
 
         readonly Stack<SqlExpress> stringStack = new Stack<SqlExpress>();
-        readonly Stack<SqlExpress> bracketStack = new Stack<SqlExpress>();
-        readonly Stack<SqlExpress> beginEndStack = new Stack<SqlExpress>();
+        
         readonly Stack<SqlExpress> annotationStack = new Stack<SqlExpress>();
 
         private static bool IsNumber(int ch)
@@ -46,7 +43,6 @@ namespace Biz.Common.SqlAnalyse
             analyseInfo.StartIndex = CurrentIndex;
             analyseInfo.StartInineIndex = CurrentLineIndex;
             analyseInfo.ExpressType = analyseType;
-            analyseInfo.Deep = CurrentDeep;
             return analyseInfo;
         }
 
@@ -121,27 +117,13 @@ namespace Biz.Common.SqlAnalyse
                         if (tokenInfo.Val == "begin")
                         {
                             tokenInfo.ExpressType = SqlExpressType.Begin;
-                            beginEndStack.Push(tokenInfo);
-
-                            CurrentDeep++;
-
-                            return tokenInfo;
                         }
                         else if (tokenInfo.Val == "end")
                         {
                             tokenInfo.ExpressType = SqlExpressType.End;
-                            if (beginEndStack.Count > 0)
-                            {
-                                beginEndStack.Pop();
-                                CurrentDeep--;
-                                tokenInfo.Deep = CurrentDeep;
-                            }
-                            return tokenInfo;
                         }
-                        else
-                        {
-                            return tokenInfo;
-                        }
+
+                        return tokenInfo;
                     }
 
                     if (ch == '\'' && annotationStack.Count == 0)
@@ -206,25 +188,17 @@ namespace Biz.Common.SqlAnalyse
                     }
                     else if (ch == '(' && stringStack.Count == 0 && annotationStack.Count == 0)
                     {
-                        bracketStack.Push(CrateStart(SqlExpressType.Bracket));
-
                         var sqlExpress = CrateStart(SqlExpressType.Bracket);
                         FillEnd(sqlExpress, true);
 
                         //进入子分析
                         lastch = ch;
                         CurrentIndex++;
-                        CurrentDeep++;
 
                         return sqlExpress;
                     }
                     else if (ch == ')' && stringStack.Count == 0 && annotationStack.Count == 0)
                     {
-                        if (bracketStack.Count > 0)
-                        {
-                            bracketStack.Pop();
-                            CurrentDeep--;
-                        }
                         var sqlExpress = CrateStart(SqlExpressType.BracketEnd);
                         FillEnd(sqlExpress, true);
 
@@ -261,12 +235,6 @@ namespace Biz.Common.SqlAnalyse
                 if (tokenInfo.Val == SqlAnalyser.keyEnd)
                 {
                     tokenInfo.ExpressType = SqlExpressType.End;
-                    if (beginEndStack.Count > 0)
-                    {
-                        beginEndStack.Pop();
-                        CurrentDeep--;
-                        tokenInfo.Deep = CurrentDeep;
-                    }
                 }
                 return tokenInfo;
             }
@@ -277,14 +245,6 @@ namespace Biz.Common.SqlAnalyse
             else if (annotationStack.Count > 0)
             {
                 return FillEnd(annotationStack.Pop(), false) ;
-            }
-            else if (bracketStack.Count > 0)
-            {
-                if (bracketStack.Count > 0)
-                {
-                    bracketStack.Pop();
-                    CurrentDeep--;
-                }
             }
 
             return null;

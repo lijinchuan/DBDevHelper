@@ -22,7 +22,7 @@ namespace Biz.Common.SqlAnalyse
             return keyInsert;
         }
 
-        protected override bool Accept(ISqlExpress sqlExpress)
+        protected override bool Accept(ISqlProcessor sqlProcessor, ISqlExpress sqlExpress)
         {
             var lastKey = PreAcceptKeys(acceptKeys, 0);
             var preExpress = PreAcceptExpress(acceptedSqlExpresses, 0);
@@ -79,7 +79,7 @@ namespace Biz.Common.SqlAnalyse
             return true;
         }
 
-        protected override bool AcceptInnerKey(ISqlExpress sqlExpress)
+        protected override bool AcceptInnerKey(ISqlProcessor sqlProcessor, ISqlExpress sqlExpress)
         {
             var lastKey = PreAcceptKeys(acceptKeys, 0);
             if (sqlExpress.Val == keySelect)
@@ -94,7 +94,7 @@ namespace Biz.Common.SqlAnalyse
             return true;
         }
 
-        protected override bool AcceptDeeper(ISqlExpress sqlExpress,bool isOuterkey)
+        protected override bool AcceptDeeper(ISqlProcessor sqlProcessor, ISqlExpress sqlExpress,bool isOuterkey)
         {
             var lastLastKey = PreAcceptKeys(acceptKeys, 1);
             var lastKey = PreAcceptKeys(acceptKeys, 0);
@@ -104,7 +104,7 @@ namespace Biz.Common.SqlAnalyse
                 colums.Add(sqlExpress);
                 return true;
             }
-            return base.AcceptDeeper(sqlExpress, isOuterkey);
+            return base.AcceptDeeper(sqlProcessor,sqlExpress, isOuterkey);
         }
     }
 }

@@ -14,5 +14,7 @@ namespace Biz.Common.SqlAnalyse
 
         List<string> FindTables(List<ISqlAnalyser> sqlAnalysers, int pos);
 
+        ISqlExpress GetNext(int offset = 0);
+
     }
 }

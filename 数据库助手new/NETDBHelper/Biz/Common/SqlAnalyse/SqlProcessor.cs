@@ -14,6 +14,11 @@ namespace Biz.Common.SqlAnalyse
         private readonly SqlReader _sqlReader = null;
         private readonly Stack<ISqlAnalyser> sqlAnalysersStacks = null;
 
+        private ISqlExpress[] CurrentSqlExpressArray = null;
+        private volatile int CurrentSqlExpressListReadPostion = 0;
+
+        private static HashSet<string> KeysAfterBegin = new HashSet<string> { SqlAnalyser.keyTransaction };
+
         public SqlProcessor(string sql)
         {
             _sql = sql;
@@ -32,11 +37,12 @@ namespace Biz.Common.SqlAnalyse
             SqlAnalyserMapper.Add(SqlAnalyser.keyExec, () => new ExecAnalyser());
             SqlAnalyserMapper.Add(SqlAnalyser.keyExecute, () => new ExecuteAnalyser());
             SqlAnalyserMapper.Add(SqlAnalyser.keyIf, () => new IfAnalyser());
+            //SqlAnalyserMapper.Add(SqlAnalyser.keyBegin, () => new BeginAnalyser());
         }
 
         public ISqlAnalyser GetSqlAnalyser(string token)
         {
-            if(SqlAnalyserMapper.TryGetValue(token,out Func<ISqlAnalyser> a))
+            if (SqlAnalyserMapper.TryGetValue(token, out Func<ISqlAnalyser> a))
             {
                 return a();
             }
@@ -46,35 +52,67 @@ namespace Biz.Common.SqlAnalyse
 
         public List<ISqlAnalyser> Handle()
         {
-            List<ISqlAnalyser> ret = new List<ISqlAnalyser>();
-            var next = _sqlReader.ReadNext();
-
-            var currentDeep = 0;
+            Stack<ISqlExpress> bracketStack = new Stack<ISqlExpress>();
+            Stack<ISqlExpress> beginEndStack = new Stack<ISqlExpress>();
+            int currentDeep = 0;
+            int deep = 0;
             ISqlAnalyser currentAnalyser = null;
-            //在有上级分析器的情况下，保存多个同级的分析器
-            while (next != null)
+
+            var sqlExpresses = new List<ISqlExpress>();
+            var token = _sqlReader.ReadNext();
+            while (token != null)
             {
-                var iskey = SqlAnalyserMapper.ContainsKey(next.Val);
+                sqlExpresses.Add(token);
+                token = _sqlReader.ReadNext();
+            }
+
+            CurrentSqlExpressArray= sqlExpresses.ToArray();
+            CurrentSqlExpressListReadPostion = 0;
+
+            for (; CurrentSqlExpressListReadPostion < CurrentSqlExpressArray.Length; CurrentSqlExpressListReadPostion++)
+            {
+                var currentSqlExpress = CurrentSqlExpressArray[CurrentSqlExpressListReadPostion];
+
+                if (currentSqlExpress.ExpressType == SqlExpressType.BracketEnd)
+                {
+                    if (bracketStack.Any())
+                    {
+                        bracketStack.Pop();
+                        deep--;
+                    }
+                }
+                else if (currentSqlExpress.ExpressType == SqlExpressType.End)
+                {
+                    if (beginEndStack.Any())
+                    {
+                        beginEndStack.Pop();
+                        deep--;
+                    }
+                }
+
+                currentSqlExpress.Deep = deep;
+
+                var iskey = SqlAnalyserMapper.ContainsKey(currentSqlExpress.Val);
                 if (iskey)
                 {
-                    next.AnalyseType = AnalyseType.Key;
+                    currentSqlExpress.AnalyseType = AnalyseType.Key;
                 }
-                if (currentAnalyser == null || !currentAnalyser.Accept(next, iskey))
+                if (currentAnalyser == null || !currentAnalyser.Accept(this, currentSqlExpress, iskey))
                 {
-                    var analyser = GetSqlAnalyser(next.Val);
+                    var analyser = GetSqlAnalyser(currentSqlExpress.Val);
                     if (analyser != null)
                     {
-                        analyser.Deep = next.Deep;
+                        analyser.Deep = currentSqlExpress.Deep;
                         sqlAnalysersStacks.Push(analyser);
 
-                        analyser.Accept(next, iskey);
+                        analyser.Accept(this, currentSqlExpress, iskey);
                         currentAnalyser = analyser;
-                        currentDeep = next.Deep;
+                        currentDeep = currentSqlExpress.Deep;
                     }
                     else
                     {
                         currentAnalyser = null;
-                        if (next.Deep < currentDeep)
+                        if (currentSqlExpress.Deep < currentDeep)
                         {
                             //变浅了
                             if (sqlAnalysersStacks.Count > 0)
@@ -85,10 +123,10 @@ namespace Biz.Common.SqlAnalyse
                                 {
                                     faterAnalyser = sqlAnalysersStacks.Pop();
                                     temp.Enqueue(faterAnalyser);
-                                    if (faterAnalyser.Deep <= next.Deep)
+                                    if (faterAnalyser.Deep <= currentSqlExpress.Deep)
                                     {
                                         currentAnalyser = faterAnalyser;
-                                        currentAnalyser.Accept(next, false);
+                                        currentAnalyser.Accept(this, currentSqlExpress, false);
                                         break;
                                     }
                                 }
@@ -104,23 +142,37 @@ namespace Biz.Common.SqlAnalyse
 
                     }
                 }
-                if (currentDeep != next.Deep)
+                if (currentDeep != currentSqlExpress.Deep)
                 {
-                    currentDeep = next.Deep;
+                    currentDeep = currentSqlExpress.Deep;
                     if (currentAnalyser == null)
                     {
                         currentAnalyser = new DefaultAnalyser();
-                        currentAnalyser.Deep = next.Deep;
+                        currentAnalyser.Deep = currentSqlExpress.Deep;
                         sqlAnalysersStacks.Push(currentAnalyser);
 
-                        currentAnalyser.Accept(next, iskey);
+                        currentAnalyser.Accept(this, currentSqlExpress, iskey);
                     }
                 }
-                next = _sqlReader.ReadNext();
+
+                //要放在后面处理
+                if (currentSqlExpress.ExpressType == SqlExpressType.Bracket)
+                {
+                    bracketStack.Push(currentSqlExpress);
+                    deep++;
+                }
+                else if (currentSqlExpress.ExpressType == SqlExpressType.Begin)
+                {
+                    if (!KeysAfterBegin.Contains(GetNext()?.Val ?? string.Empty))
+                    {
+                        beginEndStack.Push(currentSqlExpress);
+                        deep++;
+                    }
+                }
             }
 
             //这里也要考虑层级，先只解析简单的情况
-            ret = PopAnalyser();
+            var ret = PopAnalyser();
 
             return ret;
 
@@ -170,12 +222,12 @@ namespace Biz.Common.SqlAnalyse
 
                 return list.Where(p => p.ParentAnalyser == null).ToList();
             }
+
         }
 
-
-        public List<string> FindTables(List<ISqlAnalyser> sqlAnalysers,int pos)
+        public List<string> FindTables(List<ISqlAnalyser> sqlAnalysers, int pos)
         {
-            foreach(var analyser in sqlAnalysers)
+            foreach (var analyser in sqlAnalysers)
             {
                 var express = analyser.FindByPos(pos);
                 if (express != null)
@@ -185,6 +237,19 @@ namespace Biz.Common.SqlAnalyse
             }
 
             return new List<string>();
+        }
+
+        public ISqlExpress GetNext(int offset = 0)
+        {
+            if (offset < 0)
+            {
+                throw new IndexOutOfRangeException();
+            }
+            if (CurrentSqlExpressArray == null || CurrentSqlExpressArray.Length <= CurrentSqlExpressListReadPostion + 1 + offset)
+            {
+                return null;
+            }
+            return CurrentSqlExpressArray[CurrentSqlExpressListReadPostion + 1 + offset];
         }
     }
 }

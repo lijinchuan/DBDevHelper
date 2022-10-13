@@ -101,8 +101,8 @@ namespace NETDBHelper.UC
         /// </summary>
         private List<ThinkInfo> ThinkInfoLib = null;
         private List<SubSearchSourceItem> sourceList = null;
-        private HashSet<string> TableSet = new HashSet<string>();
-        private object GetObjects(string keys, ref int count)
+        //private HashSet<string> TableSet = new HashSet<string>();
+        private object GetObjects(int pos,string keys, ref int count)
         {
             if (string.IsNullOrWhiteSpace(_dbname))
             {
@@ -163,10 +163,6 @@ namespace NETDBHelper.UC
                     var key = (1 + "_" + tag.DBName + tag.TBName).ToUpper();
                     if (!hash.Contains(key))
                     {
-                        if (!TableSet.Contains(tag.TBName))
-                        {
-                            TableSet.Add(tag.TBName);
-                        }
                         var thinkinfo = new ThinkInfo
                         {
                             Type = 1,
@@ -222,6 +218,7 @@ namespace NETDBHelper.UC
             }
 
             var searchtable = string.Empty;
+            var orgtable = default(string);
             var searchKeys = keys;
             if (searchKeys.IndexOf('.') > -1)
             {
@@ -236,17 +233,14 @@ namespace NETDBHelper.UC
             ThinkInfoLib.ForEach(p => p.Score = 0);
             ProcessTraceUtil.Trace("start subsearch");
 
-            var tableKeyManager = new LJC.FrameWorkV3.CodeExpression.KeyWordMatch.KeyWordManager();
-            foreach(var item in TableSet)
+            var sqlProcessor = new SqlProcessor(RichText.Text);
+            var currenttbs = sqlProcessor.FindTables(sqlProcessor.Handle(), pos - 1);
+            if (!string.IsNullOrWhiteSpace(searchtable)&&currenttbs.Count==1&&currenttbs.First()!=searchtable.ToLower())
             {
-                tableKeyManager.AddKeyWord(item.ToUpper(), item);
+                orgtable = searchtable;
+                searchtable = currenttbs.FirstOrDefault();
+                
             }
-            TableSet.Clear();
-            foreach (var item in tableKeyManager.MatchKeyWord(RichText.Text.ToUpper()))
-            {
-                TableSet.Add(item.Tag.ToString());
-            }
-            ProcessTraceUtil.Trace("重新检查表:" + TableSet.Count + "个");
 
             if (!string.IsNullOrWhiteSpace(searchKeys))
             {
@@ -269,7 +263,7 @@ namespace NETDBHelper.UC
                         {
                             tablename = markcolumn.TBName;
                         }
-                        if (!TableSet.Contains(tablename, StringComparer.OrdinalIgnoreCase))
+                        if (!currenttbs.Contains(tablename, StringComparer.OrdinalIgnoreCase))
                         {
                             return false;
                         }
@@ -401,10 +395,6 @@ namespace NETDBHelper.UC
                     {
                         tablename = p.ObjectName;
                     }
-                    if (!TableSet.Contains(tablename, StringComparer.OrdinalIgnoreCase))
-                    {
-                        TableSet.Add(tablename);
-                    }
                 }
             }
 
@@ -426,7 +416,14 @@ namespace NETDBHelper.UC
                     {
                         objectname = $"{markcolumn.DBName.ToLower()}.dbo.{markcolumn.TBName.ToLower()}.{p.ObjectName}";
                     }
-                    replaceobjectname = $"{markcolumn.TBName.ToLower()}.{p.ObjectName}";
+                    if (!string.IsNullOrWhiteSpace(orgtable))
+                    {
+                        replaceobjectname = $"{orgtable}.{p.ObjectName}";
+                    }
+                    else
+                    {
+                        replaceobjectname = $"{markcolumn.TBName.ToLower()}.{p.ObjectName}";
+                    }
                 }
                 else if (p.Type == 1)
                 {
@@ -671,7 +668,7 @@ namespace NETDBHelper.UC
 
             foreach(var tb in tbs)
             {
-                var t = GetTableName(tb.Trim(new[] { '[', ']' }), DBName);
+                var t = GetTableName(tb, DBName);
 
                 keys.Add(new string[] { t.Item1, t.Item2, subtexts.Last() });
             }
@@ -1264,7 +1261,7 @@ namespace NETDBHelper.UC
             if (!string.IsNullOrEmpty(keyword))
             {
                 int count = 0;
-                var obj = GetObjects(keyword, ref count);
+                var obj = GetObjects(keywordindex, keyword, ref count);
                 if (obj != null && count > 0)
                 {
                     (view.Tag as ViewContext).DataType = 2;

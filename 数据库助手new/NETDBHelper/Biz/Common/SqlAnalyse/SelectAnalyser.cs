@@ -26,7 +26,7 @@ namespace Biz.Common.SqlAnalyse
             return keys;
         }
 
-        protected override bool AcceptDeeper(ISqlExpress sqlExpress,bool isOuterkey)
+        protected override bool AcceptDeeper(ISqlProcessor sqlProcessor, ISqlExpress sqlExpress,bool isOuterkey)
         {
             if (!isOuterkey)
             {
@@ -58,10 +58,10 @@ namespace Biz.Common.SqlAnalyse
                 //}
             }
             
-            return base.AcceptDeeper(sqlExpress,isOuterkey);
+            return base.AcceptDeeper(sqlProcessor,sqlExpress,isOuterkey);
         }
 
-        protected override bool Accept(ISqlExpress sqlExpress)
+        protected override bool Accept(ISqlProcessor sqlProcessor, ISqlExpress sqlExpress)
         {
             var lastLastKey = PreAcceptKeys(acceptKeys, 1);
             var lastKey = PreAcceptKeys(acceptKeys, 0);

@@ -26,15 +26,15 @@ namespace Biz.Common.SqlAnalyse
             return keyCreate;
         }
 
-        protected override bool Accept(ISqlExpress sqlExpress)
+        protected override bool Accept(ISqlProcessor sqlProcessor, ISqlExpress sqlExpress)
         {
             if (selectAnalyser != null)
             {
-                var boo= selectAnalyser.Accept(sqlExpress, sqlExpress.AnalyseType == AnalyseType.Key);
+                var boo = selectAnalyser.Accept(sqlProcessor, sqlExpress, sqlExpress.AnalyseType == AnalyseType.Key);
                 return boo;
             }
             var lastLastKey = PreAcceptKeys(acceptKeys, 1);
-            var lastKey=PreAcceptKeys(acceptKeys, 0);
+            var lastKey = PreAcceptKeys(acceptKeys, 0);
 
             if (lastLastKey == keyCreate && sqlExpress.ExpressType == SqlExpressType.Token)
             {
@@ -64,7 +64,7 @@ namespace Biz.Common.SqlAnalyse
             base.AddAcceptSqlExpress(sqlExpress);
         }
 
-        protected override bool AcceptInnerKey(ISqlExpress sqlExpress)
+        protected override bool AcceptInnerKey(ISqlProcessor sqlProcessor, ISqlExpress sqlExpress)
         {
             if (sqlExpress.Val == keySelect)
             {
@@ -75,7 +75,7 @@ namespace Biz.Common.SqlAnalyse
                     if (selectAnalyser == null)
                     {
                         selectAnalyser = new SelectAnalyser();
-                        selectAnalyser.Accept(sqlExpress, true);
+                        selectAnalyser.Accept(sqlProcessor, sqlExpress, true);
                     }
                     return true;
                 }
@@ -85,7 +85,7 @@ namespace Biz.Common.SqlAnalyse
                 }
             }
 
-            return base.AcceptInnerKey(sqlExpress);
+            return base.AcceptInnerKey(sqlProcessor, sqlExpress);
         }
 
         public override void Print(string sql)

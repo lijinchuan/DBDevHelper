@@ -20,7 +20,7 @@ namespace Biz.Common.SqlAnalyse
             return keyExec;
         }
 
-        protected override bool Accept(ISqlExpress sqlExpress)
+        protected override bool Accept(ISqlProcessor sqlProcessor, ISqlExpress sqlExpress)
         {
 
             return true;
