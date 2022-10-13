@@ -63,6 +63,7 @@
     <Compile Include="Common\SqlAnalyse\AnalyseResult.cs" />
     <Compile Include="Common\SqlAnalyse\AnalyseType.cs" />
     <Compile Include="Common\SqlAnalyse\BeginAnalyser.cs" />
+    <Compile Include="Common\SqlAnalyse\CaseAnalyser.cs" />
     <Compile Include="Common\SqlAnalyse\CreateAnalyser.cs" />
     <Compile Include="Common\SqlAnalyse\DefaultAnalyser.cs" />
     <Compile Include="Common\SqlAnalyse\DeleteAnalyser.cs" />

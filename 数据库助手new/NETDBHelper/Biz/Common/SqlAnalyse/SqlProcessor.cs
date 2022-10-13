@@ -37,6 +37,7 @@ namespace Biz.Common.SqlAnalyse
             SqlAnalyserMapper.Add(SqlAnalyser.keyExec, () => new ExecAnalyser());
             SqlAnalyserMapper.Add(SqlAnalyser.keyExecute, () => new ExecuteAnalyser());
             SqlAnalyserMapper.Add(SqlAnalyser.keyIf, () => new IfAnalyser());
+            SqlAnalyserMapper.Add(SqlAnalyser.keyCase, () => new CaseAnalyser());
             //SqlAnalyserMapper.Add(SqlAnalyser.keyBegin, () => new BeginAnalyser());
         }
 
@@ -73,6 +74,12 @@ namespace Biz.Common.SqlAnalyse
             {
                 var currentSqlExpress = CurrentSqlExpressArray[CurrentSqlExpressListReadPostion];
 
+                if (currentSqlExpress.Val == SqlAnalyser.keyCase)
+                {
+                    beginEndStack.Push(currentSqlExpress);
+                    deep++;
+                }
+
                 if (currentSqlExpress.ExpressType == SqlExpressType.BracketEnd)
                 {
                     if (bracketStack.Any())
@@ -83,7 +90,7 @@ namespace Biz.Common.SqlAnalyse
                 }
                 else if (currentSqlExpress.ExpressType == SqlExpressType.End)
                 {
-                    if (beginEndStack.Any())
+                    if (beginEndStack.Any() && beginEndStack.Peek().Val == SqlAnalyser.keyBegin)
                     {
                         beginEndStack.Pop();
                         deep--;
@@ -169,6 +176,15 @@ namespace Biz.Common.SqlAnalyse
                         deep++;
                     }
                 }
+
+                if (currentSqlExpress.ExpressType == SqlExpressType.End)
+                {
+                    if (beginEndStack.Any() && beginEndStack.Peek().Val == SqlAnalyser.keyCase)
+                    {
+                        beginEndStack.Pop();
+                        deep--;
+                    }
+                }
             }
 
             //这里也要考虑层级，先只解析简单的情况
@@ -207,14 +223,15 @@ namespace Biz.Common.SqlAnalyse
                                     find = true;
                                     pt.NestAnalyser.Add(item);
                                     item.ParentAnalyser = pt;
-                                    parent = pt;
+                                    parent = item;
+                                    parentsAnalyser.Push(pt);
                                     break;
                                 }
                             }
 
                             if (!find)
                             {
-                                parent = null;
+                                parent = item;
                             }
                         }
                     }

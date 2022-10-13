@@ -1,43 +1,38 @@
-﻿CREATE PROCEDURE [dbo].[usp_UpgradePositionLevel]
-AS
-BEGIN
-    BEGIN TRANSACTION
-    -- generate promotion
-    INSERT INTO [dbo].[TB_Promotion]
-               ([Time]
-               ,[ResumeID]
-               ,[JobName]
-               ,[Remark]
-               ,[InputMan]
-               ,[InputTime])
-    SELECT 
-        [Time]        = r.BecomeAFullMemberDate,
-        [ResumeId]    = r.ID,
-        [JobName]    = 'CA',
-        [Remark]    = '由于员工转正期至，系统自动将职级调整为CA',
-        [InputMan]    = 'System',
-        [InputTime]    = GETDATE()
-    FROM TB_Tresume r(NOLOCK)
-    WHERE r.现状 = '在职'
-    AND r.BecomeAFullMemberDate IS NOT NULL
-    AND r.BecomeAFullMemberDate <= CAST(GETDATE() AS DATE)
-    AND r.职位 = 'NCA'
+﻿----------存储过程:usp_UpdateRecommendSourcingListIndutry_bak20180109------------
 
-    -- update employee status from resume
-    UPDATE TB_Tresume
-    SET 职位 = 'CA'
-    FROM TB_Tresume r(NOLOCK)
-    WHERE r.现状 = '在职'
-    AND r.BecomeAFullMemberDate IS NOT NULL
-    AND r.BecomeAFullMemberDate <= CAST(GETDATE() AS DATE)
-    AND r.职位 = 'NCA'
-    
-    IF @@error <> 0  --发生错误
-    BEGIN
-        ROLLBACK TRANSACTION
-    END
-    ELSE
-    BEGIN
-        COMMIT TRANSACTION
-    END
-END
+Create Proc [dbo].[usp_UpdateRecommendSourcingListIndutry_bak20180109]
+/*
+在NCA推送中使用，更新没有行业的SoucingList候选人的行业。
+*/
+AS
+--Recommended Sourcing List without Industry
+select sl.id into #sourcingList
+from dbo.TB_Candidate  sl
+join TB_Houxuan hx on sl.Id = hx.CandidateId and JobID <> 1
+ where RecommendBy=99 and sl.Industry  is  null  and (sl.CompleteStatus is null  or sl.CompleteStatus<60)
+
+select kh.Industry,a.CandidateId 
+into #soucingListIndustry
+from 
+TB_Houxuan hx join
+(
+select hx.CandidateId,Max(hx.Id) as hxId 
+from TB_Houxuan hx join #sourcingList sl on hx.SourcingListID = sl.id
+group by CandidateId
+)a on
+hx.id = a.hxId
+join
+TB_PPosition pos 
+on hx.JobID = pos.P_id
+join
+TB_HTDAB ht 
+on pos.P_cid = ht.HTXH
+join
+TB_KHDAB kh
+on
+ht.KHMC = kh.KHBH
+
+update TB_Candidate
+set Industry = #soucingListIndustry.Industry
+from #soucingListIndustry
+where ID = #soucingListIndustry.CandidateId and isnull(TB_Candidate.Industry,0) = 0

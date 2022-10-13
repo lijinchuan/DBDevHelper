@@ -10,7 +10,7 @@ namespace Biz.Common.SqlAnalyse
     public class SelectAnalyser : SqlAnalyser
     {
 
-        private readonly HashSet<string> keys = new HashSet<string> { keySelect, keyDistinct, keyAll, keyCount, keyTop, keyInto, keyFrom, keyAs, keyWhere, keyBetween, keyLeft, keyRight, keyInner, keyFull, keyJoin, keyOn, keyGroup, keyOrder, keyBy, keyHaving, keyAsc, keyDesc, keyWith, keyNolock, keyCase, keyWhen, keyThen, keyElse, keyEnd };
+        private readonly HashSet<string> keys = new HashSet<string> { keySelect, keyDistinct, keyAll, keyCount, keyTop, keyInto, keyFrom, keyAs, keyWhere, keyBetween, keyLeft, keyRight, keyInner, keyFull, keyJoin, keyOn, keyGroup, keyOrder, keyBy, keyHaving, keyAsc, keyDesc };
 
         public SelectAnalyser()
         {
