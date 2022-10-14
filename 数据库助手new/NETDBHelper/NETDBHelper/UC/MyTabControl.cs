@@ -608,6 +608,7 @@ namespace NETDBHelper.UC
             float currwidth = 0;
             moretabtablelist.Clear();
             var isfull = false;
+            var isSelectedShow = false;
             KeyValuePair<int, TabTableTabEx>? dragtab = null;
             foreach (var item in this.tabExDic)
             {
@@ -617,6 +618,28 @@ namespace NETDBHelper.UC
                     RectangleF buttonRect = RectangleF.Empty;
                     OnCalcTabPage(e.Graphics, item.Value.TabPage, sf, ref buttonRect);
                     item.Value.StripRect = buttonRect;
+                }
+                if (!isSelectedShow && item.Value.TabPage != SelectedTab)
+                {
+                    if(currwidth + (int)item.Value.StripRect.Width >= this.Width - 100)
+                    {
+                        moretabtablelist.Add(item.Value);
+                        item.Value.Visible = false;
+                        if (RightToLeft == RightToLeft.No)
+                        {
+                            DEF_START_POS -= (int)item.Value.StripRect.Width;
+                        }
+                        else
+                        {
+                            DEF_START_POS += (int)item.Value.StripRect.Width;
+                        }
+
+                        continue;
+                    }
+                }
+                if (SelectedTab == item.Value.TabPage)
+                {
+                    isSelectedShow = true;
                 }
                 if (currwidth == 0)
                 {

@@ -1339,10 +1339,11 @@ namespace NETDBHelper.UC
             //if (line1 == this.ScaleNos.FirstLine && line2 == this.ScaleNos.LastLine)
             //    return;
             Dictionary<int, Point> nos = new Dictionary<int, Point>();
-            int offset = 0;
+            float offset = 0f;
             int strLen = this.RichText.GetCharIndexFromPosition(new Point(0, 0)) + 1;
             int linesLen = RichText.Lines.Length;
-            var lineHeight = 0;
+            var sizeF = this.CreateGraphics().MeasureString("高", Font);
+            var lineHeight = (int)Math.Ceiling(sizeF.Height);
             var linesIsEmpty = RichText.Lines.Skip(line1 - 1).Take(line2 - line1 + 1).Select(p => p.FirstOrDefault() == default(char)).ToArray();
             for (int i = line1; i <= line2 && i <= linesLen; i++)
             {
@@ -1350,37 +1351,21 @@ namespace NETDBHelper.UC
                 var isEmpty = linesIsEmpty[i - line1];
                 if (isEmpty)
                 {
-                    if (i == line1)
-                    {
-                        continue;
-                    }
+                    //if (i == line1)
+                    //{
+                    //    continue;
+                    //}
                     Point p = new Point(2, 0);
-                    p.Y = offset + (offset == 0 ? 0 : this.Font.Height) + 1;
-                    offset = p.Y;
+                    p.Y = (int)(offset + (offset == 0f ? 0f : lineHeight));
+                    offset = offset + (offset == 0f ? 0f : lineHeight) + 0.0001f;
                     nos.Add(i, p);
                     strLen += 1;
                 }
                 else
                 {
-                    Point p;
-                    if (lineHeight == 0)
-                    {
-                        p = this.RichText.GetPositionFromCharIndex(strLen);
+                    Point p = new Point(2, (int)(offset + (offset == 0 ? 0 : lineHeight)));
 
-                        if (nos.Count > 0)
-                        {
-                            lineHeight = p.Y - offset;
-                        }
-
-                        strLen += RichText.Lines[i - 1].Length + 1;
-
-                    }
-                    else
-                    {
-                        p = new Point(2, offset + lineHeight);
-                    }
-
-                    offset = p.Y;
+                    offset = offset + (offset == 0 ? 0 : lineHeight) + 0.0001f;
                     p.X = 2;
 
                     nos.Add(i, p);
