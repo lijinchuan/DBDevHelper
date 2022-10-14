@@ -1345,6 +1345,9 @@ namespace NETDBHelper.UC
             var sizeF = this.CreateGraphics().MeasureString("高", Font);
             var lineHeight = (int)Math.Ceiling(sizeF.Height);
             var linesIsEmpty = RichText.Lines.Skip(line1 - 1).Take(line2 - line1 + 1).Select(p => p.FirstOrDefault() == default(char)).ToArray();
+            var firstPos = RichText.GetPositionFromCharIndex(RichText.GetFirstCharIndexFromLine(line1 - 1));
+            offset = firstPos.Y;
+            
             for (int i = line1; i <= line2 && i <= linesLen; i++)
             {
                 //要算上一个换行符
@@ -1356,14 +1359,14 @@ namespace NETDBHelper.UC
                     //    continue;
                     //}
                     Point p = new Point(2, 0);
-                    p.Y = (int)(offset + (offset == 0f ? 0f : lineHeight));
+                    p.Y = (int)offset;
                     offset = offset + (offset == 0f ? 0f : lineHeight) + 0.0001f;
                     nos.Add(i, p);
                     strLen += 1;
                 }
                 else
                 {
-                    Point p = new Point(2, (int)(offset + (offset == 0 ? 0 : lineHeight)));
+                    Point p = new Point(2, (int)offset);
 
                     offset = offset + (offset == 0 ? 0 : lineHeight) + 0.0001f;
                     p.X = 2;
