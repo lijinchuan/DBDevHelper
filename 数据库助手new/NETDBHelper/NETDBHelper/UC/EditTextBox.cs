@@ -85,7 +85,7 @@ namespace NETDBHelper.UC
         private Color defaultSelectionColor;
         //internal KeyWordManager keywordman = new KeyWordManager();
         private KeyWordManager _keyWords=new KeyWordManager();
-        private LJC.FrameWork.Comm.WatchTimer _timer = new LJC.FrameWork.Comm.WatchTimer(6);
+        private LJC.FrameWork.Comm.WatchTimer _timer = new LJC.FrameWork.Comm.WatchTimer(10);
         private System.Threading.Timer backtimer = null;
         private HashSet<int> _markedLines = new HashSet<int>();
         private int _lastMarketedLines = -1;
@@ -525,11 +525,16 @@ namespace NETDBHelper.UC
         public EditTextBox()
         {
             InitializeComponent();
+
+            this.DoubleBuffered = true;//设置本窗体
+            SetStyle(ControlStyles.AllPaintingInWmPaint, true); // 禁止擦除背景.
+            SetStyle(ControlStyles.DoubleBuffer, true); // 双缓冲
+
             this.RichText.WordWrap = false;
-            this.DoubleBuffered = true;
             this.RichText.ScrollBars = RichTextBoxScrollBars.Both;
             this.RichText.ContextMenuStrip = this.contextMenuStrip1;
-            this.RichText.VScroll += new EventHandler(RichText_VScroll);
+            this.RichText.VScroll += RichText_VScroll;
+            
             this.ScaleNos.Font = new Font(RichText.Font.FontFamily, RichText.Font.Size + 1.019f);
             this.RichText.KeyUp += new KeyEventHandler(RichText_KeyUp);
             this.RichText.KeyDown += RichText_KeyDown;
@@ -802,13 +807,37 @@ namespace NETDBHelper.UC
 
                 var rate = width < ajustviewwith ? (width * 1.0 / ajustviewwith) : 1.0;
                 icount = 0;
+                var leftWidth = width;
                 foreach (DataGridViewColumn col in view.Columns)
                 {
                     if (!col.Visible)
                     {
                         continue;
                     }
-                    col.Width = (int)(maxwidthlist[icount] * rate);
+                    if (icount == 0)
+                    {
+                        if (maxwidthlist.Count == 1)
+                        {
+                            col.Width = (int)(maxwidthlist[icount] * rate);
+                        }
+                        else
+                        {
+                            col.Width = maxwidthlist[icount];
+                        }
+                        leftWidth -= col.Width;
+                    }
+                    else
+                    {
+                        if (icount == maxwidthlist.Count - 1)
+                        {
+                            col.Width = leftWidth;
+                        }
+                        else
+                        {
+                            col.Width = (int)(Math.Min(maxwidthlist[icount] * rate, leftWidth * 0.66));
+                            leftWidth -= col.Width;
+                        }
+                    }
                     icount++;
                 }
 
@@ -1199,7 +1228,7 @@ namespace NETDBHelper.UC
                 return;
             }
             lines = lines.OrderBy(p => p).ToArray();
-            this.RichText.LockPaint = true;
+            //this.RichText.LockPaint = true;
             var oldstart = this.RichText.SelectionStart;
             var oldlen = this.RichText.SelectionLength;
             int selectionStart = RichText.GetFirstCharIndexFromLine(lines.First());
@@ -1223,7 +1252,7 @@ namespace NETDBHelper.UC
 
                 this.RichText.SelectionStart = oldstart;
                 this.RichText.SelectionLength = oldlen;
-                this.RichText.LockPaint = false;
+                //this.RichText.LockPaint = false;
             }
         }
 
@@ -1385,8 +1414,14 @@ namespace NETDBHelper.UC
 
         void RichText_VScroll(object sender, EventArgs e)
         {
-            var isDown = true;
             var vpos = RichText.VerticalPosition;
+            if (vpos == LastScrollVPos)
+            {
+                return;
+            }
+            RichText.VScroll -= RichText_VScroll;
+            var isDown = true;
+            
             isDown = vpos > LastScrollVPos;
             LastScrollVPos = vpos;
             //if (RichText.SelectionLength == 0)
@@ -1404,11 +1439,11 @@ namespace NETDBHelper.UC
             //}
             _timer.ReSetTimeOutCallBack(() =>
                 {
-                    this.Invoke(new Action<bool, bool>(MarkKeyWords), true, isDown);
-                    this.Invoke(new Action(() =>
+                    this.BeginInvoke(new Action<bool, bool>((b1,b2)=>
                     {
-
-                    }));
+                        MarkKeyWords(b1, b2);
+                        RichText.VScroll += RichText_VScroll;
+                    }), true, isDown);
                 });
         }
 
@@ -1574,10 +1609,12 @@ namespace NETDBHelper.UC
             if (reSetLineNo)
                 SetLineNo();
 
-            int oldVPos = RichText.VerticalPosition;
-            int oldHPos = RichText.HorizontalPosition;
+            int oldStart = this.RichText.SelectionStart;
+            int oldSelectLen = this.RichText.SelectionLength;
             try
             {
+                RichText.LockPaint = true;
+
                 this.RichText.SelectionChanged -= RichText_SelectionChanged;
                 if (this.RichText.Lines.Length == 0)
                     return;
@@ -1589,19 +1626,16 @@ namespace NETDBHelper.UC
 
                 if (!isDown)
                 {
-                    line1 = Math.Max(0, line1 - (int)((line2 - line1) * 0.5));
+                    line1 = Math.Max(0, line1 - (int)((line2 - line1) * 0.25));
                 }
                 else
                 {
-                    line2 = (int)(line2 * 1.5);
+                    line2 = (int)(line2 * 1.25);
                 }
                 //if (line2 == 1)
                 //{
                 //    return;
                 //}
-
-                int oldStart = this.RichText.SelectionStart;
-                int oldSelectLen = this.RichText.SelectionLength;
 
                 ProcessTraceUtil.Trace("totalIndex:");
                 //if (oldStart < totalIndex)
@@ -1758,27 +1792,39 @@ namespace NETDBHelper.UC
                     }
                 }
 
-                this.RichText.LockPaint = true;
-                foreach (DataRow row in tb.Rows)
+                if (tb.Rows.Count > 0)
                 {
-                    this.RichText.SelectionStart = (int)row[0];
-                    this.RichText.SelectionLength = (int)row[1];
-                    this.RichText.SelectionColor = (Color)row[2];
-                }
+                    int oldVPos = RichText.VerticalPosition;
+                    int oldHPos = RichText.HorizontalPosition;
+                    RichText.Visible = false;
+                    foreach (DataRow row in tb.Rows)
+                    {
+                        RichText.SelectionStart = (int)row[0];
+                        this.RichText.SelectionLength = (int)row[1];
+                        this.RichText.SelectionColor = (Color)row[2];
+                    }
+                    ProcessTraceUtil.Trace("setColor:" + tb.Rows.Count);
 
-                ProcessTraceUtil.Trace("setColor:" + tb.Rows.Count);
-                if (this.RichText.SelectionStart != oldStart)
-                {
-                    this.RichText.SelectionStart = oldStart;
-                }
-                if (this.RichText.SelectionLength != oldSelectLen)
-                {
-                    this.RichText.SelectionLength = oldSelectLen;
-                }
+                    if (this.RichText.SelectionStart != oldStart)
+                    {
+                        this.RichText.SelectionStart = oldStart;
+                    }
+                    if (this.RichText.SelectionLength != oldSelectLen)
+                    {
+                        this.RichText.SelectionLength = oldSelectLen;
+                    }
 
-                this.RichText.HorizontalPosition = oldHPos;
-                this.RichText.VerticalPosition = oldVPos;
-                RichText.LockPaint = false;
+                    if (RichText.HorizontalPosition != oldHPos)
+                    {
+                        RichText.HorizontalPosition = oldHPos;
+                    }
+                    if (RichText.VerticalPosition != oldVPos)
+                    {
+                        RichText.VerticalPosition = oldVPos;
+                    }
+
+                    RichText.Visible = true;
+                }
                 _lastMarketedLines = line1;
 
                 ProcessTraceUtil.Trace("resetPostion");
@@ -1786,6 +1832,8 @@ namespace NETDBHelper.UC
             }
             finally
             {
+                RichText.LockPaint = false;
+                RichText.Focus();
 
                 this.RichText.SelectionChanged += RichText_SelectionChanged;
 

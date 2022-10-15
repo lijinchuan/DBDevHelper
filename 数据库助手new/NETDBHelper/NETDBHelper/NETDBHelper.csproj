@@ -285,6 +285,9 @@
     <Compile Include="SubForm\WinWebBroswer.Designer.cs">
       <DependentUpon>WinWebBroswer.cs</DependentUpon>
     </Compile>
+    <Compile Include="UC\BaseUserControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="UC\CreateProc.cs">
       <SubType>Component</SubType>
     </Compile>

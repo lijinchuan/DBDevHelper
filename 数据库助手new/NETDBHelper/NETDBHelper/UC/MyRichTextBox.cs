@@ -42,6 +42,7 @@ namespace NETDBHelper.UC
             {
                 return;
             }
+
             base.WndProc(ref m);
             if (OnWndProc != null)
             {
@@ -111,5 +112,16 @@ namespace NETDBHelper.UC
         {
             return GetLineFromCharIndex(GetFirstCharIndexOfCurrentLine());
         }
+
+        //protected override CreateParams CreateParams
+        //{
+        //    get
+        //    {
+        //        CreateParams cp = base.CreateParams;
+        //        cp.ExStyle |= 0x02000000;
+        //        return cp;
+
+        //    }
+        //}
     }
 }

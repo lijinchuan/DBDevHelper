@@ -9,7 +9,7 @@ using System.Windows.Forms;
 
 namespace NETDBHelper.UC
 {
-    public partial class Scale : UserControl
+    public partial class Scale : BaseUserControl
     {
         public int FirstLine
         {
@@ -42,8 +42,10 @@ namespace NETDBHelper.UC
         {
             InitializeComponent();
         }
+
         protected override void OnPaint(PaintEventArgs e)
         {
+            LockPaint = true;
             if (_lineNos == null)
             {
                 _lineNos = new Dictionary<int, Point>();
@@ -57,7 +59,7 @@ namespace NETDBHelper.UC
             {
                 e.Graphics.DrawString(kv.Key.ToString(), this.Font, new SolidBrush(Color.Gray), kv.Value);
             }
-
+            LockPaint = false;
         }
     }
 }
