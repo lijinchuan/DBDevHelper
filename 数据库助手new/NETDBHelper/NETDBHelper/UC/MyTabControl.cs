@@ -439,7 +439,7 @@ namespace NETDBHelper.UC
                                 if (this.SelectedIndex != tab.Key)
                                 {
                                     this.SelectedIndex = tab.Key;
-                                    this.Invalidate();
+                                    //this.Invalidate();
                                 }
                                 else if (tab.Value.CloseButtonBand.Contains(e.X, e.Y))
                                 {
@@ -479,6 +479,65 @@ namespace NETDBHelper.UC
             this.Invalidate();
         }
 
+        private void CheckDraw()
+        {
+            if (SelectedTab != null && tabExDic.Count > 0)
+            {
+                var sumWidth = 0f;
+                var hasSelected = false;
+                var selected = tabExDic.FirstOrDefault(p => p.Value.TabPage == SelectedTab);
+                if (selected.Value != default)
+                {
+                    using (var g = this.CreateGraphics())
+                    {
+                        KeyValuePair<int, TabTableTabEx> maxItem = default;
+                        foreach (var item in tabExDic)
+                        {
+                            if (item.Value.StripRect.Size == SizeF.Empty)
+                            {
+                                var sf = StringFormat.GenericDefault;
+                                RectangleF buttonRect = RectangleF.Empty;
+                                OnCalcTabPage(g, item.Value.TabPage, sf, ref buttonRect);
+                                item.Value.StripRect = buttonRect;
+                            }
+                            sumWidth += item.Value.StripRect.Width;
+                            hasSelected = item.Value.TabPage == SelectedTab;
+                            if (sumWidth > this.Width - MaxTabWidth - 20 && !hasSelected)
+                            {
+                                maxItem = item;
+                                break;
+                            }
+                            else if (hasSelected)
+                            {
+                                break;
+                            }
+                        }
+                        if (maxItem.Value != null)
+                        {
+                            var index = selected.Value.TabIndex;
+                            selected.Value.TabIndex = maxItem.Value.TabIndex;
+                            maxItem.Value.TabIndex = index;
+
+                            tabExDic[maxItem.Key] = selected.Value;
+                            tabExDic[selected.Key] = maxItem.Value;
+                            TabPages[maxItem.Key] = selected.Value.TabPage;
+                            TabPages[selected.Key] = maxItem.Value.TabPage;
+                            this.SelectedTab = selected.Value.TabPage;
+                            ResetTabs();
+
+                            Invalidate();
+                        }
+                    }
+                }
+            }
+        }
+
+        protected override void OnSelectedIndexChanged(EventArgs e)
+        {
+            CheckDraw();
+            base.OnSelectedIndexChanged(e);
+        }
+
         protected override void OnControlAdded(ControlEventArgs e)
         {
             SizeF textSize = this.CreateGraphics().MeasureString(e.Control.Text, defaultFont, new SizeF(MaxTabWidth, 10), StringFormat.GenericDefault);
@@ -512,6 +571,8 @@ namespace NETDBHelper.UC
                     tabExDic.Add(TabCount - 1, new TabTableTabEx((TabPage)e.Control, TabCount - 1));
                 }
             }
+
+            CheckDraw();
 
             base.OnControlAdded(e);
         }
@@ -608,39 +669,18 @@ namespace NETDBHelper.UC
             float currwidth = 0;
             moretabtablelist.Clear();
             var isfull = false;
-            var isSelectedShow = false;
             KeyValuePair<int, TabTableTabEx>? dragtab = null;
+
             foreach (var item in this.tabExDic)
             {
-                if (item.Value.StripRect.Size == SizeF.Empty)
+                if (item.Value.StripRect.Size == SizeF.Empty && !isfull)
                 {
                     var sf = StringFormat.GenericDefault;
                     RectangleF buttonRect = RectangleF.Empty;
                     OnCalcTabPage(e.Graphics, item.Value.TabPage, sf, ref buttonRect);
                     item.Value.StripRect = buttonRect;
                 }
-                if (!isSelectedShow && item.Value.TabPage != SelectedTab)
-                {
-                    if(currwidth + (int)item.Value.StripRect.Width >= this.Width - 100)
-                    {
-                        moretabtablelist.Add(item.Value);
-                        item.Value.Visible = false;
-                        if (RightToLeft == RightToLeft.No)
-                        {
-                            DEF_START_POS -= (int)item.Value.StripRect.Width;
-                        }
-                        else
-                        {
-                            DEF_START_POS += (int)item.Value.StripRect.Width;
-                        }
 
-                        continue;
-                    }
-                }
-                if (SelectedTab == item.Value.TabPage)
-                {
-                    isSelectedShow = true;
-                }
                 if (currwidth == 0)
                 {
                     currwidth += (int)item.Value.StripRect.Left;
@@ -649,7 +689,7 @@ namespace NETDBHelper.UC
                 {
                     if ((currwidth + (int)item.Value.StripRect.Width) >= this.Width - 20)
                     {
-                        if (this.Width - 20 - currwidth >= 50)
+                        if (this.Width - 20 - currwidth >= 100)
                         {
                             var oldRect = item.Value.StripRect;
                             item.Value.ClearRect();
