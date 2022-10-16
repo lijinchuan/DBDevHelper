@@ -842,10 +842,17 @@ namespace NETDBHelper.UC
                 }
 
                 var height = view.ColumnHeadersHeight;
-                for (var i = 0; i < Math.Min(view.Rows.Count, 10); i++)
+                var rowsCount = view.Rows.Count;
+                for (var i = 0; i < Math.Min(rowsCount, 10); i++)
                 {
-
-                    view.Rows[i].DefaultCellStyle.WrapMode = DataGridViewTriState.False;
+                    if (rowsCount == 1)
+                    {
+                        view.Rows[i].DefaultCellStyle.WrapMode = DataGridViewTriState.True;
+                    }
+                    else
+                    {
+                        view.Rows[i].DefaultCellStyle.WrapMode = DataGridViewTriState.False;
+                    }
 
                     height += view.Rows[i].Height;
                 }
