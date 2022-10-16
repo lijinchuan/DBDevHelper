@@ -486,7 +486,7 @@ namespace NETDBHelper.UC
                 var sumWidth = 0f;
                 var hasSelected = false;
                 var selected = tabExDic.FirstOrDefault(p => p.Value.TabPage == SelectedTab);
-                if (selected.Value != default)
+                if (selected.Value != default && !selected.Value.Visible)
                 {
                     using (var g = this.CreateGraphics())
                     {
@@ -572,7 +572,7 @@ namespace NETDBHelper.UC
                 }
             }
 
-            CheckDraw();
+            //CheckDraw();
 
             base.OnControlAdded(e);
         }
