@@ -843,7 +843,7 @@ namespace NETDBHelper.UC
 
                 var height = view.ColumnHeadersHeight;
                 var rowsCount = view.Rows.Count;
-                for (var i = 0; i < Math.Min(rowsCount, 10); i++)
+                for (var i = 0; i < rowsCount; i++)
                 {
                     if (rowsCount == 1)
                     {
@@ -853,8 +853,10 @@ namespace NETDBHelper.UC
                     {
                         view.Rows[i].DefaultCellStyle.WrapMode = DataGridViewTriState.False;
                     }
-
-                    height += view.Rows[i].Height;
+                    if (i < 10)
+                    {
+                        height += view.Rows[i].Height;
+                    }
                 }
                 view.Height = height;
             }
