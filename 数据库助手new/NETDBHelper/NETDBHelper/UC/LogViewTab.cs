@@ -48,6 +48,8 @@ namespace NETDBHelper.UC
             TBSearchKey.GotFocus += TBSearchKey_GotFocus;
             TBSearchKey.LostFocus += TBSearchKey_LostFocus;
             TBSearchKey.TextChanged += TBSearchKey_TextChanged;
+
+            this.GVLog.Cursor = Cursors.Default;
         }
 
         private void TBSearchKey_GotFocus(object sender, EventArgs e)

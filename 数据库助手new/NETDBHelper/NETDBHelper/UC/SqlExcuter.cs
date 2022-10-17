@@ -281,6 +281,7 @@ namespace NETDBHelper.UC
                             page.ImageIndex = 0;
 
                             var dgv = new DataGridView();
+                            dgv.Cursor = Cursors.Default;
                             dgv.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.DisplayedCells;
                             dgv.AllowUserToResizeRows = true;
                             page.Controls.Add(dgv);
