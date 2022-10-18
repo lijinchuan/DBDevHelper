@@ -20,11 +20,11 @@ namespace Biz.Common.SqlAnalyse
             return keyCase;
         }
 
-        protected override bool AcceptInnerKey(ISqlProcessor sqlProcessor, ISqlExpress sqlExpress)
+        protected override AnalyseAccept AcceptInnerKey(ISqlProcessor sqlProcessor, ISqlExpress sqlExpress)
         {
             if (hasEnd)
             {
-                return false;
+                return AnalyseAccept.Reject;
             }
             if (sqlExpress.ExpressType == SqlExpressType.End)
             {
@@ -33,18 +33,18 @@ namespace Biz.Common.SqlAnalyse
             return base.AcceptInnerKey(sqlProcessor, sqlExpress);
         }
 
-        protected override bool Accept(ISqlProcessor sqlProcessor, ISqlExpress sqlExpress)
+        protected override AnalyseAccept Accept(ISqlProcessor sqlProcessor, ISqlExpress sqlExpress)
         {
             if (hasEnd)
             {
-                return false;
+                return AnalyseAccept.Reject;
             }
             if (sqlExpress.AnalyseType == AnalyseType.UnKnown && sqlExpress.ExpressType == SqlExpressType.Token)
             {
                 sqlExpress.AnalyseType = AnalyseType.Column;
                 colums.Add(sqlExpress);
             }
-            return true;
+            return AnalyseAccept.Accept;
         }
     }
 }

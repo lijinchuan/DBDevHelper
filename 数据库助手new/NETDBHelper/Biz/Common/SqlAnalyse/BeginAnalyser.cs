@@ -19,19 +19,19 @@ namespace Biz.Common.SqlAnalyse
             return keyBegin;
         }
 
-        protected override bool AcceptInnerKey(ISqlProcessor sqlProcessor, ISqlExpress sqlExpress)
+        protected override AnalyseAccept AcceptInnerKey(ISqlProcessor sqlProcessor, ISqlExpress sqlExpress)
         {
             //
             if (sqlExpress.Val == keyBegin && sqlProcessor.GetNext()?.Val == keyTransaction)
             {
-                return true;
+                return AnalyseAccept.Accept;
             }
-            return false;
+            return AnalyseAccept.Reject;
         }
 
-        protected override bool Accept(ISqlProcessor sqlProcessor, ISqlExpress sqlExpress)
+        protected override AnalyseAccept Accept(ISqlProcessor sqlProcessor, ISqlExpress sqlExpress)
         {
-            return false;
+            return AnalyseAccept.Reject;
         }
     }
 }

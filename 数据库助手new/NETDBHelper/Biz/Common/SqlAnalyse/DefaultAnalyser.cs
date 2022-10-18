@@ -19,14 +19,14 @@ namespace Biz.Common.SqlAnalyse
             return "defaultKey";
         }
 
-        protected override bool Accept(ISqlProcessor sqlProcessor, ISqlExpress sqlExpress)
+        protected override AnalyseAccept Accept(ISqlProcessor sqlProcessor, ISqlExpress sqlExpress)
         {
             if (sqlExpress.AnalyseType == AnalyseType.UnKnown && sqlExpress.ExpressType == SqlExpressType.Token)
             {
                 sqlExpress.AnalyseType = AnalyseType.Column;
                 colums.Add(sqlExpress);
             }
-            return true;
+            return AnalyseAccept.Accept;
         }
     }
 }

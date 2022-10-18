@@ -104,7 +104,7 @@ namespace Biz.Common.SqlAnalyse
                 {
                     currentSqlExpress.AnalyseType = AnalyseType.Key;
                 }
-                if (currentAnalyser == null || !currentAnalyser.Accept(this, currentSqlExpress, iskey))
+                if (currentAnalyser == null || currentAnalyser.Accept(this, currentSqlExpress, iskey)== AnalyseAccept.Reject)
                 {
                     var analyser = GetSqlAnalyser(currentSqlExpress.Val);
                     if (analyser != null)

@@ -20,7 +20,7 @@ namespace Biz.Common.SqlAnalyse
 
         HashSet<string> GetKeys();
 
-        bool Accept(ISqlProcessor sqlProcessor,ISqlExpress sqlExpress,bool isKey);
+        AnalyseAccept Accept(ISqlProcessor sqlProcessor,ISqlExpress sqlExpress,bool isKey);
 
         List<ISqlAnalyser> NestAnalyser { get; set; }
 

@@ -26,7 +26,7 @@ namespace Biz.Common.SqlAnalyse
             return keyCreate;
         }
 
-        protected override bool Accept(ISqlProcessor sqlProcessor, ISqlExpress sqlExpress)
+        protected override AnalyseAccept Accept(ISqlProcessor sqlProcessor, ISqlExpress sqlExpress)
         {
             if (selectAnalyser != null)
             {
@@ -49,7 +49,7 @@ namespace Biz.Common.SqlAnalyse
                 }
             }
 
-            return true;
+            return AnalyseAccept.Accept;
         }
 
         public override void AddAcceptKey(string key)
@@ -64,7 +64,7 @@ namespace Biz.Common.SqlAnalyse
             base.AddAcceptSqlExpress(sqlExpress);
         }
 
-        protected override bool AcceptInnerKey(ISqlProcessor sqlProcessor, ISqlExpress sqlExpress)
+        protected override AnalyseAccept AcceptInnerKey(ISqlProcessor sqlProcessor, ISqlExpress sqlExpress)
         {
             if (sqlExpress.Val == keySelect)
             {
@@ -77,11 +77,11 @@ namespace Biz.Common.SqlAnalyse
                         selectAnalyser = new SelectAnalyser();
                         selectAnalyser.Accept(sqlProcessor, sqlExpress, true);
                     }
-                    return true;
+                    return AnalyseAccept.Accept;
                 }
                 else
                 {
-                    return false;
+                    return AnalyseAccept.Reject;
                 }
             }
 

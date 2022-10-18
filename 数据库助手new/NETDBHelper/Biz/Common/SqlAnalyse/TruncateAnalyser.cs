@@ -21,7 +21,7 @@ namespace Biz.Common.SqlAnalyse
             return keys;
         }
 
-        protected override bool Accept(ISqlProcessor sqlProcessor, ISqlExpress sqlExpress)
+        protected override AnalyseAccept Accept(ISqlProcessor sqlProcessor, ISqlExpress sqlExpress)
         {
             var lastKey = PreAcceptKeys(acceptKeys, 0);
             if (sqlExpress.ExpressType == SqlExpressType.Token && lastKey == keyTable)
@@ -30,7 +30,7 @@ namespace Biz.Common.SqlAnalyse
                 tables.Add(sqlExpress);
             }
 
-            return true;
+            return AnalyseAccept.Accept;
         }
     }
 }

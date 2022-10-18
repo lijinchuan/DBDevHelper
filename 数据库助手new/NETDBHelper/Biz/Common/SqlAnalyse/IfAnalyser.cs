@@ -21,28 +21,28 @@ namespace Biz.Common.SqlAnalyse
             return keyIf;
         }
 
-        protected override bool AcceptOuterKey(ISqlProcessor sqlProcessor, ISqlExpress sqlExpress)
+        protected override AnalyseAccept AcceptOuterKey(ISqlProcessor sqlProcessor, ISqlExpress sqlExpress)
         {
             var lastKey = PreAcceptKeys(acceptKeys, 0);
             if (lastKey == keyElse)
             {
-                return true;
+                return AnalyseAccept.Accept;
             }
             return base.AcceptOuterKey(sqlProcessor,sqlExpress);
         }
 
-        protected override bool Accept(ISqlProcessor sqlProcessor, ISqlExpress sqlExpress)
+        protected override AnalyseAccept Accept(ISqlProcessor sqlProcessor, ISqlExpress sqlExpress)
         {
-            return true;
+            return AnalyseAccept.Accept;
         }
 
-        protected override bool AcceptInnerKey(ISqlProcessor sqlProcessor, ISqlExpress sqlExpress)
+        protected override AnalyseAccept AcceptInnerKey(ISqlProcessor sqlProcessor, ISqlExpress sqlExpress)
         {
             if (sqlExpress.Val == keyEnd)
             {
                 if (keyBegins.Count == 0)
                 {
-                    return false;
+                    return AnalyseAccept.Reject;
                 }
                 else
                 {

@@ -183,21 +183,21 @@ namespace Biz.Common.SqlAnalyse
             set;
         }
 
-        protected virtual bool AcceptDeeper(ISqlProcessor sqlProcessor, ISqlExpress sqlExpress,bool isOuterkey)
+        protected virtual AnalyseAccept AcceptDeeper(ISqlProcessor sqlProcessor, ISqlExpress sqlExpress,bool isOuterkey)
         {
-            return false;
+            return AnalyseAccept.Reject;
         }
 
-        protected abstract bool Accept(ISqlProcessor sqlProcessor, ISqlExpress sqlExpress);
+        protected abstract AnalyseAccept Accept(ISqlProcessor sqlProcessor, ISqlExpress sqlExpress);
 
         /// <summary>
         /// 是否解受内部key，一般true，比如insert不能同时有values和select关键字
         /// </summary>
         /// <param name="sqlExpress"></param>
         /// <returns></returns>
-        protected virtual bool AcceptInnerKey(ISqlProcessor sqlProcessor,ISqlExpress sqlExpress)
+        protected virtual AnalyseAccept AcceptInnerKey(ISqlProcessor sqlProcessor,ISqlExpress sqlExpress)
         {
-            return true;
+            return AnalyseAccept.Accept;
         }
 
         /// <summary>
@@ -205,18 +205,18 @@ namespace Biz.Common.SqlAnalyse
         /// </summary>
         /// <param name="sqlExpress"></param>
         /// <returns></returns>
-        protected virtual bool AcceptOuterKey(ISqlProcessor sqlProcessor, ISqlExpress sqlExpress)
+        protected virtual AnalyseAccept AcceptOuterKey(ISqlProcessor sqlProcessor, ISqlExpress sqlExpress)
         {
-            return false;
+            return AnalyseAccept.Reject;
         }
 
-        public virtual bool Accept(ISqlProcessor sqlProcessor,ISqlExpress sqlExpress, bool isKey)
+        public virtual AnalyseAccept Accept(ISqlProcessor sqlProcessor,ISqlExpress sqlExpress, bool isKey)
         {
             var primaryKey = GetPrimaryKey();
             var isInKeys = IsPrivateKey(sqlExpress.Val);
             if (sqlExpress.Deep != Deep)
             {
-                if (AcceptDeeper(sqlProcessor,sqlExpress,isKey))
+                if (AcceptDeeper(sqlProcessor,sqlExpress,isKey)==AnalyseAccept.Accept)
                 {
 
                     if (isInKeys)
@@ -233,18 +233,18 @@ namespace Biz.Common.SqlAnalyse
                         sqlExpress.AnalyseType = AnalyseType.Key;
                     }
                     AddAcceptSqlExpress(sqlExpress);
-                    return true;
+                    return AnalyseAccept.Accept;
                 }
                 else
                 {
-                    return false;
+                    return AnalyseAccept.Reject;
                 }
             }
 
             //分隔多个SELECT
-            if (sqlExpress.Val == primaryKey && isAcceptPrimaryKey && !AcceptOuterKey(sqlProcessor,sqlExpress))
+            if (sqlExpress.Val == primaryKey && isAcceptPrimaryKey && AcceptOuterKey(sqlProcessor,sqlExpress)==AnalyseAccept.Reject)
             {
-                return false;
+                return AnalyseAccept.Reject;
             }
 
             var isAccept = false;
@@ -256,7 +256,7 @@ namespace Biz.Common.SqlAnalyse
                     if (isInKeys)
                     {
                         sqlExpress.AnalyseType = AnalyseType.Key;
-                        if (AcceptInnerKey(sqlProcessor, sqlExpress))
+                        if (AcceptInnerKey(sqlProcessor, sqlExpress)==AnalyseAccept.Accept)
                         {
                             AddAcceptKey(sqlExpress.Val);
                             if (sqlExpress.Val == primaryKey)
@@ -266,7 +266,7 @@ namespace Biz.Common.SqlAnalyse
                         }
                         else
                         {
-                            return false;
+                            return AnalyseAccept.Reject;
                         }
                     }
                     else
@@ -285,9 +285,9 @@ namespace Biz.Common.SqlAnalyse
                             sqlExpress.ExpressType = SqlExpressType.Function;
                         }
 
-                        if (!Accept(sqlProcessor, sqlExpress))
+                        if (Accept(sqlProcessor, sqlExpress)==AnalyseAccept.Reject)
                         {
-                            return false;
+                            return AnalyseAccept.Reject;
                         }
 
                     }
@@ -296,14 +296,14 @@ namespace Biz.Common.SqlAnalyse
 
                 isAccept = true;
             }
-            else if (AcceptOuterKey(sqlProcessor,sqlExpress))
+            else if (AcceptOuterKey(sqlProcessor,sqlExpress)==AnalyseAccept.Accept)
             {
                 //AddAcceptKey(sqlExpress.Val);
                 AddAcceptSqlExpress(sqlExpress);
                 isAccept = true;
             }
 
-            return isAccept;
+            return isAccept ? AnalyseAccept.Accept : AnalyseAccept.Reject;
 
         }
 
