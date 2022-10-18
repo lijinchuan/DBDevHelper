@@ -610,7 +610,7 @@ namespace NETDBHelper.UC
         {
             var dgv = (sender as DataGridView);
             var row = dgv.Rows[e.RowIndex];
-            if (row.DefaultCellStyle.WrapMode == DataGridViewTriState.True)
+            if (row.DefaultCellStyle.WrapMode != DataGridViewTriState.False)
             {
                 var oldHeight = row.Height;
                 row.DefaultCellStyle.WrapMode = DataGridViewTriState.False;
@@ -624,7 +624,7 @@ namespace NETDBHelper.UC
         {
             var dgv = (sender as DataGridView);
             var row = dgv.Rows[e.RowIndex];
-            if (row.DefaultCellStyle.WrapMode == DataGridViewTriState.False)
+            if (row.DefaultCellStyle.WrapMode != DataGridViewTriState.True)
             {
                 var oldHeight = row.Height;
                 row.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
@@ -851,7 +851,10 @@ namespace NETDBHelper.UC
                     }
                     else
                     {
-                        view.Rows[i].DefaultCellStyle.WrapMode = DataGridViewTriState.False;
+                        if (view.Rows[i].Height > 50)
+                        {
+                            view.Rows[i].DefaultCellStyle.WrapMode = DataGridViewTriState.False;
+                        }
                     }
                     if (i < 10)
                     {
@@ -1450,7 +1453,7 @@ namespace NETDBHelper.UC
                 {
                     this.BeginInvoke(new Action<bool, bool>((b1,b2)=>
                     {
-                        MarkKeyWords(b1, b2);
+                        MarkKeyWords(b1, b2, true);
                         RichText.VScroll += RichText_VScroll;
                     }), true, isDown);
                 });
@@ -1611,7 +1614,7 @@ namespace NETDBHelper.UC
         /// </summary>
         /// <param name="express"></param>
         /// <returns></returns>
-        public void MarkKeyWords(bool reSetLineNo, bool isDown = true)
+        public void MarkKeyWords(bool reSetLineNo, bool isDown = true,bool isScroll=false)
         {
             ProcessTraceUtil.StartTrace();
 
@@ -1805,7 +1808,10 @@ namespace NETDBHelper.UC
                 {
                     int oldVPos = RichText.VerticalPosition;
                     int oldHPos = RichText.HorizontalPosition;
-                    RichText.Visible = false;
+                    if (isScroll)
+                    {
+                        RichText.Visible = false;
+                    }
                     foreach (DataRow row in tb.Rows)
                     {
                         RichText.SelectionStart = (int)row[0];
@@ -1831,8 +1837,10 @@ namespace NETDBHelper.UC
                     {
                         RichText.VerticalPosition = oldVPos;
                     }
-
-                    RichText.Visible = true;
+                    if (isScroll)
+                    {
+                        RichText.Visible = true;
+                    }
                 }
                 _lastMarketedLines = line1;
 
