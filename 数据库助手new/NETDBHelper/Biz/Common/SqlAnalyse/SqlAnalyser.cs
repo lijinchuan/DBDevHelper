@@ -216,7 +216,8 @@ namespace Biz.Common.SqlAnalyse
             var isInKeys = IsPrivateKey(sqlExpress.Val);
             if (sqlExpress.Deep != Deep)
             {
-                if (AcceptDeeper(sqlProcessor,sqlExpress,isKey)==AnalyseAccept.Accept)
+                var analyseAccept = AcceptDeeper(sqlProcessor, sqlExpress, isKey);
+                if (analyseAccept == AnalyseAccept.Accept)
                 {
 
                     if (isInKeys)
@@ -237,26 +238,32 @@ namespace Biz.Common.SqlAnalyse
                 }
                 else
                 {
-                    return AnalyseAccept.Reject;
+                    return analyseAccept;
                 }
             }
 
             //分隔多个SELECT
-            if (sqlExpress.Val == primaryKey && isAcceptPrimaryKey && AcceptOuterKey(sqlProcessor,sqlExpress)==AnalyseAccept.Reject)
+            if (sqlExpress.Val == primaryKey && isAcceptPrimaryKey)
             {
-                return AnalyseAccept.Reject;
+                var analyseAccept = AcceptOuterKey(sqlProcessor, sqlExpress);
+                if (analyseAccept != AnalyseAccept.Accept)
+                {
+                    return analyseAccept;
+                }
             }
 
             var isAccept = false;
 
             if (!isKey || isInKeys)
             {
+                //不能内部接受
                 if (sqlExpress.ExpressType != SqlExpressType.Annotation)
                 {
                     if (isInKeys)
                     {
                         sqlExpress.AnalyseType = AnalyseType.Key;
-                        if (AcceptInnerKey(sqlProcessor, sqlExpress)==AnalyseAccept.Accept)
+                        var analyseAccept = AcceptInnerKey(sqlProcessor, sqlExpress);
+                        if (analyseAccept == AnalyseAccept.Accept)
                         {
                             AddAcceptKey(sqlExpress.Val);
                             if (sqlExpress.Val == primaryKey)
@@ -266,7 +273,7 @@ namespace Biz.Common.SqlAnalyse
                         }
                         else
                         {
-                            return AnalyseAccept.Reject;
+                            return analyseAccept;
                         }
                     }
                     else
@@ -296,11 +303,19 @@ namespace Biz.Common.SqlAnalyse
 
                 isAccept = true;
             }
-            else if (AcceptOuterKey(sqlProcessor,sqlExpress)==AnalyseAccept.Accept)
+            else
             {
-                //AddAcceptKey(sqlExpress.Val);
-                AddAcceptSqlExpress(sqlExpress);
-                isAccept = true;
+                var analyseAccept = AcceptOuterKey(sqlProcessor, sqlExpress);
+                if (analyseAccept == AnalyseAccept.Accept)
+                {
+                    //AddAcceptKey(sqlExpress.Val);
+                    AddAcceptSqlExpress(sqlExpress);
+                    isAccept = true;
+                }
+                else if (analyseAccept == AnalyseAccept.AcceptDeeper)
+                {
+                    return AnalyseAccept.AcceptDeeper;
+                }
             }
 
             return isAccept ? AnalyseAccept.Accept : AnalyseAccept.Reject;
@@ -526,6 +541,11 @@ namespace Biz.Common.SqlAnalyse
         public int GetEndPos()
         {
             return acceptedSqlExpresses.LastOrDefault()?.EndIndex ?? 0;
+        }
+
+        public List<ISqlExpress> GetAcceptSqlExpressList()
+        {
+            return acceptedSqlExpresses;
         }
     }
 }

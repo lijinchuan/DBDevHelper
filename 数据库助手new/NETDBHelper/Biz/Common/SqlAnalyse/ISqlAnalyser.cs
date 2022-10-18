@@ -59,6 +59,11 @@ namespace Biz.Common.SqlAnalyse
 
         void AddAcceptSqlExpress(ISqlExpress sqlExpress);
         /// <summary>
+        /// 
+        /// </summary>
+        List<ISqlExpress> GetAcceptSqlExpressList();
+
+        /// <summary>
         /// 解析开始位置
         /// </summary>
         /// <returns></returns>

@@ -8,6 +8,7 @@ namespace Biz.Common.SqlAnalyse
 {
     public enum AnalyseAccept
     {
+        None,
         /// <summary>
         /// 接受
         /// </summary>

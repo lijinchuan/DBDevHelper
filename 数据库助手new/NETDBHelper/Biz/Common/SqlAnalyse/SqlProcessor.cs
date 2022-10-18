@@ -55,6 +55,7 @@ namespace Biz.Common.SqlAnalyse
         {
             Stack<ISqlExpress> bracketStack = new Stack<ISqlExpress>();
             Stack<ISqlExpress> beginEndStack = new Stack<ISqlExpress>();
+            Stack<ISqlExpress> acceptDeepStack = new Stack<ISqlExpress>();
             int currentDeep = 0;
             int deep = 0;
             ISqlAnalyser currentAnalyser = null;
@@ -104,8 +105,31 @@ namespace Biz.Common.SqlAnalyse
                 {
                     currentSqlExpress.AnalyseType = AnalyseType.Key;
                 }
-                if (currentAnalyser == null || currentAnalyser.Accept(this, currentSqlExpress, iskey)== AnalyseAccept.Reject)
+                var analyseAccept = currentAnalyser?.Accept(this, currentSqlExpress, iskey);
+                if (currentAnalyser == null || analyseAccept == AnalyseAccept.Reject)
                 {
+                    if (currentAnalyser != null && currentAnalyser.Deep == currentSqlExpress.Deep)
+                    {
+                        var tempAnalyser = currentAnalyser;
+                        while (acceptDeepStack.Any())
+                        {
+                            if (acceptDeepStack.Peek() == tempAnalyser.GetAcceptSqlExpressList().FirstOrDefault())
+                            {
+                                acceptDeepStack.Pop();
+                                deep--;
+                                currentSqlExpress.Deep--;
+                                tempAnalyser.ParentAnalyser.AddAcceptSqlExpress(tempAnalyser.GetAcceptSqlExpressList().LastOrDefault());
+                                tempAnalyser = tempAnalyser.ParentAnalyser;
+                                tempAnalyser.ParentAnalyser = null;
+
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+                    }
+
                     var analyser = GetSqlAnalyser(currentSqlExpress.Val);
                     if (analyser != null)
                     {
@@ -149,6 +173,20 @@ namespace Biz.Common.SqlAnalyse
 
                     }
                 }
+                else if (analyseAccept == AnalyseAccept.AcceptDeeper)
+                {
+                    deep++;
+                    currentSqlExpress.Deep = deep;
+                    var analyser = GetSqlAnalyser(currentSqlExpress.Val);
+                    analyser.ParentAnalyser = currentAnalyser;
+                    analyser.Deep = currentSqlExpress.Deep;
+                    sqlAnalysersStacks.Push(analyser);
+                    acceptDeepStack.Push(currentSqlExpress);
+
+                    analyser.Accept(this, currentSqlExpress, iskey);
+                    currentAnalyser = analyser;
+                    currentDeep = currentSqlExpress.Deep;
+                }
                 if (currentDeep != currentSqlExpress.Deep)
                 {
                     currentDeep = currentSqlExpress.Deep;
@@ -184,6 +222,17 @@ namespace Biz.Common.SqlAnalyse
                         beginEndStack.Pop();
                         deep--;
                     }
+                }
+            }
+
+            var curr = currentAnalyser;
+            while (acceptDeepStack.Any())
+            {
+                var sqlExpress = acceptDeepStack.Pop();
+                if (sqlExpress == curr.GetAcceptSqlExpressList().FirstOrDefault())
+                {
+                    curr.ParentAnalyser.AddAcceptSqlExpress(curr.GetAcceptSqlExpressList().LastOrDefault());
+                    curr = curr.ParentAnalyser;
                 }
             }
 
