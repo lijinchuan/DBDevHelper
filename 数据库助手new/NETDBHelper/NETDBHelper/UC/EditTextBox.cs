@@ -1408,7 +1408,7 @@ namespace NETDBHelper.UC
                     //}
                     Point p = new Point(2, 0);
                     p.Y = (int)offset;
-                    offset = offset + (offset == 0f ? 0f : lineHeight) + 0.0001f;
+                    offset = offset + lineHeight + 0.0001f;
                     nos.Add(i, p);
                     strLen += 1;
                 }
@@ -1416,7 +1416,7 @@ namespace NETDBHelper.UC
                 {
                     Point p = new Point(2, (int)offset);
 
-                    offset = offset + (offset == 0 ? 0 : lineHeight) + 0.0001f;
+                    offset = offset + lineHeight + 0.0001f;
                     p.X = 2;
 
                     nos.Add(i, p);
