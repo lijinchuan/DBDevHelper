@@ -24,7 +24,7 @@ namespace Biz.Common.SqlAnalyse
         {
             var lastKey = PreAcceptKeys(acceptKeys, 0);
             var preExpress = PreAcceptExpress(acceptedSqlExpresses, 0);
-            if (sqlExpress.ExpressType == SqlExpressType.Token)
+            if (sqlExpress.ExpressType == SqlExpressType.Token && sqlExpress.AnalyseType != AnalyseType.Key)
             {
                 if (lastKey == keySet)
                 {
@@ -39,11 +39,22 @@ namespace Biz.Common.SqlAnalyse
                         colums.Add(sqlExpress);
                     }
                 }
+                else if (PreAcceptKeysNot(acceptKeys, 1, new HashSet<string> { keyOn, keyAnd, keyOr }) == keyJoin && (lastKey == keyOn || lastKey == keyAnd || lastKey == keyOr))
+                {
+                    sqlExpress.AnalyseType = AnalyseType.Column;
+                    colums.Add(sqlExpress);
+                }
+                else if ((PreAcceptKeysNot(acceptKeys, 1, new HashSet<string> { keyAnd, keyOr }) == keyWhere && (lastKey == keyAnd || lastKey == keyOr)) || lastKey == keyWhere)
+                {
+                    sqlExpress.AnalyseType = AnalyseType.Column;
+                    colums.Add(sqlExpress);
+                }
                 else if (lastKey == keyFrom || lastKey == keyJoin || lastKey == keyUpdate)
                 {
                     if (preExpress?.AnalyseType == AnalyseType.Table || preExpress?.Val == keyAs)
                     {
                         sqlExpress.AnalyseType = AnalyseType.TableAlias;
+                        sqlExpress.Tag = preExpress;
                         aliasTables.Add(sqlExpress);
                     }
                     else

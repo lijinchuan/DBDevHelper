@@ -131,7 +131,7 @@ namespace Biz.Common.SqlAnalyse
         public static readonly string keyIs = "is";
 
         protected static readonly HashSet<string> typeKeys = new HashSet<string> { keyChar, keyNChar, keyVarChar, keyNVarChar, keyInt, keyNumeric, keyBigint, keyBinary, keyBit, keyDate, keyDatetime, keyDatetime2, keyDatetimeoffset, keyDecimal, keyFloat, keyGeography, keyGeometry, keyHierarchyid, keyImage, keyMoney, keyNtext, keyReal, keySmalldatetime, keySmallint, keySmallmoney, keySql_variant, keyText, keyTime, keyTimestamp, keyTinyint, keyUniqueidentifier, keyVarbinary, keyXml };
-        protected static readonly HashSet<string> commonKeys = new HashSet<string> { keyAnd, keyOr, keyIs, keyNot, keyNull, keyLike, keyIn, keyWith, keyNolock, keyBetween };
+        protected static readonly HashSet<string> commonKeys = new HashSet<string> { keyAnd, keyOr, keyIs, keyNot, keyNull, keyLike, keyIn,keyInner, keyWith, keyNolock, keyBetween };
         //https://web.baimiaoapp.com/
         protected static readonly HashSet<string> functions = new HashSet<string>
         {
