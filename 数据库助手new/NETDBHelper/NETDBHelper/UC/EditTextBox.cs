@@ -1270,20 +1270,23 @@ namespace NETDBHelper.UC
 
         void AdjustViewLoaction()
         {
-            var curindex = this.RichText.SelectionStart;
-            var tippt = this.RichText.GetPositionFromCharIndex(curindex);
-            tippt.Offset(RichText.Location.X, 20);
-            var morewidth = tippt.X + view.Width - view.Parent.Location.X - view.Parent.Width;
-            if (morewidth > 0)
+            if (view.Visible && view.Parent != null && this.Parent != null)
             {
-                tippt.Offset(-morewidth, 0);
+                var curindex = this.RichText.SelectionStart;
+                var tippt = this.RichText.GetPositionFromCharIndex(curindex);
+                tippt.Offset(RichText.Location.X, 20);
+                var morewidth = tippt.X + view.Width - view.Parent.Location.X - view.Parent.Width;
+                if (morewidth > 0)
+                {
+                    tippt.Offset(-morewidth, 0);
+                }
+                if (view.Height + tippt.Y + 30 > this.Parent.Location.Y + this.Parent.Height)
+                {
+                    tippt.Offset(0, -view.Height - 20);
+                }
+                view.ScrollBars = ScrollBars.Vertical;
+                view.Location = tippt;
             }
-            if (view.Height + tippt.Y + 30 > this.Parent.Location.Y + this.Parent.Height)
-            {
-                tippt.Offset(0, -view.Height - 20);
-            }
-            view.ScrollBars = ScrollBars.Vertical;
-            view.Location = tippt;
         }
 
         void RichText_TextChanged(object sender, EventArgs e)
@@ -1301,6 +1304,10 @@ namespace NETDBHelper.UC
 
             if (!string.IsNullOrEmpty(keyword))
             {
+                if (view.Visible)
+                {
+                    view.Visible = false;
+                }
                 int count = 0;
                 var obj = GetObjects(keywordindex, keyword, ref count);
                 if (obj != null && count > 0)
