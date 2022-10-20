@@ -38,7 +38,7 @@
             // 
             // BtnOk
             // 
-            this.BtnOk.Location = new System.Drawing.Point(314, 8);
+            this.BtnOk.Location = new System.Drawing.Point(303, 174);
             this.BtnOk.Name = "BtnOk";
             this.BtnOk.Size = new System.Drawing.Size(52, 33);
             this.BtnOk.TabIndex = 0;
@@ -52,9 +52,11 @@
             this.tbInput.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.tbInput.Font = new System.Drawing.Font("宋体", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.tbInput.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(192)))));
-            this.tbInput.Location = new System.Drawing.Point(12, 10);
+            this.tbInput.Location = new System.Drawing.Point(12, 12);
+            this.tbInput.Multiline = true;
             this.tbInput.Name = "tbInput";
-            this.tbInput.Size = new System.Drawing.Size(299, 29);
+            this.tbInput.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+            this.tbInput.Size = new System.Drawing.Size(401, 150);
             this.tbInput.TabIndex = 1;
             // 
             // errorProvider1
@@ -63,7 +65,7 @@
             // 
             // BtnCancel
             // 
-            this.BtnCancel.Location = new System.Drawing.Point(371, 8);
+            this.BtnCancel.Location = new System.Drawing.Point(361, 173);
             this.BtnCancel.Name = "BtnCancel";
             this.BtnCancel.Size = new System.Drawing.Size(52, 33);
             this.BtnCancel.TabIndex = 2;
@@ -75,7 +77,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(425, 46);
+            this.ClientSize = new System.Drawing.Size(425, 213);
             this.Controls.Add(this.BtnCancel);
             this.Controls.Add(this.tbInput);
             this.Controls.Add(this.BtnOk);
