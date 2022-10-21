@@ -348,14 +348,21 @@ namespace Biz.Common.SqlAnalyse
             return null;
         }
 
-        protected ISqlExpress PreAcceptExpress(List<ISqlExpress> acceptedSqlExpresses, int preIndex)
+        protected ISqlExpress PreAcceptExpress(List<ISqlExpress> acceptedSqlExpresses, int preIndex, bool skipKeys = true)
         {
-            for(var i = acceptedSqlExpresses.Count - 1; i >= 0; i--)
+            for (var i = acceptedSqlExpresses.Count - 1; i >= 0; i--)
             {
                 var current = acceptedSqlExpresses[i];
                 if (current.AnalyseType == AnalyseType.Key)
                 {
-                    continue;
+                    if (skipKeys)
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        return null;
+                    }
                 }
                 if (preIndex == 0)
                 {

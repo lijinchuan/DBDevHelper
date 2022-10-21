@@ -65,8 +65,8 @@ namespace Biz.Common.SqlAnalyse
         {
             var lastLastKey = PreAcceptKeys(acceptKeys, 1);
             var lastKey = PreAcceptKeys(acceptKeys, 0);
-            var preExpress = PreAcceptExpress(acceptedSqlExpresses, 0);
-            if (sqlExpress.ExpressType == SqlExpressType.Token)
+            var preExpress = PreAcceptExpress(acceptedSqlExpresses, 0, false);
+            if (sqlExpress.ExpressType == SqlExpressType.Token && sqlExpress.AnalyseType == AnalyseType.UnKnown)
             {
                 if (lastKey == keyAs && preExpress?.AnalyseType == AnalyseType.Column)
                 {
@@ -128,7 +128,7 @@ namespace Biz.Common.SqlAnalyse
                 }
                 else if (lastKey == keyFrom || lastKey == keyJoin)
                 {
-                    if (preExpress?.AnalyseType == AnalyseType.Table)
+                    if (preExpress?.AnalyseType == AnalyseType.Table || preExpress?.ExpressType == SqlExpressType.BracketEnd)
                     {
                         sqlExpress.AnalyseType = AnalyseType.TableAlias;
                         sqlExpress.Tag = preExpress;
