@@ -22,7 +22,7 @@ namespace Biz.Common.SqlAnalyse.Tests
             var codes = File.ReadAllText("codes.sql");
             var reader = new SqlReader(codes);
 
-            var results = new SqlProcessor(codes).Handle();
+            var results = new SqlCodeDom(codes).Analyse();
 
             foreach(var r in results)
             {

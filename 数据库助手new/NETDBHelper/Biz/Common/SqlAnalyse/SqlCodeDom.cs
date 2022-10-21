@@ -6,39 +6,41 @@ using System.Threading.Tasks;
 
 namespace Biz.Common.SqlAnalyse
 {
-    public class SqlProcessor : ISqlProcessor
+    public class SqlCodeDom : ISqlProcessor
     {
-        private readonly Dictionary<string, Func<ISqlAnalyser>> SqlAnalyserMapper = new Dictionary<string, Func<ISqlAnalyser>>();
+        private readonly static Dictionary<string, Func<ISqlAnalyser>> SqlAnalyserMapper = new Dictionary<string, Func<ISqlAnalyser>>();
 
-        private readonly string _sql;
-        private readonly SqlReader _sqlReader = null;
-        private readonly Stack<ISqlAnalyser> sqlAnalysersStacks = null;
+        private string _sql;
+        //private readonly SqlReader _sqlReader = null;
+        //private readonly Stack<ISqlAnalyser> sqlAnalysersStacks = null;
+
+        private List<ISqlAnalyser> sqlAnalysers = null;
 
         private ISqlExpress[] CurrentSqlExpressArray = null;
         private volatile int CurrentSqlExpressListReadPostion = 0;
 
-        private static HashSet<string> KeysAfterBegin = new HashSet<string> { SqlAnalyser.keyTransaction };
+        private static HashSet<string> KeysAfterBegin = new HashSet<string> { SqlAnalyse.SqlAnalyser.keyTransaction };
 
-        public SqlProcessor(string sql)
+        static SqlCodeDom()
+        {
+            SqlAnalyserMapper.Add(SqlAnalyse.SqlAnalyser.keySelect, () => new SelectAnalyser());
+            SqlAnalyserMapper.Add(SqlAnalyse.SqlAnalyser.keyUpdate, () => new UpdateAnalyser());
+            SqlAnalyserMapper.Add(SqlAnalyse.SqlAnalyser.keyTruncate, () => new TruncateAnalyser());
+            SqlAnalyserMapper.Add(SqlAnalyse.SqlAnalyser.keyInsert, () => new InsertAnalyser());
+            SqlAnalyserMapper.Add(SqlAnalyse.SqlAnalyser.keyDelete, () => new DeleteAnalyser());
+            SqlAnalyserMapper.Add(SqlAnalyse.SqlAnalyser.keyCreate, () => new CreateAnalyser());
+            SqlAnalyserMapper.Add(SqlAnalyse.SqlAnalyser.keyAlter, () => new AlterAnalyser());
+            SqlAnalyserMapper.Add(SqlAnalyse.SqlAnalyser.keyDrop, () => new DropAnalyser());
+            SqlAnalyserMapper.Add(SqlAnalyse.SqlAnalyser.keyExec, () => new ExecAnalyser());
+            SqlAnalyserMapper.Add(SqlAnalyse.SqlAnalyser.keyExecute, () => new ExecuteAnalyser());
+            SqlAnalyserMapper.Add(SqlAnalyse.SqlAnalyser.keyIf, () => new IfAnalyser());
+            SqlAnalyserMapper.Add(SqlAnalyse.SqlAnalyser.keyCase, () => new CaseAnalyser());
+            //SqlAnalyserMapper.Add(SqlAnalyser.keyBegin, () => new BeginAnalyser());
+        }
+
+        public SqlCodeDom(string sql)
         {
             _sql = sql;
-            //分析时全部转为小写
-            _sqlReader = new SqlReader(sql.ToLower());
-            sqlAnalysersStacks = new Stack<ISqlAnalyser>();
-
-            SqlAnalyserMapper.Add(SqlAnalyser.keySelect, () => new SelectAnalyser());
-            SqlAnalyserMapper.Add(SqlAnalyser.keyUpdate, () => new UpdateAnalyser());
-            SqlAnalyserMapper.Add(SqlAnalyser.keyTruncate, () => new TruncateAnalyser());
-            SqlAnalyserMapper.Add(SqlAnalyser.keyInsert, () => new InsertAnalyser());
-            SqlAnalyserMapper.Add(SqlAnalyser.keyDelete, () => new DeleteAnalyser());
-            SqlAnalyserMapper.Add(SqlAnalyser.keyCreate, () => new CreateAnalyser());
-            SqlAnalyserMapper.Add(SqlAnalyser.keyAlter, () => new AlterAnalyser());
-            SqlAnalyserMapper.Add(SqlAnalyser.keyDrop, () => new DropAnalyser());
-            SqlAnalyserMapper.Add(SqlAnalyser.keyExec, () => new ExecAnalyser());
-            SqlAnalyserMapper.Add(SqlAnalyser.keyExecute, () => new ExecuteAnalyser());
-            SqlAnalyserMapper.Add(SqlAnalyser.keyIf, () => new IfAnalyser());
-            SqlAnalyserMapper.Add(SqlAnalyser.keyCase, () => new CaseAnalyser());
-            //SqlAnalyserMapper.Add(SqlAnalyser.keyBegin, () => new BeginAnalyser());
         }
 
         public ISqlAnalyser GetSqlAnalyser(string token)
@@ -51,8 +53,23 @@ namespace Biz.Common.SqlAnalyse
             return null;
         }
 
-        public List<ISqlAnalyser> Handle()
+        public List<ISqlAnalyser> Analyse()
         {
+            if (sqlAnalysers != null)
+            {
+                return sqlAnalysers;
+            }
+
+            if (string.IsNullOrWhiteSpace(_sql))
+            {
+                sqlAnalysers = new List<ISqlAnalyser>();
+                return sqlAnalysers;
+            }
+
+            //分析时全部转为小写
+            var sqlReader = new SqlReader(_sql.ToLower());
+            var sqlAnalysersStacks = new Stack<ISqlAnalyser>();
+
             Stack<ISqlExpress> bracketStack = new Stack<ISqlExpress>();
             Stack<ISqlExpress> beginEndStack = new Stack<ISqlExpress>();
             Stack<ISqlExpress> acceptDeepStack = new Stack<ISqlExpress>();
@@ -61,11 +78,11 @@ namespace Biz.Common.SqlAnalyse
             ISqlAnalyser currentAnalyser = null;
 
             var sqlExpresses = new List<ISqlExpress>();
-            var token = _sqlReader.ReadNext();
+            var token = sqlReader.ReadNext();
             while (token != null)
             {
                 sqlExpresses.Add(token);
-                token = _sqlReader.ReadNext();
+                token = sqlReader.ReadNext();
             }
 
             CurrentSqlExpressArray= sqlExpresses.ToArray();
@@ -75,7 +92,7 @@ namespace Biz.Common.SqlAnalyse
             {
                 var currentSqlExpress = CurrentSqlExpressArray[CurrentSqlExpressListReadPostion];
 
-                if (currentSqlExpress.Val == SqlAnalyser.keyCase)
+                if (currentSqlExpress.Val == SqlAnalyse.SqlAnalyser.keyCase)
                 {
                     beginEndStack.Push(currentSqlExpress);
                     deep++;
@@ -91,7 +108,7 @@ namespace Biz.Common.SqlAnalyse
                 }
                 else if (currentSqlExpress.ExpressType == SqlExpressType.End)
                 {
-                    if (beginEndStack.Any() && beginEndStack.Peek().Val == SqlAnalyser.keyBegin)
+                    if (beginEndStack.Any() && beginEndStack.Peek().Val == SqlAnalyse.SqlAnalyser.keyBegin)
                     {
                         beginEndStack.Pop();
                         deep--;
@@ -217,7 +234,7 @@ namespace Biz.Common.SqlAnalyse
 
                 if (currentSqlExpress.ExpressType == SqlExpressType.End)
                 {
-                    if (beginEndStack.Any() && beginEndStack.Peek().Val == SqlAnalyser.keyCase)
+                    if (beginEndStack.Any() && beginEndStack.Peek().Val == SqlAnalyse.SqlAnalyser.keyCase)
                     {
                         beginEndStack.Pop();
                         deep--;
@@ -237,9 +254,9 @@ namespace Biz.Common.SqlAnalyse
             }
 
             //这里也要考虑层级，先只解析简单的情况
-            var ret = PopAnalyser();
+            sqlAnalysers = PopAnalyser();
 
-            return ret;
+            return sqlAnalysers;
 
             List<ISqlAnalyser> PopAnalyser()
             {
@@ -291,9 +308,9 @@ namespace Biz.Common.SqlAnalyse
 
         }
 
-        public List<string> FindTables(List<ISqlAnalyser> sqlAnalysers, int pos)
+        public List<string> FindTables(int pos)
         {
-            foreach (var analyser in sqlAnalysers)
+            foreach (var analyser in Analyse())
             {
                 var express = analyser.FindByPos(pos);
                 if (express != null)
@@ -316,6 +333,29 @@ namespace Biz.Common.SqlAnalyse
                 return null;
             }
             return CurrentSqlExpressArray[CurrentSqlExpressListReadPostion + 1 + offset];
+        }
+
+        public ISqlExpress FindExpress(int pos)
+        {
+            foreach (var analyser in Analyse())
+            {
+                var express = analyser.FindByPos(pos);
+                if (express != null)
+                {
+                    return express;
+                }
+            }
+
+            return null;
+        }
+
+        public void SetSql(string sql)
+        {
+            if (sql != _sql)
+            {
+                _sql = sql;
+                sqlAnalysers = null;
+            }
         }
     }
 }

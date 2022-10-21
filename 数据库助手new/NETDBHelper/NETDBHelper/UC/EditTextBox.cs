@@ -96,6 +96,8 @@ namespace NETDBHelper.UC
 
         private DataGridView view = new DataGridView();
 
+        ISqlProcessor sqlProcessor = new SqlCodeDom(string.Empty);
+
         /// <summary>
         /// 备选库
         /// </summary>
@@ -233,8 +235,8 @@ namespace NETDBHelper.UC
             ThinkInfoLib.ForEach(p => p.Score = 0);
             ProcessTraceUtil.Trace("start subsearch");
 
-            var sqlProcessor = new SqlProcessor(RichText.Text);
-            var currenttbs = sqlProcessor.FindTables(sqlProcessor.Handle(), pos - 1);
+            sqlProcessor.SetSql(RichText.Text);
+            var currenttbs = sqlProcessor.FindTables(pos - 1);
             if (!string.IsNullOrWhiteSpace(searchtable)&&currenttbs.Count==1&&currenttbs.First()!=searchtable.ToLower())
             {
                 orgtable = searchtable;
@@ -664,8 +666,8 @@ namespace NETDBHelper.UC
                 return;
             }
 
-            var sqlProcessor = new SqlProcessor(RichText.Text);
-            var tbs = sqlProcessor.FindTables(sqlProcessor.Handle(), st - 1);
+            sqlProcessor.SetSql(RichText.Text);
+            var tbs = sqlProcessor.FindTables(st - 1);
 
             seltext = seltext.Trim().ToUpper();
             var subtexts = seltext.Split('.').Select(p => p.Trim('[', ']').Trim()).ToArray();
@@ -976,65 +978,24 @@ namespace NETDBHelper.UC
             {
                 return string.Empty;
             }
-            var currline = this.RichText.GetLineFromCharIndex(curindex);
 
-            var charstartindex = this.RichText.GetFirstCharIndexFromLine(currline);
             var tippt = this.RichText.GetPositionFromCharIndex(curindex);
             tippt.Offset(0, 20);
-            string pre = "", last = "";
-            int pi = curindex - charstartindex - 1;
 
-            var currLineText = RichText.Lines[currline];
-            //判断是否是注释部分
-            var nodeindex = currLineText?.IndexOf("--");
-            if (nodeindex > -1 && pi >= nodeindex)
+            sqlProcessor.SetSql(RichText.Text);
+            var token = sqlProcessor.FindExpress(curindex);
+            if (token == null)
             {
-                start = -1;
-                return string.Empty;
+                return null;
             }
 
-            var linesLen = RichText.Lines.Length;
-            while (pi >= 0)
+            if (token.AnalyseType != AnalyseType.Column)
             {
-
-                var ch = currLineText[pi];
-
-                if ((ch >= 'A' && ch <= 'Z') || (ch >= 48 && ch <= 57) || (ch >= 'a' && ch <= 'z')
-                    || ch == '_' || ch == '@' || (includedot && ch == '.')
-                    || (ch >= '\u4E00' && ch <= '\u9FA5'))
-                {
-                    pre = ch + pre;
-                    pi--;
-                }
-                else
-                {
-                    break;
-                }
-            }
-            pi = curindex - charstartindex;
-            if (linesLen > currline)
-            {
-                while (pi < currLineText.Length)
-                {
-                    var ch = currLineText[pi];
-
-                    if ((ch >= 'A' && ch <= 'Z') || (ch >= 48 && ch <= 57) || (ch >= 'a' && ch <= 'z')
-                        || ch == '_' || ch == '@' || (includedot && ch == '.')
-                        || (ch >= '\u4E00' && ch <= '\u9FA5'))
-                    {
-                        last += ch;
-                        pi++;
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
+                return null;
             }
 
-            var keyword = pre + last;
-            start = pi + charstartindex;
-            return keyword;
+            start = curindex;
+            return token.Val;
         }
 
         private int GetCurrWord(out string word)

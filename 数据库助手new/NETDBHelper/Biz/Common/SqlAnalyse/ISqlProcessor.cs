@@ -8,13 +8,17 @@ namespace Biz.Common.SqlAnalyse
 {
     public interface ISqlProcessor
     {
-        List<ISqlAnalyser> Handle();
+        List<ISqlAnalyser> Analyse();
+
+        void SetSql(string sql);
 
         ISqlAnalyser GetSqlAnalyser(string token);
 
-        List<string> FindTables(List<ISqlAnalyser> sqlAnalysers, int pos);
+        List<string> FindTables(int pos);
 
         ISqlExpress GetNext(int offset = 0);
+
+        ISqlExpress FindExpress(int pos);
 
     }
 }

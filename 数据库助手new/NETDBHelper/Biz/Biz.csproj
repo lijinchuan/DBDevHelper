@@ -82,7 +82,7 @@
     <Compile Include="Common\SqlAnalyse\SqlAnalyser.cs" />
     <Compile Include="Common\SqlAnalyse\SqlExpress.cs" />
     <Compile Include="Common\SqlAnalyse\SqlExpressType.cs" />
-    <Compile Include="Common\SqlAnalyse\SqlProcessor.cs" />
+    <Compile Include="Common\SqlAnalyse\SqlCodeDom.cs" />
     <Compile Include="Common\SqlAnalyse\SqlReader.cs" />
     <Compile Include="Common\SqlAnalyse\TruncateAnalyser.cs" />
     <Compile Include="Common\SqlAnalyse\UpdateAnalyser.cs" />
