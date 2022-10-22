@@ -569,6 +569,7 @@ namespace NETDBHelper.UC
             view.RowLeave += View_RowLeave;
             view.DefaultCellStyle.SelectionBackColor = Color.LightYellow;
             view.DefaultCellStyle.SelectionForeColor = Color.Blue;
+            view.ColumnHeadersVisible = false;
 
             剪切ToolStripMenuItem.Enabled = false;
             
@@ -843,7 +844,7 @@ namespace NETDBHelper.UC
                     icount++;
                 }
 
-                var height = view.ColumnHeadersHeight;
+                var height = view.ColumnHeadersVisible ? view.ColumnHeadersHeight : 1;
                 var rowsCount = view.Rows.Count;
                 for (var i = 0; i < rowsCount; i++)
                 {
