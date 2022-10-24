@@ -182,6 +182,21 @@ namespace NETDBHelper.UC
                     }
                 }
 
+                foreach(var m in tbs)
+                {
+                    if (/*m.Servername != DBServer.ServerName ||*/ exdbhash.Contains(m.DBName) || extbhash.Contains(m.DBName + "," + m.TBName?.Split('.').Last()))
+                    {
+                        continue;
+                    }
+                    var key = $"{m.DBName.ToUpper()}.{m.TBName.ToUpper()}";
+                    //ThinkInfoLib.RemoveAll(p => p.Type == 1 && ((MarkObjectInfo)p.Tag)?.DBName.Equals(m.DBName, StringComparison.OrdinalIgnoreCase) == true && p.ObjectName.Equals(m.TBName, StringComparison.OrdinalIgnoreCase));
+                    if (!tbHash.Contains(key))
+                    {
+                        ThinkInfoLib.Add(new ThinkInfo { Type = 1, ObjectName = m.TBName.ToLower(), Tag = m, Desc = m.MarkInfo });
+                        tbHash.Add(key);
+                    }
+                }
+
                 foreach (var m in markColumnInfoList)
                 {
                     if (/*m.Servername != DBServer.ServerName ||*/ exdbhash.Contains(m.DBName) || extbhash.Contains(m.DBName + "," + m.TBName?.Split('.').Last()))
@@ -189,18 +204,16 @@ namespace NETDBHelper.UC
                         continue;
                     }
 
-                    if (string.IsNullOrWhiteSpace(m.ColumnName))
+                    if (!string.IsNullOrWhiteSpace(m.ColumnName))
                     {
-                        var key = $"{m.TBName.ToUpper()}";
+                        var key = $"{m.DBName.ToUpper()}.{m.TBName.ToUpper()}";
                         //ThinkInfoLib.RemoveAll(p => p.Type == 1 && ((MarkObjectInfo)p.Tag)?.DBName.Equals(m.DBName, StringComparison.OrdinalIgnoreCase) == true && p.ObjectName.Equals(m.TBName, StringComparison.OrdinalIgnoreCase));
                         if (!tbHash.Contains(key))
                         {
                             ThinkInfoLib.Add(new ThinkInfo { Type = 1, ObjectName = m.TBName.ToLower(), Tag = m, Desc = m.MarkInfo });
                             tbHash.Add(key);
                         }
-                    }
-                    else
-                    {
+
                         string desc = m.ColumnType;
                         if (!string.IsNullOrWhiteSpace(m.MarkInfo))
                         {
@@ -651,7 +664,7 @@ namespace NETDBHelper.UC
             {
                 return;
             }
-            this.RichText.Select(st-seltext.Length, seltext.Length);
+            this.RichText.Select(st, seltext.Length);
         }
 
         private void ShowTip()
@@ -661,14 +674,14 @@ namespace NETDBHelper.UC
                 return;
             }
             int st;
-            var seltext = GetTipCurrWord(true,out st);
+            var seltext = GetTipCurrWord(true,out st,true);
             if (string.IsNullOrWhiteSpace(seltext) || seltext.IndexOf('\n') > -1)
             {
                 return;
             }
 
             sqlProcessor.SetSql(RichText.Text);
-            var tbs = sqlProcessor.FindTables(st - 1);
+            var tbs = sqlProcessor.FindTables(st);
 
             seltext = seltext.Trim().ToUpper();
             var subtexts = seltext.Split('.').Select(p => p.Trim('[', ']').Trim()).ToArray();
@@ -966,7 +979,7 @@ namespace NETDBHelper.UC
             }
         }
 
-        private string GetTipCurrWord(bool includedot, out int start)
+        private string GetTipCurrWord(bool includedot, out int start, bool isColumn = false)
         {
             start = -1;
             var curindex = this.RichText.GetCharIndexFromPosition(_currpt);
@@ -990,12 +1003,12 @@ namespace NETDBHelper.UC
                 return null;
             }
 
-            if (token.AnalyseType != AnalyseType.Column)
+            if (isColumn && token.AnalyseType != AnalyseType.Column)
             {
                 return null;
             }
 
-            start = curindex;
+            start = token.StartIndex;
             return token.Val;
         }
 
