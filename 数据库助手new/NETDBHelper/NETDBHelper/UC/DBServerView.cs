@@ -12,6 +12,7 @@ using NETDBHelper.SubForm;
 using Biz.Common;
 using Biz.Common.Data;
 using LJC.FrameWorkV3.Data.EntityDataBase;
+using LJC.FrameWorkV3.LogManager;
 
 namespace NETDBHelper
 {
@@ -166,26 +167,81 @@ namespace NETDBHelper
                         }
                         break;
                     case "新增对象":
-                        var selnode = tv_DBServers.SelectedNode;
-                        var dlg = new SubForm.InputStringDlg("请输入库名：");
-                        if (dlg.ShowDialog() == DialogResult.OK)
                         {
-                            Biz.Common.Data.SQLHelper.CreateDataBase(GetDBSource(selnode), selnode.FirstNode?.Text, dlg.InputString);
-                            ReLoadDBObj(selnode);
-
-                            BigEntityTableRemotingEngine.Insert<HLogEntity>("HLog", new HLogEntity
+                            var selnode = tv_DBServers.SelectedNode;
+                            var dlg = new SubForm.InputStringDlg("请输入库名：", isMult: false);
+                            if (dlg.ShowDialog() == DialogResult.OK)
                             {
-                                TypeName = dlg.InputString,
-                                LogTime = DateTime.Now,
-                                LogType = LogTypeEnum.db,
-                                DB = dlg.InputString,
-                                Sever = GetDBSource(selnode).ServerName,
-                                Info = "新增",
-                                Valid = true
-                            });
-                        }
+                                Biz.Common.Data.SQLHelper.CreateDataBase(GetDBSource(selnode), selnode.FirstNode?.Text, dlg.InputString);
+                                ReLoadDBObj(selnode);
 
-                        break;
+                                BigEntityTableRemotingEngine.Insert<HLogEntity>("HLog", new HLogEntity
+                                {
+                                    TypeName = dlg.InputString,
+                                    LogTime = DateTime.Now,
+                                    LogType = LogTypeEnum.db,
+                                    DB = dlg.InputString,
+                                    Sever = GetDBSource(selnode).ServerName,
+                                    Info = "新增",
+                                    Valid = true
+                                });
+                            }
+
+                            break;
+                        }
+                    case "从...迁移":
+                        {
+                            var selNode = tv_DBServers.SelectedNode;
+                            if (selNode == null)
+                            {
+                                return;
+                            }
+                            var dbsource = GetDBSource(selNode);
+                            var dlg = new SubForm.InputStringDlg("旧服务器", isMult: false);
+                            if (dlg.ShowDialog() == DialogResult.OK)
+                            {
+                                var oldserver = dlg.InputString.Trim();
+                                if (dbsource.ServerName.Equals(oldserver, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    MessageBox.Show("服务器没改");
+                                    return;
+                                }
+                                if (MessageBox.Show($"将旧服务器上的本地数据转到新服务器({oldserver}->{dbsource.ServerName})？", "确认", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                                {
+                                    try
+                                    {
+                                        if (!BigEntityTableRemotingEngine.BackUp(null))
+                                        {
+                                            MessageBox.Show("备份失败");
+                                            return;
+                                        }
+                                        int count = 0;
+                                        int failcount = 0;
+                                        var markColumnInfoList = BigEntityTableRemotingEngine.Find<MarkObjectInfo>(nameof(MarkObjectInfo), p => p.Servername.Equals(dlg.InputString.Trim(), StringComparison.OrdinalIgnoreCase), limit: int.MaxValue).ToList();
+                                        foreach (var item in markColumnInfoList)
+                                        {
+                                            item.Servername = dbsource.ServerName;
+                                            try
+                                            {
+                                                count++;
+                                                BigEntityTableRemotingEngine.Update<MarkObjectInfo>(nameof(MarkObjectInfo), item);
+                                            }
+                                            catch (Exception ex)
+                                            {
+                                                LogHelper.Instance.Error("更换Servername失败：" + Newtonsoft.Json.JsonConvert.SerializeObject(item), ex);
+                                                failcount++;
+                                            }
+                                        }
+                                        MessageBox.Show($"迁移成功{count}条记录");
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        MessageBox.Show("操作失败:" + ex.Message);
+                                    }
+                                }
+                            }
+                            break;
+                        }
                     case "查看表":
                         {
                             OnViewTables();
@@ -1090,6 +1146,7 @@ namespace NETDBHelper
                         TSMI_ViewColumnList.Visible = nctype == NodeContentType.DB;
                         CommSubMenuItem_Delete.Visible = nctype == NodeContentType.DB;
                         CommSubMenuitem_add.Visible = nctype == NodeContentType.SEVER;
+                        ServerMoveToolStripMenuItem.Visible = nctype == NodeContentType.SEVER;
                         CommSubMenuitem_ViewConnsql.Visible = nctype == NodeContentType.DB;
                         CommSubMenuitem_ReorderColumn.Visible = nctype == NodeContentType.COLUMN;
                         备注本地ToolStripMenuItem.Visible = nctype == NodeContentType.COLUMN

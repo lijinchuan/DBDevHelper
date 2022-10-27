@@ -115,7 +115,7 @@ namespace NETDBHelper.UC
 
             if (sourceList == null)
             {
-                var markColumnInfoList = BigEntityTableRemotingEngine.List<MarkObjectInfo>("MarkObjectInfo", 1, int.MaxValue).ToList();
+                var markColumnInfoList = BigEntityTableRemotingEngine.Find<MarkObjectInfo>("MarkObjectInfo", p => p.Servername.Equals(this.DBServer.ServerName, StringComparison.OrdinalIgnoreCase), limit: int.MaxValue).ToList();
                 ProcessTraceUtil.Trace("BigEntityTableRemotingEngine.List<MarkObjectInfo>");
                 ThinkInfoLib = new List<ThinkInfo>();
 
@@ -136,11 +136,11 @@ namespace NETDBHelper.UC
                 var extbhash = new HashSet<string>(DBServer.ExTBList?.Select(p => p.ToUpper()) ?? new List<string>());
                 var tbHash = new HashSet<string>();
 
-                var tbs= markColumnInfoList.Where(p => !string.IsNullOrWhiteSpace(p.ColumnName)).GroupBy(p=>new { p.DBName,p.TBName,p.Servername}).Select(p => p.First()).ToList();
+                var tbs = markColumnInfoList.Where(p => !string.IsNullOrWhiteSpace(p.TBName)).GroupBy(p => new { p.DBName, p.TBName }).Select(p => p.OrderByDescending(q => q.MarkInfo).First()).ToList();
                 var tbnamemanger = new LJC.FrameWorkV3.CodeExpression.KeyWordMatch.KeyWordManager();
-                foreach(var tb in tbs)
+                foreach (var tb in tbs)
                 {
-                    tbnamemanger.AddKeyWord($"{tb.TBName.ToUpper()}",tb);
+                    tbnamemanger.AddKeyWord($"{tb.TBName.ToUpper()}", tb);
                 }
                 var matchresult = tbnamemanger.MatchKeyWord(RichText.Text.ToUpper());
                 foreach (var m in matchresult)

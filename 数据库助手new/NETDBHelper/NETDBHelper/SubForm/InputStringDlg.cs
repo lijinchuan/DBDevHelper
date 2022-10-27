@@ -18,15 +18,18 @@ namespace NETDBHelper.SubForm
             set;
         }
 
+        private bool _isMult = true;
+
         public event Action DlgResult;
 
-        public InputStringDlg(string caption,string oldText="",string inputTest=""):
+        public InputStringDlg(string caption,string oldText="",string inputTest="",bool isMult=true):
             base()
         {
             InitializeComponent();
             this.TopMost = true;
             this.Text = caption;
             this.tbInput.Text = oldText;
+            _isMult = isMult;
             if (!string.IsNullOrWhiteSpace(inputTest))
             {
                 InputTest = inputTest;
@@ -45,6 +48,15 @@ namespace NETDBHelper.SubForm
             base.OnLoad(e);
 
             this.tbInput.ImeMode = ImeMode.On;
+
+            if (tbInput.Multiline != _isMult)
+            {
+                var oldHigh = tbInput.Height;
+                tbInput.Multiline = _isMult;
+                var newHigh = tbInput.Height;
+
+                this.Height += newHigh - oldHigh;
+            }
 
             if (this.OwnerCtl != null)
             {
