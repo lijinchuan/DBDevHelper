@@ -136,7 +136,7 @@ namespace NETDBHelper.UC
                 var extbhash = new HashSet<string>(DBServer.ExTBList?.Select(p => p.ToUpper()) ?? new List<string>());
                 var tbHash = new HashSet<string>();
 
-                var tbs = markColumnInfoList.Where(p => !string.IsNullOrWhiteSpace(p.TBName)).GroupBy(p => new { p.DBName, p.TBName }).Select(p => p.OrderByDescending(q => q.MarkInfo).First()).ToList();
+                var tbs = markColumnInfoList.Where(p => !string.IsNullOrWhiteSpace(p.TBName)).GroupBy(p => new { p.DBName, p.TBName }).Select(p => p.OrderBy(q => q.ColumnName).First()).ToList();
                 var tbnamemanger = new LJC.FrameWorkV3.CodeExpression.KeyWordMatch.KeyWordManager();
                 foreach (var tb in tbs)
                 {
