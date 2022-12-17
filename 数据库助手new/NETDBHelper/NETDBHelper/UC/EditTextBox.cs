@@ -115,7 +115,7 @@ namespace NETDBHelper.UC
 
             if (sourceList == null)
             {
-                var markColumnInfoList = BigEntityTableRemotingEngine.Find<MarkObjectInfo>("MarkObjectInfo", p => p.Servername.Equals(this.DBServer.ServerName, StringComparison.OrdinalIgnoreCase), limit: int.MaxValue).ToList();
+                var markColumnInfoList = LocalDBHelper.GetAllMarkObjectInfoFromCach().Where(p => p.Servername.Equals(DBServer.ServerName, StringComparison.OrdinalIgnoreCase)).ToList();
                 ProcessTraceUtil.Trace("BigEntityTableRemotingEngine.List<MarkObjectInfo>");
                 ThinkInfoLib = new List<ThinkInfo>();
 

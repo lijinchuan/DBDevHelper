@@ -13,6 +13,7 @@ using Biz.Common;
 using Biz.Common.Data;
 using LJC.FrameWorkV3.Data.EntityDataBase;
 using LJC.FrameWorkV3.LogManager;
+using System.Threading.Tasks;
 
 namespace NETDBHelper
 {
@@ -90,6 +91,8 @@ namespace NETDBHelper
             this.DBServerviewContextMenuStrip.ItemClicked += new ToolStripItemClickedEventHandler(OnMenuStrip_ItemClicked);
             this.CommMenuStrip.ItemClicked += new ToolStripItemClickedEventHandler(CommMenuStrip_ItemClicked);
             this.CommSubMenuitem_ReorderColumn.DropDownItemClicked += CommSubMenuitem_ReorderColumn_DropDownItemClicked;
+
+            toolStripDropDownButton1.ToolTipText = "搜索表、字段、备注";
         }
 
         void CommSubMenuitem_ReorderColumn_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e)
@@ -232,6 +235,22 @@ namespace NETDBHelper
                                                 failcount++;
                                             }
                                         }
+
+                                        var spInfoList = BigEntityTableRemotingEngine.Find<SPInfo>(nameof(SPInfo), p => p.Servername.Equals(dlg.InputString.Trim(), StringComparison.OrdinalIgnoreCase), limit: int.MaxValue).ToList();
+                                        foreach (var item in spInfoList)
+                                        {
+                                            item.Servername = dbsource.ServerName;
+                                            try
+                                            {
+                                                count++;
+                                                BigEntityTableRemotingEngine.Update(nameof(MarkObjectInfo), item);
+                                            }
+                                            catch (Exception ex)
+                                            {
+                                                LogHelper.Instance.Error("更换Servername失败：" + Newtonsoft.Json.JsonConvert.SerializeObject(item), ex);
+                                                failcount++;
+                                            }
+                                        }
                                         MessageBox.Show($"迁移成功{count}条记录");
                                     }
                                     catch (Exception ex)
@@ -270,11 +289,25 @@ namespace NETDBHelper
             }
         }
 
-        void ReLoadDBObj(TreeNode selNode, bool loadall = false)
+        private NodeContentType GetNodeContentType(TreeNode node)
+        {
+            var nc = node.Tag as INodeContents;
+            NodeContentType nctype = NodeContentType.UNKNOWN;
+            if (nc != null)
+            {
+                nctype = nc.GetNodeContentType();
+            }
+
+            return nctype;
+        }
+
+        async Task<bool> ReLoadDBObj(TreeNode selNode, bool loadall = false,bool ansy=true)
         {
             //TreeNode selNode = tv_DBServers.SelectedNode;
             if (selNode == null || selNode.Tag == null)
-                return;
+                return false;
+
+            List<IAsyncResult> asyncResults = new List<IAsyncResult>();
             AsyncCallback callback = null;
             if (loadall)
             {
@@ -283,19 +316,24 @@ namespace NETDBHelper
                     var node = selNode;
                     foreach (TreeNode c in node.Nodes)
                     {
-                        this.BeginInvoke(new Action(() =>
+                        var ar = this.BeginInvoke(new Action(() =>
+                          {
+                              ReLoadDBObj(c, loadall, ansy);
+                          }));
+                        if (!ansy)
                         {
-                            ReLoadDBObj(c, loadall);
-                        }));
+                            ar.AsyncWaitHandle.WaitOne();
+                        }
                     }
                 });
             }
             if (selNode.Tag is ServerInfo)
             {
-                Biz.UILoadHelper.LoadDBsAnsy(this.ParentForm, selNode, GetDBSource(selNode), callback, selNode);
+                var ar = Biz.UILoadHelper.LoadDBsAnsy(this.ParentForm, selNode, GetDBSource(selNode), callback, selNode);
+                asyncResults.Add(ar);
                 selNode.Parent.Expand();
             }
-            else if(selNode.Tag is DBInfo)
+            else if (selNode.Tag is DBInfo)
             {
                 if (loadall)
                 {
@@ -304,68 +342,72 @@ namespace NETDBHelper
                     {
                         this.BeginInvoke(new Action(() =>
                         {
-                            ReLoadDBObj(c, loadall);
+                            ReLoadDBObj(c, loadall, ansy);
                         }));
                     }
                 }
             }
-            else if ((selNode.Tag as INodeContents).GetNodeContentType() == NodeContentType.TBParent)
+            else if (GetNodeContentType(selNode) == NodeContentType.TBParent)
             {
                 var dbname = GetDBName(selNode).ToUpper();
-                Biz.UILoadHelper.LoadTBsAnsy(this.ParentForm, selNode, GetDBSource(selNode), dbname, name =>
+                var ar = Biz.UILoadHelper.LoadTBsAnsy(this.ParentForm, selNode, GetDBSource(selNode), dbname, name =>
+                   {
+                       var mark = BigEntityTableRemotingEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys", new
+                                    [] { dbname, name.ToUpper(), string.Empty }).FirstOrDefault();
+                       return mark == null ? string.Empty : mark.MarkInfo;
+                   }, callback, selNode);
+                asyncResults.Add(ar);
+            }
+            else if (GetNodeContentType(selNode) == NodeContentType.PROCParent)
+            {
+                var dbname = GetDBName(selNode).ToUpper();
+                var ar = Biz.UILoadHelper.LoadProcedureAnsy(this.ParentForm, selNode, GetDBSource(selNode), p =>
+                   {
+                       var item = BigEntityTableRemotingEngine.Find<SPInfo>("SPInfo", "DBName_SPName", new[] { dbname, p.ToUpper() }).FirstOrDefault();
+
+                       if (item != null)
+                       {
+                           return item.Mark;
+                       }
+                       return string.Empty;
+                   });
+                asyncResults.Add(ar);
+            }
+            else if (GetNodeContentType(selNode) == NodeContentType.FUNPARENT)
+            {
+                var dbname = GetDBName(selNode).ToUpper();
+                var ar = Biz.UILoadHelper.LoadFunctionsAnsy(this.ParentForm, selNode, GetDBSource(selNode), p =>
                   {
+                      var item = BigEntityTableRemotingEngine.Find<SPInfo>("SPInfo", "DBName_SPName", new[] { dbname, p.ToUpper() }).FirstOrDefault();
+
+                      if (item != null)
+                      {
+                          return item.Mark;
+                      }
+                      return string.Empty;
+                  });
+                asyncResults.Add(ar);
+            }
+            else if (GetNodeContentType(selNode) == NodeContentType.VIEWParent)
+            {
+                var ar = Biz.UILoadHelper.LoadViewsAnsy(this.ParentForm, selNode, GetDBSource(selNode), (view) =>
+                  {
+                      var dbname = GetDBName(selNode).ToUpper();
+                      var dbsource = GetDBSource(selNode);
                       var mark = BigEntityTableRemotingEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys", new
-                                   [] { dbname, name.ToUpper(), string.Empty }).FirstOrDefault();
+                                  [] { dbname, view.Name.ToUpper(), string.Empty }).FirstOrDefault();
+
                       return mark == null ? string.Empty : mark.MarkInfo;
-                  },callback,selNode);
-            }
-            else if (selNode.Tag is INodeContents && (selNode.Tag as INodeContents).GetNodeContentType() == NodeContentType.PROCParent)
-            {
-                var dbname = GetDBName(selNode).ToUpper();
-                Biz.UILoadHelper.LoadProcedureAnsy(this.ParentForm, selNode, GetDBSource(selNode), p =>
-                 {
-                     var item = BigEntityTableRemotingEngine.Find<SPInfo>("SPInfo", "DBName_SPName", new[] { dbname, p.ToUpper() }).FirstOrDefault();
+                  }, (col) =>
+                  {
+                      var dbname = GetDBName(selNode).ToUpper();
+                      var dbsource = GetDBSource(selNode);
+                      var mark = BigEntityTableRemotingEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys", new
+                                  [] { dbname, col.TBName.ToUpper(), col.Name.ToUpper() }).FirstOrDefault();
 
-                     if (item != null)
-                     {
-                         return item.Mark;
-                     }
-                     return string.Empty;
-                 });
-            }
-            else if (selNode.Tag is INodeContents && (selNode.Tag as INodeContents).GetNodeContentType() == NodeContentType.FUNPARENT)
-            {
-                var dbname = GetDBName(selNode).ToUpper();
-                Biz.UILoadHelper.LoadFunctionsAnsy(this.ParentForm, selNode, GetDBSource(selNode), p =>
-                {
-                    var item = BigEntityTableRemotingEngine.Find<SPInfo>("SPInfo", "DBName_SPName", new[] { dbname, p.ToUpper() }).FirstOrDefault();
-
-                    if (item != null)
-                    {
-                        return item.Mark;
-                    }
-                    return string.Empty;
-                });
-            }
-            else if (selNode.Tag is INodeContents && (selNode.Tag as INodeContents).GetNodeContentType() == NodeContentType.VIEWParent)
-            {
-                Biz.UILoadHelper.LoadViewsAnsy(this.ParentForm, selNode, GetDBSource(selNode), (view) =>
-                {
-                    var dbname = GetDBName(selNode).ToUpper();
-                    var dbsource = GetDBSource(selNode);
-                    var mark = BigEntityTableRemotingEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys", new
-                                [] { dbname, view.Name.ToUpper(), string.Empty }).FirstOrDefault();
-
-                    return mark == null ? string.Empty : mark.MarkInfo;
-                }, (col) =>
-                {
-                    var dbname = GetDBName(selNode).ToUpper();
-                    var dbsource = GetDBSource(selNode);
-                    var mark = BigEntityTableRemotingEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys", new
-                                [] { dbname, col.TBName.ToUpper(), col.Name.ToUpper() }).FirstOrDefault();
-
-                    return mark == null ? string.Empty : mark.MarkInfo;
-                });
+                      return mark == null ? string.Empty : mark.MarkInfo;
+                  });
+                asyncResults.Add(ar);
             }
             else if (selNode.Tag is TableInfo)
             {
@@ -373,26 +415,27 @@ namespace NETDBHelper
                 var dbsource = GetDBSource(selNode);
                 var synccolumnmark = BigEntityTableRemotingEngine.
                     Find<ColumnMarkSyncRecord>("ColumnMarkSyncRecord", "keys", new[] { dbname, selNode.Text.ToUpper() }).FirstOrDefault() != null;
-                Biz.UILoadHelper.LoadColumnsAnsy(this.ParentForm, selNode, dbsource, (col) =>
-                 {
-                     var mark = BigEntityTableRemotingEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys", new
-                                 [] { dbname, selNode.Text.ToUpper(), col.Name.ToUpper() }).FirstOrDefault();
+                var ar = Biz.UILoadHelper.LoadColumnsAnsy(this.ParentForm, selNode, dbsource, (col) =>
+                   {
+                       var mark = BigEntityTableRemotingEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys", new
+                                   [] { dbname, selNode.Text.ToUpper(), col.Name.ToUpper() }).FirstOrDefault();
 
-                     if (mark == null && !synccolumnmark)
-                     {
-                         BigEntityTableRemotingEngine.Insert("MarkObjectInfo", new MarkObjectInfo
-                         {
-                             DBName = dbname.ToUpper(),
-                             ColumnName = col.Name.ToUpper(),
-                             Servername = dbsource.ServerName,
-                             TBName = selNode.Text.ToUpper(),
-                             ColumnType = col.ToDBType(),
-                             MarkInfo = col.Description
-                         });
-                     }
+                       if (mark == null && !synccolumnmark)
+                       {
+                           BigEntityTableRemotingEngine.Insert("MarkObjectInfo", new MarkObjectInfo
+                           {
+                               DBName = dbname.ToUpper(),
+                               ColumnName = col.Name.ToUpper(),
+                               Servername = dbsource.ServerName,
+                               TBName = selNode.Text.ToUpper(),
+                               ColumnType = col.ToDBType(),
+                               MarkInfo = col.Description
+                           });
+                       }
 
-                     return mark == null ? string.Empty : mark.MarkInfo;
-                 });
+                       return mark == null ? string.Empty : mark.MarkInfo;
+                   });
+                asyncResults.Add(ar);
 
                 if (!synccolumnmark)
                 {
@@ -415,18 +458,29 @@ namespace NETDBHelper
                     Valid = true
                 });
             }
-            else if (selNode.Tag is INodeContents && (selNode.Tag as INodeContents).GetNodeContentType() == NodeContentType.INDEXParent)
+            else if (GetNodeContentType(selNode) == NodeContentType.INDEXParent)
             {
-                Biz.UILoadHelper.LoadIndexAnsy(this.ParentForm, selNode, GetDBSource(selNode), GetDBName(selNode));
+                var ar = Biz.UILoadHelper.LoadIndexAnsy(this.ParentForm, selNode, GetDBSource(selNode), GetDBName(selNode));
+                asyncResults.Add(ar);
             }
-            else if (selNode.Tag is INodeContents && (selNode.Tag as INodeContents).GetNodeContentType() == NodeContentType.TRIGGERPARENT)
+            else if (GetNodeContentType(selNode) == NodeContentType.TRIGGERPARENT)
             {
-                Biz.UILoadHelper.LoadTriggersAnsy(this.ParentForm, selNode, GetDBSource(selNode), GetDBName(selNode));
+                var ar = Biz.UILoadHelper.LoadTriggersAnsy(this.ParentForm, selNode, GetDBSource(selNode), GetDBName(selNode));
+                asyncResults.Add(ar);
             }
-            else if (selNode.Tag is INodeContents && (selNode.Tag as INodeContents).GetNodeContentType() == NodeContentType.LOGICMAPParent)
+            else if (GetNodeContentType(selNode) == NodeContentType.LOGICMAPParent)
             {
-                Biz.UILoadHelper.LoadLogicMapsAnsy(this.ParentForm, selNode, GetDBName(selNode));
+                var ar = Biz.UILoadHelper.LoadLogicMapsAnsy(this.ParentForm, selNode, GetDBName(selNode));
+                asyncResults.Add(ar);
             }
+
+            if (asyncResults.Any() && !ansy)
+            {
+                var t = Task.Factory.StartNew(new Func<bool>(()=> asyncResults.Select(p => p.AsyncWaitHandle).All(p => p.WaitOne())));
+                await t;
+            }
+
+            return true;
         }
 
         void OnMenuStrip_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
@@ -833,7 +887,7 @@ namespace NETDBHelper
         void tv_DBServers_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
             //throw new NotImplementedException();
-            if ((e.Node.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.TBParent)
+            if (GetNodeContentType(e.Node) == NodeContentType.TBParent)
             {
                 if (e.Node.Nodes.Count > 0)
                     return;
@@ -855,7 +909,7 @@ namespace NETDBHelper
                     Valid = true
                 });
             }
-            else if ((e.Node.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.FUNPARENT)
+            else if (GetNodeContentType(e.Node) == NodeContentType.FUNPARENT)
             {
                 if (e.Node.Nodes.Count > 0)
                     return;
@@ -871,7 +925,7 @@ namespace NETDBHelper
                     return string.Empty;
                 });
             }
-            else if ((e.Node.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.PROCParent)
+            else if (GetNodeContentType(e.Node) == NodeContentType.PROCParent)
             {
                 if (e.Node.Nodes.Count > 0)
                     return;
@@ -887,7 +941,7 @@ namespace NETDBHelper
                     return string.Empty;
                 });
             }
-            else if ((e.Node.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.VIEWParent)
+            else if (GetNodeContentType(e.Node) == NodeContentType.VIEWParent)
             {
                 if (e.Node.Nodes.Count > 0)
                     return;
@@ -958,19 +1012,19 @@ namespace NETDBHelper
                     Valid = true
                 });
             }
-            else if ((e.Node.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.INDEXParent)
+            else if (GetNodeContentType(e.Node) == NodeContentType.INDEXParent)
             {
                 if (e.Node.Nodes.Count > 0)
                     return;
                 Biz.UILoadHelper.LoadIndexAnsy(this.ParentForm, e.Node, GetDBSource(e.Node), GetDBName(e.Node));
             }
-            else if ((e.Node.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.TRIGGERPARENT)
+            else if (GetNodeContentType(e.Node) == NodeContentType.TRIGGERPARENT)
             {
                 if (e.Node.Nodes.Count > 0)
                     return;
                 Biz.UILoadHelper.LoadTriggersAnsy(this.ParentForm, e.Node, GetDBSource(e.Node), GetDBName(e.Node));
             }
-            else if ((e.Node.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.LOGICMAPParent)
+            else if (GetNodeContentType(e.Node) == NodeContentType.LOGICMAPParent)
             {
                 if (e.Node.Nodes.Count > 0)
                     return;
@@ -981,7 +1035,7 @@ namespace NETDBHelper
 
         private void Tv_DBServers_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
         {
-            if ((e.Node.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.LOGICMAP)
+            if (GetNodeContentType(e.Node) == NodeContentType.LOGICMAP)
             {
                 OnAddNewLogicMap(GetDBSource(e.Node), GetDBName(e.Node), e.Node.Tag as LogicMap);
             }
@@ -1053,12 +1107,7 @@ namespace NETDBHelper
                 }
                 if (node != null)
                 {
-                    var nc = node.Tag as INodeContents;
-                    NodeContentType nctype = NodeContentType.UNKNOWN;
-                    if (nc != null)
-                    {
-                        nctype = nc.GetNodeContentType();
-                    }
+                    NodeContentType nctype = GetNodeContentType(node);
 
                     if (nctype == NodeContentType.TB
                         || nctype == NodeContentType.PROC
@@ -1186,9 +1235,9 @@ namespace NETDBHelper
 
             bool boo = false;
             if (tv_DBServers.SelectedNode.Nodes.Count > 0)
-                boo = SearchNode(tv_DBServers.SelectedNode.Nodes[0], serchkey, matchall, true);
+                boo = SearchNode(tv_DBServers.SelectedNode.Nodes[0], serchkey, matchall, true).Result;
             else if (tv_DBServers.SelectedNode.NextNode != null)
-                boo = SearchNode(tv_DBServers.SelectedNode.NextNode, serchkey, matchall, true);
+                boo = SearchNode(tv_DBServers.SelectedNode.NextNode, serchkey, matchall, true).Result;
             else
             {
                 var parent = tv_DBServers.SelectedNode.Parent;
@@ -1200,7 +1249,7 @@ namespace NETDBHelper
                 {
                     if (parent.NextNode != null)
                     {
-                        boo = SearchNode(parent.NextNode, serchkey, matchall, true);
+                        boo = SearchNode(parent.NextNode, serchkey, matchall, true).Result;
                     }
                 }
             }
@@ -1212,7 +1261,7 @@ namespace NETDBHelper
 
         }
 
-        private bool SearchNode(TreeNode nodeStart, string txt, bool matchall, bool maxsearch)
+        private async Task<bool> SearchNode(TreeNode nodeStart, string txt, bool matchall, bool maxsearch)
         {
             if (nodeStart == null)
             {
@@ -1231,8 +1280,60 @@ namespace NETDBHelper
             {
                 foreach (TreeNode node in nodeStart.Nodes)
                 {
-                    if (SearchNode(node, txt, matchall, false))
+                    if (SearchNode(node, txt, matchall, false).Result)
                         return true;
+                }
+            }
+            else
+            {
+                var dbSource = GetDBSource(nodeStart);
+                var exists = false;
+                var loadAll = false;
+                var nodeType = GetNodeContentType(nodeStart);
+                if (nodeType == NodeContentType.DB)
+                {
+                    exists = LocalDBHelper.GetAllMarkObjectInfoFromCach().Exists(p => p.Servername.Equals(dbSource.ServerName, StringComparison.OrdinalIgnoreCase) &&
+                       (matchall ? ((p.DBName ?? string.Empty).Equals(txt, StringComparison.OrdinalIgnoreCase) || (p.TBName ?? string.Empty).Equals(txt, StringComparison.OrdinalIgnoreCase) || (p.ColumnName ?? string.Empty).Equals(txt, StringComparison.OrdinalIgnoreCase) || (p.MarkInfo ?? string.Empty).Equals(txt, StringComparison.OrdinalIgnoreCase))
+                       : ((p.DBName ?? string.Empty).IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1 || (p.TBName ?? string.Empty).IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1 || (p.ColumnName ?? string.Empty).IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1 || (p.MarkInfo ?? string.Empty).IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1)));
+                }
+                else if (nodeType == NodeContentType.TBParent || nodeType == NodeContentType.VIEWParent)
+                {
+                    exists = LocalDBHelper.GetAllMarkObjectInfoFromCach().Exists(p => p.Servername.Equals(dbSource.ServerName, StringComparison.OrdinalIgnoreCase) && p.DBName.Equals(GetDBName(nodeStart), StringComparison.OrdinalIgnoreCase) &&
+                       (matchall ? ((p.TBName ?? string.Empty).Equals(txt, StringComparison.OrdinalIgnoreCase) || (p.ColumnName ?? string.Empty).Equals(txt, StringComparison.OrdinalIgnoreCase) || (p.MarkInfo ?? string.Empty).Equals(txt, StringComparison.OrdinalIgnoreCase))
+                       : ((p.TBName ?? string.Empty).IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1 || (p.ColumnName ?? string.Empty).IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1 || (p.MarkInfo ?? string.Empty).IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1)));
+
+                }
+                else if (nodeType == NodeContentType.TB)
+                {
+                    exists = LocalDBHelper.GetAllMarkObjectInfoFromCach().Exists(p => p.Servername.Equals(dbSource.ServerName, StringComparison.OrdinalIgnoreCase) && p.DBName.Equals(GetDBName(nodeStart), StringComparison.OrdinalIgnoreCase) &&
+                       (matchall ? ((p.ColumnName ?? string.Empty).Equals(txt, StringComparison.OrdinalIgnoreCase) || (p.MarkInfo ?? string.Empty).Equals(txt, StringComparison.OrdinalIgnoreCase))
+                       : ((p.ColumnName ?? string.Empty).IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1 || (p.MarkInfo ?? string.Empty).IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1)));
+                    loadAll = true;
+                }
+                else if (nodeType == NodeContentType.PROCParent || nodeType == NodeContentType.FUNPARENT)
+                {
+                    exists = LocalDBHelper.GetAllSPInfoFromCach().Exists(p => p.Servername.Equals(dbSource.ServerName, StringComparison.OrdinalIgnoreCase) && p.DBName.Equals(GetDBName(nodeStart), StringComparison.OrdinalIgnoreCase) &&
+                     (matchall ? ((p.SPName ?? string.Empty).Equals(txt, StringComparison.OrdinalIgnoreCase) || (p.Mark ?? string.Empty).Equals(txt, StringComparison.OrdinalIgnoreCase))
+                     : ((p.SPName ?? string.Empty).IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1 || (p.Mark ?? string.Empty).IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1)));
+                }
+
+                if (exists)
+                {
+                    var t = ReLoadDBObj(nodeStart, loadAll, false);
+                    _ = new Action(async () =>
+                      {
+                          await t;
+                          if (nodeStart.Nodes.Count > 0)
+                          {
+                              this.BeginInvoke(new Action(()=>
+                              {
+                                  tv_DBServers.SelectedNode = nodeStart.Nodes[0];
+                                  toolStripDropDownButton1_Click(null, null);
+                              }));
+                          }
+                      }).BeginInvoke(null, null);
+
+                    return true;
                 }
             }
 
@@ -1240,7 +1341,7 @@ namespace NETDBHelper
             {
                 if (nodeStart.NextNode != null)
                 {
-                    return SearchNode(nodeStart.NextNode, txt, matchall, true);
+                    return SearchNode(nodeStart.NextNode, txt, matchall, true).Result;
                 }
                 else
                 {
@@ -1253,7 +1354,7 @@ namespace NETDBHelper
                         }
                         if (parent != null)
                         {
-                            return SearchNode(parent.NextNode, txt, matchall, true);
+                            return SearchNode(parent.NextNode, txt, matchall, true).Result;
                         }
                     }
                 }
@@ -1299,7 +1400,7 @@ namespace NETDBHelper
 
         public TreeNode FindNode(TreeNode node, NodeContentType nodeContentType)
         {
-            if (node.Tag is INodeContents && (node.Tag as INodeContents).GetNodeContentType() == nodeContentType)
+            if (GetNodeContentType(node) == nodeContentType)
             {
                 return node;
             }

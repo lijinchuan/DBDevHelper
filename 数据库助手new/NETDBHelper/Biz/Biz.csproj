@@ -57,6 +57,7 @@
     <Compile Include="Common\Data\DataSyncHelper.cs" />
     <Compile Include="Common\EnumUtility.cs" />
     <Compile Include="Common\Ext.cs" />
+    <Compile Include="Common\LocalDBHelper.cs" />
     <Compile Include="Common\NumberHelper.cs" />
     <Compile Include="Common\ReflectionHelper.cs" />
     <Compile Include="Common\SqlAnalyse\AlterAnalyser.cs" />
