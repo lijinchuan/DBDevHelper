@@ -36,6 +36,7 @@ namespace NETDBHelper
         public Action<DBSource, string, LogicMap> OnAddNewLogicMap;
         public Action<string, LogicMap> OnDeleteLogicMap;
         private DBSourceCollection _dbServers;
+        private UC.LoadingBox searchingWaitingBox = new UC.LoadingBox(); 
         /// <summary>
         /// 实体命名空间
         /// </summary>
@@ -1210,6 +1211,18 @@ namespace NETDBHelper
             }
         }
 
+        private T OpCtrol<T>(Func<T> func)
+        {
+            if (InvokeRequired)
+            {
+                T t = default;
+                var ar = this.BeginInvoke(new Action(()=>t=func()));
+                ar.AsyncWaitHandle.WaitOne();
+                return t;
+            }
+            return func();
+        }
+
         private void toolStripDropDownButton1_Click(object sender, EventArgs e)
         {
             string serchkey = ts_serchKey.Text;
@@ -1232,32 +1245,37 @@ namespace NETDBHelper
             {
                 this.tv_DBServers.Focus();
             }
-
-            bool boo = false;
-            if (tv_DBServers.SelectedNode.Nodes.Count > 0)
-                boo = SearchNode(tv_DBServers.SelectedNode.Nodes[0], serchkey, matchall, true).Result;
-            else if (tv_DBServers.SelectedNode.NextNode != null)
-                boo = SearchNode(tv_DBServers.SelectedNode.NextNode, serchkey, matchall, true).Result;
-            else
+            searchingWaitingBox.Msg = "搜索中...";
+            searchingWaitingBox.Waiting(this, () =>
             {
-                var parent = tv_DBServers.SelectedNode.Parent;
-                while (parent != null && parent.NextNode == null)
+                bool boo = false;
+                if (OpCtrol(() => tv_DBServers.SelectedNode.Nodes.Count) > 0)
+                    boo = SearchNode(OpCtrol(() => tv_DBServers.SelectedNode.Nodes[0]), serchkey, matchall, true).Result;
+                else if (OpCtrol(() => tv_DBServers.SelectedNode.NextNode) != null)
+                    boo = SearchNode(OpCtrol(() => tv_DBServers.SelectedNode.NextNode), serchkey, matchall, true).Result;
+                else
                 {
-                    parent = parent.Parent;
-                }
-                if (parent != null)
-                {
-                    if (parent.NextNode != null)
+                    var parent =OpCtrol(()=> tv_DBServers.SelectedNode.Parent);
+                    var parentNext = OpCtrol(() => parent.NextNode);
+                    while (parent != null && parentNext == null)
                     {
-                        boo = SearchNode(parent.NextNode, serchkey, matchall, true).Result;
+                        parent = parentNext;
+                    }
+                    if (parent != null)
+                    {
+                        if (parentNext != null)
+                        {
+                            boo = SearchNode(parentNext, serchkey, matchall, true).Result;
+                        }
                     }
                 }
-            }
 
-            if (!boo)
-            {
-                tv_DBServers.SelectedNode = tv_DBServers.Nodes[0];
-            }
+                if (!boo)
+                {
+                    this.BeginInvoke(new Action(()=>
+                    tv_DBServers.SelectedNode = tv_DBServers.Nodes[0]));
+                }
+            });
 
         }
 
@@ -1273,7 +1291,8 @@ namespace NETDBHelper
                 || nodeStart.ToolTipText?.IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1);
             if (find)
             {
-                tv_DBServers.SelectedNode = nodeStart;
+                this.BeginInvoke(new Action(()=>
+                tv_DBServers.SelectedNode = nodeStart));
                 return true;
             }
             if (nodeStart.Nodes.Count > 0)
@@ -1305,7 +1324,7 @@ namespace NETDBHelper
                 }
                 else if (nodeType == NodeContentType.TB)
                 {
-                    exists = LocalDBHelper.GetAllMarkObjectInfoFromCach().Exists(p => p.Servername.Equals(dbSource.ServerName, StringComparison.OrdinalIgnoreCase) && p.DBName.Equals(GetDBName(nodeStart), StringComparison.OrdinalIgnoreCase) &&
+                    exists = LocalDBHelper.GetAllMarkObjectInfoFromCach().Exists(p => p.Servername.Equals(dbSource.ServerName, StringComparison.OrdinalIgnoreCase) && p.DBName.Equals(GetDBName(nodeStart), StringComparison.OrdinalIgnoreCase) && p.TBName.Equals(GetTBName(nodeStart), StringComparison.OrdinalIgnoreCase) &&
                        (matchall ? ((p.ColumnName ?? string.Empty).Equals(txt, StringComparison.OrdinalIgnoreCase) || (p.MarkInfo ?? string.Empty).Equals(txt, StringComparison.OrdinalIgnoreCase))
                        : ((p.ColumnName ?? string.Empty).IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1 || (p.MarkInfo ?? string.Empty).IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1)));
                     loadAll = true;
@@ -1325,7 +1344,7 @@ namespace NETDBHelper
                           await t;
                           if (nodeStart.Nodes.Count > 0)
                           {
-                              this.BeginInvoke(new Action(()=>
+                              this.BeginInvoke(new Action(() =>
                               {
                                   tv_DBServers.SelectedNode = nodeStart.Nodes[0];
                                   toolStripDropDownButton1_Click(null, null);

@@ -35,8 +35,10 @@ namespace Biz
 
         public static IAsyncResult LoadDBsAnsy(Form parent, TreeNode serverNode, DBSource server, AsyncCallback callback, object @object)
         {
-            serverNode.Nodes.Add(new TreeNode("加载中...", 17, 17));
-            serverNode.Expand();
+            parent.Invoke(new Action(()=>{
+                serverNode.Nodes.Add(new TreeNode("加载中...", 17, 17));
+                serverNode.Expand();
+            }));
             return new Action<Form, TreeNode, DBSource>(LoadDBs).BeginInvoke(parent, serverNode, server, callback, @object);
         }
 
@@ -89,15 +91,21 @@ namespace Biz
 
         public static IAsyncResult LoadTBsAnsy(Form parent, TreeNode dbNode, DBSource server, string dbname, Func<string, string> gettip, AsyncCallback callback, object @object)
         {
-            dbNode.Nodes.Add(new TreeNode("加载中...", 17, 17));
-            dbNode.Expand();
+            parent.Invoke(new Action(() =>
+            {
+                dbNode.Nodes.Add(new TreeNode("加载中...", 17, 17));
+                dbNode.Expand();
+            }));
             return new Action<Form, TreeNode, DBSource, string, Func<string, string>>(LoadTBs).BeginInvoke(parent, dbNode, server, dbname, gettip, callback, @object);
         }
 
         public static IAsyncResult LoadColumnsAnsy(Form parent, TreeNode tbNode, DBSource server, Func<TBColumn, string> gettip)
         {
-            tbNode.Nodes.Add(new TreeNode("加载中...", 17, 17));
-            tbNode.Expand();
+            parent.Invoke(new Action(() =>
+            {
+                tbNode.Nodes.Add(new TreeNode("加载中...", 17, 17));
+                tbNode.Expand();
+            }));
             return new Action<Form, TreeNode, DBSource, Func<TBColumn, string>>(LoadColumns).BeginInvoke(parent, tbNode, server, gettip, null, null);
         }
 
@@ -290,15 +298,21 @@ namespace Biz
 
         public static IAsyncResult LoadProcedureAnsy(Form parent, TreeNode procedureNode, DBSource server,Func<string,string> gettip)
         {
-            procedureNode.Nodes.Add(new TreeNode("加载中...", 17, 17));
-            procedureNode.Expand();
+            parent.Invoke(new Action(() =>
+            {
+                procedureNode.Nodes.Add(new TreeNode("加载中...", 17, 17));
+                procedureNode.Expand();
+            }));
             return new Action<Form, TreeNode, DBSource,Func<string,string>>(LoadProcedure).BeginInvoke(parent, procedureNode, server, gettip,null, null);
         }
 
         public static IAsyncResult LoadFunctionsAnsy(Form parent, TreeNode functionNode, DBSource server, Func<string, string> gettip)
         {
-            functionNode.Nodes.Add(new TreeNode("加载中...", 17, 17));
-            functionNode.Expand();
+            parent.Invoke(new Action(() =>
+            {
+                functionNode.Nodes.Add(new TreeNode("加载中...", 17, 17));
+                functionNode.Expand();
+            }));
             return new Action<Form, TreeNode, DBSource, Func<string, string>>(LoadFunctions).BeginInvoke(parent, functionNode, server, gettip, null, null);
         }
 
@@ -369,8 +383,11 @@ namespace Biz
 
         public static IAsyncResult LoadIndexAnsy(Form parent, TreeNode tbNode, DBSource server, string dbname)
         {
-            tbNode.Nodes.Add(new TreeNode("加载中...", 17, 17));
-            tbNode.Expand();
+            parent.Invoke(new Action(() =>
+            {
+                tbNode.Nodes.Add(new TreeNode("加载中...", 17, 17));
+                tbNode.Expand();
+            }));
             return new Action<Form, TreeNode, DBSource, string>(LoadIndexs).BeginInvoke(parent, tbNode, server, dbname, null, null);
         }
 
@@ -427,8 +444,11 @@ namespace Biz
 
         public static IAsyncResult LoadTriggersAnsy(Form parent, TreeNode tbNode, DBSource server, string dbname)
         {
-            tbNode.Nodes.Add(new TreeNode("加载中...", 17, 17));
-            tbNode.Expand();
+            parent.Invoke(new Action(() =>
+            {
+                tbNode.Nodes.Add(new TreeNode("加载中...", 17, 17));
+                tbNode.Expand();
+            }));
             return new Action<Form, TreeNode, DBSource, string>(LoadTriggers).BeginInvoke(parent, tbNode, server, dbname, null, null);
         }
 
@@ -465,8 +485,11 @@ namespace Biz
 
         public static IAsyncResult LoadViewsAnsy(Form parent, TreeNode tbNode, DBSource server, Func<ViewInfo, string> getviewtip, Func<ViewColumn, string> gettip)
         {
-            tbNode.Nodes.Add(new TreeNode("加载中...", 17, 17));
-            tbNode.Expand();
+            parent.Invoke(new Action(() =>
+            {
+                tbNode.Nodes.Add(new TreeNode("加载中...", 17, 17));
+                tbNode.Expand();
+            }));
             return new Action<Form, TreeNode, DBSource, Func<ViewInfo, string>, Func<ViewColumn, string>>(LoadViews).BeginInvoke(parent, tbNode, server,getviewtip,gettip, null, null);
         }
 
@@ -516,8 +539,11 @@ namespace Biz
 
         public static IAsyncResult LoadLogicMapsAnsy(Form parent, TreeNode tbNode, string dbname)
         {
-            tbNode.Nodes.Add(new TreeNode("加载中...", 17, 17));
-            tbNode.Expand();
+            parent.Invoke(new Action(() =>
+            {
+                tbNode.Nodes.Add(new TreeNode("加载中...", 17, 17));
+                tbNode.Expand();
+            }));
             return new Action<Form, TreeNode, string>(LoadLogicMaps).BeginInvoke(parent, tbNode, dbname, null, null);
         }
 

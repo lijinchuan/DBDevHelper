@@ -109,7 +109,7 @@ namespace NETDBHelper.UC
                 {
                     if (!parent.IsDisposed)
                     {
-                        parent.BeginInvoke(new Action(() => { parent.Controls.Remove(this);parent.Invalidate(); })) ;
+                        parent.BeginInvoke(new Action(() => { parent.Controls.Remove(this); parent.Invalidate(); }));
                     }
                     TaskThread = null;
                 }
