@@ -244,7 +244,7 @@ namespace NETDBHelper
                                             try
                                             {
                                                 count++;
-                                                BigEntityTableRemotingEngine.Update(nameof(MarkObjectInfo), item);
+                                                BigEntityTableRemotingEngine.Update(nameof(SPInfo), item);
                                             }
                                             catch (Exception ex)
                                             {
