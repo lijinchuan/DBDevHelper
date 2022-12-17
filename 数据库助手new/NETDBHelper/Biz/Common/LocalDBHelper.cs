@@ -20,6 +20,26 @@ namespace Biz.Common
             return list;
         }
 
+        public static List<MarkObjectInfo> GetMarkObjectInfoFromCach(string servername,string dbname,string tbname)
+        {
+            var key = "GetAllMarkObjectInfoDicFromCach";
+            var dic = LocalCacheManager<Dictionary<string, List<MarkObjectInfo>>>.Find(key, () =>
+            {
+                var list = GetAllMarkObjectInfoFromCach();
+
+                return list.GroupBy(p => $"{p.Servername.ToUpper()}_{p.DBName.ToUpper()}_{p.TBName.ToUpper()}").ToDictionary(p => p.Key, q => q.ToList());
+            }, 1);
+
+            var datakey = $"{servername.ToUpper()}_{dbname.ToUpper()}_{tbname.ToUpper()}";
+
+            if (dic.ContainsKey(datakey))
+            {
+                return dic[datakey];
+            }
+
+            return new List<MarkObjectInfo>();
+        }
+
         public static List<SPInfo> GetAllSPInfoFromCach()
         {
             var key = "GetAllSPInfoFromCach";

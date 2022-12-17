@@ -1324,9 +1324,9 @@ namespace NETDBHelper
                 }
                 else if (nodeType == NodeContentType.TB)
                 {
-                    exists = LocalDBHelper.GetAllMarkObjectInfoFromCach().Exists(p => p.Servername.Equals(dbSource.ServerName, StringComparison.OrdinalIgnoreCase) && p.DBName.Equals(GetDBName(nodeStart), StringComparison.OrdinalIgnoreCase) && p.TBName.Equals(GetTBName(nodeStart), StringComparison.OrdinalIgnoreCase) &&
-                       (matchall ? ((p.ColumnName ?? string.Empty).Equals(txt, StringComparison.OrdinalIgnoreCase) || (p.MarkInfo ?? string.Empty).Equals(txt, StringComparison.OrdinalIgnoreCase))
-                       : ((p.ColumnName ?? string.Empty).IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1 || (p.MarkInfo ?? string.Empty).IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1)));
+                    exists = LocalDBHelper.GetMarkObjectInfoFromCach(dbSource.ServerName,GetDBName(nodeStart),GetTBName(nodeStart)).Exists(p =>
+                       matchall ? ((p.ColumnName ?? string.Empty).Equals(txt, StringComparison.OrdinalIgnoreCase) || (p.MarkInfo ?? string.Empty).Equals(txt, StringComparison.OrdinalIgnoreCase))
+                       : ((p.ColumnName ?? string.Empty).IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1 || (p.MarkInfo ?? string.Empty).IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1));
                     loadAll = true;
                 }
                 else if (nodeType == NodeContentType.PROCParent || nodeType == NodeContentType.FUNPARENT)
