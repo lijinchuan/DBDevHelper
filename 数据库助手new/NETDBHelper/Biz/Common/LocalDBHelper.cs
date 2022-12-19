@@ -48,5 +48,14 @@ namespace Biz.Common
                 3);
             return list;
         }
+
+        public static List<LogicMap> GetAllLogicMapFromCach()
+        {
+            var key = "GetAllLogicMapFromCach";
+            var list = LocalCacheManager<List<LogicMap>>.FindCache(key,
+                () => BigEntityTableRemotingEngine.List<LogicMap>("LogicMap", 1, int.MaxValue).ToList(),
+                3);
+            return list;
+        }
     }
 }
