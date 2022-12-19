@@ -41,6 +41,7 @@ namespace NETDBHelper
         /// 实体命名空间
         /// </summary>
         private static string DefaultEntityNamespace = "Nonamespace";
+        private UC.UCSearchOptions UCSearchOptions = new UC.UCSearchOptions();
 
         public DBSourceCollection DBServers
         {
@@ -94,6 +95,33 @@ namespace NETDBHelper
             this.CommSubMenuitem_ReorderColumn.DropDownItemClicked += CommSubMenuitem_ReorderColumn_DropDownItemClicked;
 
             toolStripDropDownButton1.ToolTipText = "搜索表、字段、备注";
+
+            this.Controls.Add(UCSearchOptions);
+            TSPShowOptions.Image = Resources.Resource1.cog;
+            TSPShowOptions.AutoToolTip = false;
+            TSPShowOptions.DropDownOpening += TSPShowOptions_DropDownOpening;
+            TSPShowOptions.DropDownClosed += TSPShowOptions_DropDownClosed;
+        }
+
+        private void TSPShowOptions_DropDownClosed(object sender, EventArgs e)
+        {
+            UCSearchOptions.Visible = false;
+        }
+
+        private void TSPShowOptions_DropDownOpening(object sender, EventArgs e)
+        {
+            if (UCSearchOptions.Visible)
+            {
+                UCSearchOptions.Visible = false;
+            }
+            else
+            {
+                UCSearchOptions.Show();
+                var loc = toolStrip1.Location;
+                loc.Offset(10, TSPShowOptions.Height + 2);
+                UCSearchOptions.Location = loc;
+                UCSearchOptions.BringToFront();
+            }
         }
 
         void CommSubMenuitem_ReorderColumn_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e)
@@ -1227,11 +1255,7 @@ namespace NETDBHelper
         {
             string serchkey = ts_serchKey.Text;
 
-            bool matchall = serchkey.StartsWith("'");
-            if (matchall)
-            {
-                serchkey = serchkey.Trim('\'');
-            }
+            bool matchall = UCSearchOptions.IsMatchAll;
             if (!ts_serchKey.Items.Contains(serchkey))
             {
                 ts_serchKey.Items.Add(serchkey);

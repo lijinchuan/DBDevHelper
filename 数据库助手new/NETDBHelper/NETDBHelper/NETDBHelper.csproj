@@ -408,6 +408,12 @@
     <Compile Include="UC\UCLogicTableView.Designer.cs">
       <DependentUpon>UCLogicTableView.cs</DependentUpon>
     </Compile>
+    <Compile Include="UC\UCSearchOptions.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UC\UCSearchOptions.Designer.cs">
+      <DependentUpon>UCSearchOptions.cs</DependentUpon>
+    </Compile>
     <Compile Include="UC\UCTableRelMap.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -578,6 +584,9 @@
     <EmbeddedResource Include="UC\UCLogicTableView.resx">
       <DependentUpon>UCLogicTableView.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="UC\UCSearchOptions.resx">
+      <DependentUpon>UCSearchOptions.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="UC\UCTableRelMap.resx">
       <DependentUpon>UCTableRelMap.cs</DependentUpon>
     </EmbeddedResource>
@@ -620,6 +629,7 @@
     <None Include="Resources\bullet_plus.png" />
     <None Include="Resources\arrow_nsew.png" />
     <Content Include="Resources\bullet_tick.png" />
+    <None Include="Resources\cog.png" />
     <Content Include="Resources\computer_link.png" />
     <Content Include="Resources\connect.png" />
     <None Include="Resources\text_underline.png" />
