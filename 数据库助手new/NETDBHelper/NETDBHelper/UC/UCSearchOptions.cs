@@ -87,6 +87,14 @@ namespace NETDBHelper.UC
             }
         }
 
+        public bool SearchComplete
+        {
+            get
+            {
+                return CBSearchAll.Checked;
+            }
+        }
+
         private void BtnOk_Click(object sender, EventArgs e)
         {
             this.Visible = false;

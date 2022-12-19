@@ -219,6 +219,12 @@
     <Compile Include="SubForm\SearchDBDataDlg.Designer.cs">
       <DependentUpon>SearchDBDataDlg.cs</DependentUpon>
     </Compile>
+    <Compile Include="SubForm\SearchResultsDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SubForm\SearchResultsDlg.Designer.cs">
+      <DependentUpon>SearchResultsDlg.cs</DependentUpon>
+    </Compile>
     <Compile Include="SubForm\ServerSettingDlg.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -496,6 +502,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="SubForm\SearchDBDataDlg.resx">
       <DependentUpon>SearchDBDataDlg.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SubForm\SearchResultsDlg.resx">
+      <DependentUpon>SearchResultsDlg.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="SubForm\ServerSettingDlg.resx">
       <DependentUpon>ServerSettingDlg.cs</DependentUpon>

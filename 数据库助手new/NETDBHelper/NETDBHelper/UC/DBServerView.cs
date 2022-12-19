@@ -1251,6 +1251,8 @@ namespace NETDBHelper
             return func();
         }
 
+        private List<TreeNode> SearchAllResults = new List<TreeNode>();
+
         private void toolStripDropDownButton1_Click(object sender, EventArgs e)
         {
             string serchkey = ts_serchKey.Text;
@@ -1272,32 +1274,61 @@ namespace NETDBHelper
             searchingWaitingBox.Msg = "搜索中...";
             searchingWaitingBox.Waiting(this, () =>
             {
-                bool boo = false;
-                if (OpCtrol(() => tv_DBServers.SelectedNode.Nodes.Count) > 0)
-                    boo = SearchNode(OpCtrol(() => tv_DBServers.SelectedNode.Nodes[0]), serchkey, matchall, true).Result;
-                else if (OpCtrol(() => tv_DBServers.SelectedNode.NextNode) != null)
-                    boo = SearchNode(OpCtrol(() => tv_DBServers.SelectedNode.NextNode), serchkey, matchall, true).Result;
-                else
+            bool boo = false;
+            if (OpCtrol(() => tv_DBServers.SelectedNode.Nodes.Count) > 0)
+                boo = SearchNode(OpCtrol(() => tv_DBServers.SelectedNode.Nodes[0]), serchkey, matchall, true).Result;
+            else if (OpCtrol(() => tv_DBServers.SelectedNode.NextNode) != null)
+                boo = SearchNode(OpCtrol(() => tv_DBServers.SelectedNode.NextNode), serchkey, matchall, true).Result;
+            else
+            {
+                var parent = OpCtrol(() => tv_DBServers.SelectedNode.Parent);
+                var parentNext = OpCtrol(() => parent.NextNode);
+                while (parent != null && parentNext == null)
                 {
-                    var parent =OpCtrol(()=> tv_DBServers.SelectedNode.Parent);
-                    var parentNext = OpCtrol(() => parent.NextNode);
-                    while (parent != null && parentNext == null)
+                    parent = parentNext;
+                }
+                if (parent != null)
+                {
+                    if (parentNext != null)
                     {
-                        parent = parentNext;
-                    }
-                    if (parent != null)
-                    {
-                        if (parentNext != null)
-                        {
-                            boo = SearchNode(parentNext, serchkey, matchall, true).Result;
-                        }
+                        boo = SearchNode(parentNext, serchkey, matchall, true).Result;
                     }
                 }
+            }
 
-                if (!boo)
-                {
-                    this.BeginInvoke(new Action(()=>
-                    tv_DBServers.SelectedNode = tv_DBServers.Nodes[0]));
+            if (!boo)
+            {
+                this.BeginInvoke(new Action(() =>
+                tv_DBServers.SelectedNode = tv_DBServers.Nodes[0]));
+
+                    if (SearchAllResults.Any())
+                    {
+                        this.BeginInvoke(new Action(() =>
+                        {
+                            SearchResultsDlg dlg = new SearchResultsDlg();
+                            dlg.Ds = SearchAllResults.Select(p =>
+                            {
+                                var dbSource = GetDBSource(p);
+                                var dbName = GetDBName(p);
+                                var tbName = GetTBName(p);
+                                return new
+                                {
+                                    server = dbSource.ServerName,
+                                    db = dbName,
+                                    tb = tbName,
+                                    type = GetNodeContentType(p),
+                                    text = p.Text,
+                                    obj=p
+                                };
+                            }).ToList();
+                            dlg.Choose += node =>
+                            {
+                                this.BeginInvoke(new Action(() => tv_DBServers.SelectedNode = node));
+                            };
+                            SearchAllResults.Clear();
+                            dlg.Show();
+                        }));
+                    }
                 }
             });
 
@@ -1318,9 +1349,22 @@ namespace NETDBHelper
             {
                 if (Filter(nodeType))
                 {
-                    this.BeginInvoke(new Action(() =>
-                    tv_DBServers.SelectedNode = nodeStart));
-                    return true;
+                    if (UCSearchOptions.SearchComplete)
+                    {
+                        SearchAllResults.Add(nodeStart);
+                        this.BeginInvoke(new Action(() =>
+                        {
+                            tv_DBServers.SelectedNode = nodeStart;
+                            toolStripDropDownButton1_Click(null, null);
+                        }));
+                        return true;
+                    }
+                    else
+                    {
+                        this.BeginInvoke(new Action(() => tv_DBServers.SelectedNode = nodeStart));
+                        return true;
+                    }
+
                 }
             }
             if (nodeStart.Nodes.Count > 0)
@@ -1328,7 +1372,9 @@ namespace NETDBHelper
                 foreach (TreeNode node in nodeStart.Nodes)
                 {
                     if (SearchNode(node, txt, matchall, false).Result)
+                    {
                         return true;
+                    }
                 }
             }
             else
