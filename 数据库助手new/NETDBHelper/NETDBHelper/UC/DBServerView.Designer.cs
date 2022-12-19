@@ -65,6 +65,7 @@
             this.TTSM_CreateIndex = new System.Windows.Forms.ToolStripMenuItem();
             this.TTSM_DelIndex = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
+            this.TSPShowOptions = new System.Windows.Forms.ToolStripDropDownButton();
             this.ts_serchKey = new System.Windows.Forms.ToolStripComboBox();
             this.toolStripDropDownButton1 = new System.Windows.Forms.ToolStripButton();
             this.CommMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
@@ -88,7 +89,6 @@
             this.TSMI_FilterFunction = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem4 = new System.Windows.Forms.ToolStripSeparator();
             this.ServerMoveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.TSPShowOptions = new System.Windows.Forms.ToolStripDropDownButton();
             this.DBServerviewContextMenuStrip.SuspendLayout();
             this.toolStrip1.SuspendLayout();
             this.CommMenuStrip.SuspendLayout();
@@ -374,6 +374,15 @@
             this.toolStrip1.TabIndex = 2;
             this.toolStrip1.Text = "toolStrip1";
             // 
+            // TSPShowOptions
+            // 
+            this.TSPShowOptions.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.TSPShowOptions.Image = ((System.Drawing.Image)(resources.GetObject("TSPShowOptions.Image")));
+            this.TSPShowOptions.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.TSPShowOptions.Name = "TSPShowOptions";
+            this.TSPShowOptions.Size = new System.Drawing.Size(29, 19);
+            this.TSPShowOptions.Text = "toolStripDropDownButton2";
+            // 
             // ts_serchKey
             // 
             this.ts_serchKey.Name = "ts_serchKey";
@@ -540,15 +549,6 @@
             this.ServerMoveToolStripMenuItem.Name = "ServerMoveToolStripMenuItem";
             this.ServerMoveToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
             this.ServerMoveToolStripMenuItem.Text = "从...迁移";
-            // 
-            // TSPShowOptions
-            // 
-            this.TSPShowOptions.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.TSPShowOptions.Image = ((System.Drawing.Image)(resources.GetObject("TSPShowOptions.Image")));
-            this.TSPShowOptions.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.TSPShowOptions.Name = "TSPShowOptions";
-            this.TSPShowOptions.Size = new System.Drawing.Size(29, 19);
-            this.TSPShowOptions.Text = "toolStripDropDownButton2";
             // 
             // DBServerView
             // 

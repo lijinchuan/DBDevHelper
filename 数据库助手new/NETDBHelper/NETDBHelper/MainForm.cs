@@ -18,7 +18,7 @@ using NETDBHelper.UC;
 
 namespace NETDBHelper
 {
-    public partial class MainFrm : Form
+    public partial class MainFrm : Form, IMessageFilter
     {
         private static MainFrm Instance = null;
         private System.Timers.Timer tasktimer = null;
@@ -64,6 +64,8 @@ namespace NETDBHelper
             TSBar.Click += TSBar_Click;
 
             显示左侧窗口ToolStripMenuItem.Enabled = false;
+
+            Application.AddMessageFilter(this);
         }
 
         private void TSBar_Click(object sender, EventArgs e)
@@ -71,25 +73,26 @@ namespace NETDBHelper
             ChangeLeftWindow();
         }
 
+        
         private void CanAdjust()
         {
-            var mousePos = Point.Empty;
+            Point mousePos = Point.Empty;
             MouseMove += mouseMouse;
-            foreach (Control ctl in dbServerView1.Controls)
-            {
-                if (ctl.Width >= dbServerView1.Width * 0.8 && ctl.Height >= dbServerView1.Height * 0.8)
-                {
-                    ctl.MouseMove += (s, e) =>
-                     {
-                         Cursor = Cursors.Default;
-                     };
-                }
-            }
+            //foreach (Control ctl in dbServerView1.Controls)
+            //{
+            //    //if (ctl.Width >= dbServerView1.Width * 0.8 && ctl.Height >= dbServerView1.Height * 0.8)
+            //    {
+            //        ctl.MouseMove += (s, e) =>
+            //         {
+            //             Cursor = Cursors.Default;
+            //         };
+            //    }
+            //}
 
-            panel1.MouseMove+= (s, e) =>
-            {
-                Cursor = Cursors.Default;
-            };
+            //panel1.MouseMove += (s, e) =>
+            // {
+            //     Cursor = Cursors.Default;
+            // };
 
             void mouseUp(object s, MouseEventArgs e)
             {
@@ -100,7 +103,7 @@ namespace NETDBHelper
 
             void mouseMouse(object s, MouseEventArgs e)
             {
-                if (panel1.Location.X - e.X < 5 && panel1.Location.X - e.X > 0)
+                if (panel1.Location.X - e.X < 5 && panel1.Location.X - e.X > 0 && e.Y > panel1.Location.Y)
                 {
                     this.Cursor = Cursors.SizeWE;
                     if ((e.Button & MouseButtons.Left) == MouseButtons.Left)
@@ -129,7 +132,7 @@ namespace NETDBHelper
                         }
                     }
                 }
-                else if (Math.Abs(panel1.Location.X - e.X) > 10 && (e.Button & MouseButtons.Left) == MouseButtons.None)
+                else if ((Math.Abs(panel1.Location.X - e.X) > 10 || e.Y <= panel1.Location.Y) && (e.Button & MouseButtons.Left) == MouseButtons.None)
                 {
                     Cursor = Cursors.Default;
                 }
@@ -235,7 +238,8 @@ namespace NETDBHelper
             };
             Biz.WatchTask.WatchTaskInfoManage.OnErrorDisappear += (s) =>
             {
-                this.BeginInvoke(new Action(() => {
+                this.BeginInvoke(new Action(() =>
+                {
                     Util.ClosePopMsg(s.ID);
                 }));
             };
@@ -286,11 +290,11 @@ namespace NETDBHelper
         void TabControl_Selected(object sender, TabControlEventArgs e)
         {
             tsb_Excute.Enabled = e.TabPage is UC.ViewTBData
-                ||e.TabPage is UC.SqlExcuter;
+                || e.TabPage is UC.SqlExcuter;
 
             if (e.TabPage is UC.SqlExcuter)
             {
-                this.TSCBServer.Text = (e.TabPage as UC.SqlExcuter).Server.ServerName+"::"+ (e.TabPage as UC.SqlExcuter).GetDB();
+                this.TSCBServer.Text = (e.TabPage as UC.SqlExcuter).Server.ServerName + "::" + (e.TabPage as UC.SqlExcuter).GetDB();
                 this.TSCBServer.Visible = true;
             }
             else
@@ -299,19 +303,19 @@ namespace NETDBHelper
             }
         }
 
-        private void CreateProcSql(DBSource dbSource, string dbName, string tableID, string table,string tbOwner,CreateProceEnum createProcType)
+        private void CreateProcSql(DBSource dbSource, string dbName, string tableID, string table, string tbOwner, CreateProceEnum createProcType)
         {
-            UC.CreateProc cp = new CreateProc(dbSource, dbName, table, tableID,tbOwner, createProcType);
+            UC.CreateProc cp = new CreateProc(dbSource, dbName, table, tableID, tbOwner, createProcType);
             cp.Create();
             this.TabControl.TabPages.Add(cp);
-            
+
             TabControl.SelectedTab = cp;
         }
 
-        private void ShowProc(DBSource dBSource,string dbname, string procname, string procbody)
+        private void ShowProc(DBSource dBSource, string dbname, string procname, string procbody)
         {
             UC.SQLCodePanel panel = new SQLCodePanel();
-            panel.SetCode(dBSource,dbname,procbody);
+            panel.SetCode(dBSource, dbname, procbody);
             panel.Text = $"存储过程-{procname}";
             this.TabControl.TabPages.Add(panel);
             this.TabControl.SelectedTab = panel;
@@ -320,16 +324,16 @@ namespace NETDBHelper
         private void ShowFunction(DBSource dBSource, string dbname, string procname, string procbody)
         {
             UC.SQLCodePanel panel = new SQLCodePanel();
-            panel.SetCode(dBSource,dbname, procbody);
+            panel.SetCode(dBSource, dbname, procbody);
             panel.Text = $"函数-{procname}";
             this.TabControl.TabPages.Add(panel);
             this.TabControl.SelectedTab = panel;
         }
 
-        private void ShowDataDic(DBSource dBSource,string dbname,string tbname,string html)
+        private void ShowDataDic(DBSource dBSource, string dbname, string tbname, string html)
         {
             var tit = $"数据字典-[{dbname}].[{tbname}]";
-            foreach(TabPage tab in this.TabControl.TabPages)
+            foreach (TabPage tab in this.TabControl.TabPages)
             {
                 if (tab.Text.Equals(tit))
                 {
@@ -345,7 +349,7 @@ namespace NETDBHelper
             this.TabControl.SelectedTab = panel;
         }
 
-        private void ShowTables(DBSource dBSource,string dbname, string html)
+        private void ShowTables(DBSource dBSource, string dbname, string html)
         {
             var tit = $"查看{dbname}的库表";
             foreach (TabPage tab in this.TabControl.TabPages)
@@ -357,7 +361,7 @@ namespace NETDBHelper
                     return;
                 }
             }
-            UC.WebTab panel = new WebTab(dBSource,dbname);
+            UC.WebTab panel = new WebTab(dBSource, dbname);
             panel.SetHtml(html);
             panel.Text = tit;
             panel.OnSearch += (d, n, w) =>
@@ -368,7 +372,7 @@ namespace NETDBHelper
             this.TabControl.SelectedTab = panel;
         }
 
-        private void ShowColumns(DBSource dbsource,string dbname, string html)
+        private void ShowColumns(DBSource dbsource, string dbname, string html)
         {
             var tit = $"查看{dbname}的字段";
             foreach (TabPage tab in this.TabControl.TabPages)
@@ -446,7 +450,7 @@ namespace NETDBHelper
             this.TabControl.SelectedTab = panel;
         }
 
-        private void FilterProc(DBSource dbsource,string dbname, string html)
+        private void FilterProc(DBSource dbsource, string dbname, string html)
         {
             var tit = $"查看{dbname}的存储过程";
             foreach (TabPage tab in this.TabControl.TabPages)
@@ -458,7 +462,7 @@ namespace NETDBHelper
                     return;
                 }
             }
-            UC.WebTab panel = new WebTab(dbsource,dbname);
+            UC.WebTab panel = new WebTab(dbsource, dbname);
             panel.SetHtml(html);
             panel.Text = tit;
             panel.OnShowProc += (s, d, p, b) => this.ShowProc(s, d, p, b);
@@ -472,7 +476,7 @@ namespace NETDBHelper
                     return lst;
                 }
                 int finishcount = 0;
-                foreach(var proc in proclist)
+                foreach (var proc in proclist)
                 {
                     var spcontent = BigEntityTableRemotingEngine.Find<SPContent>("SPContent", "SPName", new[] { proc }).FirstOrDefault();
                     if (spcontent == null)
@@ -480,14 +484,14 @@ namespace NETDBHelper
                         try
                         {
                             var body = SQLHelper.GetProcedureBody(dbsource, dbname, proc);
-                        
+
                             if (!string.IsNullOrEmpty(body))
                             {
                                 spcontent = new SPContent { SPName = proc, Content = body };
                                 BigEntityTableRemotingEngine.Insert<SPContent>("SPContent", new SPContent
                                 {
-                                    Content=body,
-                                    SPName=proc
+                                    Content = body,
+                                    SPName = proc
                                 });
                             }
                         }
@@ -495,7 +499,7 @@ namespace NETDBHelper
                         {
                             Util.SendMsg(this, ex.Message);
                         }
-                        
+
                     }
 
                     if (spcontent != null)
@@ -550,7 +554,7 @@ namespace NETDBHelper
             panel.OnSearch += (s, n, w) =>
             {
                 List<object> lst = new List<object>();
-                var proclist = Biz.Common.Data.SQLHelper.GetFunctions(dbsource, dbname).AsEnumerable().Select(p=>p.Field<string>("name")).ToList();
+                var proclist = Biz.Common.Data.SQLHelper.GetFunctions(dbsource, dbname).AsEnumerable().Select(p => p.Field<string>("name")).ToList();
                 if (proclist.Count == 0)
                 {
                     return lst;
@@ -615,7 +619,7 @@ namespace NETDBHelper
             this.TabControl.SelectedTab = panel;
         }
 
-        private void ExecutSql(DBSource source,string db,string sql)
+        private void ExecutSql(DBSource source, string db, string sql)
         {
             var tit = $"执行语句";
             //foreach (TabPage tab in this.TabControl.TabPages)
@@ -627,7 +631,7 @@ namespace NETDBHelper
             //        return;
             //    }
             //}
-            
+
             SqlExcuter se = new SqlExcuter(source, db, sql);
             se.Text = tit;
             this.TabControl.TabPages.Add(se);
@@ -637,7 +641,7 @@ namespace NETDBHelper
             this.TSCBServer.Visible = true;
         }
 
-        protected void CreateEntity(string entityName,string s)
+        protected void CreateEntity(string entityName, string s)
         {
             foreach (TabPage page in TabControl.TabPages)
             {
@@ -675,9 +679,9 @@ namespace NETDBHelper
             this.SetMsg("代码已经复制到剪粘板。");
         }
 
-        public void AddEntityDB(DBSource db,string dbName)
+        public void AddEntityDB(DBSource db, string dbName)
         {
-            var page = new UC.UCAddTableByEntity(db,dbName);
+            var page = new UC.UCAddTableByEntity(db, dbName);
             page.Text = "添加实体映射表";
             TabControl.TabPages.Add(page);
             TabControl.SelectedTab = page;
@@ -689,11 +693,11 @@ namespace NETDBHelper
             var dbnode = dbServerView1.FindNode(db.ServerName, dbName);
             if (dbnode != null)
             {
-                Biz.UILoadHelper.LoadTBsAnsy(this, dbServerView1.FindNode(dbnode, NodeContentType.TBParent), db, dbName, null,null,null);
+                Biz.UILoadHelper.LoadTBsAnsy(this, dbServerView1.FindNode(dbnode, NodeContentType.TBParent), db, dbName, null, null, null);
             }
         }
 
-        public void ShowTableData(DBSource db,string dbName,string tablename, string sql)
+        public void ShowTableData(DBSource db, string dbName, string tablename, string sql)
         {
             var title = $"[查询数据 {tablename} -{db.ServerName}]";
             foreach (TabPage page in this.TabControl.TabPages)
@@ -706,7 +710,7 @@ namespace NETDBHelper
             }
             var viewTb = new SqlExcuter(db, dbName, sql);
             //ViewTBData viewTb = new ViewTBData();
-            viewTb.Text =title;
+            viewTb.Text = title;
             viewTb.BorderStyle = BorderStyle.None;
             this.TabControl.TabPages.Add(viewTb);
             TabControl.SelectedTab = viewTb;
@@ -800,7 +804,7 @@ namespace NETDBHelper
         /// <param name="e"></param>
         private void SubItemModelCreateTableTool_Click(object sender, EventArgs e)
         {
-            
+
         }
 
         public static void SendMsg(string msg)
@@ -819,7 +823,7 @@ namespace NETDBHelper
 
         private void 查看日志ToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            foreach(TabPage page in this.TabControl.TabPages)
+            foreach (TabPage page in this.TabControl.TabPages)
             {
                 if (page.Text == "查看日志")
                 {
@@ -836,7 +840,7 @@ namespace NETDBHelper
             logview.BindData();
         }
 
-        private void ShowViewSql(DBSource source,string dbname,string viewname,string sql)
+        private void ShowViewSql(DBSource source, string dbname, string viewname, string sql)
         {
             var title = $"视图{dbname}.{viewname}";
             foreach (TabPage page in this.TabControl.TabPages)
@@ -847,16 +851,16 @@ namespace NETDBHelper
                     return;
                 }
             }
-            var tip= $"视图{dbname}.{viewname}-{source.ServerName}";
+            var tip = $"视图{dbname}.{viewname}-{source.ServerName}";
             UC.SQLCodePanel panel = new SQLCodePanel();
             panel.ToolTipText = tip;
-            panel.SetCode(source,dbname, sql);
+            panel.SetCode(source, dbname, sql);
             panel.Text = title;
             this.TabControl.TabPages.Add(panel);
             this.TabControl.SelectedTab = panel;
         }
 
-        private void ShowRelMap(DBSource dbSource,string dbname,string tbname)
+        private void ShowRelMap(DBSource dbSource, string dbname, string tbname)
         {
             var title = $"表关系图{dbname}.{tbname}";
             foreach (TabPage page in this.TabControl.TabPages)
@@ -868,7 +872,7 @@ namespace NETDBHelper
                 }
             }
 
-            UC.UCTableRelMap panel = new UCTableRelMap(dbSource, dbname,tbname);
+            UC.UCTableRelMap panel = new UCTableRelMap(dbSource, dbname, tbname);
             panel.Text = title;
             this.TabControl.TabPages.Add(panel);
             this.TabControl.SelectedTab = panel;
@@ -1025,6 +1029,43 @@ namespace NETDBHelper
             SQLKeyWordsManager keyWordsManager = new SQLKeyWordsManager();
 
             keyWordsManager.ShowDialog();
+        }
+
+        static int MakeLParam(int x, int y)
+        {
+            return (y << 16) | (x & 0xFFFF);
+        }
+        /// <summary>
+        /// Y
+        /// </summary>
+        /// <param name="lp"></param>
+        /// <returns></returns>
+        static int GetHiWord(int lp)
+        {
+            return lp >> 16;
+        }
+        /// <summary>
+        /// X
+        /// </summary>
+        /// <param name="lp"></param>
+        /// <returns></returns>
+        static int GetLoWord(int lp)
+        {
+            return lp & 0xFFFF;
+        }
+
+
+        public bool PreFilterMessage(ref Message m)
+        {
+            if (m.Msg == 0x200)
+            {
+                //mousemove
+                var x = GetLoWord(m.LParam.ToInt32());
+                var y = GetHiWord(m.LParam.ToInt32());
+
+                this.OnMouseMove(new MouseEventArgs(MouseButtons.None, 0, x, y, 0));
+            }
+            return false;
         }
     }
 }
