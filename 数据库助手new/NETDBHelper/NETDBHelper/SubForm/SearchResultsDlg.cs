@@ -48,14 +48,32 @@ namespace NETDBHelper.SubForm
         {
             base.OnLoad(e);
 
+
+            DGVResult.BorderStyle = System.Windows.Forms.BorderStyle.None;
+
+            DGVResult.GridColor = Color.LightBlue;
+            DGVResult.Dock = DockStyle.Fill;
+            DGVResult.BackgroundColor = Color.White;
+            DGVResult.AllowUserToAddRows = false;
+            DGVResult.ReadOnly = true;
+            DGVResult.RowHeadersDefaultCellStyle.ForeColor = Color.Red;
+
+            DGVResult.DefaultCellStyle.SelectionBackColor = Color.LightGray;
+            DGVResult.DefaultCellStyle.SelectionForeColor = Color.Black;
+
             this.DGVResult.BorderStyle = BorderStyle.None;
             this.DGVResult.GridColor = Color.LightBlue;
 
-            this.DGVResult.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.DisplayedCells;
-            this.DGVResult.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
-            this.DGVResult.AllowUserToResizeRows = true;
+            this.DGVResult.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            this.DGVResult.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.DisplayedCells;
 
-            this.DGVResult.DataSource = Ds;
+            DGVResult.RowStateChanged += (s, ee) =>
+            {
+                ee.Row.HeaderCell.Value = string.Format("{0}", ee.Row.Index + 1);
+
+            };
+
+            DGVResult.DataSource = Ds;
         }
     }
 }
