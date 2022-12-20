@@ -39,12 +39,16 @@
             this.CBView = new System.Windows.Forms.CheckBox();
             this.CBSearchAll = new System.Windows.Forms.CheckBox();
             this.CBHardSearch = new System.Windows.Forms.CheckBox();
+            this.GB1 = new System.Windows.Forms.GroupBox();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.GB1.SuspendLayout();
+            this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
             // CBMatchAll
             // 
             this.CBMatchAll.AutoSize = true;
-            this.CBMatchAll.Location = new System.Drawing.Point(14, 15);
+            this.CBMatchAll.Location = new System.Drawing.Point(12, 20);
             this.CBMatchAll.Name = "CBMatchAll";
             this.CBMatchAll.Size = new System.Drawing.Size(72, 16);
             this.CBMatchAll.TabIndex = 0;
@@ -53,7 +57,7 @@
             // 
             // BtnOk
             // 
-            this.BtnOk.Location = new System.Drawing.Point(100, 175);
+            this.BtnOk.Location = new System.Drawing.Point(121, 204);
             this.BtnOk.Name = "BtnOk";
             this.BtnOk.Size = new System.Drawing.Size(38, 23);
             this.BtnOk.TabIndex = 1;
@@ -66,7 +70,7 @@
             this.CBDB.AutoSize = true;
             this.CBDB.Checked = true;
             this.CBDB.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.CBDB.Location = new System.Drawing.Point(14, 38);
+            this.CBDB.Location = new System.Drawing.Point(12, 21);
             this.CBDB.Name = "CBDB";
             this.CBDB.Size = new System.Drawing.Size(36, 16);
             this.CBDB.TabIndex = 2;
@@ -78,7 +82,7 @@
             this.CBTB.AutoSize = true;
             this.CBTB.Checked = true;
             this.CBTB.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.CBTB.Location = new System.Drawing.Point(56, 37);
+            this.CBTB.Location = new System.Drawing.Point(54, 20);
             this.CBTB.Name = "CBTB";
             this.CBTB.Size = new System.Drawing.Size(36, 16);
             this.CBTB.TabIndex = 3;
@@ -90,7 +94,7 @@
             this.CBField.AutoSize = true;
             this.CBField.Checked = true;
             this.CBField.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.CBField.Location = new System.Drawing.Point(100, 37);
+            this.CBField.Location = new System.Drawing.Point(98, 20);
             this.CBField.Name = "CBField";
             this.CBField.Size = new System.Drawing.Size(48, 16);
             this.CBField.TabIndex = 4;
@@ -102,7 +106,7 @@
             this.CBProc.AutoSize = true;
             this.CBProc.Checked = true;
             this.CBProc.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.CBProc.Location = new System.Drawing.Point(14, 61);
+            this.CBProc.Location = new System.Drawing.Point(12, 44);
             this.CBProc.Name = "CBProc";
             this.CBProc.Size = new System.Drawing.Size(72, 16);
             this.CBProc.TabIndex = 5;
@@ -114,7 +118,7 @@
             this.CBFun.AutoSize = true;
             this.CBFun.Checked = true;
             this.CBFun.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.CBFun.Location = new System.Drawing.Point(98, 61);
+            this.CBFun.Location = new System.Drawing.Point(96, 44);
             this.CBFun.Name = "CBFun";
             this.CBFun.Size = new System.Drawing.Size(48, 16);
             this.CBFun.TabIndex = 6;
@@ -126,7 +130,7 @@
             this.CBOther.AutoSize = true;
             this.CBOther.Checked = true;
             this.CBOther.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.CBOther.Location = new System.Drawing.Point(68, 87);
+            this.CBOther.Location = new System.Drawing.Point(66, 70);
             this.CBOther.Name = "CBOther";
             this.CBOther.Size = new System.Drawing.Size(48, 16);
             this.CBOther.TabIndex = 7;
@@ -138,7 +142,7 @@
             this.CBView.AutoSize = true;
             this.CBView.Checked = true;
             this.CBView.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.CBView.Location = new System.Drawing.Point(14, 87);
+            this.CBView.Location = new System.Drawing.Point(12, 70);
             this.CBView.Name = "CBView";
             this.CBView.Size = new System.Drawing.Size(48, 16);
             this.CBView.TabIndex = 8;
@@ -148,7 +152,7 @@
             // CBSearchAll
             // 
             this.CBSearchAll.AutoSize = true;
-            this.CBSearchAll.Location = new System.Drawing.Point(14, 116);
+            this.CBSearchAll.Location = new System.Drawing.Point(12, 42);
             this.CBSearchAll.Name = "CBSearchAll";
             this.CBSearchAll.Size = new System.Drawing.Size(96, 16);
             this.CBSearchAll.TabIndex = 9;
@@ -158,32 +162,55 @@
             // CBHardSearch
             // 
             this.CBHardSearch.AutoSize = true;
-            this.CBHardSearch.Location = new System.Drawing.Point(14, 141);
+            this.CBHardSearch.Location = new System.Drawing.Point(12, 66);
             this.CBHardSearch.Name = "CBHardSearch";
             this.CBHardSearch.Size = new System.Drawing.Size(132, 16);
             this.CBHardSearch.TabIndex = 10;
             this.CBHardSearch.Text = "硬搜索(很费时费力)";
             this.CBHardSearch.UseVisualStyleBackColor = true;
             // 
+            // GB1
+            // 
+            this.GB1.Controls.Add(this.CBFun);
+            this.GB1.Controls.Add(this.CBDB);
+            this.GB1.Controls.Add(this.CBTB);
+            this.GB1.Controls.Add(this.CBView);
+            this.GB1.Controls.Add(this.CBField);
+            this.GB1.Controls.Add(this.CBOther);
+            this.GB1.Controls.Add(this.CBProc);
+            this.GB1.Location = new System.Drawing.Point(3, 3);
+            this.GB1.Name = "GB1";
+            this.GB1.Size = new System.Drawing.Size(156, 100);
+            this.GB1.TabIndex = 11;
+            this.GB1.TabStop = false;
+            this.GB1.Text = "对象";
+            // 
+            // groupBox1
+            // 
+            this.groupBox1.Controls.Add(this.CBMatchAll);
+            this.groupBox1.Controls.Add(this.CBSearchAll);
+            this.groupBox1.Controls.Add(this.CBHardSearch);
+            this.groupBox1.Location = new System.Drawing.Point(3, 109);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(156, 91);
+            this.groupBox1.TabIndex = 12;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "选项";
+            // 
             // UCSearchOptions
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Controls.Add(this.CBHardSearch);
-            this.Controls.Add(this.CBSearchAll);
-            this.Controls.Add(this.CBView);
-            this.Controls.Add(this.CBOther);
-            this.Controls.Add(this.CBFun);
-            this.Controls.Add(this.CBProc);
-            this.Controls.Add(this.CBField);
-            this.Controls.Add(this.CBTB);
-            this.Controls.Add(this.CBDB);
+            this.Controls.Add(this.groupBox1);
+            this.Controls.Add(this.GB1);
             this.Controls.Add(this.BtnOk);
-            this.Controls.Add(this.CBMatchAll);
             this.Name = "UCSearchOptions";
-            this.Size = new System.Drawing.Size(164, 203);
+            this.Size = new System.Drawing.Size(175, 230);
+            this.GB1.ResumeLayout(false);
+            this.GB1.PerformLayout();
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 
@@ -200,5 +227,7 @@
         private System.Windows.Forms.CheckBox CBView;
         private System.Windows.Forms.CheckBox CBSearchAll;
         private System.Windows.Forms.CheckBox CBHardSearch;
+        private System.Windows.Forms.GroupBox GB1;
+        private System.Windows.Forms.GroupBox groupBox1;
     }
 }
