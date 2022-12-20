@@ -103,6 +103,14 @@ namespace NETDBHelper.UC
             }
         }
 
+        public bool GlobSearch
+        {
+            get
+            {
+                return CBGlobal.Checked;
+            }
+        }
+
         private void BtnOk_Click(object sender, EventArgs e)
         {
             this.Visible = false;

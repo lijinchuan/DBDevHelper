@@ -41,6 +41,7 @@
             this.CBHardSearch = new System.Windows.Forms.CheckBox();
             this.GB1 = new System.Windows.Forms.GroupBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.CBGlobal = new System.Windows.Forms.CheckBox();
             this.GB1.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
@@ -57,7 +58,7 @@
             // 
             // BtnOk
             // 
-            this.BtnOk.Location = new System.Drawing.Point(121, 204);
+            this.BtnOk.Location = new System.Drawing.Point(172, 204);
             this.BtnOk.Name = "BtnOk";
             this.BtnOk.Size = new System.Drawing.Size(38, 23);
             this.BtnOk.TabIndex = 1;
@@ -130,7 +131,7 @@
             this.CBOther.AutoSize = true;
             this.CBOther.Checked = true;
             this.CBOther.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.CBOther.Location = new System.Drawing.Point(66, 70);
+            this.CBOther.Location = new System.Drawing.Point(150, 44);
             this.CBOther.Name = "CBOther";
             this.CBOther.Size = new System.Drawing.Size(48, 16);
             this.CBOther.TabIndex = 7;
@@ -142,7 +143,7 @@
             this.CBView.AutoSize = true;
             this.CBView.Checked = true;
             this.CBView.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.CBView.Location = new System.Drawing.Point(12, 70);
+            this.CBView.Location = new System.Drawing.Point(152, 21);
             this.CBView.Name = "CBView";
             this.CBView.Size = new System.Drawing.Size(48, 16);
             this.CBView.TabIndex = 8;
@@ -180,22 +181,33 @@
             this.GB1.Controls.Add(this.CBProc);
             this.GB1.Location = new System.Drawing.Point(3, 3);
             this.GB1.Name = "GB1";
-            this.GB1.Size = new System.Drawing.Size(156, 100);
+            this.GB1.Size = new System.Drawing.Size(213, 71);
             this.GB1.TabIndex = 11;
             this.GB1.TabStop = false;
             this.GB1.Text = "对象";
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.CBGlobal);
             this.groupBox1.Controls.Add(this.CBMatchAll);
             this.groupBox1.Controls.Add(this.CBSearchAll);
             this.groupBox1.Controls.Add(this.CBHardSearch);
-            this.groupBox1.Location = new System.Drawing.Point(3, 109);
+            this.groupBox1.Location = new System.Drawing.Point(3, 80);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(156, 91);
+            this.groupBox1.Size = new System.Drawing.Size(213, 120);
             this.groupBox1.TabIndex = 12;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "选项";
+            // 
+            // CBGlobal
+            // 
+            this.CBGlobal.AutoSize = true;
+            this.CBGlobal.Location = new System.Drawing.Point(12, 89);
+            this.CBGlobal.Name = "CBGlobal";
+            this.CBGlobal.Size = new System.Drawing.Size(72, 16);
+            this.CBGlobal.TabIndex = 11;
+            this.CBGlobal.Text = "全局查找";
+            this.CBGlobal.UseVisualStyleBackColor = true;
             // 
             // UCSearchOptions
             // 
@@ -205,7 +217,7 @@
             this.Controls.Add(this.GB1);
             this.Controls.Add(this.BtnOk);
             this.Name = "UCSearchOptions";
-            this.Size = new System.Drawing.Size(175, 230);
+            this.Size = new System.Drawing.Size(219, 230);
             this.GB1.ResumeLayout(false);
             this.GB1.PerformLayout();
             this.groupBox1.ResumeLayout(false);
@@ -229,5 +241,6 @@
         private System.Windows.Forms.CheckBox CBHardSearch;
         private System.Windows.Forms.GroupBox GB1;
         private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.CheckBox CBGlobal;
     }
 }

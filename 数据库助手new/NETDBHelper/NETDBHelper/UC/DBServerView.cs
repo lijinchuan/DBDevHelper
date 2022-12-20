@@ -1258,6 +1258,7 @@ namespace NETDBHelper
         }
 
         private List<TreeNode> SearchAllResults = new List<TreeNode>();
+        private TreeNode SearchStartTreeNode = null;
 
         private void toolStripDropDownButton1_Click(object sender, EventArgs e)
         {
@@ -1277,14 +1278,24 @@ namespace NETDBHelper
             {
                 this.tv_DBServers.Focus();
             }
+
+            if (!UCSearchOptions.GlobSearch && SearchStartTreeNode == null)
+            {
+                SearchStartTreeNode = tv_DBServers.SelectedNode;
+            }
+
             searchingWaitingBox.Msg = "搜索中...";
             searchingWaitingBox.Waiting(this, () =>
             {
             bool boo = false;
             if (OpCtrol(() => tv_DBServers.SelectedNode.Nodes.Count) > 0)
+            {
                 boo = SearchNode(OpCtrol(() => tv_DBServers.SelectedNode.Nodes[0]), serchkey, matchall, true).Result;
+            }
             else if (OpCtrol(() => tv_DBServers.SelectedNode.NextNode) != null)
+            {
                 boo = SearchNode(OpCtrol(() => tv_DBServers.SelectedNode.NextNode), serchkey, matchall, true).Result;
+            }
             else
             {
                 var parent = OpCtrol(() => tv_DBServers.SelectedNode.Parent);
@@ -1304,35 +1315,45 @@ namespace NETDBHelper
 
             if (!boo)
             {
-                this.BeginInvoke(new Action(() =>
-                tv_DBServers.SelectedNode = tv_DBServers.Nodes[0]));
+                    this.BeginInvoke(new Action(() =>
+                    {
+                        if (SearchStartTreeNode != null)
+                        {
+                            tv_DBServers.SelectedNode = SearchStartTreeNode;
+                            SearchStartTreeNode = null;
+                        }
+                        else
+                        {
+                            tv_DBServers.SelectedNode = tv_DBServers.Nodes[0];
+                        }
+                    }));
 
                     if (SearchAllResults.Any())
                     {
                         this.BeginInvoke(new Action(() =>
                         {
-                        SearchResultsDlg dlg = new SearchResultsDlg();
-                        dlg.Ds = SearchAllResults.Select(p =>
-                        {
-                            var dbSource = GetDBSource(p);
-                            var dbName = GetDBName(p);
-                            var tbName = GetTBName(p);
-                            return new
+                            SearchResultsDlg dlg = new SearchResultsDlg();
+                            dlg.Ds = SearchAllResults.Select(p =>
                             {
-                                server = dbSource.ServerName,
-                                db = dbName,
-                                tb = tbName,
-                                type = GetNodeContentType(p),
-                                text = p.Text,
-                                obj = p
-                            };
-                        }).ToList();
+                                var dbSource = GetDBSource(p);
+                                var dbName = GetDBName(p);
+                                var tbName = GetTBName(p);
+                                return new
+                                {
+                                    server = dbSource.ServerName,
+                                    db = dbName,
+                                    tb = tbName,
+                                    type = GetNodeContentType(p),
+                                    text = p.Text,
+                                    obj = p
+                                };
+                            }).ToList();
                             dlg.Choose += node => OpCtrol(() =>
                             {
                                 tv_DBServers.SelectedNode = node;
                                 return tv_DBServers.SelectedNode == node;
                             });
-                                
+
                             SearchAllResults.Clear();
                             dlg.Show();
                         }));
@@ -1348,6 +1369,12 @@ namespace NETDBHelper
             {
                 return false;
             }
+
+            if (!UCSearchOptions.GlobSearch && nodeStart.Level <= SearchStartTreeNode.Level)
+            {
+                return false;
+            }
+
             var nodeType = GetNodeContentType(nodeStart);
 
             var find = matchall ? (nodeStart.Text.Equals(txt, StringComparison.OrdinalIgnoreCase)
