@@ -95,6 +95,14 @@ namespace NETDBHelper.UC
             }
         }
 
+        public bool HardSearch
+        {
+            get
+            {
+                return CBHardSearch.Checked;
+            }
+        }
+
         private void BtnOk_Click(object sender, EventArgs e)
         {
             this.Visible = false;

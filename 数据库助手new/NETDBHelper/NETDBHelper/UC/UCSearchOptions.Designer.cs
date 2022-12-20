@@ -38,6 +38,7 @@
             this.CBOther = new System.Windows.Forms.CheckBox();
             this.CBView = new System.Windows.Forms.CheckBox();
             this.CBSearchAll = new System.Windows.Forms.CheckBox();
+            this.CBHardSearch = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // CBMatchAll
@@ -52,7 +53,7 @@
             // 
             // BtnOk
             // 
-            this.BtnOk.Location = new System.Drawing.Point(100, 139);
+            this.BtnOk.Location = new System.Drawing.Point(100, 175);
             this.BtnOk.Name = "BtnOk";
             this.BtnOk.Size = new System.Drawing.Size(38, 23);
             this.BtnOk.TabIndex = 1;
@@ -154,10 +155,21 @@
             this.CBSearchAll.Text = "搜索所有结果";
             this.CBSearchAll.UseVisualStyleBackColor = true;
             // 
+            // CBHardSearch
+            // 
+            this.CBHardSearch.AutoSize = true;
+            this.CBHardSearch.Location = new System.Drawing.Point(14, 141);
+            this.CBHardSearch.Name = "CBHardSearch";
+            this.CBHardSearch.Size = new System.Drawing.Size(132, 16);
+            this.CBHardSearch.TabIndex = 10;
+            this.CBHardSearch.Text = "硬搜索(很费时费力)";
+            this.CBHardSearch.UseVisualStyleBackColor = true;
+            // 
             // UCSearchOptions
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.CBHardSearch);
             this.Controls.Add(this.CBSearchAll);
             this.Controls.Add(this.CBView);
             this.Controls.Add(this.CBOther);
@@ -169,7 +181,7 @@
             this.Controls.Add(this.BtnOk);
             this.Controls.Add(this.CBMatchAll);
             this.Name = "UCSearchOptions";
-            this.Size = new System.Drawing.Size(150, 169);
+            this.Size = new System.Drawing.Size(164, 203);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -187,5 +199,6 @@
         private System.Windows.Forms.CheckBox CBOther;
         private System.Windows.Forms.CheckBox CBView;
         private System.Windows.Forms.CheckBox CBSearchAll;
+        private System.Windows.Forms.CheckBox CBHardSearch;
     }
 }

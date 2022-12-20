@@ -5,6 +5,13 @@ using System.Text;
 
 namespace Entity
 {
+    public enum DBState
+    {
+        ONLINE,
+        RECOVERY_PENDING,
+        OFFLINE
+    }
+
     public class DBInfo : INodeContents
     {
         public string Name
@@ -14,6 +21,12 @@ namespace Entity
         }
 
         public DBSource DBSource
+        {
+            get;
+            set;
+        }
+
+        public DBState State
         {
             get;
             set;

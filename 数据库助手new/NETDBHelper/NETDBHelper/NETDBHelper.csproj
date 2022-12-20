@@ -653,6 +653,7 @@
     <None Include="Resources\lightning_delete.png" />
     <None Include="Resources\drive_disk.png" />
     <None Include="Resources\key_go.png" />
+    <None Include="Resources\database_yellow_stop.png" />
     <Content Include="Resources\loading2.gif" />
     <Content Include="Resources\msg.png" />
     <None Include="Resources\script_code_no.png" />

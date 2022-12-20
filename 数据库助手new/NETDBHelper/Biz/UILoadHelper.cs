@@ -51,7 +51,7 @@ namespace Biz
                 serverNode.Nodes.Clear();
                 for (int i = 0; i < tb.Rows.Count; i++)
                 {
-                    DBInfo dbInfo = new DBInfo { DBSource = server, Name = tb.Rows[i]["Name"].ToString() };
+                    DBInfo dbInfo = new DBInfo { DBSource = server, State = (DBState)Enum.Parse(typeof(DBState), tb.Rows[i]["state_desc"].ToString()), Name = tb.Rows[i]["Name"].ToString() };
 
                     if (server.ExDBList?.Contains(dbInfo.Name) == true)
                     {
@@ -59,6 +59,11 @@ namespace Biz
                     }
 
                     TreeNode dbNode = new TreeNode(dbInfo.Name, 2, 2);
+                    if (dbInfo.State != DBState.ONLINE)
+                    {
+                        dbNode.SelectedImageKey = "database_stop";
+                        dbNode.ImageKey = "database_stop";
+                    }
                     var item = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableRemotingEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys", new[] { dbInfo.Name.ToUpper(), string.Empty, string.Empty }).FirstOrDefault();
                     if (item != null)
                     {

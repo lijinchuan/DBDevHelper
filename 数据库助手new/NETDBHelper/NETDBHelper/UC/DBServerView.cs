@@ -87,6 +87,7 @@ namespace NETDBHelper
             tv_DBServers.ImageList.Images.Add("table_link", Resources.Resource1.table_link);
             tv_DBServers.ImageList.Images.Add("key_go", Resources.Resource1.key_go);
             tv_DBServers.Nodes.Add("0", "资源管理器", 0);
+            tv_DBServers.ImageList.Images.Add("database_stop", Resources.Resource1.database_stop);
             tv_DBServers.NodeMouseClick += new TreeNodeMouseClickEventHandler(tv_DBServers_NodeMouseClick);
             tv_DBServers.NodeMouseDoubleClick += Tv_DBServers_NodeMouseDoubleClick;
             tv_DBServers.HideSelection = false;
@@ -904,13 +905,18 @@ namespace NETDBHelper
 
         private string GetDBName(TreeNode node)
         {
+            return GetDB(node)?.Name;
+        }
+
+        private DBInfo GetDB(TreeNode node)
+        {
             if (node == null)
                 return null;
-            if (node.Level < 1)
-                return null;
-            if (node.Level == 2)
-                return node.Text;
-            return GetDBName(node.Parent);
+            if (node.Tag is DBInfo)
+            {
+                return node.Tag as DBInfo;
+            }
+            return GetDB(node.Parent);
         }
 
         void tv_DBServers_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
@@ -1305,26 +1311,28 @@ namespace NETDBHelper
                     {
                         this.BeginInvoke(new Action(() =>
                         {
-                            SearchResultsDlg dlg = new SearchResultsDlg();
-                            dlg.Ds = SearchAllResults.Select(p =>
+                        SearchResultsDlg dlg = new SearchResultsDlg();
+                        dlg.Ds = SearchAllResults.Select(p =>
+                        {
+                            var dbSource = GetDBSource(p);
+                            var dbName = GetDBName(p);
+                            var tbName = GetTBName(p);
+                            return new
                             {
-                                var dbSource = GetDBSource(p);
-                                var dbName = GetDBName(p);
-                                var tbName = GetTBName(p);
-                                return new
-                                {
-                                    server = dbSource.ServerName,
-                                    db = dbName,
-                                    tb = tbName,
-                                    type = GetNodeContentType(p),
-                                    text = p.Text,
-                                    obj=p
-                                };
-                            }).ToList();
-                            dlg.Choose += node =>
-                            {
-                                this.BeginInvoke(new Action(() => tv_DBServers.SelectedNode = node));
+                                server = dbSource.ServerName,
+                                db = dbName,
+                                tb = tbName,
+                                type = GetNodeContentType(p),
+                                text = p.Text,
+                                obj = p
                             };
+                        }).ToList();
+                            dlg.Choose += node => OpCtrol(() =>
+                            {
+                                tv_DBServers.SelectedNode = node;
+                                return tv_DBServers.SelectedNode == node;
+                            });
+                                
                             SearchAllResults.Clear();
                             dlg.Show();
                         }));
@@ -1341,6 +1349,7 @@ namespace NETDBHelper
                 return false;
             }
             var nodeType = GetNodeContentType(nodeStart);
+
             var find = matchall ? (nodeStart.Text.Equals(txt, StringComparison.OrdinalIgnoreCase)
                 || nodeStart.ToolTipText?.Equals(txt, StringComparison.OrdinalIgnoreCase) == true) :
                 (nodeStart.Text.IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1
@@ -1367,6 +1376,7 @@ namespace NETDBHelper
 
                 }
             }
+
             if (nodeStart.Nodes.Count > 0)
             {
                 foreach (TreeNode node in nodeStart.Nodes)
@@ -1377,7 +1387,7 @@ namespace NETDBHelper
                     }
                 }
             }
-            else
+            else if (GetDB(nodeStart) != null && GetDB(nodeStart).State == DBState.ONLINE)
             {
                 var dbSource = GetDBSource(nodeStart);
                 var exists = false;
@@ -1385,26 +1395,55 @@ namespace NETDBHelper
 
                 if (nodeType == NodeContentType.DB)
                 {
-                    exists = (Filter(NodeContentType.DB) || Filter(NodeContentType.TB) || Filter(NodeContentType.COLUMN)) && LocalDBHelper.GetAllMarkObjectInfoFromCach().Exists(p => p.Servername.Equals(dbSource.ServerName, StringComparison.OrdinalIgnoreCase) &&
-                          (matchall ? ((p.DBName ?? string.Empty).Equals(txt, StringComparison.OrdinalIgnoreCase) || (p.TBName ?? string.Empty).Equals(txt, StringComparison.OrdinalIgnoreCase) || (p.ColumnName ?? string.Empty).Equals(txt, StringComparison.OrdinalIgnoreCase) || (p.MarkInfo ?? string.Empty).Equals(txt, StringComparison.OrdinalIgnoreCase))
-                          : ((p.DBName ?? string.Empty).IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1 || (p.TBName ?? string.Empty).IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1 || (p.ColumnName ?? string.Empty).IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1 || (p.MarkInfo ?? string.Empty).IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1)));
+
+                    if (UCSearchOptions.HardSearch)
+                    {
+                        exists = SQLHelper.GetDBs(dbSource).Rows.Count > 0;
+                    }
+                    else
+                    {
+                        exists = (Filter(NodeContentType.DB) || Filter(NodeContentType.TB) || Filter(NodeContentType.COLUMN)) && LocalDBHelper.GetAllMarkObjectInfoFromCach().Exists(p => p.Servername.Equals(dbSource.ServerName, StringComparison.OrdinalIgnoreCase) &&
+                              (matchall ? ((p.DBName ?? string.Empty).Equals(txt, StringComparison.OrdinalIgnoreCase) || (p.TBName ?? string.Empty).Equals(txt, StringComparison.OrdinalIgnoreCase) || (p.ColumnName ?? string.Empty).Equals(txt, StringComparison.OrdinalIgnoreCase) || (p.MarkInfo ?? string.Empty).Equals(txt, StringComparison.OrdinalIgnoreCase))
+                              : ((p.DBName ?? string.Empty).IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1 || (p.TBName ?? string.Empty).IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1 || (p.ColumnName ?? string.Empty).IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1 || (p.MarkInfo ?? string.Empty).IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1)));
+                    }
                 }
                 else if (nodeType == NodeContentType.TBParent)
                 {
-                    exists = (Filter(NodeContentType.TB) || Filter(NodeContentType.COLUMN)) && LocalDBHelper.GetAllMarkObjectInfoFromCach().Exists(p => p.Servername.Equals(dbSource.ServerName, StringComparison.OrdinalIgnoreCase) && p.DBName.Equals(GetDBName(nodeStart), StringComparison.OrdinalIgnoreCase) &&
-                        (matchall ? ((p.TBName ?? string.Empty).Equals(txt, StringComparison.OrdinalIgnoreCase) || (p.ColumnName ?? string.Empty).Equals(txt, StringComparison.OrdinalIgnoreCase) || (p.MarkInfo ?? string.Empty).Equals(txt, StringComparison.OrdinalIgnoreCase))
-                        : ((p.TBName ?? string.Empty).IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1 || (p.ColumnName ?? string.Empty).IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1 || (p.MarkInfo ?? string.Empty).IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1)));
+                    if (UCSearchOptions.HardSearch)
+                    {
+                        exists = SQLHelper.GetTBs(dbSource, GetDBName(nodeStart)).Rows.Count > 0;
+                    }
+                    else
+                    {
+                        exists = (Filter(NodeContentType.TB) || Filter(NodeContentType.COLUMN)) && LocalDBHelper.GetAllMarkObjectInfoFromCach().Exists(p => p.Servername.Equals(dbSource.ServerName, StringComparison.OrdinalIgnoreCase) && p.DBName.Equals(GetDBName(nodeStart), StringComparison.OrdinalIgnoreCase) &&
+                            (matchall ? ((p.TBName ?? string.Empty).Equals(txt, StringComparison.OrdinalIgnoreCase) || (p.ColumnName ?? string.Empty).Equals(txt, StringComparison.OrdinalIgnoreCase) || (p.MarkInfo ?? string.Empty).Equals(txt, StringComparison.OrdinalIgnoreCase))
+                            : ((p.TBName ?? string.Empty).IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1 || (p.ColumnName ?? string.Empty).IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1 || (p.MarkInfo ?? string.Empty).IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1)));
+                    }
 
                 }
                 else if (nodeType == NodeContentType.VIEWParent)
                 {
-                    exists = Filter(NodeContentType.VIEW) && SQLHelper.GetViews(dbSource, GetDBName(nodeStart)).Any();
+                    if (UCSearchOptions.HardSearch)
+                    {
+                        exists = SQLHelper.GetViews(dbSource, GetDBName(nodeStart)).Any();
+                    }
+                    else
+                    {
+                        exists = Filter(NodeContentType.VIEW) && SQLHelper.GetViews(dbSource, GetDBName(nodeStart)).Any();
+                    }
                 }
                 else if (nodeType == NodeContentType.TB)
                 {
-                    exists = (Filter(NodeContentType.TB) || Filter(NodeContentType.COLUMN)) && LocalDBHelper.GetMarkObjectInfoFromCach(dbSource.ServerName, GetDBName(nodeStart), GetTBName(nodeStart)).Exists(p =>
-                           matchall ? ((p.ColumnName ?? string.Empty).Equals(txt, StringComparison.OrdinalIgnoreCase) || (p.MarkInfo ?? string.Empty).Equals(txt, StringComparison.OrdinalIgnoreCase))
-                           : ((p.ColumnName ?? string.Empty).IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1 || (p.MarkInfo ?? string.Empty).IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1));
+                    if (UCSearchOptions.HardSearch)
+                    {
+                        exists = SQLHelper.GetColumns(dbSource, GetDBName(nodeStart), GetTBName(nodeStart), (nodeStart.Tag as TableInfo).Schema).Any();
+                    }
+                    else
+                    {
+                        exists = (Filter(NodeContentType.TB) || Filter(NodeContentType.COLUMN)) && LocalDBHelper.GetMarkObjectInfoFromCach(dbSource.ServerName, GetDBName(nodeStart), GetTBName(nodeStart)).Exists(p =>
+                               matchall ? ((p.ColumnName ?? string.Empty).Equals(txt, StringComparison.OrdinalIgnoreCase) || (p.MarkInfo ?? string.Empty).Equals(txt, StringComparison.OrdinalIgnoreCase))
+                               : ((p.ColumnName ?? string.Empty).IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1 || (p.MarkInfo ?? string.Empty).IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1));
+                    }
                     loadAll = true;
                 }
                 else if (nodeType == NodeContentType.PROCParent)

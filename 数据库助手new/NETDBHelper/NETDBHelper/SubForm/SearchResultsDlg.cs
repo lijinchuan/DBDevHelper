@@ -12,7 +12,7 @@ namespace NETDBHelper.SubForm
 {
     public partial class SearchResultsDlg : SubBaseDlg
     {
-        public Action<TreeNode> Choose;
+        public Func<TreeNode, bool> Choose;
 
         public SearchResultsDlg()
         {
@@ -20,6 +20,8 @@ namespace NETDBHelper.SubForm
 
             DGVResult.DataBindingComplete += DGVResult_DataBindingComplete;
             DGVResult.DoubleClick += DGVResult_DoubleClick;
+
+            Text = "搜索结果";
         }
 
         private void DGVResult_DoubleClick(object sender, EventArgs e)
