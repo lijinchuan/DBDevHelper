@@ -23,6 +23,8 @@ namespace NETDBHelper
         private static MainFrm Instance = null;
         private System.Timers.Timer tasktimer = null;
 
+        private bool preFilterMessageFlag = false;
+
         private void InitFrm()
         {
             this.tsb_Excute.Enabled = false;
@@ -99,6 +101,7 @@ namespace NETDBHelper
                 mousePos = Point.Empty;
                 MouseUp -= mouseUp;
                 Cursor = Cursors.Default;
+                preFilterMessageFlag = false;
             }
 
             void mouseMouse(object s, MouseEventArgs e)
@@ -106,6 +109,7 @@ namespace NETDBHelper
                 if (panel1.Location.X - e.X < 5 && panel1.Location.X - e.X > 0 && e.Y > panel1.Location.Y)
                 {
                     this.Cursor = Cursors.SizeWE;
+                    preFilterMessageFlag = true;
                     if ((e.Button & MouseButtons.Left) == MouseButtons.Left)
                     {
                         if (mousePos == Point.Empty)
@@ -135,6 +139,7 @@ namespace NETDBHelper
                 else if ((Math.Abs(panel1.Location.X - e.X) > 10 || e.Y <= panel1.Location.Y) && (e.Button & MouseButtons.Left) == MouseButtons.None)
                 {
                     Cursor = Cursors.Default;
+                    preFilterMessageFlag = false;
                 }
             }
         }
@@ -1057,7 +1062,7 @@ namespace NETDBHelper
 
         public bool PreFilterMessage(ref Message m)
         {
-            if (m.Msg == 0x200)
+            if (preFilterMessageFlag && m.Msg == 0x200)
             {
                 //mousemove
                 var x = GetLoWord(m.LParam.ToInt32());
