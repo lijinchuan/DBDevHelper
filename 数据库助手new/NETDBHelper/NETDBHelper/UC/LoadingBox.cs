@@ -113,7 +113,7 @@ namespace NETDBHelper.UC
                     }
                     TaskThread = null;
                 }
-            }));
+            }), 10240000);
             this.TaskThread = thd;
 
             thd.Start();

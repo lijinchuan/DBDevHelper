@@ -14,6 +14,7 @@ using Biz.Common.Data;
 using LJC.FrameWorkV3.Data.EntityDataBase;
 using LJC.FrameWorkV3.LogManager;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace NETDBHelper
 {
@@ -42,6 +43,8 @@ namespace NETDBHelper
         /// </summary>
         private static string DefaultEntityNamespace = "Nonamespace";
         private UC.UCSearchOptions UCSearchOptions = new UC.UCSearchOptions();
+
+        private AutoResetEvent searchWaitEvent = new AutoResetEvent(true);
 
         public DBSourceCollection DBServers
         {
@@ -1259,6 +1262,7 @@ namespace NETDBHelper
 
         private List<TreeNode> SearchAllResults = new List<TreeNode>();
         private TreeNode SearchStartTreeNode = null;
+        private TreeNode SearchLastNode = null;
 
         private void toolStripDropDownButton1_Click(object sender, EventArgs e)
         {
@@ -1287,93 +1291,165 @@ namespace NETDBHelper
             searchingWaitingBox.Msg = "搜索中...";
             searchingWaitingBox.Waiting(this, () =>
             {
-            bool boo = false;
-            if (OpCtrol(() => tv_DBServers.SelectedNode.Nodes.Count) > 0)
-            {
-                boo = SearchNode(OpCtrol(() => tv_DBServers.SelectedNode.Nodes[0]), serchkey, matchall, true).Result;
-            }
-            else if (OpCtrol(() => tv_DBServers.SelectedNode.NextNode) != null)
-            {
-                boo = SearchNode(OpCtrol(() => tv_DBServers.SelectedNode.NextNode), serchkey, matchall, true).Result;
-            }
-            else
-            {
-                var parent = OpCtrol(() => tv_DBServers.SelectedNode.Parent);
-                var parentNext = OpCtrol(() => parent.NextNode);
-                while (parent != null && parentNext == null)
+                int boo = 0;
+                while (true)
                 {
-                    parent = parentNext;
-                }
-                if (parent != null)
-                {
-                    if (parentNext != null)
+                    var nextNode = getNextNode();
+                    if (nextNode != null)
                     {
-                        boo = SearchNode(parentNext, serchkey, matchall, true).Result;
-                    }
-                }
-            }
-
-            if (!boo)
-            {
-                    this.BeginInvoke(new Action(() =>
-                    {
-                        if (SearchStartTreeNode != null)
+                        boo = SearchNode(nextNode, serchkey, matchall, true).Result;
+                        if (boo == 1)
                         {
-                            tv_DBServers.SelectedNode = SearchStartTreeNode;
-                            SearchStartTreeNode = null;
+                            break;
+                        }
+                        else if (boo == 2)
+                        {
+                            searchWaitEvent.WaitOne();
+                        }
+                        else if (boo == 3)
+                        {
+                            //继续
                         }
                         else
                         {
-                            tv_DBServers.SelectedNode = tv_DBServers.Nodes[0];
+                            finishSearch();
+                            break;
                         }
-                    }));
-
-                    if (SearchAllResults.Any())
+                    }
+                    else
                     {
-                        this.BeginInvoke(new Action(() =>
-                        {
-                            SearchResultsDlg dlg = new SearchResultsDlg();
-                            dlg.Ds = SearchAllResults.Select(p =>
-                            {
-                                var dbSource = GetDBSource(p);
-                                var dbName = GetDBName(p);
-                                var tbName = GetTBName(p);
-                                return new
-                                {
-                                    server = dbSource.ServerName,
-                                    db = dbName,
-                                    tb = tbName,
-                                    type = GetNodeContentType(p),
-                                    text = p.Text,
-                                    obj = p
-                                };
-                            }).ToList();
-                            dlg.Choose += node => OpCtrol(() =>
-                            {
-                                tv_DBServers.SelectedNode = node;
-                                return tv_DBServers.SelectedNode == node;
-                            });
-
-                            SearchAllResults.Clear();
-                            dlg.Show();
-                        }));
+                        finishSearch();
+                        break;
                     }
                 }
+                showResult();
             });
 
+            TreeNode getNextNode()
+            {
+                return OpCtrol(() =>
+                {
+                    TreeNode node = null;
+                    var currNode = SearchLastNode;
+                    if (currNode == null)
+                    {
+                        currNode = tv_DBServers.SelectedNode;
+                    }
+                    if (currNode != null)
+                    {
+                        if (currNode.Nodes.Count > 0)
+                        {
+                            node = currNode.Nodes[0];
+                        }
+                        else if (currNode.NextNode != null)
+                        {
+                            node = currNode.NextNode;
+                        }
+
+                        if (node == null)
+                        {
+                            var parentNode = currNode.Parent;
+                            while (parentNode != null && parentNode.Level > SearchStartTreeNode.Level)
+                            {
+                                if (parentNode.NextNode != null)
+                                {
+                                    node = parentNode.NextNode;
+                                    break;
+                                }
+                                else
+                                {
+                                    parentNode = parentNode.Parent;
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+
+                    }
+                    return node;
+                });
+            }
+
+            void showResult()
+            {
+                if (SearchAllResults.Any())
+                {
+                    this.BeginInvoke(new Action(() =>
+                    {
+                        SearchResultsDlg dlg = new SearchResultsDlg();
+                        dlg.Ds = SearchAllResults.Select(p =>
+                        {
+                            var dbSource = GetDBSource(p);
+                            var dbName = GetDBName(p);
+                            var tbName = GetTBName(p);
+                            return new
+                            {
+                                server = dbSource.ServerName,
+                                db = dbName,
+                                tb = tbName,
+                                type = GetNodeContentType(p),
+                                text = p.Text,
+                                obj = p
+                            };
+                        }).ToList();
+                        dlg.Choose += node => OpCtrol(() =>
+                        {
+                            tv_DBServers.SelectedNode = node;
+                            return tv_DBServers.SelectedNode == node;
+                        });
+
+                        SearchAllResults.Clear();
+                        searchedNodes.Clear();
+                        dlg.Show();
+                    }));
+                };
+            }
+
+            void finishSearch()
+            {
+                this.BeginInvoke(new Action(() =>
+                {
+                    if (SearchStartTreeNode != null)
+                    {
+                        tv_DBServers.SelectedNode = SearchStartTreeNode;
+                        SearchStartTreeNode = null;
+                    }
+                    else
+                    {
+                        tv_DBServers.SelectedNode = tv_DBServers.Nodes[0];
+                    }
+                }));
+
+                SearchLastNode = null;
+            }
         }
 
-        private async Task<bool> SearchNode(TreeNode nodeStart, string txt, bool matchall, bool maxsearch)
+        private HashSet<TreeNode> searchedNodes = new HashSet<TreeNode>();
+
+
+        private async Task<int> SearchNode(TreeNode nodeStart, string txt, bool matchall, bool maxsearch)
         {
             if (nodeStart == null)
             {
-                return false;
+                return await Task.FromResult(0);
             }
+
+            //if (searchedNodes.Contains(nodeStart))
+            //{
+
+            //}
+            //else
+            //{
+            //    searchedNodes.Add(nodeStart);
+            //}
 
             if (!UCSearchOptions.GlobSearch && nodeStart.Level <= SearchStartTreeNode.Level)
             {
-                return false;
+                return 0;
             }
+
+            SearchLastNode = nodeStart;
 
             var nodeType = GetNodeContentType(nodeStart);
 
@@ -1388,17 +1464,13 @@ namespace NETDBHelper
                     if (UCSearchOptions.SearchComplete)
                     {
                         SearchAllResults.Add(nodeStart);
-                        this.BeginInvoke(new Action(() =>
-                        {
-                            tv_DBServers.SelectedNode = nodeStart;
-                            toolStripDropDownButton1_Click(null, null);
-                        }));
-                        return true;
+                        SearchLastNode = nodeStart;
+                        return 3;
                     }
                     else
                     {
                         this.BeginInvoke(new Action(() => tv_DBServers.SelectedNode = nodeStart));
-                        return true;
+                        return 1;
                     }
 
                 }
@@ -1408,9 +1480,10 @@ namespace NETDBHelper
             {
                 foreach (TreeNode node in nodeStart.Nodes)
                 {
-                    if (SearchNode(node, txt, matchall, false).Result)
+                    var ret = SearchNode(node, txt, matchall, true).Result;
+                    if (ret != 0)
                     {
-                        return true;
+                        return ret;
                     }
                 }
             }
@@ -1434,7 +1507,7 @@ namespace NETDBHelper
                               : ((p.DBName ?? string.Empty).IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1 || (p.TBName ?? string.Empty).IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1 || (p.ColumnName ?? string.Empty).IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1 || (p.MarkInfo ?? string.Empty).IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1)));
                     }
                 }
-                else if (nodeType == NodeContentType.TBParent)
+                else if (nodeType == NodeContentType.TBParent && (Filter(NodeContentType.TB) || Filter(NodeContentType.COLUMN) || Filter(NodeContentType.INDEX)))
                 {
                     if (UCSearchOptions.HardSearch)
                     {
@@ -1442,7 +1515,7 @@ namespace NETDBHelper
                     }
                     else
                     {
-                        exists = (Filter(NodeContentType.TB) || Filter(NodeContentType.COLUMN)) && LocalDBHelper.GetAllMarkObjectInfoFromCach().Exists(p => p.Servername.Equals(dbSource.ServerName, StringComparison.OrdinalIgnoreCase) && p.DBName.Equals(GetDBName(nodeStart), StringComparison.OrdinalIgnoreCase) &&
+                        exists = LocalDBHelper.GetAllMarkObjectInfoFromCach().Exists(p => p.Servername.Equals(dbSource.ServerName, StringComparison.OrdinalIgnoreCase) && p.DBName.Equals(GetDBName(nodeStart), StringComparison.OrdinalIgnoreCase) &&
                             (matchall ? ((p.TBName ?? string.Empty).Equals(txt, StringComparison.OrdinalIgnoreCase) || (p.ColumnName ?? string.Empty).Equals(txt, StringComparison.OrdinalIgnoreCase) || (p.MarkInfo ?? string.Empty).Equals(txt, StringComparison.OrdinalIgnoreCase))
                             : ((p.TBName ?? string.Empty).IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1 || (p.ColumnName ?? string.Empty).IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1 || (p.MarkInfo ?? string.Empty).IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1)));
                     }
@@ -1459,7 +1532,7 @@ namespace NETDBHelper
                         exists = Filter(NodeContentType.VIEW) && SQLHelper.GetViews(dbSource, GetDBName(nodeStart)).Any();
                     }
                 }
-                else if (nodeType == NodeContentType.TB)
+                else if (nodeType == NodeContentType.TB && (Filter(NodeContentType.COLUMN) || Filter(NodeContentType.INDEX)))
                 {
                     if (UCSearchOptions.HardSearch)
                     {
@@ -1502,21 +1575,27 @@ namespace NETDBHelper
 
                 if (exists)
                 {
+                    searchWaitEvent.Reset();
                     var t = ReLoadDBObj(nodeStart, loadAll, false);
                     _ = new Action(async () =>
                       {
                           await t;
-                          if (nodeStart.Nodes.Count > 0)
-                          {
-                              this.BeginInvoke(new Action(() =>
-                              {
-                                  tv_DBServers.SelectedNode = nodeStart.Nodes[0];
-                                  toolStripDropDownButton1_Click(null, null);
-                              }));
-                          }
+                          //if (nodeStart.Nodes.Count > 0)
+                          //{
+                          //    this.BeginInvoke(new Action(() =>
+                          //    {
+                          //        SearchLastNode = nodeStart.Nodes[0];
+                          //        //tv_DBServers.SelectedNode = nodeStart.Nodes[0];
+                          //        //toolStripDropDownButton1_Click(null, null);
+                          //    }));
+                          //}
+                          searchWaitEvent.Set();
                       }).BeginInvoke(null, null);
-
-                    return true;
+                    return 2;
+                }
+                else
+                {
+                    return 3;
                 }
             }
 
@@ -1540,7 +1619,7 @@ namespace NETDBHelper
                 }
             }
 
-            return false;
+            return 0;
 
             bool Filter(NodeContentType nodeContentType)
             {
