@@ -83,12 +83,14 @@ namespace NETDBHelper.UC
 
         }
 
-        public void Waiting(Control parent, Action act)
+        public void Waiting(Control parent, Action act, Action cancel = null)
         {
             if (TaskThread != null)
             {
                 return;
             }
+
+            this.beforeCancel = cancel;
             this.Location = new Point((parent.Width - this.Width) / 2, (parent.Height - this.Height) / 2);
             parent.BeginInvoke(new Action(() =>
             {

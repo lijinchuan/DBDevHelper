@@ -14,6 +14,13 @@ namespace Biz
     public static class UILoadHelper
     {
         private static DataTable SQLServersTB;
+
+        public static bool LoadedExpand
+        {
+            get;
+            set;
+        } = true;
+
         private static void LoadServer(Form parentForm, Action<DataTable> onLoadComplete)
         {
             if (onLoadComplete != null)
@@ -37,7 +44,10 @@ namespace Biz
         {
             parent.Invoke(new Action(()=>{
                 serverNode.Nodes.Add(new TreeNode("加载中...", 17, 17));
-                serverNode.Expand();
+                if (LoadedExpand)
+                {
+                    serverNode.Expand();
+                }
             }));
             return new Action<Form, TreeNode, DBSource>(LoadDBs).BeginInvoke(parent, serverNode, server, callback, @object);
         }
@@ -88,7 +98,10 @@ namespace Biz
                     logicmapnode.Tag = new NodeContents(NodeContentType.LOGICMAPParent);
                     dbNode.Nodes.Add(logicmapnode);
 
-                    serverNode.Expand();
+                    if (LoadedExpand)
+                    {
+                        serverNode.Expand();
+                    }
                 }
             }));
 
@@ -99,7 +112,10 @@ namespace Biz
             parent.Invoke(new Action(() =>
             {
                 dbNode.Nodes.Add(new TreeNode("加载中...", 17, 17));
-                dbNode.Expand();
+                if (LoadedExpand)
+                {
+                    dbNode.Expand();
+                }
             }));
             return new Action<Form, TreeNode, DBSource, string, Func<string, string>>(LoadTBs).BeginInvoke(parent, dbNode, server, dbname, gettip, callback, @object);
         }
@@ -109,7 +125,10 @@ namespace Biz
             parent.Invoke(new Action(() =>
             {
                 tbNode.Nodes.Add(new TreeNode("加载中...", 17, 17));
-                tbNode.Expand();
+                if (LoadedExpand)
+                {
+                    tbNode.Expand();
+                }
             }));
             return new Action<Form, TreeNode, DBSource, Func<TBColumn, string>>(LoadColumns).BeginInvoke(parent, tbNode, server, gettip, null, null);
         }
@@ -178,7 +197,10 @@ namespace Biz
                 var triggernode = new TreeNode("触发器", 1, 1);
                 triggernode.Tag = new NodeContents(NodeContentType.TRIGGERPARENT);
                 tbNode.Nodes.Add(triggernode);
-                tbNode.Expand();
+                if (LoadedExpand)
+                {
+                    tbNode.Expand();
+                }
             }));
 
         }
@@ -247,7 +269,10 @@ namespace Biz
             {
                 serverNode.Nodes.Clear();
                 serverNode.Nodes.AddRange(treeNodes.ToArray());
-                serverNode.Expand();
+                if (LoadedExpand)
+                {
+                    serverNode.Expand();
+                }
             }));
         }
 
@@ -298,7 +323,7 @@ namespace Biz
                 treeNodes.Add(newNode);
             }
 
-            parent.Invoke(new Action(() => { tbNode.Nodes.Clear(); tbNode.Nodes.AddRange(treeNodes.ToArray()); tbNode.Expand(); }));
+            parent.Invoke(new Action(() => { tbNode.Nodes.Clear(); tbNode.Nodes.AddRange(treeNodes.ToArray()); if (LoadedExpand) tbNode.Expand(); }));
         }
 
         public static IAsyncResult LoadProcedureAnsy(Form parent, TreeNode procedureNode, DBSource server,Func<string,string> gettip)
@@ -306,7 +331,10 @@ namespace Biz
             parent.Invoke(new Action(() =>
             {
                 procedureNode.Nodes.Add(new TreeNode("加载中...", 17, 17));
-                procedureNode.Expand();
+                if (LoadedExpand)
+                {
+                    procedureNode.Expand();
+                }
             }));
             return new Action<Form, TreeNode, DBSource,Func<string,string>>(LoadProcedure).BeginInvoke(parent, procedureNode, server, gettip,null, null);
         }
@@ -316,7 +344,10 @@ namespace Biz
             parent.Invoke(new Action(() =>
             {
                 functionNode.Nodes.Add(new TreeNode("加载中...", 17, 17));
-                functionNode.Expand();
+                if (LoadedExpand)
+                {
+                    functionNode.Expand();
+                }
             }));
             return new Action<Form, TreeNode, DBSource, Func<string, string>>(LoadFunctions).BeginInvoke(parent, functionNode, server, gettip, null, null);
         }
@@ -383,7 +414,7 @@ namespace Biz
                 treeNodes.Add(newNode);
             }
 
-            parent.Invoke(new Action(() => { tbNode.Nodes.Clear(); tbNode.Nodes.AddRange(treeNodes.ToArray()); tbNode.Expand(); }));
+            parent.Invoke(new Action(() => { tbNode.Nodes.Clear(); tbNode.Nodes.AddRange(treeNodes.ToArray());if(LoadedExpand) tbNode.Expand(); }));
         }
 
         public static IAsyncResult LoadIndexAnsy(Form parent, TreeNode tbNode, DBSource server, string dbname)
@@ -391,7 +422,10 @@ namespace Biz
             parent.Invoke(new Action(() =>
             {
                 tbNode.Nodes.Add(new TreeNode("加载中...", 17, 17));
-                tbNode.Expand();
+                if (LoadedExpand)
+                {
+                    tbNode.Expand();
+                }
             }));
             return new Action<Form, TreeNode, DBSource, string>(LoadIndexs).BeginInvoke(parent, tbNode, server, dbname, null, null);
         }
@@ -444,7 +478,7 @@ namespace Biz
                 treeNodes.Add(newNode);
             }
 
-            parent.Invoke(new Action(() => { tbNode.Nodes.Clear(); tbNode.Nodes.AddRange(treeNodes.ToArray()); tbNode.Expand(); }));
+            parent.Invoke(new Action(() => { tbNode.Nodes.Clear(); tbNode.Nodes.AddRange(treeNodes.ToArray());if(LoadedExpand) tbNode.Expand(); }));
         }
 
         public static IAsyncResult LoadTriggersAnsy(Form parent, TreeNode tbNode, DBSource server, string dbname)
@@ -452,7 +486,10 @@ namespace Biz
             parent.Invoke(new Action(() =>
             {
                 tbNode.Nodes.Add(new TreeNode("加载中...", 17, 17));
-                tbNode.Expand();
+                if (LoadedExpand)
+                {
+                    tbNode.Expand();
+                }
             }));
             return new Action<Form, TreeNode, DBSource, string>(LoadTriggers).BeginInvoke(parent, tbNode, server, dbname, null, null);
         }
@@ -485,7 +522,7 @@ namespace Biz
                 treeNodes.Add(newNode);
             }
 
-            parent.Invoke(new Action(() => { tbNode.Nodes.Clear(); tbNode.Nodes.AddRange(treeNodes.ToArray()); tbNode.Expand(); }));
+            parent.Invoke(new Action(() => { tbNode.Nodes.Clear(); tbNode.Nodes.AddRange(treeNodes.ToArray());if(LoadedExpand) tbNode.Expand(); }));
         }
 
         public static IAsyncResult LoadViewsAnsy(Form parent, TreeNode tbNode, DBSource server, Func<ViewInfo, string> getviewtip, Func<ViewColumn, string> gettip)
@@ -493,7 +530,10 @@ namespace Biz
             parent.Invoke(new Action(() =>
             {
                 tbNode.Nodes.Add(new TreeNode("加载中...", 17, 17));
-                tbNode.Expand();
+                if (LoadedExpand)
+                {
+                    tbNode.Expand();
+                }
             }));
             return new Action<Form, TreeNode, DBSource, Func<ViewInfo, string>, Func<ViewColumn, string>>(LoadViews).BeginInvoke(parent, tbNode, server,getviewtip,gettip, null, null);
         }
@@ -539,7 +579,7 @@ namespace Biz
                 treeNodes.Add(newNode);
             }
 
-            parent.Invoke(new Action(() => { tbNode.Nodes.Clear(); tbNode.Nodes.AddRange(treeNodes.ToArray()); tbNode.Expand(); }));
+            parent.Invoke(new Action(() => { tbNode.Nodes.Clear(); tbNode.Nodes.AddRange(treeNodes.ToArray());if(LoadedExpand) tbNode.Expand(); }));
         }
 
         public static IAsyncResult LoadLogicMapsAnsy(Form parent, TreeNode tbNode, string dbname)
@@ -547,7 +587,10 @@ namespace Biz
             parent.Invoke(new Action(() =>
             {
                 tbNode.Nodes.Add(new TreeNode("加载中...", 17, 17));
-                tbNode.Expand();
+                if (LoadedExpand)
+                {
+                    tbNode.Expand();
+                }
             }));
             return new Action<Form, TreeNode, string>(LoadLogicMaps).BeginInvoke(parent, tbNode, dbname, null, null);
         }
@@ -571,7 +614,7 @@ namespace Biz
                 treeNodes.Add(newNode);
             }
 
-            parent.Invoke(new Action(() => { tbNode.Nodes.Clear(); tbNode.Nodes.AddRange(treeNodes.ToArray()); tbNode.Expand(); }));
+            parent.Invoke(new Action(() => { tbNode.Nodes.Clear(); tbNode.Nodes.AddRange(treeNodes.ToArray());if(LoadedExpand) tbNode.Expand(); }));
 
         }
     }

@@ -15,6 +15,7 @@ using LJC.FrameWorkV3.Data.EntityDataBase;
 using LJC.FrameWorkV3.LogManager;
 using System.Threading.Tasks;
 using System.Threading;
+using Biz;
 
 namespace NETDBHelper
 {
@@ -1289,6 +1290,8 @@ namespace NETDBHelper
             }
 
             searchingWaitingBox.Msg = "搜索中...";
+            var oldLoadedExpand = UILoadHelper.LoadedExpand;
+            UILoadHelper.LoadedExpand = false;
             searchingWaitingBox.Waiting(this, () =>
             {
                 int boo = 0;
@@ -1300,6 +1303,7 @@ namespace NETDBHelper
                         boo = SearchNode(nextNode, serchkey, matchall, true).Result;
                         if (boo == 1)
                         {
+                            UILoadHelper.LoadedExpand = oldLoadedExpand;
                             break;
                         }
                         else if (boo == 2)
@@ -1323,7 +1327,7 @@ namespace NETDBHelper
                     }
                 }
                 showResult();
-            });
+            },()=> { UILoadHelper.LoadedExpand = oldLoadedExpand; });
 
             TreeNode getNextNode()
             {
@@ -1408,6 +1412,7 @@ namespace NETDBHelper
 
             void finishSearch()
             {
+                UILoadHelper.LoadedExpand = oldLoadedExpand;
                 this.BeginInvoke(new Action(() =>
                 {
                     if (SearchStartTreeNode != null)
