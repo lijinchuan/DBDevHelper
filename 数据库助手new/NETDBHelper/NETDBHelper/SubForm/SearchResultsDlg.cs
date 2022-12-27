@@ -21,7 +21,24 @@ namespace NETDBHelper.SubForm
             DGVResult.DataBindingComplete += DGVResult_DataBindingComplete;
             DGVResult.DoubleClick += DGVResult_DoubleClick;
 
+            CBDB.SelectedIndexChanged += CBDB_SelectedIndexChanged;
+
             Text = "搜索结果";
+        }
+
+        private void CBDB_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            var selectedDB = CBDB.SelectedItem;
+            var list = new List<object>();
+            foreach (var item in (dynamic)Ds)
+            {
+                if (item.db == selectedDB || selectedDB.Equals(string.Empty))
+                {
+                    list.Add(item);
+                }
+            }
+
+            DGVResult.DataSource = list;
         }
 
         private void DGVResult_DoubleClick(object sender, EventArgs e)
@@ -52,7 +69,7 @@ namespace NETDBHelper.SubForm
             DGVResult.BorderStyle = System.Windows.Forms.BorderStyle.None;
 
             DGVResult.GridColor = Color.LightBlue;
-            DGVResult.Dock = DockStyle.Fill;
+            //DGVResult.Dock = DockStyle.Fill;
             DGVResult.BackgroundColor = Color.White;
             DGVResult.AllowUserToAddRows = false;
             DGVResult.ReadOnly = true;
@@ -74,6 +91,25 @@ namespace NETDBHelper.SubForm
             };
 
             DGVResult.DataSource = Ds;
+
+            var dbs = new HashSet<object>();
+            dbs.Add(string.Empty);
+            foreach (DataGridViewRow row in DGVResult.Rows)
+            {
+                var val = row.Cells["db"].Value;
+                if (!dbs.Contains(val))
+                {
+                    dbs.Add(val);
+                }
+            }
+            if (dbs.Any())
+            {
+                CBDB.Items.AddRange(dbs.ToArray());
+            }
+            else
+            {
+                CBDB.Items.Clear();
+            }
         }
     }
 }
