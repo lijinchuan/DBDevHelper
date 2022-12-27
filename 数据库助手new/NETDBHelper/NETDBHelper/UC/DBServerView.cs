@@ -925,6 +925,10 @@ namespace NETDBHelper
 
         void tv_DBServers_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
+            if (SearchLastNode != null)
+            {
+                SearchLastNode = e.Node;
+            }
             //throw new NotImplementedException();
             if (GetNodeContentType(e.Node) == NodeContentType.TBParent)
             {
