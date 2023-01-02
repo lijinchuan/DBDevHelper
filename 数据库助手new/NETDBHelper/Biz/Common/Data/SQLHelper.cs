@@ -1146,49 +1146,7 @@ where a.Table_NAME='" + viewname + "' and a.TABLE_NAME=b.TABLE_NAME ORDER BY A.T
                         }
                         else
                         {
-                            if (column.TypeName.IndexOf("int", StringComparison.OrdinalIgnoreCase) > -1
-                                || column.TypeName.IndexOf("decimal", StringComparison.OrdinalIgnoreCase) > -1
-                                || column.TypeName.IndexOf("float", StringComparison.OrdinalIgnoreCase) > -1
-                                //|| column.TypeName.Equals("bit", StringComparison.OrdinalIgnoreCase)
-                                || column.TypeName.Equals("real", StringComparison.OrdinalIgnoreCase)
-                                || column.TypeName.IndexOf("money", StringComparison.OrdinalIgnoreCase) > -1
-                            )
-                            {
-                                sb1.AppendFormat("{0},", data);
-                            }
-                            else if (column.TypeName.Equals("timestamp", StringComparison.OrdinalIgnoreCase)
-                                || column.TypeName.Equals("binary", StringComparison.OrdinalIgnoreCase)
-                                || column.TypeName.Equals("varbinary", StringComparison.OrdinalIgnoreCase))
-                            {
-                                sb1.AppendFormat("cast(N'' as xml).value('xs:base64Binary(\"{0}\")','varbinary({1})'),", data, column.Length == -1 ? "MAX" : column.Length.ToString());
-                            }
-                            else if (column.TypeName.Equals("image", StringComparison.OrdinalIgnoreCase))
-                            {
-                                sb1.AppendFormat("cast(N'' as xml).value('xs:base64Binary(\"{0}\")','varbinary(max)'),", Convert.ToBase64String((byte[])data));
-                            }
-                            else if (column.TypeName.Equals("uniqueidentifier", StringComparison.OrdinalIgnoreCase))
-                            {
-                                sb1.AppendFormat("'{0}',", data);
-                            }
-                            else if (column.TypeName.Equals("bit", StringComparison.OrdinalIgnoreCase))
-                            {
-                                sb1.AppendFormat("{0},", (bool)data ? 1 : 0);
-                            }
-                            else if (column.TypeName.Equals("datetime", StringComparison.OrdinalIgnoreCase)
-                                || column.TypeName.Equals("date", StringComparison.OrdinalIgnoreCase)
-                                || column.TypeName.Equals("smalldatetime", StringComparison.OrdinalIgnoreCase)
-                                || column.TypeName.Equals("datetime2", StringComparison.OrdinalIgnoreCase))
-                            {
-                                sb1.AppendFormat("'{0}',", ((DateTime)data).ToString("yyyy-MM-dd HH:mm:ss"));
-                            }
-                            else if (column.TypeName.Equals("sql_variant", StringComparison.OrdinalIgnoreCase))
-                            {
-                                sb1.AppendFormat("'{0}',", data);
-                            }
-                            else
-                            {
-                                sb1.Append(string.Concat("'", string.IsNullOrEmpty((string)data) ? string.Empty : data.ToString().Replace("'", "''"), "',"));
-                            }
+                            sb1.Append(string.Concat("'", string.IsNullOrEmpty((string)data) ? string.Empty : data.ToString().Replace("'", "''"), "',"));
                         }
                     }
 
