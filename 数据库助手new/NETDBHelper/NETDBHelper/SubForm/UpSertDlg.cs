@@ -1,8 +1,10 @@
 ﻿using Entity;
+using LJC.FrameWork.LogManager;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Data.SqlClient;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -34,13 +36,14 @@ namespace NETDBHelper.SubForm
 
             var cols = Biz.Common.Data.SQLHelper.GetColumns(_source, _table.DBName, _table.TBName, _table.Schema).ToList();
 
-            int preoffsetx = 20, offsetx = 20, preoffsety = 10, offsety = 10;
+            int preoffsetx = 20, offsetx = 20, preoffsety = 10, offsety = 10, maxHigh = 0;
             foreach (var column in cols)
             {
                 Label lb = new Label();
+                lb.AutoSize = true;
                 lb.Location = new Point(preoffsetx, preoffsety);
-                lb.Text = column.Name + ": ";
-                GBValues.Controls.Add(lb);
+                lb.Text = column.Name + $"({column.TypeName}): ";
+                ItemsPannel.Controls.Add(lb);
 
                 Control valControl = null;
 
@@ -103,29 +106,133 @@ namespace NETDBHelper.SubForm
                     {
                         tb.Multiline = true;
                         tb.Width = GBValues.Width - 20 - lb.Width;
-                        tb.Height = 30;
+                        tb.Height = 50;
                     }
                     valControl = tb;
                 }
+                valControl.Location = new Point(preoffsetx, preoffsety);
 
                 preoffsetx += valControl.Width;
-                if (preoffsetx > GBValues.Width)
+                if (preoffsetx > ItemsPannel.Width)
                 {
                     offsetx = 20;
-                    offsety += lb.Height;
+                    offsety += maxHigh + 10;
                     lb.Location = new Point(offsetx, offsety);
                     offsetx += lb.Width;
                     valControl.Location = new Point(offsetx, offsety);
-
+                    offsetx += valControl.Width;
                     preoffsetx = offsetx;
                     preoffsety = offsety;
+
+                    maxHigh = 0;
                 }
                 else
                 {
                     offsetx = preoffsetx;
                 }
+
+                ItemsPannel.Controls.Add(valControl);
+
+                if (valControl.Height > maxHigh)
+                {
+                    maxHigh = valControl.Height;
+                }
+                if(!(valControl is Label))
+                {
+                    valControl.Tag = column;
+                }
             }
 
+        }
+
+        private void BtnCancel_Click(object sender, EventArgs e)
+        {
+            DialogResult = DialogResult.Cancel;
+        }
+
+        private void BtnOk_Click(object sender, EventArgs e)
+        {
+            var hasError = false;
+            List<string> cols = new List<string>();
+            foreach (Control ctl in ItemsPannel.Controls)
+            {
+                if(ctl.Tag is TBColumn)
+                {
+                    var column = (TBColumn)ctl.Tag;
+
+                    if (column.IsKey)
+                    {
+                        continue;
+                    }
+
+                    if (string.IsNullOrWhiteSpace(ctl.Text) && !column.IsNullAble)
+                    {
+                        ctl.BackColor = Color.Yellow;
+                        hasError = true;
+                    }
+                    else if (column.TypeName.IndexOf("nvarchar", StringComparison.OrdinalIgnoreCase) > -1
+                   || column.TypeName.IndexOf("varchar", StringComparison.OrdinalIgnoreCase) > -1
+                   || column.TypeName.IndexOf("char", StringComparison.OrdinalIgnoreCase) > -1)
+                    {
+                        if(column.Length!=-1&& ctl.Text.Length > column.Length)
+                        {
+                            ctl.BackColor = Color.Pink;
+                            hasError = true;
+                        }
+                    }
+                    else
+                    {
+                        ctl.BackColor = Color.White;
+                    }
+
+                    cols.Add(column.Name);
+                }
+            }
+            if (hasError)
+            {
+                return;
+            }
+
+            try
+            {
+                var sql = $"select top 0 {string.Join(",", cols.Select(p => $"[{p}]"))} from [{_table.DBName}].[{_table.Schema}].[{_table.TBName}] with(nolock)";
+
+                var tb = Biz.Common.Data.SQLHelper.ExecuteDBTable(_source, _table.DBName, sql);
+
+                StringBuilder sb = new StringBuilder($"insert into [{_table.DBName}].[{_table.Schema}].[{_table.TBName}](");
+                
+                List<SqlParameter> @params = new List<SqlParameter>();
+                foreach (Control ctl in ItemsPannel.Controls)
+                {
+                    if (!(ctl.Tag is TBColumn))
+                    {
+                        continue;
+                    }
+                    var column = (TBColumn)ctl.Tag;
+                    if (column.IsKey)
+                    {
+                        continue;
+                    }
+
+                    var valtype = tb.Columns[column.Name].DataType;
+                    var val = Biz.Common.Data.DataHelper.ConvertDBType(ctl.Text, valtype);
+                    @params.Add(new SqlParameter
+                    {
+                        ParameterName = $"@{column.Name}",
+                        Value = val
+                    });
+                }
+                sb.AppendFormat("{0}", string.Join(",", cols.Select(p => $"[{p}]")));
+                sb.Append(")");
+                sb.AppendFormat(" values({0})", string.Join(",", cols.Select(p => $"@{p}")));
+
+                Biz.Common.Data.SQLHelper.ExecuteNoQuery(_source, _table.DBName, sb.ToString(), @params.ToArray());
+            }
+            catch (Exception ex)
+            {
+                LogHelper.Instance.Error(ex.Message, ex);
+                MessageBox.Show("失败:" + ex.Message);
+            }
         }
     }
 }

@@ -261,6 +261,12 @@
     <Compile Include="SubForm\TextBoxWin.Designer.cs">
       <DependentUpon>TextBoxWin.cs</DependentUpon>
     </Compile>
+    <Compile Include="SubForm\UpSertDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SubForm\UpSertDlg.Designer.cs">
+      <DependentUpon>UpSertDlg.cs</DependentUpon>
+    </Compile>
     <Compile Include="SubForm\WatchTaskList.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -523,6 +529,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="SubForm\TextBoxWin.resx">
       <DependentUpon>TextBoxWin.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SubForm\UpSertDlg.resx">
+      <DependentUpon>UpSertDlg.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="SubForm\WatchTaskList.resx">
       <DependentUpon>WatchTaskList.cs</DependentUpon>

@@ -30,18 +30,30 @@ namespace NETDBHelper.SubForm
         private void InitializeComponent()
         {
             this.GBValues = new System.Windows.Forms.GroupBox();
+            this.ItemsPannel = new System.Windows.Forms.Panel();
             this.BtnCancel = new System.Windows.Forms.Button();
             this.BtnOk = new System.Windows.Forms.Button();
+            this.GBValues.SuspendLayout();
             this.SuspendLayout();
             // 
             // GBValues
             // 
+            this.GBValues.Controls.Add(this.ItemsPannel);
             this.GBValues.Location = new System.Drawing.Point(12, 12);
             this.GBValues.Name = "GBValues";
             this.GBValues.Size = new System.Drawing.Size(776, 397);
             this.GBValues.TabIndex = 0;
             this.GBValues.TabStop = false;
             this.GBValues.Text = "编辑值";
+            // 
+            // ItemsPannel
+            // 
+            this.ItemsPannel.AutoScroll = true;
+            this.ItemsPannel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.ItemsPannel.Location = new System.Drawing.Point(3, 17);
+            this.ItemsPannel.Name = "ItemsPannel";
+            this.ItemsPannel.Size = new System.Drawing.Size(770, 377);
+            this.ItemsPannel.TabIndex = 0;
             // 
             // BtnCancel
             // 
@@ -51,6 +63,7 @@ namespace NETDBHelper.SubForm
             this.BtnCancel.TabIndex = 1;
             this.BtnCancel.Text = "放弃";
             this.BtnCancel.UseVisualStyleBackColor = true;
+            this.BtnCancel.Click += new System.EventHandler(this.BtnCancel_Click);
             // 
             // BtnOk
             // 
@@ -60,6 +73,7 @@ namespace NETDBHelper.SubForm
             this.BtnOk.TabIndex = 2;
             this.BtnOk.Text = "确定";
             this.BtnOk.UseVisualStyleBackColor = true;
+            this.BtnOk.Click += new System.EventHandler(this.BtnOk_Click);
             // 
             // UpSertDlg
             // 
@@ -71,6 +85,7 @@ namespace NETDBHelper.SubForm
             this.Controls.Add(this.GBValues);
             this.Name = "UpSertDlg";
             this.Text = "UpSertDlg";
+            this.GBValues.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -80,5 +95,6 @@ namespace NETDBHelper.SubForm
         private System.Windows.Forms.GroupBox GBValues;
         private System.Windows.Forms.Button BtnCancel;
         private System.Windows.Forms.Button BtnOk;
+        private System.Windows.Forms.Panel ItemsPannel;
     }
 }

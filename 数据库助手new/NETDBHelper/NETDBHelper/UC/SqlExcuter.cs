@@ -129,9 +129,44 @@ namespace NETDBHelper.UC
             datastrip.Items.Add("表重命名");
             datastrip.Items.Add("导出表格数据");
             datastrip.Items.Add("导出全部表格数据");
+            datastrip.Items.Add(new ToolStripSeparator());
+            datastrip.Items.Add("新增数据");
+            datastrip.Items.Add("修改数据");
+            datastrip.Items.Add("删除数据");
             datastrip.ItemClicked += Datastrip_ItemClicked;
+            datastrip.VisibleChanged += Datastrip_VisibleChanged;
 
             CanAdjust();
+        }
+
+        private void Datastrip_VisibleChanged(object sender, EventArgs e)
+        {
+            if (datastrip.Visible)
+            {
+                var items = FindItems(new[] { "新增数据", "修改数据", "删除数据" });
+                var visible = false;
+                if (sender is DataGridView)
+                {
+                    var gv = sender as DataGridView;
+                    visible = gv.Tag is TableInfo;
+                }
+
+                foreach (var item in items)
+                {
+                    item.Visible = visible;
+                }
+            }
+
+            IEnumerable<ToolStripItem> FindItems(string[] texts)
+            {
+                foreach(ToolStripItem item in datastrip.Items)
+                {
+                    if (texts.Contains(item.Text))
+                    {
+                        yield return item;
+                    }
+                }
+            }
         }
 
         private void Datastrip_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
@@ -174,22 +209,41 @@ namespace NETDBHelper.UC
             }
             else if (e.ClickedItem.Text == "统计条数")
             {
-                foreach (var ctl in tabControl1.SelectedTab.Controls)
+                var view = FindDgv();
+                if (view != null)
                 {
-                    if (ctl is DataGridView)
-                    {
-                        var view = (DataGridView)ctl;
-                        this.datastrip.Visible = false;
-                        Util.SendMsg(this, "记录数:" + view.RowCount + "条");
-                        //MessageBox.Show("记录数:" + view.RowCount + "条");
-                    }
+                    this.datastrip.Visible = false;
+                    Util.SendMsg(this, "记录数:" + view.RowCount + "条");
                 }
             }
             else if (e.ClickedItem.Text == "锁定这一列")
             {
                 LockColumn();
             }
+            else if (e.ClickedItem.Text == "新增数据")
+            {
+                var view = FindDgv();
+                if (view != null && view.Tag is TableInfo)
+                {
+                    var tbinfo = view.Tag as TableInfo;
 
+                    var dlg = new SubForm.UpSertDlg(Server, tbinfo);
+                    dlg.ShowDialog();
+                }
+            }
+
+            DataGridView FindDgv()
+            {
+                foreach (var ctl in tabControl1.SelectedTab.Controls)
+                {
+                    if (ctl is DataGridView)
+                    {
+                        var view = (DataGridView)ctl;
+                        return view;
+                    }
+                }
+                return null;
+            }
         }
 
         private void Stop(object o)
@@ -294,9 +348,15 @@ namespace NETDBHelper.UC
                                 var m = regex.Match(seltext);
                                 if (m.Success)
                                 {
-                                    canEdit = true;
                                     targetTable = m.Groups[1].Value;
                                     tb.TableName = targetTable;
+
+                                    var tbinfo = SQLHelper.GetTB(Server, DB, tb.TableName);
+                                    if (tbinfo != null)
+                                    {
+                                        dgv.Tag = tbinfo;
+                                        canEdit = true;
+                                    }
                                 }
                             }
 
@@ -1100,6 +1160,11 @@ namespace NETDBHelper.UC
             datastrip.Items.Add("表重命名");
             datastrip.Items.Add("导出表格数据");
             datastrip.Items.Add("导出全部表格数据");
+            datastrip.Items.Add(new ToolStripSeparator());
+            datastrip.Items.Add("新增数据");
+            datastrip.Items.Add("修改数据");
+            datastrip.Items.Add("删除数据");
+            datastrip.VisibleChanged += Datastrip_VisibleChanged;
             datastrip.ItemClicked += Datastrip_ItemClicked;
 
             CanAdjust();
