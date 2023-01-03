@@ -17,17 +17,32 @@ namespace NETDBHelper.SubForm
     {
         private DBSource _source;
         private TableInfo _table;
+        private DataGridViewRow _oldRow;
         public UpSertDlg()
         {
             InitializeComponent();
         }
 
-        public UpSertDlg(DBSource source,TableInfo tableInfo)
+        public UpSertDlg(DBSource source, TableInfo tableInfo, DataGridViewRow updateRow = null)
         {
             InitializeComponent();
 
             _source = source;
             _table = tableInfo;
+            _oldRow = updateRow;
+        }
+
+        private object getUpdateValue(string field)
+        {
+            if (_oldRow == null)
+            {
+                return null;
+            }
+            if (_oldRow.DataGridView.Columns.Contains(field))
+            {
+                return _oldRow.Cells[field].Value;
+            }
+            return null;
         }
 
         protected override void OnLoad(EventArgs e)
@@ -49,6 +64,8 @@ namespace NETDBHelper.SubForm
 
                 preoffsetx += lb.Width;
 
+                var fileVal = getUpdateValue(column.Name);
+
                 if (column.TypeName.IndexOf("int", StringComparison.OrdinalIgnoreCase) > -1
                             || column.TypeName.IndexOf("decimal", StringComparison.OrdinalIgnoreCase) > -1
                             || column.TypeName.IndexOf("float", StringComparison.OrdinalIgnoreCase) > -1
@@ -60,7 +77,7 @@ namespace NETDBHelper.SubForm
                     var tb = new TextBox();
                     if (column.IsID)
                     {
-                        tb.Text = "0";
+                        tb.Text = fileVal == null? "0": fileVal.ToString();
                         tb.ReadOnly = true;
                     }
                     valControl = tb;
@@ -76,12 +93,20 @@ namespace NETDBHelper.SubForm
                 else if (column.TypeName.Equals("uniqueidentifier", StringComparison.OrdinalIgnoreCase))
                 {
                     valControl = new TextBox();
+                    if (fileVal != null)
+                    {
+                        valControl.Text = fileVal.ToString();
+                    }
                 }
                 else if (column.TypeName.Equals("bit", StringComparison.OrdinalIgnoreCase))
                 {
                     var cb = new ComboBox();
                     cb.Items.AddRange(new object[] { true, false });
                     valControl = cb;
+                    if (fileVal != null)
+                    {
+                        cb.SelectedItem = fileVal;
+                    }
                 }
                 else if (column.TypeName.Equals("datetime", StringComparison.OrdinalIgnoreCase)
                     || column.TypeName.Equals("date", StringComparison.OrdinalIgnoreCase)
@@ -90,6 +115,10 @@ namespace NETDBHelper.SubForm
                 {
                     DateTimePicker picker = new DateTimePicker();
                     valControl = picker;
+                    if (fileVal != null)
+                    {
+                        picker.Value = (DateTime)fileVal;
+                    }
                 }
                 else if (column.TypeName.Equals("sql_variant", StringComparison.OrdinalIgnoreCase))
                 {
@@ -107,6 +136,10 @@ namespace NETDBHelper.SubForm
                         tb.Multiline = true;
                         tb.Width = GBValues.Width - 20 - lb.Width;
                         tb.Height = 50;
+                    }
+                    if (fileVal != null)
+                    {
+                        tb.Text = fileVal.ToString();
                     }
                     valControl = tb;
                 }
@@ -143,6 +176,7 @@ namespace NETDBHelper.SubForm
                 }
             }
 
+            
         }
 
         private void BtnCancel_Click(object sender, EventArgs e)
@@ -150,13 +184,12 @@ namespace NETDBHelper.SubForm
             DialogResult = DialogResult.Cancel;
         }
 
-        private void BtnOk_Click(object sender, EventArgs e)
+        private bool CheckHasError(ref List<string> cols)
         {
             var hasError = false;
-            List<string> cols = new List<string>();
             foreach (Control ctl in ItemsPannel.Controls)
             {
-                if(ctl.Tag is TBColumn)
+                if (ctl.Tag is TBColumn)
                 {
                     var column = (TBColumn)ctl.Tag;
 
@@ -174,7 +207,7 @@ namespace NETDBHelper.SubForm
                    || column.TypeName.IndexOf("varchar", StringComparison.OrdinalIgnoreCase) > -1
                    || column.TypeName.IndexOf("char", StringComparison.OrdinalIgnoreCase) > -1)
                     {
-                        if(column.Length!=-1&& ctl.Text.Length > column.Length)
+                        if (column.Length != -1 && ctl.Text.Length > column.Length)
                         {
                             ctl.BackColor = Color.Pink;
                             hasError = true;
@@ -188,7 +221,93 @@ namespace NETDBHelper.SubForm
                     cols.Add(column.Name);
                 }
             }
-            if (hasError)
+            return hasError;
+        }
+
+        private void UpdateItem()
+        {
+            List<string> cols = new List<string>();
+            if (CheckHasError(ref cols))
+            {
+                return;
+            }
+
+            try
+            {
+                var sql = $"select top 0 {string.Join(",", cols.Select(p => $"[{p}]"))} from [{_table.DBName}].[{_table.Schema}].[{_table.TBName}] with(nolock)";
+
+                var tb = Biz.Common.Data.SQLHelper.ExecuteDBTable(_source, _table.DBName, sql);
+
+                StringBuilder sb = new StringBuilder($"update [{_table.DBName}].[{_table.Schema}].[{_table.TBName}] set ");
+                List<string> updateCols = new List<string>();
+                List<string> conditionCols = new List<string>();
+                List<SqlParameter> @params = new List<SqlParameter>();
+                foreach (Control ctl in ItemsPannel.Controls)
+                {
+                    if (!(ctl.Tag is TBColumn))
+                    {
+                        continue;
+                    }
+                    var column = (TBColumn)ctl.Tag;
+                    if (column.IsID)
+                    {
+                        conditionCols.Add(column.Name);
+                        @params.Add(new SqlParameter
+                        {
+                            ParameterName = $"@{column.Name}",
+                            Value = getUpdateValue(column.Name)
+                        });
+                        continue;
+                    }
+
+                    var valtype = tb.Columns[column.Name].DataType;
+                    var val = Biz.Common.Data.DataHelper.ConvertDBType(ctl.Text, valtype);
+
+                    if (val != getUpdateValue(column.Name))
+                    {
+                        updateCols.Add(column.Name);
+                        @params.Add(new SqlParameter
+                        {
+                            ParameterName = $"@{column.Name}",
+                            Value = val
+                        });
+                    }
+
+                    if (column.IsKey)
+                    {
+                        conditionCols.Add(column.Name);
+                        @params.Add(new SqlParameter
+                        {
+                            ParameterName = $"@{column.Name}",
+                            Value = getUpdateValue(column.Name)
+                        });
+                    }
+                }
+
+                if (conditionCols.Count() == 0)
+                {
+                    throw new Exception("无唯一ID或者KEY可以用来更新数据");
+                }
+
+                sb.AppendFormat("{0}", string.Join(",", updateCols.Select(p => $"[{p}]=@{p}")));
+
+                sb.AppendFormat(" where {0}", string.Join(" and ", conditionCols.Select(p => $"[{p}]=@{p}")));
+
+                Biz.Common.Data.SQLHelper.ExecuteNoQuery(_source, _table.DBName, sb.ToString(), @params.ToArray());
+
+                MessageBox.Show("更新成功");
+            }
+            catch (Exception ex)
+            {
+                LogHelper.Instance.Error(ex.Message, ex);
+                MessageBox.Show("失败:" + ex.Message);
+            }
+        }
+
+        private void NewAdd()
+        {
+            List<string> cols = new List<string>();
+            if (CheckHasError(ref cols))
             {
                 return;
             }
@@ -200,7 +319,7 @@ namespace NETDBHelper.SubForm
                 var tb = Biz.Common.Data.SQLHelper.ExecuteDBTable(_source, _table.DBName, sql);
 
                 StringBuilder sb = new StringBuilder($"insert into [{_table.DBName}].[{_table.Schema}].[{_table.TBName}](");
-                
+
                 List<SqlParameter> @params = new List<SqlParameter>();
                 foreach (Control ctl in ItemsPannel.Controls)
                 {
@@ -227,11 +346,25 @@ namespace NETDBHelper.SubForm
                 sb.AppendFormat(" values({0})", string.Join(",", cols.Select(p => $"@{p}")));
 
                 Biz.Common.Data.SQLHelper.ExecuteNoQuery(_source, _table.DBName, sb.ToString(), @params.ToArray());
+
+                MessageBox.Show("新增成功");
             }
             catch (Exception ex)
             {
                 LogHelper.Instance.Error(ex.Message, ex);
                 MessageBox.Show("失败:" + ex.Message);
+            }
+        }
+
+        private void BtnOk_Click(object sender, EventArgs e)
+        {
+            if (_oldRow == null)
+            {
+                NewAdd();
+            }
+            else
+            {
+                UpdateItem();
             }
         }
     }

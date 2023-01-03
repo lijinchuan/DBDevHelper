@@ -145,15 +145,21 @@ namespace NETDBHelper.UC
             {
                 var items = FindItems(new[] { "新增数据", "修改数据", "删除数据" });
                 var visible = false;
+                var editble = false;
                 if (sender is DataGridView)
                 {
                     var gv = sender as DataGridView;
+                    editble = gv.CurrentRow != null;
                     visible = gv.Tag is TableInfo;
                 }
 
                 foreach (var item in items)
                 {
                     item.Visible = visible;
+                }
+                foreach(var item in items.Skip(1))
+                {
+                    item.Visible = editble;
                 }
             }
 
@@ -228,6 +234,17 @@ namespace NETDBHelper.UC
                     var tbinfo = view.Tag as TableInfo;
 
                     var dlg = new SubForm.UpSertDlg(Server, tbinfo);
+                    dlg.ShowDialog();
+                }
+            }
+            else if (e.ClickedItem.Text == "修改数据")
+            {
+                var view = FindDgv();
+                if (view != null && view.Tag is TableInfo && view.CurrentRow != null)
+                {
+                    var tbinfo = view.Tag as TableInfo;
+
+                    var dlg = new SubForm.UpSertDlg(Server, tbinfo, view.CurrentRow);
                     dlg.ShowDialog();
                 }
             }
