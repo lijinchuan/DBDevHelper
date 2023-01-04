@@ -160,6 +160,18 @@ namespace NETDBHelper.SubForm
                     || column.TypeName.Equals("datetime2", StringComparison.OrdinalIgnoreCase))
                 {
                     DateTimePicker picker = new DateTimePicker();
+
+                    if (column.TypeName.Equals("datetime", StringComparison.OrdinalIgnoreCase)
+                        || column.TypeName.Equals("datetime2", StringComparison.OrdinalIgnoreCase))
+                    {
+                        picker.Format = DateTimePickerFormat.Custom;
+                        picker.CustomFormat = "yyyy-MM-dd HH:mm:ss";
+                    }
+                    else if (column.TypeName.Equals("smalldatetime", StringComparison.OrdinalIgnoreCase))
+                    {
+                        picker.Format = DateTimePickerFormat.Short;
+                    }
+
                     valControl = picker;
                     if (editVal != null)
                     {
@@ -306,8 +318,19 @@ namespace NETDBHelper.SubForm
                         continue;
                     }
 
+
                     var valtype = tb.Columns[column.Name].DataType;
-                    var val = (ctl.Text == string.Empty && column.IsNullAble) ? null : DataHelper.ConvertDBType(ctl.Text, valtype);
+                    object val = null;
+                    if (ctl is DateTimePicker)
+                    {
+                        var picker = ctl as DateTimePicker;
+                        val = picker.Value;
+                        
+                    }
+                    else
+                    {
+                        val = (ctl.Text == string.Empty && column.IsNullAble) ? null : DataHelper.ConvertDBType(ctl.Text, valtype);
+                    }
 
                     if (!Equals(val, getUpdateValue(column.Name)))
                     {
@@ -317,6 +340,20 @@ namespace NETDBHelper.SubForm
                             ParameterName = $"@{column.Name}",
                             Value = val
                         });
+                        
+                        
+                        if(ctl is DateTimePicker)
+                        {
+                            
+                        }
+                        else
+                        {
+                            ctl.BackColor = Color.LightGreen;
+                        }
+                    }
+                    else
+                    {
+                        ctl.BackColor = Color.White;
                     }
 
                     if (column.IsKey)
@@ -338,6 +375,11 @@ namespace NETDBHelper.SubForm
                 if (!updateCols.Any())
                 {
                     throw new Exception("数据没有修改");
+                }
+
+                if (MessageBox.Show("确认修改吗?", "询问", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
+                {
+                    return;
                 }
 
                 sb.AppendFormat("{0}", string.Join(",", updateCols.Select(p => $"[{p}]=@{p}")));
@@ -419,12 +461,26 @@ namespace NETDBHelper.SubForm
                     }
 
                     var valtype = tb.Columns[column.Name].DataType;
-                    var val = (ctl.Text == string.Empty && column.IsNullAble) ? null : DataHelper.ConvertDBType(ctl.Text, valtype);
-                    @params.Add(new SqlParameter
+                    if (ctl is DateTimePicker)
                     {
-                        ParameterName = $"@{column.Name}",
-                        Value = val
-                    });
+                        var picker = ctl as DateTimePicker;
+                        
+                        var val = picker.Value;
+                        @params.Add(new SqlParameter
+                        {
+                            ParameterName = $"@{column.Name}",
+                            Value = val
+                        });
+                    }
+                    else
+                    {
+                        var val = (ctl.Text == string.Empty && column.IsNullAble) ? null : DataHelper.ConvertDBType(ctl.Text, valtype);
+                        @params.Add(new SqlParameter
+                        {
+                            ParameterName = $"@{column.Name}",
+                            Value = val
+                        });
+                    }
                 }
                 sb.AppendFormat("{0}", string.Join(",", cols.Select(p => $"[{p}]")));
                 sb.Append(")");
