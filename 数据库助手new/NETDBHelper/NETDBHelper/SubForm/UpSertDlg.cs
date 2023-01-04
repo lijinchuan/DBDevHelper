@@ -61,7 +61,12 @@ namespace NETDBHelper.SubForm
             }
             if (_editRow.DataGridView.Columns.Contains(field))
             {
-                return _editRow.Cells[field].Value;
+                var obj = _editRow.Cells[field].Value;
+                if (Equals(obj, DBNull.Value))
+                {
+                    return null;
+                }
+                return obj;
             }
             return null;
         }
