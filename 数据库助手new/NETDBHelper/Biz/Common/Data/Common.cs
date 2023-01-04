@@ -8,6 +8,11 @@ namespace Biz.Common.Data
 {
     public static class Common
     {
+        /// <summary>
+        /// 空值的显示文字
+        /// </summary>
+        public const string NullDisplayValue = "<<NULL>>";
+
         public static IEnumerable<KeyValuePair<int, string>> GetSQLServerType()
         {
             int val = 1;

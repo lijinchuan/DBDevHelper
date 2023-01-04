@@ -307,7 +307,7 @@ namespace NETDBHelper.SubForm
                     }
 
                     var valtype = tb.Columns[column.Name].DataType;
-                    var val = Biz.Common.Data.DataHelper.ConvertDBType(ctl.Text, valtype);
+                    var val = (ctl.Text == string.Empty && column.IsNullAble) ? null : DataHelper.ConvertDBType(ctl.Text, valtype);
 
                     if (!Equals(val, getUpdateValue(column.Name)))
                     {
@@ -419,7 +419,7 @@ namespace NETDBHelper.SubForm
                     }
 
                     var valtype = tb.Columns[column.Name].DataType;
-                    var val = Biz.Common.Data.DataHelper.ConvertDBType(ctl.Text, valtype);
+                    var val = (ctl.Text == string.Empty && column.IsNullAble) ? null : DataHelper.ConvertDBType(ctl.Text, valtype);
                     @params.Add(new SqlParameter
                     {
                         ParameterName = $"@{column.Name}",

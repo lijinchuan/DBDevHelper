@@ -442,7 +442,23 @@ namespace NETDBHelper.UC
                             page.ImageIndex = 0;
 
                             var dgv = new DataGridView();
+                            Util.DoubleBuffered(dgv, true);
                             dgv.Cursor = Cursors.Default;
+                            dgv.CellFormatting += (s, e) =>
+                            {
+                                var cell = dgv.Rows[e.RowIndex].Cells[e.ColumnIndex];
+                                if (cell != dgv.CurrentCell || !cell.IsInEditMode)
+                                {
+                                    if (e.Value == DBNull.Value)
+                                    {
+                                        //var font = e.CellStyle.Font;
+                                        //e.CellStyle.Font = new Font(font.FontFamily, font.Size, FontStyle.Italic);
+
+                                        e.Value = Common.NullDisplayValue;
+                                        e.FormattingApplied = true;
+                                    }
+                                }
+                            };
                             dgv.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.DisplayedCells;
                             dgv.AllowUserToResizeRows = true;
                             page.Controls.Add(dgv);
@@ -489,6 +505,11 @@ namespace NETDBHelper.UC
                                             cell.ReadOnly = false;
                                             dgv.ReadOnly = false;
                                             dgv.BeginEdit(true);
+
+                                            if (cell.Value.Equals(Common.NullDisplayValue))
+                                            {
+                                                cell.Value = DBNull.Value;
+                                            }
                                         }
                                     }
                                 };
@@ -1068,7 +1089,7 @@ namespace NETDBHelper.UC
                         sb.Remove(sb.Length - 1, 1);
                         sb.AppendLine();
                     }
-                    new SubForm.TextBoxWin("查看文本", sb.ToString().Trim('\t')).ShowDialog();
+                    new SubForm.TextBoxWin("查看文本", sb.ToString().Trim('\t').Replace("\n", Environment.NewLine)).ShowDialog();
                     break;
                 }
             }

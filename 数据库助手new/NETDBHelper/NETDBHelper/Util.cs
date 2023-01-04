@@ -8,10 +8,11 @@ using System.Runtime.InteropServices;
 using NETDBHelper.SubForm;
 using System.Runtime.CompilerServices;
 using Entity;
+using System.Reflection;
 
 namespace NETDBHelper
 {
-    public class Util
+    public static class Util
     {
         private static Dictionary<int, PopMessageDlg> PopDlgDic = new Dictionary<int, PopMessageDlg>();
 
@@ -192,6 +193,15 @@ namespace NETDBHelper
         public static string NameTempTable()
         {
             return "$" + Guid.NewGuid().ToString("N");
+        }
+
+        //使用扩展方法
+        public static void DoubleBuffered(this DataGridView dgv, bool setting)
+        {
+            Type dgvType = dgv.GetType();
+            PropertyInfo pi = dgvType.GetProperty("DoubleBuffered",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            pi.SetValue(dgv, setting, null);
         }
     }
 }
