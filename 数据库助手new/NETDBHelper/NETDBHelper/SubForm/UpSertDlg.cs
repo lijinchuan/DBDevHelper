@@ -2,6 +2,7 @@
 using Entity;
 using LJC.FrameWork.LogManager;
 using LJC.FrameWorkV3.Data.EntityDataBase;
+using NETDBHelper.UC;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -53,45 +54,12 @@ namespace NETDBHelper.SubForm
             }
         }
 
-        private object getUpdateValue(string field)
+        private void SetControls(bool reset=false)
         {
-            if (_editRow == null)
+            if (reset)
             {
-                return null;
+                ItemsPannel.Controls.Clear();
             }
-            if (_editRow.DataGridView.Columns.Contains(field))
-            {
-                var obj = _editRow.Cells[field].Value;
-                if (Equals(obj, DBNull.Value))
-                {
-                    return null;
-                }
-                return obj;
-            }
-            return null;
-        }
-
-        private object getCopyValue(string field)
-        {
-            if (_copyRow == null)
-            {
-                return null;
-            }
-            if (_copyRow.DataGridView.Columns.Contains(field))
-            {
-                var obj = _copyRow.Cells[field].Value;
-                if (Equals(obj, DBNull.Value))
-                {
-                    return null;
-                }
-                return obj;
-            }
-            return null;
-        }
-
-        protected override void OnLoad(EventArgs e)
-        {
-            base.OnLoad(e);
 
             var cols = Biz.Common.Data.SQLHelper.GetColumns(_source, _table.DBName, _table.TBName, _table.Schema).ToList();
 
@@ -110,7 +78,7 @@ namespace NETDBHelper.SubForm
 
                 var copyVal = (column.IsKey || column.IsID) ? null : getCopyValue(column.Name);
                 var editVal = getUpdateValue(column.Name) ?? copyVal;
-                
+
 
                 if (column.TypeName.IndexOf("int", StringComparison.OrdinalIgnoreCase) > -1
                             || column.TypeName.IndexOf("decimal", StringComparison.OrdinalIgnoreCase) > -1
@@ -121,7 +89,7 @@ namespace NETDBHelper.SubForm
                         )
                 {
                     var tb = new TextBox();
-                    tb.Text = editVal == null ? "0" : editVal.ToString();
+                    tb.Text = editVal == null && column.IsNullAble ? "" : (editVal ?? 0).ToString();
                     if (column.IsID)
                     {
                         tb.ReadOnly = true;
@@ -159,7 +127,7 @@ namespace NETDBHelper.SubForm
                     || column.TypeName.Equals("smalldatetime", StringComparison.OrdinalIgnoreCase)
                     || column.TypeName.Equals("datetime2", StringComparison.OrdinalIgnoreCase))
                 {
-                    DateTimePicker picker = new DateTimePicker();
+                    UCDateTime picker = new UCDateTime();
 
                     if (column.TypeName.Equals("datetime", StringComparison.OrdinalIgnoreCase)
                         || column.TypeName.Equals("datetime2", StringComparison.OrdinalIgnoreCase))
@@ -228,12 +196,55 @@ namespace NETDBHelper.SubForm
                 {
                     maxHigh = valControl.Height;
                 }
-                if(!(valControl is Label))
+                if (!(valControl is Label))
                 {
                     valControl.Tag = column;
                 }
             }
+        }
 
+        private object getUpdateValue(string field)
+        {
+            if (_editRow == null)
+            {
+                return null;
+            }
+            if (_editRow.DataGridView.Columns.Contains(field))
+            {
+                var obj = _editRow.Cells[field].Value;
+                if (Equals(obj, DBNull.Value))
+                {
+                    return null;
+                }
+                return obj;
+            }
+            return null;
+        }
+
+        private object getCopyValue(string field)
+        {
+            if (_copyRow == null)
+            {
+                return null;
+            }
+            if (_copyRow.DataGridView.Columns.Contains(field))
+            {
+                var obj = _copyRow.Cells[field].Value;
+                if (Equals(obj, DBNull.Value))
+                {
+                    return null;
+                }
+                return obj;
+            }
+            return null;
+        }
+
+        protected override void OnLoad(EventArgs e)
+        {
+            base.OnLoad(e);
+
+
+            SetControls();
             
         }
 
@@ -321,9 +332,9 @@ namespace NETDBHelper.SubForm
 
                     var valtype = tb.Columns[column.Name].DataType;
                     object val = null;
-                    if (ctl is DateTimePicker)
+                    if (ctl is UCDateTime)
                     {
-                        var picker = ctl as DateTimePicker;
+                        var picker = ctl as UCDateTime;
                         val = picker.Value;
                         
                     }
@@ -340,16 +351,8 @@ namespace NETDBHelper.SubForm
                             ParameterName = $"@{column.Name}",
                             Value = val
                         });
-                        
-                        
-                        if(ctl is DateTimePicker)
-                        {
-                            
-                        }
-                        else
-                        {
-                            ctl.BackColor = Color.LightGreen;
-                        }
+
+                        ctl.BackColor = Color.LightGreen;
                     }
                     else
                     {
@@ -461,9 +464,9 @@ namespace NETDBHelper.SubForm
                     }
 
                     var valtype = tb.Columns[column.Name].DataType;
-                    if (ctl is DateTimePicker)
+                    if (ctl is UCDateTime)
                     {
-                        var picker = ctl as DateTimePicker;
+                        var picker = ctl as UCDateTime;
                         
                         var val = picker.Value;
                         @params.Add(new SqlParameter
@@ -507,6 +510,15 @@ namespace NETDBHelper.SubForm
             {
                 UpdateItem();
             }
+        }
+
+        private void BtnReset_Click(object sender, EventArgs e)
+        {
+            if (MessageBox.Show("重置吗?", "询问", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
+            {
+                return;
+            }
+            SetControls(true);
         }
     }
 }

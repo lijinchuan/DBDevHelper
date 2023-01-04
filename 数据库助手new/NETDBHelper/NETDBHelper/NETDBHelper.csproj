@@ -408,6 +408,12 @@
     <Compile Include="UC\UCCreateCodeCallSP.Designer.cs">
       <DependentUpon>UCCreateCodeCallSP.cs</DependentUpon>
     </Compile>
+    <Compile Include="UC\UCDateTime.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="UC\UCDateTime.Designer.cs">
+      <DependentUpon>UCDateTime.cs</DependentUpon>
+    </Compile>
     <Compile Include="UC\UCLogicMap.cs">
       <SubType>Component</SubType>
     </Compile>

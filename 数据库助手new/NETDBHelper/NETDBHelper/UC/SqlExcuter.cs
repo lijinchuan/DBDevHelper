@@ -593,7 +593,7 @@ namespace NETDBHelper.UC
         private void Dgv_CellBeginEdit(object sender, DataGridViewCellCancelEventArgs e)
         {
             var dgv = sender as DataGridView;
-            dgv.Tag = new KeyValuePair<DataGridViewCellCancelEventArgs, object>(e, dgv[e.ColumnIndex, e.RowIndex].Value);
+            dgv.Tag = new Tuple<DataGridViewCellCancelEventArgs, object, object>(e, dgv[e.ColumnIndex, e.RowIndex].Value, dgv.Tag is TableInfo ? dgv.Tag : null);
         }
 
         private void Dgv_CellEndEdit(object sender, DataGridViewCellEventArgs e)
@@ -608,20 +608,22 @@ namespace NETDBHelper.UC
                 var updateColName = gv.Columns[e.ColumnIndex].Name;
                 var newVal = gv[e.ColumnIndex, e.RowIndex].Value;
                 object oldVal = null;
+                object oldTag = null;
                 if (gv.Tag == null)
                 {
                     errorMsg = "没有记录到旧值";
                 }
                 else
                 {
-                    var tagVal = (KeyValuePair<DataGridViewCellCancelEventArgs, object>)gv.Tag;
-                    if (tagVal.Key.RowIndex != e.RowIndex || tagVal.Key.ColumnIndex != e.ColumnIndex)
+                    var tagVal = (Tuple<DataGridViewCellCancelEventArgs, object,object>)gv.Tag;
+                    oldTag = tagVal.Item3;
+                    if (tagVal.Item1.RowIndex != e.RowIndex || tagVal.Item1.ColumnIndex != e.ColumnIndex)
                     {
                         errorMsg = "没有记录到旧的值";
                     }
                     else
                     {
-                        oldVal = tagVal.Value;
+                        oldVal = tagVal.Item2;
                         if (object.Equals(oldVal, newVal))
                         {
                             errorMsg = "值没有修改";
@@ -629,7 +631,7 @@ namespace NETDBHelper.UC
                     }
                 }
 
-                gv.Tag = null;
+                gv.Tag = oldTag;
 
                 if (!string.IsNullOrEmpty(errorMsg))
                 {

@@ -33,6 +33,7 @@ namespace NETDBHelper.SubForm
             this.ItemsPannel = new System.Windows.Forms.Panel();
             this.BtnCancel = new System.Windows.Forms.Button();
             this.BtnOk = new System.Windows.Forms.Button();
+            this.BtnReset = new System.Windows.Forms.Button();
             this.GBValues.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -75,11 +76,22 @@ namespace NETDBHelper.SubForm
             this.BtnOk.UseVisualStyleBackColor = true;
             this.BtnOk.Click += new System.EventHandler(this.BtnOk_Click);
             // 
+            // BtnReset
+            // 
+            this.BtnReset.Location = new System.Drawing.Point(569, 420);
+            this.BtnReset.Name = "BtnReset";
+            this.BtnReset.Size = new System.Drawing.Size(75, 23);
+            this.BtnReset.TabIndex = 3;
+            this.BtnReset.Text = "重置";
+            this.BtnReset.UseVisualStyleBackColor = true;
+            this.BtnReset.Click += new System.EventHandler(this.BtnReset_Click);
+            // 
             // UpSertDlg
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.BtnReset);
             this.Controls.Add(this.BtnOk);
             this.Controls.Add(this.BtnCancel);
             this.Controls.Add(this.GBValues);
@@ -96,5 +108,6 @@ namespace NETDBHelper.SubForm
         private System.Windows.Forms.Button BtnCancel;
         private System.Windows.Forms.Button BtnOk;
         private System.Windows.Forms.Panel ItemsPannel;
+        private System.Windows.Forms.Button BtnReset;
     }
 }
