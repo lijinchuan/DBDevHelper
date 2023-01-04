@@ -1,5 +1,7 @@
-﻿using Entity;
+﻿using Biz.Common.Data;
+using Entity;
 using LJC.FrameWork.LogManager;
+using LJC.FrameWorkV3.Data.EntityDataBase;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -17,30 +19,62 @@ namespace NETDBHelper.SubForm
     {
         private DBSource _source;
         private TableInfo _table;
-        private DataGridViewRow _oldRow;
+        private DataGridViewRow _editRow;
+        private DataGridViewRow _copyRow;
+        
         public UpSertDlg()
         {
             InitializeComponent();
         }
 
-        public UpSertDlg(DBSource source, TableInfo tableInfo, DataGridViewRow updateRow = null)
+        public UpSertDlg(DBSource source, TableInfo tableInfo, DataGridViewRow updateRow = null, DataGridViewRow copyRow = null)
         {
             InitializeComponent();
 
             _source = source;
             _table = tableInfo;
-            _oldRow = updateRow;
+            _editRow = updateRow;
+            if (updateRow == null)
+            {
+                _copyRow = copyRow;
+            }
+
+            if (_editRow != null)
+            {
+                Text = "编辑数据";
+            }
+            else if (_copyRow != null)
+            {
+                Text = "复制新增数据";
+            }
+            else
+            {
+                Text = "新增数据";
+            }
         }
 
         private object getUpdateValue(string field)
         {
-            if (_oldRow == null)
+            if (_editRow == null)
             {
                 return null;
             }
-            if (_oldRow.DataGridView.Columns.Contains(field))
+            if (_editRow.DataGridView.Columns.Contains(field))
             {
-                return _oldRow.Cells[field].Value;
+                return _editRow.Cells[field].Value;
+            }
+            return null;
+        }
+
+        private object getCopyValue(string field)
+        {
+            if (_copyRow == null)
+            {
+                return null;
+            }
+            if (_copyRow.DataGridView.Columns.Contains(field))
+            {
+                return _copyRow.Cells[field].Value;
             }
             return null;
         }
@@ -64,7 +98,9 @@ namespace NETDBHelper.SubForm
 
                 preoffsetx += lb.Width;
 
-                var fileVal = getUpdateValue(column.Name);
+                var copyVal = (column.IsKey || column.IsID) ? null : getCopyValue(column.Name);
+                var editVal = getUpdateValue(column.Name) ?? copyVal;
+                
 
                 if (column.TypeName.IndexOf("int", StringComparison.OrdinalIgnoreCase) > -1
                             || column.TypeName.IndexOf("decimal", StringComparison.OrdinalIgnoreCase) > -1
@@ -75,9 +111,9 @@ namespace NETDBHelper.SubForm
                         )
                 {
                     var tb = new TextBox();
+                    tb.Text = editVal == null ? "0" : editVal.ToString();
                     if (column.IsID)
                     {
-                        tb.Text = fileVal == null? "0": fileVal.ToString();
                         tb.ReadOnly = true;
                     }
                     valControl = tb;
@@ -93,9 +129,9 @@ namespace NETDBHelper.SubForm
                 else if (column.TypeName.Equals("uniqueidentifier", StringComparison.OrdinalIgnoreCase))
                 {
                     valControl = new TextBox();
-                    if (fileVal != null)
+                    if (editVal != null)
                     {
-                        valControl.Text = fileVal.ToString();
+                        valControl.Text = editVal.ToString();
                     }
                 }
                 else if (column.TypeName.Equals("bit", StringComparison.OrdinalIgnoreCase))
@@ -103,9 +139,9 @@ namespace NETDBHelper.SubForm
                     var cb = new ComboBox();
                     cb.Items.AddRange(new object[] { true, false });
                     valControl = cb;
-                    if (fileVal != null)
+                    if (editVal != null)
                     {
-                        cb.SelectedItem = fileVal;
+                        cb.SelectedItem = editVal;
                     }
                 }
                 else if (column.TypeName.Equals("datetime", StringComparison.OrdinalIgnoreCase)
@@ -115,9 +151,9 @@ namespace NETDBHelper.SubForm
                 {
                     DateTimePicker picker = new DateTimePicker();
                     valControl = picker;
-                    if (fileVal != null)
+                    if (editVal != null)
                     {
-                        picker.Value = (DateTime)fileVal;
+                        picker.Value = (DateTime)editVal;
                     }
                 }
                 else if (column.TypeName.Equals("sql_variant", StringComparison.OrdinalIgnoreCase))
@@ -137,9 +173,9 @@ namespace NETDBHelper.SubForm
                         tb.Width = GBValues.Width - 20 - lb.Width;
                         tb.Height = 50;
                     }
-                    if (fileVal != null)
+                    if (editVal != null)
                     {
-                        tb.Text = fileVal.ToString();
+                        tb.Text = editVal.ToString();
                     }
                     valControl = tb;
                 }
@@ -263,7 +299,7 @@ namespace NETDBHelper.SubForm
                     var valtype = tb.Columns[column.Name].DataType;
                     var val = Biz.Common.Data.DataHelper.ConvertDBType(ctl.Text, valtype);
 
-                    if (val != getUpdateValue(column.Name))
+                    if (!Equals(val, getUpdateValue(column.Name)))
                     {
                         updateCols.Add(column.Name);
                         @params.Add(new SqlParameter
@@ -284,17 +320,56 @@ namespace NETDBHelper.SubForm
                     }
                 }
 
-                if (conditionCols.Count() == 0)
+                if (!conditionCols.Any())
                 {
                     throw new Exception("无唯一ID或者KEY可以用来更新数据");
+                }
+
+                if (!updateCols.Any())
+                {
+                    throw new Exception("数据没有修改");
                 }
 
                 sb.AppendFormat("{0}", string.Join(",", updateCols.Select(p => $"[{p}]=@{p}")));
 
                 sb.AppendFormat(" where {0}", string.Join(" and ", conditionCols.Select(p => $"[{p}]=@{p}")));
 
-                Biz.Common.Data.SQLHelper.ExecuteNoQuery(_source, _table.DBName, sb.ToString(), @params.ToArray());
+                //记录日志
+                //备份
+                var sqlquery = $"select * from [{_table.DBName}].[{_table.Schema}].[{_table.TBName}] where {string.Join(" and ", conditionCols.Select(p => "[" + p + "]=@" + p))}";
 
+                var datatable = SQLHelper.ExecuteDBTable(_source, _table.DBName, sqlquery, @params.Where(p => conditionCols.Contains(p.ParameterName.TrimStart('@'))).Select(p => new SqlParameter(p.ParameterName, p.Value)).ToArray());
+                if (datatable.Rows.Count != 1)
+                {
+                    MessageBox.Show("修改失败，不能备份数据");
+                    return;
+                }
+
+                Dictionary<string, object> oldValue = new Dictionary<string, object>();
+                foreach (DataColumn col in datatable.Columns)
+                {
+                    oldValue.Add(col.ColumnName, datatable.Rows[0][col]);
+                }
+
+                Dictionary<string, object> upValue = new Dictionary<string, object>();
+                foreach(var pa in @params)
+                {
+                    upValue.Add(pa.ParameterName.TrimStart('@'), pa.Value);
+                }
+
+                LogHelper.Instance.Info($"预修改，前值为:" + Newtonsoft.Json.JsonConvert.SerializeObject(oldValue) + "，修改值为:" + Newtonsoft.Json.JsonConvert.SerializeObject(upValue));
+
+                Biz.Common.Data.SQLHelper.ExecuteNoQuery(_source, _table.DBName, sb.ToString(), @params.ToArray());
+                BigEntityTableRemotingEngine.Insert<HLogEntity>("HLog", new HLogEntity
+                {
+                    TypeName = "table",
+                    LogTime = DateTime.Now,
+                    LogType = LogTypeEnum.db,
+                    DB = _table.DBName,
+                    Sever = _source.ServerName,
+                    Info = $"修改，前值为:" + Newtonsoft.Json.JsonConvert.SerializeObject(oldValue) + "，修改值为:" + Newtonsoft.Json.JsonConvert.SerializeObject(upValue),
+                    Valid = true
+                });
                 MessageBox.Show("更新成功");
             }
             catch (Exception ex)
@@ -358,7 +433,7 @@ namespace NETDBHelper.SubForm
 
         private void BtnOk_Click(object sender, EventArgs e)
         {
-            if (_oldRow == null)
+            if (_editRow == null)
             {
                 NewAdd();
             }

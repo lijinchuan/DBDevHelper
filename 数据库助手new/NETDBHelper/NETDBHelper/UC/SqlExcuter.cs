@@ -17,6 +17,7 @@ using Biz.Common.Data;
 using LJC.FrameWorkV3.Data.EntityDataBase;
 using System.Text.RegularExpressions;
 using System.Data.SqlClient;
+using LJC.FrameWork.LogManager;
 
 namespace NETDBHelper.UC
 {
@@ -131,6 +132,7 @@ namespace NETDBHelper.UC
             datastrip.Items.Add("导出全部表格数据");
             datastrip.Items.Add(new ToolStripSeparator());
             datastrip.Items.Add("新增数据");
+            datastrip.Items.Add("复制数据");
             datastrip.Items.Add("修改数据");
             datastrip.Items.Add("删除数据");
             datastrip.ItemClicked += Datastrip_ItemClicked;
@@ -143,7 +145,7 @@ namespace NETDBHelper.UC
         {
             if (datastrip.Visible)
             {
-                var items = FindItems(new[] { "新增数据", "修改数据", "删除数据" });
+                var items = FindItems(new[] { "新增数据", "复制数据", "修改数据", "删除数据" });
                 var visible = false;
                 var editble = false;
                 if (sender is DataGridView)
@@ -177,6 +179,8 @@ namespace NETDBHelper.UC
 
         private void Datastrip_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
         {
+            (sender as ContextMenuStrip).Visible = false;
+
             if (e.ClickedItem.Text == "导出表格数据")
             {
                 Export();
@@ -237,6 +241,17 @@ namespace NETDBHelper.UC
                     dlg.ShowDialog();
                 }
             }
+            else if (e.ClickedItem.Text == "复制数据")
+            {
+                var view = FindDgv();
+                if (view != null && view.Tag is TableInfo&& view.CurrentRow != null)
+                {
+                    var tbinfo = view.Tag as TableInfo;
+
+                    var dlg = new SubForm.UpSertDlg(Server, tbinfo, copyRow: view.CurrentRow);
+                    dlg.ShowDialog();
+                }
+            }
             else if (e.ClickedItem.Text == "修改数据")
             {
                 var view = FindDgv();
@@ -246,6 +261,81 @@ namespace NETDBHelper.UC
 
                     var dlg = new SubForm.UpSertDlg(Server, tbinfo, view.CurrentRow);
                     dlg.ShowDialog();
+                }
+            }
+            else if (e.ClickedItem.Text == "删除数据")
+            {
+                var view = FindDgv();
+                if (view != null && view.Tag is TableInfo && view.CurrentRow != null)
+                {
+                    var currentRow = view.CurrentRow;
+                    var tbinfo = view.Tag as TableInfo;
+
+                    var cols = SQLHelper.GetColumns(Server, tbinfo.DBName, tbinfo.TBName, tbinfo.Schema);
+                    List<SqlParameter> @params = new List<SqlParameter>();
+                    var sb = new StringBuilder($"delete [{tbinfo.DBName}].[{tbinfo.Schema}].[{tbinfo.TBName}] where ");
+                    foreach(var col in cols)
+                    {
+                        if (col.IsKey || col.IsID)
+                        {
+                            if (!currentRow.DataGridView.Columns.Contains(col.Name))
+                            {
+                                Util.SendMsg(this, $"删除失败,不包含条件字段:{col.Name}");
+                                return;
+                            }
+                            @params.Add(new SqlParameter
+                            {
+                                ParameterName = $"@{col.Name}",
+                                Value = currentRow.Cells[col.Name].Value
+                            });       
+                        }
+                    }
+                    if (!@params.Any())
+                    {
+                        Util.SendMsg(this, "删除失败,需要主键字段");
+                    }
+                    else
+                    {
+                        if (MessageBox.Show("是否要删除?", "提示", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.No)
+                        {
+                            Util.SendMsg(this, "取消删除");
+                            return;
+                        }
+
+                        //删除前备份
+                        var sqlquery = $"select * from [{tbinfo.DBName}].[{tbinfo.Schema}].[{tbinfo.TBName}] where {string.Join(" and ", @params.Select(p => p.ParameterName.TrimStart('@') + "=" + p.ParameterName))}";
+
+                        var datatable = SQLHelper.ExecuteDBTable(Server, tbinfo.DBName, sqlquery, @params.Select(p => new SqlParameter(p.ParameterName, p.Value)).ToArray());
+                        if (datatable.Rows.Count != 1)
+                        {
+                            Util.SendMsg(this, "删除失败，不能备份数据");
+                            return;
+                        }
+
+                        sb.Append($"{string.Join(" and ", @params.Select(p => p.ParameterName.TrimStart('@') + "=" + p.ParameterName))}");
+                        Dictionary<string, object> delValue = new Dictionary<string, object>();
+                        foreach (DataColumn col in datatable.Columns)
+                        {
+                            delValue.Add(col.ColumnName, datatable.Rows[0][col]);
+                        }
+                        LogHelper.Instance.Info("准备删除数据:" + Newtonsoft.Json.JsonConvert.SerializeObject(delValue));
+
+                        if (SQLHelper.ExecuteNoQuery(Server, tbinfo.DBName, sb.ToString(), @params.ToArray()) > 0)
+                        {
+                            BigEntityTableRemotingEngine.Insert<HLogEntity>("HLog", new HLogEntity
+                            {
+                                TypeName = "table",
+                                LogTime = DateTime.Now,
+                                LogType = LogTypeEnum.db,
+                                DB = tbinfo.DBName,
+                                Sever = Server.ServerName,
+                                Info = $"删除:" + Newtonsoft.Json.JsonConvert.SerializeObject(delValue),
+                                Valid = true
+                            });
+
+                            Util.SendMsg(this, "删除成功");
+                        }
+                    }
                 }
             }
 
@@ -1179,6 +1269,7 @@ namespace NETDBHelper.UC
             datastrip.Items.Add("导出全部表格数据");
             datastrip.Items.Add(new ToolStripSeparator());
             datastrip.Items.Add("新增数据");
+            datastrip.Items.Add("复制数据");
             datastrip.Items.Add("修改数据");
             datastrip.Items.Add("删除数据");
             datastrip.VisibleChanged += Datastrip_VisibleChanged;
