@@ -12,31 +12,28 @@ using System.Windows.Forms.VisualStyles;
 
 namespace NETDBHelper.UC
 {
-    public partial class UCDateTime: DateTimePicker
+    public class UCDateTime: DateTimePicker
     {
-        private Color _backDisabledColor;
 
         public UCDateTime() : base()
         {
-            this.SetStyle(ControlStyles.UserPaint, true);
-            _backDisabledColor = Color.FromKnownColor(KnownColor.Control);
-
             base.ValueChanged += UCDateTime_ValueChanged;
         }
+
 
         private void UCDateTime_ValueChanged(object sender, EventArgs e)
         {
             this._val = base.Value;
         }
 
+        private Color _backColor = Color.White;
         /// <summary>
         ///     Gets or sets the background color of the control
         /// </summary>
-        [Browsable(true)]
         public override Color BackColor
         {
-            get { return base.BackColor; }
-            set { base.BackColor = value; }
+            get { return _backColor; }
+            set { _backColor = value; Invalidate(); }
         }
 
         private DateTime? _val = null;
@@ -60,55 +57,79 @@ namespace NETDBHelper.UC
             }
         }
 
-        /// <summary>
-        ///     Gets or sets the background color of the control when disabled
-        /// </summary>
-        [Category("Appearance"), Description("The background color of the component when disabled")]
-        [Browsable(true)]
-        public Color BackDisabledColor
+
+
+        [DllImport("user32.dll", EntryPoint = "SendMessageA")]
+        private static extern int SendMessage(IntPtr hwnd, int wMsg, IntPtr wParam, object lParam);
+
+
+        [DllImport("user32")]
+        private static extern IntPtr GetWindowDC(IntPtr hWnd);
+
+
+        [DllImport("user32")]
+        private static extern int ReleaseDC(IntPtr hWnd, IntPtr hDC);
+        const int WM_ERASEBKGND = 0x14;
+        const int WM_NC_PAINT = 0x85;
+        const int WM_PAINT = 0xF;
+        const int WM_PRINTCLIENT = 0x318;
+
+
+        //边框颜色
+        private Pen BorderPen = new Pen(SystemColors.ControlDark, 2);
+
+        protected override void WndProc(ref System.Windows.Forms.Message m)
         {
-            get { return _backDisabledColor; }
-            set { _backDisabledColor = value; }
+            IntPtr hDC = IntPtr.Zero;
+            Graphics gdc = null;
+            switch (m.Msg)
+            {
+                //画背景色
+                case WM_ERASEBKGND:
+                    gdc = Graphics.FromHdc(m.WParam);
+                    gdc.FillRectangle(new SolidBrush(_backColor), new Rectangle(0, 0, this.Width, this.Height));
+                    gdc.Dispose();
+                    break;
+                case WM_NC_PAINT:
+                    hDC = GetWindowDC(m.HWnd);
+                    gdc = Graphics.FromHdc(hDC);
+                    SendMessage(this.Handle, WM_ERASEBKGND, hDC, 0);
+                    SendPrintClientMsg();
+                    SendMessage(this.Handle, WM_PAINT, IntPtr.Zero, 0);
+                    m.Result = (IntPtr)1;    // indicate msg has been processed
+                    ReleaseDC(m.HWnd, hDC);
+                    gdc.Dispose();
+                    break;
+                //画边框
+                case WM_PAINT:
+                    base.WndProc(ref m);
+                    hDC = GetWindowDC(m.HWnd);
+                    gdc = Graphics.FromHdc(hDC);
+                    OverrideControlBorder(gdc);
+                    ReleaseDC(m.HWnd, hDC);
+                    gdc.Dispose();
+                    break;
+                default:
+                    base.WndProc(ref m);
+                    break;
+            }
         }
 
 
-        protected override void OnPaint(System.Windows.Forms.PaintEventArgs e)
+        private void SendPrintClientMsg()
         {
-            Graphics g = this.CreateGraphics();
-            //Graphics g = e.Graphics;
+            // We send this message for the control to redraw the client area
+            Graphics gClient = this.CreateGraphics();
+            IntPtr ptrClientDC = gClient.GetHdc();
+            SendMessage(this.Handle, WM_PRINTCLIENT, ptrClientDC, 0);
+            gClient.ReleaseHdc(ptrClientDC);
+            gClient.Dispose();
+        }
 
-            //The dropDownRectangle defines position and size of dropdownbutton block, 
-            //the width is fixed to 17 and height to 16. The dropdownbutton is aligned to right
-            Rectangle dropDownRectangle = new Rectangle(ClientRectangle.Width - 17, 0, 17, 16);
-            Brush bkgBrush;
-            ComboBoxState visualState;
 
-            //When the control is enabled the brush is set to Backcolor, 
-            //otherwise to color stored in _backDisabledColor
-            if (this.Enabled)
-            {
-                bkgBrush = new SolidBrush(this.BackColor);
-                visualState = ComboBoxState.Normal;
-            }
-            else
-            {
-                bkgBrush = new SolidBrush(this._backDisabledColor);
-                visualState = ComboBoxState.Disabled;
-            }
-
-            // Painting...in action
-
-            //Filling the background
-            g.FillRectangle(bkgBrush, 0, 0, ClientRectangle.Width, ClientRectangle.Height);
-
-            //Drawing the datetime text
-            g.DrawString(this.Text, this.Font, Brushes.Black, 0, 2);
-
-            //Drawing the dropdownbutton using ComboBoxRenderer
-            ComboBoxRenderer.DrawDropDownButton(g, dropDownRectangle, visualState);
-
-            g.Dispose();
-            bkgBrush.Dispose();
+        private void OverrideControlBorder(Graphics g)
+        {
+            g.DrawRectangle(BorderPen, new Rectangle(0, 0, this.Width, this.Height));
         }
     }
 }
