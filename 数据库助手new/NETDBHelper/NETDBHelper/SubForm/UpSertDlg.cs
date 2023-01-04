@@ -79,7 +79,12 @@ namespace NETDBHelper.SubForm
             }
             if (_copyRow.DataGridView.Columns.Contains(field))
             {
-                return _copyRow.Cells[field].Value;
+                var obj = _copyRow.Cells[field].Value;
+                if (Equals(obj, DBNull.Value))
+                {
+                    return null;
+                }
+                return obj;
             }
             return null;
         }
