@@ -33,7 +33,22 @@ namespace NETDBHelper.UC
         public override Color BackColor
         {
             get { return _backColor; }
-            set { _backColor = value; Invalidate(); }
+            set
+            {
+                _backColor = value;
+                BorderPen.Dispose();
+                if (value == Color.White)
+                {
+                    BorderPen = new Pen(SystemColors.ControlDark, 2);
+                }
+                else
+                {
+                    BorderPen = new Pen(value, 2);
+                }
+                SolidBrushBg.Dispose();
+                SolidBrushBg = new SolidBrush(value);
+                Invalidate();
+            }
         }
 
         private DateTime? _val = null;
@@ -77,6 +92,7 @@ namespace NETDBHelper.UC
 
         //边框颜色
         private Pen BorderPen = new Pen(SystemColors.ControlDark, 2);
+        private SolidBrush SolidBrushBg = new SolidBrush(SystemColors.Control);
 
         protected override void WndProc(ref System.Windows.Forms.Message m)
         {
@@ -87,7 +103,7 @@ namespace NETDBHelper.UC
                 //画背景色
                 case WM_ERASEBKGND:
                     gdc = Graphics.FromHdc(m.WParam);
-                    gdc.FillRectangle(new SolidBrush(_backColor), new Rectangle(0, 0, this.Width, this.Height));
+                    gdc.FillRectangle(SolidBrushBg, new Rectangle(0, 0, this.Width, this.Height));
                     gdc.Dispose();
                     break;
                 case WM_NC_PAINT:

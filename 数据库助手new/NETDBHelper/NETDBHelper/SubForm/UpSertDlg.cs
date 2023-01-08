@@ -61,7 +61,7 @@ namespace NETDBHelper.SubForm
                 ItemsPannel.Controls.Clear();
             }
 
-            var cols = Biz.Common.Data.SQLHelper.GetColumns(_source, _table.DBName, _table.TBName, _table.Schema).ToList();
+            var cols = SQLHelper.GetColumns(_source, _table.DBName, _table.TBName, _table.Schema).ToList();
 
             int preoffsetx = 20, offsetx = 20, preoffsety = 10, offsety = 10, maxHigh = 0;
             foreach (var column in cols)
@@ -262,7 +262,7 @@ namespace NETDBHelper.SubForm
                 {
                     var column = (TBColumn)ctl.Tag;
 
-                    if (column.IsKey)
+                    if (column.IsID)
                     {
                         continue;
                     }
@@ -278,7 +278,7 @@ namespace NETDBHelper.SubForm
                     {
                         if (column.Length != -1 && ctl.Text.Length > column.Length)
                         {
-                            ctl.BackColor = Color.Pink;
+                            ctl.BackColor = Color.Red;
                             hasError = true;
                         }
                     }
@@ -305,7 +305,7 @@ namespace NETDBHelper.SubForm
             {
                 var sql = $"select top 0 {string.Join(",", cols.Select(p => $"[{p}]"))} from [{_table.DBName}].[{_table.Schema}].[{_table.TBName}] with(nolock)";
 
-                var tb = Biz.Common.Data.SQLHelper.ExecuteDBTable(_source, _table.DBName, sql);
+                var tb = SQLHelper.ExecuteDBTable(_source, _table.DBName, sql);
 
                 StringBuilder sb = new StringBuilder($"update [{_table.DBName}].[{_table.Schema}].[{_table.TBName}] set ");
                 List<string> updateCols = new List<string>();
@@ -414,7 +414,7 @@ namespace NETDBHelper.SubForm
 
                 LogHelper.Instance.Info($"预修改，前值为:" + Newtonsoft.Json.JsonConvert.SerializeObject(oldValue) + "，修改值为:" + Newtonsoft.Json.JsonConvert.SerializeObject(upValue));
 
-                Biz.Common.Data.SQLHelper.ExecuteNoQuery(_source, _table.DBName, sb.ToString(), @params.ToArray());
+                SQLHelper.ExecuteNoQuery(_source, _table.DBName, sb.ToString(), @params.ToArray());
                 BigEntityTableRemotingEngine.Insert<HLogEntity>("HLog", new HLogEntity
                 {
                     TypeName = "table",
@@ -446,7 +446,7 @@ namespace NETDBHelper.SubForm
             {
                 var sql = $"select top 0 {string.Join(",", cols.Select(p => $"[{p}]"))} from [{_table.DBName}].[{_table.Schema}].[{_table.TBName}] with(nolock)";
 
-                var tb = Biz.Common.Data.SQLHelper.ExecuteDBTable(_source, _table.DBName, sql);
+                var tb = SQLHelper.ExecuteDBTable(_source, _table.DBName, sql);
 
                 StringBuilder sb = new StringBuilder($"insert into [{_table.DBName}].[{_table.Schema}].[{_table.TBName}](");
 
@@ -489,7 +489,7 @@ namespace NETDBHelper.SubForm
                 sb.Append(")");
                 sb.AppendFormat(" values({0})", string.Join(",", cols.Select(p => $"@{p}")));
 
-                Biz.Common.Data.SQLHelper.ExecuteNoQuery(_source, _table.DBName, sb.ToString(), @params.ToArray());
+                SQLHelper.ExecuteNoQuery(_source, _table.DBName, sb.ToString(), @params.ToArray());
 
                 MessageBox.Show("新增成功");
             }
