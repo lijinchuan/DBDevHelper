@@ -39,6 +39,9 @@ namespace NETDBHelper.SubForm
             // 
             // GBValues
             // 
+            this.GBValues.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.GBValues.Controls.Add(this.ItemsPannel);
             this.GBValues.Location = new System.Drawing.Point(12, 12);
             this.GBValues.Name = "GBValues";
@@ -58,6 +61,7 @@ namespace NETDBHelper.SubForm
             // 
             // BtnCancel
             // 
+            this.BtnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.BtnCancel.Location = new System.Drawing.Point(659, 420);
             this.BtnCancel.Name = "BtnCancel";
             this.BtnCancel.Size = new System.Drawing.Size(58, 23);
@@ -68,6 +72,7 @@ namespace NETDBHelper.SubForm
             // 
             // BtnOk
             // 
+            this.BtnOk.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.BtnOk.Location = new System.Drawing.Point(729, 419);
             this.BtnOk.Name = "BtnOk";
             this.BtnOk.Size = new System.Drawing.Size(59, 23);
@@ -78,6 +83,7 @@ namespace NETDBHelper.SubForm
             // 
             // BtnReset
             // 
+            this.BtnReset.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.BtnReset.Location = new System.Drawing.Point(569, 420);
             this.BtnReset.Name = "BtnReset";
             this.BtnReset.Size = new System.Drawing.Size(75, 23);
@@ -95,6 +101,7 @@ namespace NETDBHelper.SubForm
             this.Controls.Add(this.BtnOk);
             this.Controls.Add(this.BtnCancel);
             this.Controls.Add(this.GBValues);
+            this.MaximizeBox = true;
             this.Name = "UpSertDlg";
             this.Text = "UpSertDlg";
             this.GBValues.ResumeLayout(false);

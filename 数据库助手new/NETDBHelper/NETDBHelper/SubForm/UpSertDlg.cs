@@ -156,12 +156,12 @@ namespace NETDBHelper.SubForm
                     || column.TypeName.IndexOf("varchar", StringComparison.OrdinalIgnoreCase) > -1
                     || column.TypeName.IndexOf("char", StringComparison.OrdinalIgnoreCase) > -1)
                 {
-                    var tb = new TextBox();
+                    var tb = new AdjustTextBox();
                     if (column.Length == -1 || column.Length > 100)
                     {
                         tb.Multiline = true;
-                        tb.Width = GBValues.Width - 20 - lb.Width;
-                        tb.Height = 50;
+                        tb.Width = ItemsPannel.Width - lb.Width - 40;
+                        tb.Height = 100;
                     }
                     if (editVal != null)
                     {
@@ -349,7 +349,7 @@ namespace NETDBHelper.SubForm
                         @params.Add(new SqlParameter
                         {
                             ParameterName = $"@{column.Name}",
-                            Value = val
+                            Value = val??DBNull.Value
                         });
 
                         ctl.BackColor = Color.LightGreen;
@@ -467,7 +467,7 @@ namespace NETDBHelper.SubForm
                     if (ctl is UCDateTime)
                     {
                         var picker = ctl as UCDateTime;
-                        
+
                         var val = picker.Value;
                         @params.Add(new SqlParameter
                         {
@@ -481,7 +481,7 @@ namespace NETDBHelper.SubForm
                         @params.Add(new SqlParameter
                         {
                             ParameterName = $"@{column.Name}",
-                            Value = val
+                            Value = val ?? DBNull.Value
                         });
                     }
                 }
