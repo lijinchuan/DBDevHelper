@@ -37,6 +37,10 @@ namespace NETDBHelper.UC
         private EnumAdjust m_adjust = EnumAdjust.Nothing;
         private int m_x, m_y, m_w, m_h = 0;
 
+        private const int WM_PAINT = 0x000F;
+        private const int WM_SETFOCUS = 0x0007;
+
+        private const int WM_KILLFOCUS = 0x0008;
 
         private Rectangle RecAdjustSize
         {
@@ -47,11 +51,16 @@ namespace NETDBHelper.UC
             get { return new Rectangle(0, 0, this.Width, this.Height); }
         }
 
+        private Color _promptColor = Color.Gray;
+        private bool _drawPrompt = true;
+
+        public string DrawPrompt { get; set; }
+
 
         private void InitCtrl()
         {
-            this.Text = "";
-            this.Multiline = true;
+            //this.Text = "";
+            //this.Multiline = true;
             this.BorderStyle = BorderStyle.FixedSingle;
         }
         #region 鼠标事件
@@ -113,6 +122,59 @@ namespace NETDBHelper.UC
                 return;
             }
             this.Cursor = Cursors.Default;
+        }
+
+        protected override void WndProc(ref System.Windows.Forms.Message m)
+        {
+            switch (m.Msg)
+            {
+                case WM_SETFOCUS:
+                    _drawPrompt = false;
+                    break;
+
+                case WM_KILLFOCUS:
+                    _drawPrompt = true;
+                    break;
+            }
+
+            base.WndProc(ref m);
+
+            // Only draw the prompt on the WM_PAINT event
+            // and when the Text property is empty
+            if (m.Msg == WM_PAINT && _drawPrompt && this.Text.Length == 0 &&
+                              !this.GetStyle(ControlStyles.UserPaint))
+                DrawTextPrompt(this.CreateGraphics());
+        }
+
+        protected virtual void DrawTextPrompt(Graphics g)
+        {
+            TextFormatFlags flags = TextFormatFlags.NoPadding |
+              TextFormatFlags.Top | TextFormatFlags.EndEllipsis;
+            Rectangle rect = this.ClientRectangle;
+
+            // Offset the rectangle based on the HorizontalAlignment, 
+            // otherwise the display looks a little strange
+            switch (this.TextAlign)
+            {
+                case HorizontalAlignment.Center:
+                    flags = flags | TextFormatFlags.HorizontalCenter;
+                    rect.Offset(0, 1);
+                    break;
+
+                case HorizontalAlignment.Left:
+                    flags = flags | TextFormatFlags.Left;
+                    rect.Offset(1, 1);
+                    break;
+
+                case HorizontalAlignment.Right:
+                    flags = flags | TextFormatFlags.Right;
+                    rect.Offset(0, 1);
+                    break;
+            }
+
+            // Draw the prompt text using TextRenderer
+            TextRenderer.DrawText(g, DrawPrompt, this.Font, rect,
+                              _promptColor, this.BackColor, flags);
         }
     }
 }

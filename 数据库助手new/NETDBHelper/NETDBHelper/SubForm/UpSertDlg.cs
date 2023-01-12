@@ -69,7 +69,7 @@ namespace NETDBHelper.SubForm
                 Label lb = new Label();
                 lb.AutoSize = true;
                 lb.Location = new Point(preoffsetx, preoffsety);
-                lb.Text = column.Name + $"({column.TypeName}): ";
+                lb.Text = column.Name;
                 ItemsPannel.Controls.Add(lb);
 
                 Control valControl = null;
@@ -200,6 +200,14 @@ namespace NETDBHelper.SubForm
                 {
                     valControl.Tag = column;
                 }
+
+                var typestr = (string.IsNullOrEmpty(column.Description) ? "" : $"{column.Description}:") + column.TypeName;
+                if (column.Length>0)
+                {
+                    typestr += "(" + column.Length + ")";
+                }
+
+                Win32Utility.SetCueText(valControl, typestr);
             }
         }
 

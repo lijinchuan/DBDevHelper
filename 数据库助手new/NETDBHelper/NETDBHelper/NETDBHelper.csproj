@@ -457,6 +457,7 @@
       <DependentUpon>WebTab.cs</DependentUpon>
     </Compile>
     <Compile Include="Util.cs" />
+    <Compile Include="Win32Utility.cs" />
     <EmbeddedResource Include="ConnSQLServer.resx">
       <DependentUpon>ConnSQLServer.cs</DependentUpon>
     </EmbeddedResource>
