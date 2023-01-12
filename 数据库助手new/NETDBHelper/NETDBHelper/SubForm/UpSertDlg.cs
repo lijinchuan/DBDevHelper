@@ -69,7 +69,7 @@ namespace NETDBHelper.SubForm
                 Label lb = new Label();
                 lb.AutoSize = true;
                 lb.Location = new Point(preoffsetx, preoffsety);
-                lb.Text = column.Name;
+                lb.Text = column.Name+":";
                 ItemsPannel.Controls.Add(lb);
 
                 Control valControl = null;
@@ -162,6 +162,10 @@ namespace NETDBHelper.SubForm
                         tb.Multiline = true;
                         tb.Width = ItemsPannel.Width - lb.Width - 40;
                         tb.Height = 100;
+                    }
+                    else
+                    {
+                        tb.Width = 250;
                     }
                     if (editVal != null)
                     {
