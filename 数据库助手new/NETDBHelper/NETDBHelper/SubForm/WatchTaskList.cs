@@ -51,6 +51,10 @@ namespace NETDBHelper.SubForm
 
         private void 编辑ToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (DGV_TaskList.CurrentRow == null)
+            {
+                return;
+            }
             if (DGV_TaskList.CurrentRow!=null)
             {
                 var man = new Biz.WatchTask.WatchTaskInfoManage();
@@ -69,6 +73,10 @@ namespace NETDBHelper.SubForm
 
         private void 删除ToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (DGV_TaskList.CurrentRow == null)
+            {
+                return;
+            }
             if (DGV_TaskList.CurrentRow!=null)
             {
                 if(MessageBox.Show("删除吗?","提示",MessageBoxButtons.YesNo,MessageBoxIcon.Question,MessageBoxDefaultButton.Button2)==DialogResult.No)
@@ -94,6 +102,10 @@ namespace NETDBHelper.SubForm
 
         private void 查看日志ToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (DGV_TaskList.CurrentRow == null)
+            {
+                return;
+            }
             if (DGV_TaskList.CurrentRow != null)
             {
                 var taskid = int.Parse(DGV_TaskList.CurrentRow.Cells["ID"].Value.ToString());
@@ -105,6 +117,10 @@ namespace NETDBHelper.SubForm
 
         private void 禁用ToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (DGV_TaskList.CurrentRow == null)
+            {
+                return;
+            }
             var man = new Biz.WatchTask.WatchTaskInfoManage();
             try
             {
@@ -129,6 +145,10 @@ namespace NETDBHelper.SubForm
 
         private void 启用ToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (DGV_TaskList.CurrentRow == null)
+            {
+                return;
+            }
             var man = new Biz.WatchTask.WatchTaskInfoManage();
             try
             {

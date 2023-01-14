@@ -148,9 +148,9 @@ namespace NETDBHelper.UC
                 var items = FindItems(new[] { "新增数据", "复制数据", "修改数据", "删除数据" });
                 var visible = false;
                 var editble = false;
-                if (sender is DataGridView)
+                var gv = FindDgv();
+                if (gv != null)
                 {
-                    var gv = sender as DataGridView;
                     editble = gv.CurrentRow != null;
                     visible = gv.Tag is TableInfo;
                 }
@@ -158,6 +158,7 @@ namespace NETDBHelper.UC
                 foreach (var item in items)
                 {
                     item.Visible = visible;
+                    item.Enabled = visible;
                 }
                 foreach(var item in items.Skip(1))
                 {
@@ -338,19 +339,19 @@ namespace NETDBHelper.UC
                     }
                 }
             }
+        }
 
-            DataGridView FindDgv()
+        DataGridView FindDgv()
+        {
+            foreach (var ctl in tabControl1.SelectedTab.Controls)
             {
-                foreach (var ctl in tabControl1.SelectedTab.Controls)
+                if (ctl is DataGridView)
                 {
-                    if (ctl is DataGridView)
-                    {
-                        var view = (DataGridView)ctl;
-                        return view;
-                    }
+                    var view = (DataGridView)ctl;
+                    return view;
                 }
-                return null;
             }
+            return null;
         }
 
         private void Stop(object o)
