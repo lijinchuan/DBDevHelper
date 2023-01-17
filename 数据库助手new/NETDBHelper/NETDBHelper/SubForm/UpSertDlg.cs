@@ -470,7 +470,7 @@ namespace NETDBHelper.SubForm
                         continue;
                     }
                     var column = (TBColumn)ctl.Tag;
-                    if (column.IsKey)
+                    if (column.IsID)
                     {
                         continue;
                     }
