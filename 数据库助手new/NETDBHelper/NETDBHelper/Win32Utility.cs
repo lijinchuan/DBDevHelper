@@ -53,9 +53,9 @@ namespace NETDBHelper
                 COMBOBOXINFO info = GetComboBoxInfo(control);
                 SendMessage(info.hwndItem, EM_SETCUEBANNER, 0, text);
             }
-            else if(control is AdjustTextBox)
+            else if(control is UCTextBox)
             {
-                ((AdjustTextBox)control).DrawPrompt = text;
+                ((UCTextBox)control).DrawPrompt = text;
             }
             else
             {

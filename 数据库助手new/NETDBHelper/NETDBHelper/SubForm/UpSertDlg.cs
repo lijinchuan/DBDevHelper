@@ -88,7 +88,8 @@ namespace NETDBHelper.SubForm
                             || column.TypeName.IndexOf("money", StringComparison.OrdinalIgnoreCase) > -1
                         )
                 {
-                    var tb = new TextBox();
+                    var tb = new UCTextBox();
+                    tb.ShowCheckBox = column.IsNullAble;
                     tb.Text = editVal == null && column.IsNullAble ? "" : (editVal ?? 0).ToString();
                     if (column.IsID)
                     {
@@ -106,7 +107,10 @@ namespace NETDBHelper.SubForm
                 }
                 else if (column.TypeName.Equals("uniqueidentifier", StringComparison.OrdinalIgnoreCase))
                 {
-                    valControl = new TextBox();
+                    var tbb = new UCTextBox();
+                    tbb.ShowCheckBox = column.IsNullAble;
+                    valControl = tbb;
+                    
                     if (editVal != null)
                     {
                         valControl.Text = editVal.ToString();
@@ -156,7 +160,8 @@ namespace NETDBHelper.SubForm
                     || column.TypeName.IndexOf("varchar", StringComparison.OrdinalIgnoreCase) > -1
                     || column.TypeName.IndexOf("char", StringComparison.OrdinalIgnoreCase) > -1)
                 {
-                    var tb = new AdjustTextBox();
+                    var tb = new UCTextBox();
+                    tb.ShowCheckBox = column.IsNullAble;
                     if (column.Length == -1 || column.Length > 100)
                     {
                         tb.Multiline = true;
@@ -210,7 +215,7 @@ namespace NETDBHelper.SubForm
                 {
                     typestr += "(" + column.Length + ")";
                 }
-
+                
                 Win32Utility.SetCueText(valControl, typestr);
             }
         }
@@ -279,7 +284,7 @@ namespace NETDBHelper.SubForm
                         continue;
                     }
 
-                    if (string.IsNullOrWhiteSpace(ctl.Text) && !column.IsNullAble)
+                    if (ctl.Text==null && !column.IsNullAble)
                     {
                         ctl.BackColor = Color.Yellow;
                         hasError = true;
