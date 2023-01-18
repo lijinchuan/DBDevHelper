@@ -63,7 +63,7 @@ namespace NETDBHelper.UC
                 }
                 else
                 {
-                    TBValue.Dock = DockStyle.None;
+                    //TBValue.Dock = DockStyle.None;
                     TBValue.Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right | AnchorStyles.Bottom;
                 }
             }
