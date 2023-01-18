@@ -57,6 +57,7 @@ namespace NETDBHelper.UC
                 if (!value)
                 {
                     TBValue.Width = Width - 2;
+                    TBValue.Height = Height - 2;
                     TBValue.Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right | AnchorStyles.Bottom;
                     TBValue.Enabled = true;
                 }
@@ -121,7 +122,7 @@ namespace NETDBHelper.UC
         {
             get
             {
-                return TBValue.BackColor;
+                return base.BackColor;
             }
             set
             {
