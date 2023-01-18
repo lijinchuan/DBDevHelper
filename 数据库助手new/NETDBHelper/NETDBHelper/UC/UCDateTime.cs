@@ -17,13 +17,9 @@ namespace NETDBHelper.UC
 
         public UCDateTime() : base()
         {
-            base.ValueChanged += UCDateTime_ValueChanged;
-        }
-
-
-        private void UCDateTime_ValueChanged(object sender, EventArgs e)
-        {
-            this._val = base.Value;
+            this.Text = string.Empty;
+            ShowCheckBox = true;
+            this.Checked = false;
         }
 
         private Color _backColor = Color.White;
@@ -51,23 +47,26 @@ namespace NETDBHelper.UC
             }
         }
 
-        private DateTime? _val = null;
         public new DateTime? Value
         {
             get
             {
-                return _val;
+                if (Checked)
+                {
+                    return base.Value;
+                }
+                return null;
             }
             set
             {
-                _val = value;
                 if (value != null)
                 {
                     base.Value = value.Value;
+                    Checked = true;
                 }
                 else
                 {
-                    base.Value = DateTime.MinValue;
+                    Checked = false;
                 }
             }
         }
