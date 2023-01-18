@@ -39,7 +39,15 @@ namespace NETDBHelper.UC
             }
 
             this.Width += TBValue.Width - oldWidth;
+            if (this.Width <= TBValue.Width)
+            {
+                this.Width += 1;
+            }
             this.Height += TBValue.Height - oldHeight;
+            if (this.Height <= TBValue.Height)
+            {
+                this.Height += 1;
+            }
 
             oldHeight = TBValue.Height;
             oldWidth = TBValue.Width;
