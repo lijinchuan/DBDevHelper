@@ -18,7 +18,8 @@ namespace NETDBHelper.UC
         public UCTextBox()
         {
             InitializeComponent();
-            CBNull.Checked = true;
+            TBValue.Enabled = false;
+            CBNull.Checked = false;
             this.CBNull.CheckedChanged += CBNull_CheckedChanged;
         }
 
@@ -55,8 +56,9 @@ namespace NETDBHelper.UC
                 CBNull.Visible = value;
                 if (!value)
                 {
-                    TBValue.Width = this.Width - 2;
+                    TBValue.Width = Width - 2;
                     TBValue.Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right | AnchorStyles.Bottom;
+                    TBValue.Enabled = true;
                 }
                 else
                 {
@@ -86,12 +88,16 @@ namespace NETDBHelper.UC
             {
                 if (value == null)
                 {
+                    if (!CBNull.Visible)
+                    {
+                        throw new NotSupportedException("不支持NULL值");
+                    }
                     CBNull.Checked = false;
                 }
                 else
                 {
                     TBValue.Text = value;
-                    if (!CBNull.Checked)
+                    if (CBNull.Visible && !CBNull.Checked)
                     {
                         CBNull.Checked = true;
                     }

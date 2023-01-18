@@ -293,7 +293,7 @@ namespace NETDBHelper.SubForm
                    || column.TypeName.IndexOf("varchar", StringComparison.OrdinalIgnoreCase) > -1
                    || column.TypeName.IndexOf("char", StringComparison.OrdinalIgnoreCase) > -1)
                     {
-                        if (column.Length != -1 && ctl.Text.Length > column.Length)
+                        if (column.Length != -1 && ctl.Text?.Length > column.Length)
                         {
                             ctl.BackColor = Color.Red;
                             hasError = true;
@@ -357,7 +357,7 @@ namespace NETDBHelper.SubForm
                     }
                     else
                     {
-                        val = (ctl.Text == string.Empty && column.IsNullAble) ? null : DataHelper.ConvertDBType(ctl.Text, valtype);
+                        val = (ctl.Text == null && column.IsNullAble) ? null : DataHelper.ConvertDBType(ctl.Text, valtype);
                     }
 
                     if (!Equals(val, getUpdateValue(column.Name)))
@@ -494,7 +494,7 @@ namespace NETDBHelper.SubForm
                     }
                     else
                     {
-                        var val = (ctl.Text == string.Empty && column.IsNullAble) ? null : DataHelper.ConvertDBType(ctl.Text, valtype);
+                        var val = (ctl.Text == null && column.IsNullAble) ? null : DataHelper.ConvertDBType(ctl.Text, valtype);
                         @params.Add(new SqlParameter
                         {
                             ParameterName = $"@{column.Name}",
