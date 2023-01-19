@@ -217,6 +217,11 @@ namespace NETDBHelper.SubForm
                 }
                 
                 Win32Utility.SetCueText(valControl, typestr);
+                
+                valControl.Enter += (s, e) =>
+                {
+                    TBNotice.Text = typestr;
+                };
             }
         }
 

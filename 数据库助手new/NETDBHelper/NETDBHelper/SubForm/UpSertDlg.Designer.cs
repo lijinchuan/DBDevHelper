@@ -34,6 +34,8 @@ namespace NETDBHelper.SubForm
             this.BtnCancel = new System.Windows.Forms.Button();
             this.BtnOk = new System.Windows.Forms.Button();
             this.BtnReset = new System.Windows.Forms.Button();
+            this.LBNotice = new System.Windows.Forms.Label();
+            this.TBNotice = new System.Windows.Forms.TextBox();
             this.GBValues.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -92,11 +94,35 @@ namespace NETDBHelper.SubForm
             this.BtnReset.UseVisualStyleBackColor = true;
             this.BtnReset.Click += new System.EventHandler(this.BtnReset_Click);
             // 
+            // LBNotice
+            // 
+            this.LBNotice.AutoSize = true;
+            this.LBNotice.ForeColor = System.Drawing.Color.Blue;
+            this.LBNotice.Location = new System.Drawing.Point(13, 424);
+            this.LBNotice.Name = "LBNotice";
+            this.LBNotice.Size = new System.Drawing.Size(0, 12);
+            this.LBNotice.TabIndex = 4;
+            // 
+            // TBNotice
+            // 
+            this.TBNotice.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.TBNotice.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+            this.TBNotice.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.TBNotice.ForeColor = System.Drawing.Color.Blue;
+            this.TBNotice.Location = new System.Drawing.Point(15, 424);
+            this.TBNotice.Name = "TBNotice";
+            this.TBNotice.ReadOnly = true;
+            this.TBNotice.Size = new System.Drawing.Size(548, 14);
+            this.TBNotice.TabIndex = 5;
+            // 
             // UpSertDlg
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.TBNotice);
+            this.Controls.Add(this.LBNotice);
             this.Controls.Add(this.BtnReset);
             this.Controls.Add(this.BtnOk);
             this.Controls.Add(this.BtnCancel);
@@ -106,6 +132,7 @@ namespace NETDBHelper.SubForm
             this.Text = "UpSertDlg";
             this.GBValues.ResumeLayout(false);
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -116,5 +143,7 @@ namespace NETDBHelper.SubForm
         private System.Windows.Forms.Button BtnOk;
         private System.Windows.Forms.Panel ItemsPannel;
         private System.Windows.Forms.Button BtnReset;
+        private System.Windows.Forms.Label LBNotice;
+        private System.Windows.Forms.TextBox TBNotice;
     }
 }
