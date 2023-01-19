@@ -90,7 +90,7 @@ namespace NETDBHelper.SubForm
                 {
                     var tb = new UCTextBox();
                     tb.ShowCheckBox = column.IsNullAble;
-                    tb.Text = editVal == null && column.IsNullAble ? "" : (editVal ?? 0).ToString();
+                    tb.Text = editVal == null && column.IsNullAble ? null : (editVal ?? 0).ToString();
                     if (column.IsID)
                     {
                         tb.ReadOnly = true;
@@ -328,6 +328,7 @@ namespace NETDBHelper.SubForm
                 List<string> updateCols = new List<string>();
                 List<string> conditionCols = new List<string>();
                 List<SqlParameter> @params = new List<SqlParameter>();
+                var hasError = false;
                 foreach (Control ctl in ItemsPannel.Controls)
                 {
                     if (!(ctl.Tag is TBColumn))
@@ -357,7 +358,16 @@ namespace NETDBHelper.SubForm
                     }
                     else
                     {
-                        val = (ctl.Text == null && column.IsNullAble) ? null : DataHelper.ConvertDBType(ctl.Text, valtype);
+                        try
+                        {
+                            val = (ctl.Text == null && column.IsNullAble) ? null : DataHelper.ConvertDBType(ctl.Text, valtype);
+                        }
+                        catch
+                        {
+                            ctl.BackColor = Color.Red;
+                            hasError = true;
+                            continue;
+                        }
                     }
 
                     if (!Equals(val, getUpdateValue(column.Name)))
@@ -385,6 +395,12 @@ namespace NETDBHelper.SubForm
                             Value = getUpdateValue(column.Name)
                         });
                     }
+                }
+
+                if (hasError)
+                {
+                    MessageBox.Show("数据填写错误，看红色标注。");
+                    return;
                 }
 
                 if (!conditionCols.Any())
