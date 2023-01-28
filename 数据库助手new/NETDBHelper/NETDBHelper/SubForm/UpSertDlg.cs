@@ -284,6 +284,7 @@ namespace NETDBHelper.SubForm
         private void BtnCancel_Click(object sender, EventArgs e)
         {
             DialogResult = DialogResult.Cancel;
+            Close();
         }
 
         private bool CheckHasError(ref List<string> cols)

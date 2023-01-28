@@ -239,7 +239,7 @@ namespace NETDBHelper.UC
                     var tbinfo = view.Tag as TableInfo;
 
                     var dlg = new SubForm.UpSertDlg(Server, tbinfo);
-                    dlg.ShowDialog();
+                    dlg.Show();
                 }
             }
             else if (e.ClickedItem.Text == "复制数据")
