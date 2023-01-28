@@ -120,10 +120,21 @@ namespace NETDBHelper.SubForm
                 {
                     var cb = new ComboBox();
                     cb.Items.AddRange(new object[] { true, false });
+                    if (column.IsNullAble)
+                    {
+                        cb.Items.Insert(0, "NULL");
+                    }
                     valControl = cb;
                     if (editVal != null)
                     {
                         cb.SelectedItem = editVal;
+                    }
+                    else
+                    {
+                        if (cb.Items.Count == 3)
+                        {
+                            cb.SelectedItem = "NULL";
+                        }
                     }
                 }
                 else if (column.TypeName.Equals("datetime", StringComparison.OrdinalIgnoreCase)
@@ -359,7 +370,21 @@ namespace NETDBHelper.SubForm
                     {
                         var picker = ctl as UCDateTime;
                         val = picker.Value;
-                        
+
+                    }
+                    else if (ctl is ComboBox)
+                    {
+                        var combo = ctl as ComboBox;
+                        val = combo.SelectedItem;
+                        if (val.Equals("NULL"))
+                        {
+                            val = null;
+                        }
+                        if (val == null && !column.IsNullAble)
+                        {
+                            hasError = true;
+                            ctl.BackColor = Color.Red;
+                        }
                     }
                     else
                     {
