@@ -300,8 +300,17 @@ namespace NETDBHelper.SubForm
                     {
                         continue;
                     }
-
-                    if (ctl.Text==null && !column.IsNullAble)
+                    if (ctl is UCDateTime && !column.IsNullAble && (ctl as UCDateTime).Value == null)
+                    {
+                        ctl.BackColor = Color.Yellow;
+                        hasError = true;
+                    }
+                    else if (ctl is ComboBox && !column.IsNullAble && ((ctl as ComboBox).SelectedItem == null || (ctl as ComboBox).SelectedItem.Equals("NULL")))
+                    {
+                        ctl.BackColor = Color.Yellow;
+                        hasError = true;
+                    }
+                    else if (ctl.Text == null && !column.IsNullAble)
                     {
                         ctl.BackColor = Color.Yellow;
                         hasError = true;
