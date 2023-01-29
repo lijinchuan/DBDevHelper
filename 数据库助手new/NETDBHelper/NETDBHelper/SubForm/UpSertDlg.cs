@@ -377,7 +377,7 @@ namespace NETDBHelper.SubForm
                     {
                         var combo = ctl as ComboBox;
                         val = combo.SelectedItem;
-                        if (val.Equals("NULL"))
+                        if (val != null && val.Equals("NULL"))
                         {
                             val = null;
                         }
@@ -513,7 +513,7 @@ namespace NETDBHelper.SubForm
                 var tb = SQLHelper.ExecuteDBTable(_source, _table.DBName, sql);
 
                 StringBuilder sb = new StringBuilder($"insert into [{_table.DBName}].[{_table.Schema}].[{_table.TBName}](");
-
+                bool hasError = false;
                 List<SqlParameter> @params = new List<SqlParameter>();
                 foreach (Control ctl in ItemsPannel.Controls)
                 {
@@ -532,11 +532,32 @@ namespace NETDBHelper.SubForm
                     {
                         var picker = ctl as UCDateTime;
 
-                        var val = picker.Value;
+                        object val = picker.Value;
                         @params.Add(new SqlParameter
                         {
                             ParameterName = $"@{column.Name}",
-                            Value = val
+                            Value = val ?? DBNull.Value
+                        });
+                    }
+                    else if (ctl is ComboBox)
+                    {
+                        var combo = ctl as ComboBox;
+                        var val = combo.SelectedItem;
+                        if (val != null && val.Equals("NULL"))
+                        {
+                            val = null;
+                        }
+                        if (val == null && !column.IsNullAble)
+                        {
+                            ctl.BackColor = Color.Red;
+                            hasError = true;
+                            continue;
+                        }
+
+                        @params.Add(new SqlParameter
+                        {
+                            ParameterName = $"@{column.Name}",
+                            Value = val ?? DBNull.Value
                         });
                     }
                     else
@@ -549,6 +570,13 @@ namespace NETDBHelper.SubForm
                         });
                     }
                 }
+
+                if (hasError)
+                {
+                    MessageBox.Show("出错，请看红色标注");
+                    return;
+                }
+
                 sb.AppendFormat("{0}", string.Join(",", cols.Select(p => $"[{p}]")));
                 sb.Append(")");
                 sb.AppendFormat(" values({0})", string.Join(",", cols.Select(p => $"@{p}")));
