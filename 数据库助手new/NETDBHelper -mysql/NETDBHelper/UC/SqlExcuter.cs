@@ -13,6 +13,10 @@ using System.IO;
 using System.Threading;
 using NPOI.SS.UserModel;
 using NPOI.HSSF.UserModel;
+using System.Text.RegularExpressions;
+using Biz.Common.Data;
+using MySql.Data.MySqlClient;
+using LJC.FrameWorkV3.Data.EntityDataBase;
 
 namespace NETDBHelper.UC
 {
@@ -69,7 +73,42 @@ namespace NETDBHelper.UC
             datastrip.Items.Add("表重命名");
             datastrip.Items.Add("导出表格数据");
             datastrip.Items.Add("导出全部表格数据");
+            datastrip.Items.Add(new ToolStripSeparator());
+            datastrip.Items.Add("新增数据");
+            datastrip.Items.Add("修改数据");
+            datastrip.Items.Add("删除数据");
             datastrip.ItemClicked += Datastrip_ItemClicked;
+            datastrip.VisibleChanged += Datastrip_VisibleChanged;
+        }
+
+        private void Datastrip_VisibleChanged(object sender, EventArgs e)
+        {
+            if (datastrip.Visible)
+            {
+                var items = FindItems(new[] { "新增数据", "修改数据", "删除数据" });
+                var visible = false;
+                if (sender is DataGridView)
+                {
+                    var gv = sender as DataGridView;
+                    visible = gv.Tag is TableInfo;
+                }
+
+                foreach (var item in items)
+                {
+                    item.Visible = visible;
+                }
+            }
+
+            IEnumerable<ToolStripItem> FindItems(string[] texts)
+            {
+                foreach (ToolStripItem item in datastrip.Items)
+                {
+                    if (texts.Contains(item.Text))
+                    {
+                        yield return item;
+                    }
+                }
+            }
         }
 
         public string GetDB()
@@ -115,24 +154,43 @@ namespace NETDBHelper.UC
             {
                 ViewJSONData();
             }
+            else if (e.ClickedItem.Text == "锁定这一列")
+            {
+                LockColumn();
+            }
             else if (e.ClickedItem.Text == "统计条数")
+            {
+                var view = FindDgv();
+                if (view != null)
+                {
+                    this.datastrip.Visible = false;
+                    Util.SendMsg(this, "记录数:" + view.RowCount + "条");
+                }
+            }
+            else if (e.ClickedItem.Text == "新增数据")
+            {
+                var view = FindDgv();
+                if (view != null && view.Tag is TableInfo)
+                {
+                    var tbinfo = view.Tag as TableInfo;
+
+                    var dlg = new SubForm.UpSertDlg(Server, tbinfo);
+                    dlg.ShowDialog();
+                }
+            }
+
+            DataGridView FindDgv()
             {
                 foreach (var ctl in tabControl1.SelectedTab.Controls)
                 {
                     if (ctl is DataGridView)
                     {
                         var view = (DataGridView)ctl;
-                        this.datastrip.Visible = false;
-                        Util.SendMsg(this, "记录数:" + view.RowCount + "条");
-                        //MessageBox.Show("记录数:" + view.RowCount + "条");
+                        return view;
                     }
                 }
+                return null;
             }
-            else if (e.ClickedItem.Text == "锁定这一列")
-            {
-                LockColumn();
-            }
-
         }
 
         private void Stop(object o)
@@ -227,26 +285,58 @@ namespace NETDBHelper.UC
                             dgv.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.DisplayedCells;
                             dgv.AllowUserToResizeRows = true;
                             page.Controls.Add(dgv);
-                            dgv.CellDoubleClick += (s, e) =>
-                            {
-                                if (dgv.CurrentCell.Value != null && dgv.CurrentCell.ValueType == typeof(string))
-                                {
-                                    var cell = dgv.CurrentCell;
 
-                                    if (cell.Style.WrapMode == DataGridViewTriState.True)
+                            bool canEdit = false;
+                            string targetTable = null;
+                            if (ts.Tables.Count == 1)
+                            {
+                                var regex = new Regex(@"^[\r\n\s\t]*select[\r\n\s\t]+(?:top[\r\n\s\t]+\d{1,}[\r\n\s\t]+)?(?:\*[\r\n\s\t]*|(?:\[?\w+\]?\.){0,}\[\w+\][\,\r\n\s\t]+)+from[\r\n\s\t]+(?:\[?\w+\]?\.){0,}\[?(\w+)\]?", RegexOptions.IgnoreCase);
+                                var m = regex.Match(seltext);
+                                if (m.Success)
+                                {
+                                    targetTable = m.Groups[1].Value;
+                                    tb.TableName = targetTable;
+
+                                    var tbinfo = MySQLHelper.GetTB(Server, DB, tb.TableName);
+                                    if (tbinfo != null)
                                     {
-                                        cell.Style.WrapMode = DataGridViewTriState.False;
-                                        dgv.EndEdit();
-                                    }
-                                    else
-                                    {
-                                        cell.Style.WrapMode = DataGridViewTriState.True;
-                                        cell.ReadOnly = false;
-                                        dgv.ReadOnly = false;
-                                        dgv.BeginEdit(true);
+                                        dgv.Tag = tbinfo;
+                                        canEdit = true;
                                     }
                                 }
-                            };
+                            }
+
+                            if (canEdit)
+                            {
+                                dgv.CellDoubleClick += (s, e) =>
+                                {
+                                    if (dgv.CurrentCell.Value != null && (dgv.CurrentCell.ValueType == typeof(string)
+                                    || dgv.CurrentCell.ValueType == typeof(bool)
+                                    || dgv.CurrentCell.ValueType == typeof(int)
+                                    || dgv.CurrentCell.ValueType == typeof(DateTime)
+                                    || dgv.CurrentCell.ValueType == typeof(Int64)))
+                                    {
+                                        var cell = dgv.CurrentCell;
+
+                                        if (cell.Style.WrapMode == DataGridViewTriState.True)
+                                        {
+                                            cell.Style.WrapMode = DataGridViewTriState.False;
+                                            dgv.EndEdit();
+                                        }
+                                        else
+                                        {
+                                            cell.Style.WrapMode = DataGridViewTriState.True;
+                                            cell.ReadOnly = false;
+                                            dgv.ReadOnly = false;
+                                            dgv.BeginEdit(true);
+                                        }
+                                    }
+                                };
+                                dgv.CellBeginEdit += Dgv_CellBeginEdit;
+                                dgv.CellEndEdit += Dgv_CellEndEdit;
+                                dgv.CellValueChanged += Dgv_CellValueChanged;
+                            }
+
                             dgv.BorderStyle = System.Windows.Forms.BorderStyle.None;
                             dgv.DataError += (s, e) =>
                             {
@@ -310,6 +400,206 @@ namespace NETDBHelper.UC
             this.loadbox.tag = exthread;
             this.loadbox.OnStop += Stop;
             exthread.Start();
+        }
+
+        private void Dgv_CellValueChanged(object sender, DataGridViewCellEventArgs e)
+        {
+
+        }
+
+        private void Dgv_CellBeginEdit(object sender, DataGridViewCellCancelEventArgs e)
+        {
+            var dgv = sender as DataGridView;
+            dgv.Tag = new KeyValuePair<DataGridViewCellCancelEventArgs, object>(e, dgv[e.ColumnIndex, e.RowIndex].Value);
+        }
+
+        private void Dgv_CellEndEdit(object sender, DataGridViewCellEventArgs e)
+        {
+            if (sender is DataGridView)
+            {
+                var gv = sender as DataGridView;
+                var tb = gv.DataSource as DataTable;
+
+                string errorMsg = string.Empty;
+
+                var updateColName = gv.Columns[e.ColumnIndex].Name;
+                var newVal = gv[e.ColumnIndex, e.RowIndex].Value;
+                object oldVal = null;
+                if (gv.Tag == null)
+                {
+                    errorMsg = "没有记录到旧值";
+                }
+                else
+                {
+                    var tagVal = (KeyValuePair<DataGridViewCellCancelEventArgs, object>)gv.Tag;
+                    if (tagVal.Key.RowIndex != e.RowIndex || tagVal.Key.ColumnIndex != e.ColumnIndex)
+                    {
+                        errorMsg = "没有记录到旧的值";
+                    }
+                    else
+                    {
+                        oldVal = tagVal.Value;
+                        if (object.Equals(oldVal, newVal))
+                        {
+                            errorMsg = "值没有修改";
+                        }
+                    }
+                }
+
+                gv.Tag = null;
+
+                if (!string.IsNullOrEmpty(errorMsg))
+                {
+                    Util.SendMsg(this, errorMsg);
+                    return;
+                }
+
+                if (MessageBox.Show("要修改值吗?", "修改确认", MessageBoxButtons.YesNo) != DialogResult.Yes)
+                {
+                    gv[e.ColumnIndex, e.RowIndex].Value = oldVal;
+                    return;
+                }
+
+                var tbinfo = MySQLHelper.GetTB(Server, DB, tb.TableName);
+                if (tbinfo != null)
+                {
+                    var cols = MySQLHelper.GetColumns(Server, DB, tb.TableName);
+
+                    var orgtablecolumns = MySQLHelper.GetDateTableColumns(Server, cols, tbinfo);
+
+                    var checkPass = true;
+
+                    foreach (DataColumn col in tb.Columns)
+                    {
+                        var findCol = false;
+                        foreach (DataColumn orgcol in orgtablecolumns)
+                        {
+                            if (orgcol.ColumnName.ToLower() == col.ColumnName.ToLower())
+                            {
+                                if (orgcol.DataType != col.DataType)
+                                {
+                                    checkPass = false;
+                                    errorMsg = $"字段{col.ColumnName}与目标表{tb.TableName}类型不同";
+                                }
+                                else
+                                {
+                                    findCol = true;
+                                }
+                                break;
+                            }
+                        }
+                        if (!checkPass)
+                        {
+                            break;
+                        }
+                        if (!findCol)
+                        {
+                            errorMsg = $"字段{col.ColumnName}在目标表{tb.TableName}不存在";
+                            checkPass = false;
+                            break;
+                        }
+                    }
+                    if (checkPass)
+                    {
+                        var parameList = new List<MySqlParameter>();
+                        StringBuilder sbsql = new StringBuilder();
+
+                        sbsql.Append($"update [{tb.TableName}] set [{updateColName}]=@{updateColName} where ");
+
+                        foreach (var keycol in cols.Where(p => p.IsID))
+                        {
+                            if (!gv.Columns.Contains(keycol.Name))
+                            {
+                                break;
+                            }
+
+                            if (keycol.Name.Equals(updateColName, StringComparison.OrdinalIgnoreCase))
+                            {
+                                errorMsg = "不能更新自增长键";
+                                checkPass = false;
+                                break;
+                            }
+
+                            parameList.Add(new MySqlParameter
+                            {
+                                ParameterName = $"@{keycol.Name}",
+                                Value = gv[keycol.Name, e.RowIndex].Value
+                            });
+
+                            sbsql.Append($"[{keycol.Name}]=@{keycol.Name}");
+                        }
+
+                        if (parameList.Count == 0)
+                        {
+                            foreach (var keycol in cols.Where(p => p.IsKey || p.IsID))
+                            {
+                                if (!gv.Columns.Contains(keycol.Name))
+                                {
+                                    checkPass = false;
+                                    break;
+                                }
+
+                                if (keycol.Name.Equals(updateColName, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    errorMsg = "不能更新主键";
+                                    checkPass = false;
+                                    break;
+                                }
+
+                                parameList.Add(new MySqlParameter
+                                {
+                                    ParameterName = $"@{keycol.Name}",
+                                    Value = gv[keycol.Name, e.RowIndex].Value
+                                });
+
+                                sbsql.Append($"[{keycol.Name}]=@{keycol.Name}");
+                            }
+                        }
+
+                        if (checkPass)
+                        {
+                            if (parameList.Count == 0)
+                            {
+                                errorMsg = $"没有主键值，无法更新到表{tb.TableName}";
+                                checkPass = false;
+                            }
+                            else
+                            {
+                                parameList.Add(new MySqlParameter
+                                {
+                                    ParameterName = $"@{updateColName}",
+                                    Value = newVal
+                                });
+
+                                var ret = MySQLHelper.ExecuteNoQuery(Server, DB, sbsql.ToString(), parameList.ToArray());
+
+                                Util.SendMsg(this, $"更新{(ret > 0 ? "成功" : "失败")}");
+                                BigEntityTableRemotingEngine.Insert("HLog", new HLogEntity
+                                {
+                                    TypeName = tb.TableName,
+                                    LogTime = DateTime.Now,
+                                    LogType = LogTypeEnum.sql,
+                                    DB = DB,
+                                    Sever = Server.ServerName,
+                                    Info = $"更新字段:{updateColName},主键:{(string.Join(";", parameList.Take(parameList.Count - 1).Select(p => p.ParameterName.TrimStart('@') + ":" + p.Value)))},更新为:{newVal}，前值为:{oldVal}，结果:{(ret > 0 ? "成功" : "失败")}",
+                                    Valid = true
+                                });
+                            }
+                        }
+                    }
+
+                }
+                else
+                {
+                    errorMsg = $"{tb.TableName}表不存在";
+                }
+
+                if (!string.IsNullOrEmpty(errorMsg))
+                {
+                    gv[e.ColumnIndex, e.RowIndex].Value = oldVal;
+                    Util.SendMsg(this, errorMsg);
+                }
+            }
         }
 
         private void 清空ToolStripMenuItem_Click(object sender, EventArgs e)

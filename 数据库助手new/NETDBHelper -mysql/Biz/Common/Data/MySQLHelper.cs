@@ -65,6 +65,21 @@ namespace Biz.Common.Data
             return tb;
         }
 
+        public static TableInfo GetTB(DBSource dbSource, string dbName, string name)
+        {
+            var tb = ExecuteDBTable(dbSource, dbName, string.Format(MySqlHelperConsts.GetTB, dbName, name), null);
+            if (tb.Rows.Count == 0)
+            {
+                return null;
+            }
+            return new TableInfo
+            {
+                DBName = dbName,
+                TBName = name
+            };
+        }
+
+
         public static IEnumerable<TBColumn> GetColumns(DBSource dbSource, string dbName, string tbName)
         {
             var tb = ExecuteDBTable(dbSource, dbName, MySqlHelperConsts.GetColumns, new MySqlParameter("@db", dbName), new MySqlParameter("@tb", tbName));
@@ -255,7 +270,7 @@ namespace Biz.Common.Data
             }
         }
 
-        public static void ExecuteNoQuery(DBSource dbSource, string connDB, string sql, params MySqlParameter[] sqlParams)
+        public static int ExecuteNoQuery(DBSource dbSource, string connDB, string sql, params MySqlParameter[] sqlParams)
         {
             var conn = new MySqlConnection(GetConnstringFromDBSource(dbSource, connDB) + ";allowuservariables=True;");
             MySqlCommand cmd = conn.CreateCommand();
@@ -268,7 +283,7 @@ namespace Biz.Common.Data
             try
             {
                 conn.Open();
-                cmd.ExecuteNonQuery();
+                return cmd.ExecuteNonQuery();
             }
             finally
             {
@@ -981,25 +996,36 @@ ON {tb.Rows[0].Field<string>("EVENT_OBJECT_TABLE")} FOR EACH Row {tb.Rows[0].Fie
                 dataTableObject.Size = dataTableObject.Rows.Count;
                 yield return dataTableObject;
             }
+        }
 
-            string GetConverType(TBColumn column)
+        private static string GetConverType(TBColumn column)
+        {
+            if (column.TypeName.Equals("timestamp", StringComparison.OrdinalIgnoreCase))
             {
-                if (column.TypeName.Equals("timestamp", StringComparison.OrdinalIgnoreCase))
-                {
-                    //return string.Format("cast('' as xml).value('xs:base64Binary(sql:column(\"{0}\"))', 'varchar(max)') as [{0}]", column.Name);
-                    return string.Format(" `{0}`", column.Name);
-                }
-                //else if (column.TypeName.Equals("binary", StringComparison.OrdinalIgnoreCase)
-                //    || column.TypeName.Equals("varbinary", StringComparison.OrdinalIgnoreCase))
-                //{
-                //    return string.Format("cast('' as xml).value('xs:base64Binary(sql:column(\"{0}\"))', 'varchar(max)') as [{0}]", column.Name);
-                //}
-                //else if (column.TypeName.Equals("image", StringComparison.OrdinalIgnoreCase))
-                //{
-                //    return string.Format("convert(varbinary(max),[{0}]) as [{0}]", column.Name);
-                //}
-                return string.Format("`{0}`", column.Name);
+                //return string.Format("cast('' as xml).value('xs:base64Binary(sql:column(\"{0}\"))', 'varchar(max)') as [{0}]", column.Name);
+                return string.Format(" `{0}`", column.Name);
             }
+            //else if (column.TypeName.Equals("binary", StringComparison.OrdinalIgnoreCase)
+            //    || column.TypeName.Equals("varbinary", StringComparison.OrdinalIgnoreCase))
+            //{
+            //    return string.Format("cast('' as xml).value('xs:base64Binary(sql:column(\"{0}\"))', 'varchar(max)') as [{0}]", column.Name);
+            //}
+            //else if (column.TypeName.Equals("image", StringComparison.OrdinalIgnoreCase))
+            //{
+            //    return string.Format("convert(varbinary(max),[{0}]) as [{0}]", column.Name);
+            //}
+            return string.Format("`{0}`", column.Name);
+        }
+
+        public static DataColumnCollection GetDateTableColumns(DBSource dbSource, IEnumerable<TBColumn> columns, TableInfo tableinfo)
+        {
+            MySqlParameter[] sqlParameters = null;
+
+            var sqltext = string.Format("select {0} from {1} limit 0", string.Join(",", columns.Select(p => GetConverType(p))), string.Concat("[", tableinfo.TBName, "]"));
+
+            var datas = ExecuteDBTable(dbSource, tableinfo.DBName, sqltext, sqlParameters);
+
+            return datas.Columns;
         }
 
         public static IEnumerable<DataTableObject> ExportData2(List<TBColumn> columns, bool notExportId, DBSource dbSource, TableInfo tableinfo, int topNum, Func<bool> checkCancel, CopyDBTask copyDBTask)

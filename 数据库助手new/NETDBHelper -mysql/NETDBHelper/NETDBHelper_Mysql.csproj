@@ -240,6 +240,12 @@
     <Compile Include="SubForm\TextBoxWin.Designer.cs">
       <DependentUpon>TextBoxWin.cs</DependentUpon>
     </Compile>
+    <Compile Include="SubForm\UpSertDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SubForm\UpSertDlg.Designer.cs">
+      <DependentUpon>UpSertDlg.cs</DependentUpon>
+    </Compile>
     <Compile Include="SubForm\WatchTaskList.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -269,6 +275,9 @@
     </Compile>
     <Compile Include="SubForm\WinWebBroswer.Designer.cs">
       <DependentUpon>WinWebBroswer.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UC\AdjustTextBox.cs">
+      <SubType>Component</SubType>
     </Compile>
     <Compile Include="UC\CreateProc.cs">
       <SubType>Component</SubType>
@@ -390,6 +399,9 @@
     <Compile Include="UC\UCCreateCodeCallSP.Designer.cs">
       <DependentUpon>UCCreateCodeCallSP.cs</DependentUpon>
     </Compile>
+    <Compile Include="UC\UCDateTime.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="UC\UCLogicMap.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -414,6 +426,12 @@
     <Compile Include="UC\UCTableView2.Designer.cs">
       <DependentUpon>UCTableView2.cs</DependentUpon>
     </Compile>
+    <Compile Include="UC\UCTextBox.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UC\UCTextBox.Designer.cs">
+      <DependentUpon>UCTextBox.cs</DependentUpon>
+    </Compile>
     <Compile Include="UC\ViewTBData.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -427,6 +445,7 @@
       <DependentUpon>WebTab.cs</DependentUpon>
     </Compile>
     <Compile Include="Util.cs" />
+    <Compile Include="Win32Utility.cs" />
     <EmbeddedResource Include="ConnSQLServer.resx">
       <DependentUpon>ConnSQLServer.cs</DependentUpon>
     </EmbeddedResource>
@@ -483,6 +502,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="SubForm\TextBoxWin.resx">
       <DependentUpon>TextBoxWin.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SubForm\UpSertDlg.resx">
+      <DependentUpon>UpSertDlg.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="SubForm\WatchTaskList.resx">
       <DependentUpon>WatchTaskList.cs</DependentUpon>
@@ -561,6 +583,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="UC\UCTableView2.resx">
       <DependentUpon>UCTableView2.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UC\UCTextBox.resx">
+      <DependentUpon>UCTextBox.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UC\ViewTBData.resx">
       <DependentUpon>ViewTBData.cs</DependentUpon>

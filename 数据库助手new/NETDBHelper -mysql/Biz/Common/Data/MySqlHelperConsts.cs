@@ -9,6 +9,7 @@ namespace Biz.Common.Data
     {
         public const string GetDBs = @"show databases";
         public const string GetTBs = @"select table_name from information_schema.tables where table_schema='{0}' and table_type='base table';";
+        public const string GetTB = @"select * from information_schema.tables where table_schema='{0}' and TABLE_NAME='{1}' and table_type='base table';";
 
         public const string GetColumns = @"select column_name
                                            ,data_type
