@@ -519,7 +519,7 @@ namespace NETDBHelper.SubForm
 
             try
             {
-                var sql = $"select top 0 {string.Join(",", cols.Select(p => $"[{p}]"))} from [{_table.DBName}].[{_table.TBName}] with(nolock)";
+                var sql = $"select {string.Join(",", cols.Select(p => $"[{p}]"))} from [{_table.DBName}].[{_table.TBName}] limit 0";
 
                 var tb = MySQLHelper.ExecuteDBTable(_source, _table.DBName, sql);
 

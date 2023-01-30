@@ -222,7 +222,7 @@ namespace NETDBHelper.UC
 
                     var cols = MySQLHelper.GetColumns(Server, tbinfo.DBName, tbinfo.TBName);
                     List<MySqlParameter> @params = new List<MySqlParameter>();
-                    var sb = new StringBuilder($"delete [{tbinfo.DBName}].[{tbinfo.TBName}] where ");
+                    var sb = new StringBuilder($"delete from [{tbinfo.DBName}].[{tbinfo.TBName}] where ");
                     foreach (var col in cols)
                     {
                         if (col.IsKey || col.IsID)
@@ -391,6 +391,22 @@ namespace NETDBHelper.UC
                             page.ImageIndex = 0;
                             
                             var dgv = new DataGridView();
+                            Util.DoubleBuffered(dgv, true);
+                            dgv.CellFormatting += (s, e) =>
+                            {
+                                var cell = dgv.Rows[e.RowIndex].Cells[e.ColumnIndex];
+                                if (cell != dgv.CurrentCell || !cell.IsInEditMode)
+                                {
+                                    if (e.Value == DBNull.Value)
+                                    {
+                                        //var font = e.CellStyle.Font;
+                                        //e.CellStyle.Font = new Font(font.FontFamily, font.Size, FontStyle.Italic);
+
+                                        e.Value = Common.NullDisplayValue;
+                                        e.FormattingApplied = true;
+                                    }
+                                }
+                            };
                             dgv.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.DisplayedCells;
                             dgv.AllowUserToResizeRows = true;
                             page.Controls.Add(dgv);
@@ -438,6 +454,11 @@ namespace NETDBHelper.UC
                                             cell.ReadOnly = false;
                                             dgv.ReadOnly = false;
                                             dgv.BeginEdit(true);
+
+                                            if (cell.Value.Equals(Common.NullDisplayValue))
+                                            {
+                                                cell.Value = DBNull.Value;
+                                            }
                                         }
                                     }
                                 };
@@ -519,7 +540,7 @@ namespace NETDBHelper.UC
         private void Dgv_CellBeginEdit(object sender, DataGridViewCellCancelEventArgs e)
         {
             var dgv = sender as DataGridView;
-            dgv.Tag = new KeyValuePair<DataGridViewCellCancelEventArgs, object>(e, dgv[e.ColumnIndex, e.RowIndex].Value);
+            dgv.Tag = new Tuple<DataGridViewCellCancelEventArgs, object, object>(e, dgv[e.ColumnIndex, e.RowIndex].Value, dgv.Tag is TableInfo ? dgv.Tag : null);
         }
 
         private void Dgv_CellEndEdit(object sender, DataGridViewCellEventArgs e)
@@ -534,20 +555,22 @@ namespace NETDBHelper.UC
                 var updateColName = gv.Columns[e.ColumnIndex].Name;
                 var newVal = gv[e.ColumnIndex, e.RowIndex].Value;
                 object oldVal = null;
+                object oldTag = null;
                 if (gv.Tag == null)
                 {
                     errorMsg = "没有记录到旧值";
                 }
                 else
                 {
-                    var tagVal = (KeyValuePair<DataGridViewCellCancelEventArgs, object>)gv.Tag;
-                    if (tagVal.Key.RowIndex != e.RowIndex || tagVal.Key.ColumnIndex != e.ColumnIndex)
+                    var tagVal = (Tuple<DataGridViewCellCancelEventArgs, object, object>)gv.Tag;
+                    oldTag = tagVal.Item3;
+                    if (tagVal.Item1.RowIndex != e.RowIndex || tagVal.Item1.ColumnIndex != e.ColumnIndex)
                     {
                         errorMsg = "没有记录到旧的值";
                     }
                     else
                     {
-                        oldVal = tagVal.Value;
+                        oldVal = tagVal.Item2;
                         if (object.Equals(oldVal, newVal))
                         {
                             errorMsg = "值没有修改";
@@ -555,7 +578,7 @@ namespace NETDBHelper.UC
                     }
                 }
 
-                gv.Tag = null;
+                gv.Tag = oldTag;
 
                 if (!string.IsNullOrEmpty(errorMsg))
                 {
@@ -1007,7 +1030,7 @@ namespace NETDBHelper.UC
                         sb.Remove(sb.Length - 1, 1);
                         sb.AppendLine();
                     }
-                    new SubForm.TextBoxWin("查看文本", sb.ToString().Trim('\t')).ShowDialog();
+                    new SubForm.TextBoxWin("查看文本", sb.ToString().Trim('\t').Replace("\n", Environment.NewLine)).ShowDialog();
                     break;
                 }
             }
