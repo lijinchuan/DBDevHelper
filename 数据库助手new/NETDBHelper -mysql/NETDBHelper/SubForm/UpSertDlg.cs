@@ -169,7 +169,8 @@ namespace NETDBHelper.SubForm
                 else if (
                     column.TypeName.IndexOf("nvarchar", StringComparison.OrdinalIgnoreCase) > -1
                     || column.TypeName.IndexOf("varchar", StringComparison.OrdinalIgnoreCase) > -1
-                    || column.TypeName.IndexOf("char", StringComparison.OrdinalIgnoreCase) > -1)
+                    || column.TypeName.IndexOf("char", StringComparison.OrdinalIgnoreCase) > -1
+                    || column.TypeName.IndexOf("text", StringComparison.OrdinalIgnoreCase) > -1)
                 {
                     var tb = new UCTextBox();
                     tb.ShowCheckBox = column.IsNullAble;
@@ -317,7 +318,8 @@ namespace NETDBHelper.SubForm
                     }
                     else if (column.TypeName.IndexOf("nvarchar", StringComparison.OrdinalIgnoreCase) > -1
                    || column.TypeName.IndexOf("varchar", StringComparison.OrdinalIgnoreCase) > -1
-                   || column.TypeName.IndexOf("char", StringComparison.OrdinalIgnoreCase) > -1)
+                   || column.TypeName.IndexOf("char", StringComparison.OrdinalIgnoreCase) > -1
+                   || column.TypeName.IndexOf("text", StringComparison.OrdinalIgnoreCase) > -1)
                     {
                         if (column.Length != -1 && ctl.Text?.Length > column.Length)
                         {
@@ -346,7 +348,7 @@ namespace NETDBHelper.SubForm
 
             try
             {
-                var sql = $"select top 0 {string.Join(",", cols.Select(p => $"[{p}]"))} from [{_table.DBName}].[{_table.TBName}] with(nolock)";
+                var sql = $"select {string.Join(",", cols.Select(p => $"[{p}]"))} from [{_table.DBName}].[{_table.TBName}] limit 0";
 
                 var tb = MySQLHelper.ExecuteDBTable(_source, _table.DBName, sql);
 
