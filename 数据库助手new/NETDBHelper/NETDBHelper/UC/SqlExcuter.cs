@@ -250,7 +250,7 @@ namespace NETDBHelper.UC
                     var tbinfo = view.Tag as TableInfo;
 
                     var dlg = new SubForm.UpSertDlg(Server, tbinfo, copyRow: view.CurrentRow);
-                    dlg.ShowDialog();
+                    dlg.Show();
                 }
             }
             else if (e.ClickedItem.Text == "修改数据")
@@ -261,7 +261,7 @@ namespace NETDBHelper.UC
                     var tbinfo = view.Tag as TableInfo;
 
                     var dlg = new SubForm.UpSertDlg(Server, tbinfo, view.CurrentRow);
-                    dlg.ShowDialog();
+                    dlg.Show();
                 }
             }
             else if (e.ClickedItem.Text == "删除数据")
