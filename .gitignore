@@ -6,3 +6,4 @@ bin
 .suo
 .vs
 
+/数据库助手new/NETDBHelper -mysql/packages
