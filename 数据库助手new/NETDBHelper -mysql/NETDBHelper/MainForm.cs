@@ -14,10 +14,12 @@ using NETDBHelper.UC;
 
 namespace NETDBHelper
 {
-    public partial class MainFrm : Form
+    public partial class MainFrm : Form, IMessageFilter
     {
         private static MainFrm Instance = null;
         private System.Timers.Timer tasktimer = null;
+        private bool preFilterMessageFlag = false;
+
         private void InitFrm()
         {
             this.tsb_Excute.Enabled = false;
@@ -55,7 +57,80 @@ namespace NETDBHelper
 
             Util.OnUserLogin += Util_OnUserLogin;
             Util.OnUserLoginOut += Util_OnUserLoginOut;
+
+            Application.AddMessageFilter(this);
         }
+
+
+
+        private void CanAdjust()
+        {
+            Point mousePos = Point.Empty;
+            MouseMove += mouseMouse;
+            //foreach (Control ctl in dbServerView1.Controls)
+            //{
+            //    //if (ctl.Width >= dbServerView1.Width * 0.8 && ctl.Height >= dbServerView1.Height * 0.8)
+            //    {
+            //        ctl.MouseMove += (s, e) =>
+            //         {
+            //             Cursor = Cursors.Default;
+            //         };
+            //    }
+            //}
+
+            //panel1.MouseMove += (s, e) =>
+            // {
+            //     Cursor = Cursors.Default;
+            // };
+
+            void mouseUp(object s, MouseEventArgs e)
+            {
+                mousePos = Point.Empty;
+                MouseUp -= mouseUp;
+                Cursor = Cursors.Default;
+                preFilterMessageFlag = false;
+            }
+
+            void mouseMouse(object s, MouseEventArgs e)
+            {
+                if (panel1.Location.X - e.X < 5 && panel1.Location.X - e.X > 0 && e.Y > panel1.Location.Y)
+                {
+                    this.Cursor = Cursors.SizeWE;
+                    preFilterMessageFlag = true;
+                    if ((e.Button & MouseButtons.Left) == MouseButtons.Left)
+                    {
+                        if (mousePos == Point.Empty)
+                        {
+                            mousePos = new Point(e.X, e.Y);
+                            this.MouseUp += mouseUp;
+                        }
+                    }
+                }
+
+                if (mousePos != Point.Empty && (e.Button & MouseButtons.Left) == MouseButtons.Left)
+                {
+                    if (Math.Abs(e.X - mousePos.X) > 10 && Math.Abs(e.X - mousePos.X) < 100)
+                    {
+                        if (dbServerView1.Width + e.X - mousePos.X >= 50 && dbServerView1.Width + e.X - mousePos.X <= this.Width - 50
+                                   && panel1.Width + mousePos.X - e.X >= 50 && panel1.Width + mousePos.X - e.X <= this.Width - 50)
+                        {
+                            dbServerView1.Width += e.X - mousePos.X;
+                            panel1.Width += mousePos.X - e.X;
+                            var newLoaction = panel1.Location;
+                            newLoaction.Offset(e.X - mousePos.X, 0);
+                            panel1.Location = newLoaction;
+                            mousePos = new Point(e.X, e.Y);
+                        }
+                    }
+                }
+                else if ((Math.Abs(panel1.Location.X - e.X) > 10 || e.Y <= panel1.Location.Y) && (e.Button & MouseButtons.Left) == MouseButtons.None)
+                {
+                    Cursor = Cursors.Default;
+                    preFilterMessageFlag = false;
+                }
+            }
+        }
+
 
         private void Util_OnUserLoginOut(LoginUser user)
         {
@@ -143,6 +218,8 @@ namespace NETDBHelper
                         this.TabControl.SelectedIndex = 0;
                     }
                 }
+
+                CanAdjust();
             }
             catch (Exception ex)
             {
@@ -851,6 +928,44 @@ namespace NETDBHelper
             var dlg = new SearchDBDataDlg();
 
             dlg.Show();
+        }
+
+
+        static int MakeLParam(int x, int y)
+        {
+            return (y << 16) | (x & 0xFFFF);
+        }
+        /// <summary>
+        /// Y
+        /// </summary>
+        /// <param name="lp"></param>
+        /// <returns></returns>
+        static int GetHiWord(int lp)
+        {
+            return lp >> 16;
+        }
+        /// <summary>
+        /// X
+        /// </summary>
+        /// <param name="lp"></param>
+        /// <returns></returns>
+        static int GetLoWord(int lp)
+        {
+            return lp & 0xFFFF;
+        }
+
+
+        public bool PreFilterMessage(ref Message m)
+        {
+            if (preFilterMessageFlag && m.Msg == 0x200)
+            {
+                //mousemove
+                var x = GetLoWord(m.LParam.ToInt32());
+                var y = GetHiWord(m.LParam.ToInt32());
+
+                this.OnMouseMove(new MouseEventArgs(MouseButtons.None, 0, x, y, 0));
+            }
+            return false;
         }
     }
 }
