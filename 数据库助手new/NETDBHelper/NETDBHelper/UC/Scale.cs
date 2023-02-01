@@ -25,8 +25,8 @@ namespace NETDBHelper.UC
                 return _lineNos.Last().Key;
             }
         }
-        private Dictionary<int, Point> _lineNos;
-        public Dictionary<int, Point> LineNos
+        private Dictionary<int, PointF> _lineNos;
+        public Dictionary<int, PointF> LineNos
         {
             get
             {
@@ -48,14 +48,14 @@ namespace NETDBHelper.UC
             LockPaint = true;
             if (_lineNos == null)
             {
-                _lineNos = new Dictionary<int, Point>();
-                _lineNos.Add(1, new Point(0, 0));
+                _lineNos = new Dictionary<int, PointF>();
+                _lineNos.Add(1, new PointF(0, 0));
             }
             if (_lineNos.Count == 0)
             {
-                _lineNos.Add(1, new Point(0, 0));
+                _lineNos.Add(1, new PointF(0, 0));
             }
-            foreach (KeyValuePair<int, Point> kv in _lineNos)
+            foreach (KeyValuePair<int, PointF> kv in _lineNos)
             {
                 e.Graphics.DrawString(kv.Key.ToString(), this.Font, new SolidBrush(Color.Gray), kv.Value);
             }

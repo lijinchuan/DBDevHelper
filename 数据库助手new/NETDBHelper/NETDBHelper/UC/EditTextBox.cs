@@ -545,12 +545,15 @@ namespace NETDBHelper.UC
             SetStyle(ControlStyles.AllPaintingInWmPaint, true); // 禁止擦除背景.
             SetStyle(ControlStyles.DoubleBuffer, true); // 双缓冲
 
+            RichText.Font = new Font(RichText.Font.FontFamily, 12);
             this.RichText.WordWrap = false;
             this.RichText.ScrollBars = RichTextBoxScrollBars.Both;
             this.RichText.ContextMenuStrip = this.contextMenuStrip1;
             this.RichText.VScroll += RichText_VScroll;
             
-            this.ScaleNos.Font = new Font(RichText.Font.FontFamily, RichText.Font.Size + 1.019f);
+            
+            this.ScaleNos.Font = new Font(RichText.Font.FontFamily, RichText.Font.Size);
+            ScaleNos.Location = new Point(ScaleNos.Location.X, RichText.Location.Y);
             this.RichText.KeyUp += new KeyEventHandler(RichText_KeyUp);
             this.RichText.KeyDown += RichText_KeyDown;
             this.RichText.TextChanged+=new EventHandler(RichText_TextChanged);
@@ -1361,40 +1364,55 @@ namespace NETDBHelper.UC
                 line2 += 1;
             //if (line1 == this.ScaleNos.FirstLine && line2 == this.ScaleNos.LastLine)
             //    return;
-            Dictionary<int, Point> nos = new Dictionary<int, Point>();
+            Dictionary<int, PointF> nos = new Dictionary<int, PointF>();
             float offset = 0f;
             int strLen = this.RichText.GetCharIndexFromPosition(new Point(0, 0)) + 1;
             int linesLen = RichText.Lines.Length;
-            var sizeF = this.CreateGraphics().MeasureString("高", Font);
-            var lineHeight = (int)Math.Ceiling(sizeF.Height);
-            var linesIsEmpty = RichText.Lines.Skip(line1 - 1).Take(line2 - line1 + 1).Select(p => p.FirstOrDefault() == default(char)).ToArray();
-            var firstPos = RichText.GetPositionFromCharIndex(RichText.GetFirstCharIndexFromLine(line1 - 1));
-            offset = firstPos.Y;
-            
-            for (int i = line1; i <= line2 && i <= linesLen; i++)
+            using (var g = RichText.CreateGraphics())
             {
-                //要算上一个换行符
-                var isEmpty = linesIsEmpty[i - line1];
-                if (isEmpty)
+                var sizeF = g.MeasureString("高", RichText.Font);
+                var lineHeight = sizeF.Height;
+                var linesIsEmpty = RichText.Lines.Skip(line1 - 1).Take(line2 - line1 + 1).Select(p => p.FirstOrDefault() == default(char)).ToArray();
+                var firstPos = RichText.GetPositionFromCharIndex(RichText.GetFirstCharIndexFromLine(line1 - 1));
+                offset = firstPos.Y;
+                var checkCount = 0;
+                for (int i = line1; i <= line2 && i <= linesLen; i++)
                 {
-                    //if (i == line1)
-                    //{
-                    //    continue;
-                    //}
-                    Point p = new Point(2, 0);
-                    p.Y = (int)offset;
-                    offset = offset + lineHeight + 0.0001f;
-                    nos.Add(i, p);
-                    strLen += 1;
-                }
-                else
-                {
-                    Point p = new Point(2, (int)offset);
+                    //要算上一个换行符
+                    var isEmpty = linesIsEmpty[i - line1];
+                    if (isEmpty)
+                    {
+                        //if (i == line1)
+                        //{
+                        //    continue;
+                        //}
 
-                    offset = offset + lineHeight + 0.0001f;
-                    p.X = 2;
+                        var p = new PointF(2, 0);
+                        p.Y = offset;
+                        offset = offset + lineHeight;
+                        nos.Add(i, p);
+                        strLen += 1;
+                    }
+                    else
+                    {
+                        var p = new PointF(2, offset);
 
-                    nos.Add(i, p);
+                        if (checkCount % 10 == 9)
+                        {
+                            offset = RichText.GetPositionFromCharIndex(RichText.GetFirstCharIndexFromLine(i)).Y;
+                        }
+                        else
+                        {
+                            offset = offset + lineHeight;
+                        }
+                        p.X = 2;
+
+                        nos.Add(i, p);
+
+                        
+                    }
+
+                    checkCount++;
                 }
             }
             ProcessTraceUtil.Trace("nos");
