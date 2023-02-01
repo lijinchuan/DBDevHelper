@@ -545,7 +545,7 @@ namespace NETDBHelper.UC
             SetStyle(ControlStyles.AllPaintingInWmPaint, true); // 禁止擦除背景.
             SetStyle(ControlStyles.DoubleBuffer, true); // 双缓冲
 
-            RichText.Font = new Font(RichText.Font.FontFamily, 12);
+            //RichText.Font = new Font(RichText.Font.FontFamily, 12);
             this.RichText.WordWrap = false;
             this.RichText.ScrollBars = RichTextBoxScrollBars.Both;
             this.RichText.ContextMenuStrip = this.contextMenuStrip1;
@@ -1375,9 +1375,12 @@ namespace NETDBHelper.UC
                 var linesIsEmpty = RichText.Lines.Skip(line1 - 1).Take(line2 - line1 + 1).Select(p => p.FirstOrDefault() == default(char)).ToArray();
                 var firstPos = RichText.GetPositionFromCharIndex(RichText.GetFirstCharIndexFromLine(line1 - 1));
                 offset = firstPos.Y;
-                var checkCount = 0;
                 for (int i = line1; i <= line2 && i <= linesLen; i++)
                 {
+                    if (i == line1 + 1)
+                    {
+                        lineHeight = RichText.GetPositionFromCharIndex(RichText.GetFirstCharIndexFromLine(i - 1)).Y - firstPos.Y;
+                    }
                     //要算上一个换行符
                     var isEmpty = linesIsEmpty[i - line1];
                     if (isEmpty)
@@ -1397,22 +1400,14 @@ namespace NETDBHelper.UC
                     {
                         var p = new PointF(2, offset);
 
-                        if (checkCount % 10 == 9)
-                        {
-                            offset = RichText.GetPositionFromCharIndex(RichText.GetFirstCharIndexFromLine(i)).Y;
-                        }
-                        else
-                        {
-                            offset = offset + lineHeight;
-                        }
+
+                        offset = offset + lineHeight;
                         p.X = 2;
 
                         nos.Add(i, p);
 
-                        
-                    }
 
-                    checkCount++;
+                    }
                 }
             }
             ProcessTraceUtil.Trace("nos");
