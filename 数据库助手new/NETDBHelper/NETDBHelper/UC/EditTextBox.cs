@@ -545,7 +545,7 @@ namespace NETDBHelper.UC
             SetStyle(ControlStyles.AllPaintingInWmPaint, true); // 禁止擦除背景.
             SetStyle(ControlStyles.DoubleBuffer, true); // 双缓冲
 
-            //RichText.Font = new Font(RichText.Font.FontFamily, 12);
+            RichText.Font = new Font(RichText.Font.FontFamily, 10);
             this.RichText.WordWrap = false;
             this.RichText.ScrollBars = RichTextBoxScrollBars.Both;
             this.RichText.ContextMenuStrip = this.contextMenuStrip1;
@@ -1379,7 +1379,12 @@ namespace NETDBHelper.UC
                 {
                     if (i == line1 + 1)
                     {
-                        lineHeight = RichText.GetPositionFromCharIndex(RichText.GetFirstCharIndexFromLine(i - 1)).Y - firstPos.Y;
+                        offset = RichText.GetPositionFromCharIndex(RichText.GetFirstCharIndexFromLine(i - 1)).Y;
+                        lineHeight = offset - firstPos.Y;
+
+                        var firstNos = nos.First();
+                        nos.Remove(firstNos.Key);
+                        nos.Add(firstNos.Key, new PointF(firstNos.Value.X, firstNos.Value.Y + (lineHeight - RichText.Font.Height) / 2));
                     }
                     //要算上一个换行符
                     var isEmpty = linesIsEmpty[i - line1];
@@ -1391,14 +1396,14 @@ namespace NETDBHelper.UC
                         //}
 
                         var p = new PointF(2, 0);
-                        p.Y = offset;
+                        p.Y = offset + (lineHeight - RichText.Font.Height) / 2;
                         offset = offset + lineHeight;
                         nos.Add(i, p);
                         strLen += 1;
                     }
                     else
                     {
-                        var p = new PointF(2, offset);
+                        var p = new PointF(2, offset + (lineHeight - RichText.Font.Height) / 2);
 
 
                         offset = offset + lineHeight;
