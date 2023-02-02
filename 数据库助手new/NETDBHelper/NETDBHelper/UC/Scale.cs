@@ -34,8 +34,23 @@ namespace NETDBHelper.UC
             }
             set
             {
-                this._lineNos = value;
-                this.Invalidate();
+                bool hasChange = _lineNos == null || value.Count != _lineNos.Count;
+                if (!hasChange)
+                {
+                    foreach (var kv in value)
+                    {
+                        if (!_lineNos.ContainsKey(kv.Key) || _lineNos[kv.Key].X != kv.Value.X || _lineNos[kv.Key].Y != kv.Value.Y)
+                        {
+                            hasChange = true;
+                            break;
+                        }
+                    }
+                }
+                if (hasChange)
+                {
+                    this._lineNos = value;
+                    this.Invalidate();
+                }
             }
         }
         public Scale()

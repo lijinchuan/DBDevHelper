@@ -1384,7 +1384,7 @@ namespace NETDBHelper.UC
 
                         var firstNos = nos.First();
                         nos.Remove(firstNos.Key);
-                        nos.Add(firstNos.Key, new PointF(firstNos.Value.X, firstNos.Value.Y + (lineHeight - RichText.Font.Height) / 2));
+                        nos.Add(firstNos.Key, new PointF(firstNos.Value.X, firstNos.Value.Y + (lineHeight - RichText.Font.Height)));
                     }
                     //要算上一个换行符
                     var isEmpty = linesIsEmpty[i - line1];
@@ -1396,14 +1396,14 @@ namespace NETDBHelper.UC
                         //}
 
                         var p = new PointF(2, 0);
-                        p.Y = offset + (lineHeight - RichText.Font.Height) / 2;
+                        p.Y = offset + (lineHeight - RichText.Font.Height);
                         offset = offset + lineHeight;
                         nos.Add(i, p);
                         strLen += 1;
                     }
                     else
                     {
-                        var p = new PointF(2, offset + (lineHeight - RichText.Font.Height) / 2);
+                        var p = new PointF(2, offset + (lineHeight - RichText.Font.Height));
 
 
                         offset = offset + lineHeight;
