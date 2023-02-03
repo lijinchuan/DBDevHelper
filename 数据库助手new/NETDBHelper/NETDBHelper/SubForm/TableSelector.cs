@@ -164,7 +164,7 @@ namespace NETDBHelper.SubForm
             if (total > 0)
             {
                 var rate = finished * 100 / total;
-                BeginInvoke(new Action(() => ProcessBar.Value = rate));
+                BeginInvoke(new Action(() => ProcessBar.Value = rate)) ;
             }
         }
 
@@ -174,13 +174,15 @@ namespace NETDBHelper.SubForm
 
             try
             {
+                SendMsg(string.Empty);
                 ProcessTraceUtil.StartTrace();
                 var total = CLBDBs.CheckedItems.Count;
                 var finished = 0;
-
-                foreach (var item in CLBDBs.CheckedItems)
+                
+                for(var i=0;i<CLBDBs.CheckedItems.Count;i++)
                 {
-                    var db = item.ToString();
+                    var item = CLBDBs.CheckedItems[i];
+                     var db = item.ToString();
                     try
                     {
                         if (cancel || stop)
@@ -195,6 +197,9 @@ namespace NETDBHelper.SubForm
                         {
                             tbrows = tbrows.AsEnumerable().Where(p => dbdic[db].Any(q => q.Boo && q.Str.Equals(p.Field<string>("name"), StringComparison.OrdinalIgnoreCase))).ToList();
                         }
+
+                        total = tbrows.Count* CLBDBs.CheckedItems.Count;
+                        finished = i * tbrows.Count;
 
                         //创建表
                         foreach (var tb in tbrows)
@@ -213,11 +218,11 @@ namespace NETDBHelper.SubForm
 
                             //做事情
                             Work?.Invoke(DBSource, tbinfo);
+
+                            finished++;
+
+                            PublishFinished(total, finished);
                         }
-
-                        finished++;
-
-                        PublishFinished(total, finished);
                     }
                     catch (Exception ex)
                     {
@@ -227,7 +232,7 @@ namespace NETDBHelper.SubForm
                     }
                 }
 
-                if (finished == total)
+                if (finished >= total)
                 {
                     PublishFinished(100, 100);
                     OnFinished?.Invoke();
