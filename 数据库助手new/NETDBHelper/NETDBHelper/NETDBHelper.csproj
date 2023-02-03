@@ -147,6 +147,12 @@
     <Compile Include="SubForm\AddTempTableDlg.Designer.cs">
       <DependentUpon>AddTempTableDlg.cs</DependentUpon>
     </Compile>
+    <Compile Include="SubForm\TableSelector.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SubForm\TableSelector.Designer.cs">
+      <DependentUpon>TableSelector.cs</DependentUpon>
+    </Compile>
     <Compile Include="SubForm\CachDB.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -485,6 +491,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="SubForm\AddTempTableDlg.resx">
       <DependentUpon>AddTempTableDlg.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SubForm\TableSelector.resx">
+      <DependentUpon>TableSelector.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="SubForm\CachDB.resx">
       <DependentUpon>CachDB.cs</DependentUpon>

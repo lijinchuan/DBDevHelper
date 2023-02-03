@@ -8,6 +8,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Biz.Common;
 using Biz.Common.Data;
 using Entity;
 using Entity.WatchTask;
@@ -1071,6 +1072,14 @@ namespace NETDBHelper
                 this.OnMouseMove(new MouseEventArgs(MouseButtons.None, 0, x, y, 0));
             }
             return false;
+        }
+
+        private void 导出数据字典ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SubForm.TableSelector tableSelector = new TableSelector();
+            tableSelector.Work = DocHelper.CreateDataDoc;
+            tableSelector.OnFinished = () => System.Diagnostics.Process.Start(Application.StartupPath + "\\temp\\");
+            tableSelector.Show();
         }
     }
 }
