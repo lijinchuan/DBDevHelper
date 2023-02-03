@@ -500,14 +500,14 @@ namespace APIHelper.UC
                                         | System.Net.SecurityProtocolType.Tls12
                                         | System.Net.SecurityProtocolType.Ssl3;
             }
-           
+
             var bodydataType = GetBodyDataType();
             List<Task<HttpResponseEx>> responseExTaskList = new List<Task<HttpResponseEx>>();
 
             if (bodydataType == BodyDataType.formdata)
             {
                 var dic = FormDatas.Where(p => p.Checked).ToDictionary(p => ReplaceEvnParams(p.Name, ref apiEnvParams), q => ReplaceEvnParams(q.Value, ref apiEnvParams));
-                foreach(var httpRequestEx in httpRequestExList)
+                foreach (var httpRequestEx in httpRequestExList)
                 {
                     responseExTaskList.Add(httpRequestEx.DoFormRequestAsync(url, dic, cancelToken: (CancelToken)cancelToken));
                 }
@@ -611,7 +611,7 @@ namespace APIHelper.UC
                 var apidata = GetApiData(false);
                 if (apidata.Cookies != null && apidata.Cookies.Count > 0)
                 {
-                    foreach(var c in apidata.Cookies)
+                    foreach (var c in apidata.Cookies)
                     {
                         if (!cookies.Any(p => p.Name == c.Name))
                         {
@@ -628,7 +628,49 @@ namespace APIHelper.UC
                 TBResult.Url = responseEx.ResponseUrl;
 
                 TBResult.SetHeader(responseEx.Headers);
-                if (responseEx.ResponseContent != null)
+                //if (responseEx.ContentType.Equals("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", StringComparison.OrdinalIgnoreCase))
+
+                var fileAttachment = new Regex("attachment; filename=\"=\\?(.*?)\\?B\\?(.*?)\\?=\"");
+                var fileName = string.Empty;
+                if (responseEx.Headers.ContainsKey("Content-Disposition"))
+                {
+                    //attachment; filename="=?utf-8?B?5bel6LWE5YmN6KGoXzIwMjIxMC4wMC54bHN4?="
+                    var m = fileAttachment.Match(responseEx.Headers["Content-Disposition"]);
+                    if (m.Success)
+                    {
+                        fileName = Encoding.GetEncoding(m.Groups[1].Value).GetString(Convert.FromBase64String(m.Groups[2].Value));
+                    }
+                }
+
+                if (!string.IsNullOrWhiteSpace(fileName))
+                {
+                    var tempFileName = "temp\\" + fileName;
+                    if (!Directory.Exists(Path.GetDirectoryName(tempFileName)))
+                    {
+                        Directory.CreateDirectory(Path.GetDirectoryName(tempFileName));
+                    }
+                    if (File.Exists(tempFileName))
+                    {
+                        var no = 1;
+                        while (true)
+                        {
+                            tempFileName = Path.Combine(Path.GetDirectoryName(tempFileName), Path.GetFileNameWithoutExtension(fileName) + "(" + no + ")" + Path.GetExtension(fileName));
+                            if (!File.Exists(tempFileName))
+                            {
+                                break;
+                            }
+                            no++;
+                        }
+                    }
+
+                    using (FileStream fs = new FileStream(tempFileName, FileMode.Create))
+                    {
+                        fs.Write(responseEx.ResponseBytes, 0, responseEx.ResponseBytes.Length);
+                    }
+
+                    System.Diagnostics.Process.Start(tempFileName);
+                }
+                else if (responseEx.ResponseContent != null)
                 {
                     var encode = string.IsNullOrWhiteSpace(responseEx.CharacterSet) ? Encoding.UTF8 : Encoding.GetEncoding(responseEx.CharacterSet);
                     TBResult.Raw = encode.GetBytes(responseEx.ResponseContent);
@@ -683,7 +725,7 @@ namespace APIHelper.UC
                     APIName = _apiUrl.APIName,
                     CDate = DateTime.Now,
                     Path = url,
-                    OrgPath=TBUrl.Text,
+                    OrgPath = TBUrl.Text,
                     SourceId = _apiUrl.SourceId,
                     StatusCode = responseEx.StatusCode,
                     RespMsg = responseEx.ErrorMsg?.ToString(),
@@ -697,7 +739,7 @@ namespace APIHelper.UC
                         Raw = responseEx.ResponseBytes
                     } : null,
                     APIData = GetApiData(false),
-                    OrgAPIData=GetApiData(true)
+                    OrgAPIData = GetApiData(true)
                 };
 
                 if (log.ResponseText != null)
