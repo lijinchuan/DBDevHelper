@@ -161,11 +161,6 @@ namespace NETDBHelper.SubForm
                         picker.Value = (DateTime)editVal;
                     }
                 }
-                else if (column.TypeName.Equals("sql_variant", StringComparison.OrdinalIgnoreCase))
-                {
-                    valControl = new Label();
-                    valControl.Text = "不支持";
-                }
                 else if (
                     column.TypeName.IndexOf("nvarchar", StringComparison.OrdinalIgnoreCase) > -1
                     || column.TypeName.IndexOf("varchar", StringComparison.OrdinalIgnoreCase) > -1
@@ -189,6 +184,11 @@ namespace NETDBHelper.SubForm
                         tb.Text = editVal.ToString();
                     }
                     valControl = tb;
+                }
+                else
+                {
+                    valControl = new Label();
+                    valControl.Text = "不支持"+column.TypeName;
                 }
                 valControl.Location = new Point(preoffsetx, preoffsety);
 

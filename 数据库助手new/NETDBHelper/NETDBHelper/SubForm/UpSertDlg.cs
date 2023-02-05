@@ -189,6 +189,11 @@ namespace NETDBHelper.SubForm
                     }
                     valControl = tb;
                 }
+                else
+                {
+                    valControl = new Label();
+                    valControl.Text = "不支持";
+                }
                 valControl.Location = new Point(preoffsetx, preoffsety);
 
                 preoffsetx += valControl.Width;
