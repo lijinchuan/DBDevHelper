@@ -144,20 +144,26 @@ namespace NETDBHelper.UC
         {
             if (datastrip.Visible)
             {
-                var items = FindItems(new[] { "新增数据", "修改数据", "删除数据" });
+                var items = FindItems(new[] { "新增数据", "复制数据", "修改数据", "删除数据" });
                 var visible = false;
-                if (sender is DataGridView)
+                var editble = false;
+                var gv = FindDgv();
+                if (gv != null)
                 {
-                    var gv = sender as DataGridView;
+                    editble = gv.CurrentRow != null;
                     visible = gv.Tag is TableInfo;
                 }
 
                 foreach (var item in items)
                 {
                     item.Visible = visible;
+                    item.Enabled = visible;
+                }
+                foreach (var item in items.Skip(1))
+                {
+                    item.Visible = editble;
                 }
             }
-
             IEnumerable<ToolStripItem> FindItems(string[] texts)
             {
                 foreach (ToolStripItem item in datastrip.Items)
@@ -345,19 +351,19 @@ namespace NETDBHelper.UC
                     }
                 }
             }
+        }
 
-            DataGridView FindDgv()
+        DataGridView FindDgv()
+        {
+            foreach (var ctl in tabControl1.SelectedTab.Controls)
             {
-                foreach (var ctl in tabControl1.SelectedTab.Controls)
+                if (ctl is DataGridView)
                 {
-                    if (ctl is DataGridView)
-                    {
-                        var view = (DataGridView)ctl;
-                        return view;
-                    }
+                    var view = (DataGridView)ctl;
+                    return view;
                 }
-                return null;
             }
+            return null;
         }
 
         private void Stop(object o)

@@ -51,7 +51,7 @@ namespace NETDBHelper
             this.dbServerView1.OnDeleteLogicMap += this.DeleteLogicMap;
 
 
-            复制数据库ToolStripMenuItem.Visible = 还原数据库ToolStripMenuItem.Visible = 搜索数据库ToolStripMenuItem.Visible= Util.LoginUserLevel() >= 5;
+            //复制数据库ToolStripMenuItem.Visible = 还原数据库ToolStripMenuItem.Visible = 搜索数据库ToolStripMenuItem.Visible= Util.LoginUserLevel() >= 5;
             登录ToolStripMenuItem.Visible = Util.LoginUserLevel() == 0;
             登出ToolStripMenuItem.Visible = Util.LoginUserLevel() > 0;
 
