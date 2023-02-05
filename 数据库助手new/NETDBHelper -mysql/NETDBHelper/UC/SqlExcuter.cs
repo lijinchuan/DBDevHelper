@@ -21,11 +21,12 @@ using LJC.FrameWork.LogManager;
 
 namespace NETDBHelper.UC
 {
-    public partial class SqlExcuter : TabPage,IDataExport, IRecoverAble
+    public partial class SqlExcuter : TabPage,IDataExport, IRecoverAble, IMessageFilter
     {
         UC.LoadingBox loadbox = new LoadingBox();
         bool isexecuting = false;
-        
+        private bool preFilterMessageFlag = false;
+
         public SqlExcuter()
         {
             InitializeComponent();
@@ -54,6 +55,7 @@ namespace NETDBHelper.UC
             {
                 mousePos = Point.Empty;
                 this.MouseUp -= mouseUp;
+                preFilterMessageFlag = false;
                 this.Cursor = Cursors.Default;
             }
 
@@ -62,6 +64,7 @@ namespace NETDBHelper.UC
                 if (e.Y - this.tabControl1.Location.Y < 5 && e.Y - this.tabControl1.Location.Y > 0)
                 {
                     this.Cursor = Cursors.SizeNS;
+                    preFilterMessageFlag = true;
                     if ((e.Button & MouseButtons.Left) == MouseButtons.Left)
                     {
                         if (mousePos == Point.Empty)
@@ -91,6 +94,7 @@ namespace NETDBHelper.UC
                 else if (Math.Abs(e.Y - this.tabControl1.Location.Y) > 10 && (e.Button & MouseButtons.Left) == MouseButtons.None)
                 {
                     this.Cursor = Cursors.Default;
+                    preFilterMessageFlag = false;
                 }
             }
         }
@@ -132,6 +136,7 @@ namespace NETDBHelper.UC
             datastrip.ItemClicked += Datastrip_ItemClicked;
             datastrip.VisibleChanged += Datastrip_VisibleChanged;
 
+            Application.AddMessageFilter(this);
             CanAdjust();
         }
 
@@ -1290,9 +1295,47 @@ namespace NETDBHelper.UC
             datastrip.VisibleChanged += Datastrip_VisibleChanged;
             datastrip.ItemClicked += Datastrip_ItemClicked;
 
+            Application.AddMessageFilter(this);
             CanAdjust();
 
             return this;
+        }
+
+        static int MakeLParam(int x, int y)
+        {
+            return (y << 16) | (x & 0xFFFF);
+        }
+        /// <summary>
+        /// Y
+        /// </summary>
+        /// <param name="lp"></param>
+        /// <returns></returns>
+        static int GetHiWord(int lp)
+        {
+            return lp >> 16;
+        }
+        /// <summary>
+        /// X
+        /// </summary>
+        /// <param name="lp"></param>
+        /// <returns></returns>
+        static int GetLoWord(int lp)
+        {
+            return lp & 0xFFFF;
+        }
+
+
+        public bool PreFilterMessage(ref Message m)
+        {
+            if (preFilterMessageFlag && m.Msg == 0x200)
+            {
+                //mousemove
+                var x = GetLoWord(m.LParam.ToInt32());
+                var y = GetHiWord(m.LParam.ToInt32());
+
+                this.OnMouseMove(new MouseEventArgs(MouseButtons.None, 0, x, y, 0));
+            }
+            return false;
         }
     }
 }
