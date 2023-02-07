@@ -1025,9 +1025,9 @@ namespace NETDBHelper.UC
             tippt.Offset(0, 20);
             string pre = "", last = "";
             int pi = curindex - charstartindex - 1;
-
-            var currLineText = RichText.Lines[currline];
-            var linesLen = RichText.Lines.Length;
+            var allLines = RichText.Lines;
+            var currLineText = allLines[currline];
+            var linesLen = allLines.Length;
             //判断是否是注释部分
             var nodeindex = currLineText?.IndexOf("--");
             if (nodeindex > -1 && pi >= nodeindex)
@@ -1222,13 +1222,13 @@ namespace NETDBHelper.UC
             var oldstart = this.RichText.SelectionStart;
             var oldlen = this.RichText.SelectionLength;
             int selectionStart = RichText.GetFirstCharIndexFromLine(lines.First());
-
+            var allLines = RichText.Lines;
             for (var i = 1; i < lines.Length; i++)
             {
                 if (lines[i] - lines[i - 1] != 1)
                 {
                     this.RichText.SelectionStart = selectionStart;
-                    this.RichText.SelectionLength = RichText.GetFirstCharIndexFromLine(lines[i]) - selectionStart + RichText.Lines[lines[i]].Length;
+                    this.RichText.SelectionLength = RichText.GetFirstCharIndexFromLine(lines[i]) - selectionStart + allLines[lines[i]].Length;
                     this.RichText.SelectionColor = Color.Black;
                     selectionStart = RichText.GetFirstCharIndexFromLine(lines[i]);
                 }
@@ -1237,7 +1237,7 @@ namespace NETDBHelper.UC
             if (selectionStart != -1)
             {
                 this.RichText.SelectionStart = selectionStart;
-                this.RichText.SelectionLength = RichText.GetFirstCharIndexFromLine(lines[lines.Length - 1]) - selectionStart + RichText.Lines[lines[lines.Length - 1]].Length;
+                this.RichText.SelectionLength = RichText.GetFirstCharIndexFromLine(lines[lines.Length - 1]) - selectionStart + allLines[lines[lines.Length - 1]].Length;
                 this.RichText.SelectionColor = Color.Black;
 
                 this.RichText.SelectionStart = oldstart;
@@ -1367,12 +1367,14 @@ namespace NETDBHelper.UC
             Dictionary<int, PointF> nos = new Dictionary<int, PointF>();
             float offset = 0f;
             int strLen = this.RichText.GetCharIndexFromPosition(new Point(0, 0)) + 1;
-            int linesLen = RichText.Lines.Length;
+            var allLines = RichText.Lines;
+            int linesLen = allLines.Length;
             using (var g = RichText.CreateGraphics())
             {
                 var sizeF = g.MeasureString("高", RichText.Font);
                 var lineHeight = sizeF.Height;
-                var linesIsEmpty = RichText.Lines.Skip(line1 - 1).Take(line2 - line1 + 1).Select(p => p.FirstOrDefault() == default(char)).ToArray();
+                var fontHeight = RichText.Font.Height;
+                var linesIsEmpty = allLines.Skip(line1 - 1).Take(line2 - line1 + 1).Select(p => p.FirstOrDefault() == default(char)).ToArray();
                 var firstPos = RichText.GetPositionFromCharIndex(RichText.GetFirstCharIndexFromLine(line1 - 1));
                 offset = firstPos.Y;
                 for (int i = line1; i <= line2 && i <= linesLen; i++)
@@ -1384,7 +1386,7 @@ namespace NETDBHelper.UC
 
                         var firstNos = nos.First();
                         nos.Remove(firstNos.Key);
-                        nos.Add(firstNos.Key, new PointF(firstNos.Value.X, firstNos.Value.Y + (lineHeight - RichText.Font.Height)));
+                        nos.Add(firstNos.Key, new PointF(firstNos.Value.X, firstNos.Value.Y + (lineHeight - fontHeight)));
                     }
                     //要算上一个换行符
                     var isEmpty = linesIsEmpty[i - line1];
@@ -1396,14 +1398,14 @@ namespace NETDBHelper.UC
                         //}
 
                         var p = new PointF(2, 0);
-                        p.Y = offset + (lineHeight - RichText.Font.Height);
+                        p.Y = offset + (lineHeight - fontHeight);
                         offset = offset + lineHeight;
                         nos.Add(i, p);
                         strLen += 1;
                     }
                     else
                     {
-                        var p = new PointF(2, offset + (lineHeight - RichText.Font.Height));
+                        var p = new PointF(2, offset + (lineHeight - fontHeight));
 
 
                         offset = offset + lineHeight;
@@ -1626,23 +1628,24 @@ namespace NETDBHelper.UC
             try
             {
                 RichText.LockPaint = true;
-
+                var allLines = RichText.Lines;
                 this.RichText.SelectionChanged -= RichText_SelectionChanged;
-                if (this.RichText.Lines.Length == 0)
+                var lineLenth = allLines.Length;
+                if (lineLenth == 0)
                     return;
                 int line1 = CurrentClientScreenStartLine;
                 if (_lastMarketedLines == line1)
                     return;
 
-                int line2 = CurrentClientScreentEndLine + 1;
+                int line2 = Math.Min(lineLenth - 1, CurrentClientScreentEndLine + 1);
 
                 if (!isDown)
                 {
-                    line1 = Math.Max(0, line1 - (int)((line2 - line1) * 0.25));
+                    line1 = Math.Max(0, line1 - (int)((line2 - line1) * 1));
                 }
                 else
                 {
-                    line2 = (int)(line2 * 1.25);
+                    line2 = Math.Min(lineLenth - 1, line2 + (int)((line2 - line1) * 1));
                 }
                 //if (line2 == 1)
                 //{
@@ -1701,7 +1704,7 @@ namespace NETDBHelper.UC
 
                 var annotationInfos = new Lazy<List<GrammarInfo>>(() => grammarAnalysisResult.Value.AnnotationInfos.Where(p => p.EndLine >= line1 && p.StartLine <= line2).ToList());
                 var stringInfos= new Lazy<List<GrammarInfo>>(() => grammarAnalysisResult.Value.StringInfos.Where(p => p.EndLine >= line1 && p.StartLine <= line2).ToList());
-
+                
                 foreach (var a in annotationInfos.Value)
                 {
 
@@ -1721,7 +1724,7 @@ namespace NETDBHelper.UC
                                 _markedLines.Add(a.StartLine);
                             }
 
-                            if (a.End == RichText.Lines[a.EndLine].Length)
+                            if (a.End == allLines[a.EndLine].Length)
                             {
                                 _markedLines.Add(a.EndLine);
                             }
@@ -1754,7 +1757,7 @@ namespace NETDBHelper.UC
                                 _markedLines.Add(a.StartLine);
                             }
 
-                            if (a.End == RichText.Lines[a.EndLine].Length)
+                            if (a.End == allLines[a.EndLine].Length)
                             {
                                 _markedLines.Add(a.EndLine);
                             }
@@ -1769,15 +1772,15 @@ namespace NETDBHelper.UC
                     }
                 }
 
-                var linesLen = this.RichText.Lines.Length;
-                for (int l = line1; l <= line2 && l < linesLen; l++)
+                //var linesLen = this.RichText.Lines.Length;
+                for (int l = line1; l <= line2 ; l++)
                 {
                     if (!_markedLines.Contains(l))
                     {
                         _markedLines.Add(l);
 
                         var totalIndex = RichText.GetFirstCharIndexFromLine(l);
-                        string express = RichText.Lines[l] + " ";
+                        string express = allLines[l] + " ";
 
                         foreach (var m in this.KeyWords.MatchKeyWord(express.ToLower()))
                         {
