@@ -16,6 +16,8 @@ using APIHelper.UC;
 using System.Threading;
 using LJC.FrameWorkV3.Data.EntityDataBase;
 using Biz;
+using LJC.FrameWorkV3.Net.HTTP.Server;
+using LJC.FrameWorkV3.LogManager;
 
 namespace APIHelper
 {
@@ -165,6 +167,23 @@ namespace APIHelper
 
             wdlg.Hide();
             this.Visible = true;
+
+            try
+            {
+                var server = BigEntityTableEngine.LocalEngine.Find<SimulateServerConfig>(nameof(SimulateServerConfig), 1);
+                if (server != null && server.Open)
+                {
+                    Biz.SimulateServer.SimulateServerManager.StartServer(server.Port);
+
+                    LogHelper.Instance.Info("模拟服务器启动成功:" + server.Port);
+                    Util.SendMsg(this, "模拟服务器启动成功,端口:" + server.Port);
+                }
+            }
+            catch(Exception ex)
+            {
+                LogHelper.Instance.Error("模拟服务器启动失败", ex);
+                Util.SendMsg(this, "模拟服务器启动失败");
+            }
         }
 
         protected override void OnClosing(CancelEventArgs e)
@@ -505,6 +524,12 @@ namespace APIHelper
             SubForm.URLEncodeDlg dlg = new URLEncodeDlg();
 
             dlg.Show();
+        }
+
+        private void 模拟服务器ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SubForm.SimulateServerDlg dlg = new SimulateServerDlg();
+            dlg.ShowDialog();
         }
     }
 }

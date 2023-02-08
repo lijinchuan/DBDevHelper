@@ -68,6 +68,9 @@
     <Reference Include="LJC.FrameWorkV3">
       <HintPath>..\..\Lib\LJC.FrameWorkV3.dll</HintPath>
     </Reference>
+    <Reference Include="LJC.FrameWorkV3.Net">
+      <HintPath>..\..\Lib\LJC.FrameWorkV3.Net.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.SqlServer.Smo, Version=10.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\Lib\Microsoft.SqlServer.Smo.dll</HintPath>
@@ -183,6 +186,12 @@
     </Compile>
     <Compile Include="SubForm\InputStringDlg.Designer.cs">
       <DependentUpon>InputStringDlg.cs</DependentUpon>
+    </Compile>
+    <Compile Include="SubForm\SimulateServerDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SubForm\SimulateServerDlg.Designer.cs">
+      <DependentUpon>SimulateServerDlg.cs</DependentUpon>
     </Compile>
     <Compile Include="SubForm\URLEncodeDlg.cs">
       <SubType>Form</SubType>
@@ -458,6 +467,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="SubForm\InputStringDlg.resx">
       <DependentUpon>InputStringDlg.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SubForm\SimulateServerDlg.resx">
+      <DependentUpon>SimulateServerDlg.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="SubForm\URLEncodeDlg.resx">
       <DependentUpon>URLEncodeDlg.cs</DependentUpon>

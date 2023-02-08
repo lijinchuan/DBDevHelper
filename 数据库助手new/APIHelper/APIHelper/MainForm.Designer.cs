@@ -49,6 +49,7 @@
             this.SubItemTool = new System.Windows.Forms.ToolStripMenuItem();
             this.监控任务ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mD5签名ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.uRLEncodeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.gUIDToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.时间戳ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.bASE64ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -71,7 +72,7 @@
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.MspPanel = new System.Windows.Forms.ToolStripStatusLabel();
             this.TSL_ClearMsg = new System.Windows.Forms.ToolStripStatusLabel();
-            this.uRLEncodeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.模拟服务器ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mainMenuBar.SuspendLayout();
             this.panel1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
@@ -114,6 +115,7 @@
             // 
             this.SubItemEdit.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.代理服务器ToolStripMenuItem,
+            this.模拟服务器ToolStripMenuItem,
             this.TSMSetIeVersion,
             this.重置IE浏览器COOKIEToolStripMenuItem});
             this.SubItemEdit.Name = "SubItemEdit";
@@ -242,6 +244,13 @@
             this.mD5签名ToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
             this.mD5签名ToolStripMenuItem.Text = "MD5签名";
             this.mD5签名ToolStripMenuItem.Click += new System.EventHandler(this.mD5签名ToolStripMenuItem_Click);
+            // 
+            // uRLEncodeToolStripMenuItem
+            // 
+            this.uRLEncodeToolStripMenuItem.Name = "uRLEncodeToolStripMenuItem";
+            this.uRLEncodeToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
+            this.uRLEncodeToolStripMenuItem.Text = "URLEncode";
+            this.uRLEncodeToolStripMenuItem.Click += new System.EventHandler(this.uRLEncodeToolStripMenuItem_Click);
             // 
             // gUIDToolStripMenuItem
             // 
@@ -424,12 +433,12 @@
             this.TSL_ClearMsg.Visible = false;
             this.TSL_ClearMsg.Click += new System.EventHandler(this.TSL_ClearMsg_Click);
             // 
-            // uRLEncodeToolStripMenuItem
+            // 模拟服务器ToolStripMenuItem
             // 
-            this.uRLEncodeToolStripMenuItem.Name = "uRLEncodeToolStripMenuItem";
-            this.uRLEncodeToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
-            this.uRLEncodeToolStripMenuItem.Text = "URLEncode";
-            this.uRLEncodeToolStripMenuItem.Click += new System.EventHandler(this.uRLEncodeToolStripMenuItem_Click);
+            this.模拟服务器ToolStripMenuItem.Name = "模拟服务器ToolStripMenuItem";
+            this.模拟服务器ToolStripMenuItem.Size = new System.Drawing.Size(195, 22);
+            this.模拟服务器ToolStripMenuItem.Text = "模拟服务器";
+            this.模拟服务器ToolStripMenuItem.Click += new System.EventHandler(this.模拟服务器ToolStripMenuItem_Click);
             // 
             // MainFrm
             // 
@@ -503,6 +512,7 @@
         private System.Windows.Forms.ToolStripLabel TSBar;
         private System.Windows.Forms.ToolStripMenuItem 重置IE浏览器COOKIEToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem uRLEncodeToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 模拟服务器ToolStripMenuItem;
     }
 }
 

@@ -236,6 +236,9 @@ namespace APIHelper
             BigEntityTableEngine.LocalEngine.CreateTable<ApiUrlSetting>(p => p.Id, b => b.AddIndex("ApiId", c => c.Asc(d => d.ApiId)));
             LJC.FrameWorkV3.LogManager.LogHelper.Instance.Debug("创建表 ApiUrlSetting");
 
+            //模拟服务器
+            BigEntityTableEngine.LocalEngine.CreateTable<SimulateServerConfig>(p => p.Id, null);
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new MainFrm());
