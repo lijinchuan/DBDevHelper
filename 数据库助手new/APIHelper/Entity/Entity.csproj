@@ -52,6 +52,8 @@
     <Compile Include="APIParam.cs" />
     <Compile Include="APIParamEx.cs" />
     <Compile Include="APIResonseResult.cs" />
+    <Compile Include="APIResource.cs" />
+    <Compile Include="APISimulateResponse.cs" />
     <Compile Include="APISource.cs" />
     <Compile Include="APIUrl.cs" />
     <Compile Include="ApiUrlSetting.cs" />

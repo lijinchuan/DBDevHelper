@@ -63,6 +63,7 @@
     <Compile Include="Common\ReflectionHelper.cs" />
     <Compile Include="Common\StringHelper.cs" />
     <Compile Include="Common\WatchTimer.cs" />
+    <Compile Include="Common\WebUtil.cs" />
     <Compile Include="Common\XMLHelper.cs" />
     <Compile Include="IEUtil.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

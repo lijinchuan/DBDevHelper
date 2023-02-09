@@ -32,7 +32,11 @@
             this.GBResponseHeader = new System.Windows.Forms.GroupBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.textBoxEx1 = new APIHelper.UC.TextBoxEx();
-            this.BtnSaveFile = new System.Windows.Forms.Button();
+            this.label1 = new System.Windows.Forms.Label();
+            this.CBContentType = new System.Windows.Forms.ComboBox();
+            this.label2 = new System.Windows.Forms.Label();
+            this.CBCharset = new System.Windows.Forms.ComboBox();
+            this.CBResponseContentType = new System.Windows.Forms.ComboBox();
             this.GBResponseHeader.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
@@ -64,7 +68,11 @@
             this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBox1.Controls.Add(this.BtnSaveFile);
+            this.groupBox1.Controls.Add(this.CBResponseContentType);
+            this.groupBox1.Controls.Add(this.CBCharset);
+            this.groupBox1.Controls.Add(this.label2);
+            this.groupBox1.Controls.Add(this.CBContentType);
+            this.groupBox1.Controls.Add(this.label1);
             this.groupBox1.Controls.Add(this.textBoxEx1);
             this.groupBox1.Location = new System.Drawing.Point(3, 159);
             this.groupBox1.Name = "groupBox1";
@@ -78,20 +86,53 @@
             this.textBoxEx1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBoxEx1.Location = new System.Drawing.Point(50, 20);
+            this.textBoxEx1.Location = new System.Drawing.Point(99, 45);
             this.textBoxEx1.Multiline = true;
             this.textBoxEx1.Name = "textBoxEx1";
-            this.textBoxEx1.Size = new System.Drawing.Size(426, 198);
+            this.textBoxEx1.Size = new System.Drawing.Size(377, 173);
             this.textBoxEx1.TabIndex = 0;
             // 
-            // BtnSaveFile
+            // label1
             // 
-            this.BtnSaveFile.Location = new System.Drawing.Point(6, 20);
-            this.BtnSaveFile.Name = "BtnSaveFile";
-            this.BtnSaveFile.Size = new System.Drawing.Size(38, 72);
-            this.BtnSaveFile.TabIndex = 1;
-            this.BtnSaveFile.Text = "响应文件";
-            this.BtnSaveFile.UseVisualStyleBackColor = true;
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(9, 20);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(89, 12);
+            this.label1.TabIndex = 2;
+            this.label1.Text = "Content-Type：";
+            // 
+            // CBContentType
+            // 
+            this.CBContentType.FormattingEnabled = true;
+            this.CBContentType.Location = new System.Drawing.Point(99, 17);
+            this.CBContentType.Name = "CBContentType";
+            this.CBContentType.Size = new System.Drawing.Size(187, 20);
+            this.CBContentType.TabIndex = 3;
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(292, 21);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(53, 12);
+            this.label2.TabIndex = 4;
+            this.label2.Text = "charset:";
+            // 
+            // CBCharset
+            // 
+            this.CBCharset.FormattingEnabled = true;
+            this.CBCharset.Location = new System.Drawing.Point(350, 17);
+            this.CBCharset.Name = "CBCharset";
+            this.CBCharset.Size = new System.Drawing.Size(121, 20);
+            this.CBCharset.TabIndex = 5;
+            // 
+            // CBResponseContentType
+            // 
+            this.CBResponseContentType.FormattingEnabled = true;
+            this.CBResponseContentType.Location = new System.Drawing.Point(11, 48);
+            this.CBResponseContentType.Name = "CBResponseContentType";
+            this.CBResponseContentType.Size = new System.Drawing.Size(82, 20);
+            this.CBResponseContentType.TabIndex = 6;
             // 
             // UCSimulateResponse
             // 
@@ -114,6 +155,10 @@
         private System.Windows.Forms.GroupBox GBResponseHeader;
         private System.Windows.Forms.GroupBox groupBox1;
         private TextBoxEx textBoxEx1;
-        private System.Windows.Forms.Button BtnSaveFile;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.ComboBox CBContentType;
+        private System.Windows.Forms.ComboBox CBCharset;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.ComboBox CBResponseContentType;
     }
 }
