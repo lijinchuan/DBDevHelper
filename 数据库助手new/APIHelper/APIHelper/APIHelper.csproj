@@ -412,6 +412,12 @@
     <Compile Include="UC\UCProxy.Designer.cs">
       <DependentUpon>UCProxy.cs</DependentUpon>
     </Compile>
+    <Compile Include="UC\UCSimulateResponse.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UC\UCSimulateResponse.Designer.cs">
+      <DependentUpon>UCSimulateResponse.cs</DependentUpon>
+    </Compile>
     <Compile Include="UC\UPAPIParamTable.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -566,6 +572,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="UC\UCProxy.resx">
       <DependentUpon>UCProxy.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UC\UCSimulateResponse.resx">
+      <DependentUpon>UCSimulateResponse.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UC\UPAPIParamTable.resx">
       <DependentUpon>UPAPIParamTable.cs</DependentUpon>
