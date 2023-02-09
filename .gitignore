@@ -7,3 +7,4 @@ bin
 .vs
 
 /数据库助手new/NETDBHelper -mysql/packages
+/数据库助手new/APIHelper/packages
