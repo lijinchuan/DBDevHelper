@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using LJC.FrameWorkV3.Data.EntityDataBase;
 using Entity;
+using System.IO;
 
 namespace APIHelper.UC
 {
@@ -25,6 +26,17 @@ namespace APIHelper.UC
             CBCharset.DataSource = Biz.Common.WebUtil.Charsets;
             CBResponseContentType.DropDownStyle = ComboBoxStyle.DropDownList;
             CBResponseContentType.DataSource = ResponseContentTypes;
+
+            var config = BigEntityTableEngine.LocalEngine.Find<SimulateServerConfig>(nameof(SimulateServerConfig), 1);
+            if (config == null)
+            {
+                LBHost.Text = "http://localhost:?/";
+            }
+            else
+            {
+                LBHost.Text = "http://localhost:" + config.Port + "/";
+            }
+            TBSimulateUrl.Location = new Point(LBHost.Location.X + LBHost.Width, TBSimulateUrl.Location.Y);
         }
 
         private void Bind()
@@ -44,6 +56,7 @@ namespace APIHelper.UC
                 }
                 CBContentType.SelectedItem = apiSimulateResponse.ContentType;
                 CBResponseContentType.SelectedItem = apiSimulateResponse.ResponseType;
+                TBSimulateUrl.Text = apiSimulateResponse.Url;
 
                 if (!((string[])CBCharset.DataSource).Contains(apiSimulateResponse.Charset))
                 {
@@ -72,6 +85,26 @@ namespace APIHelper.UC
                     }
 
                     CBCharset.SelectedItem = Biz.Common.WebUtil.Charsets_UTF8;
+
+                    string url = string.Empty;
+                    var urlArray = apiUrl.Path.Split('?').First().Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+                    if (apiUrl.Path.StartsWith("http", StringComparison.OrdinalIgnoreCase))
+                    {
+                        if (urlArray.Length > 2)
+                        {
+                            url = Path.Combine(urlArray.Skip(2).ToArray()).Replace("\\", "/");
+                        }
+                        
+                    }
+                    else
+                    {
+                        if (urlArray.Length > 1)
+                        {
+                            url = Path.Combine(urlArray.Skip(1).ToArray()).Replace("\\", "/");
+                        }
+                    }
+
+                    TBSimulateUrl.Text = url.Replace("{{", string.Empty).Replace("}}", string.Empty);
                 }
             }
             UCParams.DataSource = paramInfos;
@@ -101,6 +134,27 @@ namespace APIHelper.UC
         {
             try
             {
+                var url = TBSimulateUrl.Text.ToLower();
+                if (string.IsNullOrWhiteSpace(url))
+                {
+                    throw new Exception("模拟地址不能为空");
+                }
+
+                if (url.StartsWith("http"))
+                {
+                    throw new Exception("模拟地址不能以http开头");
+                }
+
+                if (url.Contains("?")||url.Contains("&"))
+                {
+                    throw new Exception("模拟地址不能包含参数");
+                }
+
+                if (url.Contains("{{") || url.Contains("}}"))
+                {
+                    throw new Exception("模拟地址不能包环境变量");
+                }
+
                 var apiSimulateResponse = BigEntityTableEngine.LocalEngine.Find<APISimulateResponse>(nameof(APISimulateResponse), nameof(APISimulateResponse.APIId), new object[] { apiid }).FirstOrDefault();
                 if (apiSimulateResponse == null)
                 {
@@ -109,6 +163,12 @@ namespace APIHelper.UC
                         Headers = new List<ParamInfo>(),
                         APIId = apiid
                     };
+                }
+
+                var oldUrl = BigEntityTableEngine.LocalEngine.Find<APISimulateResponse>(nameof(APISimulateResponse), nameof(APISimulateResponse.Url), new object[] { url.ToLower() }).FirstOrDefault();
+                if (oldUrl != null && oldUrl.Id != apiSimulateResponse.Id)
+                {
+                    throw new Exception("地址已经存在");
                 }
 
                 apiSimulateResponse.Headers.Clear();
@@ -141,6 +201,7 @@ namespace APIHelper.UC
                     apiSimulateResponse.ContentType = (string)CBContentType.SelectedItem;
                 }
                 apiSimulateResponse.ResponseBody = TBContent.Text;
+                apiSimulateResponse.Url = TBSimulateUrl.Text.Trim();
 
                 BigEntityTableEngine.LocalEngine.Upsert(nameof(APISimulateResponse), apiSimulateResponse);
 

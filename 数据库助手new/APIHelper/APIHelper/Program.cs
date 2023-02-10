@@ -239,7 +239,7 @@ namespace APIHelper
             //模拟服务器
             BigEntityTableEngine.LocalEngine.CreateTable<SimulateServerConfig>(p => p.Id, null);
 
-            BigEntityTableEngine.LocalEngine.CreateTable<APISimulateResponse>(p=>p.Id, p => p.AddIndex("APIId", m => m.Asc(s => s.APIId)));
+            BigEntityTableEngine.LocalEngine.CreateTable<APISimulateResponse>(p => p.Id, p => p.AddIndex(nameof(APISimulateResponse.APIId), m => m.Asc(s => s.APIId)).AddIndex(nameof(APISimulateResponse.Url), m => m.Asc(s => s.Url)));
 
             BigEntityTableEngine.LocalEngine.CreateTable<APIResource>(p => p.Id, null);
 

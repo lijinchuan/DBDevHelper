@@ -68,6 +68,7 @@
     <Compile Include="IEUtil.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RecoverManager.cs" />
+    <Compile Include="SimulateServer\ApiSimulateHandler.cs" />
     <Compile Include="SimulateServer\DefaultHander.cs" />
     <Compile Include="SimulateServer\SimulateServerManager.cs" />
     <Compile Include="TreeNodeEx.cs" />

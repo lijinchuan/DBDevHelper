@@ -14,7 +14,8 @@ namespace Biz.SimulateServer
 
         private static void InitServer()
         {
-            manhttpserver.Handlers.Add(new RESTfulApiHandlerBase(LJC.FrameWorkV3.Net.HTTP.Server.HMethod.GET, "/esb/index", new List<string>() { }, new DefaultHander()));
+            manhttpserver.Handlers.Add(new RESTfulApiHandlerBase(LJC.FrameWorkV3.Net.HTTP.Server.HMethod.GET, "/index", new List<string>() { }, new DefaultHander()));
+            manhttpserver.Handlers.Add(new ApiSimulateHandler());
         }
 
         /// <summary>
