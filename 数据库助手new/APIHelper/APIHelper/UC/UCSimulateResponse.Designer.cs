@@ -31,13 +31,13 @@
             this.UCParams = new APIHelper.UC.UCParamsTable();
             this.GBResponseHeader = new System.Windows.Forms.GroupBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.BtnSave = new System.Windows.Forms.Button();
             this.CBResponseContentType = new System.Windows.Forms.ComboBox();
             this.CBCharset = new System.Windows.Forms.ComboBox();
             this.label2 = new System.Windows.Forms.Label();
             this.CBContentType = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
             this.TBContent = new APIHelper.UC.TextBoxEx();
-            this.BtnSave = new System.Windows.Forms.Button();
             this.GBResponseHeader.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
@@ -82,6 +82,17 @@
             this.groupBox1.TabIndex = 3;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "响应内容";
+            // 
+            // BtnSave
+            // 
+            this.BtnSave.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.BtnSave.Location = new System.Drawing.Point(399, 196);
+            this.BtnSave.Name = "BtnSave";
+            this.BtnSave.Size = new System.Drawing.Size(75, 23);
+            this.BtnSave.TabIndex = 7;
+            this.BtnSave.Text = "保存";
+            this.BtnSave.UseVisualStyleBackColor = true;
+            this.BtnSave.Click += new System.EventHandler(this.BtnSave_Click);
             // 
             // CBResponseContentType
             // 
@@ -135,17 +146,6 @@
             this.TBContent.Name = "TBContent";
             this.TBContent.Size = new System.Drawing.Size(377, 147);
             this.TBContent.TabIndex = 0;
-            // 
-            // BtnSave
-            // 
-            this.BtnSave.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.BtnSave.Location = new System.Drawing.Point(399, 196);
-            this.BtnSave.Name = "BtnSave";
-            this.BtnSave.Size = new System.Drawing.Size(75, 23);
-            this.BtnSave.TabIndex = 7;
-            this.BtnSave.Text = "保存";
-            this.BtnSave.UseVisualStyleBackColor = true;
-            this.BtnSave.Click += new System.EventHandler(this.BtnSave_Click);
             // 
             // UCSimulateResponse
             // 

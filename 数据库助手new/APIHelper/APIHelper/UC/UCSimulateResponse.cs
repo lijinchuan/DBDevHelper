@@ -36,11 +36,26 @@ namespace APIHelper.UC
             var apiSimulateResponse = BigEntityTableEngine.LocalEngine.Find<APISimulateResponse>(nameof(APISimulateResponse), nameof(APISimulateResponse.APIId), new object[] { apiid }).FirstOrDefault();
             if (apiSimulateResponse != null)
             {
-                CBContentType.SelectedText = apiSimulateResponse.ContentType;
-                CBResponseContentType.SelectedText = apiSimulateResponse.ResponseType;
-                CBContentType.SelectedText = apiSimulateResponse.Charset;
+                if (!((string[])CBContentType.DataSource).Contains(apiSimulateResponse.ContentType))
+                {
+                    var ds = ((string[])CBContentType.DataSource).ToList();
+                    ds.Add(apiSimulateResponse.ContentType);
+                    CBContentType.DataSource = ds;
+                }
+                CBContentType.SelectedItem = apiSimulateResponse.ContentType;
+                CBResponseContentType.SelectedItem = apiSimulateResponse.ResponseType;
+
+                if (!((string[])CBCharset.DataSource).Contains(apiSimulateResponse.Charset))
+                {
+                    var ds = ((string[])CBCharset.DataSource).ToList();
+                    ds.Add(apiSimulateResponse.Charset);
+                    CBCharset.DataSource = ds;
+                }
+                CBCharset.SelectedItem = apiSimulateResponse.Charset;
 
                 paramInfos = apiSimulateResponse.Headers.ToList();
+
+                TBContent.Text = apiSimulateResponse.ResponseBody;
             }
             else
             {
@@ -59,6 +74,8 @@ namespace APIHelper.UC
                     CBCharset.SelectedItem = Biz.Common.WebUtil.Charsets_UTF8;
                 }
             }
+            UCParams.DataSource = paramInfos;
+
         }
 
         public UCSimulateResponse()
@@ -106,12 +123,26 @@ namespace APIHelper.UC
                     });
                 }
 
-                apiSimulateResponse.Charset = CBCharset.SelectedText;
-                apiSimulateResponse.ResponseType = CBResponseContentType.SelectedText;
-                apiSimulateResponse.ContentType = CBContentType.SelectedText;
+                if (CBCharset.SelectedItem == null)
+                {
+                    apiSimulateResponse.Charset = CBCharset.Text;
+                }
+                else
+                {
+                    apiSimulateResponse.Charset = (string)CBCharset.SelectedItem;
+                }
+                apiSimulateResponse.ResponseType = (string)CBResponseContentType.SelectedItem;
+                if (CBContentType.SelectedItem == null)
+                {
+                    apiSimulateResponse.ContentType = CBContentType.Text;
+                }
+                else
+                {
+                    apiSimulateResponse.ContentType = (string)CBContentType.SelectedItem;
+                }
                 apiSimulateResponse.ResponseBody = TBContent.Text;
 
-                BigEntityTableEngine.LocalEngine.Upsert<APISimulateResponse>(nameof(APISimulateResponse), apiSimulateResponse);
+                BigEntityTableEngine.LocalEngine.Upsert(nameof(APISimulateResponse), apiSimulateResponse);
 
                 MessageBox.Show("保存成功");
             }
