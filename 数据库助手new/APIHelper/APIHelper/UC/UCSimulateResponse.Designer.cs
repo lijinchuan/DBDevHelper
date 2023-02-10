@@ -28,34 +28,35 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.ucParamsTable1 = new APIHelper.UC.UCParamsTable();
+            this.UCParams = new APIHelper.UC.UCParamsTable();
             this.GBResponseHeader = new System.Windows.Forms.GroupBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.textBoxEx1 = new APIHelper.UC.TextBoxEx();
-            this.label1 = new System.Windows.Forms.Label();
-            this.CBContentType = new System.Windows.Forms.ComboBox();
-            this.label2 = new System.Windows.Forms.Label();
-            this.CBCharset = new System.Windows.Forms.ComboBox();
             this.CBResponseContentType = new System.Windows.Forms.ComboBox();
+            this.CBCharset = new System.Windows.Forms.ComboBox();
+            this.label2 = new System.Windows.Forms.Label();
+            this.CBContentType = new System.Windows.Forms.ComboBox();
+            this.label1 = new System.Windows.Forms.Label();
+            this.TBContent = new APIHelper.UC.TextBoxEx();
+            this.BtnSave = new System.Windows.Forms.Button();
             this.GBResponseHeader.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
-            // ucParamsTable1
+            // UCParams
             // 
-            this.ucParamsTable1.CanUpload = false;
-            this.ucParamsTable1.DataSource = null;
-            this.ucParamsTable1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.ucParamsTable1.Location = new System.Drawing.Point(3, 17);
-            this.ucParamsTable1.Name = "ucParamsTable1";
-            this.ucParamsTable1.Size = new System.Drawing.Size(479, 125);
-            this.ucParamsTable1.TabIndex = 1;
+            this.UCParams.CanUpload = false;
+            this.UCParams.DataSource = null;
+            this.UCParams.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.UCParams.Location = new System.Drawing.Point(3, 17);
+            this.UCParams.Name = "UCParams";
+            this.UCParams.Size = new System.Drawing.Size(479, 125);
+            this.UCParams.TabIndex = 1;
             // 
             // GBResponseHeader
             // 
             this.GBResponseHeader.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.GBResponseHeader.Controls.Add(this.ucParamsTable1);
+            this.GBResponseHeader.Controls.Add(this.UCParams);
             this.GBResponseHeader.Location = new System.Drawing.Point(3, 8);
             this.GBResponseHeader.Name = "GBResponseHeader";
             this.GBResponseHeader.Size = new System.Drawing.Size(485, 145);
@@ -68,12 +69,13 @@
             this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox1.Controls.Add(this.BtnSave);
             this.groupBox1.Controls.Add(this.CBResponseContentType);
             this.groupBox1.Controls.Add(this.CBCharset);
             this.groupBox1.Controls.Add(this.label2);
             this.groupBox1.Controls.Add(this.CBContentType);
             this.groupBox1.Controls.Add(this.label1);
-            this.groupBox1.Controls.Add(this.textBoxEx1);
+            this.groupBox1.Controls.Add(this.TBContent);
             this.groupBox1.Location = new System.Drawing.Point(3, 159);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(482, 224);
@@ -81,33 +83,21 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "响应内容";
             // 
-            // textBoxEx1
+            // CBResponseContentType
             // 
-            this.textBoxEx1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBoxEx1.Location = new System.Drawing.Point(99, 45);
-            this.textBoxEx1.Multiline = true;
-            this.textBoxEx1.Name = "textBoxEx1";
-            this.textBoxEx1.Size = new System.Drawing.Size(377, 173);
-            this.textBoxEx1.TabIndex = 0;
+            this.CBResponseContentType.FormattingEnabled = true;
+            this.CBResponseContentType.Location = new System.Drawing.Point(11, 48);
+            this.CBResponseContentType.Name = "CBResponseContentType";
+            this.CBResponseContentType.Size = new System.Drawing.Size(82, 20);
+            this.CBResponseContentType.TabIndex = 6;
             // 
-            // label1
+            // CBCharset
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(9, 20);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(89, 12);
-            this.label1.TabIndex = 2;
-            this.label1.Text = "Content-Type：";
-            // 
-            // CBContentType
-            // 
-            this.CBContentType.FormattingEnabled = true;
-            this.CBContentType.Location = new System.Drawing.Point(99, 17);
-            this.CBContentType.Name = "CBContentType";
-            this.CBContentType.Size = new System.Drawing.Size(187, 20);
-            this.CBContentType.TabIndex = 3;
+            this.CBCharset.FormattingEnabled = true;
+            this.CBCharset.Location = new System.Drawing.Point(350, 17);
+            this.CBCharset.Name = "CBCharset";
+            this.CBCharset.Size = new System.Drawing.Size(121, 20);
+            this.CBCharset.TabIndex = 5;
             // 
             // label2
             // 
@@ -118,21 +108,44 @@
             this.label2.TabIndex = 4;
             this.label2.Text = "charset:";
             // 
-            // CBCharset
+            // CBContentType
             // 
-            this.CBCharset.FormattingEnabled = true;
-            this.CBCharset.Location = new System.Drawing.Point(350, 17);
-            this.CBCharset.Name = "CBCharset";
-            this.CBCharset.Size = new System.Drawing.Size(121, 20);
-            this.CBCharset.TabIndex = 5;
+            this.CBContentType.FormattingEnabled = true;
+            this.CBContentType.Location = new System.Drawing.Point(99, 17);
+            this.CBContentType.Name = "CBContentType";
+            this.CBContentType.Size = new System.Drawing.Size(187, 20);
+            this.CBContentType.TabIndex = 3;
             // 
-            // CBResponseContentType
+            // label1
             // 
-            this.CBResponseContentType.FormattingEnabled = true;
-            this.CBResponseContentType.Location = new System.Drawing.Point(11, 48);
-            this.CBResponseContentType.Name = "CBResponseContentType";
-            this.CBResponseContentType.Size = new System.Drawing.Size(82, 20);
-            this.CBResponseContentType.TabIndex = 6;
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(9, 20);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(89, 12);
+            this.label1.TabIndex = 2;
+            this.label1.Text = "Content-Type：";
+            // 
+            // TBContent
+            // 
+            this.TBContent.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.TBContent.Location = new System.Drawing.Point(99, 45);
+            this.TBContent.Multiline = true;
+            this.TBContent.Name = "TBContent";
+            this.TBContent.Size = new System.Drawing.Size(377, 147);
+            this.TBContent.TabIndex = 0;
+            // 
+            // BtnSave
+            // 
+            this.BtnSave.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.BtnSave.Location = new System.Drawing.Point(399, 196);
+            this.BtnSave.Name = "BtnSave";
+            this.BtnSave.Size = new System.Drawing.Size(75, 23);
+            this.BtnSave.TabIndex = 7;
+            this.BtnSave.Text = "保存";
+            this.BtnSave.UseVisualStyleBackColor = true;
+            this.BtnSave.Click += new System.EventHandler(this.BtnSave_Click);
             // 
             // UCSimulateResponse
             // 
@@ -151,14 +164,15 @@
 
         #endregion
 
-        private UCParamsTable ucParamsTable1;
+        private UCParamsTable UCParams;
         private System.Windows.Forms.GroupBox GBResponseHeader;
         private System.Windows.Forms.GroupBox groupBox1;
-        private TextBoxEx textBoxEx1;
+        private TextBoxEx TBContent;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.ComboBox CBContentType;
         private System.Windows.Forms.ComboBox CBCharset;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.ComboBox CBResponseContentType;
+        private System.Windows.Forms.Button BtnSave;
     }
 }

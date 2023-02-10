@@ -19,7 +19,7 @@ namespace Entity
             set;
         }
 
-        public Dictionary<string,string> Headers
+        public List<ParamInfo> Headers
         {
             get;
             set;

@@ -63,6 +63,7 @@
             this.PannelBottom = new System.Windows.Forms.Panel();
             this.TabResults = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.TPSimulateResponse = new System.Windows.Forms.TabPage();
             this.Tabs.SuspendLayout();
             this.TP_Params.SuspendLayout();
             this.TP_Auth.SuspendLayout();
@@ -124,6 +125,7 @@
             this.Tabs.Controls.Add(this.TP_Header);
             this.Tabs.Controls.Add(this.TP_Cookie);
             this.Tabs.Controls.Add(this.TP_Body);
+            this.Tabs.Controls.Add(this.TPSimulateResponse);
             this.Tabs.Controls.Add(this.TP_Setting);
             this.Tabs.Controls.Add(this.TP_Result);
             this.Tabs.Controls.Add(this.TPLog);
@@ -455,11 +457,22 @@
             this.tabPage1.Text = "tabPage1";
             this.tabPage1.UseVisualStyleBackColor = true;
             // 
+            // TPSimulateResponse
+            // 
+            this.TPSimulateResponse.Location = new System.Drawing.Point(4, 22);
+            this.TPSimulateResponse.Name = "TPSimulateResponse";
+            this.TPSimulateResponse.Padding = new System.Windows.Forms.Padding(3);
+            this.TPSimulateResponse.Size = new System.Drawing.Size(739, 157);
+            this.TPSimulateResponse.TabIndex = 8;
+            this.TPSimulateResponse.Text = "模拟响应";
+            this.TPSimulateResponse.UseVisualStyleBackColor = true;
+            // 
             // UCAddAPI
             // 
             this.Controls.Add(this.PannelBottom);
             this.Controls.Add(this.pannelmid);
             this.Controls.Add(this.TopPannel);
+            this.Name = "UCAddAPI";
             this.Size = new System.Drawing.Size(753, 444);
             this.Tabs.ResumeLayout(false);
             this.TP_Params.ResumeLayout(false);
@@ -518,5 +531,6 @@
         private System.Windows.Forms.Panel PannelBottom;
         private System.Windows.Forms.TabControl TabResults;
         private System.Windows.Forms.TabPage tabPage1;
+        private System.Windows.Forms.TabPage TPSimulateResponse;
     }
 }

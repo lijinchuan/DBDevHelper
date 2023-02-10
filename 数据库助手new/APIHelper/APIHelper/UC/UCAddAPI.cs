@@ -1062,6 +1062,10 @@ namespace APIHelper.UC
 
             TabResults.DoubleClick += TabResults_DoubleClick;
             Tabs.DoubleClick += Tabs_DoubleClick;
+
+            var ucSimulateResponse = new UC.UCSimulateResponse(_apiUrl.Id);
+            ucSimulateResponse.Dock = DockStyle.Fill;
+            TPSimulateResponse.Controls.Add(ucSimulateResponse);
         }
 
         private void TabResults_DoubleClick(object sender, EventArgs e)
@@ -1254,7 +1258,7 @@ namespace APIHelper.UC
                 Desc = p.Desc,
                 Name = notReplaceEvnParams ? p.Name : ReplaceEvnParams(p.Name, ref apiEnvParams),
                 Value = notReplaceEvnParams ? p.Value : ReplaceEvnParams(p.Value, ref apiEnvParams)
-            }).ToList(); ;
+            }).ToList();
             apidata.BearToken = notReplaceEvnParams ? this.UCBearToken.Token : ReplaceEvnParams(this.UCBearToken.Token, ref apiEnvParams);
             apidata.ApiKeyAddTo = this.UCApiKey.AddTo;
             apidata.ApiKeyName = notReplaceEvnParams ? this.UCApiKey.Key : ReplaceEvnParams(this.UCApiKey.Key, ref apiEnvParams);
