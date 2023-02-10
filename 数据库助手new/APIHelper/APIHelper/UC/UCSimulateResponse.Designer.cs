@@ -41,6 +41,7 @@
             this.TBSimulateUrl = new System.Windows.Forms.TextBox();
             this.TBContent = new APIHelper.UC.TextBoxEx();
             this.UCParams = new APIHelper.UC.UCParamsTable();
+            this.linkLabel1 = new System.Windows.Forms.LinkLabel();
             this.GBResponseHeader.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
@@ -177,10 +178,23 @@
             this.UCParams.Size = new System.Drawing.Size(479, 130);
             this.UCParams.TabIndex = 1;
             // 
+            // linkLabel1
+            // 
+            this.linkLabel1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.linkLabel1.AutoSize = true;
+            this.linkLabel1.Location = new System.Drawing.Point(410, 13);
+            this.linkLabel1.Name = "linkLabel1";
+            this.linkLabel1.Size = new System.Drawing.Size(29, 12);
+            this.linkLabel1.TabIndex = 7;
+            this.linkLabel1.TabStop = true;
+            this.linkLabel1.Text = "复制";
+            this.linkLabel1.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel1_LinkClicked);
+            // 
             // UCSimulateResponse
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.linkLabel1);
             this.Controls.Add(this.TBSimulateUrl);
             this.Controls.Add(this.LBHost);
             this.Controls.Add(this.label3);
@@ -211,5 +225,6 @@
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label LBHost;
         private System.Windows.Forms.TextBox TBSimulateUrl;
+        private System.Windows.Forms.LinkLabel linkLabel1;
     }
 }

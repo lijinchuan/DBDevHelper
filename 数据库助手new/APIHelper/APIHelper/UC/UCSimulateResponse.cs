@@ -37,6 +37,7 @@ namespace APIHelper.UC
                 LBHost.Text = "http://localhost:" + config.Port + "/";
             }
             TBSimulateUrl.Location = new Point(LBHost.Location.X + LBHost.Width, TBSimulateUrl.Location.Y);
+            linkLabel1.Location = new Point(TBSimulateUrl.Location.X + TBSimulateUrl.Width + 2, linkLabel1.Location.Y);
         }
 
         private void Bind()
@@ -211,6 +212,12 @@ namespace APIHelper.UC
             {
                 MessageBox.Show("保存失败:" + ex.Message);
             }
+        }
+
+        private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            Clipboard.SetText(LBHost.Text + TBSimulateUrl.Text);
+            Util.SendMsg(this, "地址已复制到粘贴板，可粘到浏览器查看");
         }
     }
 }

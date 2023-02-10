@@ -53,7 +53,7 @@ namespace APIHelper.SubForm
 
                 BigEntityTableEngine.LocalEngine.Insert(nameof(SimulateServerConfig), server);
 
-                MessageBox.Show("添加成功,重启生效");
+                
             }
             else if (server.Port != newPort || server.Open != CBOpen.Checked)
             {
@@ -61,8 +61,27 @@ namespace APIHelper.SubForm
                 server.Port = newPort;
 
                 BigEntityTableEngine.LocalEngine.Update(nameof(SimulateServerConfig), server);
+            }
 
-                MessageBox.Show("修改成功,重启生效");
+            try
+            {
+                var msg = "";
+                if (server.Open)
+                {
+                    Biz.SimulateServer.SimulateServerManager.StartServer(server.Port);
+                    msg = "服务已开启";
+                }
+                else
+                {
+                    Biz.SimulateServer.SimulateServerManager.Stop();
+                    msg = "服务已关闭";
+                }
+                MessageBox.Show(msg);
+            }
+            catch (Exception ex)
+            {
+                
+                MessageBox.Show("操作失败:"+ex.Message);
             }
         }
 

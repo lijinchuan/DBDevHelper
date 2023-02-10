@@ -43,5 +43,17 @@ namespace Biz.SimulateServer
 
             return false;
         }
+
+        public static bool Stop()
+        {
+            if (manhttpserver!=null&& manhttpserver .Server!=null)
+            {
+                manhttpserver.Server.Close();
+                manhttpserver = null;
+                return true;
+            }
+
+            return false;
+        }
     }
 }
