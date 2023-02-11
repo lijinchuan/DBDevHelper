@@ -16,7 +16,7 @@ using System.Text.RegularExpressions;
 
 namespace APIHelper.UC
 {
-    public partial class UCAddAPI : TabPage, IRecoverAble, ISaveAble, IExcuteAble
+    public partial class UCAddAPI : TabPage, IRecoverAble, ISaveAble, IExcuteAble, IMessageFilter
     {
         private List<ParamInfo> Params = new List<ParamInfo>();
         private List<ParamInfo> Headers = new List<ParamInfo>();
@@ -52,12 +52,17 @@ namespace APIHelper.UC
 
         private bool fromlogflag = false;
 
+        private bool preFilterMessageFlag = false;
+
+
         public UCAddAPI()
         {
             InitializeComponent();
             //rawTextBox.TextChanged += RawTextBox_TextChanged;
             rawTextBox.MaxLength = int.MaxValue;
             rawTextBox.ScrollBars = ScrollBars.Both;
+
+            CanAdjust();
         }
 
         public UCAddAPI(APIUrl apiUrl)
@@ -71,6 +76,8 @@ namespace APIHelper.UC
 
             Bind();
             BindData();
+
+            CanAdjust();
         }
 
         private void ChangeLayout()
@@ -123,7 +130,7 @@ namespace APIHelper.UC
             }
         }
 
-        private void TPInvokeLog_ReInvoke(APIInvokeLog obj,bool flag)
+        private void TPInvokeLog_ReInvoke(APIInvokeLog obj, bool flag)
         {
             this.fromlogflag = flag;
 
@@ -344,11 +351,11 @@ namespace APIHelper.UC
             return url;
         }
 
-        private List<HttpRequestEx> PepareRequest(ref string url, List<APIEnvParam> apiEnvParams,int number,object cancelToken)
+        private List<HttpRequestEx> PepareRequest(ref string url, List<APIEnvParam> apiEnvParams, int number, object cancelToken)
         {
             List<HttpRequestEx> requestlist = new List<HttpRequestEx>();
 
-            for(var i = 0; i < number; i++)
+            for (var i = 0; i < number; i++)
             {
                 UCAddAPI.CheckForIllegalCrossThreadCalls = false;
                 if (i == 0)
@@ -411,7 +418,7 @@ namespace APIHelper.UC
                             if (header.Checked)
                             {
                                 httpRequestEx.Referer = ReplaceEvnParams(header.Value, ref apiEnvParams);
-        }
+                            }
                         }
                         else if (header.Name.Equals("Connection", StringComparison.OrdinalIgnoreCase))
                         {
@@ -606,7 +613,7 @@ namespace APIHelper.UC
             {
                 TBResult.APIEnv = GetEnv();
                 var responseEx = responseExTaskList.First().Result;
-                
+
                 var cookies = new List<RespCookie>();
                 var apidata = GetApiData(false);
                 if (apidata.Cookies != null && apidata.Cookies.Count > 0)
@@ -632,7 +639,7 @@ namespace APIHelper.UC
 
                 var fileAttachment = new Regex("attachment; filename=\"=\\?(.*?)\\?B\\?(.*?)\\?=\"");
                 var fileName = string.Empty;
-                if (responseEx.Headers?.ContainsKey("Content-Disposition")==true)
+                if (responseEx.Headers?.ContainsKey("Content-Disposition") == true)
                 {
                     //attachment; filename="=?utf-8?B?5bel6LWE5YmN6KGoXzIwMjIxMC4wMC54bHN4?="
                     var m = fileAttachment.Match(responseEx.Headers["Content-Disposition"]);
@@ -1103,7 +1110,7 @@ namespace APIHelper.UC
                     this.Params = this.Params.Where(p => p.Desc != urlparamsdesc).ToList();
                 }
 
-                foreach(Match m in ms)
+                foreach (Match m in ms)
                 {
                     if (this.Params.Any(p => p.Name.Equals(m.Groups[1].Value, StringComparison.OrdinalIgnoreCase)))
                     {
@@ -1234,8 +1241,8 @@ namespace APIHelper.UC
             {
                 Checked = p.Checked,
                 Desc = p.Desc,
-                Name = notReplaceEvnParams?p.Name: ReplaceEvnParams(p.Name, ref apiEnvParams),
-                Value = notReplaceEvnParams?p.Value:ReplaceEvnParams(p.Value, ref apiEnvParams)
+                Name = notReplaceEvnParams ? p.Name : ReplaceEvnParams(p.Name, ref apiEnvParams),
+                Value = notReplaceEvnParams ? p.Value : ReplaceEvnParams(p.Value, ref apiEnvParams)
             }).ToList();
             apidata.Params = this.Params?.Select(p => new ParamInfo
             {
@@ -1245,12 +1252,12 @@ namespace APIHelper.UC
                 Value = notReplaceEvnParams ? p.Value : WebUtility.UrlEncode(ReplaceEvnParams(p.Value, ref apiEnvParams))
             }).ToList();
             apidata.RawText = notReplaceEvnParams ? this.rawTextBox.Text : ReplaceEvnParams(this.rawTextBox.Text, ref apiEnvParams);
-            apidata.Headers = this.Headers?.Select(p=>new ParamInfo
+            apidata.Headers = this.Headers?.Select(p => new ParamInfo
             {
-                Name= notReplaceEvnParams ? p.Name : ReplaceEvnParams(p.Name, ref apiEnvParams),
-                Desc=p.Desc,
-                Checked=p.Checked,
-                Value= notReplaceEvnParams ? p.Value : ReplaceEvnParams(p.Value, ref apiEnvParams)
+                Name = notReplaceEvnParams ? p.Name : ReplaceEvnParams(p.Name, ref apiEnvParams),
+                Desc = p.Desc,
+                Checked = p.Checked,
+                Value = notReplaceEvnParams ? p.Value : ReplaceEvnParams(p.Value, ref apiEnvParams)
             }).ToList();
             apidata.FormDatas = this.FormDatas?.Select(p => new ParamInfo
             {
@@ -1263,12 +1270,12 @@ namespace APIHelper.UC
             apidata.ApiKeyAddTo = this.UCApiKey.AddTo;
             apidata.ApiKeyName = notReplaceEvnParams ? this.UCApiKey.Key : ReplaceEvnParams(this.UCApiKey.Key, ref apiEnvParams);
             apidata.ApiKeyValue = notReplaceEvnParams ? this.UCApiKey.Val : ReplaceEvnParams(this.UCApiKey.Val, ref apiEnvParams);
-            apidata.Cookies = this.Cookies?.Select(p=>new ParamInfo
+            apidata.Cookies = this.Cookies?.Select(p => new ParamInfo
             {
-                Checked=p.Checked,
-                Desc=p.Desc,
-                Name= notReplaceEvnParams ? p.Name : ReplaceEvnParams(p.Name, ref apiEnvParams),
-                Value= notReplaceEvnParams ? p.Value : ReplaceEvnParams(p.Value, ref apiEnvParams)
+                Checked = p.Checked,
+                Desc = p.Desc,
+                Name = notReplaceEvnParams ? p.Name : ReplaceEvnParams(p.Name, ref apiEnvParams),
+                Value = notReplaceEvnParams ? p.Value : ReplaceEvnParams(p.Value, ref apiEnvParams)
             }).ToList();
             apidata.Multipart_form_data = this.Multipart_form_data?.Select(p => new ParamInfo
             {
@@ -1449,6 +1456,107 @@ namespace APIHelper.UC
         public void Execute()
         {
             BtnSend_Click(null, null);
+        }
+
+        private void CanAdjust()
+        {
+            Application.AddMessageFilter(this);
+            var mousePos = Point.Empty;
+            this.MouseMove += mouseMouse;
+
+            void mouseUp(object s, MouseEventArgs e)
+            {
+                mousePos = Point.Empty;
+                this.MouseUp -= mouseUp;
+                preFilterMessageFlag = false;
+                this.Cursor = Cursors.Default;
+            }
+
+            void mouseMouse(object s, MouseEventArgs e)
+            {
+                //Util.SendMsg(this,string.Format("e.Y:{0},location.Y:{1}", e.Y, PannelBottom.Location.Y));
+                if (e.Y - this.PannelBottom.Location.Y < 10 && e.Y - this.PannelBottom.Location.Y > -10)
+                {
+                    this.Cursor = Cursors.SizeNS;
+                    preFilterMessageFlag = true;
+                    if ((e.Button & MouseButtons.Left) == MouseButtons.Left)
+                    {
+                        if (mousePos == Point.Empty)
+                        {
+                            mousePos = new Point(e.X, e.Y);
+                            this.MouseUp += mouseUp;
+                        }
+                    }
+                }
+
+                if (PannelBottom.Visible && mousePos != Point.Empty && (e.Button & MouseButtons.Left) == MouseButtons.Left)
+                {
+                    if (Math.Abs(e.Y - mousePos.Y) > 10 && Math.Abs(e.Y - mousePos.Y) < 100)
+                    {
+                        if (pannelmid.Location.Y + pannelmid.Height + e.Y - mousePos.Y >= 50 && pannelmid.Location.Y + pannelmid.Height + e.Y - mousePos.Y <= this.Height - 50
+                                   && this.PannelBottom.Height + mousePos.Y - e.Y >= 50 && this.PannelBottom.Height + mousePos.Y - e.Y <= this.Height - 50)
+                        {
+                            pannelmid.Height += e.Y - mousePos.Y;
+                            this.PannelBottom.Height += mousePos.Y - e.Y;
+                            var newLoaction = this.PannelBottom.Location;
+                            newLoaction.Offset(0, e.Y - mousePos.Y);
+                            this.PannelBottom.Location = newLoaction;
+                            mousePos = new Point(e.X, e.Y);
+                        }
+                    }
+                }
+                else if (preFilterMessageFlag && Math.Abs(e.Y - this.PannelBottom.Location.Y) > 10 && (e.Button & MouseButtons.Left) == MouseButtons.None)
+                {
+                    preFilterMessageFlag = false;
+                    this.Cursor = Cursors.Default;
+                }
+            }
+        }
+
+        static int MakeLParam(int x, int y)
+        {
+            return (y << 16) | (x & 0xFFFF);
+        }
+        /// <summary>
+        /// Y
+        /// </summary>
+        /// <param name="lp"></param>
+        /// <returns></returns>
+        static int GetHiWord(int lp)
+        {
+            return lp >> 16;
+        }
+        /// <summary>
+        /// X
+        /// </summary>
+        /// <param name="lp"></param>
+        /// <returns></returns>
+        static int GetLoWord(int lp)
+        {
+            return lp & 0xFFFF;
+        }
+
+        public bool PreFilterMessage(ref Message m)
+        {
+            if (/*!preFilterMessageFlag &&*/ m.Msg == 0x200)
+            {
+                //Util.SendMsg(this, Newtonsoft.Json.JsonConvert.SerializeObject(m));
+                //return true;
+                //mousemove
+                var x = GetLoWord(m.LParam.ToInt32());
+                var y = GetHiWord(m.LParam.ToInt32());
+                var sender = FromHandle(m.HWnd);
+                if (sender != null && sender != this)
+                {
+                    var pt = sender.PointToScreen(new Point(x, y));
+                    pt = PointToClient(pt);
+                    x = pt.X;
+                    y = pt.Y;
+                }
+                var wp = m.WParam.ToInt32();
+                this.OnMouseMove(new MouseEventArgs(wp == 1 ? MouseButtons.Left : (wp == 2 ? MouseButtons.Right : MouseButtons.None), 0, x, y, 0));
+            }
+            return false;
         }
     }
 }
