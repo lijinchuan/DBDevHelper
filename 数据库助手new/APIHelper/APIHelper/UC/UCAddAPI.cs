@@ -606,7 +606,7 @@ namespace APIHelper.UC
             {
                 TBResult.APIEnv = GetEnv();
                 var responseEx = responseExTaskList.First().Result;
-
+                
                 var cookies = new List<RespCookie>();
                 var apidata = GetApiData(false);
                 if (apidata.Cookies != null && apidata.Cookies.Count > 0)
@@ -632,7 +632,7 @@ namespace APIHelper.UC
 
                 var fileAttachment = new Regex("attachment; filename=\"=\\?(.*?)\\?B\\?(.*?)\\?=\"");
                 var fileName = string.Empty;
-                if (responseEx.Headers.ContainsKey("Content-Disposition"))
+                if (responseEx.Headers?.ContainsKey("Content-Disposition")==true)
                 {
                     //attachment; filename="=?utf-8?B?5bel6LWE5YmN6KGoXzIwMjIxMC4wMC54bHN4?="
                     var m = fileAttachment.Match(responseEx.Headers["Content-Disposition"]);
