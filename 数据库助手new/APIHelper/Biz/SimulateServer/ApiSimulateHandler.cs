@@ -30,6 +30,19 @@ namespace Biz.SimulateServer
             var simulateResponse=BigEntityTableEngine.LocalEngine.Find<APISimulateResponse>(nameof(APISimulateResponse), nameof(APISimulateResponse.Url), new object[] { url }).FirstOrDefault();
             if (simulateResponse != null)
             {
+                if ("OPTIONS".Equals(request.Method, StringComparison.OrdinalIgnoreCase))
+                {
+                    response.Header.Add("Access-Control-Allow-Origin", "*");
+                    return true;
+                }
+                var api = BigEntityTableEngine.LocalEngine.Find<APIUrl>(nameof(APIUrl), simulateResponse.APIId);
+                if (!string.Equals(api?.APIMethod.ToString(),request.Method,StringComparison.OrdinalIgnoreCase))
+                {
+                    response.ReturnCode = 400;
+                    response.ContentType = string.Format("{0}; charset={1}", "text/html", "utf-8");
+                    response.Content = "不允许" + request.Method + "方式的请求！";
+                    return true;
+                }
                 response.ContentType = string.Format("{0}; charset={1}", simulateResponse.ContentType, simulateResponse.Charset);
                 if (simulateResponse.Headers?.Any() == true)
                 {
@@ -40,9 +53,14 @@ namespace Biz.SimulateServer
                 }
 
                 //response.ReturnCode = 200;
-                if (!string.IsNullOrWhiteSpace(simulateResponse.ResponseBody))
+                if (simulateResponse.ResponseType == "文本")
                 {
                     response.Content = simulateResponse.ResponseBody;
+                }
+                else
+                {
+                    var resource = BigEntityTableEngine.LocalEngine.Find<APIResource>(nameof(APIResource), simulateResponse.ReponseResourceId);
+                    response.RawContent = resource.ResourceData;
                 }
 
                 return true;
@@ -50,7 +68,7 @@ namespace Biz.SimulateServer
             else
             {
                 response.ContentType = string.Format("{0}; charset={1}", "text/html", "utf-8");
-                //response.ReturnCode = 404;
+                response.ReturnCode = 404;
                 response.Content = request.Url+" 不存在！";
 
                 return true;

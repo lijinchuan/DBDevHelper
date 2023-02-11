@@ -364,6 +364,12 @@
     <Compile Include="UC\UCAPIExampleTabPage.Designer.cs">
       <DependentUpon>UCAPIExampleTabPage.cs</DependentUpon>
     </Compile>
+    <Compile Include="UC\UCAPIResource.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UC\UCAPIResource.Designer.cs">
+      <DependentUpon>UCAPIResource.cs</DependentUpon>
+    </Compile>
     <Compile Include="UC\UCApiResult.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -549,6 +555,9 @@
     <EmbeddedResource Include="UC\UCAPIExample.resx">
       <DependentUpon>UCAPIExample.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="UC\UCAPIResource.resx">
+      <DependentUpon>UCAPIResource.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="UC\UCApiResult.resx">
       <DependentUpon>UCApiResult.cs</DependentUpon>
     </EmbeddedResource>
@@ -613,6 +622,7 @@
     </Content>
     <None Include="Resources\application_side_contract.png" />
     <None Include="Resources\application_side_expand.png" />
+    <None Include="Resources\add.png" />
     <Content Include="worker-xml.js">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

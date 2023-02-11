@@ -29,21 +29,21 @@
         private void InitializeComponent()
         {
             this.GBResponseHeader = new System.Windows.Forms.GroupBox();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.UCParams = new APIHelper.UC.UCParamsTable();
+            this.GPResponseContent = new System.Windows.Forms.GroupBox();
             this.BtnSave = new System.Windows.Forms.Button();
             this.CBResponseContentType = new System.Windows.Forms.ComboBox();
             this.CBCharset = new System.Windows.Forms.ComboBox();
             this.label2 = new System.Windows.Forms.Label();
             this.CBContentType = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
+            this.TBContent = new APIHelper.UC.TextBoxEx();
             this.label3 = new System.Windows.Forms.Label();
             this.LBHost = new System.Windows.Forms.Label();
             this.TBSimulateUrl = new System.Windows.Forms.TextBox();
-            this.TBContent = new APIHelper.UC.TextBoxEx();
-            this.UCParams = new APIHelper.UC.UCParamsTable();
             this.linkLabel1 = new System.Windows.Forms.LinkLabel();
             this.GBResponseHeader.SuspendLayout();
-            this.groupBox1.SuspendLayout();
+            this.GPResponseContent.SuspendLayout();
             this.SuspendLayout();
             // 
             // GBResponseHeader
@@ -58,24 +58,34 @@
             this.GBResponseHeader.TabStop = false;
             this.GBResponseHeader.Text = "响应头";
             // 
-            // groupBox1
+            // UCParams
             // 
-            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.UCParams.CanUpload = false;
+            this.UCParams.DataSource = null;
+            this.UCParams.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.UCParams.Location = new System.Drawing.Point(3, 17);
+            this.UCParams.Name = "UCParams";
+            this.UCParams.Size = new System.Drawing.Size(479, 130);
+            this.UCParams.TabIndex = 1;
+            // 
+            // GPResponseContent
+            // 
+            this.GPResponseContent.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBox1.Controls.Add(this.BtnSave);
-            this.groupBox1.Controls.Add(this.CBResponseContentType);
-            this.groupBox1.Controls.Add(this.CBCharset);
-            this.groupBox1.Controls.Add(this.label2);
-            this.groupBox1.Controls.Add(this.CBContentType);
-            this.groupBox1.Controls.Add(this.label1);
-            this.groupBox1.Controls.Add(this.TBContent);
-            this.groupBox1.Location = new System.Drawing.Point(3, 195);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(482, 188);
-            this.groupBox1.TabIndex = 3;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "响应内容";
+            this.GPResponseContent.Controls.Add(this.BtnSave);
+            this.GPResponseContent.Controls.Add(this.CBResponseContentType);
+            this.GPResponseContent.Controls.Add(this.CBCharset);
+            this.GPResponseContent.Controls.Add(this.label2);
+            this.GPResponseContent.Controls.Add(this.CBContentType);
+            this.GPResponseContent.Controls.Add(this.label1);
+            this.GPResponseContent.Controls.Add(this.TBContent);
+            this.GPResponseContent.Location = new System.Drawing.Point(3, 195);
+            this.GPResponseContent.Name = "GPResponseContent";
+            this.GPResponseContent.Size = new System.Drawing.Size(482, 188);
+            this.GPResponseContent.TabIndex = 3;
+            this.GPResponseContent.TabStop = false;
+            this.GPResponseContent.Text = "响应内容";
             // 
             // BtnSave
             // 
@@ -130,6 +140,17 @@
             this.label1.TabIndex = 2;
             this.label1.Text = "Content-Type：";
             // 
+            // TBContent
+            // 
+            this.TBContent.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.TBContent.Location = new System.Drawing.Point(99, 44);
+            this.TBContent.Multiline = true;
+            this.TBContent.Name = "TBContent";
+            this.TBContent.Size = new System.Drawing.Size(377, 112);
+            this.TBContent.TabIndex = 0;
+            // 
             // label3
             // 
             this.label3.AutoSize = true;
@@ -157,27 +178,6 @@
             this.TBSimulateUrl.Size = new System.Drawing.Size(230, 21);
             this.TBSimulateUrl.TabIndex = 6;
             // 
-            // TBContent
-            // 
-            this.TBContent.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.TBContent.Location = new System.Drawing.Point(99, 44);
-            this.TBContent.Multiline = true;
-            this.TBContent.Name = "TBContent";
-            this.TBContent.Size = new System.Drawing.Size(377, 112);
-            this.TBContent.TabIndex = 0;
-            // 
-            // UCParams
-            // 
-            this.UCParams.CanUpload = false;
-            this.UCParams.DataSource = null;
-            this.UCParams.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.UCParams.Location = new System.Drawing.Point(3, 17);
-            this.UCParams.Name = "UCParams";
-            this.UCParams.Size = new System.Drawing.Size(479, 130);
-            this.UCParams.TabIndex = 1;
-            // 
             // linkLabel1
             // 
             this.linkLabel1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
@@ -198,13 +198,13 @@
             this.Controls.Add(this.TBSimulateUrl);
             this.Controls.Add(this.LBHost);
             this.Controls.Add(this.label3);
-            this.Controls.Add(this.groupBox1);
+            this.Controls.Add(this.GPResponseContent);
             this.Controls.Add(this.GBResponseHeader);
             this.Name = "UCSimulateResponse";
             this.Size = new System.Drawing.Size(491, 386);
             this.GBResponseHeader.ResumeLayout(false);
-            this.groupBox1.ResumeLayout(false);
-            this.groupBox1.PerformLayout();
+            this.GPResponseContent.ResumeLayout(false);
+            this.GPResponseContent.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -214,7 +214,7 @@
 
         private UCParamsTable UCParams;
         private System.Windows.Forms.GroupBox GBResponseHeader;
-        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.GroupBox GPResponseContent;
         private TextBoxEx TBContent;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.ComboBox CBContentType;

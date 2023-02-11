@@ -16,6 +16,7 @@ namespace APIHelper.UC
     public partial class UCSimulateResponse : UserControl
     {
         private static readonly string[] ResponseContentTypes = new[] { "文本","图片","文件"};
+        private UCAPIResource apiResource = null;
         private int apiid;
 
         private List<ParamInfo> paramInfos = new List<ParamInfo>();
@@ -26,6 +27,7 @@ namespace APIHelper.UC
             CBCharset.DataSource = Biz.Common.WebUtil.Charsets;
             CBResponseContentType.DropDownStyle = ComboBoxStyle.DropDownList;
             CBResponseContentType.DataSource = ResponseContentTypes;
+            CBResponseContentType.SelectedIndexChanged += CBResponseContentType_SelectedIndexChanged;
 
             var config = BigEntityTableEngine.LocalEngine.Find<SimulateServerConfig>(nameof(SimulateServerConfig), 1);
             if (config == null)
@@ -38,6 +40,33 @@ namespace APIHelper.UC
             }
             TBSimulateUrl.Location = new Point(LBHost.Location.X + LBHost.Width, TBSimulateUrl.Location.Y);
             linkLabel1.Location = new Point(TBSimulateUrl.Location.X + TBSimulateUrl.Width + 2, linkLabel1.Location.Y);
+        }
+
+        private void CBResponseContentType_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (CBResponseContentType.SelectedItem.Equals(ResponseContentTypes[0]))
+            {
+                if (apiResource != null)
+                {
+                    apiResource.Visible = false;
+                }
+                TBContent.Visible = true;
+            }
+            else
+            {
+                if (apiResource == null)
+                {
+                    apiResource = new UCAPIResource();
+                }
+                if (!GPResponseContent.Controls.Contains(apiResource))
+                {
+                    GPResponseContent.Controls.Add(apiResource);
+                    
+                    apiResource.BorderStyle = BorderStyle.FixedSingle;
+                }
+                TBContent.Visible = false;
+                apiResource.Visible = true;
+            }
         }
 
         private void Bind()
@@ -70,6 +99,11 @@ namespace APIHelper.UC
                 paramInfos = apiSimulateResponse.Headers.ToList();
 
                 TBContent.Text = apiSimulateResponse.ResponseBody;
+
+                if (apiSimulateResponse.ReponseResourceId > 0)
+                {
+                    apiResource.ResourceId = apiSimulateResponse.ReponseResourceId;
+                }
             }
             else
             {
@@ -121,6 +155,15 @@ namespace APIHelper.UC
         {
             InitializeComponent();
             this.apiid = apiurlid;
+
+            apiResource = new UCAPIResource();
+            GPResponseContent.Controls.Add(apiResource);
+            apiResource.Visible = false;
+            apiResource.Location = TBContent.Location;
+            apiResource.Size = TBContent.Size;
+            apiResource.Anchor = TBContent.Anchor;
+            apiResource.BorderStyle = BorderStyle.FixedSingle;
+            //apiResource.BackColor = Color.LightBlue;
         }
 
         protected override void OnLoad(EventArgs e)
@@ -201,8 +244,25 @@ namespace APIHelper.UC
                 {
                     apiSimulateResponse.ContentType = (string)CBContentType.SelectedItem;
                 }
-                apiSimulateResponse.ResponseBody = TBContent.Text;
+                
                 apiSimulateResponse.Url = TBSimulateUrl.Text.Trim();
+
+                if (CBResponseContentType.SelectedItem.Equals(ResponseContentTypes[0]))
+                {
+                    if (string.IsNullOrWhiteSpace(TBContent.Text))
+                    {
+                        throw new Exception("请输入文本");
+                    }
+                    apiSimulateResponse.ResponseBody = TBContent.Text;
+                }
+                else
+                {
+                    if (apiResource == null || apiResource.ResourceId == 0)
+                    {
+                        throw new Exception("请选择图片或文件");
+                    }
+                    apiSimulateResponse.ReponseResourceId = apiResource.ResourceId;
+                }
 
                 BigEntityTableEngine.LocalEngine.Upsert(nameof(APISimulateResponse), apiSimulateResponse);
 
