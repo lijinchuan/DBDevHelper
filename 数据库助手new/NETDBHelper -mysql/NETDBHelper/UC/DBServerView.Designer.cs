@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(DBServerView));
             this.tv_DBServers = new System.Windows.Forms.TreeView();
             this.label1 = new System.Windows.Forms.Label();
             this.DBServerviewContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
@@ -56,6 +57,7 @@
             this.TTSM_CreateIndex = new System.Windows.Forms.ToolStripMenuItem();
             this.TTSM_DelIndex = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
+            this.TSPShowOptions = new System.Windows.Forms.ToolStripDropDownButton();
             this.ts_serchKey = new System.Windows.Forms.ToolStripComboBox();
             this.toolStripDropDownButton1 = new System.Windows.Forms.ToolStripButton();
             this.CommMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
@@ -290,6 +292,7 @@
             this.toolStrip1.Dock = System.Windows.Forms.DockStyle.None;
             this.toolStrip1.Font = new System.Drawing.Font("微软雅黑", 8F);
             this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.TSPShowOptions,
             this.ts_serchKey,
             this.toolStripDropDownButton1});
             this.toolStrip1.Location = new System.Drawing.Point(5, 22);
@@ -298,10 +301,19 @@
             this.toolStrip1.TabIndex = 2;
             this.toolStrip1.Text = "toolStrip1";
             // 
+            // TSPShowOptions
+            // 
+            this.TSPShowOptions.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.TSPShowOptions.Image = ((System.Drawing.Image)(resources.GetObject("TSPShowOptions.Image")));
+            this.TSPShowOptions.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.TSPShowOptions.Name = "TSPShowOptions";
+            this.TSPShowOptions.Size = new System.Drawing.Size(29, 19);
+            this.TSPShowOptions.Text = "toolStripDropDownButton2";
+            // 
             // ts_serchKey
             // 
             this.ts_serchKey.Name = "ts_serchKey";
-            this.ts_serchKey.Size = new System.Drawing.Size(100, 22);
+            this.ts_serchKey.Size = new System.Drawing.Size(150, 22);
             this.ts_serchKey.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.ts_serchKey_KeyPress);
             // 
             // toolStripDropDownButton1
@@ -506,5 +518,6 @@
         private System.Windows.Forms.ToolStripMenuItem TSMI_ExeProc;
         private System.Windows.Forms.ToolStripMenuItem TSMI_FilterFunction;
         private System.Windows.Forms.ToolStripMenuItem 完全加载ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripDropDownButton TSPShowOptions;
     }
 }

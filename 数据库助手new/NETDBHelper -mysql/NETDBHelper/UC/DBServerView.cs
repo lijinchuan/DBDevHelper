@@ -12,6 +12,9 @@ using NETDBHelper.SubForm;
 using Biz.Common;
 using Biz.Common.Data;
 using LJC.FrameWorkV3.Data.EntityDataBase;
+using System.Threading.Tasks;
+using Biz;
+using System.Threading;
 
 namespace NETDBHelper
 {
@@ -34,10 +37,13 @@ namespace NETDBHelper
         public Action<DBSource, string, LogicMap> OnAddNewLogicMap;
         public Action<string, LogicMap> OnDeleteLogicMap;
         private DBSourceCollection _dbServers;
+        private UC.LoadingBox searchingWaitingBox = new UC.LoadingBox();
+        private AutoResetEvent searchWaitEvent = new AutoResetEvent(true);
         /// <summary>
         /// 实体命名空间
         /// </summary>
         private static string DefaultEntityNamespace = "Nonamespace";
+        private UC.UCSearchOptions UCSearchOptions = new UC.UCSearchOptions();
         public DBSourceCollection DBServers
         {
             get
@@ -91,6 +97,35 @@ namespace NETDBHelper
             this.DBServerviewContextMenuStrip.ItemClicked += new ToolStripItemClickedEventHandler(OnMenuStrip_ItemClicked);
             
             this.CommMenuStrip.ItemClicked += new ToolStripItemClickedEventHandler(CommMenuStrip_ItemClicked);
+
+            toolStripDropDownButton1.ToolTipText = "搜索表、字段、备注";
+
+            this.Controls.Add(UCSearchOptions);
+            TSPShowOptions.Image = Resources.Resource1.cog;
+            TSPShowOptions.AutoToolTip = false;
+            TSPShowOptions.DropDownOpening += TSPShowOptions_DropDownOpening;
+            TSPShowOptions.DropDownClosed += TSPShowOptions_DropDownClosed;
+        }
+
+        private void TSPShowOptions_DropDownClosed(object sender, EventArgs e)
+        {
+            UCSearchOptions.Visible = false;
+        }
+
+        private void TSPShowOptions_DropDownOpening(object sender, EventArgs e)
+        {
+            if (UCSearchOptions.Visible)
+            {
+                UCSearchOptions.Visible = false;
+            }
+            else
+            {
+                UCSearchOptions.Show();
+                var loc = toolStrip1.Location;
+                loc.Offset(10, TSPShowOptions.Height + 2);
+                UCSearchOptions.Location = loc;
+                UCSearchOptions.BringToFront();
+            }
         }
 
         void CommMenuStrip_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
@@ -191,11 +226,24 @@ namespace NETDBHelper
             }
         }
 
-        void ReLoadDBObj(TreeNode selNode, bool loadall = false)
+        private NodeContentType GetNodeContentType(TreeNode node)
+        {
+            var nc = node.Tag as INodeContents;
+            NodeContentType nctype = NodeContentType.UNKNOWN;
+            if (nc != null)
+            {
+                nctype = nc.GetNodeContentType();
+            }
+
+            return nctype;
+        }
+
+        async Task<bool> ReLoadDBObj(TreeNode selNode, bool loadall = false, bool ansy = true)
         {
             //TreeNode selNode = tv_DBServers.SelectedNode;
             if (selNode == null || selNode.Tag == null)
-                return;
+                return false;
+            List<IAsyncResult> asyncResults = new List<IAsyncResult>();
             AsyncCallback callback = null;
             if (loadall)
             {
@@ -204,10 +252,14 @@ namespace NETDBHelper
                     var node = selNode;
                     foreach (TreeNode c in node.Nodes)
                     {
-                        this.BeginInvoke(new Action(() =>
+                        var ar = this.BeginInvoke(new Action(() =>
                         {
-                            ReLoadDBObj(c, loadall);
+                            ReLoadDBObj(c, loadall, ansy);
                         }));
+                        if (!ansy)
+                        {
+                            ar.AsyncWaitHandle.WaitOne();
+                        }
                     }
                 });
             }
@@ -216,7 +268,8 @@ namespace NETDBHelper
 
             if (selNode.Tag is ServerInfo)
             {
-                Biz.UILoadHelper.LoadDBsAnsy(this.ParentForm, selNode, GetDBSource(selNode), callback, selNode);
+                var ar = Biz.UILoadHelper.LoadDBsAnsy(this.ParentForm, selNode, GetDBSource(selNode), callback, selNode);
+                asyncResults.Add(ar);
                 selNode.Parent.Expand();
             }
             else if (selNode.Tag is DBInfo)
@@ -236,20 +289,21 @@ namespace NETDBHelper
             else if ((selNode.Tag as INodeContents).GetNodeContentType() == NodeContentType.TBParent)
             {
                 var dbname = GetDBName(selNode).ToUpper();
-                Biz.UILoadHelper.LoadTBsAnsy(this.ParentForm, selNode, GetDBSource(selNode), dbname, name =>
+                var ar = Biz.UILoadHelper.LoadTBsAnsy(this.ParentForm, selNode, GetDBSource(selNode), dbname, name =>
                  {
-                     var mark = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys", new
+                     var mark = BigEntityTableEngine.LocalEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys", new
                                   [] { dbname, name.ToUpper(), string.Empty }).FirstOrDefault();
                      return mark == null ? string.Empty : mark.MarkInfo;
                  }, callback, selNode);
-                TSMI_ViewColumnList.Visible = true;
+                //TSMI_ViewColumnList.Visible = true;
+                asyncResults.Add(ar);
             }
             else if (selNode.Tag is INodeContents && (selNode.Tag as INodeContents).GetNodeContentType() == NodeContentType.FUNPARENT)
             {
                 var dbname = GetDBName(selNode).ToUpper();
-                Biz.UILoadHelper.LoadFunctionsAnsy(this.ParentForm, selNode, GetDBSource(selNode), p =>
+                var ar = Biz.UILoadHelper.LoadFunctionsAnsy(this.ParentForm, selNode, GetDBSource(selNode), p =>
                 {
-                    var item = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<SPInfo>("SPInfo", "DBName_SPName", new[] { dbname, p.ToUpper() }).FirstOrDefault();
+                    var item = BigEntityTableEngine.LocalEngine.Find<SPInfo>("SPInfo", "DBName_SPName", new[] { dbname, p.ToUpper() }).FirstOrDefault();
 
                     if (item != null)
                     {
@@ -257,21 +311,22 @@ namespace NETDBHelper
                     }
                     return string.Empty;
                 });
+                asyncResults.Add(ar);
             }
             else if (selNode.Tag is TableInfo)
             {
                 var dbname = GetDBName(selNode).ToUpper();
                 var dbsource = GetDBSource(selNode);
-                var synccolumnmark = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.
+                var synccolumnmark = BigEntityTableEngine.LocalEngine.
                     Find<ColumnMarkSyncRecord>("ColumnMarkSyncRecord", "keys", new[] { dbname, selNode.Text.ToUpper() }).FirstOrDefault() != null;
-                Biz.UILoadHelper.LoadColumnsAnsy(this.ParentForm, selNode, dbsource, (col) =>
+                var ar = Biz.UILoadHelper.LoadColumnsAnsy(this.ParentForm, selNode, dbsource, (col) =>
                 {
-                    var mark = LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys", new
+                    var mark = BigEntityTableEngine.LocalEngine.Find<MarkObjectInfo>("MarkObjectInfo", "keys", new
                                 [] { dbname, selNode.Text.ToUpper(), col.Name.ToUpper() }).FirstOrDefault();
 
                     if (mark == null && !synccolumnmark)
                     {
-                        LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<MarkObjectInfo>("MarkObjectInfo", new MarkObjectInfo
+                        BigEntityTableEngine.LocalEngine.Insert<MarkObjectInfo>("MarkObjectInfo", new MarkObjectInfo
                         {
                             DBName = dbname.ToUpper(),
                             ColumnName = col.Name.ToUpper(),
@@ -284,9 +339,10 @@ namespace NETDBHelper
 
                     return mark == null ? string.Empty : mark.MarkInfo;
                 });
+                asyncResults.Add(ar);
                 if (!synccolumnmark)
                 {
-                    LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<ColumnMarkSyncRecord>("ColumnMarkSyncRecord",
+                    BigEntityTableEngine.LocalEngine.Insert("ColumnMarkSyncRecord",
                         new ColumnMarkSyncRecord
                         {
                             DBName = dbname.ToUpper(),
@@ -295,7 +351,7 @@ namespace NETDBHelper
                         });
                 }
 
-                LJC.FrameWorkV3.Data.EntityDataBase.BigEntityTableEngine.LocalEngine.Insert<HLogEntity>("HLog", new HLogEntity
+                BigEntityTableEngine.LocalEngine.Insert<HLogEntity>("HLog", new HLogEntity
                 {
                     TypeName = selNode.Text,
                     LogTime = DateTime.Now,
@@ -307,21 +363,33 @@ namespace NETDBHelper
             }
             else if (selNode.Tag is INodeContents && (selNode.Tag as INodeContents).GetNodeContentType() == NodeContentType.PROCParent)
             {
-                Biz.UILoadHelper.LoadProcedureAnsy(this.ParentForm, selNode, GetDBSource(selNode));
-                TSMI_FilterProc.Visible = true;
+                var ar = Biz.UILoadHelper.LoadProcedureAnsy(this.ParentForm, selNode, GetDBSource(selNode));
+                //TSMI_FilterProc.Visible = true;
+                asyncResults.Add(ar);
             }
             else if (selNode.Tag is INodeContents && (selNode.Tag as INodeContents).GetNodeContentType() == NodeContentType.INDEXParent)
             {
-                Biz.UILoadHelper.LoadIndexAnsy(this.ParentForm, selNode, GetDBSource(selNode), GetDBName(selNode));
+                var ar = Biz.UILoadHelper.LoadIndexAnsy(this.ParentForm, selNode, GetDBSource(selNode), GetDBName(selNode));
+                asyncResults.Add(ar);
             }
             else if (selNode.Tag is INodeContents && (selNode.Tag as INodeContents).GetNodeContentType() == NodeContentType.TRIGGERPARENT)
             {
-                Biz.UILoadHelper.LoadTriggersAnsy(this.ParentForm, selNode, GetDBSource(selNode), GetDBName(selNode));
+                var ar = Biz.UILoadHelper.LoadTriggersAnsy(this.ParentForm, selNode, GetDBSource(selNode), GetDBName(selNode));
+                asyncResults.Add(ar);
             }
             else if (selNode.Tag is INodeContents && (selNode.Tag as INodeContents).GetNodeContentType() == NodeContentType.LOGICMAPParent)
             {
-                Biz.UILoadHelper.LoadLogicMapsAnsy(this.ParentForm, selNode, GetDBName(selNode));
+                var ar = Biz.UILoadHelper.LoadLogicMapsAnsy(this.ParentForm, selNode, GetDBName(selNode));
+                asyncResults.Add(ar);
             }
+
+            if (asyncResults.Any() && !ansy)
+            {
+                var t = Task.Factory.StartNew(new Func<bool>(() => asyncResults.Select(p => p.AsyncWaitHandle).All(p => p.WaitOne())));
+                await t;
+            }
+
+            return true;
         }
 
         void OnMenuStrip_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
@@ -725,6 +793,17 @@ namespace NETDBHelper
             return GetDBSource(node.Parent);
         }
 
+        private DBInfo GetDB(TreeNode node)
+        {
+            if (node == null)
+                return null;
+            if (node.Tag is DBInfo)
+            {
+                return node.Tag as DBInfo;
+            }
+            return GetDB(node.Parent);
+        }
+
         void tv_DBServers_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
             if ((e.Node.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.TBParent)
@@ -1033,15 +1112,27 @@ namespace NETDBHelper
             }
         }
 
+        private T OpCtrol<T>(Func<T> func)
+        {
+            if (InvokeRequired)
+            {
+                T t = default;
+                var ar = this.BeginInvoke(new Action(() => t = func()));
+                ar.AsyncWaitHandle.WaitOne();
+                return t;
+            }
+            return func();
+        }
+
+        private List<TreeNode> SearchAllResults = new List<TreeNode>();
+        private TreeNode SearchStartTreeNode = null;
+        private TreeNode SearchLastNode = null;
+
         private void toolStripDropDownButton1_Click(object sender, EventArgs e)
         {
             string serchkey = ts_serchKey.Text;
 
-            bool matchall = serchkey.StartsWith("'");
-            if (matchall)
-            {
-                serchkey = serchkey.Trim('\'');
-            }
+            bool matchall = UCSearchOptions.IsMatchAll;
             if (!ts_serchKey.Items.Contains(serchkey))
             {
                 ts_serchKey.Items.Add(serchkey);
@@ -1050,83 +1141,392 @@ namespace NETDBHelper
             {
                 tv_DBServers.SelectedNode = tv_DBServers.Nodes[0];
             }
+
             if (!tv_DBServers.Focused)
             {
                 this.tv_DBServers.Focus();
             }
-            bool boo = false;
-            if (tv_DBServers.SelectedNode.Nodes.Count > 0)
-                boo=SearchNode(tv_DBServers.SelectedNode.Nodes[0], serchkey, matchall, true);
-            else if (tv_DBServers.SelectedNode.NextNode != null)
-                boo=SearchNode(tv_DBServers.SelectedNode.NextNode, serchkey, matchall, true);
-            else
+
+            if (!UCSearchOptions.GlobSearch && SearchStartTreeNode == null)
             {
-                var parent = tv_DBServers.SelectedNode.Parent;
-                while (parent != null && parent.NextNode == null)
+                SearchStartTreeNode = tv_DBServers.SelectedNode;
+            }
+
+            searchingWaitingBox.Msg = "搜索中...";
+            var oldLoadedExpand = UILoadHelper.LoadedExpand;
+            UILoadHelper.LoadedExpand = false;
+            searchingWaitingBox.Waiting(this, () =>
+            {
+                int boo = 0;
+                while (true)
                 {
-                    parent = parent.Parent;
-                }
-                if (parent != null)
-                {
-                    if (parent.NextNode != null)
+                    var nextNode = getNextNode();
+                    if (nextNode != null)
                     {
-                        boo = SearchNode(parent.NextNode, serchkey, matchall, true);
+                        boo = SearchNode(nextNode, serchkey, matchall, true).Result;
+                        if (boo == 1)
+                        {
+                            UILoadHelper.LoadedExpand = oldLoadedExpand;
+                            break;
+                        }
+                        else if (boo == 2)
+                        {
+                            searchWaitEvent.WaitOne();
+                        }
+                        else if (boo == 3)
+                        {
+                            //继续
+                        }
+                        else
+                        {
+                            finishSearch();
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        finishSearch();
+                        break;
                     }
                 }
-            }
-            if (!boo)
+                showResult();
+            }, () => { UILoadHelper.LoadedExpand = oldLoadedExpand; });
+
+            TreeNode getNextNode()
             {
-                tv_DBServers.SelectedNode = tv_DBServers.Nodes[0];
+                return OpCtrol(() =>
+                {
+                    TreeNode node = null;
+                    var currNode = SearchLastNode;
+                    if (currNode == null)
+                    {
+                        currNode = tv_DBServers.SelectedNode;
+                    }
+                    if (currNode != null)
+                    {
+                        if (currNode.Nodes.Count > 0)
+                        {
+                            node = currNode.Nodes[0];
+                        }
+                        else if (currNode.NextNode != null)
+                        {
+                            node = currNode.NextNode;
+                        }
+
+                        if (node == null)
+                        {
+                            var parentNode = currNode.Parent;
+                            while (parentNode != null && parentNode.Level > SearchStartTreeNode.Level)
+                            {
+                                if (parentNode.NextNode != null)
+                                {
+                                    node = parentNode.NextNode;
+                                    break;
+                                }
+                                else
+                                {
+                                    parentNode = parentNode.Parent;
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+
+                    }
+                    return node;
+                });
+            }
+
+            void showResult()
+            {
+                if (SearchAllResults.Any())
+                {
+                    this.BeginInvoke(new Action(() =>
+                    {
+                        SearchResultsDlg dlg = new SearchResultsDlg();
+                        dlg.Ds = SearchAllResults.Select(p =>
+                        {
+                            var dbSource = GetDBSource(p);
+                            var dbName = GetDBName(p);
+                            var tbName = GetTBName(p);
+                            return new
+                            {
+                                server = dbSource.ServerName,
+                                db = dbName,
+                                tb = tbName,
+                                type = GetNodeContentType(p),
+                                text = p.Text,
+                                obj = p
+                            };
+                        }).ToList();
+                        dlg.Choose += node => OpCtrol(() =>
+                        {
+                            tv_DBServers.SelectedNode = node;
+                            return tv_DBServers.SelectedNode == node;
+                        });
+
+                        SearchAllResults.Clear();
+                        searchedNodes.Clear();
+                        dlg.Show();
+                    }));
+                };
+            }
+
+            void finishSearch()
+            {
+                UILoadHelper.LoadedExpand = oldLoadedExpand;
+                this.BeginInvoke(new Action(() =>
+                {
+                    if (SearchStartTreeNode != null)
+                    {
+                        tv_DBServers.SelectedNode = SearchStartTreeNode;
+                        SearchStartTreeNode = null;
+                    }
+                    else
+                    {
+                        tv_DBServers.SelectedNode = tv_DBServers.Nodes[0];
+                    }
+                }));
+
+                SearchLastNode = null;
             }
         }
 
-        private bool SearchNode(TreeNode nodeStart, string txt, bool matchall, bool maxsearch)
+        private HashSet<TreeNode> searchedNodes = new HashSet<TreeNode>();
+
+        private async Task<int> SearchNode(TreeNode nodeStart, string txt, bool matchall, bool maxsearch)
         {
             if (nodeStart == null)
             {
-                return false;
+                return await Task.FromResult(0);
             }
+
+            //if (searchedNodes.Contains(nodeStart))
+            //{
+
+            //}
+            //else
+            //{
+            //    searchedNodes.Add(nodeStart);
+            //}
+
+            if (!UCSearchOptions.GlobSearch && nodeStart.Level <= SearchStartTreeNode.Level)
+            {
+                return 0;
+            }
+
+            SearchLastNode = nodeStart;
+
+            var nodeType = GetNodeContentType(nodeStart);
+
             var find = matchall ? (nodeStart.Text.Equals(txt, StringComparison.OrdinalIgnoreCase)
                 || nodeStart.ToolTipText?.Equals(txt, StringComparison.OrdinalIgnoreCase) == true) :
                 (nodeStart.Text.IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1
                 || nodeStart.ToolTipText?.IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1);
             if (find)
             {
-                tv_DBServers.SelectedNode = nodeStart;
-                return true;
+                if (Filter(nodeType))
+                {
+                    if (UCSearchOptions.SearchComplete)
+                    {
+                        SearchAllResults.Add(nodeStart);
+                        SearchLastNode = nodeStart;
+                        return 3;
+                    }
+                    else
+                    {
+                        this.BeginInvoke(new Action(() => tv_DBServers.SelectedNode = nodeStart));
+                        return 1;
+                    }
+
+                }
             }
+
             if (nodeStart.Nodes.Count > 0)
             {
                 foreach (TreeNode node in nodeStart.Nodes)
                 {
-                    if (SearchNode(node, txt, matchall, false))
-                        return true;
+                    var ret = SearchNode(node, txt, matchall, true).Result;
+                    if (ret != 0)
+                    {
+                        return ret;
+                    }
                 }
             }
+            else if (GetDB(nodeStart) != null)
+            {
+                var dbSource = GetDBSource(nodeStart);
+                var exists = false;
+                var loadAll = false;
+
+                if (nodeType == NodeContentType.DB)
+                {
+
+                    if (UCSearchOptions.HardSearch)
+                    {
+                        exists = MySQLHelper.GetDBs(dbSource).Rows.Count > 0;
+                    }
+                    else
+                    {
+                        exists = (Filter(NodeContentType.DB) || Filter(NodeContentType.TB) || Filter(NodeContentType.COLUMN)) && LocalDBHelper.GetAllMarkObjectInfoFromCach().Exists(p => p.Servername.Equals(dbSource.ServerName, StringComparison.OrdinalIgnoreCase) &&
+                              (matchall ? ((p.DBName ?? string.Empty).Equals(txt, StringComparison.OrdinalIgnoreCase) || (p.TBName ?? string.Empty).Equals(txt, StringComparison.OrdinalIgnoreCase) || (p.ColumnName ?? string.Empty).Equals(txt, StringComparison.OrdinalIgnoreCase) || (p.MarkInfo ?? string.Empty).Equals(txt, StringComparison.OrdinalIgnoreCase))
+                              : ((p.DBName ?? string.Empty).IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1 || (p.TBName ?? string.Empty).IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1 || (p.ColumnName ?? string.Empty).IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1 || (p.MarkInfo ?? string.Empty).IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1)));
+                    }
+                }
+                else if (nodeType == NodeContentType.TBParent && (Filter(NodeContentType.TB) || Filter(NodeContentType.COLUMN) || Filter(NodeContentType.INDEX)))
+                {
+                    if (UCSearchOptions.HardSearch)
+                    {
+                        exists = MySQLHelper.GetTBs(dbSource, GetDBName(nodeStart)).Rows.Count > 0;
+                    }
+                    else
+                    {
+                        exists = LocalDBHelper.GetAllMarkObjectInfoFromCach().Exists(p => p.Servername.Equals(dbSource.ServerName, StringComparison.OrdinalIgnoreCase) && p.DBName.Equals(GetDBName(nodeStart), StringComparison.OrdinalIgnoreCase) &&
+                            (matchall ? ((p.TBName ?? string.Empty).Equals(txt, StringComparison.OrdinalIgnoreCase) || (p.ColumnName ?? string.Empty).Equals(txt, StringComparison.OrdinalIgnoreCase) || (p.MarkInfo ?? string.Empty).Equals(txt, StringComparison.OrdinalIgnoreCase))
+                            : ((p.TBName ?? string.Empty).IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1 || (p.ColumnName ?? string.Empty).IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1 || (p.MarkInfo ?? string.Empty).IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1)));
+                    }
+
+                }
+                else if (nodeType == NodeContentType.VIEWParent)
+                {
+                    if (UCSearchOptions.HardSearch)
+                    {
+                        exists = MySQLHelper.GetViews(dbSource, GetDBName(nodeStart)).Any();
+                    }
+                    else
+                    {
+                        exists = Filter(NodeContentType.VIEW) && MySQLHelper.GetViews(dbSource, GetDBName(nodeStart)).Any();
+                    }
+                }
+                else if (nodeType == NodeContentType.TB && (Filter(NodeContentType.COLUMN) || Filter(NodeContentType.INDEX)))
+                {
+                    if (UCSearchOptions.HardSearch)
+                    {
+                        exists = MySQLHelper.GetColumns(dbSource, GetDBName(nodeStart), GetTBName(nodeStart)).Any();
+                    }
+                    else
+                    {
+                        exists = (Filter(NodeContentType.TB) || Filter(NodeContentType.COLUMN)) && LocalDBHelper.GetMarkObjectInfoFromCach(dbSource.ServerName, GetDBName(nodeStart), GetTBName(nodeStart)).Exists(p =>
+                               matchall ? ((p.ColumnName ?? string.Empty).Equals(txt, StringComparison.OrdinalIgnoreCase) || (p.MarkInfo ?? string.Empty).Equals(txt, StringComparison.OrdinalIgnoreCase))
+                               : ((p.ColumnName ?? string.Empty).IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1 || (p.MarkInfo ?? string.Empty).IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1));
+                    }
+                    loadAll = true;
+                }
+                else if (nodeType == NodeContentType.PROCParent)
+                {
+                    exists = Filter(NodeContentType.PROC) && MySQLHelper.GetProcedures(dbSource, GetDBName(nodeStart)).Any();
+                    //exists = LocalDBHelper.GetAllSPInfoFromCach().Exists(p => p.Servername.Equals(dbSource.ServerName, StringComparison.OrdinalIgnoreCase) && p.DBName.Equals(GetDBName(nodeStart), StringComparison.OrdinalIgnoreCase) &&
+                    // (matchall ? ((p.SPName ?? string.Empty).Equals(txt, StringComparison.OrdinalIgnoreCase) || (p.Mark ?? string.Empty).Equals(txt, StringComparison.OrdinalIgnoreCase))
+                    // : ((p.SPName ?? string.Empty).IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1 || (p.Mark ?? string.Empty).IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1)));
+                }
+                else if (nodeType == NodeContentType.FUNPARENT)
+                {
+                    exists = Filter(NodeContentType.FUN) && MySQLHelper.GetFunctions(dbSource, GetDBName(nodeStart)).Rows.Count > 0;
+                    //exists = LocalDBHelper.GetAllSPInfoFromCach().Exists(p => p.Servername.Equals(dbSource.ServerName, StringComparison.OrdinalIgnoreCase) && p.DBName.Equals(GetDBName(nodeStart), StringComparison.OrdinalIgnoreCase) &&
+                    // (matchall ? ((p.SPName ?? string.Empty).Equals(txt, StringComparison.OrdinalIgnoreCase) || (p.Mark ?? string.Empty).Equals(txt, StringComparison.OrdinalIgnoreCase))
+                    // : ((p.SPName ?? string.Empty).IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1 || (p.Mark ?? string.Empty).IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1)));
+                }
+                else if (nodeType == NodeContentType.LOGICMAPParent)
+                {
+                    exists = Filter(NodeContentType.LOGICMAP) && LocalDBHelper.GetAllLogicMapFromCach().Exists(p => p.DBName.Equals(GetDBName(nodeStart), StringComparison.OrdinalIgnoreCase) &&
+                    (matchall ? ((p.LogicName ?? string.Empty).Equals(txt, StringComparison.OrdinalIgnoreCase))
+                     : ((p.LogicName ?? string.Empty).IndexOf(txt, StringComparison.OrdinalIgnoreCase) > -1)));
+                }
+                else if (nodeType == NodeContentType.TRIGGERPARENT)
+                {
+                    //
+                    exists = Filter(NodeContentType.TRIGGER) && MySQLHelper.GetTriggers(dbSource, GetDBName(nodeStart), GetTBName(nodeStart)).Any();
+
+                }
+
+                if (exists)
+                {
+                    searchWaitEvent.Reset();
+                    var t = ReLoadDBObj(nodeStart, loadAll, false);
+                    _ = new Action(async () =>
+                    {
+                        await t;
+                        //if (nodeStart.Nodes.Count > 0)
+                        //{
+                        //    this.BeginInvoke(new Action(() =>
+                        //    {
+                        //        SearchLastNode = nodeStart.Nodes[0];
+                        //        //tv_DBServers.SelectedNode = nodeStart.Nodes[0];
+                        //        //toolStripDropDownButton1_Click(null, null);
+                        //    }));
+                        //}
+                        searchWaitEvent.Set();
+                    }).BeginInvoke(null, null);
+                    return 2;
+                }
+                else
+                {
+                    return 3;
+                }
+            }
+
             if (maxsearch)
             {
                 if (nodeStart.NextNode != null)
                 {
-                    return SearchNode(nodeStart.NextNode, txt, matchall, true);
+                    return SearchNode(nodeStart.NextNode, txt, matchall, true).Result;
                 }
                 else
                 {
-                    if (maxsearch)
+                    var parent = nodeStart.Parent;
+                    while (parent != null && parent.NextNode == null)
                     {
-                        var parent = nodeStart.Parent;
-                        while (parent != null && parent.NextNode == null)
-                        {
-                            parent = parent.Parent;
-                        }
-                        if (parent != null)
-                        {
-                            return SearchNode(parent.NextNode, txt, matchall, true);
-                        }
+                        parent = parent.Parent;
+                    }
+                    if (parent != null)
+                    {
+                        return SearchNode(parent.NextNode, txt, matchall, true).Result;
                     }
                 }
             }
 
-            return false;
+            return 0;
+
+            bool Filter(NodeContentType nodeContentType)
+            {
+                if (UCSearchOptions.SearchDB && UCSearchOptions.SearchTB && UCSearchOptions.SearchField && UCSearchOptions.SearchProc && UCSearchOptions.SearchFunc &&
+                    UCSearchOptions.SearchOther)
+                {
+                    return true;
+                }
+                switch (nodeContentType)
+                {
+                    case NodeContentType.DB:
+                        {
+                            return UCSearchOptions.SearchDB;
+                        }
+                    case NodeContentType.TB:
+                        {
+                            return UCSearchOptions.SearchTB;
+                        }
+                    case NodeContentType.COLUMN:
+                        {
+                            return UCSearchOptions.SearchField;
+                        }
+                    case NodeContentType.PROC:
+                        {
+                            return UCSearchOptions.SearchProc;
+                        }
+                    case NodeContentType.FUN:
+                        {
+                            return UCSearchOptions.SearchFunc;
+                        }
+                    case NodeContentType.VIEW:
+                        {
+                            return UCSearchOptions.SearchView;
+                        }
+                    default:
+                        {
+                            return UCSearchOptions.SearchOther;
+                        }
+                }
+            }
         }
 
         private void ts_serchKey_KeyPress(object sender, KeyPressEventArgs e)
@@ -1626,13 +2026,7 @@ background-color: #ffffff;
 
         private string GetDBName(TreeNode node)
         {
-            if (node == null)
-                return null;
-            if (node.Level < 1)
-                return null;
-            if (node.Tag is DBInfo)
-                return (node.Tag as DBInfo).Name;
-            return GetDBName(node.Parent);
+            return GetDB(node)?.Name;
         }
 
         private void Mark_Local()
