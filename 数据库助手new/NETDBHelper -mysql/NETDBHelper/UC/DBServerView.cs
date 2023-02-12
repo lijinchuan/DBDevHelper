@@ -281,7 +281,7 @@ namespace NETDBHelper
                     {
                         this.BeginInvoke(new Action(() =>
                         {
-                            ReLoadDBObj(c, loadall);
+                            ReLoadDBObj(c, loadall, ansy);
                         }));
                     }
                 }
@@ -1198,7 +1198,8 @@ namespace NETDBHelper
                 {
                     TreeNode node = null;
                     var currNode = SearchLastNode;
-                    if (currNode == null)
+                    //可能节点删除了
+                    if (currNode == null || GetDBSource(currNode) == null)
                     {
                         currNode = tv_DBServers.SelectedNode;
                     }
