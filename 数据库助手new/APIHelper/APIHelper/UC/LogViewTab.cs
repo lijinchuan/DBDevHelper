@@ -31,7 +31,7 @@ namespace APIHelper.UC
 
             }
 
-            this.TBSearchKey.Visible = apiid > 0;
+            //this.TBSearchKey.Visible = apiid > 0;
 
             this.PageIndex = 1;
             BindData();
@@ -413,8 +413,17 @@ namespace APIHelper.UC
                     }
                     else
                     {
-                        var list = BigEntityTableEngine.LocalEngine.Scan<APIInvokeLog>(nameof(APIInvokeLog), "APIId_ApiEnvId_CDate",
-                            new object[] { _apiid, _envid, EndDate.Value.Date.AddDays(1) }, new object[] { _apiid, _envid, BeginDate.Value.Date }, 1, int.MaxValue, ref total);
+                        List<APIInvokeLog> list = new List<APIInvokeLog>();
+                        if (_apiid > 0)
+                        {
+                            list = BigEntityTableEngine.LocalEngine.Scan<APIInvokeLog>(nameof(APIInvokeLog), "APIId_ApiEnvId_CDate",
+                                new object[] { _apiid, _envid, EndDate.Value.Date.AddDays(1) }, new object[] { _apiid, _envid, BeginDate.Value.Date }, 1, int.MaxValue, ref total);
+                        }
+                        else
+                        {
+                            list = BigEntityTableEngine.LocalEngine.Scan<APIInvokeLog>(nameof(APIInvokeLog), "CDate",
+                                new object[] {EndDate.Value.Date.AddDays(1) }, new object[] {BeginDate.Value.Date }, 1, int.MaxValue, ref total);
+                        }
                         var key = TBSearchKey.Text;
                         list = list.Where(p => p.GetRequestBody().ToString().Contains(key) || (p.ResponseText ?? "").Contains(key)).ToList();
                         total = list.Count();
