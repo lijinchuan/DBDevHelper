@@ -1489,26 +1489,29 @@ namespace APIHelper.UC
                     }
                 }
 
-                if (PannelBottom.Visible && mousePos != Point.Empty && (e.Button & MouseButtons.Left) == MouseButtons.Left)
+                if (preFilterMessageFlag)
                 {
-                    if (Math.Abs(e.Y - mousePos.Y) > 10 && Math.Abs(e.Y - mousePos.Y) < 100)
+                    if (PannelBottom.Visible && mousePos != Point.Empty && (e.Button & MouseButtons.Left) == MouseButtons.Left)
                     {
-                        if (pannelmid.Location.Y + pannelmid.Height + e.Y - mousePos.Y >= 50 && pannelmid.Location.Y + pannelmid.Height + e.Y - mousePos.Y <= this.Height - 50
-                                   && this.PannelBottom.Height + mousePos.Y - e.Y >= 50 && this.PannelBottom.Height + mousePos.Y - e.Y <= this.Height - 50)
+                        if (Math.Abs(e.Y - mousePos.Y) > 10 && Math.Abs(e.Y - mousePos.Y) < 100)
                         {
-                            pannelmid.Height += e.Y - mousePos.Y;
-                            this.PannelBottom.Height += mousePos.Y - e.Y;
-                            var newLoaction = this.PannelBottom.Location;
-                            newLoaction.Offset(0, e.Y - mousePos.Y);
-                            this.PannelBottom.Location = newLoaction;
-                            mousePos = new Point(e.X, e.Y);
+                            if (pannelmid.Location.Y + pannelmid.Height + e.Y - mousePos.Y >= 50 && pannelmid.Location.Y + pannelmid.Height + e.Y - mousePos.Y <= this.Height - 50
+                                       && this.PannelBottom.Height + mousePos.Y - e.Y >= 50 && this.PannelBottom.Height + mousePos.Y - e.Y <= this.Height - 50)
+                            {
+                                pannelmid.Height += e.Y - mousePos.Y;
+                                this.PannelBottom.Height += mousePos.Y - e.Y;
+                                var newLoaction = this.PannelBottom.Location;
+                                newLoaction.Offset(0, e.Y - mousePos.Y);
+                                this.PannelBottom.Location = newLoaction;
+                                mousePos = new Point(e.X, e.Y);
+                            }
                         }
                     }
-                }
-                else if (preFilterMessageFlag && Math.Abs(e.Y - this.PannelBottom.Location.Y) > 10 && (e.Button & MouseButtons.Left) == MouseButtons.None)
-                {
-                    preFilterMessageFlag = false;
-                    this.Cursor = Cursors.Default;
+                    else if (Math.Abs(e.Y - this.PannelBottom.Location.Y) > 10 && (e.Button & MouseButtons.Left) == MouseButtons.None)
+                    {
+                        preFilterMessageFlag = false;
+                        this.Cursor = Cursors.Default;
+                    }
                 }
             }
         }
