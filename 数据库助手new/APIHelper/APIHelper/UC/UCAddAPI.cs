@@ -1549,12 +1549,19 @@ namespace APIHelper.UC
                 var x = GetLoWord(m.LParam.ToInt32());
                 var y = GetHiWord(m.LParam.ToInt32());
                 var sender = FromHandle(m.HWnd);
-                if (sender != null && sender != this)
+                if (sender != null && sender != this && !sender.IsDisposed)
                 {
-                    var pt = sender.PointToScreen(new Point(x, y));
-                    pt = PointToClient(pt);
-                    x = pt.X;
-                    y = pt.Y;
+                    try
+                    {
+                        var pt = sender.PointToScreen(new Point(x, y));
+                        pt = PointToClient(pt);
+                        x = pt.X;
+                        y = pt.Y;
+                    }
+                    catch
+                    {
+                        return true;
+                    }
                 }
                 var wp = m.WParam.ToInt32();
                 this.OnMouseMove(new MouseEventArgs(wp == 1 ? MouseButtons.Left : (wp == 2 ? MouseButtons.Right : MouseButtons.None), 0, x, y, 0));
