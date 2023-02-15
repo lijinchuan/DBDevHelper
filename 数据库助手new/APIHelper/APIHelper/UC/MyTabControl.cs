@@ -15,6 +15,8 @@ namespace APIHelper.UC
         const int CLOSE_SIZE = 15;
         private static int DEF_START_POS_Default = 20;
         int DEF_START_POS = DEF_START_POS_Default;
+        private int MaxTabWidth = 200;
+        private Label TipLable = new Label();
         int mtop = 3;
         private static Font defaultFont = new Font("Tahoma", 8.25f, FontStyle.Regular);
         private ToolStripProfessionalRenderer renderer = new ToolStripProfessionalRenderer();
@@ -31,6 +33,15 @@ namespace APIHelper.UC
         private bool IsDraging = false;
         private Point DragStart = Point.Empty;
         private Point DragEnd = Point.Empty;
+
+        /// <summary>
+        /// 是否可以拖出
+        /// </summary>
+        public bool CanDragOut
+        {
+            get;
+            set;
+        } = true;
 
 
         public MyTabControl()
@@ -60,6 +71,10 @@ namespace APIHelper.UC
             TagPageContextMenuStrip.Items.Add("重命名");
             TagPageContextMenuStrip.ItemClicked += TagPageContextMenuStrip_ItemClicked;
 
+            TipLable.Visible = false;
+            TipLable.BackColor = Color.LightYellow;
+            TipLable.Padding = new Padding(2, 3, 2, 2);
+            TipLable.BorderStyle = BorderStyle.FixedSingle;
         }
 
         private void TagPageContextMenuStrip_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
@@ -99,7 +114,7 @@ namespace APIHelper.UC
                             if (!string.IsNullOrWhiteSpace(inputStringDlg.InputString))
                             {
                                 this.SelectedTab.Text = inputStringDlg.InputString;
-                                //ResetTabs();
+                                ResetTabs();
                                 this.Invalidate();
                             }
                         }
@@ -130,6 +145,8 @@ namespace APIHelper.UC
 
                 var lasttabex = this.tabExDic.AsEnumerable().ToArray()[pos].Value;
                 selitem.TabIndex = pos;
+
+                selitem.TabIndex = pos;
                 if (pos != 0)
                 {
                     tabExDic[0].TabIndex = tabExDic.Count;
@@ -140,41 +157,6 @@ namespace APIHelper.UC
                 this.TabPages.AddRange(tabs);
                 this.SelectedTab = selitem.TabPage;
 
-                var isfull = false;
-                var hasselectedtab = false;
-                lasttabex = null;
-                float currwidth = 0;
-                foreach (var item in this.tabExDic)
-                {
-                    if (!isfull)
-                    {
-                        currwidth += item.Value.TabWidth;
-                        if (currwidth > this.Width - 20)
-                        {
-
-                            isfull = true;
-                            break;
-                        }
-                        lasttabex = item.Value;
-                        hasselectedtab = selitem.TabPage == item.Value.TabPage;
-                    }
-                }
-                if (isfull && !hasselectedtab && lasttabex != null)
-                {
-                    var tabex = this.tabExDic.FirstOrDefault(p => p.Value.TabPage == selitem.TabPage).Value;
-                    if (tabex != null)
-                    {
-                        var tabexindex = tabex.TabIndex;
-                        tabex.TabIndex = lasttabex.TabIndex;
-                        lasttabex.TabIndex = tabexindex;
-                        tabExDic[tabex.TabIndex] = tabex;
-                        TabPages[tabex.TabIndex] = tabex.TabPage;
-                        tabExDic[lasttabex.TabIndex] = lasttabex;
-                        TabPages[lasttabex.TabIndex] = lasttabex.TabPage;
-                        //ResetTabs();
-                    }
-                }
-                this.SelectedTab = selitem.TabPage;
                 this.Invalidate();
             }
         }
@@ -185,11 +167,29 @@ namespace APIHelper.UC
             this.Parent.MouseClick += Parent_MouseClick;
             this.Parent.MouseDown += Parent_MouseDown;
             this.Parent.MouseMove += Parent_MouseMove;
+            Parent.MouseLeave += Parent_MouseLeave;
             this.Parent.MouseUp += Parent_MouseUp;
+            this.Parent.Resize += Parent_Resize;
             if(!this.Parent.Controls.Contains(morelistbox))
             {
                 this.Parent.Controls.Add(morelistbox);
             }
+            if (!Parent.Controls.Contains(TipLable))
+            {
+                Parent.Controls.Add(TipLable);
+            }
+        }
+
+        private void Parent_MouseLeave(object sender, EventArgs e)
+        {
+            parentMouseX = parentMouseY = 0;
+        }
+
+        private void Parent_Resize(object sender, EventArgs e)
+        {
+            MaxTabWidth = Math.Max(100, Parent.Width / 5);
+            ResetTabs();
+            this.Invalidate();
         }
 
         private void OnTabDragOver(DragEventArgs drgevent)
@@ -236,26 +236,43 @@ namespace APIHelper.UC
                 dragsourcetab.Value.Value.TabIndex = dragtargettab.Value.Key;
 
                 this.SelectedIndex = dragtargettab.Value.Key;
-                //ResetTabs();
+                ResetTabs();
                 this.Invalidate();
             }
         }
 
+        private volatile int parentMouseX = 0, parentMouseY = 0;
+
         private void Parent_MouseMove(object sender, MouseEventArgs e)
         {
+            parentMouseX = e.X;
+            parentMouseY = e.Y;
             if (e.Button == MouseButtons.Left)
             {
                 TabTableTabEx dragSource = null;
                 foreach (var tab in tabExDic)
                 {
-                    if (tab.Value.StripRect.Contains(DragStart.X, DragStart.Y))
+                    if (tab.Value.StripRect.Contains(DragStart.X, DragStart.Y) && tab.Value.Visible)
                     {
                         dragSource = tab.Value;
                         break;
                     }
                 }
-                IsDraging = Math.Abs(DragEnd.X - DragStart.X) > 10; //&& ((DragEnd.X > DragStart.X && dragSource != tabExDic.Last().Value) || (DragEnd.X < DragStart.X && dragSource != tabExDic.First().Value));
 
+                if (dragSource != null && CanDragOut && Math.Abs(DragEnd.Y - DragStart.Y) >= 6)
+                {
+                    if (dragSource.StripRect.Contains(e.X, DragStart.Y))
+                    {
+                        TabPages.Remove(dragSource.TabPage);
+                        var dlg = new SubForm.DragOutDlg(this, dragSource.TabPage);
+                        dlg.Text = dragSource.TabPage.Text;
+                        dlg.Show();
+                        DragEnd = Point.Empty;
+                        DragStart = Point.Empty;
+                        return;
+                    }
+                }
+                IsDraging = Math.Abs(DragEnd.X - DragStart.X) > 10; //&& ((DragEnd.X > DragStart.X && dragSource != tabExDic.Last().Value) || (DragEnd.X < DragStart.X && dragSource != tabExDic.First().Value));
 
                 foreach (var tab in tabExDic)
                 {
@@ -271,6 +288,60 @@ namespace APIHelper.UC
                     }
                 }
 
+            }
+            else if (e.Button == MouseButtons.None)
+            {
+                if (TipLable.Visible)
+                {
+                    return;
+                }
+                TabTableTabEx dragSource = null;
+                foreach (var tab in tabExDic)
+                {
+                    if (tab.Value.StripRect.Contains(e.X, e.Y) && tab.Value.Visible)
+                    {
+                        dragSource = tab.Value;
+                        break;
+                    }
+                }
+                if (dragSource != null && dragSource.IsHidTitle)
+                {
+                    LJC.FrameWorkV3.Comm.TaskHelper.SetInterval(500, () =>
+                    {
+                        if (e.X == parentMouseX && e.Y == parentMouseY)
+                        {
+                            if (!TipLable.Visible)
+                            {
+                                this.BeginInvoke(new Action(() =>
+                                {
+                                    TipLable.Text = dragSource.Text;
+                                    TipLable.AutoSize = true;
+                                    if (e.X + TipLable.Width >= Parent.Width)
+                                    {
+                                        TipLable.Location = new Point(e.X - TipLable.Width, e.Y + 10);
+                                    }
+                                    else
+                                    {
+                                        TipLable.Location = new Point(e.X, e.Y + 10);
+                                    }
+                                    TipLable.Visible = true;
+                                    TipLable.BringToFront();
+                                }));
+
+                            }
+                            return false;
+                        }
+                        else
+                        {
+                            this.BeginInvoke(new Action(() =>
+                            {
+                                TipLable.Visible = false;
+                            }));
+                            return true;
+                        }
+
+                    }, runintime: false);
+                }
             }
         }
 
@@ -363,12 +434,12 @@ namespace APIHelper.UC
                     {
                         foreach (var tab in tabExDic)
                         {
-                            if (tab.Value.StripRect.Contains(e.X, e.Y))
+                            if (tab.Value.StripRect.Contains(e.X, e.Y) && tab.Value.Visible)
                             {
                                 if (this.SelectedIndex != tab.Key)
                                 {
                                     this.SelectedIndex = tab.Key;
-                                    this.Invalidate();
+                                    //this.Invalidate();
                                 }
                                 else if (tab.Value.CloseButtonBand.Contains(e.X, e.Y))
                                 {
@@ -387,10 +458,10 @@ namespace APIHelper.UC
                 {
                     if (this.SelectedIndex == tab.Key)
                     {
-                        if (tab.Value.StripRect.Contains(e.X, e.Y))
+                        if (tab.Value.StripRect.Contains(e.X, e.Y) && tab.Value.Visible)
                         {
                             this.TagPageContextMenuStrip.Visible = true;
-                            var pt=PointToScreen(new Point(e.X, e.Y));
+                            var pt = PointToScreen(new Point(e.X, e.Y));
                             this.TagPageContextMenuStrip.Left = pt.X;
                             this.TagPageContextMenuStrip.Top = pt.Y;
                             break;
@@ -408,12 +479,71 @@ namespace APIHelper.UC
             this.Invalidate();
         }
 
+        private void CheckDraw()
+        {
+            if (SelectedTab != null && tabExDic.Count > 0)
+            {
+                var sumWidth = 0f;
+                var hasSelected = false;
+                var selected = tabExDic.FirstOrDefault(p => p.Value.TabPage == SelectedTab);
+                if (selected.Value != default && !selected.Value.Visible)
+                {
+                    using (var g = this.CreateGraphics())
+                    {
+                        KeyValuePair<int, TabTableTabEx> maxItem = default;
+                        foreach (var item in tabExDic)
+                        {
+                            if (item.Value.StripRect.Size == SizeF.Empty)
+                            {
+                                var sf = StringFormat.GenericDefault;
+                                RectangleF buttonRect = RectangleF.Empty;
+                                OnCalcTabPage(g, item.Value.TabPage, sf, ref buttonRect);
+                                item.Value.StripRect = buttonRect;
+                            }
+                            sumWidth += item.Value.StripRect.Width;
+                            hasSelected = item.Value.TabPage == SelectedTab;
+                            if (sumWidth > this.Width - MaxTabWidth - 20 && !hasSelected)
+                            {
+                                maxItem = item;
+                                break;
+                            }
+                            else if (hasSelected)
+                            {
+                                break;
+                            }
+                        }
+                        if (maxItem.Value != null)
+                        {
+                            var index = selected.Value.TabIndex;
+                            selected.Value.TabIndex = maxItem.Value.TabIndex;
+                            maxItem.Value.TabIndex = index;
+
+                            tabExDic[maxItem.Key] = selected.Value;
+                            tabExDic[selected.Key] = maxItem.Value;
+                            TabPages[maxItem.Key] = selected.Value.TabPage;
+                            TabPages[selected.Key] = maxItem.Value.TabPage;
+                            this.SelectedTab = selected.Value.TabPage;
+                            ResetTabs();
+
+                            Invalidate();
+                        }
+                    }
+                }
+            }
+        }
+
+        protected override void OnSelectedIndexChanged(EventArgs e)
+        {
+            CheckDraw();
+            base.OnSelectedIndexChanged(e);
+        }
+
         protected override void OnControlAdded(ControlEventArgs e)
         {
-            SizeF textSize = this.CreateGraphics().MeasureString(e.Control.Text, defaultFont, new SizeF(200, 10), StringFormat.GenericDefault);
+            SizeF textSize = this.CreateGraphics().MeasureString(e.Control.Text, defaultFont, new SizeF(MaxTabWidth, 10), StringFormat.GenericDefault);
             textSize.Width += 35;
-            
-            if (moretabtablelist.Count > 0 || (this.tabExDic.Count > 0 && this.Width - this.tabExDic.Last().Value.StripRect.Location.X - this.tabExDic.Last().Value.StripRect.Width < 20 + textSize.Width))
+
+            if (moretabtablelist.Count > 0 || (this.Width > MaxTabWidth && this.tabExDic.Count > 0 && this.Width - this.tabExDic.Last().Value.StripRect.Location.X - this.tabExDic.Last().Value.StripRect.Width < 20 + textSize.Width))
             {
                 var tabpage = (TabPage)e.Control;
                 var list = new List<TabPage>();
@@ -436,12 +566,13 @@ namespace APIHelper.UC
             }
             else
             {
-                if ((e.Control as TabPage) != null)
+                if (e.Control is TabPage)
                 {
                     tabExDic.Add(TabCount - 1, new TabTableTabEx((TabPage)e.Control, TabCount - 1));
-                    OnSelected(new TabControlEventArgs(e.Control as TabPage, 0, TabControlAction.Selected));
                 }
             }
+
+            //CheckDraw();
 
             base.OnControlAdded(e);
         }
@@ -515,7 +646,7 @@ namespace APIHelper.UC
             //if (currentItem == SelectedTab)
             //    currentFont = new Font(Font, FontStyle.Bold);
 
-            SizeF textSize = g.MeasureString(currentItem.Text, currentFont, new SizeF(200, 10), sf);
+            SizeF textSize = g.MeasureString(currentItem.Text, currentFont, new SizeF(MaxTabWidth, 10), sf);
             textSize.Width += 35;
 
             if (RightToLeft == RightToLeft.No)
@@ -535,16 +666,51 @@ namespace APIHelper.UC
 
         protected override void OnPaint(PaintEventArgs e)
         {
-            ResetTabs();
+            float currwidth = 0;
             moretabtablelist.Clear();
             var isfull = false;
             KeyValuePair<int, TabTableTabEx>? dragtab = null;
+
             foreach (var item in this.tabExDic)
             {
+                if (item.Value.StripRect.Size == SizeF.Empty && !isfull)
+                {
+                    var sf = StringFormat.GenericDefault;
+                    RectangleF buttonRect = RectangleF.Empty;
+                    OnCalcTabPage(e.Graphics, item.Value.TabPage, sf, ref buttonRect);
+                    item.Value.StripRect = buttonRect;
+                }
+
+                if (currwidth == 0)
+                {
+                    currwidth += (int)item.Value.StripRect.Left;
+                }
+                if (!isfull)
+                {
+                    if ((currwidth + (int)item.Value.StripRect.Width) >= this.Width - 20)
+                    {
+                        if (this.Width - 20 - currwidth >= 100)
+                        {
+                            var oldRect = item.Value.StripRect;
+                            item.Value.ClearRect();
+                            item.Value.StripRect = new RectangleF(oldRect.X, oldRect.Y, this.Width - 20 - currwidth, oldRect.Height);
+                            currwidth = this.Width;
+                        }
+                        else
+                        {
+                            currwidth += (int)item.Value.StripRect.Width;
+                            isfull = true;
+                        }
+                    }
+                    else
+                    {
+                        currwidth += (int)item.Value.StripRect.Width;
+                    }
+                }
                 if (isfull)
                 {
-                    item.Value.ClearRect();
                     moretabtablelist.Add(item.Value);
+                    item.Value.Visible = false;
                 }
                 else
                 {
@@ -554,13 +720,9 @@ namespace APIHelper.UC
                     }
                     else
                     {
-                        if (!MyTabControl_DrawItem_Tab(item.Key, e.Graphics))
-                        {
-                            isfull = true;
-                            item.Value.ClearRect();
-                            moretabtablelist.Insert(0, item.Value);
-                        }
+                        MyTabControl_DrawItem_Tab(item.Key, e.Graphics);
                     }
+                    item.Value.Visible = true;
                 }
             }
             if (dragtab != null)
@@ -584,7 +746,7 @@ namespace APIHelper.UC
             }
         }
 
-        bool MyTabControl_DrawItem_Tab(int tabindex,Graphics g)
+        void MyTabControl_DrawItem_Tab(int tabindex,Graphics g)
         {
             var currentItem=this.TabPages[tabindex];
             var SelectedItem=this.SelectedTab;
@@ -598,12 +760,6 @@ namespace APIHelper.UC
                 OnCalcTabPage(g, currentItem,sf, ref buttonRect);
                 tabExDic[tabindex].StripRect = buttonRect;
             }
-
-            if (buttonRect.Left + buttonRect.Width >= this.Width - 20 && this.SelectedTab != currentItem)
-            {
-                return false;
-            }
-            
             Rectangle closeButtonBounds = Rectangle.Empty;
             if (currentItem == SelectedTab)
             {
@@ -611,7 +767,7 @@ namespace APIHelper.UC
                 if (closeButtonBounds == Rectangle.Empty)
                 {
                     tabExDic[tabindex].CloseButtonBand =
-                        closeButtonBounds = new Rectangle((int)buttonRect.Right - 20, mtop, 16, 16);
+                        closeButtonBounds = new Rectangle((int)buttonRect.Right - 15, mtop, 16, 16);
                 }
             }
             if (buttonRect.Contains(DragStart) && IsDraging)
@@ -624,13 +780,18 @@ namespace APIHelper.UC
             bool isFirstTab = buttonRect.X < 50;
 
             var txt = currentItem.Text;
-            SizeF textSize = g.MeasureString(currentItem.Text, currentFont, new SizeF(200, 10), sf);
-            textSize.Width += 20;
-            var maxw = currentItem == SelectedItem ? 190 : 200;
+            SizeF textSize = g.MeasureString(currentItem.Text, currentFont, new SizeF(this.Width, 10), sf);
+            //textSize.Width;
+            var maxw = currentItem == SelectedItem ? (buttonRect.Width - 30) : (buttonRect.Width - 20);
             if (textSize.Width > maxw)
             {
-                while (g.MeasureString(txt = txt.Substring(0, txt.Length - 1), currentFont, new SizeF(200, 10), sf).Width > maxw) ;
+                while (g.MeasureString((txt = txt.Substring(0, txt.Length - 1))+"...", currentFont, new SizeF(this.Width, 10), sf).Width >= maxw) ;
                 txt += "...";
+                tabExDic[tabindex].IsHidTitle = true;
+            }
+            else
+            {
+                tabExDic[tabindex].IsHidTitle = false;
             }
 
             GraphicsPath path = new GraphicsPath();
@@ -765,7 +926,7 @@ namespace APIHelper.UC
                 DrawCross(closeButtonBounds, false, g);
             }
 
-            return true;
+            
         }
 
         void MyTabControl_DrawItem(object sender, DrawItemEventArgs e)

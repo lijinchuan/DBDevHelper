@@ -9,31 +9,10 @@ namespace APIHelper.UC
 {
     internal class TabTableTabEx 
     {
-        private RectangleF _stripRect;
         public RectangleF StripRect
         {
-            get
-            {
-                return _stripRect;
-            }
-            set
-            {
-                _stripRect = value;
-                if (value != RectangleF.Empty)
-                {
-                    _tabwidth = value.Width;
-                }
-            }
-        }
-
-        private float _tabwidth = 120;
-
-        public float TabWidth
-        {
-            get
-            {
-                return _tabwidth;
-            }
+            get;
+            set;
         }
 
         public int TabIndex
@@ -57,6 +36,18 @@ namespace APIHelper.UC
         }
 
         public Rectangle CloseButtonBand
+        {
+            get;
+            set;
+        }
+
+        public bool Visible
+        {
+            get;
+            set;
+        }
+
+        public bool IsHidTitle
         {
             get;
             set;

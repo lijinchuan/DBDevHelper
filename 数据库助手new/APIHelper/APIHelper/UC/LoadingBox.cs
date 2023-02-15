@@ -92,7 +92,14 @@ namespace APIHelper.UC
                 }
                 finally
                 {
-                    parent.Invoke(new Action(() => parent.Controls.Remove(this)));
+                    try
+                    {
+                        parent.Invoke(new Action(() => parent.Controls.Remove(this)));
+                    }
+                    catch (Exception ex)
+                    {
+                        Util.SendMsg(this, ex.Message);
+                    }
                     TaskThread = null;
                 }
             }));
@@ -123,7 +130,14 @@ namespace APIHelper.UC
                 }
                 finally
                 {
-                    parent.Invoke(new Action(() => parent.Controls.Remove(this)));
+                    try
+                    {
+                        parent.Invoke(new Action(() => parent.Controls.Remove(this)));
+                    }
+                    catch(Exception ex)
+                    {
+                        Util.SendMsg(this, ex.Message);
+                    }
                     TaskThread = null;
                 }
             }));
