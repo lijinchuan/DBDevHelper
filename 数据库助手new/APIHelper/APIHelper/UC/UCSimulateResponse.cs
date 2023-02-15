@@ -162,7 +162,7 @@ namespace APIHelper.UC
                 }
                 CBContentType.SelectedItem = apiSimulateResponse.ContentType;
                 CBResponseContentType.SelectedItem = apiSimulateResponse.ResponseType;
-                TBSimulateUrl.Text = apiSimulateResponse.Url;
+                TBSimulateUrl.Text = apiSimulateResponse.OrgUrl;
 
                 if (!((string[])CBCharset.DataSource).Contains(apiSimulateResponse.Charset))
                 {
@@ -267,7 +267,8 @@ namespace APIHelper.UC
         {
             try
             {
-                var url = TBSimulateUrl.Text.ToLower();
+                var orgUrl = TBSimulateUrl.Text.Trim();
+                var url = orgUrl.ToLower();
                 if (string.IsNullOrWhiteSpace(url))
                 {
                     throw new Exception("模拟地址不能为空");
@@ -306,6 +307,11 @@ namespace APIHelper.UC
                 }
 
                 var apiSimulateResponseList = BigEntityTableEngine.LocalEngine.Find<APISimulateResponse>(nameof(APISimulateResponse), nameof(APISimulateResponse.APIId), new object[] { apiid }).ToList();
+                if (apiSimulateResponseList.Any(p => p.Id != sid && p.Tag == CBTag.Text))
+                {
+                    throw new Exception("标签不能重复");
+                }
+
                 APISimulateResponse apiSimulateResponse = null;
                 if (sid > 0)
                 {
@@ -318,13 +324,6 @@ namespace APIHelper.UC
                         Headers = new List<ParamInfo>(),
                         APIId = apiid
                     };
-                }
-                else
-                {
-                    if (apiSimulateResponseList.Any(p => p.Id != sid && p.Tag == CBTag.Text))
-                    {
-                        throw new Exception("标签不能重复");
-                    }
                 }
 
                 apiSimulateResponse.Headers.Clear();
@@ -357,7 +356,8 @@ namespace APIHelper.UC
                     apiSimulateResponse.ContentType = (string)CBContentType.SelectedItem;
                 }
                 
-                apiSimulateResponse.Url = TBSimulateUrl.Text.Trim();
+                apiSimulateResponse.Url = url;
+                apiSimulateResponse.OrgUrl = orgUrl;
 
                 if (CBResponseContentType.SelectedItem.Equals(ResponseContentTypes[0]))
                 {

@@ -25,6 +25,12 @@ namespace Entity
             set;
         }
 
+        public string OrgUrl
+        {
+            get;
+            set;
+        }
+
         public int APIId
         {
             get;
