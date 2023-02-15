@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using System.Drawing.Drawing2D;
+using Entity;
 
 namespace APIHelper.UC
 {
@@ -69,12 +70,27 @@ namespace APIHelper.UC
 
             TagPageContextMenuStrip.Items.Add("关闭其它");
             TagPageContextMenuStrip.Items.Add("重命名");
+            TagPageContextMenuStrip.Items.Add("刷新");
+            TagPageContextMenuStrip.VisibleChanged += TagPageContextMenuStrip_VisibleChanged;
             TagPageContextMenuStrip.ItemClicked += TagPageContextMenuStrip_ItemClicked;
 
             TipLable.Visible = false;
             TipLable.BackColor = Color.LightYellow;
             TipLable.Padding = new Padding(2, 3, 2, 2);
             TipLable.BorderStyle = BorderStyle.FixedSingle;
+        }
+
+        private void TagPageContextMenuStrip_VisibleChanged(object sender, EventArgs e)
+        {
+            var visible = SelectedTab is IReload;
+            foreach (ToolStripItem item in TagPageContextMenuStrip.Items)
+            {
+                if (item.Text == "刷新")
+                {
+                    item.Enabled = visible;
+                    break;
+                }
+            }
         }
 
         private void TagPageContextMenuStrip_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
@@ -118,6 +134,15 @@ namespace APIHelper.UC
                                 this.Invalidate();
                             }
                         }
+                        break;
+                    }
+                case "刷新":
+                    {
+                        if(SelectedTab is IReload)
+                        {
+                            (SelectedTab as IReload).Reload();
+                        }
+
                         break;
                     }
             }

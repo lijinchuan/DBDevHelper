@@ -64,6 +64,7 @@
     <Compile Include="IExcuteAble.cs" />
     <Compile Include="INodeContents.cs" />
     <Compile Include="IRecoverAble.cs" />
+    <Compile Include="IReload.cs" />
     <Compile Include="ISaveAble.cs" />
     <Compile Include="LogicMap.cs" />
     <Compile Include="LogicMapRelColumn.cs" />

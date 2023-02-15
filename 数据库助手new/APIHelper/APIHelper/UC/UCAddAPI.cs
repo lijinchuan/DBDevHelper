@@ -16,7 +16,7 @@ using System.Text.RegularExpressions;
 
 namespace APIHelper.UC
 {
-    public partial class UCAddAPI : TabPage, IRecoverAble, ISaveAble, IExcuteAble, IMessageFilter
+    public partial class UCAddAPI : TabPage, IRecoverAble, ISaveAble, IExcuteAble, IMessageFilter, IReload
     {
         private List<ParamInfo> Params = new List<ParamInfo>();
         private List<ParamInfo> Headers = new List<ParamInfo>();
@@ -1567,6 +1567,12 @@ namespace APIHelper.UC
                 this.OnMouseMove(new MouseEventArgs(wp == 1 ? MouseButtons.Left : (wp == 2 ? MouseButtons.Right : MouseButtons.None), 0, x, y, 0));
             }
             return false;
+        }
+
+        public void Reload()
+        {
+            Bind();
+            BindData();
         }
     }
 }
