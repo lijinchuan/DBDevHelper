@@ -42,7 +42,12 @@ namespace APIHelper.UC
             }
             set
             {
-                if (value > 0 && value != _resourceId)
+                if (value == 0)
+                {
+                    _resourceId = 0;
+                    TBFilePath.Text = string.Empty;
+                }
+                else if (value > 0 && value != _resourceId)
                 {
                     _resourceId = value;
                     var resource = BigEntityTableEngine.LocalEngine.Find<APIResource>(nameof(APIResource), _resourceId);

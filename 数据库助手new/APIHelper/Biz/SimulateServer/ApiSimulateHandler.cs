@@ -27,7 +27,16 @@ namespace Biz.SimulateServer
                 url = string.Join("/", url.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries));
             }
             
-            var simulateResponse=BigEntityTableEngine.LocalEngine.Find<APISimulateResponse>(nameof(APISimulateResponse), nameof(APISimulateResponse.Url), new object[] { url }).FirstOrDefault();
+            var simulateResponseList=BigEntityTableEngine.LocalEngine.Find<APISimulateResponse>(nameof(APISimulateResponse), nameof(APISimulateResponse.Url), new object[] { url }).ToList();
+            APISimulateResponse simulateResponse = null;
+            if (simulateResponseList.Any())
+            {
+                simulateResponse = simulateResponseList.FirstOrDefault(p => p.Def);
+                if (simulateResponse == null)
+                {
+                    simulateResponse = simulateResponseList.First();
+                }
+            }
             if (simulateResponse != null)
             {
                 if ("OPTIONS".Equals(request.Method, StringComparison.OrdinalIgnoreCase))
@@ -52,7 +61,10 @@ namespace Biz.SimulateServer
                     }
                 }
 
-                //response.ReturnCode = 200;
+                if (simulateResponse.ResponseCode != 200)
+                {
+                    response.ReturnCode = simulateResponse.ResponseCode;
+                }
                 if (simulateResponse.ResponseType == "文本")
                 {
                     response.Content = simulateResponse.ResponseBody;

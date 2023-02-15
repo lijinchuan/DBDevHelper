@@ -13,6 +13,12 @@ namespace Entity
             set;
         }
 
+        public string Tag
+        {
+            get;
+            set;
+        }
+
         public string Url
         {
             get;
@@ -49,6 +55,12 @@ namespace Entity
             set;
         }
 
+        public int ResponseCode
+        {
+            get;
+            set;
+        }
+
         public string ResponseBody
         {
             get;
@@ -56,6 +68,12 @@ namespace Entity
         }
 
         public int ReponseResourceId
+        {
+            get;
+            set;
+        }
+
+        public bool Def
         {
             get;
             set;

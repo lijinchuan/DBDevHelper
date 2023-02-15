@@ -17,9 +17,57 @@ namespace APIHelper.UC
     {
         private static readonly string[] ResponseContentTypes = new[] { "文本","图片","文件"};
         private UCAPIResource apiResource = null;
-        private int apiid;
+        private int apiid, sid = 0;
 
         private List<ParamInfo> paramInfos = new List<ParamInfo>();
+
+        private void InitCBTags(List<APISimulateResponse> list)
+        {
+            list = list != null ? list : BigEntityTableEngine.LocalEngine.Find<APISimulateResponse>(nameof(APISimulateResponse), nameof(APISimulateResponse.APIId), new object[] { apiid }).ToList();
+            if (list.Any())
+            {
+                var ds = list.Select(p => new
+                {
+                    id = p.Id,
+                    tag = p.Tag
+                }).ToList();
+                ds.Add(new
+                {
+                    id = 0,
+                    tag = string.Empty
+                });
+                
+                CBTag.DataSource = ds;
+
+                var def = list.FirstOrDefault(p => p.Def);
+                if (def != null)
+                {
+                    CBTag.SelectedItem = ds.First(p => p.id == def.Id);
+                    sid = def.Id;
+                }
+                else
+                {
+                    CBTag.SelectedItem = ds.First();
+                    sid = ds.First().id;
+                }
+            }
+            else
+            {
+                var ds = new List<object>()
+                {
+                    new
+                    {
+                        id=0,
+                        tag="正常"
+                    }
+                };
+                CBTag.DataSource = ds;
+                CBTag.SelectedItem = ds.First();
+            }
+
+            CBTag.DisplayMember = "tag";
+            CBTag.ValueMember = "id";
+        }
 
         private void Init()
         {
@@ -40,6 +88,23 @@ namespace APIHelper.UC
             }
             TBSimulateUrl.Location = new Point(LBHost.Location.X + LBHost.Width, TBSimulateUrl.Location.Y);
             linkLabel1.Location = new Point(TBSimulateUrl.Location.X + TBSimulateUrl.Width + 2, linkLabel1.Location.Y);
+
+            InitCBTags(null);
+            CBTag.SelectedIndexChanged += CBTag_SelectedIndexChanged;
+        }
+
+        private void CBTag_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            var val = CBTag.SelectedValue;
+            if (val == null)
+            {
+                sid = 0;
+            }
+            else
+            {
+                sid = (int)val;
+            }
+            Bind();
         }
 
         private void CBResponseContentType_SelectedIndexChanged(object sender, EventArgs e)
@@ -75,7 +140,13 @@ namespace APIHelper.UC
             {
                 return;
             }
-            var apiSimulateResponse = BigEntityTableEngine.LocalEngine.Find<APISimulateResponse>(nameof(APISimulateResponse), nameof(APISimulateResponse.APIId), new object[] { apiid }).FirstOrDefault();
+            var apiSimulateResponseList = BigEntityTableEngine.LocalEngine.Find<APISimulateResponse>(nameof(APISimulateResponse), nameof(APISimulateResponse.APIId), new object[] { apiid }).ToList();
+            APISimulateResponse apiSimulateResponse = null;
+            if (sid > 0)
+            {
+                apiSimulateResponse = apiSimulateResponseList.First(p => p.Id == sid);
+            }
+
             if (apiSimulateResponse != null)
             {
                 if (!((string[])CBContentType.DataSource).Contains(apiSimulateResponse.ContentType))
@@ -99,10 +170,16 @@ namespace APIHelper.UC
                 paramInfos = apiSimulateResponse.Headers.ToList();
 
                 TBContent.Text = apiSimulateResponse.ResponseBody;
-
+                CBDef.Checked = apiSimulateResponse.Def;
+                TBCode.Text = apiSimulateResponse.ResponseCode.ToString();
+                //TBTag.Text = apiSimulateResponse.Tag;
                 if (apiSimulateResponse.ReponseResourceId > 0)
                 {
                     apiResource.ResourceId = apiSimulateResponse.ReponseResourceId;
+                }
+                else
+                {
+                    apiResource.ResourceId = 0;
                 }
             }
             else
@@ -110,6 +187,8 @@ namespace APIHelper.UC
                 var apiUrl = BigEntityTableEngine.LocalEngine.Find<APIUrl>(nameof(APIUrl), apiid);
                 if (apiUrl != null)
                 {
+                    CBResponseContentType.SelectedItem = "文本";
+
                     if (apiUrl.ApplicationType == ApplicationType.JSON)
                     {
                         CBContentType.SelectedItem = Biz.Common.WebUtil.ContentTypes_Josn;
@@ -129,7 +208,7 @@ namespace APIHelper.UC
                         {
                             url = Path.Combine(urlArray.Skip(2).ToArray()).Replace("\\", "/");
                         }
-                        
+
                     }
                     else
                     {
@@ -138,7 +217,12 @@ namespace APIHelper.UC
                             url = Path.Combine(urlArray.Skip(1).ToArray()).Replace("\\", "/");
                         }
                     }
-
+                    apiResource.ResourceId = 0;
+                    CBDef.Checked = !apiSimulateResponseList.Any(p => p.Def);
+                    TBCode.Text = "200";
+                    paramInfos = new List<ParamInfo>();
+                    TBContent.Text = string.Empty;
+                    //TBTag.Text = "正常";
                     TBSimulateUrl.Text = url.Replace("{{", string.Empty).Replace("}}", string.Empty);
                 }
             }
@@ -199,7 +283,29 @@ namespace APIHelper.UC
                     throw new Exception("模拟地址不能包环境变量");
                 }
 
-                var apiSimulateResponse = BigEntityTableEngine.LocalEngine.Find<APISimulateResponse>(nameof(APISimulateResponse), nameof(APISimulateResponse.APIId), new object[] { apiid }).FirstOrDefault();
+                if (!int.TryParse(TBCode.Text, out int code) || code <= 0 || code > 65535)
+                {
+                    TBCode.Focus();
+                    throw new Exception("响应code填写错误");
+                }
+
+                if (string.IsNullOrEmpty(CBTag.Text))
+                {
+                    throw new Exception("标签不能为空");
+                }
+
+                var oldUrl = BigEntityTableEngine.LocalEngine.Find<APISimulateResponse>(nameof(APISimulateResponse), nameof(APISimulateResponse.Url), new object[] { url.ToLower() }).FirstOrDefault(p => p.APIId != apiid);
+                if (oldUrl != null)
+                {
+                    throw new Exception("地址已经被别的接口占用");
+                }
+
+                var apiSimulateResponseList = BigEntityTableEngine.LocalEngine.Find<APISimulateResponse>(nameof(APISimulateResponse), nameof(APISimulateResponse.APIId), new object[] { apiid }).ToList();
+                APISimulateResponse apiSimulateResponse = null;
+                if (sid > 0)
+                {
+                    apiSimulateResponse = apiSimulateResponseList.First(p => p.Id == sid);
+                }
                 if (apiSimulateResponse == null)
                 {
                     apiSimulateResponse = new APISimulateResponse
@@ -208,11 +314,12 @@ namespace APIHelper.UC
                         APIId = apiid
                     };
                 }
-
-                var oldUrl = BigEntityTableEngine.LocalEngine.Find<APISimulateResponse>(nameof(APISimulateResponse), nameof(APISimulateResponse.Url), new object[] { url.ToLower() }).FirstOrDefault();
-                if (oldUrl != null && oldUrl.Id != apiSimulateResponse.Id)
+                else
                 {
-                    throw new Exception("地址已经存在");
+                    if (apiSimulateResponseList.Any(p => p.Id != sid && p.Tag == CBTag.Text))
+                    {
+                        throw new Exception("标签不能重复");
+                    }
                 }
 
                 apiSimulateResponse.Headers.Clear();
@@ -264,9 +371,30 @@ namespace APIHelper.UC
                     apiSimulateResponse.ReponseResourceId = apiResource.ResourceId;
                 }
 
+                apiSimulateResponse.ResponseCode = code;
+                apiSimulateResponse.Def = apiSimulateResponse.Id == 0 || CBDef.Checked;
+                apiSimulateResponse.Tag = CBTag.Text;
+
+                if (apiSimulateResponse.Def)
+                {
+                    var defList = BigEntityTableEngine.LocalEngine.Find<APISimulateResponse>(nameof(APISimulateResponse), nameof(APISimulateResponse.APIId), new object[] { apiid }).Where(p => p.Id != apiSimulateResponse.Id && p.Def).ToList();
+                    foreach (var item in defList)
+                    {
+                        item.Def = false;
+                        BigEntityTableEngine.LocalEngine.Update(nameof(APISimulateResponse), item);
+                    }
+                }
+
+                bool isNew = apiSimulateResponse.Id == 0;
                 BigEntityTableEngine.LocalEngine.Upsert(nameof(APISimulateResponse), apiSimulateResponse);
 
                 MessageBox.Show("保存成功");
+                if (isNew)
+                {
+                    InitCBTags(null);
+                    sid = apiSimulateResponse.Id;
+                }
+                //Bind();
             }
             catch (Exception ex)
             {
