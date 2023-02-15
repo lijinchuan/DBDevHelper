@@ -69,14 +69,8 @@ namespace APIHelper.UC
             CBTag.ValueMember = "id";
         }
 
-        private void Init()
+        private void InitServerAddress()
         {
-            CBContentType.DataSource = Biz.Common.WebUtil.ContentTypes;
-            CBCharset.DataSource = Biz.Common.WebUtil.Charsets;
-            CBResponseContentType.DropDownStyle = ComboBoxStyle.DropDownList;
-            CBResponseContentType.DataSource = ResponseContentTypes;
-            CBResponseContentType.SelectedIndexChanged += CBResponseContentType_SelectedIndexChanged;
-
             var config = BigEntityTableEngine.LocalEngine.Find<SimulateServerConfig>(nameof(SimulateServerConfig), 1);
             if (config == null)
             {
@@ -89,6 +83,17 @@ namespace APIHelper.UC
             TBSimulateUrl.Location = new Point(LBHost.Location.X + LBHost.Width, TBSimulateUrl.Location.Y);
             linkLabel1.Location = new Point(TBSimulateUrl.Location.X + TBSimulateUrl.Width + 2, linkLabel1.Location.Y);
 
+        }
+
+        private void Init()
+        {
+            CBContentType.DataSource = Biz.Common.WebUtil.ContentTypes;
+            CBCharset.DataSource = Biz.Common.WebUtil.Charsets;
+            CBResponseContentType.DropDownStyle = ComboBoxStyle.DropDownList;
+            CBResponseContentType.DataSource = ResponseContentTypes;
+            CBResponseContentType.SelectedIndexChanged += CBResponseContentType_SelectedIndexChanged;
+
+            InitServerAddress();
             InitCBTags(null);
             CBTag.SelectedIndexChanged += CBTag_SelectedIndexChanged;
         }
@@ -399,6 +404,15 @@ namespace APIHelper.UC
             catch (Exception ex)
             {
                 MessageBox.Show("保存失败:" + ex.Message);
+            }
+        }
+
+        private void LBHost_Click(object sender, EventArgs e)
+        {
+            SubForm.SimulateServerDlg dlg = new SubForm.SimulateServerDlg();
+            if (dlg.ShowDialog() == DialogResult.OK)
+            {
+                InitServerAddress();
             }
         }
 

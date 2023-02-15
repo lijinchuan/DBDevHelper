@@ -30,6 +30,9 @@
         {
             this.GBResponseHeader = new System.Windows.Forms.GroupBox();
             this.GPResponseContent = new System.Windows.Forms.GroupBox();
+            this.TBCode = new System.Windows.Forms.TextBox();
+            this.label5 = new System.Windows.Forms.Label();
+            this.CBDef = new System.Windows.Forms.CheckBox();
             this.BtnSave = new System.Windows.Forms.Button();
             this.CBResponseContentType = new System.Windows.Forms.ComboBox();
             this.CBCharset = new System.Windows.Forms.ComboBox();
@@ -40,13 +43,10 @@
             this.LBHost = new System.Windows.Forms.Label();
             this.TBSimulateUrl = new System.Windows.Forms.TextBox();
             this.linkLabel1 = new System.Windows.Forms.LinkLabel();
+            this.label4 = new System.Windows.Forms.Label();
+            this.CBTag = new System.Windows.Forms.ComboBox();
             this.TBContent = new APIHelper.UC.TextBoxEx();
             this.UCParams = new APIHelper.UC.UCParamsTable();
-            this.label4 = new System.Windows.Forms.Label();
-            this.CBDef = new System.Windows.Forms.CheckBox();
-            this.label5 = new System.Windows.Forms.Label();
-            this.TBCode = new System.Windows.Forms.TextBox();
-            this.CBTag = new System.Windows.Forms.ComboBox();
             this.GBResponseHeader.SuspendLayout();
             this.GPResponseContent.SuspendLayout();
             this.SuspendLayout();
@@ -84,6 +84,34 @@
             this.GPResponseContent.TabIndex = 3;
             this.GPResponseContent.TabStop = false;
             this.GPResponseContent.Text = "响应内容";
+            // 
+            // TBCode
+            // 
+            this.TBCode.Location = new System.Drawing.Point(548, 17);
+            this.TBCode.Name = "TBCode";
+            this.TBCode.Size = new System.Drawing.Size(65, 21);
+            this.TBCode.TabIndex = 10;
+            this.TBCode.Text = "200";
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(483, 22);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(59, 12);
+            this.label5.TabIndex = 9;
+            this.label5.Text = "响应代码:";
+            // 
+            // CBDef
+            // 
+            this.CBDef.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.CBDef.AutoSize = true;
+            this.CBDef.Location = new System.Drawing.Point(99, 165);
+            this.CBDef.Name = "CBDef";
+            this.CBDef.Size = new System.Drawing.Size(48, 16);
+            this.CBDef.TabIndex = 8;
+            this.CBDef.Text = "默认";
+            this.CBDef.UseVisualStyleBackColor = true;
             // 
             // BtnSave
             // 
@@ -150,11 +178,15 @@
             // LBHost
             // 
             this.LBHost.AutoSize = true;
+            this.LBHost.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.LBHost.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Underline, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.LBHost.ForeColor = System.Drawing.Color.Blue;
             this.LBHost.Location = new System.Drawing.Point(242, 14);
             this.LBHost.Name = "LBHost";
             this.LBHost.Size = new System.Drawing.Size(107, 12);
             this.LBHost.TabIndex = 5;
             this.LBHost.Text = "http://localhost:";
+            this.LBHost.Click += new System.EventHandler(this.LBHost_Click);
             // 
             // TBSimulateUrl
             // 
@@ -177,6 +209,23 @@
             this.linkLabel1.Text = "复制";
             this.linkLabel1.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel1_LinkClicked);
             // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(12, 14);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(41, 12);
+            this.label4.TabIndex = 8;
+            this.label4.Text = "标签：";
+            // 
+            // CBTag
+            // 
+            this.CBTag.FormattingEnabled = true;
+            this.CBTag.Location = new System.Drawing.Point(50, 10);
+            this.CBTag.Name = "CBTag";
+            this.CBTag.Size = new System.Drawing.Size(121, 20);
+            this.CBTag.TabIndex = 9;
+            // 
             // TBContent
             // 
             this.TBContent.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -197,51 +246,6 @@
             this.UCParams.Name = "UCParams";
             this.UCParams.Size = new System.Drawing.Size(618, 130);
             this.UCParams.TabIndex = 1;
-            // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(12, 14);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(41, 12);
-            this.label4.TabIndex = 8;
-            this.label4.Text = "标签：";
-            // 
-            // CBDef
-            // 
-            this.CBDef.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.CBDef.AutoSize = true;
-            this.CBDef.Location = new System.Drawing.Point(99, 165);
-            this.CBDef.Name = "CBDef";
-            this.CBDef.Size = new System.Drawing.Size(48, 16);
-            this.CBDef.TabIndex = 8;
-            this.CBDef.Text = "默认";
-            this.CBDef.UseVisualStyleBackColor = true;
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(483, 22);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(59, 12);
-            this.label5.TabIndex = 9;
-            this.label5.Text = "响应代码:";
-            // 
-            // TBCode
-            // 
-            this.TBCode.Location = new System.Drawing.Point(548, 17);
-            this.TBCode.Name = "TBCode";
-            this.TBCode.Size = new System.Drawing.Size(65, 21);
-            this.TBCode.TabIndex = 10;
-            this.TBCode.Text = "200";
-            // 
-            // CBTag
-            // 
-            this.CBTag.FormattingEnabled = true;
-            this.CBTag.Location = new System.Drawing.Point(50, 10);
-            this.CBTag.Name = "CBTag";
-            this.CBTag.Size = new System.Drawing.Size(121, 20);
-            this.CBTag.TabIndex = 9;
             // 
             // UCSimulateResponse
             // 

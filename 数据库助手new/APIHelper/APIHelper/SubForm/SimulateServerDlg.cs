@@ -77,6 +77,8 @@ namespace APIHelper.SubForm
                     msg = "服务已关闭";
                 }
                 MessageBox.Show(msg);
+
+                DialogResult = DialogResult.OK;
             }
             catch (Exception ex)
             {
