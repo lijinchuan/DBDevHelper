@@ -16,6 +16,15 @@ namespace NETDBHelper.SubForm
         public TextBoxWin(string caption, string text) :
             base()
         {
+            try
+            {
+                text = Newtonsoft.Json.JsonConvert.SerializeObject(Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(text), Newtonsoft.Json.Formatting.Indented);
+            }
+            catch
+            {
+
+            }
+
             this.text = text;
             this.caption = caption;
             InitializeComponent();
