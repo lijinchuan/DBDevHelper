@@ -46,7 +46,7 @@ namespace NETDBHelper.UC
         private void LoadingBox_Load(object sender, EventArgs e)
         {
             this.pictureBox1.Image = Resources.Resource1.loading2;
-            if (this.TaskThread == null)
+            if (this.TaskThread == null && (OnStop == null || !OnStop.GetInvocationList().Any()))
             {
                 this.LlbStop.Visible = false;
             }
@@ -74,6 +74,10 @@ namespace NETDBHelper.UC
                     {
                         TaskThread = null;
                     }
+                }
+                else if (OnStop != null)
+                {
+                    OnStop(tag);
                 }
             }
         }
