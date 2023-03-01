@@ -679,7 +679,8 @@ namespace APIHelper.UC
                 }
                 else if (responseEx.ResponseContent != null)
                 {
-                    var encode = string.IsNullOrWhiteSpace(responseEx.CharacterSet) ? Encoding.UTF8 : Encoding.GetEncoding(responseEx.CharacterSet);
+
+                    var encode = LJC.FrameWorkV3.Comm.WebUtility.GetEncodingByCharset(responseEx.CharacterSet, Encoding.UTF8);
                     TBResult.Raw = encode.GetBytes(responseEx.ResponseContent);
                     TBResult.Encoding = encode;
 
