@@ -375,7 +375,7 @@ namespace APIHelper.UC
                         var globProxyServer = BigEntityTableEngine.LocalEngine.Find<ProxyServer>(nameof(ProxyServer), p => p.Name == ProxyServer.GlobName).FirstOrDefault();
                         if (globProxyServer != null && !string.IsNullOrWhiteSpace(globProxyServer.Host))
                         {
-                            httpRequestEx.SetCredential(globProxyServer.Name, globProxyServer.Password, globProxyServer.Host);
+                            httpRequestEx.SetCredential(globProxyServer.UserName, globProxyServer.Password, globProxyServer.Host);
                         }
                     }
 
@@ -422,7 +422,7 @@ namespace APIHelper.UC
                         }
                         else if (header.Name.Equals("Connection", StringComparison.OrdinalIgnoreCase))
                         {
-
+                            httpRequestEx.Connection = header.Value;
                         }
                         else
                         {
