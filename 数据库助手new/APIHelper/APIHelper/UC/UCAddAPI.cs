@@ -1244,14 +1244,14 @@ namespace APIHelper.UC
                 Desc = p.Desc,
                 Name = notReplaceEvnParams ? p.Name : ReplaceEvnParams(p.Name, ref apiEnvParams),
                 Value = notReplaceEvnParams ? p.Value : ReplaceEvnParams(p.Value, ref apiEnvParams)
-            }).ToList();
+            }).Where(p=>p.Checked).ToList();
             apidata.Params = this.Params?.Select(p => new ParamInfo
             {
                 Checked = p.Checked,
                 Desc = p.Desc,
                 Name = notReplaceEvnParams ? p.Name : ReplaceEvnParams(p.Name, ref apiEnvParams),
                 Value = notReplaceEvnParams ? p.Value : WebUtility.UrlEncode(ReplaceEvnParams(p.Value, ref apiEnvParams))
-            }).ToList();
+            }).Where(p=>p.Checked).ToList();
             apidata.RawText = notReplaceEvnParams ? this.rawTextBox.Text : ReplaceEvnParams(this.rawTextBox.Text, ref apiEnvParams);
             apidata.Headers = this.Headers?.Select(p => new ParamInfo
             {
@@ -1259,14 +1259,14 @@ namespace APIHelper.UC
                 Desc = p.Desc,
                 Checked = p.Checked,
                 Value = notReplaceEvnParams ? p.Value : ReplaceEvnParams(p.Value, ref apiEnvParams)
-            }).ToList();
+            }).Where(p=>p.Checked).ToList();
             apidata.FormDatas = this.FormDatas?.Select(p => new ParamInfo
             {
                 Checked = p.Checked,
                 Desc = p.Desc,
                 Name = notReplaceEvnParams ? p.Name : ReplaceEvnParams(p.Name, ref apiEnvParams),
                 Value = notReplaceEvnParams ? p.Value : ReplaceEvnParams(p.Value, ref apiEnvParams)
-            }).ToList();
+            }).Where(p=>p.Checked).ToList();
             apidata.BearToken = notReplaceEvnParams ? this.UCBearToken.Token : ReplaceEvnParams(this.UCBearToken.Token, ref apiEnvParams);
             apidata.ApiKeyAddTo = this.UCApiKey.AddTo;
             apidata.ApiKeyName = notReplaceEvnParams ? this.UCApiKey.Key : ReplaceEvnParams(this.UCApiKey.Key, ref apiEnvParams);
@@ -1277,14 +1277,14 @@ namespace APIHelper.UC
                 Desc = p.Desc,
                 Name = notReplaceEvnParams ? p.Name : ReplaceEvnParams(p.Name, ref apiEnvParams),
                 Value = notReplaceEvnParams ? p.Value : ReplaceEvnParams(p.Value, ref apiEnvParams)
-            }).ToList();
+            }).Where(p=>p.Checked).ToList();
             apidata.Multipart_form_data = this.Multipart_form_data?.Select(p => new ParamInfo
             {
                 Checked = p.Checked,
                 Desc = p.Desc,
                 Name = notReplaceEvnParams ? p.Name : ReplaceEvnParams(p.Name, ref apiEnvParams),
                 Value = notReplaceEvnParams ? p.Value : ReplaceEvnParams(p.Value, ref apiEnvParams)
-            }).ToList();
+            }).Where(p=>p.Checked).ToList();
             apidata.BasicUserName = notReplaceEvnParams ? this.BasicAuth.Key : ReplaceEvnParams(this.BasicAuth.Key, ref apiEnvParams);
             apidata.BasicUserPwd = notReplaceEvnParams ? this.BasicAuth.Val : ReplaceEvnParams(this.BasicAuth.Val, ref apiEnvParams);
 
