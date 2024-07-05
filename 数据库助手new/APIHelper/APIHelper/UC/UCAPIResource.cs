@@ -73,11 +73,11 @@ namespace APIHelper.UC
                 {
                     return;
                 }
-                if (new FileInfo(dlg.FileName).Length > 9 * 1024 * 1024)
-                {
-                    LBMsg.Text = "文件最大9M";
-                    return;
-                }
+                //if (new FileInfo(dlg.FileName).Length > 9 * 1024 * 1024)
+                //{
+                //    LBMsg.Text = "文件最大9M";
+                //    return;
+                //}
                 LBMsg.Text = "文件未保存";
                 TBFilePath.Text = dlg.FileName;
                 PBButton.Visible = true;
@@ -90,9 +90,43 @@ namespace APIHelper.UC
             {
                 return;
             }
-            var bytes = File.ReadAllBytes(TBFilePath.Text);
 
-            var md5 = LJC.FrameWorkV3.Comm.HashEncrypt.MD5_JS(bytes);
+            byte[] bytes=new byte[0];
+            string md5 = string.Empty;
+            if (new FileInfo(TBFilePath.Text).Length <= 9 * 1024 * 1024)
+            {
+                bytes = File.ReadAllBytes(TBFilePath.Text);
+                md5 = LJC.FrameWorkV3.Comm.HashEncrypt.MD5_JS(bytes);
+            }
+            else
+            {
+                StringBuilder sb=new StringBuilder();
+                var readBuffer = new byte[1024000];
+                var readLen = 0;
+                using (var fs = new FileStream(TBFilePath.Text, FileMode.Open, FileAccess.Read))
+                {
+                    while (true)
+                    {
+                        readLen = fs.Read(readBuffer, 0, readBuffer.Length);
+                        if (readLen == 0)
+                        {
+                            break;
+                        }
+                        var isend = readLen < readBuffer.Length;
+                        if (isend)
+                        {
+                            readBuffer = readBuffer.Take(readLen).ToArray();
+                        }
+                        var tempMd5 = LJC.FrameWorkV3.Comm.HashEncrypt.MD5_JS(readBuffer);
+                        sb.Append(tempMd5);
+                        if (isend)
+                        {
+                            break;
+                        }
+                    }
+                    md5 = LJC.FrameWorkV3.Comm.HashEncrypt.MD5_JS(Encoding.UTF8.GetBytes(sb.ToString()));
+                }
+            }
 
             var resource = BigEntityTableEngine.LocalEngine.Find<APIResource>(nameof(APIResource), nameof(APIResource.MD5), new object[] { md5 }).FirstOrDefault();
 

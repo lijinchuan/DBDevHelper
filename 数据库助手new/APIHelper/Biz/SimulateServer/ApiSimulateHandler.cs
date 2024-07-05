@@ -3,6 +3,7 @@ using LJC.FrameWorkV3.Data.EntityDataBase;
 using LJC.FrameWorkV3.Net.HTTP.Server;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -72,7 +73,14 @@ namespace Biz.SimulateServer
                 else
                 {
                     var resource = BigEntityTableEngine.LocalEngine.Find<APIResource>(nameof(APIResource), simulateResponse.ReponseResourceId);
-                    response.RawContent = resource.ResourceData;
+                    if (resource.ResourceData.Length == 0)
+                    {
+                        response.FilePath = resource.FileName;
+                    }
+                    else
+                    {
+                        response.RawContent = resource.ResourceData;
+                    }
                 }
 
                 return true;

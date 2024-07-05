@@ -416,7 +416,7 @@ namespace APIHelper.UC
             }
         }
 
-        private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        private void linkLabel1_LinkClicked(object sender, EventArgs e)
         {
             Clipboard.SetText(LBHost.Text + TBSimulateUrl.Text);
             Util.SendMsg(this, "地址已复制到粘贴板，可粘到浏览器查看");
