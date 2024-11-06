@@ -14,7 +14,7 @@ namespace Biz.SimulateServer
     {
         public bool Process(HttpServer server, HttpRequest request, HttpResponse response)
         {
-            var url = request.Url.ToLower();
+            var url = request.Url.ToLower().Split('?')[0];
             if (url.StartsWith("http"))
             {
                 var sqlArray = url.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
