@@ -189,6 +189,20 @@ namespace NETDBHelper.SubForm
                     }
                     valControl = tb;
                 }
+                else if(column.TypeName.IndexOf("text", StringComparison.OrdinalIgnoreCase) > -1)
+                {
+                    var tb = new UCTextBox();
+                    tb.ShowCheckBox = column.IsNullAble;
+                    tb.Multiline = true;
+                    tb.Width = ItemsPannel.Width - lb.Width - 40;
+                    tb.AutoScroll = true;
+                    tb.Height = 200;
+                    if (editVal != null)
+                    {
+                        tb.Text = editVal.ToString();
+                    }
+                    valControl = tb;
+                }
                 else
                 {
                     valControl = new Label();
