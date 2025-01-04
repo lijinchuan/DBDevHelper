@@ -68,7 +68,7 @@ namespace NETDBHelper.SubForm
             {
                 Label lb = new Label();
                 lb.AutoSize = true;
-                lb.Location = new Point(preoffsetx, preoffsety);
+                lb.Location = new Point(preoffsetx, preoffsety + 5);
                 lb.Text = column.Name+":";
                 ItemsPannel.Controls.Add(lb);
 
@@ -208,7 +208,15 @@ namespace NETDBHelper.SubForm
                     valControl = new Label();
                     valControl.Text = "不支持";
                 }
-                valControl.Location = new Point(preoffsetx, preoffsety);
+
+                if (valControl is Label)
+                {
+                    valControl.Location = new Point(preoffsetx, preoffsety + 5);
+                }
+                else
+                {
+                    valControl.Location = new Point(preoffsetx, preoffsety);
+                }
 
                 preoffsetx += valControl.Width;
                 if (preoffsetx > ItemsPannel.Width)
