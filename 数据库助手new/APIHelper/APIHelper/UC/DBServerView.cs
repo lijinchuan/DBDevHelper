@@ -14,6 +14,7 @@ using LJC.FrameWorkV3.Data.EntityDataBase;
 using Biz;
 using APIHelper.UC;
 using System.Threading;
+using System.Runtime.InteropServices.WindowsRuntime;
 
 namespace APIHelper
 {
@@ -345,6 +346,58 @@ namespace APIHelper
                             }
                             break;
                         }
+                    case "复制API":
+                        {
+                            var oldApiUrl = selnode.Tag as APIUrl;
+                            if (oldApiUrl == null)
+                            {
+                                return;
+                            }
+
+                            var nameDlg = new InputStringDlg("API名称", oldApiUrl.APIName + "(复制)");
+                            if(nameDlg.ShowDialog() != DialogResult.OK)
+                            {
+                                return;
+                            }
+
+                            var apiUrl = new APIUrl
+                            {
+                                ApiEnvId = oldApiUrl.ApiEnvId,
+                                APIMethod= oldApiUrl.APIMethod,
+                                APIName= nameDlg.InputString,
+                                ApplicationType= oldApiUrl.ApplicationType,
+                                AuthType= oldApiUrl.AuthType,
+                                BodyDataType= oldApiUrl.BodyDataType,
+                                Desc= oldApiUrl.Desc,
+                                Path= oldApiUrl.Path,
+                                SourceId= oldApiUrl.SourceId,
+                            };
+
+                            BigEntityTableEngine.LocalEngine.Insert(nameof(APIUrl), apiUrl);
+                            //创建文档
+                            BigEntityTableEngine.LocalEngine.Insert(nameof(APIDoc), new APIDoc
+                            {
+                                APISourceId = apiUrl.SourceId,
+                                APIId = apiUrl.Id,
+                                Mark = apiUrl.Desc
+                            });
+
+                            var apidatalist = BigEntityTableEngine.LocalEngine.Find<APIData>(nameof(APIData), "ApiId", new object[] { oldApiUrl.Id }).ToList();
+                            foreach (var apidata in apidatalist)
+                            {
+                                apidata.Id = 0;
+                                apidata.ApiId = apiUrl.Id;
+                                BigEntityTableEngine.LocalEngine.Insert<APIData>(nameof(APIData), apidata);
+                            }
+
+                            this.ReLoadDBObj(selnode.Parent);
+
+                            var source = FindParentNode<APISource>(selnode);
+
+                            Util.AddToMainTab(this, $"[{source.SourceName}]{apiUrl.APIName}", new UC.UCAddAPI(apiUrl));
+
+                            break;
+                        }
                     case "添加环境":
                         {
                             var apisource = selnode.Parent.Tag as APISource;
@@ -587,6 +640,8 @@ namespace APIHelper
                     || node.Tag is APIEnvParam;
 
                 批量复制引用ToolStripMenuItem.Visible = (node.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.ENV;
+
+                复制APIToolStripMenuItem.Visible= (node.Tag as INodeContents)?.GetNodeContentType() == NodeContentType.API;
             }
 
         }
