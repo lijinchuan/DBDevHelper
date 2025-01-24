@@ -220,6 +220,13 @@ namespace NETDBHelper.SubForm
                                 }
                             }
 
+                            if (!string.IsNullOrWhiteSpace(TBDBReName.Text))
+                            {
+                                if (MessageBox.Show($"重命名库名为\"{TBDBReName.Text}\"吗？", "重命名提示", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
+                                {
+                                    TBDBReName.Text = string.Empty;
+                                }
+                            }
 
                             file = fileinfo.FullName;
 
@@ -245,6 +252,11 @@ namespace NETDBHelper.SubForm
                                         {
                                             SQLHelper.ExecuteNoQuery(connsqlserver.DBSource, datatableobject.DBName, $"delete [{datatableobject.DBName}].[{datatableobject.Schema}].[{datatableobject.TableName}]");
                                         }
+                                    }
+
+                                    if (!string.IsNullOrWhiteSpace(TBDBReName.Text))
+                                    {
+                                        datatableobject.DBName = TBDBReName.Text;
                                     }
 
                                     DataTable table = new DataTable();
@@ -411,6 +423,19 @@ namespace NETDBHelper.SubForm
                     this.mainCLB.SetItemChecked(i, false);
                 }
                 BtnSelAll.Text = "全选";
+            }
+        }
+
+        private void DBS_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (DBS.SelectedItems.Count > 1)
+            {
+                TBDBReName.Enabled = false;
+                TBDBReName.Text = string.Empty;
+            }
+            else if (DBS.SelectedItems.Count == 1)
+            {
+                TBDBReName.Enabled = true;
             }
         }
     }

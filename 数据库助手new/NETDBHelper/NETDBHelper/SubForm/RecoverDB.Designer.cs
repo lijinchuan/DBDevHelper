@@ -37,6 +37,7 @@ namespace NETDBHelper.SubForm
             this.ProcessBar = new System.Windows.Forms.ToolStripProgressBar();
             this.LBMsg = new System.Windows.Forms.ToolStripStatusLabel();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.CBClear = new System.Windows.Forms.CheckBox();
             this.CBIgnoreError = new System.Windows.Forms.CheckBox();
             this.TimeOutMins = new System.Windows.Forms.NumericUpDown();
             this.label1 = new System.Windows.Forms.Label();
@@ -46,7 +47,8 @@ namespace NETDBHelper.SubForm
             this.TBS = new System.Windows.Forms.CheckedListBox();
             this.DBS = new System.Windows.Forms.CheckedListBox();
             this.BtnSelAll = new System.Windows.Forms.Button();
-            this.CBClear = new System.Windows.Forms.CheckBox();
+            this.label2 = new System.Windows.Forms.Label();
+            this.TBDBReName = new System.Windows.Forms.TextBox();
             this.statusStrip1.SuspendLayout();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.TimeOutMins)).BeginInit();
@@ -120,6 +122,8 @@ namespace NETDBHelper.SubForm
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.TBDBReName);
+            this.groupBox1.Controls.Add(this.label2);
             this.groupBox1.Controls.Add(this.CBClear);
             this.groupBox1.Controls.Add(this.CBIgnoreError);
             this.groupBox1.Controls.Add(this.TimeOutMins);
@@ -130,6 +134,16 @@ namespace NETDBHelper.SubForm
             this.groupBox1.TabIndex = 5;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "选项";
+            // 
+            // CBClear
+            // 
+            this.CBClear.AutoSize = true;
+            this.CBClear.Location = new System.Drawing.Point(110, 62);
+            this.CBClear.Name = "CBClear";
+            this.CBClear.Size = new System.Drawing.Size(84, 16);
+            this.CBClear.TabIndex = 3;
+            this.CBClear.Text = "清空目标表";
+            this.CBClear.UseVisualStyleBackColor = true;
             // 
             // CBIgnoreError
             // 
@@ -219,6 +233,7 @@ namespace NETDBHelper.SubForm
             this.DBS.Name = "DBS";
             this.DBS.Size = new System.Drawing.Size(369, 180);
             this.DBS.TabIndex = 0;
+            this.DBS.SelectedIndexChanged += new System.EventHandler(this.DBS_SelectedIndexChanged);
             // 
             // BtnSelAll
             // 
@@ -230,15 +245,21 @@ namespace NETDBHelper.SubForm
             this.BtnSelAll.UseVisualStyleBackColor = true;
             this.BtnSelAll.Click += new System.EventHandler(this.BtnSelAll_Click);
             // 
-            // CBClear
+            // label2
             // 
-            this.CBClear.AutoSize = true;
-            this.CBClear.Location = new System.Drawing.Point(110, 62);
-            this.CBClear.Name = "CBClear";
-            this.CBClear.Size = new System.Drawing.Size(84, 16);
-            this.CBClear.TabIndex = 3;
-            this.CBClear.Text = "清空目标表";
-            this.CBClear.UseVisualStyleBackColor = true;
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(212, 64);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(53, 12);
+            this.label2.TabIndex = 4;
+            this.label2.Text = "库重命名";
+            // 
+            // TBDBReName
+            // 
+            this.TBDBReName.Location = new System.Drawing.Point(269, 60);
+            this.TBDBReName.Name = "TBDBReName";
+            this.TBDBReName.Size = new System.Drawing.Size(112, 21);
+            this.TBDBReName.TabIndex = 5;
             // 
             // RecoverDBDlg
             // 
@@ -293,5 +314,7 @@ namespace NETDBHelper.SubForm
         private System.Windows.Forms.CheckedListBox TBS;
         private System.Windows.Forms.Button BtnSelAll;
         private System.Windows.Forms.CheckBox CBClear;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.TextBox TBDBReName;
     }
 }
