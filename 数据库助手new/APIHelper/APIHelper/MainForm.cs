@@ -358,6 +358,7 @@ namespace APIHelper
             if (!isExists)
             {
                 this.TabControl.TabPages.Add(addpage);
+                TabControl.SelectedTab = null;
                 TabControl.SelectedTab = addpage;
                 return true;
             }
