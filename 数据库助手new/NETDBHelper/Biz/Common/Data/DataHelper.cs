@@ -262,15 +262,15 @@ namespace Biz.Common.Data
             sb.AppendLine("Begin");
             sb.AppendLine("SET NOCOUNT ON");
             sb.AppendLine("-----------------------插入----------------------------------");
-            sb.AppendFormat("insert {0}({1}) select {2} from @dt t2 where [state]=1", tbName, string.Join(",\r\n", cols.Where(p => !p.IsID).Select(p => "["+p.Name+"]")),
-                string.Join(",\r\n",cols.Where(p=>!p.IsID).Select(p=>"t2."+p.Name)));
+            sb.AppendFormat("insert [{0}]({1}) select {2} from @dt t2 where [state]=1", tbName, string.Join(",\r\n", cols.Where(p => !p.IsID).Select(p => "["+p.Name+"]")),
+                string.Join(",\r\n",cols.Where(p=>!p.IsID).Select(p=>"t2.["+p.Name+"]")));
             sb.AppendLine();
             sb.AppendLine();
             sb.AppendLine("-----------------------更新----------------------------------");
             if (!string.IsNullOrEmpty(idcolname))
             {
-                sb.AppendFormat(@"  update t1 set {0} from {1} t1 inner join @dt t2 on t1.{2}=t2.{2} where t2.[State]=2",
-                    string.Join(",\r\n", cols.Where(p => !p.IsID).Select(p => "t1." + p.Name + "=t2." + p.Name)),
+                sb.AppendFormat(@"  update t1 set {0} from [{1}] t1 inner join @dt t2 on t1.{2}=t2.{2} where t2.[State]=2",
+                    string.Join(",\r\n", cols.Where(p => !p.IsID).Select(p => "t1.[" + p.Name + "]=t2.[" + p.Name+"]")),
                     tbName,
                     idcolname
                     );

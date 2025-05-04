@@ -8,3 +8,5 @@ bin
 
 /数据库助手new/NETDBHelper -mysql/packages
 /数据库助手new/APIHelper/packages
+/数据库助手new/APIHelper/APIHelper/APIHelper.csproj.user
+/数据库助手new/JSONToolWeb/JSONTool/JSONTool.csproj.user
