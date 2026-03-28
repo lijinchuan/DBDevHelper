@@ -25,10 +25,12 @@ namespace NETDBHelper.UC
 
         private const int WM_PAINT = 0x000F;
         private const int WM_ERASEBKGND = 0X0014;
+        private const int WM_SETREDRAW = 0x000B;
         private const int WM_VSCROLL = 0x115;
         private const int SB_THUMBPOSITION = 4;
         public Action<PaintEventArgs> ManDraw;
         public bool LockPaint = false;
+        private int _updateLockCount = 0;
 
         public event Action<Message> OnWndProc;
         public MyRichTextBox()
@@ -38,7 +40,7 @@ namespace NETDBHelper.UC
 
         protected override void WndProc(ref Message m)
         {
-            if (m.Msg == WM_PAINT && LockPaint)
+            if ((m.Msg == WM_PAINT || m.Msg == WM_ERASEBKGND) && LockPaint)
             {
                 return;
             }
@@ -47,6 +49,56 @@ namespace NETDBHelper.UC
             if (OnWndProc != null)
             {
                 OnWndProc(m);
+            }
+        }
+
+        public IDisposable BeginUpdateScope()
+        {
+            BeginUpdate();
+            return new UpdateScope(this);
+        }
+
+        public void BeginUpdate()
+        {
+            _updateLockCount++;
+            if (_updateLockCount == 1 && IsHandleCreated)
+            {
+                SendMessage(this.Handle, WM_SETREDRAW, 0, 0);
+            }
+        }
+
+        public void EndUpdate()
+        {
+            if (_updateLockCount == 0)
+            {
+                return;
+            }
+
+            _updateLockCount--;
+            if (_updateLockCount == 0 && IsHandleCreated)
+            {
+                SendMessage(this.Handle, WM_SETREDRAW, 1, 0);
+                this.Invalidate();
+                this.Update();
+            }
+        }
+
+        private sealed class UpdateScope : IDisposable
+        {
+            private MyRichTextBox _owner;
+
+            public UpdateScope(MyRichTextBox owner)
+            {
+                _owner = owner;
+            }
+
+            public void Dispose()
+            {
+                if (_owner != null)
+                {
+                    _owner.EndUpdate();
+                    _owner = null;
+                }
             }
         }
 

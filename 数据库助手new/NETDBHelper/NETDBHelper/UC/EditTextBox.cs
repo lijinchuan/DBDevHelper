@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
-using System.Data;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
@@ -82,17 +81,39 @@ namespace NETDBHelper.UC
             }
         }
 
+        private class HighlightSegment
+        {
+            public int Position
+            {
+                get;
+                set;
+            }
+
+            public int Length
+            {
+                get;
+                set;
+            }
+
+            public Color Color
+            {
+                get;
+                set;
+            }
+        }
+
         private Color defaultSelectionColor;
         //internal KeyWordManager keywordman = new KeyWordManager();
         private KeyWordManager _keyWords=new KeyWordManager();
-        private LJC.FrameWork.Comm.WatchTimer _timer = new LJC.FrameWork.Comm.WatchTimer(10);
         private System.Threading.Timer backtimer = null;
+        private System.Windows.Forms.Timer _scrollMarkTimer = null;
         private HashSet<int> _markedLines = new HashSet<int>();
         private int _lastMarketedLines = -1;
         private int _lastInputChar = '\0';
         private GrammarAnalysisResult _lastGrammarAnalysisResult = null;
         private Point _currpt = Point.Empty;
         private DateTime _pointtiptime = DateTime.MaxValue;
+        private bool _scrollIsDown = true;
 
         private DataGridView view = new DataGridView();
 
@@ -533,7 +554,7 @@ namespace NETDBHelper.UC
             }
             set
             {
-                this.RichText.Text = value;
+                this.RichText.SelectedText = value;
             }
         }
 
@@ -600,6 +621,12 @@ namespace NETDBHelper.UC
 
             this.RichText.HideSelection = false;
 
+            _scrollMarkTimer = new System.Windows.Forms.Timer();
+            _scrollMarkTimer.Interval = 30;
+            _scrollMarkTimer.Tick += ScrollMarkTimer_Tick;
+
+            this.Disposed += EditTextBox_Disposed;
+
             backtimer = new System.Threading.Timer(new System.Threading.TimerCallback((o) =>
               {
                   if (this.Visible&& !view.Visible && _currpt != Point.Empty && DateTime.Now.Subtract(_pointtiptime).TotalMilliseconds >= 1000)
@@ -623,6 +650,38 @@ namespace NETDBHelper.UC
                       }));
                   }
               }), null, 0, 100);
+        }
+
+        private void EditTextBox_Disposed(object sender, EventArgs e)
+        {
+            if (_scrollMarkTimer != null)
+            {
+                _scrollMarkTimer.Stop();
+                _scrollMarkTimer.Tick -= ScrollMarkTimer_Tick;
+                _scrollMarkTimer.Dispose();
+                _scrollMarkTimer = null;
+            }
+
+            if (backtimer != null)
+            {
+                backtimer.Dispose();
+                backtimer = null;
+            }
+        }
+
+        private void ScrollMarkTimer_Tick(object sender, EventArgs e)
+        {
+            if (_scrollMarkTimer != null)
+            {
+                _scrollMarkTimer.Stop();
+            }
+
+            if (this.IsDisposed)
+            {
+                return;
+            }
+
+            MarkKeyWords(true, _scrollIsDown, true);
         }
 
         private void View_RowLeave(object sender, DataGridViewCellEventArgs e)
@@ -969,14 +1028,10 @@ namespace NETDBHelper.UC
                     && !infos.StringInfos.Any(p => p.Contains(currentLine, currentPos)))
                 {
                     _lastInputChar = '\0';
-                    var old = Clipboard.GetText();
-                    Clipboard.SetText("'");
-                    RichText.Paste();
-                    if (!string.IsNullOrEmpty(old))
-                    {
-                        Clipboard.SetText(old);
-                    }
+                    RichText.SelectedText = "'";
                     _lastInputChar = '\'';
+                    e.Handled = true;
+                    e.SuppressKeyPress = true;
                 }
                 
             }
@@ -1195,7 +1250,7 @@ namespace NETDBHelper.UC
 
         void RichText_KeyUp(object sender, KeyEventArgs e)
         {
-            if (!this.RichText.Focus())
+            if (!this.RichText.Focused)
                 return;
 
             if (e.Control)
@@ -1209,6 +1264,29 @@ namespace NETDBHelper.UC
                 return;
             }
             _lastInputChar = e.KeyValue;
+        }
+
+        private void RestoreEditorViewport(int selectionStart, int selectionLength, int verticalPosition, int horizontalPosition)
+        {
+            if (this.RichText.SelectionStart != selectionStart)
+            {
+                this.RichText.SelectionStart = selectionStart;
+            }
+
+            if (this.RichText.SelectionLength != selectionLength)
+            {
+                this.RichText.SelectionLength = selectionLength;
+            }
+
+            if (this.RichText.HorizontalPosition != horizontalPosition)
+            {
+                this.RichText.HorizontalPosition = horizontalPosition;
+            }
+
+            if (this.RichText.VerticalPosition != verticalPosition)
+            {
+                this.RichText.VerticalPosition = verticalPosition;
+            }
         }
 
         private void ClearMarkedLine(int[] lines)
@@ -1232,35 +1310,44 @@ namespace NETDBHelper.UC
             //this.RichText.LockPaint = true;
             var oldstart = this.RichText.SelectionStart;
             var oldlen = this.RichText.SelectionLength;
-            int selectionStart = RichText.GetFirstCharIndexFromLine(lines[0]);
-            for (var i = 1; i < lines.Length; i++)
+            var oldVPos = this.RichText.VerticalPosition;
+            var oldHPos = this.RichText.HorizontalPosition;
+            try
             {
-                if (lines[i] - lines[i - 1] != 1)
+                using (this.RichText.BeginUpdateScope())
                 {
-                    this.RichText.SelectionStart = selectionStart;
-                    var currentLineStart = RichText.GetFirstCharIndexFromLine(lines[i]);
-                    if (selectionStart != -1 && currentLineStart != -1)
+                    int selectionStart = RichText.GetFirstCharIndexFromLine(lines[0]);
+                    for (var i = 1; i < lines.Length; i++)
                     {
-                        this.RichText.SelectionLength = currentLineStart - selectionStart + allLines[lines[i]].Length;
-                        this.RichText.SelectionColor = Color.Black;
+                        if (lines[i] - lines[i - 1] != 1)
+                        {
+                            this.RichText.SelectionStart = selectionStart;
+                            var currentLineStart = RichText.GetFirstCharIndexFromLine(lines[i]);
+                            if (selectionStart != -1 && currentLineStart != -1)
+                            {
+                                this.RichText.SelectionLength = currentLineStart - selectionStart + allLines[lines[i]].Length;
+                                this.RichText.SelectionColor = defaultSelectionColor;
+                            }
+                            selectionStart = currentLineStart;
+                        }
                     }
-                    selectionStart = currentLineStart;
+
+                    if (selectionStart != -1)
+                    {
+                        this.RichText.SelectionStart = selectionStart;
+                        var lastLine = lines[lines.Length - 1];
+                        var lastLineStart = RichText.GetFirstCharIndexFromLine(lastLine);
+                        if (lastLineStart != -1)
+                        {
+                            this.RichText.SelectionLength = lastLineStart - selectionStart + allLines[lastLine].Length;
+                            this.RichText.SelectionColor = defaultSelectionColor;
+                        }
+                    }
                 }
             }
-
-            if (selectionStart != -1)
+            finally
             {
-                this.RichText.SelectionStart = selectionStart;
-                var lastLine = lines[lines.Length - 1];
-                var lastLineStart = RichText.GetFirstCharIndexFromLine(lastLine);
-                if (lastLineStart != -1)
-                {
-                    this.RichText.SelectionLength = lastLineStart - selectionStart + allLines[lastLine].Length;
-                    this.RichText.SelectionColor = Color.Black;
-                }
-
-                this.RichText.SelectionStart = oldstart;
-                this.RichText.SelectionLength = oldlen;
+                RestoreEditorViewport(oldstart, oldlen, oldVPos, oldHPos);
                 //this.RichText.LockPaint = false;
             }
         }
@@ -1452,32 +1539,16 @@ namespace NETDBHelper.UC
             {
                 return;
             }
-            RichText.VScroll -= RichText_VScroll;
-            var isDown = true;
-            
-            isDown = vpos > LastScrollVPos;
+            _scrollIsDown = vpos > LastScrollVPos;
             LastScrollVPos = vpos;
-            //if (RichText.SelectionLength == 0)
-            //{
-            //    var currline = RichText.GetLineFromCharIndex(RichText.SelectionStart);
+            _lastMarketedLines = -1;
+            SetLineNo();
 
-            //    if (currline > CurrentClientScreentEndLine && currline + 1 != RichText.Lines.Length)
-            //    {
-            //        RichText.SelectionStart = RichText.GetFirstCharIndexFromLine(CurrentClientScreentEndLine);
-            //    }
-            //    else if (currline < CurrentClientScreenStartLine)
-            //    {
-            //        RichText.SelectionStart = RichText.GetFirstCharIndexFromLine(CurrentClientScreenStartLine);
-            //    }
-            //}
-            _timer.ReSetTimeOutCallBack(() =>
-                {
-                    this.BeginInvoke(new Action<bool, bool>((b1,b2)=>
-                    {
-                        MarkKeyWords(b1, b2, true);
-                        RichText.VScroll += RichText_VScroll;
-                    }), true, isDown);
-                });
+            if (_scrollMarkTimer != null)
+            {
+                _scrollMarkTimer.Stop();
+                _scrollMarkTimer.Start();
+            }
         }
 
         public void AppendText(string text)
@@ -1644,6 +1715,8 @@ namespace NETDBHelper.UC
 
             int oldStart = this.RichText.SelectionStart;
             int oldSelectLen = this.RichText.SelectionLength;
+            int oldVPos = this.RichText.VerticalPosition;
+            int oldHPos = this.RichText.HorizontalPosition;
             try
             {
                 RichText.LockPaint = true;
@@ -1683,7 +1756,7 @@ namespace NETDBHelper.UC
                 //    oldSelectLen = 0;
                 //}
 
-                DataTable tb = Biz.Common.Data.DataHelper.CreateFatTable("pos", "len", "color");
+                var highlightSegments = new List<HighlightSegment>();
 
                 var grammarAnalysisResult = new Lazy<GrammarAnalysisResult>(() => GrammarAnalysis());
                 if (_lastGrammarAnalysisResult != null)
@@ -1732,11 +1805,12 @@ namespace NETDBHelper.UC
                         if (!_markedLines.Contains(l))
                         {
                             var totalIndex = RichText.GetFirstCharIndexFromLine(a.StartLine);
-                            DataRow row = tb.NewRow();
-                            row[0] = totalIndex + a.Start;
-                            row[1] = a.Len;
-                            row[2] = Color.Gray;
-                            tb.Rows.Add(row);
+                            highlightSegments.Add(new HighlightSegment
+                            {
+                                Position = totalIndex + a.Start,
+                                Length = a.Len,
+                                Color = Color.Gray
+                            });
 
                             if (a.Start == 0)
                             {
@@ -1765,11 +1839,12 @@ namespace NETDBHelper.UC
                         if (!_markedLines.Contains(l))
                         {
                             var totalIndex = RichText.GetFirstCharIndexFromLine(a.StartLine);
-                            DataRow row = tb.NewRow();
-                            row[0] = totalIndex + a.Start;
-                            row[1] = a.Len;
-                            row[2] = Color.DarkRed;
-                            tb.Rows.Add(row);
+                            highlightSegments.Add(new HighlightSegment
+                            {
+                                Position = totalIndex + a.Start,
+                                Length = a.Len,
+                                Color = Color.DarkRed
+                            });
 
                             if (a.Start == 0)
                             {
@@ -1814,11 +1889,12 @@ namespace NETDBHelper.UC
                             if ((m.PostionStart == 0 || "[]{},|%#!<>=();+-*/\r\n 　".IndexOf(express[m.PostionStart - 1]) > -1)
                                 && (m.PostionEnd == express.Length - 1 || "[]{},|%#!<>=();+-*/\r\n 　".IndexOf(express[m.PostionEnd + 1]) > -1))
                             {
-                                DataRow row = tb.NewRow();
-                                row[0] = totalIndex + m.PostionStart;
-                                row[1] = m.KeyWordMatched.Length;
-                                row[2] = m.Tag;
-                                tb.Rows.Add(row);
+                                highlightSegments.Add(new HighlightSegment
+                                {
+                                    Position = totalIndex + m.PostionStart,
+                                    Length = m.KeyWordMatched.Length,
+                                    Color = (Color)m.Tag
+                                });
                             }
                         }
 
@@ -1826,21 +1902,22 @@ namespace NETDBHelper.UC
                     }
                 }
 
-                if (tb.Rows.Count > 0)
+                if (highlightSegments.Count > 0)
                 {
-                    int oldVPos = RichText.VerticalPosition;
-                    int oldHPos = RichText.HorizontalPosition;
                     if (isScroll)
                     {
                         RichText.Visible = false;
                     }
-                    foreach (DataRow row in tb.Rows)
+                    using (this.RichText.BeginUpdateScope())
                     {
-                        RichText.SelectionStart = (int)row[0];
-                        this.RichText.SelectionLength = (int)row[1];
-                        this.RichText.SelectionColor = (Color)row[2];
+                        foreach (var segment in highlightSegments)
+                        {
+                            RichText.SelectionStart = segment.Position;
+                            this.RichText.SelectionLength = segment.Length;
+                            this.RichText.SelectionColor = segment.Color;
+                        }
                     }
-                    ProcessTraceUtil.Trace("setColor:" + tb.Rows.Count);
+                    ProcessTraceUtil.Trace("setColor:" + highlightSegments.Count);
 
                     if (this.RichText.SelectionStart != oldStart)
                     {
@@ -1871,8 +1948,8 @@ namespace NETDBHelper.UC
             }
             finally
             {
+                RestoreEditorViewport(oldStart, oldSelectLen, oldVPos, oldHPos);
                 RichText.LockPaint = false;
-                RichText.Focus();
 
                 this.RichText.SelectionChanged += RichText_SelectionChanged;
 
