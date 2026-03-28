@@ -1217,28 +1217,47 @@ namespace NETDBHelper.UC
             {
                 return;
             }
-            lines = lines.OrderBy(p => p).ToArray();
+            var allLines = RichText.Lines;
+            lines = lines
+                .Where(p => p >= 0 && p < allLines.Length)
+                .Distinct()
+                .OrderBy(p => p)
+                .ToArray();
+
+            if (lines.Length == 0)
+            {
+                return;
+            }
+
             //this.RichText.LockPaint = true;
             var oldstart = this.RichText.SelectionStart;
             var oldlen = this.RichText.SelectionLength;
-            int selectionStart = RichText.GetFirstCharIndexFromLine(lines.First());
-            var allLines = RichText.Lines;
+            int selectionStart = RichText.GetFirstCharIndexFromLine(lines[0]);
             for (var i = 1; i < lines.Length; i++)
             {
                 if (lines[i] - lines[i - 1] != 1)
                 {
                     this.RichText.SelectionStart = selectionStart;
-                    this.RichText.SelectionLength = RichText.GetFirstCharIndexFromLine(lines[i]) - selectionStart + allLines[lines[i]].Length;
-                    this.RichText.SelectionColor = Color.Black;
-                    selectionStart = RichText.GetFirstCharIndexFromLine(lines[i]);
+                    var currentLineStart = RichText.GetFirstCharIndexFromLine(lines[i]);
+                    if (selectionStart != -1 && currentLineStart != -1)
+                    {
+                        this.RichText.SelectionLength = currentLineStart - selectionStart + allLines[lines[i]].Length;
+                        this.RichText.SelectionColor = Color.Black;
+                    }
+                    selectionStart = currentLineStart;
                 }
             }
 
             if (selectionStart != -1)
             {
                 this.RichText.SelectionStart = selectionStart;
-                this.RichText.SelectionLength = RichText.GetFirstCharIndexFromLine(lines[lines.Length - 1]) - selectionStart + allLines[lines[lines.Length - 1]].Length;
-                this.RichText.SelectionColor = Color.Black;
+                var lastLine = lines[lines.Length - 1];
+                var lastLineStart = RichText.GetFirstCharIndexFromLine(lastLine);
+                if (lastLineStart != -1)
+                {
+                    this.RichText.SelectionLength = lastLineStart - selectionStart + allLines[lastLine].Length;
+                    this.RichText.SelectionColor = Color.Black;
+                }
 
                 this.RichText.SelectionStart = oldstart;
                 this.RichText.SelectionLength = oldlen;
