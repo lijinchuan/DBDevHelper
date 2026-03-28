@@ -26,10 +26,13 @@ namespace NETDBHelper.UC
         UC.LoadingBox loadbox = new LoadingBox();
         bool isexecuting = false;
         private bool preFilterMessageFlag = false;
+        private bool runtimeInitialized = false;
+        private volatile bool stopRequested = false;
 
         public SqlExcuter()
         {
             InitializeComponent();
+            InitializeRuntime();
         }
 
         public DBSource Server
@@ -50,6 +53,43 @@ namespace NETDBHelper.UC
         }
 
         ContextMenuStrip datastrip = null;
+
+        private ContextMenuStrip CreateDataStrip()
+        {
+            var strip = new ContextMenuStrip();
+            strip.Items.Add("复制内容");
+            strip.Items.Add("查看文本");
+            strip.Items.Add("复制标题");
+            strip.Items.Add("复制标题+内容");
+            strip.Items.Add("转换为JSON格式数据");
+            strip.Items.Add("统计条数");
+            strip.Items.Add("选择这一列");
+            strip.Items.Add("锁定这一列");
+            strip.Items.Add(new ToolStripSeparator());
+            strip.Items.Add("表重命名");
+            strip.Items.Add("导出表格数据");
+            strip.Items.Add("导出全部表格数据");
+            strip.Items.Add(new ToolStripSeparator());
+            strip.Items.Add("新增数据");
+            strip.Items.Add("复制数据");
+            strip.Items.Add("修改数据");
+            strip.Items.Add("删除数据");
+            strip.ItemClicked += Datastrip_ItemClicked;
+            strip.VisibleChanged += Datastrip_VisibleChanged;
+            return strip;
+        }
+
+        private void InitializeRuntime()
+        {
+            if (runtimeInitialized)
+            {
+                return;
+            }
+
+            Application.AddMessageFilter(this);
+            CanAdjust();
+            runtimeInitialized = true;
+        }
 
         private void CanAdjust()
         {
@@ -141,9 +181,7 @@ namespace NETDBHelper.UC
             datastrip.Items.Add("删除数据");
             datastrip.ItemClicked += Datastrip_ItemClicked;
             datastrip.VisibleChanged += Datastrip_VisibleChanged;
-
-            Application.AddMessageFilter(this);
-            CanAdjust();
+            InitializeRuntime();
         }
 
         private void Datastrip_VisibleChanged(object sender, EventArgs e)
@@ -359,6 +397,214 @@ namespace NETDBHelper.UC
             return null;
         }
 
+        private static List<DataGridViewCell> GetSelectedCells(DataGridView view)
+        {
+            return view.SelectedCells.Cast<DataGridViewCell>().ToList();
+        }
+
+        private static IEnumerable<IGrouping<int, DataGridViewCell>> GetSelectedCellGroups(DataGridView view)
+        {
+            return GetSelectedCells(view).GroupBy(p => p.RowIndex).OrderBy(p => p.Key);
+        }
+
+        private static string GetCellText(DataGridViewCell cell)
+        {
+            if (cell.Value == null)
+            {
+                return string.Empty;
+            }
+
+            if (cell.ValueType == typeof(byte[]))
+            {
+                return "0x" + BitConverter.ToString((byte[])cell.Value).Replace("-", string.Empty);
+            }
+
+            return cell.Value.ToString();
+        }
+
+        private static string BuildSelectedCellText(DataGridView view, bool includeHeader, Func<DataGridViewCell, string> formatter = null)
+        {
+            var rows = GetSelectedCellGroups(view).ToList();
+            if (rows.Count == 0)
+            {
+                return string.Empty;
+            }
+
+            formatter = formatter ?? GetCellText;
+            StringBuilder sb = new StringBuilder();
+
+            if (includeHeader)
+            {
+                foreach (DataGridViewCell cell in rows[0].OrderBy(p => p.ColumnIndex))
+                {
+                    sb.Append(view.Columns[cell.ColumnIndex].Name);
+                    sb.Append("\t");
+                }
+                sb.Remove(sb.Length - 1, 1);
+                sb.AppendLine();
+            }
+
+            foreach (var row in rows)
+            {
+                foreach (var cell in row.OrderBy(p => p.ColumnIndex))
+                {
+                    sb.Append(formatter(cell));
+                    sb.Append("\t");
+                }
+                sb.Remove(sb.Length - 1, 1);
+                sb.AppendLine();
+            }
+
+            return sb.ToString();
+        }
+
+        private static List<Dictionary<string, object>> BuildSelectedCellJson(DataGridView view)
+        {
+            var result = new List<Dictionary<string, object>>();
+
+            foreach (var row in GetSelectedCellGroups(view))
+            {
+                Dictionary<string, object> dic = new Dictionary<string, object>();
+                foreach (var cell in row.OrderBy(p => p.ColumnIndex))
+                {
+                    dic.Add(view.Columns[cell.ColumnIndex].Name, cell.Value);
+                }
+                result.Add(dic);
+            }
+
+            return result;
+        }
+
+        private static bool TryBuildKeyParameters(DataGridViewRow row, IEnumerable<TBColumn> cols, Func<TBColumn, bool> predicate, string excludedColumnName, out List<SqlParameter> parameters, out string errorMsg)
+        {
+            parameters = new List<SqlParameter>();
+            errorMsg = string.Empty;
+            var matched = false;
+
+            foreach (var col in cols.Where(predicate))
+            {
+                matched = true;
+
+                if (!row.DataGridView.Columns.Contains(col.Name))
+                {
+                    errorMsg = $"不包含条件字段:{col.Name}";
+                    return false;
+                }
+
+                if (!string.IsNullOrWhiteSpace(excludedColumnName) && col.Name.Equals(excludedColumnName, StringComparison.OrdinalIgnoreCase))
+                {
+                    errorMsg = col.IsID ? "不能更新自增长键" : "不能更新主键";
+                    return false;
+                }
+
+                parameters.Add(new SqlParameter
+                {
+                    ParameterName = $"@{col.Name}",
+                    Value = row.Cells[col.Name].Value
+                });
+            }
+
+            return !matched || parameters.Count > 0;
+        }
+
+        private static string BuildWhereClause(IEnumerable<SqlParameter> parameters)
+        {
+            return string.Join(" and ", parameters.Select(p => p.ParameterName.TrimStart('@') + "=" + p.ParameterName));
+        }
+
+        private static string BuildSelectedHeaderText(DataGridView view)
+        {
+            var rows = GetSelectedCellGroups(view).ToList();
+            if (rows.Count == 0)
+            {
+                return string.Empty;
+            }
+
+            StringBuilder sb = new StringBuilder();
+            foreach (DataGridViewCell cell in rows[0].OrderBy(p => p.ColumnIndex))
+            {
+                sb.Append(view.Columns[cell.ColumnIndex].Name);
+                sb.Append("\t");
+            }
+            sb.Remove(sb.Length - 1, 1);
+            return sb.ToString();
+        }
+
+        private static string GetTempExportDir()
+        {
+            var dir = Path.Combine(Application.StartupPath, "temp");
+            Directory.CreateDirectory(dir);
+            return dir;
+        }
+
+        private static string PromptExportFileName(string dir, string extension)
+        {
+            SubForm.InputStringDlg dlg = new SubForm.InputStringDlg("导出文件名");
+            if (dlg.ShowDialog() != DialogResult.OK || string.IsNullOrWhiteSpace(dlg.InputString))
+            {
+                return null;
+            }
+
+            return Path.Combine(dir, dlg.InputString + extension);
+        }
+
+        private static void WriteExcelCell(ICell cell, DataGridViewCell gridCell)
+        {
+            if (gridCell.Value == null || gridCell.Value == DBNull.Value)
+            {
+                cell.SetCellValue(string.Empty);
+                return;
+            }
+
+            if (gridCell.ValueType == typeof(string))
+            {
+                cell.SetCellValue((string)gridCell.Value);
+            }
+            else if (gridCell.ValueType == typeof(bool))
+            {
+                cell.SetCellValue((bool)gridCell.Value);
+            }
+            else if (gridCell.ValueType == typeof(DateTime))
+            {
+                cell.SetCellValue(((DateTime)gridCell.Value).ToString("yyyy/MM/dd HH:mm:ss"));
+            }
+            else if (gridCell.ValueType == typeof(double) || gridCell.ValueType == typeof(Single))
+            {
+                cell.SetCellValue(Convert.ToDouble(gridCell.Value));
+            }
+            else
+            {
+                cell.SetCellValue(gridCell.Value.ToString());
+            }
+        }
+
+        private static void WriteGridToSheet(IWorkbook book, TabPage page, DataGridView gv)
+        {
+            var sheet = book.CreateSheet(page.Text);
+            var rowIndex = 0;
+            var headerRow = sheet.CreateRow(rowIndex++);
+            var colcount = 0;
+
+            foreach (DataGridViewColumn col in gv.Columns)
+            {
+                var cell = headerRow.CreateCell(colcount, CellType.String);
+                cell.SetCellValue(col.Name);
+                cell.CellStyle = CreateHeaderStyle(book);
+                AjustColWidth(sheet, 0, colcount);
+                colcount++;
+            }
+
+            foreach (DataGridViewRow gvrow in gv.Rows)
+            {
+                var row = sheet.CreateRow(rowIndex++);
+                for (int i = 0; i < colcount; i++)
+                {
+                    var cell = row.CreateCell(i);
+                    WriteExcelCell(cell, gvrow.Cells[i]);
+                }
+            }
+        }
+
         private void Stop(object o)
         {
             try
@@ -382,6 +628,7 @@ namespace NETDBHelper.UC
                 return;
             }
             isexecuting = true;
+            stopRequested = false;
             var seltext = this.sqlEditBox1.SelectedText;
             if (string.IsNullOrWhiteSpace(seltext))
             {
@@ -417,6 +664,10 @@ namespace NETDBHelper.UC
                     DateTime now = DateTime.Now;
                     var ts = SQLHelper.ExecuteDataSet(Server, DB, seltext, (s, e) =>
                      {
+                         if (stopRequested)
+                         {
+                             return;
+                         }
                          this.Invoke(new Action(() =>
                          {
                              TBInfo.Text += $"{e.Message}\r\n\r\n";
@@ -432,8 +683,16 @@ namespace NETDBHelper.UC
 
                     this.Invoke(new Action(() =>
                     {
+                        if (stopRequested)
+                        {
+                            return;
+                        }
                         TBInfo.Text += $"用时:{DateTime.Now.Subtract(now).TotalMilliseconds}ms\r\n";
                     }));
+                    if (stopRequested)
+                    {
+                        return;
+                    }
                     if (ts != null && ts.Tables.Count > 0)
                     {
                         int pos = 0;
@@ -693,90 +952,41 @@ namespace NETDBHelper.UC
                     }
                     if (checkPass)
                     {
-                        var parameList = new List<SqlParameter>();
-                        StringBuilder sbsql = new StringBuilder();
-
-                        sbsql.Append($"update [{tb.TableName}] set [{updateColName}]=@{updateColName} where ");
-
-                        foreach (var keycol in cols.Where(p => p.IsID))
+                        List<SqlParameter> parameList;
+                        if (!TryBuildKeyParameters(gv.Rows[e.RowIndex], cols, p => p.IsID, updateColName, out parameList, out errorMsg))
                         {
-                            if (!gv.Columns.Contains(keycol.Name))
+                            if (string.IsNullOrEmpty(errorMsg) && !TryBuildKeyParameters(gv.Rows[e.RowIndex], cols, p => p.IsKey || p.IsID, updateColName, out parameList, out errorMsg))
                             {
-                                break;
+                                if (string.IsNullOrEmpty(errorMsg))
+                                {
+                                    errorMsg = $"没有主键值，无法更新到表{tb.TableName}";
+                                }
                             }
+                        }
 
-                            if (keycol.Name.Equals(updateColName, StringComparison.OrdinalIgnoreCase))
-                            {
-                                errorMsg = "不能更新自增长键";
-                                checkPass = false;
-                                break;
-                            }
-
+                        if (string.IsNullOrEmpty(errorMsg) && parameList.Count > 0)
+                        {
                             parameList.Add(new SqlParameter
                             {
-                                ParameterName = $"@{keycol.Name}",
-                                Value = gv[keycol.Name, e.RowIndex].Value
+                                ParameterName = $"@{updateColName}",
+                                Value = newVal
                             });
 
-                            sbsql.Append($"[{keycol.Name}]=@{keycol.Name}");
-                        }
+                            var whereClause = BuildWhereClause(parameList.Take(parameList.Count - 1));
+                            var sql = $"update [{tb.TableName}] set [{updateColName}]=@{updateColName} where {whereClause}";
+                            var ret = SQLHelper.ExecuteNoQuery(Server, DB, sql, parameList.ToArray());
 
-                        if (parameList.Count == 0)
-                        {
-                            foreach (var keycol in cols.Where(p => p.IsKey || p.IsID))
+                            Util.SendMsg(this, $"更新{(ret > 0 ? "成功" : "失败")}");
+                            BigEntityTableRemotingEngine.Insert("HLog", new HLogEntity
                             {
-                                if (!gv.Columns.Contains(keycol.Name))
-                                {
-                                    checkPass = false;
-                                    break;
-                                }
-
-                                if (keycol.Name.Equals(updateColName, StringComparison.OrdinalIgnoreCase))
-                                {
-                                    errorMsg = "不能更新主键";
-                                    checkPass = false;
-                                    break;
-                                }
-
-                                parameList.Add(new SqlParameter
-                                {
-                                    ParameterName = $"@{keycol.Name}",
-                                    Value = gv[keycol.Name, e.RowIndex].Value
-                                });
-
-                                sbsql.Append($"[{keycol.Name}]=@{keycol.Name}");
-                            }
-                        }
-
-                        if (checkPass)
-                        {
-                            if (parameList.Count == 0)
-                            {
-                                errorMsg = $"没有主键值，无法更新到表{tb.TableName}";
-                                checkPass = false;
-                            }
-                            else
-                            {
-                                parameList.Add(new SqlParameter
-                                {
-                                    ParameterName = $"@{updateColName}",
-                                    Value = newVal
-                                });
-
-                                var ret = SQLHelper.ExecuteNoQuery(Server, DB, sbsql.ToString(), parameList.ToArray());
-
-                                Util.SendMsg(this, $"更新{(ret > 0 ? "成功" : "失败")}");
-                                BigEntityTableRemotingEngine.Insert("HLog", new HLogEntity
-                                {
-                                    TypeName = tb.TableName,
-                                    LogTime = DateTime.Now,
-                                    LogType = LogTypeEnum.sql,
-                                    DB = DB,
-                                    Sever = Server.ServerName,
-                                    Info = $"更新字段:{updateColName},主键:{(string.Join(";", parameList.Take(parameList.Count - 1).Select(p => p.ParameterName.TrimStart('@') + ":" + p.Value)))},更新为:{newVal}，前值为:{oldVal}，结果:{(ret > 0 ? "成功" : "失败")}",
-                                    Valid = true
-                                });
-                            }
+                                TypeName = tb.TableName,
+                                LogTime = DateTime.Now,
+                                LogType = LogTypeEnum.sql,
+                                DB = DB,
+                                Sever = Server.ServerName,
+                                Info = $"更新字段:{updateColName},主键:{(string.Join(";", parameList.Take(parameList.Count - 1).Select(p => p.ParameterName.TrimStart('@') + ":" + p.Value)))},更新为:{newVal}，前值为:{oldVal}，结果:{(ret > 0 ? "成功" : "失败")}",
+                                Valid = true
+                            });
                         }
                     }
 
@@ -829,61 +1039,50 @@ namespace NETDBHelper.UC
 
         public void Export()
         {
-            foreach (var ctl in tabControl1.SelectedTab.Controls)
+            var gv = FindDgv();
+            if (gv == null)
             {
-                if (ctl is DataGridView)
-                {
-                    var gv = (DataGridView)ctl;
-                    var dir = Application.StartupPath + "\\temp\\";
-                    if (gv.DataSource != null && gv.DataSource is DataTable)
-                    {
-                        if (!Directory.Exists(dir))
-                        {
-                            Directory.CreateDirectory(dir);
-                        }
-                        SubForm.InputStringDlg dlg = new SubForm.InputStringDlg("导出文件名");
-                        if (dlg.ShowDialog() == DialogResult.OK)
-                        {
-                            var filename = $"{dir}\\{dlg.InputString}.csv";
-                            using (StreamWriter fs = new StreamWriter(filename, false, Encoding.UTF8))
-                            {
-                                var table = (DataTable)gv.DataSource;
-                                if (table != null)
-                                {
-                                    var str = table.ToCsv();
-                                    if (!string.IsNullOrWhiteSpace(str))
-                                    {
-                                        fs.Write(str);
-                                    }
-                                }
-                            }
-                            Util.SendMsg(this, $"文件已保存:{filename}");
-                            System.Diagnostics.Process.Start("explorer.exe", dir);
-                        }
-                        break;
+                return;
+            }
 
+            var dir = GetTempExportDir();
+            if (gv.DataSource != null && gv.DataSource is DataTable)
+            {
+                var filename = PromptExportFileName(dir, ".csv");
+                if (!string.IsNullOrWhiteSpace(filename))
+                {
+                    using (StreamWriter fs = new StreamWriter(filename, false, Encoding.UTF8))
+                    {
+                        var table = (DataTable)gv.DataSource;
+                        if (table != null)
+                        {
+                            var str = table.ToCsv();
+                            if (!string.IsNullOrWhiteSpace(str))
+                            {
+                                fs.Write(str);
+                            }
+                        }
                     }
+                    Util.SendMsg(this, $"文件已保存:{filename}");
+                    System.Diagnostics.Process.Start("explorer.exe", dir);
                 }
             }
         }
 
         public void RenameViewName()
         {
-            foreach (var ctl in tabControl1.SelectedTab.Controls)
+            var gv = FindDgv();
+            if (gv == null)
             {
-                if (ctl is DataGridView)
-                {
-                    var gv = (DataGridView)ctl;
-                    if (gv.DataSource != null && gv.DataSource is DataTable)
-                    {
-                        SubForm.InputStringDlg dlg = new SubForm.InputStringDlg("重命名");
-                        if (dlg.ShowDialog() == DialogResult.OK)
-                        {
-                            tabControl1.SelectedTab.Text = dlg.InputString;
-                        }
-                        break;
+                return;
+            }
 
-                    }
+            if (gv.DataSource != null && gv.DataSource is DataTable)
+            {
+                SubForm.InputStringDlg dlg = new SubForm.InputStringDlg("重命名");
+                if (dlg.ShowDialog() == DialogResult.OK)
+                {
+                    tabControl1.SelectedTab.Text = dlg.InputString;
                 }
             }
         }
@@ -934,15 +1133,10 @@ namespace NETDBHelper.UC
 
         public void MExport()
         {
-            var dir = Application.StartupPath + "\\temp\\";
-            if (!Directory.Exists(dir))
+            var dir = GetTempExportDir();
+            var filename = PromptExportFileName(dir, ".xls");
+            if (!string.IsNullOrWhiteSpace(filename))
             {
-                Directory.CreateDirectory(dir);
-            }
-            SubForm.InputStringDlg dlg = new SubForm.InputStringDlg("导出文件名");
-            if (dlg.ShowDialog() == DialogResult.OK)
-            {
-                var filename = $"{dir}\\{dlg.InputString}.xls";
                 HSSFWorkbook book = new HSSFWorkbook();
 
                 foreach (TabPage page in tabControl1.TabPages)
@@ -952,58 +1146,9 @@ namespace NETDBHelper.UC
                         if (ctl is DataGridView)
                         {
                             var gv = (DataGridView)ctl;
-                            var rowidx = 0;
                             if (gv.DataSource != null && gv.DataSource is DataTable)
                             {
-                                var sheet = book.CreateSheet(page.Text);
-                                //book.CreateSheet()
-                                var row = sheet.CreateRow(rowidx++);
-                                var colcount = 0;
-                                foreach (DataGridViewColumn col in gv.Columns)
-                                {
-                                    var cell = row.CreateCell(colcount, CellType.String);
-                                    cell.SetCellValue(col.Name);
-                                    cell.CellStyle = CreateHeaderStyle(book);
-                                    AjustColWidth(sheet, 0, colcount);
-                                    colcount++;
-                                }
-
-
-                                foreach (DataGridViewRow gvrow in gv.Rows)
-                                {
-                                    row = sheet.CreateRow(rowidx++);
-                                    for (int i = 0; i < colcount; i++)
-                                    {
-                                        var cell = row.CreateCell(i);
-                                        //cell.CellStyle = CreateCellStyle(book);
-                                        if (gvrow.Cells[i].Value == DBNull.Value)
-                                        {
-                                            cell.SetCellValue(string.Empty);
-                                        }
-                                        else if (gvrow.Cells[i].ValueType == typeof(string))
-                                        {
-                                            cell.SetCellValue((string)gvrow.Cells[i].Value);
-                                        }
-                                        else if (gvrow.Cells[i].ValueType == typeof(bool))
-                                        {
-                                            cell.SetCellValue((bool)gvrow.Cells[i].Value);
-                                        }
-                                        else if (gvrow.Cells[i].ValueType == typeof(DateTime))
-                                        {
-                                            cell.SetCellValue(((DateTime)gvrow.Cells[i].Value).ToString("yyyy/MM/dd HH:mm:ss"));
-                                        }
-                                        else if (gvrow.Cells[i].ValueType == typeof(double)
-                                            || gvrow.Cells[i].ValueType == typeof(Single))
-                                        {
-                                            cell.SetCellValue((double)gvrow.Cells[i].Value);
-                                        }
-                                        else
-                                        {
-                                            cell.SetCellValue(gvrow.Cells[i].Value?.ToString() ?? string.Empty);
-                                        }
-                                    }
-                                }
-
+                                WriteGridToSheet(book, page, gv);
                                 break;
                             }
                         }
@@ -1017,7 +1162,6 @@ namespace NETDBHelper.UC
                     Util.SendMsg(this, $"文件已保存:{filename}");
                     System.Diagnostics.Process.Start("explorer.exe", dir);
                 }
-
             }
         }
 
@@ -1034,19 +1178,11 @@ namespace NETDBHelper.UC
                     }
                     StringBuilder sb = new StringBuilder();
 
-                    List<DataGridViewCell> list = new List<DataGridViewCell>();
-                    foreach (DataGridViewCell cell in view.SelectedCells)
-                    {
-                        list.Add(cell);
-                    }
-                    foreach (var row in list.GroupBy(p => p.RowIndex).OrderBy(p => p.Key))
+                    foreach (var row in GetSelectedCellGroups(view))
                     {
                         foreach (var cell in row.OrderBy(p => p.ColumnIndex))
                         {
-                            if (cell.Value != null)
-                            {
-                                sb.Append(cell.Value.ToString());
-                            }
+                            sb.Append(GetCellText(cell));
                             sb.Append("\t");
                         }
                         sb.Remove(sb.Length - 1, 1);
@@ -1072,26 +1208,11 @@ namespace NETDBHelper.UC
                     }
                     StringBuilder sb = new StringBuilder();
 
-                    List<DataGridViewCell> list = new List<DataGridViewCell>();
-                    foreach (DataGridViewCell cell in view.SelectedCells)
-                    {
-                        list.Add(cell);
-                    }
-                    foreach (var row in list.GroupBy(p => p.RowIndex).OrderBy(p => p.Key))
+                    foreach (var row in GetSelectedCellGroups(view))
                     {
                         foreach (var cell in row.OrderBy(p => p.ColumnIndex))
                         {
-                            if (cell.Value != null)
-                            {
-                                if (cell.ValueType == typeof(byte[]))
-                                {
-                                    sb.Append("0x" + BitConverter.ToString((byte[])cell.Value).Replace("-", ""));
-                                }
-                                else
-                                {
-                                    sb.Append(cell.Value.ToString());
-                                }
-                            }
+                            sb.Append(GetCellText(cell));
                             sb.Append("\t");
                         }
                         sb.Remove(sb.Length - 1, 1);
@@ -1136,13 +1257,8 @@ namespace NETDBHelper.UC
                         return;
                     }
                     StringBuilder sb = new StringBuilder();
-                    List<DataGridViewCell> list = new List<DataGridViewCell>();
-                    foreach (DataGridViewCell cell in view.SelectedCells)
-                    {
-                        list.Add(cell);
-                    }
 
-                    foreach (DataGridViewCell cell in list.GroupBy(p => p.RowIndex).First().OrderBy(p => p.ColumnIndex))
+                    foreach (DataGridViewCell cell in GetSelectedCellGroups(view).First().OrderBy(p => p.ColumnIndex))
                     {
                         sb.Append(view.Columns[cell.ColumnIndex].Name.ToString());
                         sb.Append("\t");
@@ -1205,27 +1321,18 @@ namespace NETDBHelper.UC
                     }
                     StringBuilder sb = new StringBuilder();
 
-                    List<DataGridViewCell> list = new List<DataGridViewCell>();
-                    foreach (DataGridViewCell cell in view.SelectedCells)
-                    {
-                        list.Add(cell);
-                    }
-
-                    foreach (DataGridViewCell cell in list.GroupBy(p => p.RowIndex).First().OrderBy(p => p.ColumnIndex))
+                    foreach (DataGridViewCell cell in GetSelectedCellGroups(view).First().OrderBy(p => p.ColumnIndex))
                     {
                         sb.Append(view.Columns[cell.ColumnIndex].Name.ToString());
                         sb.Append("\t");
                     }
                     sb.Remove(sb.Length - 1, 1);
                     sb.AppendLine();
-                    foreach (var row in list.GroupBy(p => p.RowIndex).OrderBy(p => p.Key))
+                    foreach (var row in GetSelectedCellGroups(view))
                     {
                         foreach (var cell in row.OrderBy(p => p.ColumnIndex))
                         {
-                            if (cell.Value != null)
-                            {
-                                sb.Append(cell.Value.ToString());
-                            }
+                            sb.Append(GetCellText(cell));
                             sb.Append("\t");
                         }
                         sb.Remove(sb.Length - 1, 1);
